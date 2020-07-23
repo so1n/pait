@@ -88,11 +88,6 @@ async def async_func_param_handle(dispatch_web: 'BaseAsyncHelper', func_sig: Fun
         if parameter_value != func_sig.sig.empty:
             # kwargs param
             # support model: pydantic.BaseModel = pait.field.BaseField()
-            parameter_value_obj_name = parameter_value.__class__.__name__.lower().strip()
-            if hasattr(dispatch_web, parameter_value_obj_name):
-                value = getattr(dispatch_web, parameter_value_obj_name)
-            else:
-                continue
             if isinstance(parameter_value, field.Query):
                 value = dispatch_web.query()
             elif isinstance(parameter_value, field.Body):

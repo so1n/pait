@@ -14,7 +14,7 @@ class FlaskHelper(BaseAsyncHelper):
         super().__init__(request)
 
     def header(self, header_key: str) -> str:
-        headers = self.request.headers
+        headers = request.headers
         if header_key != header_key.lower():
             value = headers.get(header_key) or headers.get(header_key.lower())
         else:
