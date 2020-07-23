@@ -35,8 +35,12 @@ def sync_params_verify(web: 'Type[BaseHelper]'):
         func_sig: FuncSig = get_func_sig(func)
 
         @wraps(func)
-        def dispatch(request, *args, **kwargs):
+        def dispatch(*args, **kwargs):
             try:
+                # support flask and other
+                request = None
+                if len(args) >= 1:
+                    request = args[0]
                 dispatch_web: BaseHelper = web(request)
                 func_args, func_kwargs = func_param_handle(dispatch_web, func_sig)
                 return func(*func_args, **func_kwargs)
