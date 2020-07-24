@@ -23,7 +23,7 @@ class PydanticOtherModel(BaseModel):
 app = Flask(__name__)
 
 
-@app.route("/api", methods=['POST'])
+@app.route("/api1", methods=['POST'])
 @params_verify()
 def demo_post(
     model: PydanticModel = Body(),
