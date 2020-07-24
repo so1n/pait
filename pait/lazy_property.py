@@ -7,7 +7,7 @@ from typing import Callable, Optional
 class LazyProperty:
     def __init__(self, func: Callable):
         self.func: Callable = func
-        self.func_name: str = func.__name__
+        self.cached_name: str = 'cached' + func.__name__
 
     def __get__(self, obj: object, cls: object):
         if obj is None:
@@ -16,7 +16,7 @@ class LazyProperty:
         if not hasattr(obj, '__dict__'):
             raise AttributeError(f"{cls.__name__} object has no attribute '__dict__'")
 
-        future: Optional['futures.Future'] = getattr(obj, self.func_name)
+        future: Optional['futures.Future'] = getattr(obj, self.cached_name, None)
 
         def execute_future():
             try:
@@ -31,14 +31,14 @@ class LazyProperty:
             return lambda: future.result()
         else:
             future = futures.Future()
-            setattr(obj, self.func_name, future)
+            setattr(obj, self.cached_name, future)
             return lambda: execute_future()
 
 
 class LazyAsyncProperty:
     def __init__(self, func: Callable):
         self.func: Callable = func
-        self.func_name: str = func.__name__
+        self.cached_name: str = 'cached_' + func.__name__
 
     def __get__(self, obj: object, cls: object):
         if obj is None:
@@ -47,7 +47,7 @@ class LazyAsyncProperty:
         if not hasattr(obj, '__dict__'):
             raise AttributeError(f"{cls.__name__} object has no attribute '__dict__'")
 
-        future: Optional['asyncio.Future'] = getattr(obj, self.func_name)
+        future: Optional['asyncio.Future'] = getattr(obj, self.cached_name, None)
 
         async def await_future():
             return await future
@@ -65,5 +65,5 @@ class LazyAsyncProperty:
             return await_future
         else:
             future = asyncio.Future()
-            setattr(obj, self.func_name, future)
+            setattr(obj, self.cached_name, future)
             return execute_future
