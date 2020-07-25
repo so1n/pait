@@ -97,10 +97,11 @@ def set_value_to_kwargs_param(
     ...
 ):
                               """)
+
                 raise KeyError(
                     f'File "{inspect.getfile(func_sig.func)}",'
                     f' line {func_sig.func.__code__.co_firstlineno + 1},'
-                    f' in {func_sig.func.__name__} '
+                    f' in {func_sig.func.__name__}\n'
                     f' kwargs param:{param_str} not found value,'
                     f' try use {parameter_value_name}(key={{key name}})'
                 )

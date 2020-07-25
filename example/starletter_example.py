@@ -29,7 +29,7 @@ async def demo_post(
         request: Request,
         model: PydanticModel = Body(),
         other_model: PydanticOtherModel = Body(),
-        content_type: str = Header(key='Content-Type')  # remote key will get an error
+        content_type: str = Header()  # remote key will get an error
 ):
     """Test Method:Post request, Pydantic Model and request"""
     print(request)
@@ -76,4 +76,4 @@ app = Starlette(
 )
 
 
-uvicorn.run(app)
+uvicorn.run(app, log_level='debug')
