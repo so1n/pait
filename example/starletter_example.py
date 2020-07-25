@@ -6,7 +6,7 @@ from starlette.routing import Route
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from pait.field import Body, Query
+from pait.field import Body, Header, Query
 from pait.web.starletter import params_verify
 from pydantic import (
     BaseModel,
@@ -28,13 +28,15 @@ class PydanticOtherModel(BaseModel):
 async def demo_post(
         request: Request,
         model: PydanticModel = Body(),
-        other_model: PydanticOtherModel = Body()
+        other_model: PydanticOtherModel = Body(),
+        content_type: str = Header()
 ):
     """Test Method:Post request, Pydantic Model and request"""
     print(request)
     return_dict = model.dict()
     return_dict.update(other_model.dict())
-    return JSONResponse({'result': model.dict()})
+    return_dict.update({'content_type': content_type})
+    return JSONResponse({'result': return_dict})
 
 
 @params_verify()
@@ -53,7 +55,7 @@ async def demo_get(
     uid: conint(gt=10, lt=1000) = Query(),
     user_name: constr(min_length=2, max_length=4) = Query(),
     email: Optional[str] = Query(default='example@xxx.com'),
-    model: PydanticOtherModel = Query()
+    model: PydanticOtherModel = Query(),
 ):
     """Text Pydantic Model and Field"""
     _dict = {

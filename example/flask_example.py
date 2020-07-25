@@ -2,7 +2,7 @@ from typing import Optional
 
 from flask import Flask
 
-from pait.field import Body, Query
+from pait.field import Body, Header, Query
 from pait.web.flask import params_verify
 from pydantic import (
     BaseModel,
@@ -27,11 +27,13 @@ app = Flask(__name__)
 @params_verify()
 def demo_post(
     model: PydanticModel = Body(),
-    other_model: PydanticOtherModel = Body()
+    other_model: PydanticOtherModel = Body(),
+    content_type: str = Header(key='Content-Type')
 ):
     return_dict = model.dict()
     return_dict.update(other_model.dict())
-    return {'result': model.dict()}
+    return_dict.update({'content_type': content_type})
+    return {'result': return_dict}
 
 
 @app.route("/api2", methods=['GET'])
