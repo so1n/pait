@@ -7,6 +7,7 @@ from typing import Any, Callable, List, Mapping, Optional
 
 @dataclass()
 class FuncSig:
+    func: Callable
     sig: 'inspect.Signature'
     param_list: List['inspect.Parameter']
 
@@ -22,7 +23,7 @@ class BaseHelper(object):
     def body(self) -> dict:
         raise NotImplementedError
 
-    def cookie(self, key: str) -> str:
+    def cookie(self) -> str:
         raise NotImplementedError
 
     def file(self):
@@ -31,7 +32,7 @@ class BaseHelper(object):
     def from_(self):
         raise NotImplementedError
 
-    def header(self, header_key: str) -> str:
+    def header(self) -> str:
         raise NotImplementedError
 
     def query(self) -> dict:
@@ -61,5 +62,9 @@ def get_func_sig(func: Callable) -> FuncSig:
         if sig.parameters[key].annotation != sig.empty
     ]
     # return_param = sig.return_annotation
-    return FuncSig(sig=sig, param_list=param_list)
+    return FuncSig(
+        func=func,
+        sig=sig,
+        param_list=param_list
+    )
 

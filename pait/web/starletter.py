@@ -17,16 +17,11 @@ class StarletteHelper(BaseAsyncHelper):
     def __init__(self, request: Request):
         super().__init__(request)
 
-    def header(self, header_key: str) -> str:
-        headers = self.request.headers
-        if header_key != header_key.lower():
-            value = headers.get(header_key) or headers.get(header_key.lower())
-        else:
-            value = headers.get(header_key)
-        return value
+    def header(self) -> dict:
+        return self.request.headers
 
-    def cookie(self, key: str) -> str:
-        return self.request.cookies[key]
+    def cookie(self) -> dict:
+        return self.request.cookies
 
     @LazyAsyncProperty
     async def from_(self):

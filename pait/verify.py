@@ -21,6 +21,7 @@ def async_params_verify(web: 'Type[BaseAsyncHelper]'):
         async def dispatch(request, *args, **kwargs):
             try:
                 dispatch_web: BaseAsyncHelper = web(request)
+                # 执行出异常的, 如果执行出错,这里需要把异常出错位置指向被装饰的func
                 func_args, func_kwargs = await async_func_param_handle(dispatch_web, func_sig)
                 return await func(*func_args, **func_kwargs)
             except Exception as e:

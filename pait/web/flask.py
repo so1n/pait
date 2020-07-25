@@ -1,4 +1,5 @@
 from functools import partial
+from typing import Mapping
 
 from flask import request, Request
 from pait.util import BaseAsyncHelper
@@ -13,16 +14,11 @@ class FlaskHelper(BaseAsyncHelper):
     def __init__(self, _request: None):
         super().__init__(request)
 
-    def header(self, header_key: str) -> str:
-        headers = request.headers
-        if header_key != header_key.lower():
-            value = headers.get(header_key) or headers.get(header_key.lower())
-        else:
-            value = headers.get(header_key)
-        return value
+    def header(self) -> Mapping:
+        return request.headers
 
-    def cookie(self, key: str) -> str:
-        return request.cookies[key]
+    def cookie(self) -> dict:
+        return request.cookies
 
     def from_(self):
         return request.form
