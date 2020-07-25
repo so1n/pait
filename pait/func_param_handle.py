@@ -73,10 +73,10 @@ def set_value_to_kwargs_param(
         func_kwargs[parameter.name] = value
     else:
         # parse annotation is python type and pydantic.field
-        if param_name in request_value:
-            value = request_value.get(param_name, param_value.default)
-        elif type(param_value.key) is str and param_value.key in request_value:
+        if type(param_value.key) is str and param_value.key in request_value:
             value = request_value.get(param_value.key, param_value.default)
+        elif param_name in request_value:
+            value = request_value.get(param_name, param_value.default)
         else:
             if param_value.default:
                 value = param_value.default
