@@ -1,6 +1,6 @@
 import inspect
 from functools import wraps
-from typing import Callable, Type
+from typing import Any, Callable, Tuple, Type
 
 from pait.web.base import (
     BaseAsyncHelper,
@@ -16,29 +16,28 @@ from pait.util import (
 )
 
 
-def get_class_that_defined_method(func: Callable) -> Type:
-    """
-    copy from: https://stackoverflow.com/questions/3589311/get-defining-class-of-unbound-method-object-in-python-3/25959545#25959545
-    """
-    return getattr(inspect.getmodule(func), func.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0])
+def args_handle(func: Callable, qualname: str, args: Tuple[Any, ...], web: 'Type[BaseHelper]'):
+    class_ = getattr(inspect.getmodule(func), qualname)
+    request = None
+    new_args = []
+    for param in args:
+        if type(param) == web.RequestType:
+            request = param
+            # in cbv, request parameter will only appear after the self parameter
+            break
+        elif isinstance(param, class_):
+            new_args.append(param)
+    return request, new_args
 
 
 def async_params_verify(web: 'Type[BaseAsyncHelper]'):
     def wrapper(func: Callable):
         func_sig: FuncSig = get_func_sig(func)
+        qualname = func.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0]
 
         @wraps(func)
         async def dispatch(*args, **kwargs):
-            class_ = get_class_that_defined_method(func)
-            request = None
-            new_args = []
-            for param in args:
-                if type(param) == web.RequestType:
-                    request = param
-                    # in cbv, request parameter will only appear after the self parameter
-                    break
-                elif isinstance(param, class_):
-                    new_args.append(param)
+            request, new_args = args_handle(func, qualname, args, web)
             try:
                 dispatch_web: BaseAsyncHelper = web(request)
                 func_args, func_kwargs = await async_func_param_handle(dispatch_web, func_sig)
@@ -55,20 +54,12 @@ def async_params_verify(web: 'Type[BaseAsyncHelper]'):
 def sync_params_verify(web: 'Type[BaseHelper]'):
     def wrapper(func: Callable):
         func_sig: FuncSig = get_func_sig(func)
+        qualname = func.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0]
 
         @wraps(func)
         def dispatch(*args, **kwargs):
             try:
-                class_ = get_class_that_defined_method(func)
-                request = None
-                new_args = []
-                for param in args:
-                    if type(param) == web.RequestType:
-                        request = param
-                        # in cbv, request parameter will only appear after the self parameter
-                        break
-                    elif isinstance(param, class_):
-                        new_args.append(param)
+                request, new_args = args_handle(func, qualname, args, web)
                 dispatch_web: BaseHelper = web(request)
                 func_args, func_kwargs = func_param_handle(dispatch_web, func_sig)
                 new_args.extend(func_args)
