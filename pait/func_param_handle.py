@@ -95,6 +95,7 @@ def set_value_to_kwargs_param(
     {param_str} <-- error
     ...
 ):
+    pass
                               """)
 
                 raise KeyError(

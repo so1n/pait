@@ -121,8 +121,21 @@ async def demo_post(
 ## Other
 ### Error Tip
 When you use pait incorrectly, pait will indicate in the exception the file path and line number of the function.
+```Bash
+  File "/home/so1n/github/pait/pait/func_param_handle.py", line 101, in set_value_to_kwargs_param
+    f'File "{inspect.getfile(func_sig.func)}",'
+KeyError: 'File "/home/so1n/github/pait/example/starletter_example.py", line 28, in demo_post\n kwargs param:content_type: <class \'str\'> = Header(key=None, default=None) not found value, try use Header(key={key name})'
+```
 If you need more information, can set the log level to debug to get more detailed information
-
+```Python
+DEBUG:root:
+async def demo_post(
+    ...
+    content_type: <class 'str'> = Header(key=None, default=None) <-- error
+    ...
+):
+    pass
+```
 ### How to used in other web framework?
 If the web framework is not supported, which you are using.
 Can be modified sync web framework according to [pait.web.flask](https://github.com/so1n/pait/blob/master/pait/web/flask.py)
