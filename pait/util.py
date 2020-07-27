@@ -2,7 +2,7 @@ import inspect
 from abc import ABC
 
 from dataclasses import dataclass
-from typing import Any, Callable, List, Mapping, Optional
+from typing import Any, Callable, List, Mapping, Optional, Type
 
 
 @dataclass()
@@ -65,6 +65,6 @@ def get_func_sig(func: Callable) -> FuncSig:
     return FuncSig(
         func=func,
         sig=sig,
-        param_list=param_list
+        param_list=param_list,
     )
 

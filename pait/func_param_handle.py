@@ -52,8 +52,7 @@ def set_value_to_args_param(
     # args param
     # Only support request param(def handle(request: Request))
     if parameter.annotation is dispatch_web.RequestType:
-        request_value = dispatch_web.request
-        func_args.append(request_value)
+        func_args.append(dispatch_web.request)
 
 
 def set_value_to_kwargs_param(

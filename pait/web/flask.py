@@ -7,7 +7,7 @@ from pait.verify import sync_params_verify
 
 
 class FlaskHelper(BaseAsyncHelper):
-    RequestType = None
+    RequestType = Request
     FormType = Request.form
     FileType = Request.files
 
