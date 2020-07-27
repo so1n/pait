@@ -5,7 +5,7 @@ from starlette.requests import Request
 from starlette.datastructures import FormData, UploadFile
 
 from pait.lazy_property import LazyAsyncProperty, LazyProperty
-from pait.util import BaseAsyncHelper
+from pait.web.base import BaseAsyncHelper
 from pait.verify import async_params_verify
 
 
@@ -17,27 +17,30 @@ class StarletteHelper(BaseAsyncHelper):
     def __init__(self, request: Request):
         super().__init__(request)
 
-    def header(self) -> dict:
-        return self.request.headers
+    @LazyAsyncProperty
+    async def body(self) -> dict:
+        return await self.request.json()
 
     def cookie(self) -> dict:
         return self.request.cookies
 
     @LazyAsyncProperty
+    async def file(self):
+        return await self.request.form()["upload_file"]
+
+    @LazyAsyncProperty
     async def from_(self):
         return await self.request.form()
 
-    @LazyAsyncProperty
-    async def file(self):
-        return await self.request.form()["upload_file"]
+    def header(self) -> dict:
+        return self.request.headers
+
+    def path(self) -> dict:
+        return self.request.path_params
 
     @LazyProperty
     def query(self) -> dict:
         return dict(self.request.query_params)
-
-    @LazyAsyncProperty
-    async def body(self) -> dict:
-        return await self.request.json()
 
 
 params_verify = partial(async_params_verify, StarletteHelper)

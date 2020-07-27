@@ -1,8 +1,7 @@
 import inspect
-from abc import ABC
 
 from dataclasses import dataclass
-from typing import Any, Callable, List, Mapping, Optional, Type
+from typing import Callable, List
 
 
 @dataclass()
@@ -10,48 +9,6 @@ class FuncSig:
     func: Callable
     sig: 'inspect.Signature'
     param_list: List['inspect.Parameter']
-
-
-class BaseHelper(object):
-    RequestType: Optional[Any] = None
-    FormType: Optional[Any] = None
-    FileType: Optional[Any] = None
-
-    def __init__(self, request: Any):
-        self.request: Any = request
-
-    def body(self) -> dict:
-        raise NotImplementedError
-
-    def cookie(self) -> str:
-        raise NotImplementedError
-
-    def file(self):
-        raise NotImplementedError
-
-    def from_(self):
-        raise NotImplementedError
-
-    def header(self) -> str:
-        raise NotImplementedError
-
-    def query(self) -> dict:
-        raise NotImplementedError
-
-
-class BaseAsyncHelper(BaseHelper, ABC):
-
-    def __init__(self, request: Any):
-        super().__init__(request)
-
-    async def body(self) -> dict:
-        raise NotImplementedError
-
-    async def file(self):
-        raise NotImplementedError
-
-    async def from_(self) -> Mapping:
-        raise NotImplementedError
 
 
 def get_func_sig(func: Callable) -> FuncSig:

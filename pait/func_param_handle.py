@@ -6,10 +6,10 @@ from typing import Any, Callable, Coroutine, Dict, List, Tuple, Optional, Union
 
 from pydantic import BaseModel, create_model
 from pait import field
-from pait.util import (
+from pait.util import FuncSig
+from pait.web.base import (
     BaseAsyncHelper,
-    BaseHelper,
-    FuncSig
+    BaseHelper
 )
 
 

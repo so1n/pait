@@ -2,13 +2,15 @@ import inspect
 from functools import wraps
 from typing import Callable, Type
 
+from pait.web.base import (
+    BaseAsyncHelper,
+    BaseHelper,
+)
 from pait.func_param_handle import (
     async_func_param_handle,
     func_param_handle
 )
 from pait.util import (
-    BaseAsyncHelper,
-    BaseHelper,
     FuncSig,
     get_func_sig,
 )
@@ -41,7 +43,8 @@ def async_params_verify(web: 'Type[BaseAsyncHelper]'):
                 dispatch_web: BaseAsyncHelper = web(request)
                 func_args, func_kwargs = await async_func_param_handle(dispatch_web, func_sig)
                 new_args.extend(func_args)
-                return await func(*new_args, **func_kwargs)
+                kwargs.update(func_kwargs)
+                return await func(*new_args, **kwargs)
             except Exception as e:
                 # TODO
                 raise e from e
@@ -69,7 +72,8 @@ def sync_params_verify(web: 'Type[BaseHelper]'):
                 dispatch_web: BaseHelper = web(request)
                 func_args, func_kwargs = func_param_handle(dispatch_web, func_sig)
                 new_args.extend(func_args)
-                return func(*new_args, **func_kwargs)
+                kwargs.update(func_kwargs)
+                return func(*new_args, **kwargs)
             except Exception as e:
                 # TODO
                 raise e from e
