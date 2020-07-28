@@ -34,7 +34,7 @@ def extract_request_kwargs_data(
         assert parameter.annotation is not dispatch_web.FileType, \
             f"File type must be {dispatch_web.FileType}"
     # Note: not use hasattr with LazyProperty (
-    #   because hasattr calling getattr(obj, name) and catching AttributeError,
+    #   because hasattr will calling getattr(obj, name) and catching AttributeError,
     # )
     dispatch_web_func:  Optional[Callable] = getattr(
         dispatch_web, parameter.default.__class__.__name__.lower()

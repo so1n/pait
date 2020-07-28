@@ -32,7 +32,7 @@ class FlaskDispatch(BaseAsyncWebDispatch):
     def file(self):
         return request.files
 
-    def from_(self):
+    def form(self):
         return request.form
 
     def header(self) -> Mapping:

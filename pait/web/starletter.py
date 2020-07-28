@@ -26,7 +26,7 @@ class StarletteDispatch(BaseAsyncWebDispatch):
         return await self.request.form()["upload_file"]
 
     @LazyAsyncProperty
-    async def from_(self):
+    async def form(self):
         return await self.request.form()
 
     def header(self) -> dict:

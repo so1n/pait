@@ -39,7 +39,7 @@ class BaseWebDispatch(object):
     def file(self) -> FileType:
         raise NotImplementedError
 
-    def from_(self) -> FormType:
+    def form(self) -> FormType:
         raise NotImplementedError
 
     def header(self) -> str:
@@ -60,5 +60,5 @@ class BaseAsyncWebDispatch(BaseWebDispatch, ABC):
     async def file(self):
         raise NotImplementedError
 
-    async def from_(self) -> Mapping:
+    async def form(self) -> Mapping:
         raise NotImplementedError

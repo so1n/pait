@@ -23,7 +23,7 @@ class File(BaseField):
     pass
 
 
-class From(BaseField):
+class Form(BaseField):
     pass
 
 
