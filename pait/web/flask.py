@@ -1,18 +1,27 @@
 from functools import partial
-from typing import Mapping
+from typing import Any, Callable, Mapping, Type, Tuple
 
 from flask import request, Request
-from pait.web.base import BaseAsyncHelper
+from pait.web.base import BaseAsyncWebDispatch
 from pait.verify import sync_params_verify
 
 
-class FlaskHelper(BaseAsyncHelper):
+class FlaskDispatch(BaseAsyncWebDispatch):
     RequestType = Request
     FormType = Request.form
     FileType = Request.files
 
-    def __init__(self, _request: None):
-        super().__init__(request)
+    def __init__(
+        self,
+        func: Callable,
+        qualname: str,
+        args: Tuple[Any, ...],
+        kwargs: Mapping[str, Any]
+    ):
+        super().__init__(func, qualname, args, kwargs)
+
+        self.path_dict = {}
+        self.path_dict.update(self.request_kwargs)
 
     def body(self) -> dict:
         return request.json
@@ -29,8 +38,11 @@ class FlaskHelper(BaseAsyncHelper):
     def header(self) -> Mapping:
         return request.headers
 
+    def path(self) -> dict:
+        return self.path_dict
+
     def query(self) -> dict:
         return dict(request.args)
 
 
-params_verify = partial(sync_params_verify, FlaskHelper)
+params_verify = partial(sync_params_verify, FlaskDispatch)

@@ -5,17 +5,14 @@ from starlette.requests import Request
 from starlette.datastructures import FormData, UploadFile
 
 from pait.lazy_property import LazyAsyncProperty, LazyProperty
-from pait.web.base import BaseAsyncHelper
+from pait.web.base import BaseAsyncWebDispatch
 from pait.verify import async_params_verify
 
 
-class StarletteHelper(BaseAsyncHelper):
+class StarletteDispatch(BaseAsyncWebDispatch):
     RequestType = Request
     FormType = FormData
     FileType = UploadFile
-
-    def __init__(self, request: Request):
-        super().__init__(request)
 
     @LazyAsyncProperty
     async def body(self) -> dict:
@@ -43,4 +40,4 @@ class StarletteHelper(BaseAsyncHelper):
         return dict(self.request.query_params)
 
 
-params_verify = partial(async_params_verify, StarletteHelper)
+params_verify = partial(async_params_verify, StarletteDispatch)

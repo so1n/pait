@@ -31,5 +31,9 @@ class Header(BaseField):
     pass
 
 
+class Path(BaseField):
+    pass
+
+
 class Query(BaseField):
     pass
