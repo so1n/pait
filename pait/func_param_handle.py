@@ -2,7 +2,7 @@ import asyncio
 import logging
 import inspect
 
-from typing import Any, Callable, Coroutine, Dict, List, Tuple, Optional, Union
+from typing import Any, Callable, Coroutine, Dict, List, Type, Tuple, Optional, Union
 
 from pydantic import BaseModel, create_model
 from pait import field
@@ -49,7 +49,7 @@ def set_value_to_kwargs_param(
     request_value,
     func_kwargs,
     single_field_dict,
-    func_sig: FuncSig
+    _object: Union[FuncSig, Type]
 ):
     param_value = parameter.default
     annotation = parameter.annotation
@@ -71,46 +71,64 @@ def set_value_to_kwargs_param(
             else:
                 # Help users quickly locate the error code
                 parameter_value_name = param_value.__class__.__name__
-                def_title = 'def'
-                if inspect.iscoroutinefunction(func_sig.func):
-                    def_title = 'async def'
                 param_str = (
                     f'{param_name}: {annotation} = {parameter_value_name}('
                     f'key={param_value.key}, default={param_value.default})'
                 )
+                if isinstance(_object, FuncSig):
+                    title = 'def'
+                    if inspect.iscoroutinefunction(_object.func):
+                        title = 'async def'
+                    file = inspect.getfile(_object.func)
+                    line = inspect.getsourcelines(_object.__class__)[1] + 1
+                    error_object_name = _object.func.__name__
+                else:
+                    title = 'class'
+                    file = inspect.getmodule(_object).__file__
+                    line = inspect.getsourcelines(_object.__class__)[1]
+                    error_object_name = _object.__class__.__name__
                 logging.debug(f"""
-{ def_title } {func_sig.func.__name__}(
-    ...
-    {param_str} <-- error
-    ...
-):
-    pass
-                              """)
+    {title} {error_object_name}(
+        ...
+        {param_str} <-- error
+        ...
+    ):
+        pass
+                                  """)
 
                 raise KeyError(
-                    f'File "{inspect.getfile(func_sig.func)}",'
-                    f' line {func_sig.func.__code__.co_firstlineno + 1},'
-                    f' in {func_sig.func.__name__}\n'
+                    f'File "{file}",'
+                    f' line {line},'
+                    f' in {error_object_name}\n'
                     f' kwargs param:{param_str} not found value,'
                     f' try use {parameter_value_name}(key={{key name}})'
                 )
-
         single_field_dict[parameter] = value
 
 
 async def async_class_param_handle(dispatch_web: 'BaseAsyncWebDispatch'):
-    cbv_class = dispatch_web.cbv_class
-    if cbv_class:
-        for param_name, param_annotation in cbv_class.__annotations__.items():
-            parameter: 'inspect.Parameter' = inspect.Parameter(
-                param_name,
-                inspect.Parameter.POSITIONAL_ONLY,
-                default=getattr(cbv_class, param_name),
-                annotation=param_annotation)
-            request_value = extract_request_kwargs_data(parameter, dispatch_web)
-            if asyncio.iscoroutine(request_value):
-                request_value = await request_value
-            setattr(cbv_class, param_name, request_value)
+    cbv_class: Optional[Type] = dispatch_web.cbv_class
+    single_field_dict: Dict['inspect.Parameter', Any] = {}
+    if not cbv_class:
+        return
+    for param_name, param_annotation in cbv_class.__annotations__.items():
+        parameter: 'inspect.Parameter' = inspect.Parameter(
+            param_name,
+            inspect.Parameter.POSITIONAL_ONLY,
+            default=getattr(cbv_class, param_name),
+            annotation=param_annotation)
+        request_value = extract_request_kwargs_data(parameter, dispatch_web)
+        if asyncio.iscoroutine(request_value):
+            request_value = await request_value
+        set_value_to_kwargs_param(
+            parameter,
+            request_value,
+            cbv_class.__dict__,
+            single_field_dict,
+            cbv_class
+        )
+    if single_field_dict:
+        cbv_class.__dict__.update(single_field_handle(single_field_dict))
     return
 
 

@@ -26,6 +26,7 @@ class PydanticOtherModel(BaseModel):
 
 
 class Homepage(HTTPEndpoint):
+    content_type: str = Header(key='Content-Type')  # remove key will raise error
 
     @params_verify()
     async def get(
@@ -49,12 +50,10 @@ class Homepage(HTTPEndpoint):
         self,
         model: PydanticModel = Body(),
         other_model: PydanticOtherModel = Body(),
-        content_type: str = Header(key='Content-Type')
-
     ):
         return_dict = model.dict()
         return_dict.update(other_model.dict())
-        return_dict.update({'content_type': content_type})
+        return_dict.update({'content_type': self.content_type})
         return JSONResponse({'result': return_dict})
 
 

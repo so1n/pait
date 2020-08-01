@@ -1,7 +1,7 @@
 import inspect
 from abc import ABC
 
-from typing import Any, Callable, Mapping, Optional, Tuple
+from typing import Any, Callable, Mapping, Optional, Tuple, Type
 
 
 class BaseWebDispatch(object):
@@ -16,9 +16,9 @@ class BaseWebDispatch(object):
         args: Tuple[Any, ...],
         kwargs: Mapping[str, Any]
     ):
-        self.cbv_class = None
-
+        self.cbv_class: Optional[Type] = None
         class_ = getattr(inspect.getmodule(func), qualname)
+
         request = None
         new_args = []
         for param in args:
@@ -29,6 +29,7 @@ class BaseWebDispatch(object):
             elif isinstance(param, class_):
                 self.cbv_class = param
             new_args.append(param)
+
         self.request = request
         self.request_args = new_args
         self.request_kwargs = kwargs
