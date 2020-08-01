@@ -6,7 +6,7 @@ from starlette.routing import Route
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from pait.field import Body, Header, Path, Query
+from pait.field import Body, Depends, Header, Path, Query
 from pait.web.starletter import params_verify
 from pydantic import (
     conint,
@@ -14,6 +14,16 @@ from pydantic import (
 )
 
 from example.model import UserModel, UserOtherModel
+
+
+def demo_sub_depend(user_agent: str = Header(key='user-agent')):
+    print('sub_depend', user_agent)
+    return user_agent
+
+
+def demo_depend(user_agent: str = Depends(demo_sub_depend)):
+    print('depend', user_agent)
+    return user_agent
 
 
 @params_verify()
@@ -47,9 +57,11 @@ async def demo_get2(
         request: Request,
         model: UserModel = Query(),
         other_model: UserOtherModel = Query(),
+        user_agent: str = Depends(demo_depend)
 ):
     """Test Method:Post request, Pydantic Model"""
     assert request is not None, 'Not found request'
+    print(user_agent)
     return_dict = model.dict()
     return_dict.update(other_model.dict())
     return JSONResponse(return_dict)
@@ -60,7 +72,7 @@ async def demo_get1(
         uid: conint(gt=10, lt=1000) = Query(),
         user_name: constr(min_length=2, max_length=4) = Query(),
         email: Optional[str] = Query(default='example@xxx.com'),
-        age: str = Path()
+        age: str = Path(),
 ):
     """Test Field"""
     _dict = {

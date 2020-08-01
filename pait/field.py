@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 
 class BaseField:
@@ -37,3 +37,8 @@ class Path(BaseField):
 
 class Query(BaseField):
     pass
+
+
+class Depends(object):
+    def __init__(self, func: Callable):
+        self.func: Callable = func

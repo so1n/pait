@@ -6,7 +6,7 @@ from typing import Any, Callable, Coroutine, Dict, List, Type, Tuple, Optional, 
 
 from pydantic import BaseModel, create_model
 from pait import field
-from pait.util import FuncSig
+from pait.util import FuncSig, get_func_sig
 from pait.web.base import (
     BaseAsyncWebDispatch,
     BaseWebDispatch
@@ -80,7 +80,7 @@ def set_value_to_kwargs_param(
                     if inspect.iscoroutinefunction(_object.func):
                         title = 'async def'
                     file = inspect.getfile(_object.func)
-                    line = inspect.getsourcelines(_object.__class__)[1] + 1
+                    line = inspect.getsourcelines(_object.func)[1]
                     error_object_name = _object.func.__name__
                 else:
                     title = 'class'
@@ -95,75 +95,71 @@ def set_value_to_kwargs_param(
     ):
         pass
                                   """)
-
                 raise KeyError(
                     f'File "{file}",'
                     f' line {line},'
                     f' in {error_object_name}\n'
-                    f' kwargs param:{param_str} not found value,'
+                    f' kwargs param:{param_str} not found in {request_value},'
                     f' try use {parameter_value_name}(key={{key name}})'
                 )
         single_field_dict[parameter] = value
 
 
-async def async_class_param_handle(dispatch_web: 'BaseAsyncWebDispatch'):
-    cbv_class: Optional[Type] = dispatch_web.cbv_class
-    single_field_dict: Dict['inspect.Parameter', Any] = {}
-    if not cbv_class:
-        return
-    for param_name, param_annotation in cbv_class.__annotations__.items():
-        parameter: 'inspect.Parameter' = inspect.Parameter(
-            param_name,
-            inspect.Parameter.POSITIONAL_ONLY,
-            default=getattr(cbv_class, param_name),
-            annotation=param_annotation)
-        request_value = extract_request_kwargs_data(parameter, dispatch_web)
-        if asyncio.iscoroutine(request_value):
-            request_value = await request_value
-        set_value_to_kwargs_param(
-            parameter,
-            request_value,
-            cbv_class.__dict__,
-            single_field_dict,
-            cbv_class
-        )
-    if single_field_dict:
-        cbv_class.__dict__.update(single_field_handle(single_field_dict))
-    return
-
-
-def class_param_handle(dispatch_web: 'BaseWebDispatch'):
-    cbv_class: Optional[Type] = dispatch_web.cbv_class
-    single_field_dict: Dict['inspect.Parameter', Any] = {}
-    if not cbv_class:
-        return
-    for param_name, param_annotation in cbv_class.__annotations__.items():
-        parameter: 'inspect.Parameter' = inspect.Parameter(
-            param_name,
-            inspect.Parameter.POSITIONAL_ONLY,
-            default=getattr(cbv_class, param_name),
-            annotation=param_annotation)
-        request_value = extract_request_kwargs_data(parameter, dispatch_web)
-        set_value_to_kwargs_param(
-            parameter,
-            request_value,
-            cbv_class.__dict__,
-            single_field_dict,
-            cbv_class
-        )
-    if single_field_dict:
-        cbv_class.__dict__.update(single_field_handle(single_field_dict))
-    return
-
-
-async def async_func_param_handle(dispatch_web: 'BaseAsyncWebDispatch', func_sig: FuncSig) -> Tuple[List, Dict]:
-    func_args = []
+def param_handle(
+        dispatch_web: 'BaseWebDispatch',
+        _object: Union[FuncSig, Type],
+        param_list: List['inspect.Parameter']
+) -> Dict:
     func_kwargs = {}
     single_field_dict: Dict['inspect.Parameter', Any] = {}
-    for parameter in func_sig.param_list:
-        if parameter.default != func_sig.sig.empty:
+    for parameter in param_list:
+        if parameter.default != parameter.empty:
             # kwargs param
             # support model: pydantic.BaseModel = pait.field.BaseField()
+            if isinstance(parameter.default, field.Depends):
+                func: Callable = parameter.default.func
+                _object = get_func_sig(func)
+                _object_kwargs = param_handle(dispatch_web, _object, _object.param_list)
+                func_result = func(**_object_kwargs)
+                func_kwargs[parameter.name] = func_result
+                continue
+            request_value = extract_request_kwargs_data(parameter, dispatch_web)
+            set_value_to_kwargs_param(
+                parameter,
+                request_value,
+                func_kwargs,
+                single_field_dict,
+                _object
+            )
+
+    # Support param: type = pait.field.BaseField()
+    if single_field_dict:
+        func_kwargs.update(single_field_handle(single_field_dict))
+
+    return func_kwargs
+
+
+async def async_param_handle(
+        dispatch_web: 'BaseAsyncWebDispatch',
+        _object: Union[FuncSig, Type],
+        param_list: List['inspect.Parameter']
+) -> Dict:
+    func_kwargs = {}
+    single_field_dict: Dict['inspect.Parameter', Any] = {}
+    for parameter in param_list:
+        if parameter.default != parameter.empty:
+            # kwargs param
+            # support model: pydantic.BaseModel = pait.field.BaseField()
+            if isinstance(parameter.default, field.Depends):
+                func: Callable = parameter.default.func
+                _object = get_func_sig(func)
+                _object_kwargs = await async_param_handle(dispatch_web, _object, _object.param_list)
+                func_result = func(**_object_kwargs)
+                if asyncio.iscoroutine(func_result):
+                    func_result = await func_result
+                func_kwargs[parameter.name] = func_result
+                continue
+
             request_value = extract_request_kwargs_data(parameter, dispatch_web)
 
             if asyncio.iscoroutine(request_value):
@@ -174,35 +170,51 @@ async def async_func_param_handle(dispatch_web: 'BaseAsyncWebDispatch', func_sig
                 request_value,
                 func_kwargs,
                 single_field_dict,
-                func_sig
+                _object
             )
 
     # Support param: type = pait.field.BaseField()
     if single_field_dict:
         func_kwargs.update(single_field_handle(single_field_dict))
 
-    return func_args, func_kwargs
+    return func_kwargs
 
 
-def func_param_handle(dispatch_web: 'BaseWebDispatch', func_sig: FuncSig) -> Tuple[List, Dict]:
-    func_args: List[Any] = []
-    func_kwargs: Dict[str, Any] = {}
-    single_field_dict: Dict['inspect.Parameter', Any] = {}
-    for parameter in func_sig.param_list:
-        if parameter.default != func_sig.sig.empty:
-            # kwargs param
-            # support model: pydantic.BaseModel = pait.field.BaseField()
-            request_value = extract_request_kwargs_data(parameter, dispatch_web)
-            set_value_to_kwargs_param(
-                parameter,
-                request_value,
-                func_kwargs,
-                single_field_dict,
-                func_sig
-            )
+def get_class_param_param_list(cbv_class: Type) -> List['inspect.Parameter']:
+    param_list: List['inspect.Parameter'] = []
+    for param_name, param_annotation in cbv_class.__annotations__.items():
+        parameter: 'inspect.Parameter' = inspect.Parameter(
+            param_name,
+            inspect.Parameter.POSITIONAL_ONLY,
+            default=getattr(cbv_class, param_name),
+            annotation=param_annotation)
+        param_list.append(parameter)
+    return param_list
 
-    # Support param: type = pait.field.BaseField()
-    if single_field_dict:
-        func_kwargs.update(single_field_handle(single_field_dict))
 
-    return func_args, func_kwargs
+async def async_class_param_handle(dispatch_web: 'BaseAsyncWebDispatch'):
+    cbv_class: Optional[Type] = dispatch_web.cbv_class
+    if not cbv_class:
+        return
+    param_list = get_class_param_param_list(cbv_class)
+    cbv_class.__dict__.update(
+        await async_param_handle(dispatch_web, cbv_class, param_list)
+    )
+    return
+
+
+def class_param_handle(dispatch_web: 'BaseWebDispatch'):
+    cbv_class: Optional[Type] = dispatch_web.cbv_class
+    if not cbv_class:
+        return
+    param_list = get_class_param_param_list(cbv_class)
+    cbv_class.__dict__.update(param_handle(dispatch_web, cbv_class, param_list))
+    return
+
+
+async def async_func_param_handle(dispatch_web: 'BaseAsyncWebDispatch', func_sig: FuncSig) -> Dict:
+    return await async_param_handle(dispatch_web, func_sig, func_sig.param_list)
+
+
+def func_param_handle(dispatch_web: 'BaseWebDispatch', func_sig: FuncSig) -> Dict:
+    return param_handle(dispatch_web, func_sig, func_sig.param_list)

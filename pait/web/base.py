@@ -1,4 +1,5 @@
 import inspect
+import logging
 from abc import ABC
 
 from typing import Any, Callable, Mapping, Optional, Tuple, Type
@@ -24,10 +25,13 @@ class BaseWebDispatch(object):
         for param in args:
             if type(param) == self.RequestType:
                 request = param
-                # in cbv, request parameter will only appear after the self parameter
-                break
             elif isinstance(param, class_):
                 self.cbv_class = param
+            else:
+                # in cbv, parameter like self, request, {other param}
+                # not support other param
+                logging.warning('Pait only support self and request args param')
+                break
             new_args.append(param)
 
         self.request = request
