@@ -41,7 +41,7 @@ class BaseWebDispatch(object):
     def body(self) -> dict:
         raise NotImplementedError
 
-    def cookie(self) -> str:
+    def cookie(self) -> dict:
         raise NotImplementedError
 
     def file(self) -> FileType:
@@ -50,7 +50,7 @@ class BaseWebDispatch(object):
     def form(self) -> FormType:
         raise NotImplementedError
 
-    def header(self) -> str:
+    def header(self) -> dict:
         raise NotImplementedError
 
     def path(self) -> dict:

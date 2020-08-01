@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Any, Callable, Mapping, Type, Tuple
+from typing import Any, Callable, Dict, Mapping, Tuple
 
 from flask import request, Request
 from pait.web.base import BaseAsyncWebDispatch
@@ -20,7 +20,7 @@ class FlaskDispatch(BaseAsyncWebDispatch):
     ):
         super().__init__(func, qualname, args, kwargs)
 
-        self.path_dict = {}
+        self.path_dict: Dict[str, Any] = {}
         self.path_dict.update(self.request_kwargs)
 
     def body(self) -> dict:
@@ -29,16 +29,16 @@ class FlaskDispatch(BaseAsyncWebDispatch):
     def cookie(self) -> dict:
         return request.cookies
 
-    def file(self):
+    def file(self) -> Request.files:
         return request.files
 
-    def form(self):
+    def form(self) -> Request.form:
         return request.form
 
     def header(self) -> Mapping:
         return request.headers
 
-    def path(self) -> dict:
+    def path(self) -> Dict[str, Any]:
         return self.path_dict
 
     def query(self) -> dict:
