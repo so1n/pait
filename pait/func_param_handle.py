@@ -132,6 +132,30 @@ async def async_class_param_handle(dispatch_web: 'BaseAsyncWebDispatch'):
     return
 
 
+def class_param_handle(dispatch_web: 'BaseWebDispatch'):
+    cbv_class: Optional[Type] = dispatch_web.cbv_class
+    single_field_dict: Dict['inspect.Parameter', Any] = {}
+    if not cbv_class:
+        return
+    for param_name, param_annotation in cbv_class.__annotations__.items():
+        parameter: 'inspect.Parameter' = inspect.Parameter(
+            param_name,
+            inspect.Parameter.POSITIONAL_ONLY,
+            default=getattr(cbv_class, param_name),
+            annotation=param_annotation)
+        request_value = extract_request_kwargs_data(parameter, dispatch_web)
+        set_value_to_kwargs_param(
+            parameter,
+            request_value,
+            cbv_class.__dict__,
+            single_field_dict,
+            cbv_class
+        )
+    if single_field_dict:
+        cbv_class.__dict__.update(single_field_handle(single_field_dict))
+    return
+
+
 async def async_func_param_handle(dispatch_web: 'BaseAsyncWebDispatch', func_sig: FuncSig) -> Tuple[List, Dict]:
     func_args = []
     func_kwargs = {}

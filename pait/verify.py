@@ -6,8 +6,9 @@ from pait.web.base import (
     BaseWebDispatch,
 )
 from pait.func_param_handle import (
-    async_func_param_handle,
     async_class_param_handle,
+    async_func_param_handle,
+    class_param_handle,
     func_param_handle
 )
 from pait.util import (
@@ -47,6 +48,9 @@ def sync_params_verify(web: 'Type[BaseWebDispatch]'):
             try:
                 dispatch_web: BaseWebDispatch = web(func, qualname, args, kwargs)
                 func_args, func_kwargs = func_param_handle(dispatch_web, func_sig)
+                if dispatch_web.request_args:
+                    func_args.extend(dispatch_web.request_args)
+                class_param_handle(dispatch_web)
                 return func(*func_args, **func_kwargs)
             except Exception as e:
                 # TODO
