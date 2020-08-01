@@ -26,8 +26,7 @@ def async_params_verify(web: 'Type[BaseAsyncWebDispatch]'):
         async def dispatch(*args, **kwargs):
             try:
                 dispatch_web: BaseAsyncWebDispatch = web(func, qualname, args, kwargs)
-                func_kwargs: dict = await async_func_param_handle(dispatch_web, func_sig)
-                func_args: list = []
+                func_args, func_kwargs = await async_func_param_handle(dispatch_web, func_sig)
                 if dispatch_web.request_args:
                     func_args.extend(dispatch_web.request_args)
                 await async_class_param_handle(dispatch_web)
@@ -48,8 +47,7 @@ def sync_params_verify(web: 'Type[BaseWebDispatch]'):
         def dispatch(*args, **kwargs):
             try:
                 dispatch_web: BaseWebDispatch = web(func, qualname, args, kwargs)
-                func_kwargs: dict = func_param_handle(dispatch_web, func_sig)
-                func_args: list = []
+                func_args, func_kwargs = func_param_handle(dispatch_web, func_sig)
                 if dispatch_web.request_args:
                     func_args.extend(dispatch_web.request_args)
                 class_param_handle(dispatch_web)

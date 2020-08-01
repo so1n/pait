@@ -25,6 +25,8 @@ class BaseWebDispatch(object):
         for param in args:
             if type(param) == self.RequestType:
                 request = param
+                # in cbv, request parameter will only appear after the self parameter
+                break
             elif isinstance(param, class_):
                 self.cbv_class = param
             else:
