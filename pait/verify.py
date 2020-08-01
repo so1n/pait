@@ -1,6 +1,5 @@
-import inspect
 from functools import wraps
-from typing import Any, Callable, Tuple, Type
+from typing import Callable, Type
 
 from pait.web.base import (
     BaseAsyncWebDispatch,
@@ -14,20 +13,6 @@ from pait.util import (
     FuncSig,
     get_func_sig,
 )
-
-
-def args_handle(func: Callable, qualname: str, args: Tuple[Any, ...], web: 'Type[BaseWebDispatch]'):
-    class_ = getattr(inspect.getmodule(func), qualname)
-    request = None
-    new_args = []
-    for param in args:
-        if type(param) == web.RequestType:
-            request = param
-            # in cbv, request parameter will only appear after the self parameter
-            break
-        elif isinstance(param, class_):
-            new_args.append(param)
-    return request, new_args
 
 
 def async_params_verify(web: 'Type[BaseAsyncWebDispatch]'):
