@@ -16,6 +16,8 @@ class BaseWebDispatch(object):
         args: Tuple[Any, ...],
         kwargs: Mapping[str, Any]
     ):
+        self.cbv_class = None
+
         class_ = getattr(inspect.getmodule(func), qualname)
         request = None
         new_args = []
@@ -25,7 +27,8 @@ class BaseWebDispatch(object):
                 # in cbv, request parameter will only appear after the self parameter
                 break
             elif isinstance(param, class_):
-                new_args.append(param)
+                self.cbv_class = param
+            new_args.append(param)
         self.request = request
         self.request_args = new_args
         self.request_kwargs = kwargs

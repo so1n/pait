@@ -44,17 +44,6 @@ def extract_request_kwargs_data(
     return dispatch_web_func()
 
 
-def set_value_to_args_param(
-    parameter: inspect.Parameter,
-    dispatch_web: 'BaseWebDispatch',
-    func_args: list
-):
-    # args param
-    # Only support request param(def handle(request: Request))
-    if parameter.annotation is dispatch_web.RequestType:
-        func_args.append(dispatch_web.request)
-
-
 def set_value_to_kwargs_param(
     parameter: inspect.Parameter,
     request_value,
@@ -109,6 +98,22 @@ def set_value_to_kwargs_param(
         single_field_dict[parameter] = value
 
 
+async def async_class_param_handle(dispatch_web: 'BaseAsyncWebDispatch'):
+    cbv_class = dispatch_web.cbv_class
+    if cbv_class:
+        for param_name, param_annotation in cbv_class.__annotations__.items():
+            parameter: 'inspect.Parameter' = inspect.Parameter(
+                param_name,
+                inspect.Parameter.POSITIONAL_ONLY,
+                default=getattr(cbv_class, param_name),
+                annotation=param_annotation)
+            request_value = extract_request_kwargs_data(parameter, dispatch_web)
+            if asyncio.iscoroutine(request_value):
+                request_value = await request_value
+            setattr(cbv_class, param_name, request_value)
+    return
+
+
 async def async_func_param_handle(dispatch_web: 'BaseAsyncWebDispatch', func_sig: FuncSig) -> Tuple[List, Dict]:
     func_args = []
     func_kwargs = {}
@@ -129,8 +134,6 @@ async def async_func_param_handle(dispatch_web: 'BaseAsyncWebDispatch', func_sig
                 single_field_dict,
                 func_sig
             )
-        else:
-            set_value_to_args_param(parameter, dispatch_web, func_args)
 
     # Support param: type = pait.field.BaseField()
     if single_field_dict:
@@ -155,9 +158,6 @@ def func_param_handle(dispatch_web: 'BaseWebDispatch', func_sig: FuncSig) -> Tup
                 single_field_dict,
                 func_sig
             )
-        else:
-            # support request: Request
-            set_value_to_args_param(parameter, dispatch_web, func_args)
 
     # Support param: type = pait.field.BaseField()
     if single_field_dict:

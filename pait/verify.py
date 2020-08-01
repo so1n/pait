@@ -7,6 +7,7 @@ from pait.web.base import (
 )
 from pait.func_param_handle import (
     async_func_param_handle,
+    async_class_param_handle,
     func_param_handle
 )
 from pait.util import (
@@ -25,6 +26,9 @@ def async_params_verify(web: 'Type[BaseAsyncWebDispatch]'):
             try:
                 dispatch_web: BaseAsyncWebDispatch = web(func, qualname, args, kwargs)
                 func_args, func_kwargs = await async_func_param_handle(dispatch_web, func_sig)
+                if dispatch_web.request_args:
+                    func_args.extend(dispatch_web.request_args)
+                await async_class_param_handle(dispatch_web)
                 return await func(*func_args, **func_kwargs)
             except Exception as e:
                 # TODO
