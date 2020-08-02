@@ -24,16 +24,12 @@ def async_params_verify(web: 'Type[BaseAsyncWebDispatch]'):
 
         @wraps(func)
         async def dispatch(*args, **kwargs):
-            try:
-                dispatch_web: BaseAsyncWebDispatch = web(func, qualname, args, kwargs)
-                func_args, func_kwargs = await async_func_param_handle(dispatch_web, func_sig)
-                if dispatch_web.request_args:
-                    func_args.extend(dispatch_web.request_args)
-                await async_class_param_handle(dispatch_web)
-                return await func(*func_args, **func_kwargs)
-            except Exception as e:
-                # TODO
-                raise e from e
+            dispatch_web: BaseAsyncWebDispatch = web(func, qualname, args, kwargs)
+            func_args, func_kwargs = await async_func_param_handle(dispatch_web, func_sig)
+            if dispatch_web.request_args:
+                func_args.extend(dispatch_web.request_args)
+            await async_class_param_handle(dispatch_web)
+            return await func(*func_args, **func_kwargs)
         return dispatch
     return wrapper
 
@@ -45,15 +41,11 @@ def sync_params_verify(web: 'Type[BaseWebDispatch]'):
 
         @wraps(func)
         def dispatch(*args, **kwargs):
-            try:
-                dispatch_web: BaseWebDispatch = web(func, qualname, args, kwargs)
-                func_args, func_kwargs = func_param_handle(dispatch_web, func_sig)
-                if dispatch_web.request_args:
-                    func_args.extend(dispatch_web.request_args)
-                class_param_handle(dispatch_web)
-                return func(*func_args, **func_kwargs)
-            except Exception as e:
-                # TODO
-                raise e from e
+            dispatch_web: BaseWebDispatch = web(func, qualname, args, kwargs)
+            func_args, func_kwargs = func_param_handle(dispatch_web, func_sig)
+            if dispatch_web.request_args:
+                func_args.extend(dispatch_web.request_args)
+            class_param_handle(dispatch_web)
+            return func(*func_args, **func_kwargs)
         return dispatch
     return wrapper
