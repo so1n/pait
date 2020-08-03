@@ -5,10 +5,12 @@ class BaseField:
     def __init__(
             self,
             key: Optional[str] = None,
-            default: Optional[Any] = None
+            default: Optional[Any] = None,
+            fix_key: bool = False
     ):
         self.key = key
         self.default = default
+        self.fix_key = fix_key
 
 
 class Body(BaseField):

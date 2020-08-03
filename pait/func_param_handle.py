@@ -10,6 +10,7 @@ from pait.exceptions import (
     FieldKeyError,
     PaitException,
 )
+from pait.field import BaseField
 from pait.util import FuncSig, get_func_sig
 from pait.web.base import (
     BaseAsyncWebDispatch,
@@ -71,7 +72,7 @@ def single_field_handle(single_field_dict: Dict['inspect.Parameter', Any]) -> Di
     return dynamic_model(**param_value_dict).dict()
 
 
-def extract_request_kwargs_data(
+def get_request_value(
     parameter: inspect.Parameter,
     dispatch_web: 'BaseWebDispatch'
 ) -> Union[Any, Coroutine, None]:
@@ -107,36 +108,44 @@ def set_value_to_kwargs_param(
     request_value: dict,
     func_kwargs: Dict[str, Any],
     single_field_dict: Dict['inspect.Parameter', Any],
-    _object: Union[FuncSig, Type]
 ):
-    param_value: Any = parameter.default
+    param_value: BaseField = parameter.default
     annotation: Type[BaseModel] = parameter.annotation
     param_name: str = parameter.name
 
-    if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
-        # parse annotation is pydantic.BaseModel
-        value: Any = annotation(**request_value)
-        func_kwargs[parameter.name] = value
-    else:
-        # parse annotation is python type and pydantic.field
-        if type(param_value.key) is str and param_value.key in request_value:
-            value = request_value.get(param_value.key, param_value.default)
-        elif param_name in request_value:
-            value = request_value.get(param_name, param_value.default)
+    if type(request_value) is dict:
+        if param_value.fix_key:
+            request_value = {
+                key.lower().replace('-', '_'): value
+                for key, value in request_value.items()
+            }
+
+        if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
+            # parse annotation is pydantic.BaseModel
+            value: Any = annotation(**request_value)
+            func_kwargs[parameter.name] = value
         else:
-            if param_value.default:
-                value = param_value.default
+            # parse annotation is python type and pydantic.field
+            if type(param_value.key) is str and param_value.key in request_value:
+                value = request_value.get(param_value.key, param_value.default)
+            elif param_name in request_value:
+                value = request_value.get(param_name, param_value.default)
             else:
-                parameter_value_name: str = param_value.__class__.__name__
-                param_str: str = (
-                    f'{param_name}: {annotation} = {parameter_value_name}('
-                    f'key={param_value.key}, default={param_value.default})'
-                )
-                raise FieldKeyError(
-                    f' kwargs param:{param_str} not found in {request_value},'
-                    f' try use {parameter_value_name}(key={{key name}})'
-                )
-        single_field_dict[parameter] = value
+                if param_value.default:
+                    value = param_value.default
+                else:
+                    parameter_value_name: str = param_value.__class__.__name__
+                    param_str: str = (
+                        f'{param_name}: {annotation} = {parameter_value_name}('
+                        f'key={param_value.key}, default={param_value.default})'
+                    )
+                    raise FieldKeyError(
+                        f' kwargs param:{param_str} not found in {request_value},'
+                        f' try use {parameter_value_name}(key={{key name}})'
+                    )
+            single_field_dict[parameter] = value
+    else:
+        single_field_dict[parameter] = request_value
 
 
 def param_handle(
@@ -159,13 +168,12 @@ def param_handle(
                     func_result: Any = func(*_func_args, **_func_kwargs)
                     kwargs_param_dict[parameter.name] = func_result
                     continue
-                request_value: dict = extract_request_kwargs_data(parameter, dispatch_web)
+                request_value: Any = get_request_value(parameter, dispatch_web)
                 set_value_to_kwargs_param(
                     parameter,
                     request_value,
                     kwargs_param_dict,
                     single_field_dict,
-                    _object
                 )
             else:
                 set_value_to_args_param(parameter, dispatch_web, args_param_list)
@@ -201,7 +209,7 @@ async def async_param_handle(
                     kwargs_param_dict[parameter.name] = func_result
                     continue
 
-                request_value: Any = extract_request_kwargs_data(parameter, dispatch_web)
+                request_value: Any = get_request_value(parameter, dispatch_web)
 
                 if asyncio.iscoroutine(request_value):
                     request_value = await request_value
@@ -211,7 +219,6 @@ async def async_param_handle(
                     request_value,
                     kwargs_param_dict,
                     single_field_dict,
-                    _object
                 )
             else:
                 set_value_to_args_param(parameter, dispatch_web, args_param_list)
