@@ -2,9 +2,9 @@ class PaitException(Exception):
     pass
 
 
-class FieldKeyError(PaitException):
+class NotFoundFieldError(PaitException):
     pass
 
 
-class NotFoundFieldError(PaitException):
+class NotFoundValueError(PaitException):
     pass

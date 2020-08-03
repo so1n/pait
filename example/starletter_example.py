@@ -67,19 +67,29 @@ async def demo_get2(
     return JSONResponse(return_dict)
 
 
+from enum import Enum
+
+
+class SexEnum(Enum):
+    man: str = 'man'
+    woman: str = 'woman'
+
+
 @params_verify()
 async def demo_get1(
         uid: conint(gt=10, lt=1000) = Query(),
         user_name: constr(min_length=2, max_length=4) = Query(),
         email: Optional[str] = Query(default='example@xxx.com'),
         age: str = Path(),
+        sex: SexEnum = Query()
 ):
     """Test Field"""
     _dict = {
         'uid': uid,
         'user_name': user_name,
         'email': email,
-        'age': age
+        'age': age,
+        'sex': sex.value
     }
     return JSONResponse(_dict)
 

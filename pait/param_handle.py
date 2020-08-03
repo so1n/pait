@@ -2,13 +2,13 @@ import asyncio
 import logging
 import inspect
 
-from typing import Any, Callable, Coroutine, Dict, List, Type, Tuple, Optional, Union
+from typing import Any, Callable, Coroutine, Dict, List, Mapping, Type, Tuple, Optional, Union
 
 from pydantic import BaseModel, create_model
 from pait import field
 from pait.exceptions import (
-    FieldKeyError,
     NotFoundFieldError,
+    NotFoundValueError,
     PaitException,
 )
 from pait.field import BaseField
@@ -107,7 +107,7 @@ def set_value_to_args_param(
 
 def set_value_to_kwargs_param(
     parameter: inspect.Parameter,
-    request_value: dict,
+    request_value: Any,
     func_kwargs: Dict[str, Any],
     single_field_dict: Dict['inspect.Parameter', Any],
 ):
@@ -115,7 +115,7 @@ def set_value_to_kwargs_param(
     annotation: Type[BaseModel] = parameter.annotation
     param_name: str = parameter.name
 
-    if type(request_value) is dict:
+    if isinstance(request_value, Mapping):
         if param_value.fix_key:
             request_value = {
                 key.lower().replace('-', '_'): value
@@ -141,7 +141,7 @@ def set_value_to_kwargs_param(
                         f'{param_name}: {annotation} = {parameter_value_name}('
                         f'key={param_value.key}, default={param_value.default})'
                     )
-                    raise FieldKeyError(
+                    raise NotFoundValueError(
                         f' kwargs param:{param_str} not found in {request_value},'
                         f' try use {parameter_value_name}(key={{key name}})'
                     )
