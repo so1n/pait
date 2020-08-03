@@ -5,7 +5,7 @@ from pait.web.base import (
     BaseAsyncWebDispatch,
     BaseWebDispatch,
 )
-from pait.func_param_handle import (
+from pait.param_handle import (
     async_class_param_handle,
     async_func_param_handle,
     class_param_handle,
