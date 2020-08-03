@@ -8,6 +8,7 @@ from pydantic import BaseModel, create_model
 from pait import field
 from pait.exceptions import (
     FieldKeyError,
+    NotFoundFieldError,
     PaitException,
 )
 from pait.field import BaseField
@@ -75,7 +76,7 @@ def single_field_handle(single_field_dict: Dict['inspect.Parameter', Any]) -> Di
 def get_request_value(
     parameter: inspect.Parameter,
     dispatch_web: 'BaseWebDispatch'
-) -> Union[Any, Coroutine, None]:
+) -> Union[Any, Coroutine]:
     # kwargs param
     # support model: pydantic.BaseModel = pait.field.BaseField()
     if isinstance(parameter.default, field.File):
@@ -84,11 +85,12 @@ def get_request_value(
     # Note: not use hasattr with LazyProperty (
     #   because hasattr will calling getattr(obj, name) and catching AttributeError,
     # )
-    dispatch_web_func:  Optional[Callable] = getattr(
-        dispatch_web, parameter.default.__class__.__name__.lower()
+    field_name: str = parameter.default.__class__.__name__.lower()
+    dispatch_web_func:  Union[Callable, Coroutine, None] = getattr(
+        dispatch_web, field_name, None
     )
-    if not dispatch_web_func:
-        return
+    if dispatch_web_func is None:
+        raise NotFoundFieldError(f'field: {field_name} not found in {dispatch_web}')
     return dispatch_web_func()
 
 

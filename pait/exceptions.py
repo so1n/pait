@@ -4,3 +4,7 @@ class PaitException(Exception):
 
 class FieldKeyError(PaitException):
     pass
+
+
+class NotFoundFieldError(PaitException):
+    pass
