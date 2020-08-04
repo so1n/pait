@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pait",
-    version="0.2.1",
+    version="0.4.1",
     author="so1n",
     author_email="so1n897046026@example.com",
     description="Pait is a python api interface tool, which can also be called a python api interface type (type hint)",
