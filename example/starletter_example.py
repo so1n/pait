@@ -2,32 +2,29 @@ import uvicorn
 
 from typing import Optional
 from starlette.applications import Starlette
+from starlette.endpoints import HTTPEndpoint
 from starlette.routing import Route
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+from pait.exceptions import PaitException
 from pait.field import Body, Depends, Header, Path, Query
 from pait.web.starletter import params_verify
+from pydantic import ValidationError
 from pydantic import (
     conint,
     constr,
 )
 
-from example.model import UserModel, UserOtherModel
+from example.model import UserModel, UserOtherModel, SexEnum, demo_depend
 
 
-def demo_sub_depend(user_agent: str = Header(key='user-agent')):
-    print('sub_depend', user_agent)
-    return user_agent
-
-
-def demo_depend(user_agent: str = Depends(demo_sub_depend)):
-    print('depend', user_agent)
-    return user_agent
+async def api_exception(request: Request, exc: Exception) -> JSONResponse:
+    return JSONResponse({'exc': str(exc)})
 
 
 @params_verify()
-async def demo_post2(
+async def test_raise_tip(
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
         content_type: str = Header()
@@ -40,7 +37,7 @@ async def demo_post2(
 
 
 @params_verify()
-async def demo_post1(
+async def test_post(
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
         content_type: str = Header(key='Content-Type')
@@ -53,7 +50,7 @@ async def demo_post1(
 
 
 @params_verify()
-async def demo_get2(
+async def test_depend(
         request: Request,
         model: UserModel = Query(),
         other_model: UserOtherModel = Query(),
@@ -64,19 +61,12 @@ async def demo_get2(
     print(user_agent)
     return_dict = model.dict()
     return_dict.update(other_model.dict())
+    return_dict.update({'user_agent': user_agent})
     return JSONResponse(return_dict)
 
 
-from enum import Enum
-
-
-class SexEnum(Enum):
-    man: str = 'man'
-    woman: str = 'woman'
-
-
 @params_verify()
-async def demo_get1(
+async def test_get(
         uid: conint(gt=10, lt=1000) = Query(),
         user_name: constr(min_length=2, max_length=4) = Query(),
         email: Optional[str] = Query(default='example@xxx.com'),
@@ -94,14 +84,48 @@ async def demo_get1(
     return JSONResponse(_dict)
 
 
+class TestCbv(HTTPEndpoint):
+    content_type: str = Header(key='Content-Type')  # remove key will raise error
+
+    @params_verify()
+    async def get(
+        self,
+        uid: conint(gt=10, lt=1000) = Query(),
+        user_name: constr(min_length=2, max_length=4) = Query(),
+        email: Optional[str] = Query(default='example@xxx.com'),
+        model: UserOtherModel = Query(),
+    ):
+        """Text Pydantic Model and Field"""
+        _dict = {
+            'uid': uid,
+            'user_name': user_name,
+            'email': email,
+            'age': model.age
+        }
+        return JSONResponse({'result': _dict})
+
+    @params_verify()
+    async def post(
+        self,
+        model: UserModel = Body(),
+        other_model: UserOtherModel = Body(),
+    ):
+        return_dict = model.dict()
+        return_dict.update(other_model.dict())
+        return_dict.update({'content_type': self.content_type})
+        return JSONResponse({'result': return_dict})
+
+
 app = Starlette(
     routes=[
-        Route('/api/{age}', demo_get1, methods=['GET']),
-        Route('/api', demo_post1, methods=['POST']),
-        Route('/api1', demo_get2, methods=['GET']),
-        Route('/api1', demo_post2, methods=['POST']),
-
+        Route('/api/get/{age}', test_get, methods=['GET']),
+        Route('/api/post', test_post, methods=['POST']),
+        Route('/api/depend', test_depend, methods=['GET']),
+        Route('/api/raise_tip', test_raise_tip, methods=['POST']),
+        Route('/api/cbv', TestCbv),
     ]
 )
 
+app.add_exception_handler(PaitException, api_exception)
+app.add_exception_handler(ValidationError, api_exception)
 uvicorn.run(app, log_level='debug')
