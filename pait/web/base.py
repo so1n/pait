@@ -9,6 +9,7 @@ class BaseWebDispatch(object):
     RequestType: Optional[Any] = None
     FormType: Optional[Any] = None
     FileType: Optional[Any] = None
+    HeaderType: Optional[Any] = None
 
     def __init__(
         self,
@@ -52,7 +53,7 @@ class BaseWebDispatch(object):
     def form(self) -> FormType:
         raise NotImplementedError
 
-    def header(self) -> dict:
+    def header(self) -> HeaderType:
         raise NotImplementedError
 
     def path(self) -> dict:

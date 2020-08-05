@@ -2,7 +2,7 @@ from functools import partial
 
 
 from starlette.requests import Request
-from starlette.datastructures import FormData, UploadFile
+from starlette.datastructures import FormData, Headers, UploadFile
 
 from pait.lazy_property import LazyAsyncProperty, LazyProperty
 from pait.web.base import BaseAsyncWebDispatch
@@ -13,6 +13,7 @@ class StarletteDispatch(BaseAsyncWebDispatch):
     RequestType = Request
     FormType = FormData
     FileType = UploadFile
+    HeaderType = Headers
 
     @LazyAsyncProperty
     async def body(self) -> dict:
@@ -22,14 +23,14 @@ class StarletteDispatch(BaseAsyncWebDispatch):
         return self.request.cookies
 
     @LazyAsyncProperty
-    async def file(self):
+    async def file(self) -> UploadFile:
         return await self.request.form()["upload_file"]
 
     @LazyAsyncProperty
-    async def form(self):
+    async def form(self) -> FormData:
         return await self.request.form()
 
-    def header(self) -> dict:
+    def header(self) -> Headers:
         return self.request.headers
 
     def path(self) -> dict:
