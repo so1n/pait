@@ -54,7 +54,7 @@ def raise_and_tip(
 ):
     pass
             """)
-    raise KeyError(
+    raise PaitException(
         f'File "{file}",'
         f' line {line},'
         f' in {error_object_name}'
@@ -110,12 +110,14 @@ def set_value_to_kwargs_param(
     request_value: Any,
     func_kwargs: Dict[str, Any],
     single_field_dict: Dict['inspect.Parameter', Any],
+    dispatch_web: 'BaseWebDispatch',
 ):
     param_value: BaseField = parameter.default
     annotation: Type[BaseModel] = parameter.annotation
     param_name: str = parameter.name
-
-    if isinstance(request_value, Mapping):
+    if isinstance(request_value, Mapping)\
+            or type(request_value) is dispatch_web.HeaderType\
+            or type(request_value) is dispatch_web.FormType:
         if param_value.fix_key:
             request_value = {
                 key.lower().replace('-', '_'): value
@@ -176,6 +178,7 @@ def param_handle(
                     request_value,
                     kwargs_param_dict,
                     single_field_dict,
+                    dispatch_web
                 )
             else:
                 set_value_to_args_param(parameter, dispatch_web, args_param_list)
@@ -221,6 +224,7 @@ async def async_param_handle(
                     request_value,
                     kwargs_param_dict,
                     single_field_dict,
+                    dispatch_web
                 )
             else:
                 set_value_to_args_param(parameter, dispatch_web, args_param_list)
