@@ -186,7 +186,7 @@ When you use pait incorrectly, pait will indicate in the exception the file path
 ```Bash
   File "/home/so1n/github/pait/pait/func_param_handle.py", line 101, in set_value_to_kwargs_param
     f'File "{inspect.getfile(func_sig.func)}",'
-KeyError: 'File "/home/so1n/github/pait/example/starletter_example.py", line 28, in demo_post\n kwargs param:content_type: <class \'str\'> = Header(key=None, default=None) not found value, try use Header(key={key name})'
+PaitException: 'File "/home/so1n/github/pait/example/starletter_example.py", line 28, in demo_post\n kwargs param:content_type: <class \'str\'> = Header(key=None, default=None) not found value, try use Header(key={key name})'
 ```
 If you need more information, can set the log level to debug to get more detailed information
 ```Python

@@ -183,12 +183,12 @@ APP.add_exception_handler(ValidationError, api_exception)
 ```
 
 ### 3.2异常提示
-如果用户错误的使用pait,如错误的使用参数写法类型, 那Python在执行函数时会报错,但报错信息只说明pait的哪个逻辑运行错误,这样子对于用户排查错误是十分困难的.所以pait对报错进行了处理并做出如下提示,告诉用户是哪个引用到pait的路由函数出错和出错位置以及出错的参数,如果用户使用类似于`Pycharm`的IDE,还可以点击路径跳转到对应的地方.`pait`抛错信息如下,可以看出在`raise_and_tip`函数中抛出的KeyError出现了错误的文件,错误所在函数,还有错误的参数名:
+如果用户错误的使用pait,如错误的使用参数写法类型, 那Python在执行函数时会报错,但报错信息只说明pait的哪个逻辑运行错误,这样子对于用户排查错误是十分困难的.所以pait对报错进行了处理并做出如下提示,告诉用户是哪个引用到pait的路由函数出错和出错位置以及出错的参数,如果用户使用类似于`Pycharm`的IDE,还可以点击路径跳转到对应的地方.`pait`抛错信息如下,可以看出在`raise_and_tip`函数中抛出的`PaitException`出现了错误的文件,错误所在函数,还有错误的参数名:
 ```Bash
   File "/home/so1n/github/pait/pait/param_handle.py", line 65, in raise_and_tip
     )
  from exception
-KeyError: 'File "/home/so1n/github/pait/example/starletter_example.py", line 29, in demo_post2  kwargs param:content_type: <class \'str\'> = Header(key=None, default=None) not found in Headers({\'host\': \'127.0.0.1:8000\', \'user-agent\': \'curl/7.52.1\', \'accept\': \'*/*\', \'content-type\': \'application/json\', \'data_type\': \'msg\', \'content-length\': \'38\'}), try use Header(key={key name})'
+PaitException: 'File "/home/so1n/github/pait/example/starletter_example.py", line 29, in demo_post2  kwargs param:content_type: <class \'str\'> = Header(key=None, default=None) not found in Headers({\'host\': \'127.0.0.1:8000\', \'user-agent\': \'curl/7.52.1\', \'accept\': \'*/*\', \'content-type\': \'application/json\', \'data_type\': \'msg\', \'content-length\': \'38\'}), try use Header(key={key name})'
 ```
 如果你想查看更多消息,那可以把日志等级设置为debug.
 ```Python
