@@ -85,7 +85,7 @@ async def test_get(
 
 
 class TestCbv(HTTPEndpoint):
-    content_type: str = Header(key='Content-Type')  # remove key will raise error
+    user_agent: str = Header(key='user-agent')  # remove key will raise error
 
     @params_verify()
     async def get(
@@ -100,7 +100,8 @@ class TestCbv(HTTPEndpoint):
             'uid': uid,
             'user_name': user_name,
             'email': email,
-            'age': model.age
+            'age': model.age,
+            'cbv_id': id(self)
         }
         return JSONResponse({'result': _dict})
 
@@ -112,7 +113,8 @@ class TestCbv(HTTPEndpoint):
     ):
         return_dict = model.dict()
         return_dict.update(other_model.dict())
-        return_dict.update({'content_type': self.content_type})
+        return_dict.update({'user-agent': self.user_agent})
+        return_dict.update({'cbv_id': id(self)})
         return JSONResponse({'result': return_dict})
 
 

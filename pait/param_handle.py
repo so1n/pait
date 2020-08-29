@@ -240,6 +240,8 @@ async def async_param_handle(
 
 def get_class_param_param_list(cbv_class: Type) -> List['inspect.Parameter']:
     param_list: List['inspect.Parameter'] = []
+    if not hasattr(cbv_class, '__annotations__'):
+        return param_list
     for param_name, param_annotation in cbv_class.__annotations__.items():
         parameter: 'inspect.Parameter' = inspect.Parameter(
             param_name,
