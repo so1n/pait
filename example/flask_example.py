@@ -87,7 +87,7 @@ def test_gettest_get(
 
 
 class TestCbv(MethodView):
-    content_type: str = Header(key='Content-Type')  # remove key will raise error
+    user_agent: str = Header(key='user-agent')  # remove key will raise error
 
     @params_verify()
     def get(
@@ -114,11 +114,11 @@ class TestCbv(MethodView):
     ):
         return_dict = model.dict()
         return_dict.update(other_model.dict())
-        return_dict.update({'content_type': self.content_type})
+        return_dict.update({'content_type': self.user_agent})
         return {'result': return_dict}
 
 
 app.add_url_rule('/api/cbv', view_func=TestCbv.as_view('test_cbv'))
-# app.errorhandler(PaitException)(api_exception)
-# app.errorhandler(ValidationError)(api_exception)
+app.errorhandler(PaitException)(api_exception)
+app.errorhandler(ValidationError)(api_exception)
 app.run(port=8000, debug=True)
