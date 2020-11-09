@@ -49,6 +49,7 @@ def sync_params_verify(app: 'Type[BaseAppDispatch]'):
 
             func_args, func_kwargs = func_param_handle(dispatch_app, func_sig)
             class_param_handle(dispatch_app)
+            print(func_args, func_kwargs)
             return func(*func_args, **func_kwargs)
         return dispatch
     return wrapper

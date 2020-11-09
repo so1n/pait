@@ -1,11 +1,18 @@
 from enum import Enum
 
-from pait.field import Header, Depends
+from pait.field import Depends, Header, Query
+from pait.util import PaitModel
 from pydantic import (
     BaseModel,
     conint,
     constr,
 )
+
+
+class TestPaitModel(PaitModel):
+    uid: conint(gt=10, lt=1000) = Query()
+    user_name: constr(min_length=2, max_length=4) = Query()
+    user_agent: str = Header(key='user-agent')
 
 
 class UserModel(BaseModel):

@@ -3,16 +3,16 @@ from typing import Optional
 from flask import Flask, Request
 from flask.views import MethodView
 
+from pait.app.flask import params_verify
 from pait.exceptions import PaitException
 from pait.field import Body, Depends, Header, Path, Query
-from pait.app.flask import params_verify
 from pydantic import ValidationError
 from pydantic import (
     conint,
     constr,
 )
 
-from example.model import UserModel, UserOtherModel, SexEnum, demo_depend
+from example.model import UserModel, UserOtherModel, SexEnum, TestPaitModel, demo_depend
 
 
 app = Flask(__name__)
@@ -27,12 +27,12 @@ def api_exception(exc: Exception):
 def test_raise_tip(
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
-        content_type: str = Header()
+        content__type: str = Header()
 ):
     """Test Method: error tip"""
     return_dict = model.dict()
     return_dict.update(other_model.dict())
-    return_dict.update({'content_type': content_type})
+    return_dict.update({'content_type': content__type})
     return return_dict
 
 
@@ -69,7 +69,7 @@ def demo_get2test_depend(
 
 @app.route("/api/get/<age>", methods=['GET'])
 @params_verify()
-def test_gettest_get(
+def test_pait(
         uid: conint(gt=10, lt=1000) = Query(),
         user_name: constr(min_length=2, max_length=4) = Query(),
         email: Optional[str] = Query(default='example@xxx.com'),
@@ -84,6 +84,13 @@ def test_gettest_get(
         'age': age,
         'sex': sex.value
     }
+
+
+@app.route("/api/pait_model", methods=['GET'])
+@params_verify()
+def test_model(test_model: TestPaitModel):
+    """Test Field"""
+    return test_model.dict()
 
 
 class TestCbv(MethodView):

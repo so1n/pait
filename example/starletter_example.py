@@ -16,7 +16,7 @@ from pydantic import (
     constr,
 )
 
-from example.model import UserModel, UserOtherModel, SexEnum, demo_depend
+from example.model import UserModel, UserOtherModel, SexEnum, TestPaitModel, demo_depend
 
 
 async def api_exception(request: Request, exc: Exception) -> JSONResponse:
@@ -84,6 +84,12 @@ async def test_get(
     return JSONResponse(_dict)
 
 
+@params_verify()
+async def test_pait_model(test_model: TestPaitModel):
+    """Test Field"""
+    return JSONResponse(test_model.dict())
+
+
 class TestCbv(HTTPEndpoint):
     user_agent: str = Header(key='user-agent')  # remove key will raise error
 
@@ -125,6 +131,7 @@ app = Starlette(
         Route('/api/depend', test_depend, methods=['GET']),
         Route('/api/raise_tip', test_raise_tip, methods=['POST']),
         Route('/api/cbv', TestCbv),
+        Route('/api/pait_model', test_pait_model, methods=['GET'])
     ]
 )
 

@@ -12,7 +12,7 @@ from pait.exceptions import (
     PaitException,
 )
 from pait.field import BaseField
-from pait.util import FuncSig, get_func_sig
+from pait.util import FuncSig, PaitModel, get_func_sig
 from pait.app.base import (
     BaseAsyncAppDispatch,
     BaseAppDispatch
@@ -62,7 +62,7 @@ def raise_and_tip(
     ) from exception
 
 
-def single_field_handle(single_field_dict: Dict['inspect.Parameter', Any]) -> Dict[str, Any]:
+def single_field_handle(single_field_dict: Dict['inspect.Parameter', Any]) -> BaseModel:
     annotation_dict: Dict[str, Type[Any, ...]] = {}
     param_value_dict: Dict[str, Any] = {}
     for parameter, value in single_field_dict.items():
@@ -70,7 +70,7 @@ def single_field_handle(single_field_dict: Dict['inspect.Parameter', Any]) -> Di
         param_value_dict[parameter.name] = value
 
     dynamic_model: Type[BaseModel] = create_model('DynamicFoobarModel', **annotation_dict)
-    return dynamic_model(**param_value_dict).dict()
+    return dynamic_model(**param_value_dict)
 
 
 def get_value_from_request(
@@ -95,12 +95,66 @@ def get_value_from_request(
 def set_value_to_args_param(
     parameter: inspect.Parameter,
     dispatch_web: 'BaseAppDispatch',
-    func_args: list
+    func_args: list,
 ):
     # args param
     # Only support request param(def handle(request: Request))
     if parameter.annotation is dispatch_web.RequestType:
-        func_args.append(dispatch_web.request)
+        func_args.append(dispatch_web.request_args)
+    elif issubclass(parameter.annotation,PaitModel):
+        single_field_dict = {}
+        _pait_model = parameter.annotation
+        for param_name, param_annotation in get_type_hints(_pait_model).items():
+            parameter: 'inspect.Parameter' = inspect.Parameter(
+                param_name,
+                inspect.Parameter.POSITIONAL_ONLY,
+                default=_pait_model.__field_defaults__[param_name],
+                annotation=param_annotation
+            )
+            request_value: Any = get_value_from_request(parameter, dispatch_web)
+            func_kwargs = {}
+            set_value_to_kwargs_param(parameter, request_value, func_kwargs, single_field_dict, dispatch_web)
+            if func_kwargs:
+                raise RuntimeError(
+                    f'{PaitModel.__class__.__name__} not support {BaseModel.__class__.__name__} annotation'
+                )
+        func_args.append(single_field_handle(single_field_dict))
+    elif parameter.name == 'self':
+        func_args.append(dispatch_web.cbv_class)
+
+
+async def async_set_value_to_args_param(
+    parameter: inspect.Parameter,
+    dispatch_web: 'BaseAppDispatch',
+    func_args: list,
+):
+    # args param
+    # Only support request param(def handle(request: Request))
+    if parameter.annotation is dispatch_web.RequestType:
+        func_args.append(dispatch_web.request_args)
+    elif issubclass(parameter.annotation, PaitModel):
+        single_field_dict = {}
+        _pait_model = parameter.annotation
+        for param_name, param_annotation in get_type_hints(_pait_model).items():
+            parameter: 'inspect.Parameter' = inspect.Parameter(
+                param_name,
+                inspect.Parameter.POSITIONAL_ONLY,
+                default=_pait_model.__field_defaults__[param_name],
+                annotation=param_annotation
+            )
+            request_value: Any = get_value_from_request(parameter, dispatch_web)
+            if asyncio.iscoroutine(request_value):
+                request_value = await request_value
+
+            func_kwargs = {}
+            set_value_to_kwargs_param(parameter, request_value, func_kwargs, single_field_dict, dispatch_web)
+            if func_kwargs:
+                raise RuntimeError(
+                    f'{PaitModel.__class__.__name__} not support {BaseModel.__class__.__name__} annotation'
+                )
+        func_args.append(single_field_handle(single_field_dict))
+    elif parameter.name == 'self':
+        func_args.append(dispatch_web.cbv_class)
 
 
 def set_value_to_kwargs_param(
@@ -183,7 +237,7 @@ def param_handle(
             raise_and_tip(parameter, _object, e)
     # Support param: type = pait.field.BaseField()
     if single_field_dict:
-        kwargs_param_dict.update(single_field_handle(single_field_dict))
+        kwargs_param_dict.update(single_field_handle(single_field_dict).dict())
 
     return args_param_list, kwargs_param_dict
 
@@ -225,13 +279,13 @@ async def async_param_handle(
             else:
                 # args param
                 # support model: model: ModelType
-                set_value_to_args_param(parameter, dispatch_web, args_param_list)
+                await async_set_value_to_args_param(parameter, dispatch_web, args_param_list)
         except PaitException as e:
             raise_and_tip(parameter, _object, e)
 
     # Support param: type = pait.field.BaseField()
     if single_field_dict:
-        kwargs_param_dict.update(single_field_handle(single_field_dict))
+        kwargs_param_dict.update(single_field_handle(single_field_dict).dict())
 
     return args_param_list, kwargs_param_dict
 
