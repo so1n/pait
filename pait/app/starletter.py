@@ -5,11 +5,11 @@ from starlette.requests import Request
 from starlette.datastructures import FormData, Headers, UploadFile
 
 from pait.lazy_property import LazyAsyncProperty, LazyProperty
-from pait.web.base import BaseAsyncWebDispatch
+from pait.app.base import BaseAsyncAppDispatch
 from pait.verify import async_params_verify
 
 
-class StarletteDispatch(BaseAsyncWebDispatch):
+class StarletteDispatch(BaseAsyncAppDispatch):
     RequestType = Request
     FormType = FormData
     FileType = UploadFile

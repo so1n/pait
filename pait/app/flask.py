@@ -1,14 +1,14 @@
 from functools import partial
-from typing import Any, Callable, Dict, Mapping, Tuple
+from typing import Any, Dict, Mapping, Tuple
 
 from flask import request, Request
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 
-from pait.web.base import BaseAsyncWebDispatch
+from pait.app.base import BaseAsyncAppDispatch
 from pait.verify import sync_params_verify
 
 
-class FlaskDispatch(BaseAsyncWebDispatch):
+class FlaskDispatch(BaseAsyncAppDispatch):
     RequestType = Request
     FormType = ImmutableMultiDict
     FileType = Request.files
@@ -16,12 +16,11 @@ class FlaskDispatch(BaseAsyncWebDispatch):
 
     def __init__(
         self,
-        func: Callable,
-        qualname: str,
+        class_: Any,
         args: Tuple[Any, ...],
         kwargs: Mapping[str, Any]
     ):
-        super().__init__(func, qualname, args, kwargs)
+        super().__init__(class_, args, kwargs)
 
         self.request = request
         self.path_dict: Dict[str, Any] = {}

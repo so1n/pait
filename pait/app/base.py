@@ -1,25 +1,22 @@
-import inspect
 import logging
 from abc import ABC
 
-from typing import Any, Callable, Mapping, Optional, Tuple, Type
+from typing import Any, Mapping, Optional, Tuple, Type
 
 
-class BaseWebDispatch(object):
-    RequestType: Optional[Any] = None
-    FormType: Optional[Any] = None
-    FileType: Optional[Any] = None
-    HeaderType: Optional[Any] = None
+class BaseAppDispatch(object):
+    RequestType = type(None)
+    FormType = type(None)
+    FileType = type(None)
+    HeaderType = type(None)
 
     def __init__(
         self,
-        func: Callable,
-        qualname: str,
+        class_: Any,
         args: Tuple[Any, ...],
         kwargs: Mapping[str, Any]
     ):
         self.cbv_class: Optional[Type] = None
-        class_ = getattr(inspect.getmodule(func), qualname)
 
         request = None
         new_args = []
@@ -63,7 +60,7 @@ class BaseWebDispatch(object):
         raise NotImplementedError
 
 
-class BaseAsyncWebDispatch(BaseWebDispatch, ABC):
+class BaseAsyncAppDispatch(BaseAppDispatch, ABC):
 
     async def body(self) -> dict:
         raise NotImplementedError

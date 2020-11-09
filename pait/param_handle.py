@@ -13,9 +13,9 @@ from pait.exceptions import (
 )
 from pait.field import BaseField
 from pait.util import FuncSig, get_func_sig
-from pait.web.base import (
-    BaseAsyncWebDispatch,
-    BaseWebDispatch
+from pait.app.base import (
+    BaseAsyncAppDispatch,
+    BaseAppDispatch
 )
 
 
@@ -75,7 +75,7 @@ def single_field_handle(single_field_dict: Dict['inspect.Parameter', Any]) -> Di
 
 def get_request_value(
     parameter: inspect.Parameter,
-    dispatch_web: 'BaseWebDispatch'
+    dispatch_web: 'BaseAppDispatch'
 ) -> Union[Any, Coroutine]:
     # kwargs param
     # support model: pydantic.BaseModel = pait.field.BaseField()
@@ -96,7 +96,7 @@ def get_request_value(
 
 def set_value_to_args_param(
     parameter: inspect.Parameter,
-    dispatch_web: 'BaseWebDispatch',
+    dispatch_web: 'BaseAppDispatch',
     func_args: list
 ):
     # args param
@@ -110,7 +110,7 @@ def set_value_to_kwargs_param(
     request_value: Any,
     func_kwargs: Dict[str, Any],
     single_field_dict: Dict['inspect.Parameter', Any],
-    dispatch_web: 'BaseWebDispatch',
+    dispatch_web: 'BaseAppDispatch',
 ):
     param_value: BaseField = parameter.default
     annotation: Type[BaseModel] = parameter.annotation
@@ -153,7 +153,7 @@ def set_value_to_kwargs_param(
 
 
 def param_handle(
-        dispatch_web: 'BaseWebDispatch',
+        dispatch_web: 'BaseAppDispatch',
         _object: Union[FuncSig, Type],
         param_list: List['inspect.Parameter']
 ) -> Tuple[List[Any], Dict[str, Any]]:
@@ -192,7 +192,7 @@ def param_handle(
 
 
 async def async_param_handle(
-        dispatch_web: 'BaseAsyncWebDispatch',
+        dispatch_web: 'BaseAsyncAppDispatch',
         _object: Union[FuncSig, Type],
         param_list: List['inspect.Parameter']
 ) -> Tuple[List[Any], Dict[str, Any]]:
@@ -238,47 +238,47 @@ async def async_param_handle(
     return args_param_list, kwargs_param_dict
 
 
-def get_class_param_param_list(cbv_class: Type) -> List['inspect.Parameter']:
-    param_list: List['inspect.Parameter'] = []
+def get_parameter_list_from_class(cbv_class: Type) -> List['inspect.Parameter']:
+    parameter_list: List['inspect.Parameter'] = []
     if not hasattr(cbv_class, '__annotations__'):
-        return param_list
+        return parameter_list
     for param_name, param_annotation in cbv_class.__annotations__.items():
         parameter: 'inspect.Parameter' = inspect.Parameter(
             param_name,
             inspect.Parameter.POSITIONAL_ONLY,
             default=getattr(cbv_class, param_name),
             annotation=param_annotation)
-        param_list.append(parameter)
-    return param_list
+        parameter_list.append(parameter)
+    return parameter_list
 
 
-async def async_class_param_handle(dispatch_web: 'BaseAsyncWebDispatch'):
+async def async_class_param_handle(dispatch_web: 'BaseAsyncAppDispatch'):
     cbv_class: Optional[Type] = dispatch_web.cbv_class
     if not cbv_class:
         return
-    param_list: list = get_class_param_param_list(cbv_class)
+    param_list: list = get_parameter_list_from_class(cbv_class)
     args, kwargs = await async_param_handle(dispatch_web, cbv_class, param_list)
     cbv_class.__dict__.update(kwargs)
 
 
-def class_param_handle(dispatch_web: 'BaseWebDispatch'):
+def class_param_handle(dispatch_web: 'BaseAppDispatch'):
     cbv_class: Optional[Type] = dispatch_web.cbv_class
     if not cbv_class:
         return
-    param_list: list = get_class_param_param_list(cbv_class)
+    param_list: list = get_parameter_list_from_class(cbv_class)
     args, kwargs = param_handle(dispatch_web, cbv_class, param_list)
     cbv_class.__dict__.update(kwargs)
 
 
 async def async_func_param_handle(
-        dispatch_web: 'BaseAsyncWebDispatch',
+        dispatch_web: 'BaseAsyncAppDispatch',
         func_sig: FuncSig
 ) -> Tuple[List[Any], Dict[str, Any]]:
     return await async_param_handle(dispatch_web, func_sig, func_sig.param_list)
 
 
 def func_param_handle(
-        dispatch_web: 'BaseWebDispatch',
+        dispatch_web: 'BaseAppDispatch',
         func_sig: FuncSig
 ) -> Tuple[List[Any], Dict[str, Any]]:
     return param_handle(dispatch_web, func_sig, func_sig.param_list)
