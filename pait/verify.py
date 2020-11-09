@@ -25,11 +25,13 @@ def async_params_verify(app: 'Type[BaseAsyncAppDispatch]'):
 
         @wraps(func)
         async def dispatch(*args, **kwargs):
-            # real param handle
+            # only use in runtime
             class_ = getattr(inspect.getmodule(func), qualname)
+            # real param handle
             dispatch_app: BaseAsyncAppDispatch = app(class_, args, kwargs)
-
+            # auto gen param from request
             func_args, func_kwargs = await async_func_param_handle(dispatch_app, func_sig)
+            # support sbv
             await async_class_param_handle(dispatch_app)
             return await func(*func_args, **func_kwargs)
         return dispatch
@@ -43,13 +45,14 @@ def sync_params_verify(app: 'Type[BaseAppDispatch]'):
 
         @wraps(func)
         def dispatch(*args, **kwargs):
-            # real param handle
+            # only use in runtime
             class_ = getattr(inspect.getmodule(func), qualname)
+            # real param handle
             dispatch_app: BaseAppDispatch = app(class_, args, kwargs)
-
+            # auto gen param from request
             func_args, func_kwargs = func_param_handle(dispatch_app, func_sig)
+            # support sbv
             class_param_handle(dispatch_app)
-            print(func_args, func_kwargs)
             return func(*func_args, **func_kwargs)
         return dispatch
     return wrapper
