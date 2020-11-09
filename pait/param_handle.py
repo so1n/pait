@@ -2,7 +2,7 @@ import asyncio
 import logging
 import inspect
 
-from typing import Any, Callable, Coroutine, Dict, List, Mapping, Type, Tuple, Optional, Union
+from typing import Any, Callable, Coroutine, Dict, List, Mapping, Type, Tuple, Optional, Union, get_type_hints
 
 from pydantic import BaseModel, create_model
 from pait import field
@@ -73,22 +73,20 @@ def single_field_handle(single_field_dict: Dict['inspect.Parameter', Any]) -> Di
     return dynamic_model(**param_value_dict).dict()
 
 
-def get_request_value(
+def get_value_from_request(
     parameter: inspect.Parameter,
     dispatch_web: 'BaseAppDispatch'
 ) -> Union[Any, Coroutine]:
     # kwargs param
     # support model: pydantic.BaseModel = pait.field.BaseField()
     if isinstance(parameter.default, field.File):
-        assert parameter.annotation is not dispatch_web.FileType, \
-            f"File type must be {dispatch_web.FileType}"
+        assert parameter.annotation is not dispatch_web.FileType, f"File type must be {dispatch_web.FileType}"
+
+    field_name: str = parameter.default.__class__.__name__.lower()
     # Note: not use hasattr with LazyProperty (
     #   because hasattr will calling getattr(obj, name) and catching AttributeError,
     # )
-    field_name: str = parameter.default.__class__.__name__.lower()
-    dispatch_web_func:  Union[Callable, Coroutine, None] = getattr(
-        dispatch_web, field_name, None
-    )
+    dispatch_web_func:  Union[Callable, Coroutine, None] = getattr(dispatch_web, field_name, None)
     if dispatch_web_func is None:
         raise NotFoundFieldError(f'field: {field_name} not found in {dispatch_web}')
     return dispatch_web_func()
@@ -115,11 +113,10 @@ def set_value_to_kwargs_param(
     param_value: BaseField = parameter.default
     annotation: Type[BaseModel] = parameter.annotation
     param_name: str = parameter.name
-    if isinstance(request_value, Mapping)\
-            or type(request_value) is dispatch_web.HeaderType\
+    if isinstance(request_value, Mapping) or type(request_value) is dispatch_web.HeaderType \
             or type(request_value) is dispatch_web.FormType:
         if param_value.fix_key:
-            request_value = {
+            request_value: Dict[str, Any] = {
                 key.lower().replace('-', '_'): value
                 for key, value in request_value.items()
             }
@@ -171,15 +168,15 @@ def param_handle(
                     _func_args, _func_kwargs = param_handle(dispatch_web, func_sig, func_sig.param_list)
                     func_result: Any = func(*_func_args, **_func_kwargs)
                     kwargs_param_dict[parameter.name] = func_result
-                    continue
-                request_value: Any = get_request_value(parameter, dispatch_web)
-                set_value_to_kwargs_param(
-                    parameter,
-                    request_value,
-                    kwargs_param_dict,
-                    single_field_dict,
-                    dispatch_web
-                )
+                else:
+                    request_value: Any = get_value_from_request(parameter, dispatch_web)
+                    set_value_to_kwargs_param(
+                        parameter,
+                        request_value,
+                        kwargs_param_dict,
+                        single_field_dict,
+                        dispatch_web
+                    )
             else:
                 set_value_to_args_param(parameter, dispatch_web, args_param_list)
         except PaitException as e:
@@ -212,21 +209,22 @@ async def async_param_handle(
                     if asyncio.iscoroutine(func_result):
                         func_result = await func_result
                     kwargs_param_dict[parameter.name] = func_result
-                    continue
+                else:
+                    request_value: Any = get_value_from_request(parameter, dispatch_web)
 
-                request_value: Any = get_request_value(parameter, dispatch_web)
+                    if asyncio.iscoroutine(request_value):
+                        request_value = await request_value
 
-                if asyncio.iscoroutine(request_value):
-                    request_value = await request_value
-
-                set_value_to_kwargs_param(
-                    parameter,
-                    request_value,
-                    kwargs_param_dict,
-                    single_field_dict,
-                    dispatch_web
-                )
+                    set_value_to_kwargs_param(
+                        parameter,
+                        request_value,
+                        kwargs_param_dict,
+                        single_field_dict,
+                        dispatch_web
+                    )
             else:
+                # args param
+                # support model: model: ModelType
                 set_value_to_args_param(parameter, dispatch_web, args_param_list)
         except PaitException as e:
             raise_and_tip(parameter, _object, e)
@@ -242,7 +240,7 @@ def get_parameter_list_from_class(cbv_class: Type) -> List['inspect.Parameter']:
     parameter_list: List['inspect.Parameter'] = []
     if not hasattr(cbv_class, '__annotations__'):
         return parameter_list
-    for param_name, param_annotation in cbv_class.__annotations__.items():
+    for param_name, param_annotation in get_type_hints(cbv_class).items():
         parameter: 'inspect.Parameter' = inspect.Parameter(
             param_name,
             inspect.Parameter.POSITIONAL_ONLY,
@@ -277,8 +275,5 @@ async def async_func_param_handle(
     return await async_param_handle(dispatch_web, func_sig, func_sig.param_list)
 
 
-def func_param_handle(
-        dispatch_web: 'BaseAppDispatch',
-        func_sig: FuncSig
-) -> Tuple[List[Any], Dict[str, Any]]:
+def func_param_handle(dispatch_web: 'BaseAppDispatch', func_sig: FuncSig) -> Tuple[List[Any], Dict[str, Any]]:
     return param_handle(dispatch_web, func_sig, func_sig.param_list)

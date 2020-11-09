@@ -19,9 +19,5 @@ def get_func_sig(func: Callable) -> FuncSig:
         if sig.parameters[key].annotation != sig.empty
     ]
     # return_param = sig.return_annotation
-    return FuncSig(
-        func=func,
-        sig=sig,
-        param_list=param_list,
-    )
+    return FuncSig(func=func, sig=sig, param_list=param_list)
 
