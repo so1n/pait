@@ -9,7 +9,7 @@ from starlette.responses import JSONResponse
 
 from pait.exceptions import PaitException
 from pait.field import Body, Depends, Header, Path, Query
-from pait.web.starletter import params_verify
+from pait.app.starletter import params_verify
 from pydantic import ValidationError
 from pydantic import (
     conint,

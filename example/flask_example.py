@@ -5,7 +5,7 @@ from flask.views import MethodView
 
 from pait.exceptions import PaitException
 from pait.field import Body, Depends, Header, Path, Query
-from pait.web.flask import params_verify
+from pait.app.flask import params_verify
 from pydantic import ValidationError
 from pydantic import (
     conint,
