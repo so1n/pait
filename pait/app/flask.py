@@ -1,3 +1,4 @@
+import logging
 from functools import partial
 from typing import Any, Dict, Mapping, Tuple
 
@@ -5,7 +6,8 @@ from flask import Flask, request, Request
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 
 from pait.app.base import BaseAsyncAppDispatch
-from pait.verify import sync_params_verify
+from pait.g import pait_name_dict
+from pait.verify import params_verify as _params_verify
 
 
 class FlaskDispatch(BaseAsyncAppDispatch):
@@ -54,11 +56,16 @@ def load_app(app: Flask):
         method_set: set = route.methods
         route_name: str = route.endpoint
         endpoint = app.view_functions[route_name]
-        paitname = getattr(endpoint, '__paitname__')
-        if not paitname:
+        pait_name = getattr(endpoint, '_pait_name')
+        if not pait_name:
             endpoint.view_class
             get_paitname = getattr(route.endpoint, 'get')
             post_paitname = getattr(route.endpoint, 'post')
+        if pait_name in pait_name_dict:
+            pait_name_dict[pait_name].path = path
+            pait_name_dict[pait_name].method_set = method_set
+        else:
+            logging.warning(f'loan path:{path} fail, endpoint:{endpoint}')
 
 
-params_verify = partial(sync_params_verify, FlaskDispatch)
+params_verify = partial(_params_verify, FlaskDispatch)

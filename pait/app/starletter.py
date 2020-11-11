@@ -7,7 +7,7 @@ from starlette.datastructures import FormData, Headers, UploadFile
 from pait.app.base import BaseAsyncAppDispatch
 from pait.g import pait_name_dict
 from pait.lazy_property import LazyAsyncProperty, LazyProperty
-from pait.verify import async_params_verify
+from pait.verify import params_verify as _params_verify
 
 
 class StarletteDispatch(BaseAsyncAppDispatch):
@@ -57,4 +57,4 @@ def load_app(app):
             logging.warning(f'loan path:{path} fail, endpoint:{route.endpoint}')
 
 
-params_verify = partial(async_params_verify, StarletteDispatch)
+params_verify = partial(_params_verify, StarletteDispatch)
