@@ -1,7 +1,7 @@
 from functools import partial
 from typing import Any, Dict, Mapping, Tuple
 
-from flask import request, Request
+from flask import Flask, request, Request
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 
 from pait.app.base import BaseAsyncAppDispatch
@@ -46,6 +46,19 @@ class FlaskDispatch(BaseAsyncAppDispatch):
 
     def query(self) -> dict:
         return dict(request.args)
+
+
+def load_app(app: Flask):
+    for route in app.url_map.iter_rules():
+        path: str = route.rule
+        method_set: set = route.methods
+        route_name: str = route.endpoint
+        endpoint = app.view_functions[route_name]
+        paitname = getattr(endpoint, '__paitname__')
+        if not paitname:
+            endpoint.view_class
+            get_paitname = getattr(route.endpoint, 'get')
+            post_paitname = getattr(route.endpoint, 'post')
 
 
 params_verify = partial(sync_params_verify, FlaskDispatch)

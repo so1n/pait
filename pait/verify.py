@@ -6,6 +6,7 @@ from pait.app.base import (
     BaseAsyncAppDispatch,
     BaseAppDispatch,
 )
+from pait.g import pait_name_dict, PaitModel
 from pait.param_handle import (
     async_class_param_handle,
     async_func_param_handle,
@@ -21,7 +22,10 @@ from pait.util import (
 def async_params_verify(app: 'Type[BaseAsyncAppDispatch]'):
     def wrapper(func: Callable):
         func_sig: FuncSig = get_func_sig(func)
-        qualname = func.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0]
+        qualname: str = func.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0]
+        pait_name: str = f'{qualname}_{id(func)}'
+        func._pait_name = pait_name
+        pait_name_dict[pait_name] = PaitModel(func=func, pait_name=pait_name)
 
         @wraps(func)
         async def dispatch(*args, **kwargs):
@@ -42,6 +46,10 @@ def sync_params_verify(app: 'Type[BaseAppDispatch]'):
     def wrapper(func: Callable):
         func_sig: FuncSig = get_func_sig(func)
         qualname = func.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0]
+
+        pait_name: str = f'{qualname}_{id(func)}'
+        func._pait_name = pait_name
+        pait_name_dict[pait_name] = PaitModel(func=func, pait_name=pait_name)
 
         @wraps(func)
         def dispatch(*args, **kwargs):

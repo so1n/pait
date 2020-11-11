@@ -1,11 +1,12 @@
+import logging
 from functools import partial
-
 
 from starlette.requests import Request
 from starlette.datastructures import FormData, Headers, UploadFile
 
-from pait.lazy_property import LazyAsyncProperty, LazyProperty
 from pait.app.base import BaseAsyncAppDispatch
+from pait.g import pait_name_dict
+from pait.lazy_property import LazyAsyncProperty, LazyProperty
 from pait.verify import async_params_verify
 
 
@@ -39,6 +40,21 @@ class StarletteDispatch(BaseAsyncAppDispatch):
     @LazyProperty
     def query(self) -> dict:
         return dict(self.request.query_params)
+
+
+def load_app(app):
+    for route in app.routes:
+        path: str = route.path
+        method_set: set = route.methods
+        pait_name: str = getattr(route.endpoint, '_pait_name', None)
+        if not pait_name:
+            get_paitname = getattr(route.endpoint, 'get')
+            post_paitname = getattr(route.endpoint, 'post')
+        if pait_name in pait_name_dict:
+            pait_name_dict[pait_name].path = path
+            pait_name_dict[pait_name].method_set = method_set
+        else:
+            logging.warning(f'loan path:{path} fail, endpoint:{route.endpoint}')
 
 
 params_verify = partial(async_params_verify, StarletteDispatch)
