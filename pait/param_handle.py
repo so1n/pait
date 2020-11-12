@@ -12,7 +12,7 @@ from pait.exceptions import (
     PaitException,
 )
 from pait.field import BaseField
-from pait.util import FuncSig, PaitModel, get_func_sig
+from pait.util import FuncSig, get_func_sig
 from pait.app.base import (
     BaseAsyncAppDispatch,
     BaseAppDispatch
@@ -94,7 +94,7 @@ def set_value_to_args_param(parameter: inspect.Parameter, dispatch_app: 'BaseApp
     elif parameter.annotation is dispatch_app.RequestType:
         # support request param(def handle(request: Request))
         func_args.append(dispatch_app.request_args)
-    elif issubclass(parameter.annotation,PaitModel):
+    elif issubclass(parameter.annotation, BaseModel):
         # support pait_model param(def handle(model: PaitModel))
         single_field_dict = {}
         _pait_model = parameter.annotation
@@ -119,15 +119,16 @@ async def async_set_value_to_args_param(parameter: inspect.Parameter, dispatch_a
     elif parameter.annotation is dispatch_app.RequestType:
         # support request param(def handle(request: Request))
         func_args.append(dispatch_app.request_args)
-    elif issubclass(parameter.annotation, PaitModel):
+    elif issubclass(parameter.annotation, BaseModel):
         # support pait_model param(def handle(model: PaitModel))
         single_field_dict = {}
         _pait_model = parameter.annotation
+
         for param_name, param_annotation in get_type_hints(_pait_model).items():
             parameter: 'inspect.Parameter' = inspect.Parameter(
                 param_name,
                 inspect.Parameter.POSITIONAL_ONLY,
-                default=_pait_model.__field_defaults__[param_name],
+                default=_pait_model.__field_defaults__[param_name].field,
                 annotation=param_annotation
             )
             request_value: Any = get_value_from_request(parameter, dispatch_app)
@@ -153,11 +154,6 @@ def request_value_handle(
             or type(request_value) is dispatch_app.FormType:
         if not isinstance(param_value, BaseField):
             raise PaitException(f'must use {BaseField.__class__.__name__}, no {param_value}')
-        if param_value.fix_key:
-            request_value: Dict[str, Any] = {
-                key.lower().replace('-', '_'): value
-                for key, value in request_value.items()
-            }
 
         if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
             # parse annotation is pydantic.BaseModel

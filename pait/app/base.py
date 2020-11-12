@@ -2,7 +2,6 @@ import logging
 from abc import ABC
 
 from typing import Any, Mapping, Optional, Tuple, Type
-from pait.util import PaitModel
 
 
 class BaseAppDispatch(object):
@@ -28,8 +27,6 @@ class BaseAppDispatch(object):
                 break
             elif isinstance(param, class_):
                 self.cbv_class = param
-            elif isinstance(param, PaitModel):
-                pass
             else:
                 # in cbv, parameter like self, request, {other param}
                 # not support other param

@@ -1,16 +1,66 @@
 from typing import Any, Callable, Optional
 
+from pydantic.fields import FieldInfo, Undefined
+from pydantic.typing import NoArgAnyCallable
 
-class BaseField:
+
+# class BaseField:
+#     def __init__(
+#             self,
+#             key: Optional[str] = None,
+#             default: Optional[Any] = None,
+#             fix_key: bool = False
+#     ):
+#         self.key = key
+#         self.default = default
+#         self.fix_key = fix_key
+
+
+class BaseField(FieldInfo):
     def __init__(
             self,
+            default: Any = Undefined,
             key: Optional[str] = None,
-            default: Optional[Any] = None,
-            fix_key: bool = False
+            *,
+            default_factory: Optional[NoArgAnyCallable] = None,
+            alias: str = None,
+            title: str = None,
+            description: str = None,
+            const: bool = None,
+            gt: float = None,
+            ge: float = None,
+            lt: float = None,
+            le: float = None,
+            multiple_of: float = None,
+            min_items: int = None,
+            max_items: int = None,
+            min_length: int = None,
+            max_length: int = None,
+            regex: str = None,
+            **extra: Any,
+
     ):
         self.key = key
         self.default = default
-        self.fix_key = fix_key
+        super().__init__(
+            default,
+            default_factory=default_factory,
+            alias=alias,
+            title=title,
+            description=description,
+            const=const,
+            gt=gt,
+            ge=ge,
+            lt=lt,
+            le=le,
+            multiple_of=multiple_of,
+            min_items=min_items,
+            max_items=max_items,
+            min_length=min_length,
+            max_length=max_length,
+            regex=regex,
+            **extra
+        )
 
 
 class Body(BaseField):
@@ -44,3 +94,8 @@ class Query(BaseField):
 class Depends(object):
     def __init__(self, func: Callable):
         self.func: Callable = func
+
+
+class FactoryField(object):
+    def __init__(self, field: BaseField):
+        self.field = field
