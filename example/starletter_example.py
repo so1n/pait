@@ -9,7 +9,7 @@ from starlette.responses import JSONResponse
 
 from pait.exceptions import PaitException
 from pait.field import Body, Depends, Header, Path, Query
-from pait.app.starletter import params_verify
+from pait.app.starletter import params_verify, load_app
 from pydantic import ValidationError
 from pydantic import (
     conint,
@@ -135,6 +135,7 @@ app = Starlette(
     ]
 )
 
+load_app(app)
 app.add_exception_handler(PaitException, api_exception)
 app.add_exception_handler(ValidationError, api_exception)
 uvicorn.run(app, log_level='debug')
