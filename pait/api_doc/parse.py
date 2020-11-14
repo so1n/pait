@@ -8,6 +8,7 @@ from pait.util import FuncSig
 
 class ParamModel(object):
     def __init__(self, func_sig: FuncSig, type_dict: Optional[Dict[type, str]] = None):
+
         self._parse_func_sig(func_sig)
 
     def _parse_annotation(self, annotation: type):
@@ -30,7 +31,7 @@ class ParamModel(object):
                 else:
                     # def test(test_model: int = Body())
                     bucket[parameter.name] = self._parse_annotation(annotation)
-            elif issubclass(parameter.annotation, BaseModel):
+            if issubclass(parameter.annotation, BaseModel):
                 # def test(test_model: BaseModel)
                 _pait_model = parameter.annotation
                 self._parse_pydantic_model(_pait_model)

@@ -1,12 +1,13 @@
 import logging
 from functools import partial
-from typing import Any, Dict, Mapping, Tuple
+from typing import Any, Callable, Dict, Mapping, Set, Tuple
 
 from flask import Flask, request, Request
+from flask.views import MethodView
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 
 from pait.app.base import BaseAsyncAppDispatch
-from pait.g import pait_name_dict
+from pait.g import add_to_pait_name_dict
 from pait.verify import params_verify as _params_verify
 
 
@@ -53,19 +54,27 @@ class FlaskDispatch(BaseAsyncAppDispatch):
 def load_app(app: Flask):
     for route in app.url_map.iter_rules():
         path: str = route.rule
-        method_set: set = route.methods
+        method_set: Set[str] = route.methods
         route_name: str = route.endpoint
-        endpoint = app.view_functions[route_name]
-        pait_name = getattr(endpoint, '_pait_name')
+        endpoint: Callable = app.view_functions[route_name]
+        pait_name: str = getattr(endpoint, '_pait_name', None)
         if not pait_name:
-            endpoint.view_class
-            get_paitname = getattr(route.endpoint, 'get')
-            post_paitname = getattr(route.endpoint, 'post')
-        if pait_name in pait_name_dict:
-            pait_name_dict[pait_name].path = path
-            pait_name_dict[pait_name].method_set = method_set
+            view_class_endpoint = getattr(endpoint, 'view_class', None)
+            if route_name == 'static':
+                continue
+            if not view_class_endpoint or not issubclass(view_class_endpoint, MethodView):
+                logging.warning(f'loan path:{path} fail, endpoint:{endpoint} not `view_class` attributes')
+                continue
+            for method in view_class_endpoint.methods:
+                method = method.lower()
+                method_set = {method}
+                endpoint = getattr(view_class_endpoint, method, None)
+                if not endpoint:
+                    continue
+                pait_name = getattr(endpoint, '_pait_name', None)
+                add_to_pait_name_dict(pait_name, path, method_set, f'{route_name}.{method}', endpoint)
         else:
-            logging.warning(f'loan path:{path} fail, endpoint:{endpoint}')
+            add_to_pait_name_dict(pait_name, path, method_set, route_name, endpoint)
 
 
 params_verify = partial(_params_verify, FlaskDispatch)
