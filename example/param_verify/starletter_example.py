@@ -25,7 +25,7 @@ async def api_exception(request: Request, exc: Exception) -> JSONResponse:
 async def test_raise_tip(
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
-        content_type: str = Header()
+        content_type: str = Header(description='content-type')
 ):
     """Test Method: error tip"""
     return_dict = model.dict()
@@ -36,9 +36,9 @@ async def test_raise_tip(
 
 @params_verify()
 async def test_post(
-        model: UserModel = Body(),
-        other_model: UserOtherModel = Body(),
-        content_type: str = Header(key='Content-Type')
+    model: UserModel = Body(),
+    other_model: UserOtherModel = Body(),
+    content_type: str = Header(key='Content-Type', description='content-type')
 ):
     """Test Method:Post Pydantic Model"""
     return_dict = model.dict()
@@ -49,10 +49,10 @@ async def test_post(
 
 @params_verify()
 async def test_depend(
-        request: Request,
-        model: UserModel = Query(),
-        other_model: UserOtherModel = Query(),
-        user_agent: str = Depends(demo_depend)
+    request: Request,
+    model: UserModel = Query(),
+    other_model: UserOtherModel = Query(),
+    user_agent: str = Depends(demo_depend)
 ):
     """Test Method:Post request, Pydantic Model"""
     assert request is not None, 'Not found request'
@@ -65,11 +65,11 @@ async def test_depend(
 
 @params_verify()
 async def test_get(
-        uid: conint(gt=10, lt=1000) = Query(),
-        user_name: constr(min_length=2, max_length=4) = Query(),
-        email: Optional[str] = Query(default='example@xxx.com'),
-        age: str = Path(),
-        sex: SexEnum = Query()
+        uid: conint(gt=10, lt=1000) = Query(description='用户id'),
+        user_name: constr(min_length=2, max_length=4) = Query(description='用户名'),
+        email: Optional[str] = Query(default='example@xxx.com', description='邮箱'),
+        age: str = Path(description='用户年龄'),
+        sex: SexEnum = Query(description='性别')
 ):
     """Test Field"""
     _dict = {
@@ -89,14 +89,14 @@ async def test_pait_model(test_model: TestPaitModel):
 
 
 class TestCbv(HTTPEndpoint):
-    user_agent: str = Header(key='user-agent')  # remove key will raise error
+    user_agent: str = Header(key='user-agent', description='ua')  # remove key will raise error
 
     @params_verify()
     async def get(
         self,
-        uid: conint(gt=10, lt=1000) = Query(),
-        user_name: constr(min_length=2, max_length=4) = Query(),
-        email: Optional[str] = Query(default='example@xxx.com'),
+        uid: conint(gt=10, lt=1000) = Query(description='用户uid'),
+        user_name: constr(min_length=2, max_length=4) = Query(description='用户名'),
+        email: Optional[str] = Query(default='example@xxx.com', description='用户邮箱'),
         model: UserOtherModel = Query(),
     ):
         """Text Pydantic Model and Field"""

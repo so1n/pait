@@ -11,7 +11,7 @@ class PaitInfoModel(object):
     path: Optional[str] = None               # request path
     pait_id: Optional[str] = None            # pait id(in runtime)
     operation_id: Optional[str] = None       # operation id(in route table)
-    tag: str = 'root'                # request tag
+    tag: str = 'root'                        # request tag
 
 
 pait_id_dict: Dict[str, PaitInfoModel] = {}

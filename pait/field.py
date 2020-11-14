@@ -38,7 +38,6 @@ class BaseField(FieldInfo):
             max_length: int = None,
             regex: str = None,
             **extra: Any,
-
     ):
         self.key = key
         self.default = default

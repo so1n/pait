@@ -3,6 +3,7 @@ from typing import Any, Callable, Dict, List, get_type_hints
 from types import CodeType
 
 from pydantic import BaseModel
+from pydantic.fields import Undefined
 from pait.g import pait_id_dict, PaitInfoModel
 from pait.field import BaseField, Depends, FactoryField
 from pait.util import FuncSig, get_func_sig
@@ -33,7 +34,7 @@ class PaitMd(object):
             if self._use_html_details:
                 markdown_text += f"<details><summary>Tag:{tag}</summary>\n"
             else:
-                markdown_text += "## Tag:{tag}\n"
+                markdown_text += f"## Tag:{tag}\n"
             for pait_model in self._tag_pait_dict[tag]:
                 markdown_text += f"### Name:{pait_model.operation_id}\n"
                 func_code: CodeType = pait_model.func.__code__
@@ -49,15 +50,15 @@ class PaitMd(object):
                 for field in field_list:
                     field_dict_list = field_dict[field]
                     markdown_text += f"    - {field.capitalize()}\n"
-                    markdown_text += f"        |param name|type|description|example|\n"
+                    markdown_text += f"        |param name|type|default value|description|\n"
                     markdown_text += f"        |---|---|---|---|\n"
                     for sub_field_dict in field_dict_list:
-                        annotation_name = getattr(
-                            sub_field_dict['annotation'],
-                            '__name__',
-                            str(sub_field_dict['annotation'])
-                        )
-                        markdown_text += f"        |{sub_field_dict['param_name']}|{annotation_name}|||\n"
+                        default = sub_field_dict['default']
+                        if default is Undefined:
+                            default = '`Required`'
+                        description = sub_field_dict['description']
+                        markdown_text += f"        |{sub_field_dict['param_name']}|{sub_field_dict['type']}" \
+                                         f"|{default}|{description}|\n"
                 markdown_text += f"- Response:\n"
                 markdown_text += "\n"
             if self._use_html_details:
@@ -73,12 +74,14 @@ class PaitMd(object):
                 field_name: str = parameter.default.__class__.__name__.lower()
                 if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
                     # def test(test_model: BaseModel = Body())
-                    for base_model_name, base_model_annotation in get_type_hints(annotation).items():
+                    property_dict: Dict[str, Dict[str, Any]] = annotation.schema()['properties']
+                    for param_name, param_dict in property_dict.items():
                         _field_dict = {
-                            'annotation': base_model_annotation,
-                            'field': parameter.default,
-                            'name': field_name,
-                            'param_name': base_model_name
+                            'param_name': param_dict['title'],
+                            'description': param_dict['description'],
+                            'default': param_dict.get('default', Undefined),
+                            'type': param_dict['type'],
+                            'other': param_dict
                         }
                         if field_name not in field_dict:
                             field_dict[field_name] = [_field_dict]
@@ -93,31 +96,33 @@ class PaitMd(object):
                         if not param_name:
                             param_name = parameter.name
                         _field_dict = {
-                            'annotation': annotation,
-                            'field': parameter.default,
-                            'name': field_name,
-                            'param_name': param_name
+                            'param_name': param_name,
+                            'description': parameter.default.description,
+                            'default': parameter.default.default,
+                            'type': annotation,
+                            'other': {},
                         }
                         if field_name not in field_dict:
                             field_dict[field_name] = [_field_dict]
                         else:
                             field_dict[field_name].append(_field_dict)
-            elif issubclass(parameter.annotation, BaseModel):
-                # def test(test_model: BaseModel)
-                _pait_model = parameter.annotation
-                for param_name, param_annotation in get_type_hints(_pait_model).items():
-                    field: BaseField = _pait_model.__field_defaults__[param_name]
-                    if isinstance(field, FactoryField):
-                        field: BaseField = field.field
-                        field_name: str = field.__class__.__name__.lower()
-                        _field_dict = {
-                            'annotation': param_annotation,
-                            'field': field,
-                            'name': field_name,
-                            'param_name': param_name
-                        }
-                        if field_name not in field_dict:
-                            field_dict[field_name] = [_field_dict]
-                        else:
-                            field_dict[field_name].append(_field_dict)
+            # elif issubclass(parameter.annotation, BaseModel):
+            #     # def test(test_model: BaseModel)
+            #     _pait_model = parameter.annotation
+            #     for param_name, param_annotation in get_type_hints(_pait_model).items():
+            #         field: BaseField = _pait_model.__field_defaults__[param_name]
+            #         if isinstance(field, FactoryField):
+            #             field: BaseField = field.field
+            #             field_name: str = field.__class__.__name__.lower()
+            #             _field_dict = {
+            #                 'param_name': param_name,
+            #                 'description': parameter.default.description,
+            #                 'default': parameter.default.default,
+            #                 'type': param_annotation,
+            #                 'other': {},
+            #             }
+            #             if field_name not in field_dict:
+            #                 field_dict[field_name] = [_field_dict]
+            #             else:
+            #                field_dict[field_name].append(_field_dict)
         return field_dict
