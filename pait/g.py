@@ -5,12 +5,13 @@ from typing import Callable, Dict, Optional, Set
 
 @dataclass()
 class PaitInfoModel(object):
-    func: Optional[Callable] = None          # func obeject
+    func: Optional[Callable] = None          # func object
     func_name: Optional[str] = None          # func name
     method_set: Optional[Set[str]] = None    # request method set
     path: Optional[str] = None               # request path
     pait_id: Optional[str] = None            # pait id(in runtime)
     operation_id: Optional[str] = None       # operation id(in route table)
+    tag: str = 'root'                # request tag
 
 
 pait_id_dict: Dict[str, PaitInfoModel] = {}

@@ -1,44 +1,45 @@
-import uvicorn
-
 from typing import Optional
-from starlette.applications import Starlette
-from starlette.endpoints import HTTPEndpoint
-from starlette.routing import Route
-from starlette.requests import Request
-from starlette.responses import JSONResponse
 
+from flask import Flask, Request
+from flask.views import MethodView
+
+from pait.app.flask import params_verify, load_app
 from pait.exceptions import PaitException
-from pait.g import pait_id_dict
 from pait.field import Body, Depends, Header, Path, Query
-from pait.app.starletter import params_verify, load_app
+from pait.g import pait_id_dict
 from pydantic import ValidationError
 from pydantic import (
     conint,
     constr,
 )
 
-from example.model import UserModel, UserOtherModel, SexEnum, TestPaitModel, demo_depend
+from example.param_verify.model import UserModel, UserOtherModel, SexEnum, TestPaitModel, demo_depend
 
 
-async def api_exception(request: Request, exc: Exception) -> JSONResponse:
-    return JSONResponse({'exc': str(exc)})
+app = Flask(__name__)
 
 
+def api_exception(exc: Exception):
+    return {'exc': str(exc)}
+
+
+@app.route("/api/raise_tip", methods=['POST'])
 @params_verify()
-async def test_raise_tip(
+def test_raise_tip(
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
-        content_type: str = Header()
+        content__type: str = Header()
 ):
     """Test Method: error tip"""
     return_dict = model.dict()
     return_dict.update(other_model.dict())
-    return_dict.update({'content_type': content_type})
-    return JSONResponse(return_dict)
+    return_dict.update({'content_type': content__type})
+    return return_dict
 
 
+@app.route("/api/post", methods=['POST'])
 @params_verify()
-async def test_post(
+def test_post(
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
         content_type: str = Header(key='Content-Type')
@@ -47,11 +48,12 @@ async def test_post(
     return_dict = model.dict()
     return_dict.update(other_model.dict())
     return_dict.update({'content_type': content_type})
-    return JSONResponse(return_dict)
+    return return_dict
 
 
+@app.route("/api/depend", methods=['GET'])
 @params_verify()
-async def test_depend(
+def demo_get2test_depend(
         request: Request,
         model: UserModel = Query(),
         other_model: UserOtherModel = Query(),
@@ -63,11 +65,12 @@ async def test_depend(
     return_dict = model.dict()
     return_dict.update(other_model.dict())
     return_dict.update({'user_agent': user_agent})
-    return JSONResponse(return_dict)
+    return return_dict
 
 
+@app.route("/api/get/<age>", methods=['GET'])
 @params_verify()
-async def test_get(
+def test_pait(
         uid: conint(gt=10, lt=1000) = Query(),
         user_name: constr(min_length=2, max_length=4) = Query(),
         email: Optional[str] = Query(default='example@xxx.com'),
@@ -75,27 +78,27 @@ async def test_get(
         sex: SexEnum = Query()
 ):
     """Test Field"""
-    _dict = {
+    return {
         'uid': uid,
         'user_name': user_name,
         'email': email,
         'age': age,
         'sex': sex.value
     }
-    return JSONResponse(_dict)
 
 
+@app.route("/api/pait_model", methods=['GET'])
 @params_verify()
-async def test_pait_model(test_model: TestPaitModel):
+def test_model(test_model: TestPaitModel):
     """Test Field"""
-    return JSONResponse(test_model.dict())
+    return test_model.dict()
 
 
-class TestCbv(HTTPEndpoint):
+class TestCbv(MethodView):
     user_agent: str = Header(key='user-agent')  # remove key will raise error
 
     @params_verify()
-    async def get(
+    def get(
         self,
         uid: conint(gt=10, lt=1000) = Query(),
         user_name: constr(min_length=2, max_length=4) = Query(),
@@ -107,37 +110,25 @@ class TestCbv(HTTPEndpoint):
             'uid': uid,
             'user_name': user_name,
             'email': email,
-            'age': model.age,
-            'cbv_id': id(self)
+            'age': model.age
         }
-        return JSONResponse({'result': _dict})
+        return {'result': _dict}
 
     @params_verify()
-    async def post(
+    def post(
         self,
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
     ):
         return_dict = model.dict()
         return_dict.update(other_model.dict())
-        return_dict.update({'user-agent': self.user_agent})
-        return_dict.update({'cbv_id': id(self)})
-        return JSONResponse({'result': return_dict})
+        return_dict.update({'content_type': self.user_agent})
+        return {'result': return_dict}
 
 
-app = Starlette(
-    routes=[
-        Route('/api/get/{age}', test_get, methods=['GET']),
-        Route('/api/post', test_post, methods=['POST']),
-        Route('/api/depend', test_depend, methods=['GET']),
-        Route('/api/raise_tip', test_raise_tip, methods=['POST']),
-        Route('/api/cbv', TestCbv),
-        Route('/api/pait_model', test_pait_model, methods=['GET'])
-    ]
-)
-
+app.add_url_rule('/api/cbv', view_func=TestCbv.as_view('test_cbv'))
+app.errorhandler(PaitException)(api_exception)
+app.errorhandler(ValidationError)(api_exception)
 load_app(app)
 print(pait_id_dict)
-app.add_exception_handler(PaitException, api_exception)
-app.add_exception_handler(ValidationError, api_exception)
-uvicorn.run(app, log_level='debug')
+app.run(port=8000, debug=True)
