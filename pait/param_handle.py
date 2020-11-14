@@ -12,7 +12,7 @@ from pait.exceptions import (
     PaitException,
 )
 from pait.field import BaseField
-from pait.util import FuncSig, get_func_sig
+from pait.util import FuncSig, PaitBaseModel, get_func_sig
 from pait.app.base import (
     BaseAsyncAppDispatch,
     BaseAppDispatch
@@ -30,10 +30,13 @@ def raise_and_tip(
 
     # Help users quickly locate the error code
     parameter_value_name: str = param_value.__class__.__name__
-    param_str: str = (
-        f'{param_name}: {annotation} = {parameter_value_name}('
-        f'key={param_value.key}, default={param_value.default})'
-    )
+    if param_value is parameter.empty:
+        param_str: str = f'{param_name}: {annotation}'
+    else:
+        param_str: str = (
+            f'{param_name}: {annotation} = {parameter_value_name}('
+            f'key={param_value.key}, default={param_value.default})'
+        )
     if isinstance(_object, FuncSig):
         title: str = 'def'
         if inspect.iscoroutinefunction(_object.func):
@@ -46,7 +49,7 @@ def raise_and_tip(
         file: str = inspect.getmodule(_object).__file__
         line: int = inspect.getsourcelines(_object.__class__)[1]
         error_object_name: str = _object.__class__.__name__
-    logging.debug(f"""
+    logging.debug(f"""{exception}
 {title} {error_object_name}(
     ...
     {param_str} <-- error
@@ -94,15 +97,17 @@ def set_value_to_args_param(parameter: inspect.Parameter, dispatch_app: 'BaseApp
     elif parameter.annotation is dispatch_app.RequestType:
         # support request param(def handle(request: Request))
         func_args.append(dispatch_app.request_args)
-    elif issubclass(parameter.annotation, BaseModel):
-        # support pait_model param(def handle(model: PaitModel))
+    elif issubclass(parameter.annotation, PaitBaseModel):
+        # support pait_model param(def handle(model: PaitBaseModel))
         single_field_dict = {}
         _pait_model = parameter.annotation
         for param_name, param_annotation in get_type_hints(_pait_model).items():
+            if param_name.startswith('_'):
+                continue
             parameter: 'inspect.Parameter' = inspect.Parameter(
                 param_name,
                 inspect.Parameter.POSITIONAL_ONLY,
-                default=_pait_model.__field_defaults__[param_name],
+                default=getattr(_pait_model, param_name),
                 annotation=param_annotation
             )
             request_value: Any = get_value_from_request(parameter, dispatch_app)
@@ -119,22 +124,23 @@ async def async_set_value_to_args_param(parameter: inspect.Parameter, dispatch_a
     elif parameter.annotation is dispatch_app.RequestType:
         # support request param(def handle(request: Request))
         func_args.append(dispatch_app.request_args)
-    elif issubclass(parameter.annotation, BaseModel):
+    elif issubclass(parameter.annotation, PaitBaseModel):
         # support pait_model param(def handle(model: PaitModel))
         single_field_dict = {}
         _pait_model = parameter.annotation
 
         for param_name, param_annotation in get_type_hints(_pait_model).items():
+            if param_name.startswith('_'):
+                continue
             parameter: 'inspect.Parameter' = inspect.Parameter(
                 param_name,
                 inspect.Parameter.POSITIONAL_ONLY,
-                default=_pait_model.__field_defaults__[param_name].field,
+                default=getattr(_pait_model, param_name),
                 annotation=param_annotation
             )
             request_value: Any = get_value_from_request(parameter, dispatch_app)
             if asyncio.iscoroutine(request_value):
                 request_value = await request_value
-
             # PaitModel's attributes  support BaseModel
             request_value_handle(parameter, request_value, single_field_dict, single_field_dict, dispatch_app)
         func_args.append(parameter_2_basemodel(single_field_dict))

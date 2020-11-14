@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from pydantic.fields import Undefined
 from pait.g import pait_id_dict, PaitInfoModel
 from pait.field import BaseField, Depends, FactoryField
-from pait.util import FuncSig, get_func_sig
+from pait.util import FuncSig, PaitBaseModel, get_func_sig
 
 
 class PaitMd(object):
@@ -106,23 +106,23 @@ class PaitMd(object):
                             field_dict[field_name] = [_field_dict]
                         else:
                             field_dict[field_name].append(_field_dict)
-            # elif issubclass(parameter.annotation, BaseModel):
-            #     # def test(test_model: BaseModel)
-            #     _pait_model = parameter.annotation
-            #     for param_name, param_annotation in get_type_hints(_pait_model).items():
-            #         field: BaseField = _pait_model.__field_defaults__[param_name]
-            #         if isinstance(field, FactoryField):
-            #             field: BaseField = field.field
-            #             field_name: str = field.__class__.__name__.lower()
-            #             _field_dict = {
-            #                 'param_name': param_name,
-            #                 'description': parameter.default.description,
-            #                 'default': parameter.default.default,
-            #                 'type': param_annotation,
-            #                 'other': {},
-            #             }
-            #             if field_name not in field_dict:
-            #                 field_dict[field_name] = [_field_dict]
-            #             else:
-            #                field_dict[field_name].append(_field_dict)
+            elif issubclass(parameter.annotation, PaitBaseModel):
+                # def test(test_model: PaitBaseModel)
+                _pait_model = parameter.annotation
+                for param_name, param_annotation in get_type_hints(_pait_model).items():
+                    field: BaseField = getattr(_pait_model, param_name)
+                    if isinstance(field, FactoryField):
+                        field: BaseField = field.field
+                        field_name: str = field.__class__.__name__.lower()
+                        _field_dict = {
+                            'param_name': param_name,
+                            'description': parameter.default.description,
+                            'default': parameter.default.default,
+                            'type': param_annotation,
+                            'other': {},
+                        }
+                        if field_name not in field_dict:
+                            field_dict[field_name] = [_field_dict]
+                        else:
+                           field_dict[field_name].append(_field_dict)
         return field_dict
