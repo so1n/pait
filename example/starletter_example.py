@@ -8,7 +8,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from pait.exceptions import PaitException
-from pait.g import pait_name_dict
+from pait.g import pait_id_dict
 from pait.field import Body, Depends, Header, Path, Query
 from pait.app.starletter import params_verify, load_app
 from pydantic import ValidationError
@@ -137,7 +137,7 @@ app = Starlette(
 )
 
 load_app(app)
-print(pait_name_dict)
+print(pait_id_dict)
 app.add_exception_handler(PaitException, api_exception)
 app.add_exception_handler(ValidationError, api_exception)
 uvicorn.run(app, log_level='debug')

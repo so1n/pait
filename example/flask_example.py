@@ -6,7 +6,7 @@ from flask.views import MethodView
 from pait.app.flask import params_verify, load_app
 from pait.exceptions import PaitException
 from pait.field import Body, Depends, Header, Path, Query
-from pait.g import pait_name_dict
+from pait.g import pait_id_dict
 from pydantic import ValidationError
 from pydantic import (
     conint,
@@ -130,5 +130,5 @@ app.add_url_rule('/api/cbv', view_func=TestCbv.as_view('test_cbv'))
 app.errorhandler(PaitException)(api_exception)
 app.errorhandler(ValidationError)(api_exception)
 load_app(app)
-print(pait_name_dict)
+print(pait_id_dict)
 app.run(port=8000, debug=True)

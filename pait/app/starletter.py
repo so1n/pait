@@ -54,17 +54,17 @@ def load_app(app: Starlette):
         method_set: set = route.methods
         route_name: str = route.name
         endpoint: Union[Callable, Type] = route.endpoint
-        pait_name: str = getattr(route.endpoint, '_pait_name', None)
-        if not pait_name and issubclass(endpoint, HTTPEndpoint):
+        pait_id: str = getattr(route.endpoint, '_pait_id', None)
+        if not pait_id and issubclass(endpoint, HTTPEndpoint):
             for method in ["get", "post", "head", "options", "delete", "put", "trace", "patch"]:
                 method_endpoint = getattr(endpoint, method, None)
                 if not method_endpoint:
                     continue
                 method_set = {method}
-                pait_name = getattr(method_endpoint, '_pait_name', None)
-                add_to_pait_name_dict(pait_name, path, method_set, f'{route_name}.{method}', method_endpoint)
+                pait_id = getattr(method_endpoint, '_pait_id', None)
+                add_to_pait_name_dict(pait_id, path, method_set, f'{route_name}.{method}', method_endpoint)
         else:
-            add_to_pait_name_dict(pait_name, path, method_set, route_name, endpoint)
+            add_to_pait_name_dict(pait_id, path, method_set, route_name, endpoint)
 
 
 params_verify = partial(_params_verify, StarletteDispatch)

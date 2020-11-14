@@ -57,8 +57,8 @@ def load_app(app: Flask):
         method_set: Set[str] = route.methods
         route_name: str = route.endpoint
         endpoint: Callable = app.view_functions[route_name]
-        pait_name: str = getattr(endpoint, '_pait_name', None)
-        if not pait_name:
+        pait_id: str = getattr(endpoint, '_pait_id', None)
+        if not pait_id:
             view_class_endpoint = getattr(endpoint, 'view_class', None)
             if route_name == 'static':
                 continue
@@ -71,10 +71,10 @@ def load_app(app: Flask):
                 endpoint = getattr(view_class_endpoint, method, None)
                 if not endpoint:
                     continue
-                pait_name = getattr(endpoint, '_pait_name', None)
-                add_to_pait_name_dict(pait_name, path, method_set, f'{route_name}.{method}', endpoint)
+                pait_id = getattr(endpoint, '_pait_id', None)
+                add_to_pait_name_dict(pait_id, path, method_set, f'{route_name}.{method}', endpoint)
         else:
-            add_to_pait_name_dict(pait_name, path, method_set, route_name, endpoint)
+            add_to_pait_name_dict(pait_id, path, method_set, route_name, endpoint)
 
 
 params_verify = partial(_params_verify, FlaskDispatch)
