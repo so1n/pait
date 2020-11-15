@@ -2,7 +2,7 @@ import inspect
 from typing import Any, Callable, Dict, List, Type, get_type_hints
 from types import CodeType
 
-from pydantic import BaseModel
+from pydantic import create_model, BaseModel
 from pydantic.fields import Undefined
 from pait.g import pait_id_dict, PaitInfoModel
 from pait.field import BaseField, Depends, FactoryField
@@ -72,6 +72,7 @@ class PaitMd(object):
     def _parse_func(self, func: Callable) -> Dict[str, List[Dict[str, Any]]]:
         field_dict: Dict[str, List[Dict[str, Any]]] = {}
         func_sig: FuncSig = get_func_sig(func)
+        single_field_dict = {}
         for parameter in func_sig.param_list:
             if parameter.default != parameter.empty:
                 annotation: type = parameter.annotation
@@ -96,18 +97,7 @@ class PaitMd(object):
                     if isinstance(parameter.default, Depends):
                         field_dict.update(self._parse_func(parameter.default.func))
                     else:
-                        param_name = getattr(parameter.default, 'key', parameter.name)
-                        _field_dict = {
-                            'param_name': param_name,
-                            'description': parameter.default.description,
-                            'default': parameter.default.default,
-                            'type': annotation,
-                            'other': {},
-                        }
-                        if field_name not in field_dict:
-                            field_dict[field_name] = [_field_dict]
-                        else:
-                            field_dict[field_name].append(_field_dict)
+                        single_field_dict[field_name] = parameter
             elif issubclass(parameter.annotation, PaitBaseModel):
                 # def test(test_model: PaitBaseModel)
                 _pait_model: Type[PaitBaseModel] = parameter.annotation
@@ -132,4 +122,43 @@ class PaitMd(object):
                         field_dict[field_name] = [_field_dict]
                     else:
                         field_dict[field_name].append(_field_dict)
+
+        if single_field_dict:
+            annotation_dict: Dict[str, Type] = {}
+            _pait_field_dict = {}
+            for field, parameter in single_field_dict.items():
+                annotation_dict[parameter.name] = (parameter.annotation, parameter.default)
+                _pait_field_dict[parameter.name] = field.__class__.__name__.lower()
+
+            _pydantic_model: Type[BaseModel] = create_model('DynamicFoobarModel', **annotation_dict)
+
+            property_dict: Dict[str, Dict[str, Any]] = _pydantic_model.schema()['properties']
+            for param_name, param_dict in property_dict.items():
+                # ref support
+                if '$ref' in param_dict:
+                    key = param_dict['$ref'].split('/')[-1]
+                    param_dict = _pydantic_model.schema()['definitions'][key]
+                # enum support
+                if 'enum' in param_dict:
+                    default = param_dict.get('enum')
+                    if not default:
+                        default = Undefined
+                    else:
+                        default = f'Only choose from: {",".join(default)}'
+                    _type = 'enum'
+                else:
+                    default = param_dict.get('default', Undefined)
+                    _type = param_dict['type']
+                _field_dict = {
+                    'param_name': param_dict['title'],
+                    'description': param_dict['description'],
+                    'default': default,
+                    'type': _type,
+                    'other': param_dict
+                }
+                field_name = _pait_field_dict[param_name]
+                if field_name not in field_dict:
+                    field_dict[field_name] = [_field_dict]
+                else:
+                    field_dict[field_name].append(_field_dict)
         return field_dict
