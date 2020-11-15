@@ -19,14 +19,14 @@ from pait.util import (
 )
 
 
-def params_verify(app: 'Type[Union[BaseAppDispatch, BaseAsyncAppDispatch]]'):
+def params_verify(app: 'Type[Union[BaseAppDispatch, BaseAsyncAppDispatch]]', tag: str = 'root'):
     def wrapper(func: Callable):
         func_sig: FuncSig = get_func_sig(func)
         qualname = func.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0]
 
         pait_id: str = f'{qualname}_{id(func)}'
         func._pait_id = pait_id
-        pait_id_dict[pait_id] = PaitInfoModel(func=func, func_name=func.__name__, pait_id=pait_id)
+        pait_id_dict[pait_id] = PaitInfoModel(func=func, func_name=func.__name__, pait_id=pait_id, tag=tag)
 
         if inspect.iscoroutinefunction(func):
             @wraps(func)

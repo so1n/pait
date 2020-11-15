@@ -3,10 +3,9 @@ from typing import Optional
 from flask import Flask, Request
 from flask.views import MethodView
 
-from pait.app.flask import params_verify, load_app
+from pait.app.flask import params_verify
 from pait.exceptions import PaitException
 from pait.field import Body, Depends, Header, Path, Query
-from pait.g import pait_id_dict
 from pydantic import ValidationError
 from pydantic import (
     conint,
@@ -28,7 +27,7 @@ def api_exception(exc: Exception):
 def test_raise_tip(
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
-        content__type: str = Header()
+        content__type: str = Header(description='Content-Type')  # in flask, Content-Type's key is content_type
 ):
     """Test Method: error tip"""
     return_dict = model.dict()
@@ -38,11 +37,11 @@ def test_raise_tip(
 
 
 @app.route("/api/post", methods=['POST'])
-@params_verify()
+@params_verify(tag='user')
 def test_post(
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
-        content_type: str = Header(key='Content-Type')
+        content_type: str = Header(key='Content-Type', description='Content-Type')
 ):
     """Test Method:Post Pydantic Model"""
     return_dict = model.dict()
@@ -52,7 +51,7 @@ def test_post(
 
 
 @app.route("/api/depend", methods=['GET'])
-@params_verify()
+@params_verify(tag='user')
 def demo_get2test_depend(
         request: Request,
         model: UserModel = Query(),
@@ -69,11 +68,11 @@ def demo_get2test_depend(
 
 
 @app.route("/api/get/<age>", methods=['GET'])
-@params_verify()
+@params_verify(tag='user')
 def test_pait(
-        uid: conint(gt=10, lt=1000) = Query(),
-        user_name: constr(min_length=2, max_length=4) = Query(),
-        email: Optional[str] = Query(default='example@xxx.com'),
+        uid: conint(gt=10, lt=1000) = Query(description='用户uid'),
+        user_name: constr(min_length=2, max_length=4) = Query(description='用户名'),
+        email: Optional[str] = Query(default='example@xxx.com', description='邮箱'),
         age: str = Path(),
         sex: SexEnum = Query()
 ):
@@ -95,14 +94,14 @@ def test_model(test_model: TestPaitModel):
 
 
 class TestCbv(MethodView):
-    user_agent: str = Header(key='user-agent')  # remove key will raise error
+    user_agent: str = Header(key='user-agent', description='ua')  # remove key will raise error
 
-    @params_verify()
+    @params_verify(tag='user')
     def get(
         self,
-        uid: conint(gt=10, lt=1000) = Query(),
-        user_name: constr(min_length=2, max_length=4) = Query(),
-        email: Optional[str] = Query(default='example@xxx.com'),
+        uid: conint(gt=10, lt=1000) = Query(description='用户uid'),
+        user_name: constr(min_length=2, max_length=4) = Query(description='用户名'),
+        email: Optional[str] = Query(default='example@xxx.com', description='邮箱'),
         model: UserOtherModel = Query(),
     ):
         """Text Pydantic Model and Field"""
@@ -114,7 +113,7 @@ class TestCbv(MethodView):
         }
         return {'result': _dict}
 
-    @params_verify()
+    @params_verify(tag='user')
     def post(
         self,
         model: UserModel = Body(),
@@ -129,6 +128,7 @@ class TestCbv(MethodView):
 app.add_url_rule('/api/cbv', view_func=TestCbv.as_view('test_cbv'))
 app.errorhandler(PaitException)(api_exception)
 app.errorhandler(ValidationError)(api_exception)
-load_app(app)
-print(pait_id_dict)
-app.run(port=8000, debug=True)
+
+
+if __name__ == "__main__":
+    app.run(port=8000, debug=True)

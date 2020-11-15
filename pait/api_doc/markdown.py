@@ -19,34 +19,39 @@ class PaitMd(object):
         self._init()
 
     def _init(self):
+        """read from `pait_id_dict` and write PaitMd attributes"""
         for pait_id, pait_model in pait_id_dict.items():
             tag: str = pait_model.tag
             if tag not in self._tag_pait_dict:
                 self._tag_pait_dict[tag] = [pait_model]
             else:
                 self._tag_pait_dict[tag].append(pait_model)
-
         self._tag_list = sorted(self._tag_pait_dict.keys())
 
     def gen_markdown_text(self):
         markdown_text: str = f"# {self._title}\n"
         for tag in self._tag_list:
+            # tag
             if self._use_html_details:
                 markdown_text += f"<details><summary>Tag: {tag}</summary>\n"
             else:
                 markdown_text += f"## Tag: {tag}\n"
             for pait_model in self._tag_pait_dict[tag]:
+                # func info
                 markdown_text += f"### Name: {pait_model.operation_id}\n"
                 func_code: CodeType = pait_model.func.__code__
                 markdown_text += f"- Func: {pait_model.func.__qualname__};" \
                                  f" file:{func_code.co_filename};" \
                                  f" line: {func_code.co_firstlineno}\n"
 
+                # request info
                 markdown_text += f"- Path: {pait_model.path}\n"
                 markdown_text += f"- Method: {','.join(pait_model.method_set)}\n"
                 markdown_text += f"- Request:\n"
+
                 field_dict = self._parse_func(pait_model.func)
                 field_key_list = sorted(field_dict.keys())
+                # request body info
                 for field in field_key_list:
                     field_dict_list = field_dict[field]
                     markdown_text += f"{' ' * 4}- {field.capitalize()}\n"
@@ -70,6 +75,7 @@ class PaitMd(object):
                                          f"|{description}" \
                                          f"|{other_dict}"\
                                          f"|\n"
+                # response info
                 markdown_text += f"- Response:\n"
                 markdown_text += "\n"
             if self._use_html_details:
@@ -85,12 +91,12 @@ class PaitMd(object):
         property_dict: Dict[str, Any] = _pydantic_model.schema()['properties']
         for param_name, param_dict in property_dict.items():
             field_name = _pait_field_dict[param_name].__class__.__name__.lower()
-            # ref support
             if '$ref' in param_dict:
+                # ref support
                 key: str = param_dict['$ref'].split('/')[-1]
                 param_dict: Dict[str, Any] = _pydantic_model.schema()['definitions'][key]
-            # enum support
             if 'enum' in param_dict:
+                # enum support
                 default: str = param_dict.get('enum')
                 if not default:
                     default = Undefined
@@ -101,7 +107,7 @@ class PaitMd(object):
             else:
                 default = param_dict.get('default', Undefined)
                 _type = param_dict['type']
-                description = param_dict['description']
+                description = param_dict.get('description')
                 param_name = param_dict['title']
             _field_dict = {
                 'param_name': param_name,
@@ -152,9 +158,7 @@ class PaitMd(object):
                     for param_name, param_annotation in get_type_hints(_pait_model).items()
                     if not param_name.startswith('_')
                 }
-
                 pait_base_model = _pait_model.to_pydantic_model()
-
                 self._parse_base_model(field_dict, pait_base_model, _pait_field_dict)
 
         if single_field_dict:
