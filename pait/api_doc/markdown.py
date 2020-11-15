@@ -1,5 +1,5 @@
 import inspect
-from typing import Any, Callable, Dict, List, get_type_hints
+from typing import Any, Callable, Dict, List, Type, get_type_hints
 from types import CodeType
 
 from pydantic import BaseModel
@@ -32,33 +32,37 @@ class PaitMd(object):
         markdown_text: str = f"# {self._title}\n"
         for tag in self._tag_list:
             if self._use_html_details:
-                markdown_text += f"<details><summary>Tag:{tag}</summary>\n"
+                markdown_text += f"<details><summary>Tag: {tag}</summary>\n"
             else:
-                markdown_text += f"## Tag:{tag}\n"
+                markdown_text += f"## Tag: {tag}\n"
             for pait_model in self._tag_pait_dict[tag]:
-                markdown_text += f"### Name:{pait_model.operation_id}\n"
+                markdown_text += f"### Name: {pait_model.operation_id}\n"
                 func_code: CodeType = pait_model.func.__code__
-                markdown_text += f"- Func:{pait_model.func.__qualname__};" \
+                markdown_text += f"- Func: {pait_model.func.__qualname__};" \
                                  f" file:{func_code.co_filename};" \
                                  f" line: {func_code.co_firstlineno}\n"
 
-                markdown_text += f"- Path:{pait_model.path}\n"
-                markdown_text += f"- Method:{','.join(pait_model.method_set)}\n"
+                markdown_text += f"- Path: {pait_model.path}\n"
+                markdown_text += f"- Method: {','.join(pait_model.method_set)}\n"
                 markdown_text += f"- Request:\n"
                 field_dict = self._parse_func(pait_model.func)
-                field_list = sorted(field_dict.keys())
-                for field in field_list:
+                field_key_list = sorted(field_dict.keys())
+                for field in field_key_list:
                     field_dict_list = field_dict[field]
-                    markdown_text += f"    - {field.capitalize()}\n"
-                    markdown_text += f"        |param name|type|default value|description|\n"
-                    markdown_text += f"        |---|---|---|---|\n"
-                    for sub_field_dict in field_dict_list:
-                        default = sub_field_dict['default']
+                    markdown_text += f"{' ' * 4}- {field.capitalize()}\n"
+                    markdown_text += f"{' ' * 8}|param name|type|default value|description|other|\n"
+                    markdown_text += f"{' ' * 8}|---|---|---|---|---|\n"
+                    for field_info_dict in field_dict_list:
+                        default = field_info_dict['default']
                         if default is Undefined:
-                            default = '`Required`'
-                        description = sub_field_dict['description']
-                        markdown_text += f"        |{sub_field_dict['param_name']}|{sub_field_dict['type']}" \
-                                         f"|{default}|{description}|\n"
+                            default = '**`Required`**'
+                        description = field_info_dict['description']
+                        markdown_text += f"{' ' * 8}|{field_info_dict['param_name']}" \
+                                         f"|{field_info_dict['type']}" \
+                                         f"|{default}" \
+                                         f"|{description}" \
+                                         f"|{field_info_dict.get('other', None)}"\
+                                         f"|\n"
                 markdown_text += f"- Response:\n"
                 markdown_text += "\n"
             if self._use_html_details:
@@ -92,9 +96,7 @@ class PaitMd(object):
                     if isinstance(parameter.default, Depends):
                         field_dict.update(self._parse_func(parameter.default.func))
                     else:
-                        param_name = getattr(parameter.default, 'key', None)
-                        if not param_name:
-                            param_name = parameter.name
+                        param_name = getattr(parameter.default, 'key', parameter.name)
                         _field_dict = {
                             'param_name': param_name,
                             'description': parameter.default.description,
@@ -108,21 +110,26 @@ class PaitMd(object):
                             field_dict[field_name].append(_field_dict)
             elif issubclass(parameter.annotation, PaitBaseModel):
                 # def test(test_model: PaitBaseModel)
-                _pait_model = parameter.annotation
-                for param_name, param_annotation in get_type_hints(_pait_model).items():
-                    field: BaseField = getattr(_pait_model, param_name)
-                    if isinstance(field, FactoryField):
-                        field: BaseField = field.field
-                        field_name: str = field.__class__.__name__.lower()
-                        _field_dict = {
-                            'param_name': param_name,
-                            'description': parameter.default.description,
-                            'default': parameter.default.default,
-                            'type': param_annotation,
-                            'other': {},
-                        }
-                        if field_name not in field_dict:
-                            field_dict[field_name] = [_field_dict]
-                        else:
-                           field_dict[field_name].append(_field_dict)
+                _pait_model: Type[PaitBaseModel] = parameter.annotation
+                _pait_field_dict = {
+                    param_name: getattr(_pait_model, param_name).__class__.__name__.lower()
+                    for param_name, param_annotation in get_type_hints(_pait_model).items()
+                    if not param_name.startswith('_')
+                }
+
+                pait_base_model = _pait_model.to_pydantic_model()
+                property_dict: Dict[str, Dict[str, Any]] = pait_base_model.schema()['properties']
+                for param_name, param_dict in property_dict.items():
+                    _field_dict = {
+                        'param_name': param_dict['title'],
+                        'description': param_dict['description'],
+                        'default': param_dict.get('default', Undefined),
+                        'type': param_dict['type'],
+                        'other': param_dict
+                    }
+                    field_name = _pait_field_dict[param_name]
+                    if field_name not in field_dict:
+                        field_dict[field_name] = [_field_dict]
+                    else:
+                        field_dict[field_name].append(_field_dict)
         return field_dict

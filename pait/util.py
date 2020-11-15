@@ -1,7 +1,7 @@
 import inspect
 
 from dataclasses import dataclass
-from typing import Callable, List, Type, TYPE_CHECKING, Union, get_type_hints
+from typing import Callable, Dict, List, Type, TYPE_CHECKING, Union, get_type_hints
 
 from pydantic import BaseModel, create_model
 
@@ -16,7 +16,12 @@ class PaitBaseModel(object):
     def to_pydantic_model(cls) -> Type[BaseModel]:
         if cls._pydantic_model:
             return cls._pydantic_model
-        cls._pydantic_model: Type[BaseModel] = create_model('DynamicFoobarModel', **get_type_hints(cls))
+        annotation_dict: Dict[str, Type] = {
+            param_name: (annotation, getattr(cls, param_name, ...))
+            for param_name, annotation in get_type_hints(cls).items()
+            if not param_name.startswith('_')
+        }
+        cls._pydantic_model: Type[BaseModel] = create_model('DynamicFoobarModel', **annotation_dict)
         return cls._pydantic_model
 
     def dict(
