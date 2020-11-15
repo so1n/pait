@@ -77,4 +77,5 @@ def load_app(app: Flask):
             add_to_pait_name_dict(pait_id, path, method_set, route_name, endpoint)
 
 
-params_verify = partial(_params_verify, FlaskDispatch)
+def params_verify(tag: str = 'root'):
+    return _params_verify(FlaskDispatch, tag=tag)

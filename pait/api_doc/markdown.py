@@ -11,6 +11,8 @@ from pait.util import FuncSig, PaitBaseModel, get_func_sig
 
 class PaitMd(object):
     def __init__(self, title: str = 'Pait Doc', use_html_details: bool = True):
+        if not pait_id_dict:
+            raise RuntimeError(f'`pait info not init`, please run load_app')
         self._use_html_details: bool = use_html_details  # some not support markdown in html
         self._title: str = title
         self._tag_list: List[str] = []

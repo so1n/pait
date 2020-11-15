@@ -67,4 +67,5 @@ def load_app(app: Starlette):
             add_to_pait_name_dict(pait_id, path, method_set, route_name, endpoint)
 
 
-params_verify = partial(_params_verify, StarletteDispatch)
+def params_verify(tag: str = 'root'):
+    return _params_verify(StarletteDispatch, tag=tag)
