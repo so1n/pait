@@ -5,7 +5,7 @@ from types import CodeType
 from pydantic import create_model, BaseModel
 from pydantic.fields import Undefined
 from pait.g import pait_id_dict, PaitInfoModel
-from pait.field import Depends
+from pait.field import BaseField, Depends
 from pait.util import FuncSig, PaitBaseModel, get_func_sig
 
 
@@ -57,17 +57,63 @@ class PaitMd(object):
                         if default is Undefined:
                             default = '**`Required`**'
                         description = field_info_dict['description']
+                        other_dict = field_info_dict.get('other', None)
+                        if other_dict:
+                            other_dict = {
+                                key: value
+                                for key, value in other_dict.items()
+                                if key not in {'description', 'title', 'type', 'default'}
+                            }
                         markdown_text += f"{' ' * 8}|{field_info_dict['param_name']}" \
                                          f"|{field_info_dict['type']}" \
                                          f"|{default}" \
                                          f"|{description}" \
-                                         f"|{field_info_dict.get('other', None)}"\
+                                         f"|{other_dict}"\
                                          f"|\n"
                 markdown_text += f"- Response:\n"
                 markdown_text += "\n"
             if self._use_html_details:
                 markdown_text += "</details>"
         print(markdown_text)
+
+    @staticmethod
+    def _parse_base_model(
+        field_dict: Dict[str, List[Dict[str, Any]]],
+        _pydantic_model: Type[BaseModel],
+        _pait_field_dict: Dict[str, BaseField]
+    ):
+        property_dict: Dict[str, Any] = _pydantic_model.schema()['properties']
+        for param_name, param_dict in property_dict.items():
+            field_name = _pait_field_dict[param_name].__class__.__name__.lower()
+            # ref support
+            if '$ref' in param_dict:
+                key: str = param_dict['$ref'].split('/')[-1]
+                param_dict: Dict[str, Any] = _pydantic_model.schema()['definitions'][key]
+            # enum support
+            if 'enum' in param_dict:
+                default: str = param_dict.get('enum')
+                if not default:
+                    default = Undefined
+                else:
+                    default = f'Only choose from: {",".join(["`" + i + "`" for i in default])}'
+                _type: str = 'enum'
+                description: str = _pait_field_dict[param_name].description
+            else:
+                default = param_dict.get('default', Undefined)
+                _type = param_dict['type']
+                description = param_dict['description']
+                param_name = param_dict['title']
+            _field_dict = {
+                'param_name': param_name,
+                'description': description,
+                'default': default,
+                'type': _type,
+                'other': param_dict
+            }
+            if field_name not in field_dict:
+                field_dict[field_name] = [_field_dict]
+            else:
+                field_dict[field_name].append(_field_dict)
 
     def _parse_func(self, func: Callable) -> Dict[str, List[Dict[str, Any]]]:
         field_dict: Dict[str, List[Dict[str, Any]]] = {}
@@ -102,66 +148,22 @@ class PaitMd(object):
                 # def test(test_model: PaitBaseModel)
                 _pait_model: Type[PaitBaseModel] = parameter.annotation
                 _pait_field_dict = {
-                    param_name: getattr(_pait_model, param_name).__class__.__name__.lower()
+                    param_name: getattr(_pait_model, param_name)
                     for param_name, param_annotation in get_type_hints(_pait_model).items()
                     if not param_name.startswith('_')
                 }
 
                 pait_base_model = _pait_model.to_pydantic_model()
-                property_dict: Dict[str, Dict[str, Any]] = pait_base_model.schema()['properties']
-                for param_name, param_dict in property_dict.items():
-                    _field_dict = {
-                        'param_name': param_dict['title'],
-                        'description': param_dict['description'],
-                        'default': param_dict.get('default', Undefined),
-                        'type': param_dict['type'],
-                        'other': param_dict
-                    }
-                    field_name = _pait_field_dict[param_name]
-                    if field_name not in field_dict:
-                        field_dict[field_name] = [_field_dict]
-                    else:
-                        field_dict[field_name].append(_field_dict)
+
+                self._parse_base_model(field_dict, pait_base_model, _pait_field_dict)
 
         if single_field_dict:
             annotation_dict: Dict[str, Tuple] = {}
-            _pait_field_dict: Dict[str, str] = {}
+            _pait_field_dict: Dict[str, BaseField] = {}
             for field, parameter in single_field_dict.items():
                 annotation_dict[parameter.name] = (parameter.annotation, parameter.default)
-                _pait_field_dict[parameter.name] = parameter.default.__class__.__name__.lower()
+                _pait_field_dict[parameter.name] = parameter.default
 
             _pydantic_model: Type[BaseModel] = create_model('DynamicFoobarModel', **annotation_dict)
-
-            property_dict: Dict[str, Any] = _pydantic_model.schema()['properties']
-            for param_name, param_dict in property_dict.items():
-                field_name = _pait_field_dict[param_name]
-                # ref support
-                if '$ref' in param_dict:
-                    key: str = param_dict['$ref'].split('/')[-1]
-                    param_dict: Dict[str, Any] = _pydantic_model.schema()['definitions'][key]
-                # enum support
-                if 'enum' in param_dict:
-                    default: str = param_dict.get('enum')
-                    if not default:
-                        default = Undefined
-                    else:
-                        default = f'Only choose from: {",".join(default)}'
-                    _type: str = 'enum'
-                    description: str = annotation_dict[param_name][1].description
-                else:
-                    default = param_dict.get('default', Undefined)
-                    _type = param_dict['type']
-                    description = param_dict['description']
-                    param_name = param_dict['title']
-                _field_dict = {
-                    'param_name': param_name,
-                    'description': description,
-                    'default': default,
-                    'type': _type,
-                    'other': param_dict
-                }
-                if field_name not in field_dict:
-                    field_dict[field_name] = [_field_dict]
-                else:
-                    field_dict[field_name].append(_field_dict)
+            self._parse_base_model(field_dict, _pydantic_model, _pait_field_dict)
         return field_dict
