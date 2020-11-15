@@ -3,7 +3,7 @@ from typing import Optional
 from flask import Flask, Request
 from flask.views import MethodView
 
-from pait.app.flask import params_verify
+from pait.app.pait_flask import params_verify
 from pait.exceptions import PaitException
 from pait.field import Body, Depends, Header, Path, Query
 from pydantic import ValidationError

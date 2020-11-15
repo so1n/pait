@@ -1,5 +1,5 @@
 from pait.api_doc.markdown import PaitMd
-from pait.app.starletter import load_app
+from pait.app import load_app
 
 from example.param_verify.starletter_example import app
 
