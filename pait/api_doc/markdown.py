@@ -1,11 +1,11 @@
 import inspect
-from typing import Any, Callable, Dict, List, Type, get_type_hints
+from typing import Any, Callable, Dict, List, Tuple, Type, get_type_hints
 from types import CodeType
 
 from pydantic import create_model, BaseModel
 from pydantic.fields import Undefined
 from pait.g import pait_id_dict, PaitInfoModel
-from pait.field import BaseField, Depends, FactoryField
+from pait.field import Depends
 from pait.util import FuncSig, PaitBaseModel, get_func_sig
 
 
@@ -124,39 +124,42 @@ class PaitMd(object):
                         field_dict[field_name].append(_field_dict)
 
         if single_field_dict:
-            annotation_dict: Dict[str, Type] = {}
-            _pait_field_dict = {}
+            annotation_dict: Dict[str, Tuple] = {}
+            _pait_field_dict: Dict[str, str] = {}
             for field, parameter in single_field_dict.items():
                 annotation_dict[parameter.name] = (parameter.annotation, parameter.default)
-                _pait_field_dict[parameter.name] = field.__class__.__name__.lower()
+                _pait_field_dict[parameter.name] = parameter.default.__class__.__name__.lower()
 
             _pydantic_model: Type[BaseModel] = create_model('DynamicFoobarModel', **annotation_dict)
 
-            property_dict: Dict[str, Dict[str, Any]] = _pydantic_model.schema()['properties']
+            property_dict: Dict[str, Any] = _pydantic_model.schema()['properties']
             for param_name, param_dict in property_dict.items():
+                field_name = _pait_field_dict[param_name]
                 # ref support
                 if '$ref' in param_dict:
-                    key = param_dict['$ref'].split('/')[-1]
-                    param_dict = _pydantic_model.schema()['definitions'][key]
+                    key: str = param_dict['$ref'].split('/')[-1]
+                    param_dict: Dict[str, Any] = _pydantic_model.schema()['definitions'][key]
                 # enum support
                 if 'enum' in param_dict:
-                    default = param_dict.get('enum')
+                    default: str = param_dict.get('enum')
                     if not default:
                         default = Undefined
                     else:
                         default = f'Only choose from: {",".join(default)}'
-                    _type = 'enum'
+                    _type: str = 'enum'
+                    description: str = annotation_dict[param_name][1].description
                 else:
                     default = param_dict.get('default', Undefined)
                     _type = param_dict['type']
+                    description = param_dict['description']
+                    param_name = param_dict['title']
                 _field_dict = {
-                    'param_name': param_dict['title'],
-                    'description': param_dict['description'],
+                    'param_name': param_name,
+                    'description': description,
                     'default': default,
                     'type': _type,
                     'other': param_dict
                 }
-                field_name = _pait_field_dict[param_name]
                 if field_name not in field_dict:
                     field_dict[field_name] = [_field_dict]
                 else:
