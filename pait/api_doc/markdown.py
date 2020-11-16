@@ -42,23 +42,24 @@ class PaitMd(object):
             for pait_model in self._tag_pait_dict[tag]:
                 # func info
                 markdown_text += f"### Name: {pait_model.operation_id}\n"
-                if pait_model.author:
-                    markdown_text += f"- Author: {', '.join(pait_model.author)}\n"
-                markdown_text += f"- Description: {pait_model.desc}\n"
+                status = ''
                 if pait_model.status == 'test':
-                    markdown_text += f"- Status: <font color=#00BFFF>{pait_model.status}</font>\n"
+                    status = f"<font color=#00BFFF>{pait_model.status}</font>"
                 elif pait_model.status == 'release':
-                    markdown_text += f"- Status: <font color=#32CD32>{pait_model.status}</font>\n"
+                    status = f"<font color=#32CD32>{pait_model.status}</font>"
                 elif pait_model.status == 'abandoned':
-                    markdown_text += f"- Status: <font color=#DC143C>{pait_model.status}</font>\n"
+                    status = f"<font color=#DC143C>{pait_model.status}</font>"
                 elif pait_model.status:
-                    markdown_text += f"- Status: {pait_model.status}\n"
-
+                    status = f"{pait_model.status}"
 
                 func_code: CodeType = pait_model.func.__code__
-                markdown_text += f"- Func: {pait_model.func.__qualname__};" \
-                                 f" file:{func_code.co_filename};" \
-                                 f" line: {func_code.co_firstlineno}\n"
+                markdown_text += f"|Author|Status|file|description|\n"
+                markdown_text += f"|---|---|---|---|\n"
+                markdown_text += f"|{','.join(pait_model.author)}" \
+                                 f"|{status}" \
+                                 f'|<abbr title="file:{func_code.co_filename};line: {func_code.co_firstlineno}">{pait_model.func.__qualname__}</abbr>' \
+                                 f"|{pait_model.desc}|\n"
+
 
                 # request info
                 markdown_text += f"- Path: {pait_model.path}\n"
