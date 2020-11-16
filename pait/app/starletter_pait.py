@@ -1,4 +1,3 @@
-from functools import partial
 from typing import Callable, Type, Union
 
 from starlette.applications import Starlette
@@ -8,9 +7,9 @@ from starlette.requests import Request
 from starlette.datastructures import FormData, Headers, UploadFile
 
 from pait.app.base import BaseAsyncAppDispatch
-from pait.g import add_to_pait_name_dict
+from pait.g import pait_data
 from pait.lazy_property import LazyAsyncProperty, LazyProperty
-from pait.verify import params_verify as _params_verify
+from pait.core import pait as _pait
 
 
 class StarletteDispatch(BaseAsyncAppDispatch):
@@ -62,10 +61,10 @@ def load_app(app: Starlette):
                     continue
                 method_set = {method}
                 pait_id = getattr(method_endpoint, '_pait_id', None)
-                add_to_pait_name_dict(pait_id, path, method_set, f'{route_name}.{method}', method_endpoint)
+                pait_data.add_route_info(pait_id, path, method_set, f'{route_name}.{method}', method_endpoint)
         else:
-            add_to_pait_name_dict(pait_id, path, method_set, route_name, endpoint)
+            pait_data.add_route_info(pait_id, path, method_set, route_name, endpoint)
 
 
-def params_verify(tag: str = 'root'):
-    return _params_verify(StarletteDispatch, tag=tag)
+def pait(tag: str = 'root'):
+    return _pait(StarletteDispatch, tag=tag)

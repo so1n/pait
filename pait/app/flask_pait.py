@@ -1,5 +1,4 @@
 import logging
-from functools import partial
 from typing import Any, Callable, Dict, Mapping, Set, Tuple
 
 from flask import Flask, request, Request
@@ -7,8 +6,8 @@ from flask.views import MethodView
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 
 from pait.app.base import BaseAsyncAppDispatch
-from pait.g import add_to_pait_name_dict
-from pait.verify import params_verify as _params_verify
+from pait.g import pait_data
+from pait.core import pait as _pait
 
 
 class FlaskDispatch(BaseAsyncAppDispatch):
@@ -72,10 +71,10 @@ def load_app(app: Flask):
                 if not endpoint:
                     continue
                 pait_id = getattr(endpoint, '_pait_id', None)
-                add_to_pait_name_dict(pait_id, path, method_set, f'{route_name}.{method}', endpoint)
+                pait_data.add_route_info(pait_id, path, method_set, f'{route_name}.{method}', endpoint)
         else:
-            add_to_pait_name_dict(pait_id, path, method_set, route_name, endpoint)
+            pait_data.add_route_info(pait_id, path, method_set, route_name, endpoint)
 
 
-def params_verify(tag: str = 'root'):
-    return _params_verify(FlaskDispatch, tag=tag)
+def pait(tag: str = 'root'):
+    return _pait(FlaskDispatch, tag=tag)

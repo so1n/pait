@@ -6,7 +6,8 @@ from pait.app.base import (
     BaseAsyncAppDispatch,
     BaseAppDispatch,
 )
-from pait.g import pait_id_dict, PaitInfoModel
+from pait.g import pait_data
+from pait.pait_info import PaitInfoModel
 from pait.param_handle import (
     async_class_param_handle,
     async_func_param_handle,
@@ -26,7 +27,7 @@ def params_verify(app: 'Type[Union[BaseAppDispatch, BaseAsyncAppDispatch]]', tag
 
         pait_id: str = f'{qualname}_{id(func)}'
         func._pait_id = pait_id
-        pait_id_dict[pait_id] = PaitInfoModel(func=func, func_name=func.__name__, pait_id=pait_id, tag=tag)
+        pait_data.register(PaitInfoModel(func=func, func_name=func.__name__, pait_id=pait_id, tag=tag))
 
         if inspect.iscoroutinefunction(func):
             @wraps(func)
