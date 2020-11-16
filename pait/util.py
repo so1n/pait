@@ -34,7 +34,8 @@ class PaitBaseModel(object):
         exclude_defaults: bool = False,
         exclude_none: bool = False,
     ) -> 'DictStrAny':
-        return self.to_pydantic_model(**self.__dict__).dict(
+        _pydantic_model: BaseModel = self._pydantic_model()(**self.__dict__)
+        return _pydantic_model.dict(
             include=include,
             exclude=exclude,
             by_alias=by_alias,
@@ -45,7 +46,7 @@ class PaitBaseModel(object):
         )
 
     @classmethod
-    def aaa(cls, by_alias: bool = True) -> 'DictStrAny':
+    def schema(cls, by_alias: bool = True) -> 'DictStrAny':
         return cls.to_pydantic_model().schema(by_alias=by_alias)
 
 
