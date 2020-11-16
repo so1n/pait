@@ -3,7 +3,7 @@ from typing import Optional
 from flask import Flask, Request
 from flask.views import MethodView
 
-from pait.app.pait_flask import params_verify
+from pait.app.flask_pait import pait
 from pait.exceptions import PaitException
 from pait.field import Body, Depends, Header, Path, Query
 from pydantic import ValidationError
@@ -23,7 +23,7 @@ def api_exception(exc: Exception):
 
 
 @app.route("/api/raise_tip", methods=['POST'])
-@params_verify()
+@pait()
 def test_raise_tip(
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
@@ -37,7 +37,7 @@ def test_raise_tip(
 
 
 @app.route("/api/post", methods=['POST'])
-@params_verify(tag='user')
+@pait(tag='user')
 def test_post(
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
@@ -51,7 +51,7 @@ def test_post(
 
 
 @app.route("/api/depend", methods=['GET'])
-@params_verify(tag='user')
+@pait(tag='user')
 def demo_get2test_depend(
         request: Request,
         model: UserModel = Query(),
@@ -68,7 +68,7 @@ def demo_get2test_depend(
 
 
 @app.route("/api/get/<age>", methods=['GET'])
-@params_verify(tag='user')
+@pait(tag='user')
 def test_pait(
         uid: conint(gt=10, lt=1000) = Query(description='用户uid'),
         user_name: constr(min_length=2, max_length=4) = Query(description='用户名'),
@@ -87,7 +87,7 @@ def test_pait(
 
 
 @app.route("/api/pait_model", methods=['GET'])
-@params_verify()
+@pait()
 def test_model(test_model: TestPaitModel):
     """Test Field"""
     return test_model.dict()
@@ -96,7 +96,7 @@ def test_model(test_model: TestPaitModel):
 class TestCbv(MethodView):
     user_agent: str = Header(key='user-agent', description='ua')  # remove key will raise error
 
-    @params_verify(tag='user')
+    @pait(tag='user')
     def get(
         self,
         uid: conint(gt=10, lt=1000) = Query(description='用户uid'),
@@ -113,7 +113,7 @@ class TestCbv(MethodView):
         }
         return {'result': _dict}
 
-    @params_verify(tag='user')
+    @pait(tag='user')
     def post(
         self,
         model: UserModel = Body(),

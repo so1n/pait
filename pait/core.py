@@ -7,7 +7,7 @@ from pait.app.base import (
     BaseAppDispatch,
 )
 from pait.g import pait_data
-from pait.pait_info import PaitInfoModel
+from pait.data import PaitInfoModel
 from pait.param_handle import (
     async_class_param_handle,
     async_func_param_handle,
@@ -20,7 +20,7 @@ from pait.util import (
 )
 
 
-def params_verify(app: 'Type[Union[BaseAppDispatch, BaseAsyncAppDispatch]]', tag: str = 'root'):
+def pait(app: 'Type[Union[BaseAppDispatch, BaseAsyncAppDispatch]]', tag: str = 'root'):
     def wrapper(func: Callable):
         func_sig: FuncSig = get_func_sig(func)
         qualname = func.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0]

@@ -4,14 +4,15 @@ from types import CodeType
 
 from pydantic import create_model, BaseModel
 from pydantic.fields import Undefined
-from pait.g import pait_id_dict, PaitInfoModel
+from pait.g import pait_data
+from pait.data import PaitInfoModel
 from pait.field import BaseField, Depends
 from pait.util import FuncSig, PaitBaseModel, get_func_sig
 
 
 class PaitMd(object):
     def __init__(self, title: str = 'Pait Doc', use_html_details: bool = True):
-        if not pait_id_dict:
+        if not pait_data:
             raise RuntimeError(f'`pait info not init`, please run load_app')
         self._use_html_details: bool = use_html_details  # some not support markdown in html
         self._title: str = title
@@ -22,7 +23,7 @@ class PaitMd(object):
 
     def _init(self):
         """read from `pait_id_dict` and write PaitMd attributes"""
-        for pait_id, pait_model in pait_id_dict.items():
+        for pait_id, pait_model in pait_data.pait_id_dict.items():
             tag: str = pait_model.tag
             if tag not in self._tag_pait_dict:
                 self._tag_pait_dict[tag] = [pait_model]

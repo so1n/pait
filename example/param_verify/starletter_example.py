@@ -7,7 +7,7 @@ from starlette.responses import JSONResponse
 
 from pait.exceptions import PaitException
 from pait.field import Body, Depends, Header, Path, Query
-from pait.app.pait_starletter import params_verify
+from pait.app.starletter_pait import pait
 from pydantic import ValidationError
 from pydantic import (
     conint,
@@ -21,7 +21,7 @@ async def api_exception(request: Request, exc: Exception) -> JSONResponse:
     return JSONResponse({'exc': str(exc)})
 
 
-@params_verify()
+@pait()
 async def test_raise_tip(
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
@@ -34,7 +34,7 @@ async def test_raise_tip(
     return JSONResponse(return_dict)
 
 
-@params_verify(tag='user')
+@pait(tag='user')
 async def test_post(
     model: UserModel = Body(),
     other_model: UserOtherModel = Body(),
@@ -47,7 +47,7 @@ async def test_post(
     return JSONResponse(return_dict)
 
 
-@params_verify(tag='user')
+@pait(tag='user')
 async def test_depend(
     request: Request,
     model: UserModel = Query(),
@@ -63,7 +63,7 @@ async def test_depend(
     return JSONResponse(return_dict)
 
 
-@params_verify(tag='user')
+@pait(tag='user')
 async def test_get(
         uid: conint(gt=10, lt=1000) = Query(description='用户id'),
         user_name: constr(min_length=2, max_length=4) = Query(description='用户名'),
@@ -82,7 +82,7 @@ async def test_get(
     return JSONResponse(_dict)
 
 
-@params_verify()
+@pait()
 async def test_pait_model(test_model: TestPaitModel):
     """Test Field"""
     return JSONResponse(test_model.dict())
@@ -91,7 +91,7 @@ async def test_pait_model(test_model: TestPaitModel):
 class TestCbv(HTTPEndpoint):
     user_agent: str = Header(key='user-agent', description='ua')  # remove key will raise error
 
-    @params_verify(tag='user')
+    @pait(tag='user')
     async def get(
         self,
         uid: conint(gt=10, lt=1000) = Query(description='用户uid'),
@@ -109,7 +109,7 @@ class TestCbv(HTTPEndpoint):
         }
         return JSONResponse({'result': _dict})
 
-    @params_verify(tag='user')
+    @pait(tag='user')
     async def post(
         self,
         model: UserModel = Body(),

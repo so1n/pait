@@ -1,8 +1,8 @@
 from .auto_load_app import auto_load_app_class
-from .pait_flask import load_app as load_flask
-from .pait_flask import params_verify as flask_params_verify
-from .pait_starletter import load_app as load_starlette
-from .pait_starletter import params_verify as starlette_params_verify
+from .flask_pait import load_app as load_flask
+from .flask_pait import pait as flask_pait
+from .starletter_pait import load_app as load_starlette
+from .starletter_pait import pait as starlette_pait
 
 
 def load_app(app):
@@ -15,12 +15,12 @@ def load_app(app):
         raise NotImplementedError(f'Pait not support:{app}')
 
 
-def params_verify(tag='root'):
+def pait(tag='root'):
     load_class_app = auto_load_app_class()
     if load_class_app.__name__ == 'Flask':
-        flask_params_verify(tag=tag)
+        flask_pait(tag=tag)
     elif load_class_app.__name__ == 'Starlette':
-        starlette_params_verify(tag=tag)
+        starlette_pait(tag=tag)
     else:
         raise NotImplementedError(f'Pait not support:{load_class_app}')
 
