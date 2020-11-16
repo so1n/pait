@@ -7,7 +7,7 @@ from pydantic.fields import Undefined
 from pait.g import pait_data
 from pait.data import PaitCoreModel
 from pait.field import BaseField, Depends
-from pait.util import FuncSig, PaitBaseModel, get_func_sig
+from pait.util import FuncSig, PaitBaseModel, get_func_sig, get_parameter_list_from_class
 
 
 class PaitMd(object):
@@ -53,20 +53,19 @@ class PaitMd(object):
                     status = f"{pait_model.status}"
 
                 func_code: CodeType = pait_model.func.__code__
-                markdown_text += f"|Author|Status|file|description|\n"
+                markdown_text += f"|Author|Status|func|description|\n"
                 markdown_text += f"|---|---|---|---|\n"
                 markdown_text += f"|{','.join(pait_model.author)}" \
                                  f"|{status}" \
                                  f'|<abbr title="file:{func_code.co_filename};line: {func_code.co_firstlineno}">{pait_model.func.__qualname__}</abbr>' \
                                  f"|{pait_model.desc}|\n"
 
-
                 # request info
                 markdown_text += f"- Path: {pait_model.path}\n"
                 markdown_text += f"- Method: {','.join(pait_model.method_set)}\n"
                 markdown_text += f"- Request:\n"
 
-                field_dict = self._parse_func(pait_model.func)
+                field_dict = self._parse_func_param(pait_model.func)
                 field_key_list = sorted(field_dict.keys())
                 # request body info
                 for field in field_key_list:
@@ -114,10 +113,8 @@ class PaitMd(object):
                 param_dict: Dict[str, Any] = _pydantic_model.schema()['definitions'][key]
             if 'enum' in param_dict:
                 # enum support
-                default: str = param_dict.get('enum')
-                if not default:
-                    default = Undefined
-                else:
+                default: str = param_dict.get('enum', Undefined)
+                if default is not Undefined:
                     default = f'Only choose from: {",".join(["`" + i + "`" for i in default])}'
                 _type: str = 'enum'
                 description: str = _pait_field_dict[param_name].description
@@ -137,34 +134,29 @@ class PaitMd(object):
             else:
                 field_dict[field_name].append(_field_dict)
 
-    def _parse_func(self, func: Callable) -> Dict[str, List[Dict[str, Any]]]:
-        field_dict: Dict[str, List[Dict[str, Any]]] = {}
-        func_sig: FuncSig = get_func_sig(func)
-        single_field_dict = {}
-        for parameter in func_sig.param_list:
+    def parameter_list_handle(
+        self,
+        parameter_list: List['inspect.Parameter'],
+        field_dict: Dict[str, List[Dict[str, Any]]],
+        single_field_dict
+    ):
+        for parameter in parameter_list:
             if parameter.default != parameter.empty:
                 annotation: type = parameter.annotation
-                field_name: str = parameter.default.__class__.__name__.lower()
                 if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
                     # def test(test_model: BaseModel = Body())
-                    property_dict: Dict[str, Dict[str, Any]] = annotation.schema()['properties']
-                    for param_name, param_dict in property_dict.items():
-                        _field_dict = {
-                            'param_name': param_name,
-                            'description': param_dict['description'],
-                            'default': param_dict.get('default', Undefined),
-                            'type': param_dict['type'],
-                            'other': param_dict
-                        }
-                        if field_name not in field_dict:
-                            field_dict[field_name] = [_field_dict]
-                        else:
-                            field_dict[field_name].append(_field_dict)
+                    _pait_field_dict = {
+                        param_name: parameter.default
+                        for param_name, annotation in get_type_hints(annotation).items()
+                        if not param_name.startswith('_')
+                    }
+                    self._parse_base_model(field_dict, annotation, _pait_field_dict)
                 else:
                     # def test(test_model: int = Body())
                     if isinstance(parameter.default, Depends):
-                        field_dict.update(self._parse_func(parameter.default.func))
+                        field_dict.update(self._parse_func_param(parameter.default.func))
                     else:
+                        field_name: str = parameter.default.__class__.__name__.lower()
                         single_field_dict[field_name] = parameter
             elif issubclass(parameter.annotation, PaitBaseModel):
                 # def test(test_model: PaitBaseModel)
@@ -177,6 +169,18 @@ class PaitMd(object):
                 pait_base_model = _pait_model.to_pydantic_model()
                 self._parse_base_model(field_dict, pait_base_model, _pait_field_dict)
 
+    def _parse_func_param(self, func: Callable) -> Dict[str, List[Dict[str, Any]]]:
+        field_dict: Dict[str, List[Dict[str, Any]]] = {}
+        func_sig: FuncSig = get_func_sig(func)
+        single_field_dict = {}
+
+        qualname = func.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0]
+        class_ = getattr(inspect.getmodule(func), qualname)
+        if inspect.isclass(class_):
+            parameter_list: List['inspect.Parameter'] = get_parameter_list_from_class(class_)
+            self.parameter_list_handle(parameter_list, field_dict, single_field_dict)
+        self.parameter_list_handle(func_sig.param_list, field_dict, single_field_dict)
+
         if single_field_dict:
             annotation_dict: Dict[str, Tuple] = {}
             _pait_field_dict: Dict[str, BaseField] = {}
@@ -186,4 +190,5 @@ class PaitMd(object):
 
             _pydantic_model: Type[BaseModel] = create_model('DynamicFoobarModel', **annotation_dict)
             self._parse_base_model(field_dict, _pydantic_model, _pait_field_dict)
+
         return field_dict

@@ -12,7 +12,7 @@ from pait.exceptions import (
     PaitException,
 )
 from pait.field import BaseField
-from pait.util import FuncSig, PaitBaseModel, get_func_sig
+from pait.util import FuncSig, PaitBaseModel, get_func_sig, get_parameter_list_from_class
 from pait.app.base import (
     BaseAsyncAppDispatch,
     BaseAppDispatch
@@ -274,20 +274,6 @@ async def async_param_handle(
         kwargs_param_dict.update(parameter_2_basemodel(single_field_dict).dict())
 
     return args_param_list, kwargs_param_dict
-
-
-def get_parameter_list_from_class(cbv_class: Type) -> List['inspect.Parameter']:
-    parameter_list: List['inspect.Parameter'] = []
-    if not hasattr(cbv_class, '__annotations__'):
-        return parameter_list
-    for param_name, param_annotation in get_type_hints(cbv_class).items():
-        parameter: 'inspect.Parameter' = inspect.Parameter(
-            param_name,
-            inspect.Parameter.POSITIONAL_ONLY,
-            default=getattr(cbv_class, param_name),
-            annotation=param_annotation)
-        parameter_list.append(parameter)
-    return parameter_list
 
 
 async def async_class_param_handle(dispatch_web: 'BaseAsyncAppDispatch'):
