@@ -42,6 +42,9 @@ class PaitMd(object):
             for pait_model in self._tag_pait_dict[tag]:
                 # func info
                 markdown_text += f"### Name: {pait_model.operation_id}\n"
+                if pait_model.author:
+                    markdown_text += f"- Author: {', '.join(pait_model.author)}\n"
+                markdown_text += f"- Description: {pait_model.desc}\n"
                 func_code: CodeType = pait_model.func.__code__
                 markdown_text += f"- Func: {pait_model.func.__qualname__};" \
                                  f" file:{func_code.co_filename};" \

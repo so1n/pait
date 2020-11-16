@@ -21,7 +21,7 @@ async def api_exception(request: Request, exc: Exception) -> JSONResponse:
     return JSONResponse({'exc': str(exc)})
 
 
-@pait()
+@pait(author=('so1n', ), desc='test pait raise tip')
 async def test_raise_tip(
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
@@ -34,7 +34,7 @@ async def test_raise_tip(
     return JSONResponse(return_dict)
 
 
-@pait(tag='user')
+@pait(author=('so1n', ), tag='user')
 async def test_post(
     model: UserModel = Body(),
     other_model: UserOtherModel = Body(),
@@ -47,7 +47,7 @@ async def test_post(
     return JSONResponse(return_dict)
 
 
-@pait(tag='user')
+@pait(author=('so1n', ), tag='user')
 async def test_depend(
     request: Request,
     model: UserModel = Query(),
@@ -63,7 +63,7 @@ async def test_depend(
     return JSONResponse(return_dict)
 
 
-@pait(tag='user')
+@pait(author=('so1n', ), tag='user')
 async def test_get(
         uid: conint(gt=10, lt=1000) = Query(description='用户id'),
         user_name: constr(min_length=2, max_length=4) = Query(description='用户名'),
@@ -82,7 +82,7 @@ async def test_get(
     return JSONResponse(_dict)
 
 
-@pait()
+@pait(author=('so1n', ))
 async def test_pait_model(test_model: TestPaitModel):
     """Test Field"""
     return JSONResponse(test_model.dict())
@@ -91,7 +91,7 @@ async def test_pait_model(test_model: TestPaitModel):
 class TestCbv(HTTPEndpoint):
     user_agent: str = Header(key='user-agent', description='ua')  # remove key will raise error
 
-    @pait(tag='user')
+    @pait(author=('so1n', ), tag='user')
     async def get(
         self,
         uid: conint(gt=10, lt=1000) = Query(description='用户uid'),
@@ -109,7 +109,7 @@ class TestCbv(HTTPEndpoint):
         }
         return JSONResponse({'result': _dict})
 
-    @pait(tag='user')
+    @pait(author=('so1n', ), desc='test cbv post method', tag='user')
     async def post(
         self,
         model: UserModel = Body(),

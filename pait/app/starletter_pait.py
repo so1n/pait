@@ -1,4 +1,4 @@
-from typing import Callable, Type, Union
+from typing import Callable, Tuple, Type, Union
 
 from starlette.applications import Starlette
 from starlette.endpoints import HTTPEndpoint
@@ -66,5 +66,5 @@ def load_app(app: Starlette):
             pait_data.add_route_info(pait_id, path, method_set, route_name, endpoint)
 
 
-def pait(tag: str = 'root'):
-    return _pait(StarletteDispatch, tag=tag)
+def pait(author: Tuple[str] = None, desc: str = '', tag: str = 'root'):
+    return _pait(StarletteDispatch, author=author, desc=desc, tag=tag)

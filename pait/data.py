@@ -1,10 +1,12 @@
 import logging
 from dataclasses import dataclass
-from typing import Callable, Dict, Set, Optional
+from typing import Callable, Dict, Set, Tuple, Optional
 
 
 @dataclass()
 class PaitInfoModel(object):
+    author: Optional[Tuple[str]] = None             # description
+    desc: Optional[str] = None               # description
     func: Optional[Callable] = None          # func object
     func_name: Optional[str] = None          # func name
     method_set: Optional[Set[str]] = None    # request method set

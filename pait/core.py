@@ -1,6 +1,6 @@
 import inspect
 from functools import wraps
-from typing import Callable, Type, Union
+from typing import Callable, Tuple, Type, Union
 
 from pait.app.base import (
     BaseAsyncAppDispatch,
@@ -20,14 +20,28 @@ from pait.util import (
 )
 
 
-def pait(app: 'Type[Union[BaseAppDispatch, BaseAsyncAppDispatch]]', tag: str = 'root'):
+def pait(
+        app: 'Type[Union[BaseAppDispatch, BaseAsyncAppDispatch]]',
+        author: Tuple[str] = None,
+        desc: str = '',
+        tag: str = 'root'
+):
     def wrapper(func: Callable):
         func_sig: FuncSig = get_func_sig(func)
         qualname = func.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0]
 
         pait_id: str = f'{qualname}_{id(func)}'
         func._pait_id = pait_id
-        pait_data.register(PaitInfoModel(func=func, func_name=func.__name__, pait_id=pait_id, tag=tag))
+        pait_data.register(
+            PaitInfoModel(
+                author=author,
+                desc=desc if desc else func.__doc__,
+                func=func,
+                func_name=func.__name__,
+                pait_id=pait_id,
+                tag=tag
+            )
+        )
 
         if inspect.iscoroutinefunction(func):
             @wraps(func)

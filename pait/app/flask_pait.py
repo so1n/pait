@@ -76,5 +76,5 @@ def load_app(app: Flask):
             pait_data.add_route_info(pait_id, path, method_set, route_name, endpoint)
 
 
-def pait(tag: str = 'root'):
-    return _pait(FlaskDispatch, tag=tag)
+def pait(author: Tuple[str] = None, desc: str = '', tag: str = 'root'):
+    return _pait(FlaskDispatch, author=author, desc=desc, tag=tag)
