@@ -5,7 +5,7 @@ from types import CodeType
 from pydantic import create_model, BaseModel
 from pydantic.fields import Undefined
 from pait.g import pait_data
-from pait.data import PaitInfoModel
+from pait.data import PaitCoreModel
 from pait.field import BaseField, Depends
 from pait.util import FuncSig, PaitBaseModel, get_func_sig
 
@@ -17,7 +17,7 @@ class PaitMd(object):
         self._use_html_details: bool = use_html_details  # some not support markdown in html
         self._title: str = title
         self._tag_list: List[str] = []
-        self._tag_pait_dict: Dict[str, List[PaitInfoModel]] = {}
+        self._tag_pait_dict: Dict[str, List[PaitCoreModel]] = {}
 
         self._init()
 
@@ -45,6 +45,16 @@ class PaitMd(object):
                 if pait_model.author:
                     markdown_text += f"- Author: {', '.join(pait_model.author)}\n"
                 markdown_text += f"- Description: {pait_model.desc}\n"
+                if pait_model.status == 'test':
+                    markdown_text += f"- Status: <font color=#00BFFF>{pait_model.status}</font>\n"
+                elif pait_model.status == 'release':
+                    markdown_text += f"- Status: <font color=#32CD32>{pait_model.status}</font>\n"
+                elif pait_model.status == 'abandoned':
+                    markdown_text += f"- Status: <font color=#DC143C>{pait_model.status}</font>\n"
+                elif pait_model.status:
+                    markdown_text += f"- Status: {pait_model.status}\n"
+
+
                 func_code: CodeType = pait_model.func.__code__
                 markdown_text += f"- Func: {pait_model.func.__qualname__};" \
                                  f" file:{func_code.co_filename};" \
@@ -114,7 +124,6 @@ class PaitMd(object):
                 default = param_dict.get('default', Undefined)
                 _type = param_dict['type']
                 description = param_dict.get('description')
-                param_name = param_dict['title']
             _field_dict = {
                 'param_name': param_name,
                 'description': description,
@@ -140,7 +149,7 @@ class PaitMd(object):
                     property_dict: Dict[str, Dict[str, Any]] = annotation.schema()['properties']
                     for param_name, param_dict in property_dict.items():
                         _field_dict = {
-                            'param_name': param_dict['title'],
+                            'param_name': param_name,
                             'description': param_dict['description'],
                             'default': param_dict.get('default', Undefined),
                             'type': param_dict['type'],

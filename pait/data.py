@@ -4,23 +4,26 @@ from typing import Callable, Dict, Set, Tuple, Optional
 
 
 @dataclass()
-class PaitInfoModel(object):
-    author: Optional[Tuple[str]] = None             # description
-    desc: Optional[str] = None               # description
-    func: Optional[Callable] = None          # func object
-    func_name: Optional[str] = None          # func name
+class PaitCoreModel(object):
+    func: Callable                           # func object
+    func_name: str                           # func name
+    pait_id: str                             # pait id(in runtime)
+
     method_set: Optional[Set[str]] = None    # request method set
     path: Optional[str] = None               # request path
-    pait_id: Optional[str] = None            # pait id(in runtime)
     operation_id: Optional[str] = None       # operation id(in route table)
+
+    author: Optional[Tuple[str]] = None      # author
+    desc: Optional[str] = None               # description
+    status: Optional[str] = None             # api status. example: test, release
     tag: str = 'root'                        # request tag
 
 
 class PaitData(object):
     def __init__(self):
-        self.pait_id_dict: Dict[str, 'PaitInfoModel'] = {}
+        self.pait_id_dict: Dict[str, 'PaitCoreModel'] = {}
 
-    def register(self, pait_info_model: 'PaitInfoModel'):
+    def register(self, pait_info_model: 'PaitCoreModel'):
         pait_id: str = pait_info_model.pait_id
         self.pait_id_dict[pait_id] = pait_info_model
 
@@ -35,7 +38,7 @@ class PaitData(object):
     def __getitem__(self, item):
         return self.pait_id_dict[item]
 
-    def __setitem__(self, key: str, value: 'PaitInfoModel'):
+    def __setitem__(self, key: str, value: 'PaitCoreModel'):
         self.pait_id_dict[key] = value
 
     def __bool__(self):

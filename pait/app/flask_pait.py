@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Callable, Dict, Mapping, Set, Tuple
+from typing import Any, Callable, Dict, Mapping, Optional, Tuple, Set
 
 from flask import Flask, request, Request
 from flask.views import MethodView
@@ -76,5 +76,10 @@ def load_app(app: Flask):
             pait_data.add_route_info(pait_id, path, method_set, route_name, endpoint)
 
 
-def pait(author: Tuple[str] = None, desc: str = '', tag: str = 'root'):
-    return _pait(FlaskDispatch, author=author, desc=desc, tag=tag)
+def pait(
+    author: Optional[Tuple[str]] = None,
+    desc: Optional[str] = None,
+    status: Optional[str] = None,
+    tag: str = 'root'
+):
+    return _pait(FlaskDispatch, author=author, desc=desc, status=status, tag=tag)

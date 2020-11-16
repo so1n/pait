@@ -50,6 +50,14 @@ class PaitBaseModel(object):
         return cls.to_pydantic_model().schema(by_alias=by_alias)
 
 
+class UndefinedType:
+    def __repr__(self) -> str:
+        return 'PaitUndefined'
+
+
+Undefined: UndefinedType = UndefinedType()
+
+
 @dataclass()
 class FuncSig:
     func: Callable
