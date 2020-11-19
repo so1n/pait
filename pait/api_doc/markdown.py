@@ -7,7 +7,7 @@ from pydantic.fields import Undefined
 from pait.g import pait_data
 from pait.data import PaitCoreModel
 from pait.field import BaseField, Depends
-from pait.util import FuncSig, PaitBaseModel, get_func_sig, get_parameter_list_from_class
+from pait.util import FuncSig, PaitBaseModel, PaitResponseModel, get_func_sig, get_parameter_list_from_class
 
 
 class PaitMd(object):
@@ -93,10 +93,29 @@ class PaitMd(object):
                                          f"|\n"
                 # response info
                 markdown_text += f"- Response:\n"
+                if pait_model.response_model_list:
+                    for resp_model_class in pait_model.response_model_list:
+                        resp_model = resp_model_class()
+                        markdown_text += f"{' ' * 4}- {resp_model.name}\n"
+                        markdown_text += f"{' ' * 8}|status code|media type|description|\n"
+                        markdown_text += f"{' ' * 8}|---|---|---|\n"
+                        markdown_text += f"{' ' * 8}|{','.join([str(i) for i in resp_model.status_code])}" \
+                                         f"|{resp_model.media_type}" \
+                                         f"|{resp_model.description}" \
+                                         f"|\n"
+                        if resp_model.header:
+                            markdown_text += f"{' ' * 8}- Header\n"
+                            markdown_text += f"{' ' * 12}{resp_model.header}\n"
+                        if resp_model.response_data:
+                            markdown_text += f"{' ' * 8}- Data\n"
+                            markdown_text += f"{' ' * 12}```{resp_model.response_data.schema()}```\n"
                 markdown_text += "\n"
             if self._use_html_details:
                 markdown_text += "</details>"
         print(markdown_text)
+
+    def _parse_resp_model(self, resp_model: PaitResponseModel):
+        PaitResponseModel.status_code
 
     @staticmethod
     def _parse_base_model(

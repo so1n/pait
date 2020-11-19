@@ -1,6 +1,6 @@
 import inspect
 from functools import wraps
-from typing import Callable, Optional, Tuple, Type, Union
+from typing import Callable, List, Optional, Tuple, Type, Union
 
 from pait.app.base import (
     BaseAsyncAppDispatch,
@@ -16,6 +16,7 @@ from pait.param_handle import (
 )
 from pait.util import (
     FuncSig,
+    PaitResponseModel,
     get_func_sig,
 )
 
@@ -25,7 +26,8 @@ def pait(
         author: Optional[Tuple[str]] = None,
         desc: Optional[str] = None,
         status: Optional[str] = None,
-        tag: str = 'root'
+        tag: str = 'root',
+        response_model_list: List[Type[PaitResponseModel]] = None
 ):
     def wrapper(func: Callable):
         func_sig: FuncSig = get_func_sig(func)
@@ -41,7 +43,8 @@ def pait(
                 func_name=func.__name__,
                 pait_id=pait_id,
                 status=status,
-                tag=tag
+                tag=tag,
+                response_model_list=response_model_list
             )
         )
 

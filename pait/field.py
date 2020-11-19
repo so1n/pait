@@ -39,6 +39,7 @@ class BaseField(FieldInfo):
             regex: str = None,
             **extra: Any,
     ):
+        # TODO key replace alias
         self.key = key
         self.default = default
         super().__init__(

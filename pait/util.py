@@ -1,12 +1,29 @@
 import inspect
 
-from dataclasses import dataclass
-from typing import Callable, Dict, List, Type, TYPE_CHECKING, Union, get_type_hints
+from dataclasses import InitVar, dataclass, field
+from typing import Callable, Dict, List, Optional, Type, TYPE_CHECKING, Union, get_type_hints
 
 from pydantic import BaseModel, create_model
 
 if TYPE_CHECKING:
     from pydantic.typing import AbstractSetIntStr, DictStrAny, MappingIntStrAny
+
+
+@dataclass()
+class PaitResponseModel(object):
+    description: Optional[str] = ''
+    header: dict = field(default_factory=dict)
+    media_type: str = "application/json"
+    response_data: Optional[BaseModel] = None
+    status_code: List[int] = field(default_factory=lambda: [200])
+
+    name: InitVar[str] = None
+
+    def __post_init__(self, name: InitVar[str]):
+        if name:
+            self.name = name
+        else:
+            self.name = self.__class__.__name__
 
 
 class PaitBaseModel(object):

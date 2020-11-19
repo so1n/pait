@@ -1,13 +1,14 @@
 import logging
-from typing import Any, Callable, Dict, Mapping, Optional, Tuple, Set
+from typing import Any, Callable, Dict, List, Mapping, Optional, Type, Tuple, Set
 
 from flask import Flask, request, Request
 from flask.views import MethodView
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 
 from pait.app.base import BaseAsyncAppDispatch
-from pait.g import pait_data
 from pait.core import pait as _pait
+from pait.g import pait_data
+from pait.util import PaitResponseModel
 
 
 class FlaskDispatch(BaseAsyncAppDispatch):
@@ -77,9 +78,13 @@ def load_app(app: Flask):
 
 
 def pait(
-    author: Optional[Tuple[str]] = None,
-    desc: Optional[str] = None,
-    status: Optional[str] = None,
-    tag: str = 'root'
+        author: Optional[Tuple[str]] = None,
+        desc: Optional[str] = None,
+        status: Optional[str] = None,
+        tag: str = 'root',
+        response_model_list: List[Type[PaitResponseModel]] = None
 ):
-    return _pait(FlaskDispatch, author=author, desc=desc, status=status, tag=tag)
+    return _pait(
+        FlaskDispatch,
+        author=author, desc=desc, status=status, tag=tag, response_model_list=response_model_list
+    )

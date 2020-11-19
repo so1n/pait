@@ -1,6 +1,8 @@
 import logging
 from dataclasses import dataclass
-from typing import Callable, Dict, Set, Tuple, Optional
+from typing import Callable, Dict, List, Set, Type, Tuple, Optional
+
+from pait.util import PaitResponseModel
 
 
 @dataclass()
@@ -17,6 +19,8 @@ class PaitCoreModel(object):
     desc: Optional[str] = None               # description
     status: Optional[str] = None             # api status. example: test, release
     tag: str = 'root'                        # request tag
+
+    response_model_list: List[Type[PaitResponseModel]] = None
 
 
 class PaitData(object):

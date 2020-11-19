@@ -1,4 +1,4 @@
-from typing import Callable, Optional, Tuple, Type, Union
+from typing import Callable, List, Optional, Tuple, Type, Union
 
 from starlette.applications import Starlette
 from starlette.endpoints import HTTPEndpoint
@@ -7,9 +7,10 @@ from starlette.requests import Request
 from starlette.datastructures import FormData, Headers, UploadFile
 
 from pait.app.base import BaseAsyncAppDispatch
+from pait.core import pait as _pait
 from pait.g import pait_data
 from pait.lazy_property import LazyAsyncProperty, LazyProperty
-from pait.core import pait as _pait
+from pait.util import PaitResponseModel
 
 
 class StarletteDispatch(BaseAsyncAppDispatch):
@@ -70,6 +71,10 @@ def pait(
         author: Optional[Tuple[str]] = None,
         desc: Optional[str] = None,
         status: Optional[str] = None,
-        tag: str = 'root'
+        tag: str = 'root',
+        response_model_list: List[Type[PaitResponseModel]] = None
 ):
-    return _pait(StarletteDispatch, author=author, desc=desc, status=status, tag=tag)
+    return _pait(
+        StarletteDispatch,
+        author=author, desc=desc, status=status, tag=tag, response_model_list=response_model_list
+    )
