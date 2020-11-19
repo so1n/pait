@@ -5,14 +5,16 @@ from starlette.routing import Route
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+from pait.app.starletter_pait import pait
 from pait.exceptions import PaitException
 from pait.field import Body, Depends, Header, Path, Query
-from pait.app.starletter_pait import pait
 from pydantic import ValidationError
 from pydantic import (
     conint,
     constr,
 )
+from example.param_verify.model import UserSuccessRespModel, FailRespModel
+
 
 from example.param_verify.model import UserModel, UserOtherModel, SexEnum, TestPaitModel, demo_depend
 
@@ -21,7 +23,12 @@ async def api_exception(request: Request, exc: Exception) -> JSONResponse:
     return JSONResponse({'exc': str(exc)})
 
 
-@pait(author=('so1n', ), desc='test pait raise tip', status='abandoned')
+@pait(
+    author=('so1n', ),
+    desc='test pait raise tip',
+    status='abandoned',
+    response_model_list=[UserSuccessRespModel, FailRespModel]
+)
 async def test_raise_tip(
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
@@ -34,7 +41,12 @@ async def test_raise_tip(
     return JSONResponse(return_dict)
 
 
-@pait(author=('so1n', ), tag='user', status='release')
+@pait(
+    author=('so1n', ),
+    tag='user',
+    status='release',
+    response_model_list=[UserSuccessRespModel, FailRespModel]
+)
 async def test_post(
     model: UserModel = Body(),
     other_model: UserOtherModel = Body(),
@@ -47,7 +59,12 @@ async def test_post(
     return JSONResponse(return_dict)
 
 
-@pait(author=('so1n', ), tag='user', status='release')
+@pait(
+    author=('so1n', ),
+    tag='user',
+    status='release',
+    response_model_list=[UserSuccessRespModel, FailRespModel]
+)
 async def test_depend(
     request: Request,
     model: UserModel = Query(),
