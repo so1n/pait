@@ -32,26 +32,19 @@ class PaitMd(object):
         self._tag_list = sorted(self._tag_pait_dict.keys())
 
     @staticmethod
-    def gen_md_param_table(field_dict_list) -> str:
-        markdown_text = f"{' ' * 8}|param name|type|default value|description|other|\n"
-        markdown_text += f"{' ' * 8}|---|---|---|---|---|\n"
+    def gen_md_param_table(field_dict_list: List[dict], blank_num: int = 8) -> str:
+        markdown_text: str = f"{' ' * blank_num}|param name|type|default value|description|other|\n"
+        markdown_text += f"{' ' * blank_num}|---|---|---|---|---|\n"
         for field_info_dict in field_dict_list:
             default = field_info_dict['default']
             if default is Undefined:
                 default = '**`Required`**'
             description = field_info_dict['description']
-            other_dict = field_info_dict.get('other', None)
-            if other_dict:
-                other_dict = {
-                    key: value
-                    for key, value in other_dict.items()
-                    if key not in {'description', 'title', 'type', 'default'}
-                }
-            markdown_text += f"{' ' * 8}|{field_info_dict['param_name']}" \
+            markdown_text += f"{' ' * blank_num}|{field_info_dict['param_name']}" \
                              f"|{field_info_dict['type']}" \
                              f"|{default}" \
                              f"|{description}" \
-                             f"|{other_dict}" \
+                             f"|{field_info_dict['other']}" \
                              f"|\n"
         return markdown_text
 
@@ -116,7 +109,7 @@ class PaitMd(object):
                             markdown_text += f"{' ' * 8}- Data\n"
                             schema_dict: dict = resp_model.response_data.schema()
                             field_dict_list = self._parse_schema(schema_dict)
-                            markdown_text += self.gen_md_param_table(field_dict_list)
+                            markdown_text += self.gen_md_param_table(field_dict_list, blank_num=12)
                 markdown_text += "\n"
             if self._use_html_details:
                 markdown_text += "</details>"
@@ -130,15 +123,20 @@ class PaitMd(object):
         if not definition_dict:
             definition_dict = schema_dict.get('definitions', {})
         for param_name, param_dict in property_dict.items():
+            if parent_key:
+                all_param_name: str = f'{parent_key}.{param_name}'
+            else:
+                all_param_name = param_name
+
             if '$ref' in param_dict and definition_dict:
                 # ref support
                 key: str = param_dict['$ref'].split('/')[-1]
-                field_dict_list.extend(self._parse_schema(definition_dict[key], definition_dict, param_name))
+                field_dict_list.extend(self._parse_schema(definition_dict[key], definition_dict, all_param_name))
             elif 'items' in param_dict and '$ref' in param_dict['items']:
+                # mad item ref support
                 key: str = param_dict['items']['$ref'].split('/')[-1]
-                field_dict_list.extend(self._parse_schema(definition_dict[key], definition_dict, param_name))
+                field_dict_list.extend(self._parse_schema(definition_dict[key], definition_dict, all_param_name))
             else:
-
                 if 'enum' in param_dict:
                     # enum support
                     default: str = param_dict.get('enum', Undefined)
@@ -146,13 +144,10 @@ class PaitMd(object):
                         default = f'Only choose from: {",".join(["`" + i + "`" for i in default])}'
                     _type: str = 'enum'
                 else:
-                    if param_name in schema_dict.get('required', {}):
-                        default = Undefined
-                    else:
-                        default = ''
+                    default = param_dict.get('default', Undefined)
                     _type = param_dict['type']
                 field_dict_list.append({
-                    'param_name': f'{parent_key}.{param_name}' if parent_key else param_name,
+                    'param_name': all_param_name,
                     'description': param_dict.get('description', ''),
                     'default': default,
                     'type': _type,
@@ -177,6 +172,10 @@ class PaitMd(object):
                 # ref support
                 key: str = param_dict['$ref'].split('/')[-1]
                 param_dict: Dict[str, Any] = _pydantic_model.schema()['definitions'][key]
+            elif 'items' in param_dict and '$ref' in param_dict['items']:
+                # mad item ref support
+                key: str = param_dict['items']['$ref'].split('/')[-1]
+                param_dict: Dict[str, Any] = _pydantic_model.schema()['definitions'][key]
             if 'enum' in param_dict:
                 # enum support
                 default: str = param_dict.get('enum', Undefined)
@@ -193,7 +192,11 @@ class PaitMd(object):
                 'description': description,
                 'default': default,
                 'type': _type,
-                'other': param_dict
+                'other': {
+                    key: value
+                    for key, value in param_dict.items()
+                    if key not in {'description', 'title', 'type', 'default'}
+                }
             }
             if field_name not in field_dict:
                 field_dict[field_name] = [_field_dict]

@@ -45,13 +45,13 @@ def demo_depend(user_agent: str = Depends(demo_sub_depend)):
 ### response model
 
 class ResponseModel(BaseModel):
-    code: int = 0
-    msg: str = 'success'
+    code: int = Field(0, description='状态码')
+    msg: str = Field('success', description='状态信息')
 
 
 class ResponseFailModel(ResponseModel):
-    code: int = 1
-    msg: str = 'fail'
+    code: int = Field(1, description='状态码')
+    msg: str = Field('fail', description='状态信息')
 
 
 class ResponseUserModel(ResponseModel):
