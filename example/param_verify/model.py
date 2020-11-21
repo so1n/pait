@@ -56,10 +56,15 @@ class ResponseFailModel(ResponseModel):
 
 class ResponseUserModel(ResponseModel):
     class _BaseModel(BaseModel):
+        class Test(BaseModel):
+            test_a: int
+            test_b: str
+
         uid: conint(gt=10, lt=1000) = Field(123456, description='用户uid')
         user_name: constr(min_length=2, max_length=4) = Field(description='用户名')
         age: conint(gt=1, lt=100) = Field(description='年龄')
         content_type: str = Field(description='content-type')
+        test: Test
 
     data: List[_BaseModel]
 
