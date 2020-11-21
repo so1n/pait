@@ -165,6 +165,7 @@ class PaitMd(object):
         _pydantic_model: Type[BaseModel],
         _pait_field_dict: Dict[str, BaseField]
     ):
+        # TODO design like _parse_schema
         property_dict: Dict[str, Any] = _pydantic_model.schema()['properties']
         for param_name, param_dict in property_dict.items():
             field_name = _pait_field_dict[param_name].__class__.__name__.lower()
@@ -207,7 +208,7 @@ class PaitMd(object):
         self,
         parameter_list: List['inspect.Parameter'],
         field_dict: Dict[str, List[Dict[str, Any]]],
-        single_field_dict
+        single_field_dict: Dict[str, 'inspect.Parameter']
     ):
         for parameter in parameter_list:
             if parameter.default != parameter.empty:
@@ -230,18 +231,23 @@ class PaitMd(object):
             elif issubclass(parameter.annotation, PaitBaseModel):
                 # def test(test_model: PaitBaseModel)
                 _pait_model: Type[PaitBaseModel] = parameter.annotation
-                _pait_field_dict = {
-                    param_name: getattr(_pait_model, param_name)
-                    for param_name, param_annotation in get_type_hints(_pait_model).items()
-                    if not param_name.startswith('_')
-                }
+                _pait_field_dict: Dict[str, BaseField] = {}
+                for param_name, param_annotation in get_type_hints(_pait_model).items():
+                    if param_name.startswith('_'):
+                       continue
+                    field: BaseField = getattr(_pait_model, param_name)
+                    key: str = field.alias if field.alias else param_name
+                    _pait_field_dict[key] = field
+
+                if 'user_agent' in _pait_field_dict:
+                    pass
                 pait_base_model = _pait_model.to_pydantic_model()
                 self._parse_base_model(field_dict, pait_base_model, _pait_field_dict)
 
     def _parse_func_param(self, func: Callable) -> Dict[str, List[Dict[str, Any]]]:
         field_dict: Dict[str, List[Dict[str, Any]]] = {}
         func_sig: FuncSig = get_func_sig(func)
-        single_field_dict = {}
+        single_field_dict: Dict[str, 'inspect.Parameter'] = {}
 
         qualname = func.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0]
         class_ = getattr(inspect.getmodule(func), qualname)
@@ -253,9 +259,11 @@ class PaitMd(object):
         if single_field_dict:
             annotation_dict: Dict[str, Tuple] = {}
             _pait_field_dict: Dict[str, BaseField] = {}
-            for field, parameter in single_field_dict.items():
-                annotation_dict[parameter.name] = (parameter.annotation, parameter.default)
-                _pait_field_dict[parameter.name] = parameter.default
+            for field_name, parameter in single_field_dict.items():
+                field: BaseField = parameter.default
+                annotation_dict[parameter.name] = (parameter.annotation, field)
+                key: str = field.alias if field.alias else parameter.name
+                _pait_field_dict[key] = field
 
             _pydantic_model: Type[BaseModel] = create_model('DynamicFoobarModel', **annotation_dict)
             self._parse_base_model(field_dict, _pydantic_model, _pait_field_dict)

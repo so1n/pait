@@ -167,8 +167,8 @@ def request_value_handle(
             base_model_dict[parameter.name] = value
         else:
             # parse annotation is python type and pydantic.field
-            if type(param_value.key) is str and param_value.key in request_value:
-                value = request_value.get(param_value.key, param_value.default)
+            if type(param_value.alias) is str and param_value.alias in request_value:
+                value = request_value.get(param_value.alias, param_value.default)
             elif param_name in request_value:
                 value = request_value.get(param_name, param_value.default)
             else:
@@ -178,7 +178,7 @@ def request_value_handle(
                     parameter_value_name: str = param_value.__class__.__name__
                     param_str: str = (
                         f'{param_name}: {annotation} = {parameter_value_name}('
-                        f'key={param_value.key}, default={param_value.default})'
+                        f'alias={param_value.alias}, default={param_value.default})'
                     )
                     raise NotFoundValueError(
                         f' kwargs param:{param_str} not found in {request_value},'

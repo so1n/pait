@@ -20,7 +20,6 @@ class BaseField(FieldInfo):
     def __init__(
             self,
             default: Any = Undefined,
-            key: Optional[str] = None,
             *,
             default_factory: Optional[NoArgAnyCallable] = None,
             alias: str = None,
@@ -39,8 +38,6 @@ class BaseField(FieldInfo):
             regex: str = None,
             **extra: Any,
     ):
-        # TODO key replace alias
-        self.key = key
         self.default = default
         super().__init__(
             default,

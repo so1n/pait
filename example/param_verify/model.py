@@ -15,7 +15,7 @@ from pydantic import (
 class TestPaitModel(PaitBaseModel):
     uid: conint(gt=10, lt=1000) = Query(description='用户uid')
     user_name: constr(min_length=2, max_length=4) = Query(description='用户名')
-    user_agent: str = Header(key='user-agent', description='ua')
+    user_agent: str = Header(alias='user-agent', description='ua')
 
 
 class UserModel(BaseModel):
@@ -32,7 +32,7 @@ class SexEnum(Enum):
     woman: str = 'woman'
 
 
-def demo_sub_depend(user_agent: str = Header(key='user-agent', description='ua')):
+def demo_sub_depend(user_agent: str = Header(alias='user-agent', description='ua')):
     print('sub_depend', user_agent)
     return user_agent
 

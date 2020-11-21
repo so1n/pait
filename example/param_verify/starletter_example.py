@@ -50,7 +50,7 @@ async def test_raise_tip(
 async def test_post(
     model: UserModel = Body(),
     other_model: UserOtherModel = Body(),
-    content_type: str = Header(key='Content-Type', description='content-type')
+    content_type: str = Header(alias='Content-Type', description='content-type')
 ):
     """Test Method:Post Pydantic Model"""
     return_dict = model.dict()
@@ -106,7 +106,7 @@ async def test_pait_model(test_model: TestPaitModel):
 
 
 class TestCbv(HTTPEndpoint):
-    user_agent: str = Header(key='user-agent', description='ua')  # remove key will raise error
+    user_agent: str = Header(alias='user-agent', description='ua')  # remove key will raise error
 
     @pait(author=('so1n', ), tag='user', status='release')
     async def get(
