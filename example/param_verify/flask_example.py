@@ -70,9 +70,9 @@ def demo_get2test_depend(
 @app.route("/api/get/<age>", methods=['GET'])
 @pait(author=('so1n', ), tag='user', status='release')
 def test_pait(
-        uid: conint(gt=10, lt=1000) = Query(description='用户uid'),
-        user_name: constr(min_length=2, max_length=4) = Query(description='用户名'),
-        email: Optional[str] = Query(default='example@xxx.com', description='邮箱'),
+        uid: conint(gt=10, lt=1000) = Query(description='user id'),
+        user_name: constr(min_length=2, max_length=4) = Query(description='user name'),
+        email: Optional[str] = Query(default='example@xxx.com', description='user email'),
         age: str = Path(),
         sex: SexEnum = Query()
 ):
@@ -99,9 +99,9 @@ class TestCbv(MethodView):
     @pait(author=('so1n', ), tag='user', status='test')
     def get(
         self,
-        uid: conint(gt=10, lt=1000) = Query(description='用户uid'),
-        user_name: constr(min_length=2, max_length=4) = Query(description='用户名'),
-        email: Optional[str] = Query(default='example@xxx.com', description='邮箱'),
+        uid: conint(gt=10, lt=1000) = Query(description='user id'),
+        user_name: constr(min_length=2, max_length=4) = Query(description='user name'),
+        email: Optional[str] = Query(default='example@xxx.com', description='email'),
         model: UserOtherModel = Query(),
     ):
         """Text Pydantic Model and Field"""

@@ -82,11 +82,11 @@ async def test_depend(
 
 @pait(author=('so1n', ), tag='user', status='release')
 async def test_get(
-        uid: conint(gt=10, lt=1000) = Query(description='用户id'),
-        user_name: constr(min_length=2, max_length=4) = Query(description='用户名'),
-        email: Optional[str] = Query(default='example@xxx.com', description='邮箱'),
-        age: str = Path(description='用户年龄'),
-        sex: SexEnum = Query(description='性别')
+        uid: conint(gt=10, lt=1000) = Query(description='user id'),
+        user_name: constr(min_length=2, max_length=4) = Query(description='user name'),
+        email: Optional[str] = Query(default='example@xxx.com', description='user email'),
+        age: str = Path(description='age'),
+        sex: SexEnum = Query(description='sex')
 ):
     """Test Field"""
     _dict = {
@@ -111,9 +111,9 @@ class TestCbv(HTTPEndpoint):
     @pait(author=('so1n', ), tag='user', status='release')
     async def get(
         self,
-        uid: conint(gt=10, lt=1000) = Query(description='用户uid'),
-        user_name: constr(min_length=2, max_length=4) = Query(description='用户名'),
-        email: Optional[str] = Query(default='example@xxx.com', description='用户邮箱'),
+        uid: conint(gt=10, lt=1000) = Query(description='user id'),
+        user_name: constr(min_length=2, max_length=4) = Query(description='user name'),
+        email: Optional[str] = Query(default='example@xxx.com', description='user email'),
         model: UserOtherModel = Query(),
     ):
         """Text Pydantic Model and Field"""
