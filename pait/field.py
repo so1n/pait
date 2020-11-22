@@ -4,18 +4,6 @@ from pydantic.fields import FieldInfo, Undefined
 from pydantic.typing import NoArgAnyCallable
 
 
-# class BaseField:
-#     def __init__(
-#             self,
-#             key: Optional[str] = None,
-#             default: Optional[Any] = None,
-#             fix_key: bool = False
-#     ):
-#         self.key = key
-#         self.default = default
-#         self.fix_key = fix_key
-
-
 class BaseField(FieldInfo):
     def __init__(
             self,
@@ -91,8 +79,3 @@ class Query(BaseField):
 class Depends(object):
     def __init__(self, func: Callable):
         self.func: Callable = func
-
-
-class FactoryField(object):
-    def __init__(self, field: BaseField):
-        self.field = field
