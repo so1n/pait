@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional, Type, get_type_hints
 
 from pydantic import BaseModel
 from pait.field import BaseField
-from pait.util import FuncSig
+from pait.model import FuncSig
 
 
 class ParamModel(object):

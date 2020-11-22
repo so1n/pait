@@ -8,7 +8,7 @@ from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 from pait.app.base import BaseAsyncAppDispatch
 from pait.core import pait as _pait
 from pait.g import pait_data
-from pait.util import PaitResponseModel
+from pait.model import PaitResponseModel
 
 
 class FlaskDispatch(BaseAsyncAppDispatch):

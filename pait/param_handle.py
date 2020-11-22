@@ -12,7 +12,8 @@ from pait.exceptions import (
     PaitException,
 )
 from pait.field import BaseField
-from pait.util import FuncSig, PaitBaseModel, get_func_sig, get_parameter_list_from_class
+from pait.util import get_func_sig, get_parameter_list_from_class
+from pait.model import PaitBaseModel, FuncSig
 from pait.app.base import (
     BaseAsyncAppDispatch,
     BaseAppDispatch

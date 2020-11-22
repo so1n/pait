@@ -5,9 +5,9 @@ from types import CodeType
 from pydantic import create_model, BaseModel
 from pydantic.fields import Undefined
 from pait.g import pait_data
-from pait.data import PaitCoreModel
+from pait.model import PaitCoreModel, PaitResponseModel, PaitBaseModel, FuncSig
 from pait.field import BaseField, Depends
-from pait.util import FuncSig, PaitBaseModel, PaitResponseModel, get_func_sig, get_parameter_list_from_class
+from pait.util import get_func_sig, get_parameter_list_from_class
 
 
 class PaitMd(object):

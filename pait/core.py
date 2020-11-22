@@ -7,7 +7,7 @@ from pait.app.base import (
     BaseAppDispatch,
 )
 from pait.g import pait_data
-from pait.data import PaitCoreModel
+from pait.model import PaitCoreModel, PaitResponseModel, FuncSig
 from pait.param_handle import (
     async_class_param_handle,
     async_func_param_handle,
@@ -15,8 +15,6 @@ from pait.param_handle import (
     func_param_handle
 )
 from pait.util import (
-    FuncSig,
-    PaitResponseModel,
     get_func_sig,
 )
 
@@ -38,7 +36,7 @@ def pait(
         pait_data.register(
             PaitCoreModel(
                 author=author,
-                desc=desc if desc else func.__doc__,
+                desc=desc,
                 func=func,
                 func_name=func.__name__,
                 pait_id=pait_id,

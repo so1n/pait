@@ -1,26 +1,7 @@
 import logging
-from dataclasses import dataclass
-from typing import Callable, Dict, List, Set, Type, Tuple, Optional
+from typing import Callable, Dict, Set
 
-from pait.util import PaitResponseModel
-
-
-@dataclass()
-class PaitCoreModel(object):
-    func: Callable                           # func object
-    func_name: str                           # func name
-    pait_id: str                             # pait id(in runtime)
-
-    method_set: Optional[Set[str]] = None    # request method set
-    path: Optional[str] = None               # request path
-    operation_id: Optional[str] = None       # operation id(in route table)
-
-    author: Optional[Tuple[str]] = None      # author
-    desc: Optional[str] = None               # description
-    status: Optional[str] = None             # api status. example: test, release
-    tag: str = 'root'                        # request tag
-
-    response_model_list: List[Type[PaitResponseModel]] = None
+from pait.model import PaitCoreModel
 
 
 class PaitData(object):

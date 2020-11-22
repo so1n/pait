@@ -10,7 +10,7 @@ from pait.app.base import BaseAsyncAppDispatch
 from pait.core import pait as _pait
 from pait.g import pait_data
 from pait.lazy_property import LazyAsyncProperty, LazyProperty
-from pait.util import PaitResponseModel
+from pait.model import PaitResponseModel
 
 
 class StarletteDispatch(BaseAsyncAppDispatch):
