@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field, InitVar
+from enum import Enum
 from typing import Callable, Dict, Optional, Set, Tuple, List, Type, TYPE_CHECKING, Union, get_type_hints
 
 from pydantic import BaseModel, create_model
@@ -7,6 +8,13 @@ if TYPE_CHECKING:
     import inspect
     from pydantic.typing import AbstractSetIntStr, DictStrAny, MappingIntStrAny
 
+
+class PaitStatus(Enum):
+    dev: str = 'dev'
+    test: str = 'test'
+    release: str = 'release'
+    archive: str = 'archive'
+    abandoned: str = 'abandoned'
 
 @dataclass()
 class PaitResponseModel(object):
@@ -77,8 +85,8 @@ class PaitCoreModel(object):
     operation_id: Optional[str] = None       # operation id(in route table)
 
     author: Optional[Tuple[str]] = None      # author
-    desc: InitVar[str] = None               # description
-    status: Optional[str] = None             # api status. example: test, release
+    desc: InitVar[str] = None                # description
+    status: Optional[PaitStatus] = None      # api status. example: test, release
     tag: str = 'root'                        # request tag
 
     response_model_list: List[Type[PaitResponseModel]] = None

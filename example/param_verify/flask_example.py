@@ -6,6 +6,7 @@ from flask.views import MethodView
 from pait.app.flask_pait import pait
 from pait.exceptions import PaitException
 from pait.field import Body, Depends, Header, Path, Query
+from pait.model import PaitStatus
 from pydantic import ValidationError
 from pydantic import (
     conint,
@@ -23,7 +24,7 @@ def api_exception(exc: Exception):
 
 
 @app.route("/api/raise_tip", methods=['POST'])
-@pait(author=('so1n', ), desc='test pait raise tip', status='abandoned')
+@pait(author=('so1n', ), desc='test pait raise tip', status=PaitStatus.abandoned)
 def test_raise_tip(
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
@@ -37,7 +38,7 @@ def test_raise_tip(
 
 
 @app.route("/api/post", methods=['POST'])
-@pait(author=('so1n', ), tag='user', status='release')
+@pait(author=('so1n', ), tag='user', status=PaitStatus.release)
 def test_post(
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
@@ -51,7 +52,7 @@ def test_post(
 
 
 @app.route("/api/depend", methods=['GET'])
-@pait(author=('so1n', ), tag='user', status='release')
+@pait(author=('so1n', ), tag='user', status=PaitStatus.release)
 def demo_get2test_depend(
         request: Request,
         model: UserModel = Query(),
@@ -68,7 +69,7 @@ def demo_get2test_depend(
 
 
 @app.route("/api/get/<age>", methods=['GET'])
-@pait(author=('so1n', ), tag='user', status='release')
+@pait(author=('so1n', ), tag='user', status=PaitStatus.release)
 def test_pait(
         uid: conint(gt=10, lt=1000) = Query(description='user id'),
         user_name: constr(min_length=2, max_length=4) = Query(description='user name'),
@@ -87,7 +88,7 @@ def test_pait(
 
 
 @app.route("/api/pait_model", methods=['GET'])
-@pait(author=('so1n', ), status='test')
+@pait(author=('so1n', ), status=PaitStatus.test)
 def test_model(test_model: TestPaitModel):
     """Test Field"""
     return test_model.dict()
@@ -96,7 +97,7 @@ def test_model(test_model: TestPaitModel):
 class TestCbv(MethodView):
     user_agent: str = Header(alias='user-agent', description='ua')  # remove key will raise error
 
-    @pait(author=('so1n', ), tag='user', status='test')
+    @pait(author=('so1n', ), tag='user', status=PaitStatus.test)
     def get(
         self,
         uid: conint(gt=10, lt=1000) = Query(description='user id'),
@@ -113,7 +114,7 @@ class TestCbv(MethodView):
         }
         return {'result': _dict}
 
-    @pait(author=('so1n', ), desc='test cbv post method', tag='user', status='test')
+    @pait(author=('so1n', ), desc='test cbv post method', tag='user', status=PaitStatus.test)
     def post(
         self,
         model: UserModel = Body(),

@@ -8,7 +8,7 @@ from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 from pait.app.base import BaseAsyncAppDispatch
 from pait.core import pait as _pait
 from pait.g import pait_data
-from pait.model import PaitResponseModel
+from pait.model import PaitResponseModel, PaitStatus
 
 
 class FlaskDispatch(BaseAsyncAppDispatch):
@@ -80,7 +80,7 @@ def load_app(app: Flask):
 def pait(
         author: Optional[Tuple[str]] = None,
         desc: Optional[str] = None,
-        status: Optional[str] = None,
+        status: Optional[PaitStatus] = None,
         tag: str = 'root',
         response_model_list: List[Type[PaitResponseModel]] = None
 ):

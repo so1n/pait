@@ -8,6 +8,7 @@ from starlette.responses import JSONResponse
 from pait.app.starletter_pait import pait
 from pait.exceptions import PaitException
 from pait.field import Body, Depends, Header, Path, Query
+from pait.model import PaitStatus
 from pydantic import ValidationError
 from pydantic import (
     conint,
@@ -26,7 +27,7 @@ async def api_exception(request: Request, exc: Exception) -> JSONResponse:
 @pait(
     author=('so1n', ),
     desc='test pait raise tip',
-    status='abandoned',
+    status=PaitStatus.abandoned,
     response_model_list=[UserSuccessRespModel, FailRespModel]
 )
 async def test_raise_tip(
@@ -44,7 +45,7 @@ async def test_raise_tip(
 @pait(
     author=('so1n', ),
     tag='user',
-    status='release',
+    status=PaitStatus.release,
     response_model_list=[UserSuccessRespModel, FailRespModel]
 )
 async def test_post(
@@ -62,7 +63,7 @@ async def test_post(
 @pait(
     author=('so1n', ),
     tag='user',
-    status='release',
+    status=PaitStatus.release,
     response_model_list=[UserSuccessRespModel, FailRespModel]
 )
 async def test_depend(
@@ -80,7 +81,7 @@ async def test_depend(
     return JSONResponse(return_dict)
 
 
-@pait(author=('so1n', ), tag='user', status='release')
+@pait(author=('so1n', ), tag='user', status=PaitStatus.release)
 async def test_get(
         uid: conint(gt=10, lt=1000) = Query(description='user id'),
         user_name: constr(min_length=2, max_length=4) = Query(description='user name'),
@@ -99,7 +100,7 @@ async def test_get(
     return JSONResponse(_dict)
 
 
-@pait(author=('so1n', ), status='test')
+@pait(author=('so1n', ), status=PaitStatus.test)
 async def test_pait_model(test_model: TestPaitModel):
     """Test Field"""
     return JSONResponse(test_model.dict())
@@ -108,7 +109,7 @@ async def test_pait_model(test_model: TestPaitModel):
 class TestCbv(HTTPEndpoint):
     user_agent: str = Header(alias='user-agent', description='ua')  # remove key will raise error
 
-    @pait(author=('so1n', ), tag='user', status='release')
+    @pait(author=('so1n', ), tag='user', status=PaitStatus.release)
     async def get(
         self,
         uid: conint(gt=10, lt=1000) = Query(description='user id'),
@@ -126,7 +127,7 @@ class TestCbv(HTTPEndpoint):
         }
         return JSONResponse({'result': _dict})
 
-    @pait(author=('so1n', ), desc='test cbv post method', tag='user', status='release')
+    @pait(author=('so1n', ), desc='test cbv post method', tag='user', status=PaitStatus.release)
     async def post(
         self,
         model: UserModel = Body(),

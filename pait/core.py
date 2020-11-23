@@ -7,7 +7,7 @@ from pait.app.base import (
     BaseAppDispatch,
 )
 from pait.g import pait_data
-from pait.model import PaitCoreModel, PaitResponseModel, FuncSig
+from pait.model import PaitCoreModel, PaitResponseModel, FuncSig, PaitStatus
 from pait.param_handle import (
     async_class_param_handle,
     async_func_param_handle,
@@ -15,7 +15,7 @@ from pait.param_handle import (
     func_param_handle
 )
 from pait.util import (
-    get_func_sig,
+    get_func_sig
 )
 
 
@@ -23,7 +23,7 @@ def pait(
         app: 'Type[Union[BaseAppDispatch, BaseAsyncAppDispatch]]',
         author: Optional[Tuple[str]] = None,
         desc: Optional[str] = None,
-        status: Optional[str] = None,
+        status: Optional[PaitStatus] = None,
         tag: str = 'root',
         response_model_list: List[Type[PaitResponseModel]] = None
 ):

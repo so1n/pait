@@ -3,6 +3,7 @@ from types import CodeType
 
 from pydantic.fields import Undefined
 
+from ..model import PaitStatus
 from .base_parse import PaitBaseParse
 
 
@@ -41,14 +42,14 @@ class PaitMd(PaitBaseParse):
                 # func info
                 markdown_text += f"### Name: {pait_model.operation_id}\n"
                 status = ''
-                if pait_model.status == 'test':
-                    status = f"<font color=#00BFFF>{pait_model.status}</font>"
-                elif pait_model.status == 'release':
-                    status = f"<font color=#32CD32>{pait_model.status}</font>"
-                elif pait_model.status == 'abandoned':
-                    status = f"<font color=#DC143C>{pait_model.status}</font>"
+                if pait_model.status == PaitStatus.test:
+                    status = f"<font color=#00BFFF>{pait_model.status.value}</font>"
+                elif pait_model.status == PaitStatus.release:
+                    status = f"<font color=#32CD32>{pait_model.status.value}</font>"
+                elif pait_model.status == PaitStatus.abandoned:
+                    status = f"<font color=#DC143C>{pait_model.status.value}</font>"
                 elif pait_model.status:
-                    status = f"{pait_model.status}"
+                    status = f"{pait_model.status.value}"
 
                 func_code: CodeType = pait_model.func.__code__
                 markdown_text += f"|Author|Status|func|description|\n"
