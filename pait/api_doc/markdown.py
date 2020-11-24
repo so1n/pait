@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from types import CodeType
 
 from pydantic.fields import Undefined
@@ -8,10 +8,19 @@ from .base_parse import PaitBaseParse
 
 
 class PaitMd(PaitBaseParse):
-    def __init__(self, title: str = 'Pait Doc', use_html_details: bool = True):
+    def __init__(self, title: str = 'Pait Doc', use_html_details: bool = True, output_file: Optional[str] = None):
         self._use_html_details: bool = use_html_details  # some not support markdown in html
         self._title: str = title
         super().__init__()
+
+        markdown_text: str = self.gen_markdown_text()
+        if not output_file:
+            print(markdown_text)
+        else:
+            if not output_file.endswith('.md'):
+                output_file += '.md'
+            with open(output_file, mode='a') as f:
+                f.write(markdown_text)
 
     @staticmethod
     def gen_md_param_table(field_dict_list: List[dict], blank_num: int = 8) -> str:
@@ -30,7 +39,7 @@ class PaitMd(PaitBaseParse):
                              f"|\n"
         return markdown_text
 
-    def gen_markdown_text(self):
+    def gen_markdown_text(self) -> str:
         markdown_text: str = f"# {self._title}\n"
         for tag in self._tag_list:
             # tag
@@ -95,4 +104,4 @@ class PaitMd(PaitBaseParse):
                 markdown_text += "\n"
             if self._use_html_details:
                 markdown_text += "</details>"
-        print(markdown_text)
+        return markdown_text

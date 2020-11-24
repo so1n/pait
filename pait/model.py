@@ -16,6 +16,7 @@ class PaitStatus(Enum):
     archive: str = 'archive'
     abandoned: str = 'abandoned'
 
+
 @dataclass()
 class PaitResponseModel(object):
     description: Optional[str] = ''
