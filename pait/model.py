@@ -10,11 +10,11 @@ if TYPE_CHECKING:
 
 
 class PaitStatus(Enum):
-    dev: str = 'dev'
-    test: str = 'test'
-    release: str = 'release'
-    archive: str = 'archive'
-    abandoned: str = 'abandoned'
+    dev: 'PaitStatus' = 'dev'
+    test: 'PaitStatus' = 'test'
+    release: 'PaitStatus' = 'release'
+    archive: 'PaitStatus' = 'archive'
+    abandoned: 'PaitStatus' = 'abandoned'
 
 
 @dataclass()
