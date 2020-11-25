@@ -38,7 +38,7 @@ def test_raise_tip(
 
 
 @app.route("/api/post", methods=['POST'])
-@pait(author=('so1n', ), tag='user', status=PaitStatus.release)
+@pait(author=('so1n', ), group='user', status=PaitStatus.release)
 def test_post(
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
@@ -52,7 +52,7 @@ def test_post(
 
 
 @app.route("/api/depend", methods=['GET'])
-@pait(author=('so1n', ), tag='user', status=PaitStatus.release)
+@pait(author=('so1n', ), group='user', status=PaitStatus.release)
 def demo_get2test_depend(
         request: Request,
         model: UserModel = Query(),
@@ -69,7 +69,7 @@ def demo_get2test_depend(
 
 
 @app.route("/api/get/<age>", methods=['GET'])
-@pait(author=('so1n', ), tag='user', status=PaitStatus.release)
+@pait(author=('so1n', ), group='user', status=PaitStatus.release)
 def test_pait(
         uid: conint(gt=10, lt=1000) = Query(description='user id'),
         user_name: constr(min_length=2, max_length=4) = Query(description='user name'),
@@ -97,7 +97,7 @@ def test_model(test_model: TestPaitModel):
 class TestCbv(MethodView):
     user_agent: str = Header(alias='user-agent', description='ua')  # remove key will raise error
 
-    @pait(author=('so1n', ), tag='user', status=PaitStatus.test)
+    @pait(author=('so1n', ), group='user', status=PaitStatus.test)
     def get(
         self,
         uid: conint(gt=10, lt=1000) = Query(description='user id'),
@@ -114,7 +114,7 @@ class TestCbv(MethodView):
         }
         return {'result': _dict}
 
-    @pait(author=('so1n', ), desc='test cbv post method', tag='user', status=PaitStatus.test)
+    @pait(author=('so1n', ), desc='test cbv post method', group='user', status=PaitStatus.test)
     def post(
         self,
         model: UserModel = Body(),

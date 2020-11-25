@@ -24,7 +24,7 @@ def pait(
         author: Optional[Tuple[str]] = None,
         desc: Optional[str] = None,
         status: Optional[PaitStatus] = None,
-        tag: str = 'root',
+        group: str = 'root',
         response_model_list: List[Type[PaitResponseModel]] = None
 ):
     def wrapper(func: Callable):
@@ -41,7 +41,7 @@ def pait(
                 func_name=func.__name__,
                 pait_id=pait_id,
                 status=status,
-                tag=tag,
+                group=group,
                 response_model_list=response_model_list
             )
         )

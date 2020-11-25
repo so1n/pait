@@ -41,13 +41,13 @@ class PaitMd(PaitBaseParse):
 
     def gen_markdown_text(self) -> str:
         markdown_text: str = f"# {self._title}\n"
-        for tag in self._tag_list:
-            # tag
+        for group in self._group_list:
+            # group
             if self._use_html_details:
-                markdown_text += f"<details><summary>Tag: {tag}</summary>\n"
+                markdown_text += f"<details><summary>Group: {group}</summary>\n"
             else:
-                markdown_text += f"## Tag: {tag}\n"
-            for pait_model in self._tag_pait_dict[tag]:
+                markdown_text += f"## Group: {group}\n"
+            for pait_model in self._tag_pait_dict[group]:
                 # func info
                 markdown_text += f"### Name: {pait_model.operation_id}\n"
                 status = ''

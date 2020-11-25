@@ -18,9 +18,9 @@ def load_app(app):
 def pait(tag='root'):
     load_class_app = auto_load_app_class()
     if load_class_app.__name__ == 'Flask':
-        flask_pait(tag=tag)
+        flask_pait(group=tag)
     elif load_class_app.__name__ == 'Starlette':
-        starlette_pait(tag=tag)
+        starlette_pait(group=tag)
     else:
         raise NotImplementedError(f'Pait not support:{load_class_app}')
 

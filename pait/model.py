@@ -88,7 +88,7 @@ class PaitCoreModel(object):
     author: Optional[Tuple[str]] = None      # author
     desc: InitVar[str] = None                # description
     status: Optional[PaitStatus] = None      # api status. example: test, release
-    tag: str = 'root'                        # request tag
+    group: str = 'root'                        # request tag
 
     response_model_list: List[Type[PaitResponseModel]] = None
 

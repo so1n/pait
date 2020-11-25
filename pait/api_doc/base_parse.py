@@ -13,7 +13,7 @@ class PaitBaseParse(object):
     def __init__(self):
         if not pait_data:
             raise RuntimeError(f'`pait info not init`, please run load_app')
-        self._tag_list: List[str] = []
+        self._group_list: List[str] = []
         self._tag_pait_dict: Dict[str, List[PaitCoreModel]] = {}
 
         self._init()
@@ -21,12 +21,12 @@ class PaitBaseParse(object):
     def _init(self):
         """read from `pait_id_dict` and write PaitMd attributes"""
         for pait_id, pait_model in pait_data.pait_id_dict.items():
-            tag: str = pait_model.tag
+            tag: str = pait_model.group
             if tag not in self._tag_pait_dict:
                 self._tag_pait_dict[tag] = [pait_model]
             else:
                 self._tag_pait_dict[tag].append(pait_model)
-        self._tag_list = sorted(self._tag_pait_dict.keys())
+        self._group_list = sorted(self._tag_pait_dict.keys())
 
     def _parse_schema(
             self, schema_dict: dict, definition_dict: Optional[dict] = None, parent_key: str = ''
