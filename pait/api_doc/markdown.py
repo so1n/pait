@@ -8,19 +8,13 @@ from .base_parse import PaitBaseParse
 
 
 class PaitMd(PaitBaseParse):
-    def __init__(self, title: str = 'Pait Doc', use_html_details: bool = True, output_file: Optional[str] = None):
+    def __init__(self, title: str = 'Pait Doc', use_html_details: bool = True, filename: Optional[str] = None):
         self._use_html_details: bool = use_html_details  # some not support markdown in html
         self._title: str = title
         super().__init__()
 
         markdown_text: str = self.gen_markdown_text()
-        if not output_file:
-            print(markdown_text)
-        else:
-            if not output_file.endswith('.md'):
-                output_file += '.md'
-            with open(output_file, mode='a') as f:
-                f.write(markdown_text)
+        self.output_file(filename, markdown_text, '.md')
 
     @staticmethod
     def gen_md_param_table(field_dict_list: List[dict], blank_num: int = 8) -> str:

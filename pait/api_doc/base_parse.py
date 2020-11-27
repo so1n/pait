@@ -1,5 +1,6 @@
 import inspect
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, get_type_hints
+from types import CodeType
 
 from pydantic import create_model, BaseModel
 from pydantic.fields import Undefined
@@ -180,3 +181,49 @@ class PaitBaseParse(object):
             self._parse_base_model(field_dict, _pydantic_model, _pait_field_dict)
 
         return field_dict
+
+    def gen_dict(self) -> Dict[str, Any]:
+        api_doc_dict: Dict[str, Any] = {}
+        for group in self._group_list:
+            group_dict: Dict[str, Any] = api_doc_dict.setdefault(group, {})
+            group_dict['name'] = group
+            group_dict['group_list'] = []
+            for pait_model in self._tag_pait_dict[group]:
+                func_code: CodeType = pait_model.func.__code__
+                response_list: List[Dict[str, Any]] = []
+                if pait_model.response_model_list:
+                    for resp_model_class in pait_model.response_model_list:
+                        resp_model = resp_model_class()
+                        response_list.append({
+                            'status_code': ','.join([str(i) for i in resp_model.status_code]),
+                            'media_type': resp_model.media_type,
+                            'description': resp_model.description,
+                            'header': resp_model.header,
+                            'response_data': self._parse_schema(resp_model.response_data.schema())
+                        })
+                group_dict['group_list'].append({
+                    'name': pait_model.operation_id,
+                    'status': pait_model.status.value,
+                    'author': ','.join(pait_model.author),
+                    'func': {
+                        'file': func_code.co_filename,
+                        'lineno': func_code.co_firstlineno,
+                        'name': pait_model.func.__qualname__
+                    },
+                    'path': pait_model.path,
+                    'method': ','.join(pait_model.method_set),
+                    'request': self._parse_func_param(pait_model.func),
+                    'response_list': response_list
+                })
+        return api_doc_dict
+
+    @staticmethod
+    def output_file(filename: str, content: str, suffix: str):
+        if not filename:
+            print(content)
+        else:
+            if not filename.endswith(suffix):
+                filename += suffix
+            with open(filename, mode='a') as f:
+                f.write(content)
+
