@@ -183,11 +183,13 @@ class PaitBaseParse(object):
         return field_dict
 
     def gen_dict(self) -> Dict[str, Any]:
-        api_doc_dict: Dict[str, Any] = {}
+        api_doc_dict: Dict[str, Any] = {'group': {}}
         for group in self._group_list:
-            group_dict: Dict[str, Any] = api_doc_dict.setdefault(group, {})
-            group_dict['name'] = group
-            group_dict['group_list'] = []
+            group_dict: Dict[str, Any] = {
+                'name': group,
+                'group_list': []
+            }
+            api_doc_dict['group'][group] = group_dict
             for pait_model in self._tag_pait_dict[group]:
                 func_code: CodeType = pait_model.func.__code__
                 response_list: List[Dict[str, Any]] = []
@@ -224,6 +226,6 @@ class PaitBaseParse(object):
         else:
             if not filename.endswith(suffix):
                 filename += suffix
-            with open(filename, mode='a') as f:
+            with open(filename, mode='w') as f:
                 f.write(content)
 
