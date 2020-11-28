@@ -7,7 +7,7 @@ from starlette.responses import JSONResponse
 
 from pait.app.starletter_pait import pait
 from pait.exceptions import PaitException
-from pait.field import Body, Depends, Header, Path, Query
+from pait.field import Body, Depends, Headers, Path, Query
 from pait.model import PaitStatus
 from pydantic import ValidationError
 from pydantic import (
@@ -33,7 +33,7 @@ async def api_exception(request: Request, exc: Exception) -> JSONResponse:
 async def test_raise_tip(
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
-        content_type: str = Header(description='content-type')
+        content_type: str = Headers(description='content-type')
 ):
     """Test Method: error tip"""
     return_dict = model.dict()
@@ -51,7 +51,7 @@ async def test_raise_tip(
 async def test_post(
     model: UserModel = Body(),
     other_model: UserOtherModel = Body(),
-    content_type: str = Header(alias='Content-Type', description='content-type')
+    content_type: str = Headers(alias='Content-Type', description='content-type')
 ):
     """Test Method:Post Pydantic Model"""
     return_dict = model.dict()
@@ -107,7 +107,7 @@ async def test_pait_model(test_model: TestPaitModel):
 
 
 class TestCbv(HTTPEndpoint):
-    user_agent: str = Header(alias='user-agent', description='ua')  # remove key will raise error
+    user_agent: str = Headers(alias='user-agent', description='ua')  # remove key will raise error
 
     @pait(author=('so1n', ), group='user', status=PaitStatus.release)
     async def get(

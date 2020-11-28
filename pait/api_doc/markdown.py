@@ -88,7 +88,7 @@ class PaitMd(PaitBaseParse):
                                          f"|{resp_model.description}" \
                                          f"|\n"
                         if resp_model.header:
-                            markdown_text += f"{' ' * 8}- Header\n"
+                            markdown_text += f"{' ' * 8}- Headers\n"
                             markdown_text += f"{' ' * 12}{resp_model.header}\n"
                         if resp_model.response_data:
                             markdown_text += f"{' ' * 8}- Data\n"

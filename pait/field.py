@@ -52,7 +52,7 @@ class Body(BaseField):
     pass
 
 
-class Cookie(BaseField):
+class Cookies(BaseField):
     pass
 
 
@@ -64,7 +64,7 @@ class Form(BaseField):
     pass
 
 
-class Header(BaseField):
+class Headers(BaseField):
     pass
 
 

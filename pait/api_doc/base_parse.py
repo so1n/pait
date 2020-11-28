@@ -62,6 +62,8 @@ class PaitBaseParse(object):
                     _type = param_dict['type']
                 field_dict_list.append({
                     'param_name': all_param_name,
+                    '_param_name': param_name,
+                    'schema': param_dict,
                     'description': param_dict.get('description', ''),
                     'default': default,
                     'type': _type,
@@ -104,6 +106,8 @@ class PaitBaseParse(object):
                 description = param_dict.get('description')
             _field_dict = {
                 'param_name': param_name,
+                '_param_name': param_name,
+                'schema': param_dict,
                 'description': description,
                 'default': default,
                 'type': _type,
