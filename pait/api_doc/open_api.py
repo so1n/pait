@@ -7,6 +7,7 @@ from pydantic.fields import Undefined
 
 from .base_parse import PaitBaseParse
 from pait import field as pait_field
+from pait.model import PaitStatus
 
 
 class PaitOpenApi(PaitBaseParse):
@@ -75,6 +76,8 @@ class PaitOpenApi(PaitBaseParse):
                             }
                             if tag_dict not in self.open_api_dict['tags']:
                                 self.open_api_dict['tags'].append(tag_dict)
+                    if pait_model.status in (PaitStatus.archive, PaitStatus.abandoned):
+                        method_dict['deprecated'] = True
                     method_dict['summary'] = pait_model.desc
                     method_dict['operationId']: pait_model.operation_id
                     parameters_list: list = method_dict.setdefault('parameters', [])
