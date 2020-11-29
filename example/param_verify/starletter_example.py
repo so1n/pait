@@ -28,6 +28,7 @@ async def api_exception(request: Request, exc: Exception) -> JSONResponse:
     author=('so1n', ),
     desc='test pait raise tip',
     status=PaitStatus.abandoned,
+    tag=('test',),
     response_model_list=[UserSuccessRespModel, FailRespModel]
 )
 async def test_raise_tip(
@@ -46,6 +47,7 @@ async def test_raise_tip(
     author=('so1n', ),
     group='user',
     status=PaitStatus.release,
+    tag=('user', 'post'),
     response_model_list=[UserSuccessRespModel, FailRespModel]
 )
 async def test_post(
@@ -64,6 +66,7 @@ async def test_post(
     author=('so1n', ),
     group='user',
     status=PaitStatus.release,
+    tag=('user', 'depend'),
     response_model_list=[UserSuccessRespModel, FailRespModel]
 )
 async def test_depend(
@@ -85,6 +88,7 @@ async def test_depend(
     author=('so1n', ),
     group='user',
     status=PaitStatus.release,
+    tag=('user', 'get'),
     response_model_list=[SuccessRespModel, FailRespModel]
 )
 async def test_get(
@@ -108,6 +112,7 @@ async def test_get(
 @pait(
     author=('so1n', ),
     status=PaitStatus.test,
+    tag=('test', ),
     response_model_list=[SuccessRespModel, FailRespModel]
 )
 async def test_pait_model(test_model: TestPaitModel):
@@ -122,6 +127,7 @@ class TestCbv(HTTPEndpoint):
         author=('so1n', ),
         group='user',
         status=PaitStatus.release,
+        tag=('user', 'get'),
         response_model_list=[SuccessRespModel, FailRespModel]
     )
     async def get(
@@ -145,6 +151,7 @@ class TestCbv(HTTPEndpoint):
         author=('so1n', ),
         desc='test cbv post method',
         group='user',
+        tag=('user', 'post'),
         status=PaitStatus.release,
         response_model_list=[SuccessRespModel, FailRespModel]
     )

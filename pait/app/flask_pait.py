@@ -82,9 +82,10 @@ def pait(
         desc: Optional[str] = None,
         status: Optional[PaitStatus] = None,
         group: str = 'root',
+        tag: Optional[Tuple[str, ...]] = None,
         response_model_list: List[Type[PaitResponseModel]] = None
 ):
     return _pait(
         FlaskDispatch,
-        author=author, desc=desc, status=status, group=group, response_model_list=response_model_list
+        author=author, desc=desc, status=status, group=group, tag=tag, response_model_list=response_model_list
     )

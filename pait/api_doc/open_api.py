@@ -31,16 +31,7 @@ class PaitOpenApi(PaitBaseParse):
             "info": open_api_info,
             "servers": open_api_server,
             # TODO
-            "tags": [
-                {
-                    "name": "test",
-                    "description": "about test api",
-                    "externalDocs": {
-                        "description": "external docx",
-                        "url": "http://example.com"
-                    }
-                },
-            ],
+            "tags": [],
             "paths": {},
             "components": {"schemas": {}},
             # TODO
@@ -75,6 +66,15 @@ class PaitOpenApi(PaitBaseParse):
                 method_set: set = pait_model.method_set
                 for method in method_set:
                     method_dict: dict = path_dict.setdefault(method.lower(), {})
+                    if pait_model.tag:
+                        method_dict['tags'] = list(pait_model.tag)
+                        for tag in pait_model.tag:
+                            tag_dict: dict = {
+                                "name": tag,
+                                "description": "",
+                            }
+                            if tag_dict not in self.open_api_dict['tags']:
+                                self.open_api_dict['tags'].append(tag_dict)
                     method_dict['summary'] = pait_model.desc
                     method_dict['operationId']: pait_model.operation_id
                     parameters_list: list = method_dict.setdefault('parameters', [])

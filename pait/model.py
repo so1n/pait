@@ -89,6 +89,7 @@ class PaitCoreModel(object):
     desc: InitVar[str] = None                # description
     status: Optional[PaitStatus] = None      # api status. example: test, release
     group: str = 'root'                        # request tag
+    tag: Optional[Tuple[str, ...]] = None
 
     response_model_list: List[Type[PaitResponseModel]] = None
 
