@@ -62,8 +62,6 @@ class PaitBaseParse(object):
                     _type = param_dict['type']
                 field_dict_list.append({
                     'param_name': all_param_name,
-                    '_param_name': param_name,
-                    'schema': param_dict,
                     'description': param_dict.get('description', ''),
                     'default': default,
                     'type': _type,
@@ -71,6 +69,11 @@ class PaitBaseParse(object):
                         key: value
                         for key, value in param_dict.items()
                         if key not in {'description', 'title', 'type', 'default'}
+                    },
+                    'raw': {
+                        'param_name': param_name,
+                        'schema': param_dict,
+                        'parent_schema': schema_dict,
                     }
                 })
         return field_dict_list
@@ -82,9 +85,15 @@ class PaitBaseParse(object):
         _pait_field_dict: Dict[str, BaseField]
     ):
         # TODO design like _parse_schema
+        param_python_name_dict: Dict[str, str] = {
+            value.alias: key
+            for key, value in _pait_field_dict.items()
+            if value.alias
+        }
         property_dict: Dict[str, Any] = _pydantic_model.schema()['properties']
         for param_name, param_dict in property_dict.items():
-            field_name = _pait_field_dict[param_name].__class__.__name__.lower()
+            param_python_name: str = param_python_name_dict.get(param_name, param_name)
+            field_name = _pait_field_dict[param_python_name].__class__.__name__.lower()
             if '$ref' in param_dict:
                 # ref support
                 key: str = param_dict['$ref'].split('/')[-1]
@@ -99,15 +108,13 @@ class PaitBaseParse(object):
                 if default is not Undefined:
                     default = f'Only choose from: {",".join(["`" + i + "`" for i in default])}'
                 _type: str = 'enum'
-                description: str = _pait_field_dict[param_name].description
+                description: str = _pait_field_dict[param_python_name].description
             else:
                 default = param_dict.get('default', Undefined)
                 _type = param_dict['type']
                 description = param_dict.get('description')
             _field_dict = {
                 'param_name': param_name,
-                '_param_name': param_name,
-                'schema': param_dict,
                 'description': description,
                 'default': default,
                 'type': _type,
@@ -115,6 +122,13 @@ class PaitBaseParse(object):
                     key: value
                     for key, value in param_dict.items()
                     if key not in {'description', 'title', 'type', 'default'}
+                },
+                'raw': {
+                    'param_name': param_name,
+                    'schema': param_dict,
+                    'parent_schema': _pydantic_model.schema(),
+                    'annotation': _pydantic_model.__annotations__[param_python_name],
+                    'field': _pait_field_dict[param_python_name],
                 }
             }
             if field_name not in field_dict:
@@ -154,8 +168,7 @@ class PaitBaseParse(object):
                     if param_name.startswith('_'):
                        continue
                     field: BaseField = getattr(_pait_model, param_name)
-                    key: str = field.alias if field.alias else param_name
-                    _pait_field_dict[key] = field
+                    _pait_field_dict[param_name] = field
 
                 pait_base_model = _pait_model.to_pydantic_model()
                 self._parse_base_model(field_dict, pait_base_model, _pait_field_dict)
@@ -178,8 +191,7 @@ class PaitBaseParse(object):
             for field_name, parameter in single_field_dict.items():
                 field: BaseField = parameter.default
                 annotation_dict[parameter.name] = (parameter.annotation, field)
-                key: str = field.alias if field.alias else parameter.name
-                _pait_field_dict[key] = field
+                _pait_field_dict[parameter.name] = field
 
             _pydantic_model: Type[BaseModel] = create_model('DynamicFoobarModel', **annotation_dict)
             self._parse_base_model(field_dict, _pydantic_model, _pait_field_dict)
@@ -207,6 +219,11 @@ class PaitBaseParse(object):
                             'header': resp_model.header,
                             'response_data': self._parse_schema(resp_model.response_data.schema())
                         })
+                field_dict: Dict[str, List[Dict[str, Any]]] = self._parse_func_param(pait_model.func)
+                for field_name, field_dict_list in field_dict.items():
+                    for field_dict in field_dict_list:
+                        del field_dict['raw']
+
                 group_dict['group_list'].append({
                     'name': pait_model.operation_id,
                     'status': pait_model.status.value,
@@ -218,7 +235,7 @@ class PaitBaseParse(object):
                     },
                     'path': pait_model.path,
                     'method': ','.join(pait_model.method_set),
-                    'request': self._parse_func_param(pait_model.func),
+                    'request': field_dict,
                     'response_list': response_list
                 })
         return api_doc_dict

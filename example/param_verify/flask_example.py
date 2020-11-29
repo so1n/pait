@@ -5,7 +5,7 @@ from flask.views import MethodView
 
 from pait.app.flask_pait import pait
 from pait.exceptions import PaitException
-from pait.field import Body, Depends, Headers, Path, Query
+from pait.field import Body, Depends, Header, Path, Query
 from pait.model import PaitStatus
 from pydantic import ValidationError
 from pydantic import (
@@ -28,7 +28,7 @@ def api_exception(exc: Exception):
 def test_raise_tip(
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
-        content__type: str = Headers(description='Content-Type')  # in flask, Content-Type's key is content_type
+        content__type: str = Header(description='Content-Type')  # in flask, Content-Type's key is content_type
 ):
     """Test Method: error tip"""
     return_dict = model.dict()
@@ -42,7 +42,7 @@ def test_raise_tip(
 def test_post(
         model: UserModel = Body(),
         other_model: UserOtherModel = Body(),
-        content_type: str = Headers(alias='Content-Type', description='Content-Type')
+        content_type: str = Header(alias='Content-Type', description='Content-Type')
 ):
     """Test Method:Post Pydantic Model"""
     return_dict = model.dict()
@@ -95,7 +95,7 @@ def test_model(test_model: TestPaitModel):
 
 
 class TestCbv(MethodView):
-    user_agent: str = Headers(alias='user-agent', description='ua')  # remove key will raise error
+    user_agent: str = Header(alias='user-agent', description='ua')  # remove key will raise error
 
     @pait(author=('so1n', ), group='user', status=PaitStatus.test)
     def get(

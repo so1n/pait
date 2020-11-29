@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import List
 
-from pait.field import Depends, Headers, Query
+from pait.field import Depends, Header, Query
 from pait.model import PaitResponseModel, PaitBaseModel
 from pydantic import (
     BaseModel,
@@ -15,7 +15,7 @@ from pydantic import (
 class TestPaitModel(PaitBaseModel):
     uid: conint(gt=10, lt=1000) = Query(description='user id')
     user_name: constr(min_length=2, max_length=4) = Query(description='user name')
-    user_agent: str = Headers(alias='user-agent', description='user agent')
+    user_agent: str = Header(alias='user-agent', description='user agent')
 
 
 class UserModel(BaseModel):
@@ -32,7 +32,7 @@ class SexEnum(Enum):
     woman: str = 'woman'
 
 
-def demo_sub_depend(user_agent: str = Headers(alias='user-agent', description='user agent')):
+def demo_sub_depend(user_agent: str = Header(alias='user-agent', description='user agent')):
     print('sub_depend', user_agent)
     return user_agent
 
@@ -80,3 +80,9 @@ class UserSuccessRespModel(PaitResponseModel):
 class FailRespModel(PaitResponseModel):
     description: str = 'fail response'
     response_data: BaseModel = ResponseFailModel
+
+
+@dataclass()
+class SuccessRespModel(PaitResponseModel):
+    description: str = 'success response'
+    response_data: BaseModel = ResponseModel
