@@ -55,7 +55,7 @@ class PaitOpenApi(PaitBaseParse):
             pait_yaml: str = yaml.dump(self.open_api_dict, sort_keys=False)
             self.output_file(filename, pait_yaml, '.yaml')
 
-    def change_ref(self, schema, path, parent_schema=None):
+    def replace_pydantic_definitions(self, schema, path, parent_schema=None):
         if not parent_schema:
             parent_schema = schema
         for key, value in schema.items():
@@ -65,7 +65,7 @@ class PaitOpenApi(PaitBaseParse):
                 schema[key] = f"#/components/schemas/{model_key}"
                 self.open_api_dict['components']['schemas'][model_key] = parent_schema['definitions'][model_key]
             if type(value) is dict:
-                self.change_ref(value, path, parent_schema)
+                self.replace_pydantic_definitions(value, path, parent_schema)
 
     def parse_data_2_openapi(self):
         for group, pait_model_list in self._tag_pait_dict.items():
@@ -119,18 +119,34 @@ class PaitOpenApi(PaitBaseParse):
                             pass
 
                     if pait_model.response_model_list:
+                        response_schema_dict: Dict[tuple, List[Dict[str, str]]] = {}
                         for resp_model_class in pait_model.response_model_list:
                             resp_model = resp_model_class()
                             schema_dict: dict = resp_model.response_data.schema()
                             path: str = f"#/components/schemas/{schema_dict['title']}"
-                            self.change_ref(schema_dict, path)
+                            self.replace_pydantic_definitions(schema_dict, path)
                             if 'definitions' in schema_dict:
                                 del schema_dict['definitions']
                             for _status_code in resp_model.status_code:
-                                response_dict[_status_code] = {
-                                    'description': resp_model.description,
-                                    'content': {
-                                        resp_model.media_type: {"schema": {"$ref": path}}
-                                    }
-                                }
+                                key: tuple = (_status_code, resp_model.media_type)
+                                ref_dict: dict = {"$ref": path}
+                                if key in response_schema_dict:
+                                    response_schema_dict[key].append(ref_dict)
+                                else:
+                                    response_schema_dict[key] = [ref_dict]
+                                if _status_code in response_dict:
+                                    response_dict[_status_code]['description'] += f'|{resp_model.description}'
+                                else:
+                                    response_dict[_status_code] = {'description': resp_model.description}
                                 self.open_api_dict['components']['schemas'].update({schema_dict['title']: schema_dict})
+                        # mutli response support
+                        # only response example see https://swagger.io/docs/specification/describing-responses/   FAQ
+                        for key_tuple, path_list in response_schema_dict.items():
+                            status_code, media_type = key_tuple
+                            if len(path_list) == 1:
+                                ref_dict: dict = path_list[0]
+                            else:
+                                ref_dict: dict = {'oneOf': path_list}
+                            response_dict[status_code]['content'] = {
+                                media_type: {"schema": ref_dict}
+                            }
