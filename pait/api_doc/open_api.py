@@ -31,7 +31,6 @@ class PaitOpenApi(PaitBaseParse):
             "openapi": "3.0.0",
             "info": open_api_info,
             "servers": open_api_server,
-            # TODO
             "tags": [],
             "paths": {},
             "components": {"schemas": {}},
@@ -58,6 +57,25 @@ class PaitOpenApi(PaitBaseParse):
                 self.open_api_dict['components']['schemas'][model_key] = parent_schema['definitions'][model_key]
             if type(value) is dict:
                 self.replace_pydantic_definitions(value, path, parent_schema)
+
+    @staticmethod
+    def field_2_request_body(media_type: str, method_dict: dict, field_dict_list: List[dict]):
+        request_body_dict: dict = method_dict.setdefault('requestBody', {"content": {}})
+
+        annotation_dict: Dict[str, Type] = {
+            field_dict['raw']['param_name']: (
+                field_dict['raw']['annotation'], field_dict['raw']['field']
+            )
+            for field_dict in field_dict_list
+        }
+        _pydantic_model: Type[BaseModel] = create_model('DynamicFoobarModel', **annotation_dict)
+        request_body_dict["content"].update(
+            {
+                media_type: {
+                    "schema": _pydantic_model.schema()
+                }
+            }
+        )
 
     def parse_data_2_openapi(self):
         for group, pait_model_list in self._tag_pait_dict.items():
@@ -101,22 +119,10 @@ class PaitOpenApi(PaitBaseParse):
                                 )
                         elif field == pait_field.Body.__name__.lower():
                             # support args BodyField
-                            request_body_dict: dict = method_dict.setdefault('requestBody', {"content": {}})
-
-                            annotation_dict: Dict[str, Type] = {
-                                field_dict['raw']['param_name']: (
-                                    field_dict['raw']['annotation'], field_dict['raw']['field']
-                                )
-                                for field_dict in field_dict_list
-                            }
-                            _pydantic_model: Type[BaseModel] = create_model('DynamicFoobarModel', **annotation_dict)
-                            request_body_dict["content"].update(
-                                {
-                                    "application/json": {
-                                        "schema": _pydantic_model.schema()
-                                    }
-                                }
-                            )
+                            self.field_2_request_body("application/json", method_dict, field_dict_list)
+                        elif field == pait_field.Form.__name__.lower():
+                            # support args FormField
+                            self.field_2_request_body("application/x-www-form-urlencoded", method_dict, field_dict_list)
                         else:
                             # TODO
                             pass
