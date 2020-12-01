@@ -30,6 +30,15 @@ class _OpenApiInfoModel(BaseModel):
     license: _License = Field(None)
 
 
+class _OpenApiTagModel(BaseModel):
+    class _ExternalDocs(BaseModel):
+        url: HttpUrl
+
+    name: str
+    description: str = Field(None)
+    externalDocs: str = Field(None)
+
+
 class _OpenApiServerModel(BaseModel):
     url: HttpUrl = Field('http://127.0.0.1')
     description: str = Field(None)
@@ -40,6 +49,7 @@ class PaitOpenApi(PaitBaseParse):
             self,
             filename: Optional[str] = None,
             open_api_info: Optional[Dict[str, Any]] = None,
+            open_api_tag_list: Optional[List[Dict[str, Any]]] = None,
             open_api_server_list: Optional[List[Dict[str, Any]]] = None,
             # default_response: Optional[...] = None,  # TODO
             _type: str = 'json'
@@ -62,11 +72,17 @@ class PaitOpenApi(PaitBaseParse):
             for open_api_server in open_api_server_list:
                 _OpenApiServerModel(**open_api_server)
 
+        if not open_api_tag_list:
+            open_api_tag_list = []
+        else:
+            for open_api_tag in open_api_tag_list:
+                _OpenApiTagModel(**open_api_tag)
+
         self.open_api_dict = {
             "openapi": "3.0.0",
             "info": open_api_info,
             "servers": open_api_server_list,
-            "tags": [],
+            "tags": open_api_tag_list,
             "paths": {},
             "components": {"schemas": {}},
             # TODO
@@ -127,7 +143,7 @@ class PaitOpenApi(PaitBaseParse):
                                 "name": tag,
                                 "description": "",
                             }
-                            if tag_dict not in self.open_api_dict['tags']:
+                            if tag not in {tag_dict['name'] for tag_dict in self.open_api_dict['tags']}:
                                 self.open_api_dict['tags'].append(tag_dict)
                     if pait_model.status in (PaitStatus.archive, PaitStatus.abandoned):
                         method_dict['deprecated'] = True

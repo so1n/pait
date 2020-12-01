@@ -11,5 +11,12 @@ load_app(app)
 PaitMd(use_html_details=False, filename=title)
 PaitJson(filename=title, indent=2)
 PaitYaml(filename=title)
-PaitOpenApi(filename=title + '_openapi', _type='yaml')
+PaitOpenApi(
+    filename=title + '_openapi',
+    open_api_tag_list=[
+        {'name': 'test', 'description': 'test api'},
+        {'name': 'user', 'description': 'user api'}
+    ],
+    _type='yaml'
+)
 
