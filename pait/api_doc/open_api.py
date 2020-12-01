@@ -2,7 +2,7 @@ import json
 import yaml
 from typing import Any, Dict, List, Type, Optional
 
-from pydantic import BaseModel, create_model
+from pydantic import BaseModel, Field, HttpUrl, create_model
 from pydantic.fields import Undefined
 
 from .base_parse import PaitBaseParse
@@ -10,27 +10,56 @@ from pait import field as pait_field
 from pait.model import PaitStatus
 
 
+__all__ = ['PaitOpenApi']
+
+
+class _OpenApiInfoModel(BaseModel):
+    class _Contact(BaseModel):
+        name: str
+        url: str
+        email: str
+
+    class _License(BaseModel):
+        name: str
+        url: str
+
+    title: str = Field('Pait Open Api')
+    description: str = Field(None)
+    version: str = Field('0.0.1')
+    contact: _Contact = Field(None)
+    license: _License = Field(None)
+
+
+class _OpenApiServerModel(BaseModel):
+    url: HttpUrl = Field('http://127.0.0.1')
+    description: str = Field(None)
+
+
 class PaitOpenApi(PaitBaseParse):
     def __init__(
             self,
             filename: Optional[str] = None,
             open_api_info: Optional[Dict[str, Any]] = None,
-            open_api_server: Optional[List[Dict[str, Any]]] = None,
+            open_api_server_list: Optional[List[Dict[str, Any]]] = None,
+            # default_response: Optional[...] = None,  # TODO
             _type: str = 'json'
     ):
         super().__init__()
         if not open_api_info:
-            open_api_info = {
-                'title': 'Pait Open API',
-                'description': 'You can input open api description',
-                'version': '0.01'
-            }
-        if not open_api_server:
-            open_api_server = [{"url": "/"}]
+            open_api_info = _OpenApiInfoModel().dict(exclude_none=True)
+        else:
+            _OpenApiInfoModel(**open_api_info).dict()
+
+        if not open_api_server_list:
+            open_api_server_list = [_OpenApiServerModel().dict(exclude_none=True)]
+        else:
+            for open_api_server in open_api_server_list:
+                _OpenApiServerModel(**open_api_server)
+
         self.open_api_dict = {
             "openapi": "3.0.0",
             "info": open_api_info,
-            "servers": open_api_server,
+            "servers": open_api_server_list,
             "tags": [],
             "paths": {},
             "components": {"schemas": {}},

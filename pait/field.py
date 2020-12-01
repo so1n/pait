@@ -26,7 +26,6 @@ class BaseField(FieldInfo):
             regex: str = None,
             **extra: Any,
     ):
-        self.default = default
         super().__init__(
             default,
             default_factory=default_factory,
