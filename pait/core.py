@@ -39,7 +39,6 @@ def pait(
                 author=author,
                 desc=desc,
                 func=func,
-                func_name=func.__name__,
                 pait_id=pait_id,
                 status=status,
                 group=group,

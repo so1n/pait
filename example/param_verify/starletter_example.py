@@ -6,7 +6,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from pait.app.starletter_pait import pait
-from pait.exceptions import PaitException
+from pait.exceptions import PaitBaseException
 from pait.field import Body, Depends, Header, Path, Query
 from pait.model import PaitStatus
 from pydantic import ValidationError
@@ -178,7 +178,7 @@ app = Starlette(
     ]
 )
 
-app.add_exception_handler(PaitException, api_exception)
+app.add_exception_handler(PaitBaseException, api_exception)
 app.add_exception_handler(ValidationError, api_exception)
 
 

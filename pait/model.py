@@ -78,13 +78,13 @@ class PaitBaseModel(object):
 @dataclass()
 class PaitCoreModel(object):
     func: Callable                           # func object
-    func_name: str                           # func name
     pait_id: str                             # pait id(in runtime)
 
     method_set: Optional[Set[str]] = None    # request method set
     path: Optional[str] = None               # request path
     operation_id: Optional[str] = None       # operation id(in route table)
 
+    func_name: Optional[str] = None          # func name
     author: Optional[Tuple[str]] = None      # author
     desc: InitVar[str] = None                # description
     status: Optional[PaitStatus] = None      # api status. example: test, release
@@ -98,6 +98,7 @@ class PaitCoreModel(object):
             self.desc = desc
         else:
             self.desc = self.func.__doc__
+        self.func_name = self.func.__name__
 
 
 @dataclass()

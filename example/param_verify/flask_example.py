@@ -4,7 +4,7 @@ from flask import Flask, Request
 from flask.views import MethodView
 
 from pait.app.flask_pait import pait
-from pait.exceptions import PaitException
+from pait.exceptions import PaitBaseException
 from pait.field import Body, Depends, Header, Path, Query
 from pait.model import PaitStatus
 from pydantic import ValidationError
@@ -127,7 +127,7 @@ class TestCbv(MethodView):
 
 
 app.add_url_rule('/api/cbv', view_func=TestCbv.as_view('test_cbv'))
-app.errorhandler(PaitException)(api_exception)
+app.errorhandler(PaitBaseException)(api_exception)
 app.errorhandler(ValidationError)(api_exception)
 
 

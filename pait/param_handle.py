@@ -9,7 +9,7 @@ from pait import field
 from pait.exceptions import (
     NotFoundFieldError,
     NotFoundValueError,
-    PaitException,
+    PaitBaseException,
 )
 from pait.field import BaseField
 from pait.util import get_func_sig, get_parameter_list_from_class
@@ -21,23 +21,27 @@ from pait.app.base import (
 
 
 def raise_and_tip(
-    parameter: inspect.Parameter,
     _object: Union[FuncSig, Type],
-    exception: 'Exception'
+    exception: 'Exception',
+    parameter: inspect.Parameter = None
 ):
     """Help users understand which parameter is wrong"""
-    param_value: BaseField = parameter.default
-    annotation: Type[BaseModel] = parameter.annotation
-    param_name: str = parameter.name
+    if parameter:
+        param_value: BaseField = parameter.default
+        annotation: Type[BaseModel] = parameter.annotation
+        param_name: str = parameter.name
 
-    parameter_value_name: str = param_value.__class__.__name__
-    if param_value is parameter.empty:
-        param_str: str = f'{param_name}: {annotation}'
+        parameter_value_name: str = param_value.__class__.__name__
+        if param_value is parameter.empty:
+            param_str: str = f'{param_name}: {annotation}'
+        else:
+            param_str: str = (
+                f'{param_name}: {annotation} = {parameter_value_name}'
+                f'(alias={param_value.alias}, default={param_value.default})'
+            )
     else:
-        param_str: str = (
-            f'{param_name}: {annotation} = {parameter_value_name}'
-            f'(alias={param_value.alias}, default={param_value.default})'
-        )
+        param_str: str = ''
+
     if isinstance(_object, FuncSig):
         title: str = 'def'
         if inspect.iscoroutinefunction(_object.func):
@@ -50,7 +54,7 @@ def raise_and_tip(
         file: str = inspect.getmodule(_object).__file__
         line: int = inspect.getsourcelines(_object.__class__)[1]
         error_object_name: str = _object.__class__.__name__
-    logging.debug(f"""{exception}
+    logging.debug(f"""
 {title} {error_object_name}(
     ...
     {param_str} <-- error
@@ -58,11 +62,11 @@ def raise_and_tip(
 ):
     pass
 """)
-    raise PaitException(
+    raise PaitBaseException(
         f'File "{file}",'
         f' line {line},'
-        f' in {error_object_name}'
-        f' {str(exception)}'
+        f' in {error_object_name}.'
+        f' error:{str(exception)}'
     ) from exception
 
 
@@ -77,7 +81,9 @@ def parameter_2_basemodel(parameter_value_dict: Dict['inspect.Parameter', Any]) 
     return dynamic_model(**param_value_dict)
 
 
-def get_value_from_request(parameter: inspect.Parameter, dispatch_app: 'BaseAppDispatch') -> Union[Any, Coroutine]:
+def get_request_value_from_parameter(
+        parameter: inspect.Parameter, dispatch_app: 'BaseAppDispatch'
+) -> Union[Any, Coroutine]:
     if isinstance(parameter.default, field.File):
         assert parameter.annotation is not dispatch_app.FileType, f"File type must be {dispatch_app.FileType}"
 
@@ -85,13 +91,14 @@ def get_value_from_request(parameter: inspect.Parameter, dispatch_app: 'BaseAppD
     # Note: not use hasattr with LazyProperty (
     #   because hasattr will calling getattr(obj, name) and catching AttributeError,
     # )
-    dispatch_web_func:  Union[Callable, Coroutine, None] = getattr(dispatch_app, field_name, ...)
+    dispatch_web_func: Union[Callable, Coroutine, None] = getattr(dispatch_app, field_name, ...)
     if dispatch_web_func is ...:
         raise NotFoundFieldError(f'field: {field_name} not found in {dispatch_app}')
     return dispatch_web_func()
 
 
-def set_value_to_args_param(parameter: inspect.Parameter, dispatch_app: 'BaseAppDispatch', func_args: list):
+def set_parameter_value_to_args_list(parameter: inspect.Parameter, dispatch_app: 'BaseAppDispatch', func_args: list):
+    """use func_args param faster return and extend func_args"""
     if parameter.name == 'self':
         # Only support self param name
         func_args.append(dispatch_app.cbv_class)
@@ -100,8 +107,8 @@ def set_value_to_args_param(parameter: inspect.Parameter, dispatch_app: 'BaseApp
         func_args.append(dispatch_app.request_args)
     elif issubclass(parameter.annotation, PaitBaseModel):
         # support pait_model param(def handle(model: PaitBaseModel))
-        single_field_dict = {}
-        _pait_model = parameter.annotation
+        single_field_dict: Dict['inspect.Parameter', Any] = {}
+        _pait_model: Type[PaitBaseModel] = parameter.annotation
         for param_name, param_annotation in get_type_hints(_pait_model).items():
             if param_name.startswith('_'):
                 continue
@@ -111,13 +118,14 @@ def set_value_to_args_param(parameter: inspect.Parameter, dispatch_app: 'BaseApp
                 default=getattr(_pait_model, param_name),
                 annotation=param_annotation
             )
-            request_value: Any = get_value_from_request(parameter, dispatch_app)
+            request_value: Any = get_request_value_from_parameter(parameter, dispatch_app)
             # PaitModel's attributes's annotation support BaseModel
-            request_value_handle(parameter, request_value, single_field_dict, single_field_dict, dispatch_app)
+            request_value_handle(parameter, request_value, None, single_field_dict, dispatch_app)
         func_args.append(parameter_2_basemodel(single_field_dict))
 
 
 async def async_set_value_to_args_param(parameter: inspect.Parameter, dispatch_app: 'BaseAppDispatch', func_args: list):
+    """use func_args param faster return and extend func_args"""
     # args param
     if parameter.name == 'self':
         # Only support self param name
@@ -127,8 +135,8 @@ async def async_set_value_to_args_param(parameter: inspect.Parameter, dispatch_a
         func_args.append(dispatch_app.request_args)
     elif issubclass(parameter.annotation, PaitBaseModel):
         # support pait_model param(def handle(model: PaitModel))
-        single_field_dict = {}
-        _pait_model = parameter.annotation
+        single_field_dict: Dict['inspect.Parameter', Any] = {}
+        _pait_model: Type[PaitBaseModel] = parameter.annotation
 
         for param_name, param_annotation in get_type_hints(_pait_model).items():
             if param_name.startswith('_'):
@@ -139,31 +147,32 @@ async def async_set_value_to_args_param(parameter: inspect.Parameter, dispatch_a
                 default=getattr(_pait_model, param_name),
                 annotation=param_annotation
             )
-            request_value: Any = get_value_from_request(parameter, dispatch_app)
+            request_value: Any = get_request_value_from_parameter(parameter, dispatch_app)
             if asyncio.iscoroutine(request_value):
                 request_value = await request_value
             # PaitModel's attributes  support BaseModel
-            request_value_handle(parameter, request_value, single_field_dict, single_field_dict, dispatch_app)
+            request_value_handle(parameter, request_value, None, single_field_dict, dispatch_app)
         func_args.append(parameter_2_basemodel(single_field_dict))
 
 
 def request_value_handle(
     parameter: inspect.Parameter,
     request_value: Any,
-    base_model_dict: Dict[str, Any],
+    base_model_dict: Optional[Dict[str, Any]],
     parameter_value_dict: Dict['inspect.Parameter', Any],
     dispatch_app: 'BaseAppDispatch',
 ):
+    """parse request_value and set to base_model_dict or parameter_value_dict"""
     param_value: BaseField = parameter.default
     annotation: Type[BaseModel] = parameter.annotation
     param_name: str = parameter.name
     if isinstance(request_value, Mapping) or type(request_value) is dispatch_app.HeaderType \
             or type(request_value) is dispatch_app.FormType:
         if not isinstance(param_value, BaseField):
-            raise PaitException(f'must use {BaseField.__class__.__name__}, no {param_value}')
+            raise PaitBaseException(f'must use {BaseField.__class__.__name__}, no {param_value}')
 
-        if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
-            # parse annotation is pydantic.BaseModel
+        if base_model_dict is not None and inspect.isclass(annotation) and issubclass(annotation, BaseModel):
+            # parse annotation is pydantic.BaseModel and base_model_dict not None
             value: Any = annotation(**request_value)
             base_model_dict[parameter.name] = value
         else:
@@ -183,7 +192,7 @@ def request_value_handle(
                     )
                     raise NotFoundValueError(
                         f' kwargs param:{param_str} not found in {request_value},'
-                        f' try use {parameter_value_name}(key={{key name}})'
+                        f' try use {parameter_value_name}(alias={{alias}})'
                     )
             parameter_value_dict[parameter] = value
     else:
@@ -198,11 +207,12 @@ def param_handle(
     args_param_list: List[Any] = []
     kwargs_param_dict: Dict[str, Any] = {}
     single_field_dict: Dict['inspect.Parameter', Any] = {}
+
     for parameter in param_list:
         try:
             if parameter.default != parameter.empty:
                 # kwargs param
-                # support model: pydantic.BaseModel = pait.field.BaseField()
+                # support model: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseField())
                 if isinstance(parameter.default, field.Depends):
                     func: Callable = parameter.default.func
                     func_sig: FuncSig = get_func_sig(func)
@@ -210,7 +220,7 @@ def param_handle(
                     func_result: Any = func(*_func_args, **_func_kwargs)
                     kwargs_param_dict[parameter.name] = func_result
                 else:
-                    request_value: Any = get_value_from_request(parameter, dispatch_web)
+                    request_value: Any = get_request_value_from_parameter(parameter, dispatch_web)
                     request_value_handle(
                         parameter,
                         request_value,
@@ -219,13 +229,17 @@ def param_handle(
                         dispatch_web
                     )
             else:
-                set_value_to_args_param(parameter, dispatch_web, args_param_list)
-        except PaitException as e:
-            raise_and_tip(parameter, _object, e)
-    # Support param: type = pait.field.BaseField()
+                # args param
+                # support model: model: ModelType
+                set_parameter_value_to_args_list(parameter, dispatch_web, args_param_list)
+        except PaitBaseException as e:
+            raise_and_tip(_object, e, parameter)
+    # support field: def demo(demo_param: int = pait.field.BaseField())
     if single_field_dict:
-        kwargs_param_dict.update(parameter_2_basemodel(single_field_dict).dict())
-
+        try:
+            kwargs_param_dict.update(parameter_2_basemodel(single_field_dict).dict())
+        except Exception as e:
+            raise_and_tip(_object, e)
     return args_param_list, kwargs_param_dict
 
 
@@ -251,7 +265,7 @@ async def async_param_handle(
                         func_result = await func_result
                     kwargs_param_dict[parameter.name] = func_result
                 else:
-                    request_value: Any = get_value_from_request(parameter, dispatch_web)
+                    request_value: Any = get_request_value_from_parameter(parameter, dispatch_web)
 
                     if asyncio.iscoroutine(request_value):
                         request_value = await request_value
@@ -267,13 +281,15 @@ async def async_param_handle(
                 # args param
                 # support model: model: ModelType
                 await async_set_value_to_args_param(parameter, dispatch_web, args_param_list)
-        except PaitException as e:
-            raise_and_tip(parameter, _object, e)
+        except PaitBaseException as e:
+            raise_and_tip(_object, e, parameter)
 
-    # Support param: type = pait.field.BaseField()
+    # support field: def demo(demo_param: int = pait.field.BaseField())
     if single_field_dict:
-        kwargs_param_dict.update(parameter_2_basemodel(single_field_dict).dict())
-
+        try:
+            kwargs_param_dict.update(parameter_2_basemodel(single_field_dict).dict())
+        except Exception as e:
+            raise_and_tip(_object, e)
     return args_param_list, kwargs_param_dict
 
 

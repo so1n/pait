@@ -1,10 +1,10 @@
-class PaitException(Exception):
+class PaitBaseException(Exception):
     pass
 
 
-class NotFoundFieldError(PaitException):
+class NotFoundFieldError(PaitBaseException):
     pass
 
 
-class NotFoundValueError(PaitException):
+class NotFoundValueError(PaitBaseException):
     pass
