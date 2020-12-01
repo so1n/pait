@@ -25,18 +25,18 @@ def raise_and_tip(
     _object: Union[FuncSig, Type],
     exception: 'Exception'
 ):
-    param_value: Any = parameter.default
+    """Help users understand which parameter is wrong"""
+    param_value: BaseField = parameter.default
     annotation: Type[BaseModel] = parameter.annotation
     param_name: str = parameter.name
 
-    # Help users quickly locate the error code
     parameter_value_name: str = param_value.__class__.__name__
     if param_value is parameter.empty:
         param_str: str = f'{param_name}: {annotation}'
     else:
         param_str: str = (
-            f'{param_name}: {annotation} = {parameter_value_name}('
-            f'key={param_value.key}, default={param_value.default})'
+            f'{param_name}: {annotation} = {parameter_value_name}'
+            f'(alias={param_value.alias}, default={param_value.default})'
         )
     if isinstance(_object, FuncSig):
         title: str = 'def'
@@ -57,7 +57,7 @@ def raise_and_tip(
     ...
 ):
     pass
-            """)
+""")
     raise PaitException(
         f'File "{file}",'
         f' line {line},'
