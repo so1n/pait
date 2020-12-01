@@ -45,6 +45,12 @@ class PaitOpenApi(PaitBaseParse):
             _type: str = 'json'
     ):
         super().__init__()
+        self._header_keyword_dict: Dict[str, str] = {
+            'Content-Type': 'requestBody.content.<media-type>',
+            'Accept': 'responses.<code>.content.<media-type>',
+            'Authorization': ' security'
+        }
+        
         if not open_api_info:
             open_api_info = _OpenApiInfoModel().dict(exclude_none=True)
         else:
@@ -137,9 +143,14 @@ class PaitOpenApi(PaitBaseParse):
                                 pait_field.Path.__name__.lower(), pait_field.Query.__name__.lower()
                         ):
                             for field_dict in field_dict_list:
+                                param_name: str = field_dict['raw']['param_name']
+                                if field == pait_field.Header.__name__.lower():
+                                    param_name = self._header_keyword_dict.get(param_name, param_name)
+
+                                # TODO support example
                                 parameters_list.append(
                                     {
-                                        'name': field_dict['raw']['param_name'],
+                                        'name': param_name,
                                         'in': field.lower(),
                                         'required': field_dict['default'] is Undefined,
                                         'description': field_dict['description'],
