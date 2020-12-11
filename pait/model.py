@@ -10,9 +10,21 @@ if TYPE_CHECKING:
 
 
 class PaitStatus(Enum):
+    # The interface is under development and will frequently change
+    design: 'PaitStatus' = 'design'
     dev: 'PaitStatus' = 'dev'
+
+    # The interface has been completed, but there may be some bugs
+    integration: 'PaitStatus' = 'integration'
     test: 'PaitStatus' = 'test'
+    complete: 'PaitStatus' = 'complete'
+
+    # The interface is online
     release: 'PaitStatus' = 'release'
+
+    # The interface has been online, but needs to be offline for some reasons
+    abnormal: 'PaitStatus' = 'abnormal'
+    maintenance: 'PaitStatus' = 'maintenance'
     archive: 'PaitStatus' = 'archive'
     abandoned: 'PaitStatus' = 'abandoned'
 
@@ -87,7 +99,7 @@ class PaitCoreModel(object):
     func_name: Optional[str] = None          # func name
     author: Optional[Tuple[str]] = None      # author
     desc: InitVar[str] = None                # description
-    status: Optional[PaitStatus] = None      # api status. example: test, release
+    status: Optional[PaitStatus] = None      # api status. example: test, release#
     group: str = 'root'                        # request tag
     tag: Optional[Tuple[str, ...]] = None
 

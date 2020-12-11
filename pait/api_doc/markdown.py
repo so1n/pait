@@ -45,11 +45,13 @@ class PaitMd(PaitBaseParse):
                 # func info
                 markdown_text += f"### Name: {pait_model.operation_id}\n"
                 status = ''
-                if pait_model.status == PaitStatus.test:
+                if pait_model.status in (PaitStatus.test, PaitStatus.design, PaitStatus.dev, PaitStatus.integration):
                     status = f"<font color=#00BFFF>{pait_model.status.value}</font>"
-                elif pait_model.status == PaitStatus.release:
+                elif pait_model.status in (PaitStatus.release, PaitStatus.complete):
                     status = f"<font color=#32CD32>{pait_model.status.value}</font>"
-                elif pait_model.status == PaitStatus.abandoned:
+                elif pait_model.status in (
+                    PaitStatus.abandoned, PaitStatus.abnormal
+                ):
                     status = f"<font color=#DC143C>{pait_model.status.value}</font>"
                 elif pait_model.status:
                     status = f"{pait_model.status.value}"

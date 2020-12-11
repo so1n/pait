@@ -145,7 +145,9 @@ class PaitOpenApi(PaitBaseParse):
                             }
                             if tag not in {tag_dict['name'] for tag_dict in self.open_api_dict['tags']}:
                                 self.open_api_dict['tags'].append(tag_dict)
-                    if pait_model.status in (PaitStatus.archive, PaitStatus.abandoned):
+                    if pait_model.status in (
+                            PaitStatus.abnormal, PaitStatus.maintenance, PaitStatus.archive, PaitStatus.abandoned
+                    ):
                         method_dict['deprecated'] = True
                     method_dict['summary'] = pait_model.desc
                     method_dict['operationId']: pait_model.operation_id
