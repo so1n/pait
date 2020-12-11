@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field, InitVar
 from enum import Enum
 from typing import Callable, Dict, Optional, Set, Tuple, List, Type, TYPE_CHECKING, Union, get_type_hints
+from types import FunctionType
 
 from pydantic import BaseModel, create_model
 
@@ -89,7 +90,7 @@ class PaitBaseModel(object):
 
 @dataclass()
 class PaitCoreModel(object):
-    func: Callable                           # func object
+    func: FunctionType                       # func object
     pait_id: str                             # pait id(in runtime)
 
     method_set: Optional[Set[str]] = None    # request method set

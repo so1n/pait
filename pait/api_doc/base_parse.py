@@ -11,9 +11,10 @@ from pait.util import get_func_sig, get_parameter_list_from_class
 
 
 class PaitBaseParse(object):
-    def __init__(self):
+    def __init__(self, undefined: Any = Undefined):
         if not pait_data:
             raise RuntimeError(f'`pait info not init`, please run load_app')
+        self._undefined: Any = undefined
         self._group_list: List[str] = []
         self._tag_pait_dict: Dict[str, List[PaitCoreModel]] = {}
 
@@ -53,12 +54,12 @@ class PaitBaseParse(object):
             else:
                 if 'enum' in param_dict:
                     # enum support
-                    default: str = param_dict.get('enum', Undefined)
-                    if default is not Undefined:
+                    default: str = param_dict.get('enum', self._undefined)
+                    if default is not self._undefined:
                         default = f'Only choose from: {",".join(["`" + i + "`" for i in default])}'
                     _type: str = 'enum'
                 else:
-                    default = param_dict.get('default', Undefined)
+                    default = param_dict.get('default', self._undefined)
                     _type = param_dict['type']
                 field_dict_list.append({
                     'param_name': all_param_name,
@@ -78,8 +79,8 @@ class PaitBaseParse(object):
                 })
         return field_dict_list
 
-    @staticmethod
     def _parse_base_model(
+        self,
         field_dict: Dict[str, List[Dict[str, Any]]],
         _pydantic_model: Type[BaseModel],
         _pait_field_dict: Dict[str, BaseField]
@@ -104,13 +105,13 @@ class PaitBaseParse(object):
                 param_dict: Dict[str, Any] = _pydantic_model.schema()['definitions'][key]
             if 'enum' in param_dict:
                 # enum support
-                default: str = param_dict.get('enum', Undefined)
-                if default is not Undefined:
+                default: str = param_dict.get('enum', self._undefined)
+                if default is not self._undefined:
                     default = f'Only choose from: {",".join(["`" + i + "`" for i in default])}'
                 _type: str = 'enum'
                 description: str = _pait_field_dict[param_python_name].description
             else:
-                default = param_dict.get('default', Undefined)
+                default = param_dict.get('default', self._undefined)
                 _type = param_dict['type']
                 description = param_dict.get('description')
             _field_dict = {
@@ -234,7 +235,7 @@ class PaitBaseParse(object):
                         'name': pait_model.func.__qualname__
                     },
                     'path': pait_model.path,
-                    'method': ','.join(pait_model.method_set),
+                    'method': list(pait_model.method_set),
                     'request': field_dict,
                     'response_list': response_list
                 })

@@ -6,7 +6,7 @@ from .base_parse import PaitBaseParse
 
 class PaitYaml(PaitBaseParse):
     def __init__(self, title: str = 'Pait Yaml', filename: Optional[str] = None):
-        super().__init__()
+        super().__init__(undefined='Required')
 
         pait_dict: Dict[str, Any] = self.gen_dict()
         pait_dict['title'] = title
