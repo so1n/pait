@@ -1,0 +1,177 @@
+{
+  "group": {
+    "root": {
+      "name": "root",
+      "group_list": [
+        {
+          "name": "test_raise_tip",
+          "status": "abandoned",
+          "author": "so1n",
+          "func": {
+            "file": "/home/so1n/github/pait/example/param_verify/flask_example.py",
+            "lineno": 27,
+            "name": "test_raise_tip"
+          },
+          "path": "/api/raise_tip",
+          "method": [
+            "OPTIONS",
+            "POST"
+          ],
+          "request": {
+            "param_name": "content__type",
+            "description": "Content-Type",
+            "default": "Required",
+            "type": "string",
+            "other": {}
+          },
+          "response_list": []
+        },
+        {
+          "name": "test_model",
+          "status": "test",
+          "author": "so1n",
+          "func": {
+            "file": "/home/so1n/github/pait/example/param_verify/flask_example.py",
+            "lineno": 91,
+            "name": "test_model"
+          },
+          "path": "/api/pait_model",
+          "method": [
+            "HEAD",
+            "OPTIONS",
+            "GET"
+          ],
+          "request": {
+            "param_name": "user-agent",
+            "description": "user agent",
+            "default": "Required",
+            "type": "string",
+            "other": {}
+          },
+          "response_list": []
+        }
+      ]
+    },
+    "user": {
+      "name": "user",
+      "group_list": [
+        {
+          "name": "test_post",
+          "status": "release",
+          "author": "so1n",
+          "func": {
+            "file": "/home/so1n/github/pait/example/param_verify/flask_example.py",
+            "lineno": 41,
+            "name": "test_post"
+          },
+          "path": "/api/post",
+          "method": [
+            "OPTIONS",
+            "POST"
+          ],
+          "request": {
+            "param_name": "Content-Type",
+            "description": "Content-Type",
+            "default": "Required",
+            "type": "string",
+            "other": {}
+          },
+          "response_list": []
+        },
+        {
+          "name": "demo_get2test_depend",
+          "status": "release",
+          "author": "so1n",
+          "func": {
+            "file": "/home/so1n/github/pait/example/param_verify/flask_example.py",
+            "lineno": 55,
+            "name": "demo_get2test_depend"
+          },
+          "path": "/api/depend",
+          "method": [
+            "HEAD",
+            "OPTIONS",
+            "GET"
+          ],
+          "request": {
+            "param_name": "user-agent",
+            "description": "user agent",
+            "default": "Required",
+            "type": "string",
+            "other": {}
+          },
+          "response_list": []
+        },
+        {
+          "name": "test_pait",
+          "status": "release",
+          "author": "so1n",
+          "func": {
+            "file": "/home/so1n/github/pait/example/param_verify/flask_example.py",
+            "lineno": 72,
+            "name": "test_pait"
+          },
+          "path": "/api/get/<age>",
+          "method": [
+            "HEAD",
+            "OPTIONS",
+            "GET"
+          ],
+          "request": {
+            "param_name": "age",
+            "description": null,
+            "default": "Required",
+            "type": "string",
+            "other": {}
+          },
+          "response_list": []
+        },
+        {
+          "name": "test_cbv.get",
+          "status": "test",
+          "author": "so1n",
+          "func": {
+            "file": "/home/so1n/github/pait/example/param_verify/flask_example.py",
+            "lineno": 101,
+            "name": "TestCbv.get"
+          },
+          "path": "/api/cbv",
+          "method": [
+            "get"
+          ],
+          "request": {
+            "param_name": "user-agent",
+            "description": "ua",
+            "default": "Required",
+            "type": "string",
+            "other": {}
+          },
+          "response_list": []
+        },
+        {
+          "name": "test_cbv.post",
+          "status": "test",
+          "author": "so1n",
+          "func": {
+            "file": "/home/so1n/github/pait/example/param_verify/flask_example.py",
+            "lineno": 118,
+            "name": "TestCbv.post"
+          },
+          "path": "/api/cbv",
+          "method": [
+            "post"
+          ],
+          "request": {
+            "param_name": "user-agent",
+            "description": "ua",
+            "default": "Required",
+            "type": "string",
+            "other": {}
+          },
+          "response_list": []
+        }
+      ]
+    }
+  },
+  "title": "Pait Json"
+}

@@ -6,9 +6,9 @@ from pait.app import load_app
 
 from example.param_verify.flask_example import app
 
-title: str = 'flask_pait'
+filename: str = './example_doc/flask_pait'
 load_app(app)
-PaitMd(use_html_details=False, filename=title)
-PaitJson(filename=title, indent=2)
-PaitYaml(filename=title)
-PaitOpenApi(filename=title + '_openapi')
+PaitMd(use_html_details=True, filename=filename)
+PaitJson(filename=filename, indent=2)
+PaitYaml(filename=filename)
+PaitOpenApi(filename=filename + '_openapi')

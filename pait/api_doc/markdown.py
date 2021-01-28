@@ -38,12 +38,12 @@ class PaitMd(PaitBaseParse):
         for group in self._group_list:
             # group
             if self._use_html_details:
-                markdown_text += f"<details><summary>Group: {group}</summary>\n"
+                markdown_text += f"<details><summary>Group: {group}</summary>\n\n"
             else:
-                markdown_text += f"## Group: {group}\n"
+                markdown_text += f"## Group: {group}\n\n"
             for pait_model in self._tag_pait_dict[group]:
                 # func info
-                markdown_text += f"### Name: {pait_model.operation_id}\n"
+                markdown_text += f"### Name: {pait_model.operation_id}\n\n"
                 status = ''
                 if pait_model.status in (PaitStatus.test, PaitStatus.design, PaitStatus.dev, PaitStatus.integration):
                     status = f"<font color=#00BFFF>{pait_model.status.value}</font>"
@@ -74,15 +74,15 @@ class PaitMd(PaitBaseParse):
                 # request body info
                 for field in field_key_list:
                     field_dict_list = field_dict[field]
-                    markdown_text += f"{' ' * 4}- {field.capitalize()}\n"
+                    markdown_text += f"{' ' * 4}- {field.capitalize()}\n\n"
                     markdown_text += self.gen_md_param_table(field_dict_list)
 
                 # response info
-                markdown_text += f"- Response:\n"
+                markdown_text += f"- Response:\n\n"
                 if pait_model.response_model_list:
                     for resp_model_class in pait_model.response_model_list:
                         resp_model = resp_model_class()
-                        markdown_text += f"{' ' * 4}- {resp_model.name}\n"
+                        markdown_text += f"{' ' * 4}- {resp_model.name}\n\n"
                         markdown_text += f"{' ' * 8}|status code|media type|description|\n"
                         markdown_text += f"{' ' * 8}|---|---|---|\n"
                         markdown_text += f"{' ' * 8}|{','.join([str(i) for i in resp_model.status_code])}" \
@@ -93,7 +93,7 @@ class PaitMd(PaitBaseParse):
                             markdown_text += f"{' ' * 8}- Header\n"
                             markdown_text += f"{' ' * 12}{resp_model.header}\n"
                         if resp_model.response_data:
-                            markdown_text += f"{' ' * 8}- Data\n"
+                            markdown_text += f"{' ' * 8}- Data\n\n"
                             schema_dict: dict = resp_model.response_data.schema()
                             field_dict_list = self._parse_schema(schema_dict)
                             markdown_text += self.gen_md_param_table(field_dict_list, blank_num=12)

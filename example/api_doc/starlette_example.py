@@ -6,13 +6,13 @@ from pait.app import load_app
 
 from example.param_verify.starlette_example import app
 
-title: str = 'starlette'
+filename: str = './example_doc/starlette'
 load_app(app)
-PaitMd(use_html_details=False, filename=title)
-PaitJson(filename=title, indent=2)
-PaitYaml(filename=title)
+PaitMd(use_html_details=True, filename=filename)
+PaitJson(filename=filename, indent=2)
+PaitYaml(filename=filename)
 PaitOpenApi(
-    filename=title + '_openapi',
+    filename=filename + '_openapi',
     open_api_tag_list=[
         {'name': 'test', 'description': 'test api'},
         {'name': 'user', 'description': 'user api'}

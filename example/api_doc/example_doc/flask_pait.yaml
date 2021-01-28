@@ -1,0 +1,135 @@
+group:
+  root:
+    group_list:
+    - author: so1n
+      func:
+        file: /home/so1n/github/pait/example/param_verify/flask_example.py
+        lineno: 27
+        name: test_raise_tip
+      method:
+      - OPTIONS
+      - POST
+      name: test_raise_tip
+      path: /api/raise_tip
+      request:
+        default: Required
+        description: Content-Type
+        other: {}
+        param_name: content__type
+        type: string
+      response_list: []
+      status: abandoned
+    - author: so1n
+      func:
+        file: /home/so1n/github/pait/example/param_verify/flask_example.py
+        lineno: 91
+        name: test_model
+      method:
+      - HEAD
+      - OPTIONS
+      - GET
+      name: test_model
+      path: /api/pait_model
+      request:
+        default: Required
+        description: user agent
+        other: {}
+        param_name: user-agent
+        type: string
+      response_list: []
+      status: test
+    name: root
+  user:
+    group_list:
+    - author: so1n
+      func:
+        file: /home/so1n/github/pait/example/param_verify/flask_example.py
+        lineno: 41
+        name: test_post
+      method:
+      - OPTIONS
+      - POST
+      name: test_post
+      path: /api/post
+      request:
+        default: Required
+        description: Content-Type
+        other: {}
+        param_name: Content-Type
+        type: string
+      response_list: []
+      status: release
+    - author: so1n
+      func:
+        file: /home/so1n/github/pait/example/param_verify/flask_example.py
+        lineno: 55
+        name: demo_get2test_depend
+      method:
+      - HEAD
+      - OPTIONS
+      - GET
+      name: demo_get2test_depend
+      path: /api/depend
+      request:
+        default: Required
+        description: user agent
+        other: {}
+        param_name: user-agent
+        type: string
+      response_list: []
+      status: release
+    - author: so1n
+      func:
+        file: /home/so1n/github/pait/example/param_verify/flask_example.py
+        lineno: 72
+        name: test_pait
+      method:
+      - HEAD
+      - OPTIONS
+      - GET
+      name: test_pait
+      path: /api/get/<age>
+      request:
+        default: Required
+        description: null
+        other: {}
+        param_name: age
+        type: string
+      response_list: []
+      status: release
+    - author: so1n
+      func:
+        file: /home/so1n/github/pait/example/param_verify/flask_example.py
+        lineno: 101
+        name: TestCbv.get
+      method:
+      - get
+      name: test_cbv.get
+      path: /api/cbv
+      request:
+        default: Required
+        description: ua
+        other: {}
+        param_name: user-agent
+        type: string
+      response_list: []
+      status: test
+    - author: so1n
+      func:
+        file: /home/so1n/github/pait/example/param_verify/flask_example.py
+        lineno: 118
+        name: TestCbv.post
+      method:
+      - post
+      name: test_cbv.post
+      path: /api/cbv
+      request:
+        default: Required
+        description: ua
+        other: {}
+        param_name: user-agent
+        type: string
+      response_list: []
+      status: test
+    name: user
+title: Pait Yaml

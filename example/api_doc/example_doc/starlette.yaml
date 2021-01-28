@@ -1,0 +1,729 @@
+group:
+  root:
+    group_list:
+    - author: so1n
+      func:
+        file: /home/so1n/github/pait/example/param_verify/starlette_example.py
+        lineno: 27
+        name: test_raise_tip
+      method:
+      - POST
+      name: test_raise_tip
+      path: /api/raise_tip
+      request:
+        default: Required
+        description: content-type
+        other: {}
+        param_name: content_type
+        type: string
+      response_list:
+      - description: success response
+        header:
+          cookie: xxx
+        media_type: application/json
+        response_data:
+        - default: 0
+          description: api code
+          other: {}
+          param_name: code
+          raw:
+            param_name: code
+            parent_schema: &id002
+              definitions:
+                Test: &id009
+                  properties:
+                    test_a: &id010
+                      title: Test A
+                      type: integer
+                    test_b: &id011
+                      title: Test B
+                      type: string
+                  required:
+                  - test_a
+                  - test_b
+                  title: Test
+                  type: object
+                _BaseModel: &id004
+                  properties:
+                    age: &id007
+                      description: age
+                      exclusiveMaximum: 100
+                      exclusiveMinimum: 1
+                      title: Age
+                      type: integer
+                    content_type: &id008
+                      description: content-type
+                      title: Content Type
+                      type: string
+                    test:
+                      $ref: '#/definitions/Test'
+                    uid: &id005
+                      default: 123456
+                      description: user id
+                      exclusiveMaximum: 1000
+                      exclusiveMinimum: 10
+                      title: Uid
+                      type: integer
+                    user_name: &id006
+                      description: user name
+                      maxLength: 4
+                      minLength: 2
+                      title: User Name
+                      type: string
+                  required:
+                  - user_name
+                  - age
+                  - content_type
+                  - test
+                  title: _BaseModel
+                  type: object
+              properties:
+                code: &id001
+                  default: 0
+                  description: api code
+                  title: Code
+                  type: integer
+                data:
+                  items:
+                    $ref: '#/definitions/_BaseModel'
+                  title: Data
+                  type: array
+                msg: &id003
+                  default: success
+                  description: api status msg
+                  title: Msg
+                  type: string
+              required:
+              - data
+              title: ResponseUserModel
+              type: object
+            schema: *id001
+          type: integer
+        - default: success
+          description: api status msg
+          other: {}
+          param_name: msg
+          raw:
+            param_name: msg
+            parent_schema: *id002
+            schema: *id003
+          type: string
+        - default: 123456
+          description: user id
+          other:
+            exclusiveMaximum: 1000
+            exclusiveMinimum: 10
+          param_name: data.uid
+          raw:
+            param_name: uid
+            parent_schema: *id004
+            schema: *id005
+          type: integer
+        - default: Required
+          description: user name
+          other:
+            maxLength: 4
+            minLength: 2
+          param_name: data.user_name
+          raw:
+            param_name: user_name
+            parent_schema: *id004
+            schema: *id006
+          type: string
+        - default: Required
+          description: age
+          other:
+            exclusiveMaximum: 100
+            exclusiveMinimum: 1
+          param_name: data.age
+          raw:
+            param_name: age
+            parent_schema: *id004
+            schema: *id007
+          type: integer
+        - default: Required
+          description: content-type
+          other: {}
+          param_name: data.content_type
+          raw:
+            param_name: content_type
+            parent_schema: *id004
+            schema: *id008
+          type: string
+        - default: Required
+          description: ''
+          other: {}
+          param_name: data.test.test_a
+          raw:
+            param_name: test_a
+            parent_schema: *id009
+            schema: *id010
+          type: integer
+        - default: Required
+          description: ''
+          other: {}
+          param_name: data.test.test_b
+          raw:
+            param_name: test_b
+            parent_schema: *id009
+            schema: *id011
+          type: string
+        status_code: '200'
+      - description: fail response
+        header: {}
+        media_type: application/json
+        response_data:
+        - default: 1
+          description: api code
+          other: {}
+          param_name: code
+          raw:
+            param_name: code
+            parent_schema: &id013
+              properties:
+                code: &id012
+                  default: 1
+                  description: api code
+                  title: Code
+                  type: integer
+                msg: &id014
+                  default: fail
+                  description: api status msg
+                  title: Msg
+                  type: string
+              title: ResponseFailModel
+              type: object
+            schema: *id012
+          type: integer
+        - default: fail
+          description: api status msg
+          other: {}
+          param_name: msg
+          raw:
+            param_name: msg
+            parent_schema: *id013
+            schema: *id014
+          type: string
+        status_code: '200'
+      status: abandoned
+    - author: so1n
+      func:
+        file: /home/so1n/github/pait/example/param_verify/starlette_example.py
+        lineno: 112
+        name: test_pait_model
+      method:
+      - HEAD
+      - GET
+      name: test_pait_model
+      path: /api/pait_model
+      request:
+        default: Required
+        description: user agent
+        other: {}
+        param_name: user-agent
+        type: string
+      response_list:
+      - description: success response
+        header: {}
+        media_type: application/json
+        response_data:
+        - default: 0
+          description: api code
+          other: {}
+          param_name: code
+          raw:
+            param_name: code
+            parent_schema: &id016
+              properties:
+                code: &id015
+                  default: 0
+                  description: api code
+                  title: Code
+                  type: integer
+                msg: &id017
+                  default: success
+                  description: api status msg
+                  title: Msg
+                  type: string
+              title: ResponseModel
+              type: object
+            schema: *id015
+          type: integer
+        - default: success
+          description: api status msg
+          other: {}
+          param_name: msg
+          raw:
+            param_name: msg
+            parent_schema: *id016
+            schema: *id017
+          type: string
+        status_code: '200'
+      - description: fail response
+        header: {}
+        media_type: application/json
+        response_data:
+        - default: 1
+          description: api code
+          other: {}
+          param_name: code
+          raw:
+            param_name: code
+            parent_schema: *id013
+            schema: *id012
+          type: integer
+        - default: fail
+          description: api status msg
+          other: {}
+          param_name: msg
+          raw:
+            param_name: msg
+            parent_schema: *id013
+            schema: *id014
+          type: string
+        status_code: '200'
+      status: test
+    name: root
+  user:
+    group_list:
+    - author: so1n
+      func:
+        file: /home/so1n/github/pait/example/param_verify/starlette_example.py
+        lineno: 46
+        name: test_post
+      method:
+      - POST
+      name: test_post
+      path: /api/post
+      request:
+        default: Required
+        description: content-type
+        other: {}
+        param_name: Content-Type
+        type: string
+      response_list:
+      - description: success response
+        header:
+          cookie: xxx
+        media_type: application/json
+        response_data:
+        - default: 0
+          description: api code
+          other: {}
+          param_name: code
+          raw:
+            param_name: code
+            parent_schema: *id002
+            schema: *id001
+          type: integer
+        - default: success
+          description: api status msg
+          other: {}
+          param_name: msg
+          raw:
+            param_name: msg
+            parent_schema: *id002
+            schema: *id003
+          type: string
+        - default: 123456
+          description: user id
+          other:
+            exclusiveMaximum: 1000
+            exclusiveMinimum: 10
+          param_name: data.uid
+          raw:
+            param_name: uid
+            parent_schema: *id004
+            schema: *id005
+          type: integer
+        - default: Required
+          description: user name
+          other:
+            maxLength: 4
+            minLength: 2
+          param_name: data.user_name
+          raw:
+            param_name: user_name
+            parent_schema: *id004
+            schema: *id006
+          type: string
+        - default: Required
+          description: age
+          other:
+            exclusiveMaximum: 100
+            exclusiveMinimum: 1
+          param_name: data.age
+          raw:
+            param_name: age
+            parent_schema: *id004
+            schema: *id007
+          type: integer
+        - default: Required
+          description: content-type
+          other: {}
+          param_name: data.content_type
+          raw:
+            param_name: content_type
+            parent_schema: *id004
+            schema: *id008
+          type: string
+        - default: Required
+          description: ''
+          other: {}
+          param_name: data.test.test_a
+          raw:
+            param_name: test_a
+            parent_schema: *id009
+            schema: *id010
+          type: integer
+        - default: Required
+          description: ''
+          other: {}
+          param_name: data.test.test_b
+          raw:
+            param_name: test_b
+            parent_schema: *id009
+            schema: *id011
+          type: string
+        status_code: '200'
+      - description: fail response
+        header: {}
+        media_type: application/json
+        response_data:
+        - default: 1
+          description: api code
+          other: {}
+          param_name: code
+          raw:
+            param_name: code
+            parent_schema: *id013
+            schema: *id012
+          type: integer
+        - default: fail
+          description: api status msg
+          other: {}
+          param_name: msg
+          raw:
+            param_name: msg
+            parent_schema: *id013
+            schema: *id014
+          type: string
+        status_code: '200'
+      status: release
+    - author: so1n
+      func:
+        file: /home/so1n/github/pait/example/param_verify/starlette_example.py
+        lineno: 65
+        name: test_depend
+      method:
+      - HEAD
+      - GET
+      name: test_depend
+      path: /api/depend
+      request:
+        default: Required
+        description: user agent
+        other: {}
+        param_name: user-agent
+        type: string
+      response_list:
+      - description: success response
+        header:
+          cookie: xxx
+        media_type: application/json
+        response_data:
+        - default: 0
+          description: api code
+          other: {}
+          param_name: code
+          raw:
+            param_name: code
+            parent_schema: *id002
+            schema: *id001
+          type: integer
+        - default: success
+          description: api status msg
+          other: {}
+          param_name: msg
+          raw:
+            param_name: msg
+            parent_schema: *id002
+            schema: *id003
+          type: string
+        - default: 123456
+          description: user id
+          other:
+            exclusiveMaximum: 1000
+            exclusiveMinimum: 10
+          param_name: data.uid
+          raw:
+            param_name: uid
+            parent_schema: *id004
+            schema: *id005
+          type: integer
+        - default: Required
+          description: user name
+          other:
+            maxLength: 4
+            minLength: 2
+          param_name: data.user_name
+          raw:
+            param_name: user_name
+            parent_schema: *id004
+            schema: *id006
+          type: string
+        - default: Required
+          description: age
+          other:
+            exclusiveMaximum: 100
+            exclusiveMinimum: 1
+          param_name: data.age
+          raw:
+            param_name: age
+            parent_schema: *id004
+            schema: *id007
+          type: integer
+        - default: Required
+          description: content-type
+          other: {}
+          param_name: data.content_type
+          raw:
+            param_name: content_type
+            parent_schema: *id004
+            schema: *id008
+          type: string
+        - default: Required
+          description: ''
+          other: {}
+          param_name: data.test.test_a
+          raw:
+            param_name: test_a
+            parent_schema: *id009
+            schema: *id010
+          type: integer
+        - default: Required
+          description: ''
+          other: {}
+          param_name: data.test.test_b
+          raw:
+            param_name: test_b
+            parent_schema: *id009
+            schema: *id011
+          type: string
+        status_code: '200'
+      - description: fail response
+        header: {}
+        media_type: application/json
+        response_data:
+        - default: 1
+          description: api code
+          other: {}
+          param_name: code
+          raw:
+            param_name: code
+            parent_schema: *id013
+            schema: *id012
+          type: integer
+        - default: fail
+          description: api status msg
+          other: {}
+          param_name: msg
+          raw:
+            param_name: msg
+            parent_schema: *id013
+            schema: *id014
+          type: string
+        status_code: '200'
+      status: release
+    - author: so1n
+      func:
+        file: /home/so1n/github/pait/example/param_verify/starlette_example.py
+        lineno: 87
+        name: test_get
+      method:
+      - HEAD
+      - GET
+      name: test_get
+      path: /api/get/{age}
+      request:
+        default: Required
+        description: age
+        other: {}
+        param_name: age
+        type: string
+      response_list:
+      - description: success response
+        header: {}
+        media_type: application/json
+        response_data:
+        - default: 0
+          description: api code
+          other: {}
+          param_name: code
+          raw:
+            param_name: code
+            parent_schema: *id016
+            schema: *id015
+          type: integer
+        - default: success
+          description: api status msg
+          other: {}
+          param_name: msg
+          raw:
+            param_name: msg
+            parent_schema: *id016
+            schema: *id017
+          type: string
+        status_code: '200'
+      - description: fail response
+        header: {}
+        media_type: application/json
+        response_data:
+        - default: 1
+          description: api code
+          other: {}
+          param_name: code
+          raw:
+            param_name: code
+            parent_schema: *id013
+            schema: *id012
+          type: integer
+        - default: fail
+          description: api status msg
+          other: {}
+          param_name: msg
+          raw:
+            param_name: msg
+            parent_schema: *id013
+            schema: *id014
+          type: string
+        status_code: '200'
+      status: release
+    - author: so1n
+      func:
+        file: /home/so1n/github/pait/example/param_verify/starlette_example.py
+        lineno: 126
+        name: TestCbv.get
+      method:
+      - get
+      name: TestCbv.get
+      path: /api/cbv
+      request:
+        default: Required
+        description: ua
+        other: {}
+        param_name: user-agent
+        type: string
+      response_list:
+      - description: success response
+        header: {}
+        media_type: application/json
+        response_data:
+        - default: 0
+          description: api code
+          other: {}
+          param_name: code
+          raw:
+            param_name: code
+            parent_schema: *id016
+            schema: *id015
+          type: integer
+        - default: success
+          description: api status msg
+          other: {}
+          param_name: msg
+          raw:
+            param_name: msg
+            parent_schema: *id016
+            schema: *id017
+          type: string
+        status_code: '200'
+      - description: fail response
+        header: {}
+        media_type: application/json
+        response_data:
+        - default: 1
+          description: api code
+          other: {}
+          param_name: code
+          raw:
+            param_name: code
+            parent_schema: *id013
+            schema: *id012
+          type: integer
+        - default: fail
+          description: api status msg
+          other: {}
+          param_name: msg
+          raw:
+            param_name: msg
+            parent_schema: *id013
+            schema: *id014
+          type: string
+        status_code: '200'
+      status: release
+    - author: so1n
+      func:
+        file: /home/so1n/github/pait/example/param_verify/starlette_example.py
+        lineno: 150
+        name: TestCbv.post
+      method:
+      - post
+      name: TestCbv.post
+      path: /api/cbv
+      request:
+        default: Required
+        description: ua
+        other: {}
+        param_name: user-agent
+        type: string
+      response_list:
+      - description: success response
+        header: {}
+        media_type: application/json
+        response_data:
+        - default: 0
+          description: api code
+          other: {}
+          param_name: code
+          raw:
+            param_name: code
+            parent_schema: *id016
+            schema: *id015
+          type: integer
+        - default: success
+          description: api status msg
+          other: {}
+          param_name: msg
+          raw:
+            param_name: msg
+            parent_schema: *id016
+            schema: *id017
+          type: string
+        status_code: '200'
+      - description: fail response
+        header: {}
+        media_type: application/json
+        response_data:
+        - default: 1
+          description: api code
+          other: {}
+          param_name: code
+          raw:
+            param_name: code
+            parent_schema: *id013
+            schema: *id012
+          type: integer
+        - default: fail
+          description: api status msg
+          other: {}
+          param_name: msg
+          raw:
+            param_name: msg
+            parent_schema: *id013
+            schema: *id014
+          type: string
+        status_code: '200'
+      status: release
+    name: user
+title: Pait Yaml
