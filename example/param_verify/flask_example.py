@@ -3,7 +3,7 @@ from typing import Optional
 from flask import Flask, Request
 from flask.views import MethodView
 
-from pait.app.flask_pait import pait
+from pait.app.flask import pait
 from pait.exceptions import PaitBaseException
 from pait.field import Body, Depends, Header, Path, Query
 from pait.model import PaitStatus
@@ -12,6 +12,7 @@ from pydantic import (
     conint,
     constr,
 )
+from pait.app import pait
 
 from example.param_verify.model import UserModel, UserOtherModel, SexEnum, TestPaitModel, demo_depend
 

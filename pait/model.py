@@ -1,7 +1,6 @@
-from dataclasses import dataclass, field, InitVar
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Callable, Dict, Optional, Set, Tuple, List, Type, TYPE_CHECKING, Union, get_type_hints
-from types import FunctionType
 
 from pydantic import BaseModel, create_model
 
@@ -38,12 +37,10 @@ class PaitResponseModel(object):
     response_data: Optional[BaseModel] = None
     status_code: List[int] = field(default_factory=lambda: [200])
 
-    name: InitVar[str] = None
+    name: Optional[str] = None
 
-    def __post_init__(self, name: InitVar[str]):
-        if name:
-            self.name = name
-        else:
+    def __post_init__(self):
+        if not self.name:
             self.name = self.__class__.__name__
 
 
@@ -90,7 +87,7 @@ class PaitBaseModel(object):
 
 @dataclass()
 class PaitCoreModel(object):
-    func: FunctionType                       # func object
+    func: Callable                           # func object
     pait_id: str                             # pait id(in runtime)
 
     method_set: Optional[Set[str]] = None    # request method set
@@ -99,17 +96,15 @@ class PaitCoreModel(object):
 
     func_name: Optional[str] = None          # func name
     author: Optional[Tuple[str]] = None      # author
-    desc: InitVar[str] = None                # description
+    desc: Optional[str] = None               # description
     status: Optional[PaitStatus] = None      # api status. example: test, release#
-    group: str = 'root'                        # request tag
-    tag: Optional[Tuple[str, ...]] = None
+    group: str = 'root'                      # request group
+    tag: Optional[Tuple[str, ...]] = None    # request tag
 
     response_model_list: List[Type[PaitResponseModel]] = None
 
-    def __post_init__(self, desc: InitVar[str]):
-        if desc:
-            self.desc = desc
-        else:
+    def __post_init__(self):
+        if not self.desc:
             self.desc = self.func.__doc__
         self.func_name = self.func.__name__
 

@@ -76,7 +76,7 @@ def pait(
         tag: Optional[Tuple[str, ...]] = None,
         response_model_list: List[Type[PaitResponseModel]] = None
 ):
-    """Help flask provide parameter checks and type conversions for each routing function/cbv class"""
+    """Help starlette provide parameter checks and type conversions for each routing function/cbv class"""
     return _pait(
         AppHelper,
         author=author, desc=desc, status=status, group=group, tag=tag, response_model_list=response_model_list

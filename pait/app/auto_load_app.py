@@ -10,6 +10,7 @@ except ImportError:
 
 
 def auto_load_app_class():
+    """A project using only a web framework, to use `auto_load_app_class`"""
     app_list: list = [Flask, Starlette]
     real_app = None
     for app in app_list:

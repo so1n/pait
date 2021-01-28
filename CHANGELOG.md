@@ -1,3 +1,10 @@
+### 0.5.0[now]
+ - Refactor: New design&program architecture
+ - Feature: add interface info(life cycle, author, group, desc....)
+ - Feature: add auto load app
+ - Feature: add PaitBaseModel
+ - Feature: add markdown/json/yaml api doc
+ - Feature: api doc support openapi
 ### 0.4.1
  - Feature: add raise error response
 

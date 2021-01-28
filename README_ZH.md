@@ -1,7 +1,9 @@
-# pait
-pait是一个可以用于python的api接口工具,也可以认为是python api接口类型(t-> type hints)
+# Pait
+Pait是一个可以用于python任何web框架(部分框架会在Pait稳定后得到支持)的api工具.
 
-pait可以让你的python web框架拥有像fastapi一样的类型检查和类型转换的功能(由pydantic支持)
+Pait的核心功能是让你可以在任何Python Web框架拥有像FastAPI一样的类型检查和类型转换的功能(依赖于Pydantic和inspect)
+
+Pait的愿景的代码既文档,只需要简单的配置,则可以得到一份md文档或者openapi(json, yaml)
 
 [了解如何实现类型转换和检查功能](http://so1n.me/2019/04/15/%E7%BB%99python%E6%8E%A5%E5%8F%A3%E5%8A%A0%E4%B8%8A%E4%B8%80%E5%B1%82%E7%B1%BB%E5%9E%8B%E6%A3%80/)
 
@@ -26,7 +28,34 @@ from starlette.responses import JSONResponse
 
 
 async def demo_post(request: Request):
-    return JSONResponse({'result': await request.json()})
+    body_dict: dict = await request.json()
+    uid: int = body_dict.get('uid')
+    user_name: str = body_dict.get('user_name')
+    # 以下代码只是作为示范, 一般情况下, 我们都会做一些封装, 不会显得过于冗余
+    if not uid:
+        raise ValueError('xxx')
+    if type(uid) != int:
+        raise TypeError('xxxx')
+    if 10 <= uid <= 1000:
+        raise ValueError('xxx')
+
+    if not user_name:
+        raise ValueError('xxx')
+    if type(user_name) != str:
+        raise TypeError('xxxx')
+    if 2 <= len(user_name) <= 4:
+        raise ValueError('xxx')
+
+    
+    
+    return JSONResponse(
+        {
+            'result': {
+                'uid': body_dict['uid'],
+                'user_name': body_dict['user_name']
+            } 
+        }
+    )
 
 
 app = Starlette(
@@ -39,6 +68,7 @@ app = Starlette(
 uvicorn.run(app)
 ```
 在使用pait后,路由函数代码可以改为:
+
 ```Python
 import uvicorn
 
@@ -46,9 +76,8 @@ from starlette.applications import Starlette
 from starlette.routing import Route
 from starlette.responses import JSONResponse
 
-# import from pait and pydantic
 from pait.field import Body
-from pait.web.starletter import params_verify
+from pait.app.starlette import pait
 from pydantic import (
     BaseModel,
     conint,
@@ -56,20 +85,20 @@ from pydantic import (
 )
 
 
-# create Pydantic.BaseModel
+# 创建一个基于Pydantic.BaseModel的Model
 class PydanticModel(BaseModel):
     uid: conint(gt=10, lt=1000)
     user_name: constr(min_length=2, max_length=4)
 
 
-# use params_verify in route handle
-@params_verify()
+# 使用pait装饰器装饰函数
+@pait()
 async def demo_post(
-    # pait knows to get the body data from the request by 'Body' 
-    # and assign it to the Pydantic model
-    model: PydanticModel = Body()  
+        # pait通过Body()知道当前需要从请求中获取body的值,并赋值到model中, 
+        # 而这个model正是上面的PydanticModel,他会根据我们定义的字段自动获取值并进行转换
+        model: PydanticModel = Body()
 ):
-    # replace body data to dict
+    # 获取对应的值进行返回
     return JSONResponse({'result': model.dict()})
 
 
@@ -79,63 +108,93 @@ app = Starlette(
     ]
 )
 
-
 uvicorn.run(app)
 ```
-可以看出,只需要对路由函数添加一个`params_verify`装饰器,并把`demo_post`的参数改为`model: PydanticModel = Body()`即可.
+可以看出,只需要对路由函数添加一个`pait`装饰器,并把`demo_post`的参数改为`model: PydanticModel = Body()`即可.
 pait通过`Body`知道需要获取post请求body的数据,并根据`conint(gt=10, lt=1000)`对数据进行转换和限制,并赋值给`PydanticModel`,用户只需要像使用`Pydantic`一样调用`model`即可获取到数据.
 
-这里只是一个简单的demo,上面的参数只使用到一种写法,下面会介绍pait支持的两种写法以及用途.
+这里只是一个简单的demo,由于我们编写的model可以复用,所以可以节省到大量的开发量,上面的参数只使用到一种写法,下面会介绍pait支持的两种写法以及用途.
 ### 1.2pait支持的参数写法
-pait为了方便用户使用,支持两种写法,分别为model型和type型:
-- model型 
-model型的特点是参数的type hints会传入一个继承于`pydantic.BaseModel`的类.pait会把获取的值传入model,并进行类型校验和转换,用户只要像调用`pydantic.BaseModel`的方法一样调用即可.此时用户填写的参数值(`Field`),在初始化时可以填入`key`和`default`,`fix_key`,但是pait只会使用到`fix_key`.
+pait为了方便用户使用,支持多种写法(主要是type hints的不同):
+- type hints 为PaitBaseModel时:
+    PaitBaseModel只可用于args参数, 他是最灵活的, PaitBaseModel拥有大部分Pydantic.BaseModel的功能, 他的特点是当属性的值为Field类型时可以被Pait识别, 所以一个PaitBaseModel可以填写多个Field,这是Pydantic.BaseModel没办法做到的,使用示例:
     ```Python
-    model: PydanticModel = Body() 
+    from pait.app.starlette import pait
+    from pait.field import Body, Header
+    from pait.model import PaitBaseModel
+
+
+    class TestModel(PaitBaseModel):
+        uid: int = Body()
+        content_type: str = Header(default='Content-Type')
+
+
+    @pait()
+    async def test(model: PaitBaseModel):
+        return {'result': model.dict()}
     ```
-- type型
-type型的特点就是传入的是python的type, 类(包括Enum也可以),typing值以及`pydantic`的类型值.pait内部会把该函数的所有type型参数合成一个`pydantic.BaseModel`,进行类型校验和转换,并把值再重新赋值给各个参数,此时的pait会调用到用户初始化`Field`时填写的`key`,`default`,`fix_key`
+- type hints 为Pydantic.BaseModel时: 
+    Pydantic.BaseModel只可用于kwargs参数,且参数的type hints必须是一个继承于`pydantic.BaseModel`的类,使用示例:
+    ````Python
+    from pydantic import BaseModel
+    from pait.app.starlette import pait
+    from pait.field import Body
+    
+    
+    class TestModel(BaseModel):
+        uid: int
+        user_name: str
+    
+    
+    @pait()
+    async def test(model: BaseModel = Body()):
+        return {'result': model.dict()}
+    ````
+- type hints不是上述两种情况时:
+    只可用于kwargs参数,且type hints并非上述两种情况, 如果该值很少被复用,或者不想创建Model时,可以考虑这种方式
     ```Python
-    user_agent: str = Header(key='user-agent', default='not_set_ua')
+    from pait.app.starlette import pait
+    from pait.field import Body
+
+
+    @pait()
+    async def test(uid: int = Body(), user_name: str = Body()):
+        return {'result': {'uid': uid, 'user_name': user_name}}
     ```
 ### 1.3Field介绍
-在介绍Field的功能之前先看下面的例子, `pait` 会自动从Body数据中获取到uid的数据
+Field的作用是助于Pait从请求中获取对应的数据,在介绍Field的功能之前先看下面的例子:
+下面的例子与上面一样,`pait` 会根据Field.Body获取到请求的body数据,并以参数名为key获取到值,最后根据type hint进行参数验证并赋值到uid.
+
 ```Python
-@params_verify()
+from pait.app.starlette import pait
+from pait.field import Body
+
+
+@pait()
 async def demo_post(
-    # get uid from request body data
-    uid: int = Body()  
+        # get uid from request body data
+        uid: int = Body()
 ):
     pass
 ```
-如果参数名并不符合Header的key命名,可以使用key参数
+下面的例子会用到一个叫default的参数.
+由于在Python的变量中无法用Content-Type来命名,按照python的命名习惯只能以content_type来命名,而content_type是没办法直接从header中获取到值的,所以可以设置default为Content-Type,这样Pait就可以获取到位于Header中Content-Type的值并赋给content_type变量.
+
 ```Python
-@params_verify()
+from pait.app.starlette import pait
+from pait.field import Body, Header
+
+
+@pait()
 async def demo_post(
-    # get uid from request body data
-    uid: int = Body(),
-    # get Content-Type from header
-    content_type: str = Header(key='Content-Type')
+        # get uid from request body data
+        uid: int = Body(),
+        # get Content-Type from header
+        content_type: str = Header(default='Content-Type')
 ):
     pass
 ```
-
-上面中用到了field的Body,pait除了Body外还支持多种field,pait通过field知道用户需要获取什么类型的数据.field目前有两种类型,一种是普通型field,另一种是依赖注入型field.
-
-普通型field初始化参数有`key`,`default`,`fix_key`:
-- key(只用于type型)  
-  一般情况下,当设置field为Field.Header时,pait会获取到当前请求的header数据,并把参数名当做key,但是header的key命名方式与python变量命名不兼容,会导致pait获取不到对应的数据.
-  通过下面的例子,把真正的key赋值给初始化的key时,pait会优先选择我们的赋值key去header中获取对应的值
-    ```Python
-    user_agent: str = Header(key='user-agent', default='not_set_ua')
-    ```
-- default(只用于type型)
-  当pait获取不到对应数据时,会直接引用初始化时的default
-- fix_key
-  除了使用key参数来解决某些数据的的key与python变量命名冲突外,还可以通过`fix_key=True`来自动解决命名冲突的问题.该方法也是model型命名冲突的唯一解决方案.
-
-field分为简单型field和依赖注入型field
-简单型种类比较多,目前有:
+field中除了Body外还有其他的field:
 - Field.Body   获取到当前请求的json数据
 - Field.Cookie 获取到当前请求的cookie数据
 - Field.File   获取到当前请求的file数据,会根据不同的web框架返回不同的file对象类型
@@ -144,32 +203,53 @@ field分为简单型field和依赖注入型field
 - Field.Path   获取当前请求的path数据(如/api/{version}/test, 可以获得到version数据)
 - Field.Query  获取到当前请求的url参数以及对应数据
 
+之类field继承于`pydantic.fields.FieldInfo`,这里的大多数参数都是为了api文档而服务的,具体用法可以见[pydantic文档](https://pydantic-docs.helpmanual.io/usage/schema/#field-customisation)
 
-依赖注入型field目前只有一个,且由于model写法的存在可以充当部分依赖注入的功能,所以依赖注入型field功能比较简单,只支持在初始化时传入一个函数,并在接收到请求时自动执行该函数.一般用于接口校验或者执行路由函数前的检查
+
+此外还有一个名为Depends的field, 他继承于`object`, 他提供依赖注入的功能, 他只支持一个类型为函数的参数, 而该函数的参数写法也跟路由函数是一样的,下面是Depends的一个使用例子,通过Depends,可以再各个函数复用获取token的功能:
+
+```Python
+from pait.app.starlette import pait
+from pait.field import Body, Depends
+
+
+def demo_depend(uid: str = Body(), password: str = Body()) -> str:
+    # fake db
+    token: str = db.get_token(uid, password)
+    return token
+
+
+@pait()
+async def test_depend(token: str = Depends(demo_depend)):
+    return {'token': token}
+```
 
 ## 2.requests对象
-使用`Pait`后,使用requests对象的次数占比会下降, 所以`pait`并不返回requests对象,如果你需要requests对象,那可以填写像`requests: Requests`一样的参数(需要使用TypeHints格式),即可得到web框架对应的requests对象
+使用`Pait`后,使用request对象的次数占比会下降, 所以`Pait`并不返回request对象,如果你需要requests对象,那可以填写像`request: Request`一样的参数(需要使用TypeHints格式),即可得到web框架对应的requests对象
+
 ```Python
 from starlette.requests import Request
+from pait.app.starlette import pait
+from pait.field import Body
 
 
-@params_verify()
+@pait()
 async def demo_post(
-    request: Requests,
-    # get uid from request body data
-    uid: int = Body()  
+        request: Request,
+        # get uid from request body data
+        uid: int = Body()
 ):
     pass
 ```
 ## 3.异常
 ### 3.1异常处理
-pait并不会为异常进行响应,而是把异常处理交给用户自己处理,正常情况下,pait只会抛出`pydantic`的异常和`PaitException`异常,用户需要自己捕获异常并进行处理,如下所示:
+pait并不会为异常进行响应,而是把异常处理交给用户自己处理,正常情况下,pait只会抛出`pydantic`的异常和`PaitBaseException`异常,用户需要自己捕获异常并进行处理,如下所示:
 ```Python
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import Response
 
-from pait.exceptions import PaitException
+from pait.exceptions import PaitBaseException
 from pydantic import ValidationError
 
 async def api_exception(request: Request, exc: Exception) -> Response:
@@ -178,17 +258,17 @@ async def api_exception(request: Request, exc: Exception) -> Response:
     """
 
 APP = Starlette()
-APP.add_exception_handler(PaitException, api_exception)
+APP.add_exception_handler(PaitBaseException, api_exception)
 APP.add_exception_handler(ValidationError, api_exception)
 ```
 
 ### 3.2异常提示
-如果用户错误的使用pait,如错误的使用参数写法类型, 那Python在执行函数时会报错,但报错信息只说明pait的哪个逻辑运行错误,这样子对于用户排查错误是十分困难的.所以pait对报错进行了处理并做出如下提示,告诉用户是哪个引用到pait的路由函数出错和出错位置以及出错的参数,如果用户使用类似于`Pycharm`的IDE,还可以点击路径跳转到对应的地方.`pait`抛错信息如下,可以看出在`raise_and_tip`函数中抛出的`PaitException`出现了错误的文件,错误所在函数,还有错误的参数名:
+如果用户错误的使用pait,如错误的使用参数写法类型, 那Python在执行函数时会报错,但报错信息只说明pait的哪个逻辑运行错误,这样子对于用户排查错误是十分困难的.所以pait对报错进行了处理并做出如下提示,告诉用户是哪个引用到pait的路由函数出错和出错位置以及出错的参数,如果用户使用类似于`Pycharm`的IDE,还可以点击路径跳转到对应的地方.`pait`抛错信息如下,可以看出在`raise_and_tip`函数中抛出的`PaitBaseException`出现了错误的文件,错误所在函数,还有错误的参数名:
 ```Bash
   File "/home/so1n/github/pait/pait/param_handle.py", line 65, in raise_and_tip
     )
  from exception
-PaitException: 'File "/home/so1n/github/pait/example/starletter_example.py", line 29, in demo_post2  kwargs param:content_type: <class \'str\'> = Header(key=None, default=None) not found in Headers({\'host\': \'127.0.0.1:8000\', \'user-agent\': \'curl/7.52.1\', \'accept\': \'*/*\', \'content-type\': \'application/json\', \'data_type\': \'msg\', \'content-length\': \'38\'}), try use Header(key={key name})'
+PaitBaseException: 'File "/home/so1n/github/pait/example/starlette_example.py", line 29, in demo_post2  kwargs param:content_type: <class \'str\'> = Header(key=None, default=None) not found in Header({\'host\': \'127.0.0.1:8000\', \'user-agent\': \'curl/7.52.1\', \'accept\': \'*/*\', \'content-type\': \'application/json\', \'data_type\': \'msg\', \'content-length\': \'38\'}), try use Header(key={key name})'
 ```
 如果你想查看更多消息,那可以把日志等级设置为debug.
 ```Python

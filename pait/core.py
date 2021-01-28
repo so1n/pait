@@ -3,8 +3,8 @@ from functools import wraps
 from typing import Callable, List, Optional, Tuple, Type, Union
 
 from pait.app.base import (
-    BaseAsyncAppDispatch,
-    BaseAppDispatch,
+    BaseAsyncAppHelper,
+    BaseAppHelper,
 )
 from pait.g import pait_data
 from pait.model import PaitCoreModel, PaitResponseModel, FuncSig, PaitStatus
@@ -14,13 +14,11 @@ from pait.param_handle import (
     class_param_handle,
     func_param_handle
 )
-from pait.util import (
-    get_func_sig
-)
+from pait.util import get_func_sig
 
 
 def pait(
-        app: 'Type[Union[BaseAppDispatch, BaseAsyncAppDispatch]]',
+        app: 'Type[Union[BaseAppHelper, BaseAsyncAppHelper]]',
         author: Optional[Tuple[str]] = None,
         desc: Optional[str] = None,
         status: Optional[PaitStatus] = None,
@@ -50,14 +48,14 @@ def pait(
         if inspect.iscoroutinefunction(func):
             @wraps(func)
             async def dispatch(*args, **kwargs):
-                # only use in runtime
+                # only use in runtime, support cbv
                 class_ = getattr(inspect.getmodule(func), qualname)
                 # real param handle
-                dispatch_app: BaseAsyncAppDispatch = app(class_, args, kwargs)
+                app_helper: BaseAsyncAppHelper = app(class_, args, kwargs)
                 # auto gen param from request
-                func_args, func_kwargs = await async_func_param_handle(dispatch_app, func_sig)
+                func_args, func_kwargs = await async_func_param_handle(app_helper, func_sig)
                 # support sbv
-                await async_class_param_handle(dispatch_app)
+                await async_class_param_handle(app_helper)
                 return await func(*func_args, **func_kwargs)
             return dispatch
         else:
@@ -66,11 +64,11 @@ def pait(
                 # only use in runtime
                 class_ = getattr(inspect.getmodule(func), qualname)
                 # real param handle
-                dispatch_app: BaseAppDispatch = app(class_, args, kwargs)
+                app_helper: BaseAppHelper = app(class_, args, kwargs)
                 # auto gen param from request
-                func_args, func_kwargs = func_param_handle(dispatch_app, func_sig)
+                func_args, func_kwargs = func_param_handle(app_helper, func_sig)
                 # support sbv
-                class_param_handle(dispatch_app)
+                class_param_handle(app_helper)
                 return func(*func_args, **func_kwargs)
             return dispatch
     return wrapper

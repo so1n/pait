@@ -36,6 +36,7 @@ app = Starlette(
 uvicorn.run(app)
 ```
 use pait in starletter route handler:
+
 ```Python
 import uvicorn
 
@@ -45,37 +46,36 @@ from starlette.responses import JSONResponse
 
 # import from pait and pydantic
 from pait.field import Body, Header, Query
-from pait.web.starletter import params_verify
+from pait.app.starlette import pait
 from pydantic import (
-    BaseModel,
-    conint,
-    constr,
+  BaseModel,
+  conint,
+  constr,
 )
 
 
 # create Pydantic.BaseModel
 class PydanticModel(BaseModel):
-    uid: conint(gt=10, lt=1000)
-    user_name: constr(min_length=2, max_length=4)
+  uid: conint(gt=10, lt=1000)
+  user_name: constr(min_length=2, max_length=4)
 
 
 # use params_verify in route handle
-@params_verify()
+@pait()
 async def demo_post(
-    # pait knows to get the body data from the request by 'Body' 
-    # and assign it to the Pydantic model
-    model: PydanticModel = Body()  
+        # pait knows to get the body data from the request by 'Body' 
+        # and assign it to the Pydantic model
+        model: PydanticModel = Body()
 ):
-    # replace body data to dict
-    return JSONResponse({'result': model.dict()})
+  # replace body data to dict
+  return JSONResponse({'result': model.dict()})
 
 
 app = Starlette(
-    routes=[
-        Route('/api', demo_post, methods=['POST']),
-    ]
+  routes=[
+    Route('/api', demo_post, methods=['POST']),
+  ]
 )
-
 
 uvicorn.run(app)
 ```
@@ -163,13 +163,13 @@ async def demo_post(
 
 ## 3.Exception
 ### 3.1Exception Handling
-Pait will leave the exception to the user to handle it. Under normal circumstances, pait will only throw the exception of `pydantic` and `PaitException`. The user needs to catch the exception and handle it by himself, for example:
+Pait will leave the exception to the user to handle it. Under normal circumstances, pait will only throw the exception of `pydantic` and `PaitBaseException`. The user needs to catch the exception and handle it by himself, for example:
 ```Python
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import Response
 
-from pait.exceptions import PaitException
+from pait.exceptions import PaitBaseException
 from pydantic import ValidationError
 
 async def api_exception(request: Request, exc: Exception) -> Response:
@@ -178,7 +178,7 @@ async def api_exception(request: Request, exc: Exception) -> Response:
     """
 
 APP = Starlette()
-APP.add_exception_handler(PaitException, api_exception)
+APP.add_exception_handler(PaitBaseException, api_exception)
 APP.add_exception_handler(ValidationError, api_exception)
 ```
 ### 3.2Error Tip
@@ -186,7 +186,7 @@ When you use pait incorrectly, pait will indicate in the exception the file path
 ```Bash
   File "/home/so1n/github/pait/pait/func_param_handle.py", line 101, in set_value_to_kwargs_param
     f'File "{inspect.getfile(func_sig.func)}",'
-PaitException: 'File "/home/so1n/github/pait/example/starletter_example.py", line 28, in demo_post\n kwargs param:content_type: <class \'str\'> = Header(key=None, default=None) not found value, try use Header(key={key name})'
+PaitBaseException: 'File "/home/so1n/github/pait/example/starlette_example.py", line 28, in demo_post\n kwargs param:content_type: <class \'str\'> = Header(key=None, default=None) not found value, try use Header(key={key name})'
 ```
 If you need more information, can set the log level to debug to get more detailed information
 ```Python

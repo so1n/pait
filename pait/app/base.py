@@ -4,7 +4,8 @@ from abc import ABC
 from typing import Any, Mapping, Optional, Tuple, Type
 
 
-class BaseAppDispatch(object):
+class BaseAppHelper(object):
+    """Provide a unified framework call interface for pait"""
     RequestType = type(None)
     FormType = type(None)
     FileType = type(None)
@@ -16,6 +17,10 @@ class BaseAppDispatch(object):
         args: Tuple[Any, ...],
         kwargs: Mapping[str, Any]
     ):
+        """
+        Extract the required data from the passed parameters,
+        such as the self parameter in cvb mode, the request parameter in starletter
+        """
         self.cbv_class: Optional[Type] = None
 
         request = None
@@ -60,7 +65,7 @@ class BaseAppDispatch(object):
         raise NotImplementedError
 
 
-class BaseAsyncAppDispatch(BaseAppDispatch, ABC):
+class BaseAsyncAppHelper(BaseAppHelper, ABC):
 
     async def body(self) -> dict:
         raise NotImplementedError

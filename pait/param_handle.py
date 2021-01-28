@@ -15,8 +15,8 @@ from pait.field import BaseField
 from pait.util import get_func_sig, get_parameter_list_from_class
 from pait.model import PaitBaseModel, FuncSig
 from pait.app.base import (
-    BaseAsyncAppDispatch,
-    BaseAppDispatch
+    BaseAsyncAppHelper,
+    BaseAppHelper
 )
 
 
@@ -82,7 +82,7 @@ def parameter_2_basemodel(parameter_value_dict: Dict['inspect.Parameter', Any]) 
 
 
 def get_request_value_from_parameter(
-        parameter: inspect.Parameter, dispatch_app: 'BaseAppDispatch'
+        parameter: inspect.Parameter, dispatch_app: 'BaseAppHelper'
 ) -> Union[Any, Coroutine]:
     if isinstance(parameter.default, field.File):
         assert parameter.annotation is not dispatch_app.FileType, f"File type must be {dispatch_app.FileType}"
@@ -91,13 +91,13 @@ def get_request_value_from_parameter(
     # Note: not use hasattr with LazyProperty (
     #   because hasattr will calling getattr(obj, name) and catching AttributeError,
     # )
-    dispatch_web_func: Union[Callable, Coroutine, None] = getattr(dispatch_app, field_name, ...)
-    if dispatch_web_func is ...:
+    app_field_func: Union[Callable, Coroutine, None] = getattr(dispatch_app, field_name, ...)
+    if app_field_func is ...:
         raise NotFoundFieldError(f'field: {field_name} not found in {dispatch_app}')
-    return dispatch_web_func()
+    return app_field_func()
 
 
-def set_parameter_value_to_args_list(parameter: inspect.Parameter, dispatch_app: 'BaseAppDispatch', func_args: list):
+def set_parameter_value_to_args_list(parameter: inspect.Parameter, dispatch_app: 'BaseAppHelper', func_args: list):
     """use func_args param faster return and extend func_args"""
     if parameter.name == 'self':
         # Only support self param name
@@ -124,7 +124,7 @@ def set_parameter_value_to_args_list(parameter: inspect.Parameter, dispatch_app:
         func_args.append(parameter_2_basemodel(single_field_dict))
 
 
-async def async_set_value_to_args_param(parameter: inspect.Parameter, dispatch_app: 'BaseAppDispatch', func_args: list):
+async def async_set_value_to_args_param(parameter: inspect.Parameter, dispatch_app: 'BaseAppHelper', func_args: list):
     """use func_args param faster return and extend func_args"""
     # args param
     if parameter.name == 'self':
@@ -160,14 +160,14 @@ def request_value_handle(
     request_value: Any,
     base_model_dict: Optional[Dict[str, Any]],
     parameter_value_dict: Dict['inspect.Parameter', Any],
-    dispatch_app: 'BaseAppDispatch',
+    app_helper: 'BaseAppHelper',
 ):
     """parse request_value and set to base_model_dict or parameter_value_dict"""
     param_value: BaseField = parameter.default
     annotation: Type[BaseModel] = parameter.annotation
     param_name: str = parameter.name
-    if isinstance(request_value, Mapping) or type(request_value) is dispatch_app.HeaderType \
-            or type(request_value) is dispatch_app.FormType:
+    if isinstance(request_value, Mapping) or type(request_value) is app_helper.HeaderType \
+            or type(request_value) is app_helper.FormType:
         if not isinstance(param_value, BaseField):
             raise PaitBaseException(f'must use {BaseField.__class__.__name__}, no {param_value}')
 
@@ -200,7 +200,7 @@ def request_value_handle(
 
 
 def param_handle(
-        dispatch_web: 'BaseAppDispatch',
+        dispatch_web: 'BaseAppHelper',
         _object: Union[FuncSig, Type],
         param_list: List['inspect.Parameter']
 ) -> Tuple[List[Any], Dict[str, Any]]:
@@ -244,7 +244,7 @@ def param_handle(
 
 
 async def async_param_handle(
-        dispatch_web: 'BaseAsyncAppDispatch',
+        dispatch_web: 'BaseAsyncAppHelper',
         _object: Union[FuncSig, Type],
         param_list: List['inspect.Parameter']
 ) -> Tuple[List[Any], Dict[str, Any]]:
@@ -293,7 +293,7 @@ async def async_param_handle(
     return args_param_list, kwargs_param_dict
 
 
-async def async_class_param_handle(dispatch_web: 'BaseAsyncAppDispatch'):
+async def async_class_param_handle(dispatch_web: 'BaseAsyncAppHelper'):
     cbv_class: Optional[Type] = dispatch_web.cbv_class
     if not cbv_class:
         return
@@ -302,7 +302,7 @@ async def async_class_param_handle(dispatch_web: 'BaseAsyncAppDispatch'):
     cbv_class.__dict__.update(kwargs)
 
 
-def class_param_handle(dispatch_web: 'BaseAppDispatch'):
+def class_param_handle(dispatch_web: 'BaseAppHelper'):
     cbv_class: Optional[Type] = dispatch_web.cbv_class
     if not cbv_class:
         return
@@ -312,11 +312,11 @@ def class_param_handle(dispatch_web: 'BaseAppDispatch'):
 
 
 async def async_func_param_handle(
-        dispatch_web: 'BaseAsyncAppDispatch',
+        dispatch_web: 'BaseAsyncAppHelper',
         func_sig: FuncSig
 ) -> Tuple[List[Any], Dict[str, Any]]:
     return await async_param_handle(dispatch_web, func_sig, func_sig.param_list)
 
 
-def func_param_handle(dispatch_web: 'BaseAppDispatch', func_sig: FuncSig) -> Tuple[List[Any], Dict[str, Any]]:
+def func_param_handle(dispatch_web: 'BaseAppHelper', func_sig: FuncSig) -> Tuple[List[Any], Dict[str, Any]]:
     return param_handle(dispatch_web, func_sig, func_sig.param_list)
