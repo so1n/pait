@@ -6,14 +6,14 @@ from starlette.routing import Route
 from starlette.requests import Request
 from starlette.datastructures import FormData, Headers, UploadFile
 
-from pait.app.base import BaseAsyncAppDispatch
+from pait.app.base import BaseAsyncAppHelper
 from pait.core import pait as _pait
 from pait.g import pait_data
 from pait.lazy_property import LazyAsyncProperty, LazyProperty
 from pait.model import PaitResponseModel, PaitStatus
 
 
-class StarletteDispatch(BaseAsyncAppDispatch):
+class AppHelper(BaseAsyncAppHelper):
     RequestType = Request
     FormType = FormData
     FileType = UploadFile
@@ -46,6 +46,7 @@ class StarletteDispatch(BaseAsyncAppDispatch):
 
 
 def load_app(app: Starlette):
+    """Read data from the route that has been registered to `pait`"""
     for route in app.routes:
         if not isinstance(route, Route):
             # not support
@@ -75,7 +76,8 @@ def pait(
         tag: Optional[Tuple[str, ...]] = None,
         response_model_list: List[Type[PaitResponseModel]] = None
 ):
+    """Help flask provide parameter checks and type conversions for each routing function/cbv class"""
     return _pait(
-        StarletteDispatch,
+        AppHelper,
         author=author, desc=desc, status=status, group=group, tag=tag, response_model_list=response_model_list
     )

@@ -5,13 +5,13 @@ from flask import Flask, request, Request
 from flask.views import MethodView
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 
-from pait.app.base import BaseAsyncAppDispatch
+from pait.app.base import BaseAsyncAppHelper
 from pait.core import pait as _pait
 from pait.g import pait_data
 from pait.model import PaitResponseModel, PaitStatus
 
 
-class FlaskDispatch(BaseAsyncAppDispatch):
+class AppHelper(BaseAsyncAppHelper):
     RequestType = Request
     FormType = ImmutableMultiDict
     FileType = Request.files
@@ -52,6 +52,7 @@ class FlaskDispatch(BaseAsyncAppDispatch):
 
 
 def load_app(app: Flask):
+    """Read data from the route that has been registered to `pait`"""
     for route in app.url_map.iter_rules():
         path: str = route.rule
         method_set: Set[str] = route.methods
@@ -86,6 +87,6 @@ def pait(
         response_model_list: List[Type[PaitResponseModel]] = None
 ):
     return _pait(
-        FlaskDispatch,
+        AppHelper,
         author=author, desc=desc, status=status, group=group, tag=tag, response_model_list=response_model_list
     )

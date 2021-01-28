@@ -8,7 +8,7 @@ from example.param_verify.flask_example import app
 
 title: str = 'flask_pait'
 load_app(app)
-PaitMd(use_html_details=False, filename=title).gen_markdown_text()
+PaitMd(use_html_details=False, filename=title)
 PaitJson(filename=title, indent=2)
 PaitYaml(filename=title)
 PaitOpenApi(filename=title + '_openapi')

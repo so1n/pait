@@ -4,9 +4,9 @@ from pait.api_doc.pait_yaml import PaitYaml
 from pait.api_doc.open_api import PaitOpenApi
 from pait.app import load_app
 
-from example.param_verify.starletter_example import app
+from example.param_verify.starlette_example import app
 
-title: str = 'starletter'
+title: str = 'starlette'
 load_app(app)
 PaitMd(use_html_details=False, filename=title)
 PaitJson(filename=title, indent=2)
@@ -19,4 +19,3 @@ PaitOpenApi(
     ],
     _type='yaml'
 )
-

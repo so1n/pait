@@ -5,7 +5,7 @@ from starlette.routing import Route
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from pait.app.starletter_pait import pait
+from pait.app.starlette import pait
 from pait.exceptions import PaitBaseException
 from pait.field import Body, Depends, Header, Path, Query
 from pait.model import PaitStatus
