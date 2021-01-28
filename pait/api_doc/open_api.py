@@ -47,12 +47,13 @@ class _OpenApiServerModel(BaseModel):
 class PaitOpenApi(PaitBaseParse):
     def __init__(
             self,
-            filename: Optional[str] = None,
+            title: Optional[str] = None,
             open_api_info: Optional[Dict[str, Any]] = None,
             open_api_tag_list: Optional[List[Dict[str, Any]]] = None,
             open_api_server_list: Optional[List[Dict[str, Any]]] = None,
             # default_response: Optional[...] = None,  # TODO
-            _type: str = 'json'
+            type_: str = 'json',
+            filename: Optional[str] = None
     ):
         super().__init__()
         self._header_keyword_dict: Dict[str, str] = {
@@ -62,7 +63,7 @@ class PaitOpenApi(PaitBaseParse):
         }
         
         if not open_api_info:
-            open_api_info = _OpenApiInfoModel().dict(exclude_none=True)
+            open_api_info = _OpenApiInfoModel(title=title).dict(exclude_none=True)
         else:
             _OpenApiInfoModel(**open_api_info).dict()
 
@@ -90,10 +91,10 @@ class PaitOpenApi(PaitBaseParse):
             # "externalDocs": {}
         }
         self.parse_data_2_openapi()
-        if _type == 'json':
+        if type_ == 'json':
             pait_json: str = json.dumps(self.open_api_dict)
             self.output_file(filename, pait_json, '.json')
-        elif _type == 'yaml':
+        elif type_ == 'yaml':
             pait_yaml: str = yaml.dump(self.open_api_dict, sort_keys=False)
             self.output_file(filename, pait_yaml, '.yaml')
 

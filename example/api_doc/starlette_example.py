@@ -12,10 +12,10 @@ PaitMd(use_html_details=True, filename=filename)
 PaitJson(filename=filename, indent=2)
 PaitYaml(filename=filename)
 PaitOpenApi(
-    filename=filename + '_openapi',
+    title=filename + '_openapi',
     open_api_tag_list=[
         {'name': 'test', 'description': 'test api'},
         {'name': 'user', 'description': 'user api'}
     ],
-    _type='yaml'
+    type_='yaml'
 )

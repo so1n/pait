@@ -1,8 +1,6 @@
 import json
 from typing import Any, Dict, Optional
 
-from pydantic.fields import Undefined
-
 from .base_parse import PaitBaseParse
 
 
