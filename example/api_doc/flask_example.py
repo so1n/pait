@@ -11,4 +11,5 @@ load_app(app)
 PaitMd(use_html_details=True, filename=filename)
 PaitJson(filename=filename, indent=2)
 PaitYaml(filename=filename)
-PaitOpenApi(title=filename + '_openapi')
+for i in ('json', 'yaml'):
+    PaitOpenApi(title='Pait Doc', filename=filename + '_openapi', type_=i)

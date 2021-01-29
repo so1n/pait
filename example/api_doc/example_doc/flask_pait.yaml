@@ -7,8 +7,8 @@ group:
         lineno: 27
         name: test_raise_tip
       method:
-      - OPTIONS
       - POST
+      - OPTIONS
       name: test_raise_tip
       path: /api/raise_tip
       request:
@@ -25,9 +25,9 @@ group:
         lineno: 91
         name: test_model
       method:
-      - HEAD
-      - OPTIONS
       - GET
+      - OPTIONS
+      - HEAD
       name: test_model
       path: /api/pait_model
       request:
@@ -47,8 +47,8 @@ group:
         lineno: 41
         name: test_post
       method:
-      - OPTIONS
       - POST
+      - OPTIONS
       name: test_post
       path: /api/post
       request:
@@ -65,9 +65,9 @@ group:
         lineno: 55
         name: demo_get2test_depend
       method:
-      - HEAD
-      - OPTIONS
       - GET
+      - OPTIONS
+      - HEAD
       name: demo_get2test_depend
       path: /api/depend
       request:
@@ -84,9 +84,9 @@ group:
         lineno: 72
         name: test_pait
       method:
-      - HEAD
-      - OPTIONS
       - GET
+      - OPTIONS
+      - HEAD
       name: test_pait
       path: /api/get/<age>
       request:

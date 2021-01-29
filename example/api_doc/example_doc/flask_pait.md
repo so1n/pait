@@ -7,7 +7,7 @@
 |---|---|---|---|
 |so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 27">test_raise_tip</abbr>|test pait raise tip|
 - Path: /api/raise_tip
-- Method: OPTIONS,POST
+- Method: POST,OPTIONS
 - Request:
     - Body
 
@@ -30,7 +30,7 @@
 |---|---|---|---|
 |so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 91">test_model</abbr>|Test Field|
 - Path: /api/pait_model
-- Method: HEAD,OPTIONS,GET
+- Method: GET,OPTIONS,HEAD
 - Request:
     - Header
 
@@ -54,7 +54,7 @@
 |---|---|---|---|
 |so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 41">test_post</abbr>|Test Method:Post Pydantic Model|
 - Path: /api/post
-- Method: OPTIONS,POST
+- Method: POST,OPTIONS
 - Request:
     - Body
 
@@ -77,7 +77,7 @@
 |---|---|---|---|
 |so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 55">demo_get2test_depend</abbr>|Test Method:Post request, Pydantic Model|
 - Path: /api/depend
-- Method: HEAD,OPTIONS,GET
+- Method: GET,OPTIONS,HEAD
 - Request:
     - Header
 
@@ -100,7 +100,7 @@
 |---|---|---|---|
 |so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 72">test_pait</abbr>|Test Field|
 - Path: /api/get/<age>
-- Method: HEAD,OPTIONS,GET
+- Method: GET,OPTIONS,HEAD
 - Request:
     - Path
 

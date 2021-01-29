@@ -212,8 +212,8 @@ group:
         lineno: 112
         name: test_pait_model
       method:
-      - HEAD
       - GET
+      - HEAD
       name: test_pait_model
       path: /api/pait_model
       request:
@@ -416,8 +416,8 @@ group:
         lineno: 65
         name: test_depend
       method:
-      - HEAD
       - GET
+      - HEAD
       name: test_depend
       path: /api/depend
       request:
@@ -541,8 +541,8 @@ group:
         lineno: 87
         name: test_get
       method:
-      - HEAD
       - GET
+      - HEAD
       name: test_get
       path: /api/get/{age}
       request:

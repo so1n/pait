@@ -4,42 +4,61 @@ info:
   version: 0.0.1
 servers:
 - url: http://127.0.0.1
-tags:
-- name: test
-  description: test api
-- name: user
-  description: user api
-- name: post
-  description: ''
-- name: depend
-  description: ''
-- name: get
-  description: ''
+tags: []
 paths:
   /api/raise_tip:
     post:
-      tags:
-      - test
       deprecated: true
       summary: test pait raise tip
       parameters:
-      - name: content_type
+      - name: content__type
         in: header
         required: true
-        description: content-type
+        description: Content-Type
         schema:
-          title: Content Type
-          description: content-type
+          title: Content  Type
+          description: Content-Type
           type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
+      responses: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: DynamicFoobarModel
+              type: object
+              properties:
+                uid:
+                  title: Uid
+                  exclusiveMinimum: 10
+                  exclusiveMaximum: 1000
+                  type: integer
+                user_name:
+                  title: User Name
+                  minLength: 2
+                  maxLength: 4
+                  type: string
+                age:
+                  title: Age
+                  exclusiveMinimum: 1
+                  exclusiveMaximum: 100
+                  type: integer
+              required:
+              - uid
+              - user_name
+              - age
+    options:
+      deprecated: true
+      summary: test pait raise tip
+      parameters:
+      - name: content__type
+        in: header
+        required: true
+        description: Content-Type
+        schema:
+          title: Content  Type
+          description: Content-Type
+          type: string
+      responses: {}
       requestBody:
         content:
           application/json:
@@ -68,8 +87,6 @@ paths:
               - age
   /api/pait_model:
     get:
-      tags:
-      - test
       summary: Test Field
       parameters:
       - name: uid
@@ -100,18 +117,8 @@ paths:
           title: User-Agent
           description: user agent
           type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-    head:
-      tags:
-      - test
+      responses: {}
+    options:
       summary: Test Field
       parameters:
       - name: uid
@@ -129,39 +136,77 @@ paths:
         required: true
         description: user agent
         schema: *id003
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
+      responses: {}
+    head:
+      summary: Test Field
+      parameters:
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema: *id001
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema: *id002
+      - name: user-agent
+        in: header
+        required: true
+        description: user agent
+        schema: *id003
+      responses: {}
   /api/post:
     post:
-      tags:
-      - user
-      - post
       summary: Test Method:Post Pydantic Model
       parameters:
       - name: requestBody.content.<media-type>
         in: header
         required: true
-        description: content-type
+        description: Content-Type
         schema:
           title: Content-Type
-          description: content-type
+          description: Content-Type
           type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
+      responses: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: DynamicFoobarModel
+              type: object
+              properties:
+                uid:
+                  title: Uid
+                  exclusiveMinimum: 10
+                  exclusiveMaximum: 1000
+                  type: integer
+                user_name:
+                  title: User Name
+                  minLength: 2
+                  maxLength: 4
+                  type: string
+                age:
+                  title: Age
+                  exclusiveMinimum: 1
+                  exclusiveMaximum: 100
+                  type: integer
+              required:
+              - uid
+              - user_name
+              - age
+    options:
+      summary: Test Method:Post Pydantic Model
+      parameters:
+      - name: requestBody.content.<media-type>
+        in: header
+        required: true
+        description: Content-Type
+        schema:
+          title: Content-Type
+          description: Content-Type
+          type: string
+      responses: {}
       requestBody:
         content:
           application/json:
@@ -190,9 +235,6 @@ paths:
               - age
   /api/depend:
     get:
-      tags:
-      - user
-      - depend
       summary: Test Method:Post request, Pydantic Model
       parameters:
       - name: uid
@@ -234,19 +276,8 @@ paths:
           title: User-Agent
           description: user agent
           type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-    head:
-      tags:
-      - user
-      - depend
+      responses: {}
+    options:
       summary: Test Method:Post request, Pydantic Model
       parameters:
       - name: uid
@@ -272,59 +303,42 @@ paths:
           title: User-Agent
           description: user agent
           type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-  /api/get/{age}:
-    get:
-      tags:
-      - user
-      - get
-      summary: Test Field
-      parameters:
-      - name: sex
-        in: query
-        required: false
-        description: sex
-        schema:
-          title: SexEnum
-          description: An enumeration.
-          enum:
-          - man
-          - woman
-      - name: age
-        in: path
-        required: true
-        description: age
-        schema:
-          title: Age
-          description: age
-          type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
+      responses: {}
     head:
-      tags:
-      - user
-      - get
+      summary: Test Method:Post request, Pydantic Model
+      parameters:
+      - name: uid
+        in: query
+        required: false
+        description: user id
+        schema: *id004
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema: *id005
+      - name: age
+        in: query
+        required: true
+        description: age
+        schema: *id006
+      - name: user-agent
+        in: header
+        required: true
+        description: user agent
+        schema:
+          title: User-Agent
+          description: user agent
+          type: string
+      responses: {}
+  /api/get/<age>:
+    get:
       summary: Test Field
       parameters:
       - name: sex
         in: query
         required: false
-        description: sex
+        description: null
         schema:
           title: SexEnum
           description: An enumeration.
@@ -334,25 +348,55 @@ paths:
       - name: age
         in: path
         required: true
-        description: age
+        description: null
         schema:
           title: Age
-          description: age
           type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
+      responses: {}
+    options:
+      summary: Test Field
+      parameters:
+      - name: sex
+        in: query
+        required: false
+        description: null
+        schema:
+          title: SexEnum
+          description: An enumeration.
+          enum:
+          - man
+          - woman
+      - name: age
+        in: path
+        required: true
+        description: null
+        schema:
+          title: Age
+          type: string
+      responses: {}
+    head:
+      summary: Test Field
+      parameters:
+      - name: sex
+        in: query
+        required: false
+        description: null
+        schema:
+          title: SexEnum
+          description: An enumeration.
+          enum:
+          - man
+          - woman
+      - name: age
+        in: path
+        required: true
+        description: null
+        schema:
+          title: Age
+          type: string
+      responses: {}
   /api/cbv:
     get:
-      tags:
-      - user
-      - get
       summary: Text Pydantic Model and Field
       parameters:
       - name: age
@@ -363,10 +407,10 @@ paths:
       - name: email
         in: query
         required: false
-        description: user email
+        description: email
         schema:
           title: Email
-          description: user email
+          description: email
           default: example@xxx.com
           type: string
       - name: user-agent
@@ -377,19 +421,8 @@ paths:
           title: User-Agent
           description: ua
           type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
+      responses: {}
     post:
-      tags:
-      - user
-      - post
       summary: test cbv post method
       parameters:
       - name: user-agent
@@ -400,15 +433,7 @@ paths:
           title: User-Agent
           description: ua
           type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
+      responses: {}
       requestBody:
         content:
           application/json:
@@ -436,53 +461,4 @@ paths:
               - user_name
               - age
 components:
-  schemas:
-    ResponseUserModel:
-      title: ResponseUserModel
-      type: object
-      properties:
-        code:
-          title: Code
-          description: api code
-          default: 0
-          type: integer
-        msg:
-          title: Msg
-          description: api status msg
-          default: success
-          type: string
-        data:
-          title: Data
-          type: array
-          items:
-            $ref: '#/components/schemas/_BaseModel'
-      required:
-      - data
-    ResponseFailModel:
-      title: ResponseFailModel
-      type: object
-      properties:
-        code:
-          title: Code
-          description: api code
-          default: 1
-          type: integer
-        msg:
-          title: Msg
-          description: api status msg
-          default: fail
-          type: string
-    ResponseModel:
-      title: ResponseModel
-      type: object
-      properties:
-        code:
-          title: Code
-          description: api code
-          default: 0
-          type: integer
-        msg:
-          title: Msg
-          description: api status msg
-          default: success
-          type: string
+  schemas: {}

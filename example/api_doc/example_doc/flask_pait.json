@@ -14,8 +14,8 @@
           },
           "path": "/api/raise_tip",
           "method": [
-            "OPTIONS",
-            "POST"
+            "POST",
+            "OPTIONS"
           ],
           "request": {
             "param_name": "content__type",
@@ -37,9 +37,9 @@
           },
           "path": "/api/pait_model",
           "method": [
-            "HEAD",
+            "GET",
             "OPTIONS",
-            "GET"
+            "HEAD"
           ],
           "request": {
             "param_name": "user-agent",
@@ -66,8 +66,8 @@
           },
           "path": "/api/post",
           "method": [
-            "OPTIONS",
-            "POST"
+            "POST",
+            "OPTIONS"
           ],
           "request": {
             "param_name": "Content-Type",
@@ -89,9 +89,9 @@
           },
           "path": "/api/depend",
           "method": [
-            "HEAD",
+            "GET",
             "OPTIONS",
-            "GET"
+            "HEAD"
           ],
           "request": {
             "param_name": "user-agent",
@@ -113,9 +113,9 @@
           },
           "path": "/api/get/<age>",
           "method": [
-            "HEAD",
+            "GET",
             "OPTIONS",
-            "GET"
+            "HEAD"
           ],
           "request": {
             "param_name": "age",

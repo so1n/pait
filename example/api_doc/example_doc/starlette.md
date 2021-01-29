@@ -60,7 +60,7 @@
 |---|---|---|---|
 |so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 112">test_pait_model</abbr>|Test Field|
 - Path: /api/pait_model
-- Method: HEAD,GET
+- Method: GET,HEAD
 - Request:
     - Header
 
@@ -159,7 +159,7 @@
 |---|---|---|---|
 |so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 65">test_depend</abbr>|Test Method:Post request, Pydantic Model|
 - Path: /api/depend
-- Method: HEAD,GET
+- Method: GET,HEAD
 - Request:
     - Header
 
@@ -212,7 +212,7 @@
 |---|---|---|---|
 |so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 87">test_get</abbr>|Test Field|
 - Path: /api/get/{age}
-- Method: HEAD,GET
+- Method: GET,HEAD
 - Request:
     - Path
 
