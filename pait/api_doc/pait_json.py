@@ -12,4 +12,4 @@ class PaitJson(PaitBaseParse):
         pait_dict['title'] = title
 
         pait_json: str = json.dumps(pait_dict, indent=indent)
-        self.output_file(filename, pait_json, '.json')
+        self.output(filename, pait_json, '.json')

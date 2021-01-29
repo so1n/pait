@@ -12,4 +12,4 @@ class PaitYaml(PaitBaseParse):
         pait_dict['title'] = title
 
         pait_yaml: str = yaml.dump(pait_dict)
-        self.output_file(filename, pait_yaml, '.yaml')
+        self.output(filename, pait_yaml, '.yaml')

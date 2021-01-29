@@ -16,8 +16,8 @@ class PaitStatus(Enum):
 
     # The interface has been completed, but there may be some bugs
     integration: 'PaitStatus' = 'integration'
-    test: 'PaitStatus' = 'test'
     complete: 'PaitStatus' = 'complete'
+    test: 'PaitStatus' = 'test'
 
     # The interface is online
     release: 'PaitStatus' = 'release'
@@ -98,7 +98,7 @@ class PaitCoreModel(object):
     author: Optional[Tuple[str]] = None      # author
     desc: Optional[str] = None               # description
     status: Optional[PaitStatus] = None      # api status. example: test, release#
-    group: str = 'root'                      # request group
+    group: Optional[str] = None              # request group
     tag: Optional[Tuple[str, ...]] = None    # request tag
 
     response_model_list: List[Type[PaitResponseModel]] = None
@@ -106,6 +106,8 @@ class PaitCoreModel(object):
     def __post_init__(self):
         if not self.desc:
             self.desc = self.func.__doc__
+        if not self.group:
+            self.group = 'root'
         self.func_name = self.func.__name__
 
 

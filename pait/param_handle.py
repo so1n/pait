@@ -71,6 +71,7 @@ def raise_and_tip(
 
 
 def parameter_2_basemodel(parameter_value_dict: Dict['inspect.Parameter', Any]) -> BaseModel:
+    """Convert all parameters into pydantic mods"""
     annotation_dict: Dict[str, Type[Any, ...]] = {}
     param_value_dict: Dict[str, Any] = {}
     for parameter, value in parameter_value_dict.items():
@@ -82,29 +83,29 @@ def parameter_2_basemodel(parameter_value_dict: Dict['inspect.Parameter', Any]) 
 
 
 def get_request_value_from_parameter(
-        parameter: inspect.Parameter, dispatch_app: 'BaseAppHelper'
+        parameter: inspect.Parameter, app_helper: 'BaseAppHelper'
 ) -> Union[Any, Coroutine]:
     if isinstance(parameter.default, field.File):
-        assert parameter.annotation is not dispatch_app.FileType, f"File type must be {dispatch_app.FileType}"
+        assert parameter.annotation is not app_helper.FileType, f"File type must be {app_helper.FileType}"
 
     field_name: str = parameter.default.__class__.__name__.lower()
     # Note: not use hasattr with LazyProperty (
     #   because hasattr will calling getattr(obj, name) and catching AttributeError,
     # )
-    app_field_func: Union[Callable, Coroutine, None] = getattr(dispatch_app, field_name, ...)
+    app_field_func: Union[Callable, Coroutine, None] = getattr(app_helper, field_name, ...)
     if app_field_func is ...:
-        raise NotFoundFieldError(f'field: {field_name} not found in {dispatch_app}')
+        raise NotFoundFieldError(f'field: {field_name} not found in {app_helper}')
     return app_field_func()
 
 
-def set_parameter_value_to_args_list(parameter: inspect.Parameter, dispatch_app: 'BaseAppHelper', func_args: list):
+def set_parameter_value_to_args_list(parameter: inspect.Parameter, app_helper: 'BaseAppHelper', func_args: list):
     """use func_args param faster return and extend func_args"""
     if parameter.name == 'self':
         # Only support self param name
-        func_args.append(dispatch_app.cbv_class)
-    elif parameter.annotation is dispatch_app.RequestType:
+        func_args.append(app_helper.cbv_class)
+    elif parameter.annotation is app_helper.RequestType:
         # support request param(def handle(request: Request))
-        func_args.append(dispatch_app.request_args)
+        func_args.append(app_helper.request_args)
     elif issubclass(parameter.annotation, PaitBaseModel):
         # support pait_model param(def handle(model: PaitBaseModel))
         single_field_dict: Dict['inspect.Parameter', Any] = {}
@@ -118,9 +119,9 @@ def set_parameter_value_to_args_list(parameter: inspect.Parameter, dispatch_app:
                 default=getattr(_pait_model, param_name),
                 annotation=param_annotation
             )
-            request_value: Any = get_request_value_from_parameter(parameter, dispatch_app)
+            request_value: Any = get_request_value_from_parameter(parameter, app_helper)
             # PaitModel's attributes's annotation support BaseModel
-            request_value_handle(parameter, request_value, None, single_field_dict, dispatch_app)
+            request_value_handle(parameter, request_value, None, single_field_dict, app_helper)
         func_args.append(parameter_2_basemodel(single_field_dict))
 
 
@@ -200,7 +201,7 @@ def request_value_handle(
 
 
 def param_handle(
-        dispatch_web: 'BaseAppHelper',
+        app_herelper: 'BaseAppHelper',
         _object: Union[FuncSig, Type],
         param_list: List['inspect.Parameter']
 ) -> Tuple[List[Any], Dict[str, Any]]:
@@ -216,22 +217,22 @@ def param_handle(
                 if isinstance(parameter.default, field.Depends):
                     func: Callable = parameter.default.func
                     func_sig: FuncSig = get_func_sig(func)
-                    _func_args, _func_kwargs = param_handle(dispatch_web, func_sig, func_sig.param_list)
+                    _func_args, _func_kwargs = param_handle(app_herelper, func_sig, func_sig.param_list)
                     func_result: Any = func(*_func_args, **_func_kwargs)
                     kwargs_param_dict[parameter.name] = func_result
                 else:
-                    request_value: Any = get_request_value_from_parameter(parameter, dispatch_web)
+                    request_value: Any = get_request_value_from_parameter(parameter, app_herelper)
                     request_value_handle(
                         parameter,
                         request_value,
                         kwargs_param_dict,
                         single_field_dict,
-                        dispatch_web
+                        app_herelper
                     )
             else:
                 # args param
                 # support model: model: ModelType
-                set_parameter_value_to_args_list(parameter, dispatch_web, args_param_list)
+                set_parameter_value_to_args_list(parameter, app_herelper, args_param_list)
         except PaitBaseException as e:
             raise_and_tip(_object, e, parameter)
     # support field: def demo(demo_param: int = pait.field.BaseField())

@@ -16,23 +16,24 @@ class PaitBaseParse(object):
             raise RuntimeError(f'`pait info not init`, please run load_app')
         self._undefined: Any = undefined
         self._group_list: List[str] = []
-        self._tag_pait_dict: Dict[str, List[PaitCoreModel]] = {}
+        self._group_pait_dict: Dict[str, List[PaitCoreModel]] = {}
 
         self._init()
 
     def _init(self):
         """read from `pait_id_dict` and write PaitMd attributes"""
         for pait_id, pait_model in pait_data.pait_id_dict.items():
-            tag: str = pait_model.group
-            if tag not in self._tag_pait_dict:
-                self._tag_pait_dict[tag] = [pait_model]
+            group: str = pait_model.group
+            if group not in self._group_pait_dict:
+                self._group_pait_dict[group] = [pait_model]
             else:
-                self._tag_pait_dict[tag].append(pait_model)
-        self._group_list = sorted(self._tag_pait_dict.keys())
+                self._group_pait_dict[group].append(pait_model)
+        self._group_list = sorted(self._group_pait_dict.keys())
 
     def _parse_schema(
             self, schema_dict: dict, definition_dict: Optional[dict] = None, parent_key: str = ''
     ) -> List[dict]:
+        """gen field dict from pydantic basemodel schema"""
         field_dict_list: List[dict] = []
         property_dict: dict = schema_dict['properties']
         if not definition_dict:
@@ -80,11 +81,12 @@ class PaitBaseParse(object):
         return field_dict_list
 
     def _parse_base_model(
-        self,
-        field_dict: Dict[str, List[Dict[str, Any]]],
-        _pydantic_model: Type[BaseModel],
-        _pait_field_dict: Dict[str, BaseField]
+            self,
+            field_dict: Dict[str, List[Dict[str, Any]]],
+            _pydantic_model: Type[BaseModel],
+            _pait_field_dict: Dict[str, BaseField]
     ):
+        """gen field dict"""
         # TODO design like _parse_schema
         param_python_name_dict: Dict[str, str] = {
             value.alias: key
@@ -138,11 +140,12 @@ class PaitBaseParse(object):
                 field_dict[field_name].append(_field_dict)
 
     def parameter_list_handle(
-        self,
-        parameter_list: List['inspect.Parameter'],
-        field_dict: Dict[str, List[Dict[str, Any]]],
-        single_field_dict: Dict[str, 'inspect.Parameter']
+            self,
+            parameter_list: List['inspect.Parameter'],
+            field_dict: Dict[str, List[Dict[str, Any]]],
+            single_field_dict: Dict[str, 'inspect.Parameter']
     ):
+        """gen field dict from parameter_list"""
         for parameter in parameter_list:
             if parameter.default != parameter.empty:
                 annotation: type = parameter.annotation
@@ -167,7 +170,7 @@ class PaitBaseParse(object):
                 _pait_field_dict: Dict[str, BaseField] = {}
                 for param_name, param_annotation in get_type_hints(_pait_model).items():
                     if param_name.startswith('_'):
-                       continue
+                        continue
                     field: BaseField = getattr(_pait_model, param_name)
                     _pait_field_dict[param_name] = field
 
@@ -175,6 +178,26 @@ class PaitBaseParse(object):
                 self._parse_base_model(field_dict, pait_base_model, _pait_field_dict)
 
     def _parse_func_param(self, func: Callable) -> Dict[str, List[Dict[str, Any]]]:
+        """gen filed dict from func
+        [
+            {
+                'field': {
+                    'param_name': str,
+                    'description': str,
+                    'default': str,
+                    'type': type,
+                    'other': dict,
+                    'raw': {
+                        'param_name': str,
+                        'schema': dict,
+                        'parent_schema': pydantic base model.schema(),
+                        'annotation': annotation,
+                        'field': basefield,
+                    }
+                }
+            }
+        ]
+        """
         field_dict: Dict[str, List[Dict[str, Any]]] = {}
         func_sig: FuncSig = get_func_sig(func)
         single_field_dict: Dict[str, 'inspect.Parameter'] = {}
@@ -207,7 +230,7 @@ class PaitBaseParse(object):
                 'group_list': []
             }
             api_doc_dict['group'][group] = group_dict
-            for pait_model in self._tag_pait_dict[group]:
+            for pait_model in self._group_pait_dict[group]:
                 func_code: CodeType = pait_model.func.__code__
                 response_list: List[Dict[str, Any]] = []
                 if pait_model.response_model_list:
@@ -242,7 +265,7 @@ class PaitBaseParse(object):
         return api_doc_dict
 
     @staticmethod
-    def output_file(filename: str, content: str, suffix: str):
+    def output(filename: str, content: str, suffix: str):
         if not filename:
             print(content)
         else:
@@ -250,4 +273,3 @@ class PaitBaseParse(object):
                 filename += suffix
             with open(filename, mode='w') as f:
                 f.write(content)
-

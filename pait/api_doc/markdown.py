@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from types import CodeType
 
 from pydantic.fields import Undefined
@@ -14,7 +14,7 @@ class PaitMd(PaitBaseParse):
         super().__init__()
 
         markdown_text: str = self.gen_markdown_text()
-        self.output_file(filename, markdown_text, '.md')
+        self.output(filename, markdown_text, '.md')
 
     @staticmethod
     def gen_md_param_table(field_dict_list: List[dict], blank_num: int = 8) -> str:
@@ -41,26 +41,24 @@ class PaitMd(PaitBaseParse):
                 markdown_text += f"<details><summary>Group: {group}</summary>\n\n"
             else:
                 markdown_text += f"## Group: {group}\n\n"
-            for pait_model in self._tag_pait_dict[group]:
+            for pait_model in self._group_pait_dict[group]:
                 # func info
                 markdown_text += f"### Name: {pait_model.operation_id}\n\n"
-                status = ''
+                status_text: str = ''
                 if pait_model.status in (PaitStatus.test, PaitStatus.design, PaitStatus.dev, PaitStatus.integration):
-                    status = f"<font color=#00BFFF>{pait_model.status.value}</font>"
+                    status_text = f"<font color=#00BFFF>{pait_model.status.value}</font>"
                 elif pait_model.status in (PaitStatus.release, PaitStatus.complete):
-                    status = f"<font color=#32CD32>{pait_model.status.value}</font>"
-                elif pait_model.status in (
-                    PaitStatus.abandoned, PaitStatus.abnormal
-                ):
-                    status = f"<font color=#DC143C>{pait_model.status.value}</font>"
+                    status_text = f"<font color=#32CD32>{pait_model.status.value}</font>"
+                elif pait_model.status in (PaitStatus.abandoned, PaitStatus.abnormal):
+                    status_text = f"<font color=#DC143C>{pait_model.status.value}</font>"
                 elif pait_model.status:
-                    status = f"{pait_model.status.value}"
+                    status_text = f"{pait_model.status.value}"
 
                 func_code: CodeType = pait_model.func.__code__
                 markdown_text += f"|Author|Status|func|description|\n"
                 markdown_text += f"|---|---|---|---|\n"
                 markdown_text += f"|{','.join(pait_model.author)}" \
-                                 f"|{status}" \
+                                 f"|{status_text}" \
                                  f'|<abbr title="file:{func_code.co_filename};line: {func_code.co_firstlineno}">{pait_model.func.__qualname__}</abbr>' \
                                  f"|{pait_model.desc}|\n"
 
@@ -69,8 +67,8 @@ class PaitMd(PaitBaseParse):
                 markdown_text += f"- Method: {','.join(pait_model.method_set)}\n"
                 markdown_text += f"- Request:\n"
 
-                field_dict = self._parse_func_param(pait_model.func)
-                field_key_list = sorted(field_dict.keys())
+                field_dict: Dict[str, List[Dict[str, Any]]] = self._parse_func_param(pait_model.func)
+                field_key_list: List[str] = sorted(field_dict.keys())
                 # request body info
                 for field in field_key_list:
                     field_dict_list = field_dict[field]
