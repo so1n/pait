@@ -1,18 +1,20 @@
 # pait
-Pait is a python api interface tool, which can also be called a python api interface type (type hint)
+Pait is an api tool that can be used in any python web framework (currently only `flask`, `starlette` are supported, other frameworks will be supported once Pait is stable).
 
-pait enables your python web framework to have type checking and parameter type conversion like [fastapi](https://fastapi.tiangolo.com/) (power by [pydantic](https://pydantic-docs.helpmanual.io/))
+The core functionality of Pait is to allow you to have FastAPI-like type checking and type conversion functionality (dependent on Pydantic and inspect) in any Python web framework, as well as documentation output
 
-[目前我正在学习英语中,英语文档可能比较难懂,可以参考中文说明](https://github.com/so1n/pait/blob/master/README_ZH.md)
+Pait's vision of documentation output is both code and documentation, with a simple configuration, you can get an md document or openapi (json, yaml)
+
+[中文文档](https://github.com/so1n/pait/blob/master/README_ZH.md)
 # Installation
 ```Bash
 pip install pait
 ```
 # Usage
-
+Note: The following code does not specify, all default to use the `starlette` framework. 
 ## 1.type checking and parameter type conversion
 ### 1.1Use in route handle
-A simple starletter route handler example:
+A simple starlette route handler example:
 ```Python
 import uvicorn
 
@@ -23,7 +25,32 @@ from starlette.responses import JSONResponse
 
 
 async def demo_post(request: Request):
-    return JSONResponse({'result': await request.json()})
+    body_dict: dict = await request.json()
+    uid: int = body_dict.get('uid')
+    user_name: str = body_dict.get('user_name')
+    # The following code is only for demonstration, in general, we do some wrapping 
+    if not uid:
+        raise ValueError('xxx')
+    if type(uid) != int:
+        raise TypeError('xxxx')
+    if 10 <= uid <= 1000:
+        raise ValueError('xxx')
+
+    if not user_name:
+        raise ValueError('xxx')
+    if type(user_name) != str:
+        raise TypeError('xxxx')
+    if 2 <= len(user_name) <= 4:
+        raise ValueError('xxx')
+    
+    return JSONResponse(
+        {
+            'result': {
+                'uid': body_dict['uid'],
+                'user_name': body_dict['user_name']
+            } 
+        }
+    )
 
 
 app = Starlette(
@@ -44,107 +71,154 @@ from starlette.applications import Starlette
 from starlette.routing import Route
 from starlette.responses import JSONResponse
 
-# import from pait and pydantic
-from pait.field import Body, Header, Query
+from pait.field import Body
 from pait.app.starlette import pait
 from pydantic import (
-  BaseModel,
-  conint,
-  constr,
+    BaseModel,
+    conint,
+    constr,
 )
 
 
-# create Pydantic.BaseModel
+# Create a Model based on Pydantic.BaseModel 
 class PydanticModel(BaseModel):
-  uid: conint(gt=10, lt=1000)
-  user_name: constr(min_length=2, max_length=4)
+    uid: conint(gt=10, lt=1000)  # Whether the auto-check type is int, and whether it is greater than or equal to 10 and less than or equal to 1000 
+    user_name: constr(min_length=2, max_length=4)  # Whether the auto-check type is str, and whether the length is greater than or equal to 2, less than or equal to 4
 
 
-# use params_verify in route handle
+
+# Decorating functions with the pait decorator
 @pait()
 async def demo_post(
-        # pait knows to get the body data from the request by 'Body' 
-        # and assign it to the Pydantic model
-        model: PydanticModel = Body()
+    # pait through the Body () to know the current need to get the value of the body from the request, and assign the value to the model, 
+    # and the structure of the model is the above PydanticModel, he will be based on our definition of the field automatically get the value and conversion and judgment
+    model: PydanticModel = Body()
 ):
-  # replace body data to dict
-  return JSONResponse({'result': model.dict()})
+    # Get the corresponding value to return
+    return JSONResponse({'result': model.dict()})
 
 
 app = Starlette(
-  routes=[
-    Route('/api', demo_post, methods=['POST']),
-  ]
+    routes=[
+        Route('/api', demo_post, methods=['POST']),
+    ]
 )
 
 uvicorn.run(app)
 ```
-It can be seen that you only need to add a `params_verify` decorator to the routing function, and change the parameter of `demo_post` to `model: PydanticModel = Body()`.
-Through `Body`, pait knows that it needs to get the body data from the post request.Pait knows that it needs to get the body data from the post request through `Body`. After that, pait converts and restricts the obtained data according to `conint(gt=10, lt=1000)` and assigns it to `PydanticModel`.Users only need to call `model` like using `Pydantic` to get the data.
+As you can see, you just need to add a `pait` decorator to the routing function and change the parameters of `demo_post` to `model: PydanticModel = Body()`.
+pait through `Body` to know the need to get the post request body data, and according to `conint(gt=10, lt=1000)` on the data conversion and restrictions, and assigned to `PydanticModel`, the user only need to use `Pydantic` as the call `model` can get the data.
 
-This is just a simple demo. The above parameters only use one writing method. The two writing methods and uses supported by pait will be introduced below.
+Here is just a simple demo, because we write the model can be reused, so you can save a lot of development time, the above parameters are only used to a way to write, the following will introduce pait support for the two ways to write and use.
 
 ### 1.2Parameter expression supported by pait
-For the convenience of users, pait supports two parameter expressions: model and type:
-- model
-The characteristic of the model is that the parameter type hints is a class inherited from `pydantic.BaseModel`.Pait will pass the value from the field to the model and perform type checksum conversion.The user only needs to call it like the method of `pydantic.BaseModel`.At this time, the `Field` filled by the user can use the `key`, `default`, and `fix_key` parameters during initialization, but pait will only use the `fix_key`. 
+pait in order to facilitate the use of users, support a variety of writing methods (mainly the difference between TypeHints)
+- TypeHints  is PaitBaseModel:
+    PaitBaseModel can be used only for args parameters, it is the most flexible, PaitBaseModel has most of the features of Pydantic. BaseModel, which is not possible with Pydantic.:
     ```Python
-    model: PydanticModel = Body() 
+    from pait.app.starlette import pait
+    from pait.field import Body, Header
+    from pait.model import PaitBaseModel
+
+
+    class TestModel(PaitBaseModel):
+        uid: int = Body()
+        content_type: str = Header(default='Content-Type')
+
+
+    @pait()
+    async def test(model: PaitBaseModel):
+        return {'result': model.dict()}
     ```
-- type
-The characteristic of type is that the type hint parameter can be the python type, class (including Enum), typing value and the type value of `pydantic`. pait will convert all the parameters (about type) of the function to `pydantic.BaseModel`.Immediately afterwards, `pydantic.BaseModel` performs type check and type conversion and re-assigns the value to each parameter. At this time, the pait will call the `key`, `default`, and `fix_key` that were filled in when the user initialized the `Field`
+- TypeHints is Pydantic.BaseModel: 
+    Pydantic.BaseModel只可用于kwargs参数,且参数的type hints必须是一个继承于`pydantic.BaseModel`的类,使用示例:
+    ````Python
+    from pydantic import BaseModel
+    from pait.app.starlette import pait
+    from pait.field import Body
+    
+    
+    class TestModel(BaseModel):
+        uid: int
+        user_name: str
+    
+    
+    @pait()
+    async def test(model: BaseModel = Body()):
+        return {'result': model.dict()}
+    ````
+- When TypeHints is not one of the above two cases:
+    can only be used for kwargs parameters and type hints are not the above two cases, if the value is rarely reused, or if you do not want to create a Model, you can consider this approach
     ```Python
-    user_agent: str = Header(key='user-agent', default='not_set_ua')
+    from pait.app.starlette import pait
+    from pait.field import Body
+
+
+    @pait()
+    async def test(uid: int = Body(), user_name: str = Body()):
+        return {'result': {'uid': uid, 'user_name': user_name}}
     ```
-### 1.3Field
-Before introducing the Field function, please see the following example,`pait` will automatically use the variable name as the key and get the value from the body, for example:
+### 1.3Field介绍
+Field will help pait know how to get data from request.
+Before introducing the function of Field, let’s take a look at the following example. `pait` will obtain the body data of the request according to Field.Body, and obtain the value with the parameter named key. Finally, the parameter is verified and assigned to the uid.
 ```Python
-@params_verify()
+from pait.app.starlette import pait
+from pait.field import Body
+
+
+@pait()
 async def demo_post(
-    # get uid from request body data
-    uid: int = Body()  
+        # get uid from request body data
+        uid: int = Body()
 ):
     pass
 ```
-If the variable name does not conform to the Python variable naming standard, can use`Field.Body(key=key_name)
+The following example will use a parameter called default.
+Since you can't use Content-Type to name the variables in Python, you can only use content_type to name them according to the naming convention of python, so there is no way to get the value directly from the header, so you can set the value of `default` to Content-Type, and then Pait can get the value of Content-Type in the Header and assign it to the content_type variable.
+
 ```Python
-@params_verify()
+from pait.app.starlette import pait
+from pait.field import Body, Header
+
+
+@pait()
 async def demo_post(
-    # get uid from request body data
-    uid: int = Body(),
-    # get Content-Type from header
-    content_type: str = Header(key='Content-Type')
+        # get uid from request body data
+        uid: int = Body(),
+        # get Content-Type from header
+        content_type: str = Header(default='Content-Type')
 ):
     pass
 ```
+The above only demonstrates the Body and Header of the field, but there are other fields as well::
+- Field.Body   Get the json data of the current request
+- Field.Cookie Get the cookie data of the current request
+- Field.File   Get the file data of the current request, depending on the web framework will return different file object types
+- Field.Form   Get the form data of the current request
+- Field.Header Get the header data of the current request
+- Field.Path   Get the path data of the current request (e.g. /api/{version}/test, you can get the version data)
+- Field.Query  Get the url parameters of the current request and the corresponding data
 
-The body of the field is used in the example. In addition to the body, pait also supports a variety of fields. Pait knows what type of data the user needs to obtain through the field. There are currently two types of fields, one is ordinary field, and the other is dependency injection Type field.
-
-Ordinary field initialization parameters are `key`, `default`, and `fix_key`:
-- key (only used for type writing)
-In general, when the field is Field.Header, pait will get the header data of the current request, and use the parameter name key to get the data in the header, but the key naming method of the header is incompatible with the python variable naming, which will cause pait The corresponding data cannot be obtained.
-Through the following example, after assigning the real key to the initialized key parameter, pait will preferentially select the key we assigned to get the corresponding value in the header
-    ```Python
-    user_agent: str = Header(key='user-agent', default='not_set_ua')
-    ```
-- default (only used for type writing)
-  default value, When pait cannot get the desired data, it will directly quote the initialized default value
-- fix_key
-  In addition to using the key parameter to resolve the naming conflict between the key name and the python variable, you can also use `fix_key=True` to automatically resolve the naming conflict. This method is also the only solution to the model's naming conflict.
+All the fields above are inherited from `pydantic.fields.FieldInfo`, most of the parameters here are for api documentation, see for specific usage[pydantic文档](https://pydantic-docs.helpmanual.io/usage/schema/#field-customisation)
 
 
-Field is divided into simple field and dependency injection field
-There are many simple types, currently there are:
-- Field.Body   gets the json data of the current request
-- Field.Cookie gets the cookie data of the current request
-- Field.File   gets the current request file data, and will return different file object types according to different web frameworks
-- Field.Form   gets the current request form data
-- Field.Header gets the current request header data
-- Field.Path   gets the current request path data(for example url:/api/{version}/test, pait will get version value)
-- Field.Query  gets the current request url param data
+In addition there is a field named Depends, he inherits from `object`, he provides the function of dependency injection, he only supports one parameter and the type of function, and the function's parameters are written in the same way as the routing function, the following is an example of the use of Depends, through Depends, you can reuse in each function to get the token function:
+
+```Python
+from pait.app.starlette import pait
+from pait.field import Body, Depends
 
 
-There is currently only one dependency injection field, and because the existence of model writing can serve as a partial dependency injection function, the dependency injection field function is relatively simple and only supports the execution of user functions when receiving requests. Generally used for interface verification or routing Check before function
+def demo_depend(uid: str = Body(), password: str = Body()) -> str:
+    # fake db
+    token: str = db.get_token(uid, password)
+    return token
+
+
+@pait()
+async def test_depend(token: str = Depends(demo_depend)):
+    return {'token': token}
+```
 
 ## 2.requests object
 After using `Pait`, the proportion of the number of times the requests object is used will decrease, so `pait` does not return the requests object. If you need the requests object, you can fill in the parameters like `requests: Requests` (you need to use the TypeHints format) , You can get the requests object corresponding to the web framework
@@ -198,14 +272,82 @@ async def demo_post(
 ):
     pass
 ```
-## 4.How to used in other web framework?
+## 4.Document Generation
+In addition to parameter verification and conversion, pait also provides the ability to output api documentation, which can be configured with simple parameters to output perfect documentation.
+Note: Currently only md, json, yaml type documents and openapi documents for json and yaml are supported for output. 
+
+Currently pait supports most of the functions of openapi, a few unrealized features will be gradually improved through iterations (response-related more complex)
+
+The openapi module of pait supports the following parameters (more parameters will be provided in the next version):
+- title: openapi's title 
+- open_api_info: openapi's info param  
+- open_api_tag_list: related description of openapi tag 
+- open_api_server_list: openapi server list
+- type_: The type of output, optionally json and yaml 
+- filename: Output file name, or if empty, output to terminal
+
+The following is the sample code output from the openapi documentation (modified by the 1.1 code). See [Example code](https://github.com/so1n/pait/tree/master/example/api_doc)以及[文档输出例子](https://github.com/so1n/pait/blob/master/example/api_doc/example_doc)
+```Python
+import uvicorn
+
+from starlette.applications import Starlette
+from starlette.routing import Route
+from starlette.responses import JSONResponse
+
+from pait.field import Body
+from pait.app.starlette import pait
+from pydantic import (
+    BaseModel,
+    conint,
+    constr,
+)
+
+
+# Create a Model based on Pydantic.BaseModel 
+class PydanticModel(BaseModel):
+    uid: conint(gt=10, lt=1000)  # Whether the auto-check type is int, and whether it is greater than or equal to 10 and less than or equal to 1000 
+    user_name: constr(min_length=2, max_length=4)  # Whether the auto-check type is str, and whether the length is greater than or equal to 2, less than or equal to 4
+
+
+
+# Decorating functions with the pait decorator
+@pait()
+async def demo_post(
+    # pait through the Body () to know the current need to get the value of the body from the request, and assign the value to the model, 
+    # and the structure of the model is the above PydanticModel, he will be based on our definition of the field automatically get the value and conversion and judgment
+    model: PydanticModel = Body()
+):
+    # Get the corresponding value to return
+    return JSONResponse({'result': model.dict()})
+
+
+app = Starlette(
+    routes=[
+        Route('/api', demo_post, methods=['POST']),
+    ]
+)
+
+uvicorn.run(app)
+# --------------------
+
+from pait.app import load_app
+from pait.api_doc.open_api import PaitOpenApi
+
+
+# Extracting routing information to pait's data module
+load_app(app)
+# Generate openapi for routing based on data from the data module
+PaitOpenApi()
+```
+## 5.How to used in other web framework?
 If the web framework is not supported, which you are using.
-Can be modified sync web framework according to [pait.web.flask](https://github.com/so1n/pait/blob/master/pait/web/flask.py)
-Can be modified async web framework according to [pait.web.starletter](https://github.com/so1n/pait/blob/master/pait/web/starletter.py)
-## 5.IDE Support
+Can be modified sync web framework according to [pait.app.flask](https://github.com/so1n/pait/blob/master/pait/app/flask.py)
+
+Can be modified async web framework according to [pait.app.starlette](https://github.com/so1n/pait/blob/master/pait/app/starlette.py)
+## 6.IDE Support
 While pydantic will work well with any IDE out of the box.
 - [PyCharm plugin](https://pydantic-docs.helpmanual.io/pycharm_plugin/)
 - [Mypy plugin](https://pydantic-docs.helpmanual.io/mypy_plugin/)
 
-## 6.Full example
+## 7.Full example
 For more complete examples, please refer to[example](https://github.com/so1n/pait/tree/master/example)

@@ -45,8 +45,6 @@ async def demo_post(request: Request):
         raise TypeError('xxxx')
     if 2 <= len(user_name) <= 4:
         raise ValueError('xxx')
-
-    
     
     return JSONResponse(
         {
@@ -288,7 +286,7 @@ async def demo_post(
 ```
 ## 4.文档输出
 pait除了参数校验和转化外还提供输出api文档的功能, 通过简单的配置即可输出完善的文档.
-注: 目前只支持输出md, json, yaml以及openapi格式的json和yaml,其中md, json, yaml通用性很差,未来可能不提供维护或将移除. 关于md, json, yaml的输出见[文档输出例子](https://github.com/so1n/pait/blob/master/example/api_doc/example_doc)
+注: 目前只支持输出md, json, yaml以及openapi格式的json和yaml,其中md, json, yaml通用性很差,未来可能不提供维护或将移除. 关于md, json, yaml的输出见
 
 目前pait支持openapi的大多数功能,少数未实现的功能将通过迭代逐步完善(响应相关的比较复杂)
 
@@ -299,6 +297,8 @@ pait的openapi模块支持一下参数(下一个版本会提供更多的参数):
 - open_api_server_list: open api server 列表 
 - type_: 输出的类型, 可选json和yaml 
 - filename: 输出文件名, 如果为空则输出到终端
+
+以下是openapi文档输出的示例代码(通过1.1代码改造).具体的见[示例代码](https://github.com/so1n/pait/tree/master/example/api_doc)以及[文档输出例子](https://github.com/so1n/pait/blob/master/example/api_doc/example_doc)
 ```Python
 import uvicorn
 
