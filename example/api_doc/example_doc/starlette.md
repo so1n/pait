@@ -60,7 +60,7 @@
 |---|---|---|---|
 |so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 112">test_pait_model</abbr>|Test Field|
 - Path: /api/pait_model
-- Method: GET,HEAD
+- Method: HEAD,GET
 - Request:
     - Header
 
@@ -159,7 +159,7 @@
 |---|---|---|---|
 |so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 65">test_depend</abbr>|Test Method:Post request, Pydantic Model|
 - Path: /api/depend
-- Method: GET,HEAD
+- Method: HEAD,GET
 - Request:
     - Header
 
@@ -212,7 +212,7 @@
 |---|---|---|---|
 |so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 87">test_get</abbr>|Test Field|
 - Path: /api/get/{age}
-- Method: GET,HEAD
+- Method: HEAD,GET
 - Request:
     - Path
 
@@ -223,6 +223,9 @@
 
         |param name|type|default value|description|other|
         |---|---|---|---|---|
+        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |user_name|string|**`Required`**|user name|{'minLength': 2, 'maxLength': 4}|
+        |email|string|example@xxx.com|user email|{}|
         |sex|enum|Only choose from: `man`,`woman`|sex|{'enum': ['man', 'woman']}|
 - Response:
 
@@ -267,6 +270,8 @@
         |param name|type|default value|description|other|
         |---|---|---|---|---|
         |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |user_name|string|**`Required`**|user name|{'minLength': 2, 'maxLength': 4}|
         |email|string|example@xxx.com|user email|{}|
 - Response:
 

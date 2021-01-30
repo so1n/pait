@@ -643,8 +643,8 @@
           },
           "path": "/api/pait_model",
           "method": [
-            "GET",
-            "HEAD"
+            "HEAD",
+            "GET"
           ],
           "request": {
             "param_name": "user-agent",
@@ -1453,8 +1453,8 @@
           },
           "path": "/api/depend",
           "method": [
-            "GET",
-            "HEAD"
+            "HEAD",
+            "GET"
           ],
           "request": {
             "param_name": "user-agent",
@@ -2083,8 +2083,8 @@
           },
           "path": "/api/get/{age}",
           "method": [
-            "GET",
-            "HEAD"
+            "HEAD",
+            "GET"
           ],
           "request": {
             "param_name": "age",

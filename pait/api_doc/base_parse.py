@@ -143,7 +143,7 @@ class PaitBaseParse(object):
             self,
             parameter_list: List['inspect.Parameter'],
             field_dict: Dict[str, List[Dict[str, Any]]],
-            single_field_dict: Dict[str, 'inspect.Parameter']
+            single_field_list: List[Tuple[str, 'inspect.Parameter']]
     ):
         """gen field dict from parameter_list"""
         for parameter in parameter_list:
@@ -163,7 +163,7 @@ class PaitBaseParse(object):
                         field_dict.update(self._parse_func_param(parameter.default.func))
                     else:
                         field_name: str = parameter.default.__class__.__name__.lower()
-                        single_field_dict[field_name] = parameter
+                        single_field_list.append((field_name, parameter))
             elif issubclass(parameter.annotation, PaitBaseModel):
                 # def test(test_model: PaitBaseModel)
                 _pait_model: Type[PaitBaseModel] = parameter.annotation
@@ -200,26 +200,25 @@ class PaitBaseParse(object):
         """
         field_dict: Dict[str, List[Dict[str, Any]]] = {}
         func_sig: FuncSig = get_func_sig(func)
-        single_field_dict: Dict[str, 'inspect.Parameter'] = {}
+        single_field_list: List[Tuple[str, 'inspect.Parameter']] = []
 
         qualname = func.__qualname__.split('.<locals>', 1)[0].rsplit('.', 1)[0]
         class_ = getattr(inspect.getmodule(func), qualname)
         if inspect.isclass(class_):
             parameter_list: List['inspect.Parameter'] = get_parameter_list_from_class(class_)
-            self.parameter_list_handle(parameter_list, field_dict, single_field_dict)
-        self.parameter_list_handle(func_sig.param_list, field_dict, single_field_dict)
+            self.parameter_list_handle(parameter_list, field_dict, single_field_list)
+        self.parameter_list_handle(func_sig.param_list, field_dict, single_field_list)
 
-        if single_field_dict:
+        if single_field_list:
             annotation_dict: Dict[str, Tuple] = {}
             _pait_field_dict: Dict[str, BaseField] = {}
-            for field_name, parameter in single_field_dict.items():
+            for field_name, parameter in single_field_list:
                 field: BaseField = parameter.default
                 annotation_dict[parameter.name] = (parameter.annotation, field)
                 _pait_field_dict[parameter.name] = field
 
             _pydantic_model: Type[BaseModel] = create_model('DynamicFoobarModel', **annotation_dict)
             self._parse_base_model(field_dict, _pydantic_model, _pait_field_dict)
-
         return field_dict
 
     def gen_dict(self) -> Dict[str, Any]:

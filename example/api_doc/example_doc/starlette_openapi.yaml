@@ -67,7 +67,7 @@ paths:
               - user_name
               - age
   /api/pait_model:
-    get:
+    head:
       tags:
       - test
       summary: Test Field
@@ -109,7 +109,7 @@ paths:
                 oneOf:
                 - $ref: '#/components/schemas/ResponseModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
-    head:
+    get:
       tags:
       - test
       summary: Test Field
@@ -189,7 +189,7 @@ paths:
               - user_name
               - age
   /api/depend:
-    get:
+    head:
       tags:
       - user
       - depend
@@ -243,7 +243,7 @@ paths:
                 oneOf:
                 - $ref: '#/components/schemas/ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
-    head:
+    get:
       tags:
       - user
       - depend
@@ -282,12 +282,41 @@ paths:
                 - $ref: '#/components/schemas/ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
   /api/get/{age}:
-    get:
+    head:
       tags:
       - user
       - get
       summary: Test Field
       parameters:
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: User Name
+          description: user name
+          minLength: 2
+          maxLength: 4
+          type: string
+      - name: email
+        in: query
+        required: false
+        description: user email
+        schema:
+          title: Email
+          description: user email
+          default: example@xxx.com
+          type: string
       - name: sex
         in: query
         required: false
@@ -315,12 +344,41 @@ paths:
                 oneOf:
                 - $ref: '#/components/schemas/ResponseModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
-    head:
+    get:
       tags:
       - user
       - get
       summary: Test Field
       parameters:
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: User Name
+          description: user name
+          minLength: 2
+          maxLength: 4
+          type: string
+      - name: email
+        in: query
+        required: false
+        description: user email
+        schema:
+          title: Email
+          description: user email
+          default: example@xxx.com
+          type: string
       - name: sex
         in: query
         required: false
@@ -360,6 +418,26 @@ paths:
         required: true
         description: age
         schema: *id006
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: User Name
+          description: user name
+          minLength: 2
+          maxLength: 4
+          type: string
       - name: email
         in: query
         required: false
