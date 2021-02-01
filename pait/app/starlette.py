@@ -1,10 +1,10 @@
 from typing import Callable, List, Optional, Tuple, Type, Union
 
 from starlette.applications import Starlette
-from starlette.endpoints import HTTPEndpoint
-from starlette.routing import Route
-from starlette.requests import Request
 from starlette.datastructures import FormData, Headers, UploadFile
+from starlette.endpoints import HTTPEndpoint
+from starlette.requests import Request
+from starlette.routing import Route
 
 from pait.app.base import BaseAsyncAppHelper
 from pait.core import pait as _pait
@@ -55,29 +55,34 @@ def load_app(app: Starlette):
         method_set: set = route.methods
         route_name: str = route.name
         endpoint: Union[Callable, Type] = route.endpoint
-        pait_id: str = getattr(route.endpoint, '_pait_id', None)
+        pait_id: str = getattr(route.endpoint, "_pait_id", None)
         if not pait_id and issubclass(endpoint, HTTPEndpoint):
             for method in ["get", "post", "head", "options", "delete", "put", "trace", "patch"]:
                 method_endpoint = getattr(endpoint, method, None)
                 if not method_endpoint:
                     continue
                 method_set = {method}
-                pait_id = getattr(method_endpoint, '_pait_id', None)
-                pait_data.add_route_info(pait_id, path, method_set, f'{route_name}.{method}', method_endpoint)
+                pait_id = getattr(method_endpoint, "_pait_id", None)
+                pait_data.add_route_info(pait_id, path, method_set, f"{route_name}.{method}", method_endpoint)
         else:
             pait_data.add_route_info(pait_id, path, method_set, route_name, endpoint)
 
 
 def pait(
-        author: Optional[Tuple[str]] = None,
-        desc: Optional[str] = None,
-        status: Optional[PaitStatus] = None,
-        group: str = 'root',
-        tag: Optional[Tuple[str, ...]] = None,
-        response_model_list: List[Type[PaitResponseModel]] = None
+    author: Optional[Tuple[str]] = None,
+    desc: Optional[str] = None,
+    status: Optional[PaitStatus] = None,
+    group: str = "root",
+    tag: Optional[Tuple[str, ...]] = None,
+    response_model_list: List[Type[PaitResponseModel]] = None,
 ):
     """Help starlette provide parameter checks and type conversions for each routing function/cbv class"""
     return _pait(
         AppHelper,
-        author=author, desc=desc, status=status, group=group, tag=tag, response_model_list=response_model_list
+        author=author,
+        desc=desc,
+        status=status,
+        group=group,
+        tag=tag,
+        response_model_list=response_model_list,
     )

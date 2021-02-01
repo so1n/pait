@@ -131,7 +131,7 @@ pait in order to facilitate the use of users, support a variety of writing metho
         return {'result': model.dict()}
     ```
 - TypeHints is Pydantic.BaseModel: 
-    Pydantic.BaseModel只可用于kwargs参数,且参数的type hints必须是一个继承于`pydantic.BaseModel`的类,使用示例:
+    BaseModel can only be used with kwargs parameters, and the type hints of the parameters must be a class that inherits from `pydantic.BaseModel`, using the example:
     ````Python
     from pydantic import BaseModel
     from pait.app.starlette import pait
@@ -158,7 +158,7 @@ pait in order to facilitate the use of users, support a variety of writing metho
     async def test(uid: int = Body(), user_name: str = Body()):
         return {'result': {'uid': uid, 'user_name': user_name}}
     ```
-### 1.3Field介绍
+### 1.3Field
 Field will help pait know how to get data from request.
 Before introducing the function of Field, let’s take a look at the following example. `pait` will obtain the body data of the request according to Field.Body, and obtain the value with the parameter named key. Finally, the parameter is verified and assigned to the uid.
 ```Python
@@ -199,7 +199,7 @@ The above only demonstrates the Body and Header of the field, but there are othe
 - Field.Path   Get the path data of the current request (e.g. /api/{version}/test, you can get the version data)
 - Field.Query  Get the url parameters of the current request and the corresponding data
 
-All the fields above are inherited from `pydantic.fields.FieldInfo`, most of the parameters here are for api documentation, see for specific usage[pydantic文档](https://pydantic-docs.helpmanual.io/usage/schema/#field-customisation)
+All the fields above are inherited from `pydantic.fields.FieldInfo`, most of the parameters here are for api documentation, see for specific usage[pydantic doc](https://pydantic-docs.helpmanual.io/usage/schema/#field-customisation)
 
 
 In addition there is a field named Depends, he inherits from `object`, he provides the function of dependency injection, he only supports one parameter and the type of function, and the function's parameters are written in the same way as the routing function, the following is an example of the use of Depends, through Depends, you can reuse in each function to get the token function:
@@ -286,7 +286,7 @@ The openapi module of pait supports the following parameters (more parameters wi
 - type_: The type of output, optionally json and yaml 
 - filename: Output file name, or if empty, output to terminal
 
-The following is the sample code output from the openapi documentation (modified by the 1.1 code). See [Example code](https://github.com/so1n/pait/tree/master/example/api_doc)以及[文档输出例子](https://github.com/so1n/pait/blob/master/example/api_doc/example_doc)
+The following is the sample code output from the openapi documentation (modified by the 1.1 code). See [Example code](https://github.com/so1n/pait/tree/master/example/api_doc) and [doc example](https://github.com/so1n/pait/blob/master/example/api_doc/example_doc)
 ```Python
 import uvicorn
 

@@ -8,7 +8,8 @@ setuptools.setup(
     version="0.5.0",
     author="so1n",
     author_email="so1n897046026@gmail.com",
-    description="Pait is a python api tool, which can also be called a python api type (type hint)",
+    description="Pait is a Python api tool. Pait enables your Python web framework to have type checking,"
+                " parameter type conversion and interface document generation (power by inspect, pydantic)",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/so1n/pait",

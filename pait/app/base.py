@@ -1,22 +1,17 @@
 import logging
 from abc import ABC
-
 from typing import Any, Mapping, Optional, Tuple, Type
 
 
 class BaseAppHelper(object):
     """Provide a unified framework call interface for pait"""
+
     RequestType = type(None)
     FormType = type(None)
     FileType = type(None)
     HeaderType = type(None)
 
-    def __init__(
-        self,
-        class_: Any,
-        args: Tuple[Any, ...],
-        kwargs: Mapping[str, Any]
-    ):
+    def __init__(self, class_: Any, args: Tuple[Any, ...], kwargs: Mapping[str, Any]):
         """
         Extract the required data from the passed parameters,
         such as the self parameter in cvb mode, the request parameter in starletter
@@ -35,7 +30,7 @@ class BaseAppHelper(object):
             else:
                 # In cbv, parameter like self, request, {other param}
                 # Now, not support other param
-                logging.warning('Pait only support self and request args param')
+                logging.warning("Pait only support self and request args param")
                 break
             new_args.append(param)
 
@@ -66,7 +61,6 @@ class BaseAppHelper(object):
 
 
 class BaseAsyncAppHelper(BaseAppHelper, ABC):
-
     async def body(self) -> dict:
         raise NotImplementedError
 

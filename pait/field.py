@@ -6,25 +6,25 @@ from pydantic.typing import NoArgAnyCallable
 
 class BaseField(FieldInfo):
     def __init__(
-            self,
-            default: Any = Undefined,
-            *,
-            default_factory: Optional[NoArgAnyCallable] = None,
-            alias: str = None,
-            title: str = None,
-            description: str = None,
-            const: bool = None,
-            gt: float = None,
-            ge: float = None,
-            lt: float = None,
-            le: float = None,
-            multiple_of: float = None,
-            min_items: int = None,
-            max_items: int = None,
-            min_length: int = None,
-            max_length: int = None,
-            regex: str = None,
-            **extra: Any,
+        self,
+        default: Any = Undefined,
+        *,
+        default_factory: Optional[NoArgAnyCallable] = None,
+        alias: str = None,
+        title: str = None,
+        description: str = None,
+        const: bool = None,
+        gt: float = None,
+        ge: float = None,
+        lt: float = None,
+        le: float = None,
+        multiple_of: float = None,
+        min_items: int = None,
+        max_items: int = None,
+        min_length: int = None,
+        max_length: int = None,
+        regex: str = None,
+        **extra: Any,
     ):
         super().__init__(
             default,
@@ -43,7 +43,7 @@ class BaseField(FieldInfo):
             min_length=min_length,
             max_length=max_length,
             regex=regex,
-            **extra
+            **extra,
         )
 
 

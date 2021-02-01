@@ -1,5 +1,5 @@
-from typing import Any, Dict, List, Optional
 from types import CodeType
+from typing import Any, Dict, List, Optional
 
 from pydantic.fields import Undefined
 
@@ -8,29 +8,31 @@ from .base_parse import PaitBaseParse
 
 
 class PaitMd(PaitBaseParse):
-    def __init__(self, title: str = 'Pait Doc', use_html_details: bool = True, filename: Optional[str] = None):
+    def __init__(self, title: str = "Pait Doc", use_html_details: bool = True, filename: Optional[str] = None):
         self._use_html_details: bool = use_html_details  # some not support markdown in html
         self._title: str = title
         super().__init__()
 
         markdown_text: str = self.gen_markdown_text()
-        self.output(filename, markdown_text, '.md')
+        self.output(filename, markdown_text, ".md")
 
     @staticmethod
     def gen_md_param_table(field_dict_list: List[dict], blank_num: int = 8) -> str:
         markdown_text: str = f"{' ' * blank_num}|param name|type|default value|description|other|\n"
         markdown_text += f"{' ' * blank_num}|---|---|---|---|---|\n"
         for field_info_dict in field_dict_list:
-            default = field_info_dict['default']
+            default = field_info_dict["default"]
             if default is Undefined:
-                default = '**`Required`**'
-            description = field_info_dict['description']
-            markdown_text += f"{' ' * blank_num}|{field_info_dict['param_name']}" \
-                             f"|{field_info_dict['type']}" \
-                             f"|{default}" \
-                             f"|{description}" \
-                             f"|{field_info_dict['other']}" \
-                             f"|\n"
+                default = "**`Required`**"
+            description = field_info_dict["description"]
+            markdown_text += (
+                f"{' ' * blank_num}|{field_info_dict['param_name']}"
+                f"|{field_info_dict['type']}"
+                f"|{default}"
+                f"|{description}"
+                f"|{field_info_dict['other']}"
+                f"|\n"
+            )
         return markdown_text
 
     def gen_markdown_text(self) -> str:
@@ -44,7 +46,7 @@ class PaitMd(PaitBaseParse):
             for pait_model in self._group_pait_dict[group]:
                 # func info
                 markdown_text += f"### Name: {pait_model.operation_id}\n\n"
-                status_text: str = ''
+                status_text: str = ""
                 if pait_model.status in (PaitStatus.test, PaitStatus.design, PaitStatus.dev, PaitStatus.integration):
                     status_text = f"<font color=#00BFFF>{pait_model.status.value}</font>"
                 elif pait_model.status in (PaitStatus.release, PaitStatus.complete):
@@ -57,10 +59,12 @@ class PaitMd(PaitBaseParse):
                 func_code: CodeType = pait_model.func.__code__
                 markdown_text += f"|Author|Status|func|description|\n"
                 markdown_text += f"|---|---|---|---|\n"
-                markdown_text += f"|{','.join(pait_model.author)}" \
-                                 f"|{status_text}" \
-                                 f'|<abbr title="file:{func_code.co_filename};line: {func_code.co_firstlineno}">{pait_model.func.__qualname__}</abbr>' \
-                                 f"|{pait_model.desc}|\n"
+                markdown_text += (
+                    f"|{','.join(pait_model.author)}"
+                    f"|{status_text}"
+                    f'|<abbr title="file:{func_code.co_filename};line: {func_code.co_firstlineno}">{pait_model.func.__qualname__}</abbr>'
+                    f"|{pait_model.desc}|\n"
+                )
 
                 # request info
                 markdown_text += f"- Path: {pait_model.path}\n"
@@ -83,10 +87,12 @@ class PaitMd(PaitBaseParse):
                         markdown_text += f"{' ' * 4}- {resp_model.name}\n\n"
                         markdown_text += f"{' ' * 8}|status code|media type|description|\n"
                         markdown_text += f"{' ' * 8}|---|---|---|\n"
-                        markdown_text += f"{' ' * 8}|{','.join([str(i) for i in resp_model.status_code])}" \
-                                         f"|{resp_model.media_type}" \
-                                         f"|{resp_model.description}" \
-                                         f"|\n"
+                        markdown_text += (
+                            f"{' ' * 8}|{','.join([str(i) for i in resp_model.status_code])}"
+                            f"|{resp_model.media_type}"
+                            f"|{resp_model.description}"
+                            f"|\n"
+                        )
                         if resp_model.header:
                             markdown_text += f"{' ' * 8}- Header\n"
                             markdown_text += f"{' ' * 12}{resp_model.header}\n"

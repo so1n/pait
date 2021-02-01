@@ -1,30 +1,19 @@
 import asyncio
-import logging
 import inspect
-
-from typing import Any, Callable, Coroutine, Dict, List, Mapping, Type, Tuple, Optional, Union, get_type_hints
+import logging
+from typing import Any, Callable, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union, get_type_hints
 
 from pydantic import BaseModel, create_model
+
 from pait import field
-from pait.exceptions import (
-    NotFoundFieldError,
-    NotFoundValueError,
-    PaitBaseException,
-)
+from pait.app.base import BaseAppHelper, BaseAsyncAppHelper
+from pait.exceptions import NotFoundFieldError, NotFoundValueError, PaitBaseException
 from pait.field import BaseField
+from pait.model import FuncSig, PaitBaseModel
 from pait.util import get_func_sig, get_parameter_list_from_class
-from pait.model import PaitBaseModel, FuncSig
-from pait.app.base import (
-    BaseAsyncAppHelper,
-    BaseAppHelper
-)
 
 
-def raise_and_tip(
-    _object: Union[FuncSig, Type],
-    exception: 'Exception',
-    parameter: inspect.Parameter = None
-):
+def raise_and_tip(_object: Union[FuncSig, Type], exception: "Exception", parameter: inspect.Parameter = None):
     """Help users understand which parameter is wrong"""
     if parameter:
         param_value: BaseField = parameter.default
@@ -33,44 +22,43 @@ def raise_and_tip(
 
         parameter_value_name: str = param_value.__class__.__name__
         if param_value is parameter.empty:
-            param_str: str = f'{param_name}: {annotation}'
+            param_str: str = f"{param_name}: {annotation}"
         else:
             param_str: str = (
-                f'{param_name}: {annotation} = {parameter_value_name}'
-                f'(alias={param_value.alias}, default={param_value.default})'
+                f"{param_name}: {annotation} = {parameter_value_name}"
+                f"(alias={param_value.alias}, default={param_value.default})"
             )
     else:
-        param_str: str = ''
+        param_str: str = ""
 
     if isinstance(_object, FuncSig):
-        title: str = 'def'
+        title: str = "def"
         if inspect.iscoroutinefunction(_object.func):
-            title = 'async def'
+            title = "async def"
         file: str = inspect.getfile(_object.func)
         line: int = inspect.getsourcelines(_object.func)[1]
         error_object_name: str = _object.func.__name__
     else:
-        title: str = 'class'
+        title: str = "class"
         file: str = inspect.getmodule(_object).__file__
         line: int = inspect.getsourcelines(_object.__class__)[1]
         error_object_name: str = _object.__class__.__name__
-    logging.debug(f"""
+    logging.debug(
+        f"""
 {title} {error_object_name}(
     ...
     {param_str} <-- error
     ...
 ):
     pass
-""")
+"""
+    )
     raise PaitBaseException(
-        f'File "{file}",'
-        f' line {line},'
-        f' in {error_object_name}.'
-        f' error:{str(exception)}'
+        f'File "{file}",' f" line {line}," f" in {error_object_name}." f" error:{str(exception)}"
     ) from exception
 
 
-def parameter_2_basemodel(parameter_value_dict: Dict['inspect.Parameter', Any]) -> BaseModel:
+def parameter_2_basemodel(parameter_value_dict: Dict["inspect.Parameter", Any]) -> BaseModel:
     """Convert all parameters into pydantic mods"""
     annotation_dict: Dict[str, Type[Any, ...]] = {}
     param_value_dict: Dict[str, Any] = {}
@@ -78,12 +66,12 @@ def parameter_2_basemodel(parameter_value_dict: Dict['inspect.Parameter', Any]) 
         annotation_dict[parameter.name] = (parameter.annotation, ...)
         param_value_dict[parameter.name] = value
 
-    dynamic_model: Type[BaseModel] = create_model('DynamicFoobarModel', **annotation_dict)
+    dynamic_model: Type[BaseModel] = create_model("DynamicFoobarModel", **annotation_dict)
     return dynamic_model(**param_value_dict)
 
 
 def get_request_value_from_parameter(
-        parameter: inspect.Parameter, app_helper: 'BaseAppHelper'
+    parameter: inspect.Parameter, app_helper: "BaseAppHelper"
 ) -> Union[Any, Coroutine]:
     if isinstance(parameter.default, field.File):
         assert parameter.annotation is not app_helper.FileType, f"File type must be {app_helper.FileType}"
@@ -94,13 +82,13 @@ def get_request_value_from_parameter(
     # )
     app_field_func: Union[Callable, Coroutine, None] = getattr(app_helper, field_name, ...)
     if app_field_func is ...:
-        raise NotFoundFieldError(f'field: {field_name} not found in {app_helper}')
+        raise NotFoundFieldError(f"field: {field_name} not found in {app_helper}")
     return app_field_func()
 
 
-def set_parameter_value_to_args_list(parameter: inspect.Parameter, app_helper: 'BaseAppHelper', func_args: list):
+def set_parameter_value_to_args_list(parameter: inspect.Parameter, app_helper: "BaseAppHelper", func_args: list):
     """use func_args param faster return and extend func_args"""
-    if parameter.name == 'self':
+    if parameter.name == "self":
         # Only support self param name
         func_args.append(app_helper.cbv_class)
     elif parameter.annotation is app_helper.RequestType:
@@ -108,16 +96,16 @@ def set_parameter_value_to_args_list(parameter: inspect.Parameter, app_helper: '
         func_args.append(app_helper.request_args)
     elif issubclass(parameter.annotation, PaitBaseModel):
         # support pait_model param(def handle(model: PaitBaseModel))
-        single_field_dict: Dict['inspect.Parameter', Any] = {}
+        single_field_dict: Dict["inspect.Parameter", Any] = {}
         _pait_model: Type[PaitBaseModel] = parameter.annotation
         for param_name, param_annotation in get_type_hints(_pait_model).items():
-            if param_name.startswith('_'):
+            if param_name.startswith("_"):
                 continue
-            parameter: 'inspect.Parameter' = inspect.Parameter(
+            parameter: "inspect.Parameter" = inspect.Parameter(
                 param_name,
                 inspect.Parameter.POSITIONAL_ONLY,
                 default=getattr(_pait_model, param_name),
-                annotation=param_annotation
+                annotation=param_annotation,
             )
             request_value: Any = get_request_value_from_parameter(parameter, app_helper)
             # PaitModel's attributes's annotation support BaseModel
@@ -125,10 +113,10 @@ def set_parameter_value_to_args_list(parameter: inspect.Parameter, app_helper: '
         func_args.append(parameter_2_basemodel(single_field_dict))
 
 
-async def async_set_value_to_args_param(parameter: inspect.Parameter, dispatch_app: 'BaseAppHelper', func_args: list):
+async def async_set_value_to_args_param(parameter: inspect.Parameter, dispatch_app: "BaseAppHelper", func_args: list):
     """use func_args param faster return and extend func_args"""
     # args param
-    if parameter.name == 'self':
+    if parameter.name == "self":
         # Only support self param name
         func_args.append(dispatch_app.cbv_class)
     elif parameter.annotation is dispatch_app.RequestType:
@@ -136,17 +124,17 @@ async def async_set_value_to_args_param(parameter: inspect.Parameter, dispatch_a
         func_args.append(dispatch_app.request_args)
     elif issubclass(parameter.annotation, PaitBaseModel):
         # support pait_model param(def handle(model: PaitModel))
-        single_field_dict: Dict['inspect.Parameter', Any] = {}
+        single_field_dict: Dict["inspect.Parameter", Any] = {}
         _pait_model: Type[PaitBaseModel] = parameter.annotation
 
         for param_name, param_annotation in get_type_hints(_pait_model).items():
-            if param_name.startswith('_'):
+            if param_name.startswith("_"):
                 continue
-            parameter: 'inspect.Parameter' = inspect.Parameter(
+            parameter: "inspect.Parameter" = inspect.Parameter(
                 param_name,
                 inspect.Parameter.POSITIONAL_ONLY,
                 default=getattr(_pait_model, param_name),
-                annotation=param_annotation
+                annotation=param_annotation,
             )
             request_value: Any = get_request_value_from_parameter(parameter, dispatch_app)
             if asyncio.iscoroutine(request_value):
@@ -160,17 +148,20 @@ def request_value_handle(
     parameter: inspect.Parameter,
     request_value: Any,
     base_model_dict: Optional[Dict[str, Any]],
-    parameter_value_dict: Dict['inspect.Parameter', Any],
-    app_helper: 'BaseAppHelper',
+    parameter_value_dict: Dict["inspect.Parameter", Any],
+    app_helper: "BaseAppHelper",
 ):
     """parse request_value and set to base_model_dict or parameter_value_dict"""
     param_value: BaseField = parameter.default
     annotation: Type[BaseModel] = parameter.annotation
     param_name: str = parameter.name
-    if isinstance(request_value, Mapping) or type(request_value) is app_helper.HeaderType \
-            or type(request_value) is app_helper.FormType:
+    if (
+        isinstance(request_value, Mapping)
+        or type(request_value) is app_helper.HeaderType
+        or type(request_value) is app_helper.FormType
+    ):
         if not isinstance(param_value, BaseField):
-            raise PaitBaseException(f'must use {BaseField.__class__.__name__}, no {param_value}')
+            raise PaitBaseException(f"must use {BaseField.__class__.__name__}, no {param_value}")
 
         if base_model_dict is not None and inspect.isclass(annotation) and issubclass(annotation, BaseModel):
             # parse annotation is pydantic.BaseModel and base_model_dict not None
@@ -188,12 +179,12 @@ def request_value_handle(
                 else:
                     parameter_value_name: str = param_value.__class__.__name__
                     param_str: str = (
-                        f'{param_name}: {annotation} = {parameter_value_name}('
-                        f'alias={param_value.alias}, default={param_value.default})'
+                        f"{param_name}: {annotation} = {parameter_value_name}("
+                        f"alias={param_value.alias}, default={param_value.default})"
                     )
                     raise NotFoundValueError(
-                        f' kwargs param:{param_str} not found in {request_value},'
-                        f' try use {parameter_value_name}(alias={{alias}})'
+                        f" kwargs param:{param_str} not found in {request_value},"
+                        f" try use {parameter_value_name}(alias={{alias}})"
                     )
             parameter_value_dict[parameter] = value
     else:
@@ -201,13 +192,11 @@ def request_value_handle(
 
 
 def param_handle(
-        app_herelper: 'BaseAppHelper',
-        _object: Union[FuncSig, Type],
-        param_list: List['inspect.Parameter']
+    app_herelper: "BaseAppHelper", _object: Union[FuncSig, Type], param_list: List["inspect.Parameter"]
 ) -> Tuple[List[Any], Dict[str, Any]]:
     args_param_list: List[Any] = []
     kwargs_param_dict: Dict[str, Any] = {}
-    single_field_dict: Dict['inspect.Parameter', Any] = {}
+    single_field_dict: Dict["inspect.Parameter", Any] = {}
 
     for parameter in param_list:
         try:
@@ -222,13 +211,7 @@ def param_handle(
                     kwargs_param_dict[parameter.name] = func_result
                 else:
                     request_value: Any = get_request_value_from_parameter(parameter, app_herelper)
-                    request_value_handle(
-                        parameter,
-                        request_value,
-                        kwargs_param_dict,
-                        single_field_dict,
-                        app_herelper
-                    )
+                    request_value_handle(parameter, request_value, kwargs_param_dict, single_field_dict, app_herelper)
             else:
                 # args param
                 # support model: model: ModelType
@@ -245,13 +228,11 @@ def param_handle(
 
 
 async def async_param_handle(
-        dispatch_web: 'BaseAsyncAppHelper',
-        _object: Union[FuncSig, Type],
-        param_list: List['inspect.Parameter']
+    dispatch_web: "BaseAsyncAppHelper", _object: Union[FuncSig, Type], param_list: List["inspect.Parameter"]
 ) -> Tuple[List[Any], Dict[str, Any]]:
     args_param_list: List[Any] = []
     kwargs_param_dict: Dict[str, Any] = {}
-    single_field_dict: Dict['inspect.Parameter', Any] = {}
+    single_field_dict: Dict["inspect.Parameter", Any] = {}
     for parameter in param_list:
         try:
             if parameter.default != parameter.empty:
@@ -271,13 +252,7 @@ async def async_param_handle(
                     if asyncio.iscoroutine(request_value):
                         request_value = await request_value
 
-                    request_value_handle(
-                        parameter,
-                        request_value,
-                        kwargs_param_dict,
-                        single_field_dict,
-                        dispatch_web
-                    )
+                    request_value_handle(parameter, request_value, kwargs_param_dict, single_field_dict, dispatch_web)
             else:
                 # args param
                 # support model: model: ModelType
@@ -294,7 +269,7 @@ async def async_param_handle(
     return args_param_list, kwargs_param_dict
 
 
-async def async_class_param_handle(dispatch_web: 'BaseAsyncAppHelper'):
+async def async_class_param_handle(dispatch_web: "BaseAsyncAppHelper"):
     cbv_class: Optional[Type] = dispatch_web.cbv_class
     if not cbv_class:
         return
@@ -303,7 +278,7 @@ async def async_class_param_handle(dispatch_web: 'BaseAsyncAppHelper'):
     cbv_class.__dict__.update(kwargs)
 
 
-def class_param_handle(dispatch_web: 'BaseAppHelper'):
+def class_param_handle(dispatch_web: "BaseAppHelper"):
     cbv_class: Optional[Type] = dispatch_web.cbv_class
     if not cbv_class:
         return
@@ -313,11 +288,10 @@ def class_param_handle(dispatch_web: 'BaseAppHelper'):
 
 
 async def async_func_param_handle(
-        dispatch_web: 'BaseAsyncAppHelper',
-        func_sig: FuncSig
+    dispatch_web: "BaseAsyncAppHelper", func_sig: FuncSig
 ) -> Tuple[List[Any], Dict[str, Any]]:
     return await async_param_handle(dispatch_web, func_sig, func_sig.param_list)
 
 
-def func_param_handle(dispatch_web: 'BaseAppHelper', func_sig: FuncSig) -> Tuple[List[Any], Dict[str, Any]]:
+def func_param_handle(dispatch_web: "BaseAppHelper", func_sig: FuncSig) -> Tuple[List[Any], Dict[str, Any]]:
     return param_handle(dispatch_web, func_sig, func_sig.param_list)
