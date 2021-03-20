@@ -1,21 +1,21 @@
-from typing import List, Optional, Tuple, Type
+from typing import Callable, List, Optional, Tuple, Type
 
 from pait.model import PaitResponseModel, PaitStatus
 
-from .auto_load_app import auto_load_app_class
+from .auto_load_app import auto_load_app_class  # type: ignore
 
 
-def load_app(app):
+def load_app(app) -> None:
     """Read data from the route that has been registered to `pait`
     Note:This is an implicit method
     """
     app_name: str = app.__class__.__name__.lower()
     if app_name == "flask":
-        from .flask import load_app
+        from .flask import load_app  # type: ignore
 
         load_app(app)
     elif app_name == "starlette":
-        from .starlette import load_app
+        from .starlette import load_app  # type: ignore
 
         load_app(app)
     else:
@@ -29,7 +29,7 @@ def pait(
     group: str = "root",
     tag: Optional[Tuple[str, ...]] = None,
     response_model_list: List[Type[PaitResponseModel]] = None,
-):
+) -> Callable:
     """provide parameter checks and type conversions for each routing function/cbv class
     Note:This is an implicit method
     """

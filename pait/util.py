@@ -13,7 +13,7 @@ Undefined: UndefinedType = UndefinedType()
 
 
 def get_func_sig(func: Callable) -> FuncSig:
-    sig: "inspect.signature" = inspect.signature(func)
+    sig: inspect.Signature = inspect.signature(func)
     param_list: List[inspect.Parameter] = [
         sig.parameters[key]
         for key in sig.parameters

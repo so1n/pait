@@ -1,17 +1,17 @@
 import logging
 from typing import Any, Callable, Dict, List, Mapping, Optional, Set, Tuple, Type
 
-from flask import Flask, Request, request
+from flask import Flask, Request, request  # type: ignore
 from flask.views import MethodView
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 
-from pait.app.base import BaseAsyncAppHelper
+from pait.app.base import BaseAppHelper
 from pait.core import pait as _pait
 from pait.g import pait_data
 from pait.model import PaitResponseModel, PaitStatus
 
 
-class AppHelper(BaseAsyncAppHelper):
+class AppHelper(BaseAppHelper):
     RequestType = Request
     FormType = ImmutableMultiDict
     FileType = Request.files
@@ -36,7 +36,7 @@ class AppHelper(BaseAsyncAppHelper):
     def form(self) -> Request.form:
         return request.form
 
-    def header(self) -> Request.headers:
+    def header(self) -> ImmutableMultiDict:
         return request.headers
 
     def path(self) -> Dict[str, Any]:
@@ -46,7 +46,7 @@ class AppHelper(BaseAsyncAppHelper):
         return dict(request.args)
 
 
-def load_app(app: Flask):
+def load_app(app: Flask) -> None:
     """Read data from the route that has been registered to `pait`"""
     for route in app.url_map.iter_rules():
         path: str = route.rule
@@ -80,7 +80,7 @@ def pait(
     group: str = "root",
     tag: Optional[Tuple[str, ...]] = None,
     response_model_list: List[Type[PaitResponseModel]] = None,
-):
+) -> Callable:
     """Help flask provide parameter checks and type conversions for each routing function/cbv class"""
     return _pait(
         AppHelper,

@@ -7,7 +7,7 @@ from pydantic.fields import Undefined
 
 from pait.field import BaseField, Depends
 from pait.g import pait_data
-from pait.model import FuncSig, PaitBaseModel, PaitCoreModel
+from pait.model import FuncSig, PaitBaseModel, PaitCoreModel, PaitResponseModel
 from pait.util import get_func_sig, get_parameter_list_from_class
 
 
@@ -21,7 +21,7 @@ class PaitBaseParse(object):
 
         self._init()
 
-    def _init(self):
+    def _init(self) -> None:
         """read from `pait_id_dict` and write PaitMd attributes"""
         for pait_id, pait_model in pait_data.pait_id_dict.items():
             group: str = pait_model.group
@@ -48,11 +48,13 @@ class PaitBaseParse(object):
             if "$ref" in param_dict and definition_dict:
                 # ref support
                 key: str = param_dict["$ref"].split("/")[-1]
-                field_dict_list.extend(self._parse_schema(definition_dict[key], definition_dict, all_param_name))
+                if isinstance(definition_dict, dict):
+                    field_dict_list.extend(self._parse_schema(definition_dict[key], definition_dict, all_param_name))
             elif "items" in param_dict and "$ref" in param_dict["items"]:
                 # mad item ref support
-                key: str = param_dict["items"]["$ref"].split("/")[-1]
-                field_dict_list.extend(self._parse_schema(definition_dict[key], definition_dict, all_param_name))
+                key = param_dict["items"]["$ref"].split("/")[-1]
+                if isinstance(definition_dict, dict):
+                    field_dict_list.extend(self._parse_schema(definition_dict[key], definition_dict, all_param_name))
             else:
                 if "enum" in param_dict:
                     # enum support
@@ -88,7 +90,7 @@ class PaitBaseParse(object):
         field_dict: Dict[str, List[Dict[str, Any]]],
         _pydantic_model: Type[BaseModel],
         _pait_field_dict: Dict[str, BaseField],
-    ):
+    ) -> None:
         """gen field dict"""
         # TODO design like _parse_schema
         param_python_name_dict: Dict[str, str] = {
@@ -101,11 +103,11 @@ class PaitBaseParse(object):
             if "$ref" in param_dict:
                 # ref support
                 key: str = param_dict["$ref"].split("/")[-1]
-                param_dict: Dict[str, Any] = _pydantic_model.schema()["definitions"][key]
+                param_dict = _pydantic_model.schema()["definitions"][key]
             elif "items" in param_dict and "$ref" in param_dict["items"]:
                 # mad item ref support
-                key: str = param_dict["items"]["$ref"].split("/")[-1]
-                param_dict: Dict[str, Any] = _pydantic_model.schema()["definitions"][key]
+                key = param_dict["items"]["$ref"].split("/")[-1]
+                param_dict = _pydantic_model.schema()["definitions"][key]
             if "enum" in param_dict:
                 # enum support
                 default: str = param_dict.get("enum", self._undefined)
@@ -145,14 +147,14 @@ class PaitBaseParse(object):
         parameter_list: List["inspect.Parameter"],
         field_dict: Dict[str, List[Dict[str, Any]]],
         single_field_list: List[Tuple[str, "inspect.Parameter"]],
-    ):
+    ) -> None:
         """gen field dict from parameter_list"""
         for parameter in parameter_list:
             if parameter.default != parameter.empty:
                 annotation: type = parameter.annotation
                 if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
                     # def test(test_model: BaseModel = Body())
-                    _pait_field_dict = {
+                    _pait_field_dict: Dict[str, BaseField] = {
                         param_name: parameter.default
                         for param_name, annotation in get_type_hints(annotation).items()
                         if not param_name.startswith("_")
@@ -168,7 +170,7 @@ class PaitBaseParse(object):
             elif issubclass(parameter.annotation, PaitBaseModel):
                 # def test(test_model: PaitBaseModel)
                 _pait_model: Type[PaitBaseModel] = parameter.annotation
-                _pait_field_dict: Dict[str, BaseField] = {}
+                _pait_field_dict = {}
                 for param_name, param_annotation in get_type_hints(_pait_model).items():
                     if param_name.startswith("_"):
                         continue
@@ -232,14 +234,18 @@ class PaitBaseParse(object):
                 response_list: List[Dict[str, Any]] = []
                 if pait_model.response_model_list:
                     for resp_model_class in pait_model.response_model_list:
-                        resp_model = resp_model_class()
+                        resp_model: PaitResponseModel = resp_model_class()
+                        if resp_model.response_data:
+                            schema_dict: dict = resp_model.response_data.schema()
+                        else:
+                            schema_dict = {}
                         response_list.append(
                             {
                                 "status_code": ",".join([str(i) for i in resp_model.status_code]),
                                 "media_type": resp_model.media_type,
                                 "description": resp_model.description,
                                 "header": resp_model.header,
-                                "response_data": self._parse_schema(resp_model.response_data.schema()),
+                                "response_data": self._parse_schema(schema_dict),
                             }
                         )
                 field_dict: Dict[str, List[Dict[str, Any]]] = self._parse_func_param(pait_model.func)
@@ -266,7 +272,7 @@ class PaitBaseParse(object):
         return api_doc_dict
 
     @staticmethod
-    def output(filename: str, content: str, suffix: str):
+    def output(filename: Optional[str], content: str, suffix: str) -> None:
         if not filename:
             print(content)
         else:

@@ -108,7 +108,7 @@ class PaitOpenApi(PaitBaseParse):
             pait_yaml: str = yaml.dump(open_api_dict, sort_keys=False)
             self.output(filename, pait_yaml, ".yaml")
 
-    def replace_pydantic_definitions(self, schema, path, open_api_dict: Dict[str, Any], parent_schema=None):
+    def replace_pydantic_definitions(self, schema, path, open_api_dict: Dict[str, Any], parent_schema=None) -> None:
         if not parent_schema:
             parent_schema = schema
         for key, value in schema.items():
@@ -121,7 +121,7 @@ class PaitOpenApi(PaitBaseParse):
                 self.replace_pydantic_definitions(value, path, open_api_dict, parent_schema)
 
     @staticmethod
-    def field_2_request_body(media_type: str, method_dict: dict, field_dict_list: List[dict]):
+    def field_2_request_body(media_type: str, method_dict: dict, field_dict_list: List[dict]) -> None:
         openapi_request_body_dict: dict = method_dict.setdefault("requestBody", {"content": {}})
 
         annotation_dict: Dict[str, Type] = {
@@ -131,7 +131,7 @@ class PaitOpenApi(PaitBaseParse):
         _pydantic_model: Type[BaseModel] = create_model("DynamicFoobarModel", **annotation_dict)
         openapi_request_body_dict["content"].update({media_type: {"schema": _pydantic_model.schema()}})
 
-    def parse_data_2_openapi(self, open_api_dict: Dict[str, Any]):
+    def parse_data_2_openapi(self, open_api_dict: Dict[str, Any]) -> None:
         for group, pait_model_list in self._group_pait_dict.items():
             for pait_model in pait_model_list:
                 path: str = pait_model.path

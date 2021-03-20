@@ -1,8 +1,8 @@
 import sys
-from typing import List
+from typing import Any, List
 
 
-def auto_load_app_class():
+def auto_load_app_class() -> Any:
     """A project using only a web framework, to use `auto_load_app_class`"""
     app_list: List = ["flask", "starlette"]
     real_app = None

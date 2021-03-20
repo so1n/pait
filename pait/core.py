@@ -1,6 +1,6 @@
 import inspect
 from functools import wraps
-from typing import Callable, List, Optional, Tuple, Type, Union
+from typing import Any, Callable, List, Optional, Tuple, Type, Union
 
 from pait.app.base import BaseAppHelper, BaseAsyncAppHelper
 from pait.g import pait_data
@@ -16,14 +16,14 @@ def pait(
     status: Optional[PaitStatus] = None,
     group: Optional[str] = None,
     tag: Optional[Tuple[str, ...]] = None,
-    response_model_list: List[Type[PaitResponseModel]] = None,
-):
-    def wrapper(func: Callable):
+    response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
+) -> Callable:
+    def wrapper(func: Callable) -> Callable:
         func_sig: FuncSig = get_func_sig(func)
         qualname = func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0]
 
         pait_id: str = f"{qualname}_{id(func)}"
-        func._pait_id = pait_id
+        setattr(func, "_pait_id", pait_id)
         pait_data.register(
             PaitCoreModel(
                 author=author,
@@ -40,7 +40,7 @@ def pait(
         if inspect.iscoroutinefunction(func):
 
             @wraps(func)
-            async def dispatch(*args, **kwargs):
+            async def dispatch(*args: Any, **kwargs: Any) -> Callable:
                 # only use in runtime, support cbv
                 class_ = getattr(inspect.getmodule(func), qualname)
                 # real param handle
@@ -55,7 +55,7 @@ def pait(
         else:
 
             @wraps(func)
-            def dispatch(*args, **kwargs):
+            def dispatch(*args: Any, **kwargs: Any) -> Callable:
                 # only use in runtime
                 class_ = getattr(inspect.getmodule(func), qualname)
                 # real param handle

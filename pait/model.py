@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Set, Tuple, Type, Union, get_type_hints
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union, get_type_hints
 
 from pydantic import BaseModel, create_model
 
@@ -11,23 +11,24 @@ if TYPE_CHECKING:
 
 
 class PaitStatus(Enum):
+    undefined = "undefined"
     # The interface is under development and will frequently change
-    design: "PaitStatus" = "design"
-    dev: "PaitStatus" = "dev"
+    design = "design"
+    dev = "dev"
 
     # The interface has been completed, but there may be some bugs
-    integration: "PaitStatus" = "integration"
-    complete: "PaitStatus" = "complete"
-    test: "PaitStatus" = "test"
+    integration = "integration"
+    complete = "complete"
+    test = "test"
 
     # The interface is online
-    release: "PaitStatus" = "release"
+    release = "release"
 
     # The interface has been online, but needs to be offline for some reasons
-    abnormal: "PaitStatus" = "abnormal"
-    maintenance: "PaitStatus" = "maintenance"
-    archive: "PaitStatus" = "archive"
-    abandoned: "PaitStatus" = "abandoned"
+    abnormal = "abnormal"
+    maintenance = "maintenance"
+    archive = "archive"
+    abandoned = "abandoned"
 
 
 @dataclass()
@@ -40,24 +41,24 @@ class PaitResponseModel(object):
 
     name: Optional[str] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.name:
             self.name = self.__class__.__name__
 
 
 class PaitBaseModel(object):
-    _pydantic_model: Type[BaseModel] = None
+    _pydantic_model: Optional[Type[BaseModel]] = None
 
     @classmethod
     def to_pydantic_model(cls) -> Type[BaseModel]:
         if cls._pydantic_model:
             return cls._pydantic_model
-        annotation_dict: Dict[str, Type] = {
+        annotation_dict: Dict[str, Tuple[Type, Any]] = {
             param_name: (annotation, getattr(cls, param_name, ...))
             for param_name, annotation in get_type_hints(cls).items()
             if not param_name.startswith("_")
         }
-        cls._pydantic_model: Type[BaseModel] = create_model("DynamicFoobarModel", **annotation_dict)
+        cls._pydantic_model = create_model("DynamicFoobarModel", **annotation_dict)
         return cls._pydantic_model
 
     def dict(
@@ -70,7 +71,9 @@ class PaitBaseModel(object):
         exclude_defaults: bool = False,
         exclude_none: bool = False,
     ) -> "DictStrAny":
-        _pydantic_model: BaseModel = self._pydantic_model()(**self.__dict__)
+        if self._pydantic_model is None:
+            raise NotImplementedError
+        _pydantic_model: BaseModel = self._pydantic_model(**self.__dict__)
         return _pydantic_model.dict(
             include=include,
             exclude=exclude,
@@ -91,22 +94,22 @@ class PaitCoreModel(object):
     func: Callable  # func object
     pait_id: str  # pait id(in runtime)
 
-    method_set: Optional[Set[str]] = None  # request method set
-    path: Optional[str] = None  # request path
+    method_set: Set[str] = field(default_factory=set)  # request method set
+    path: str = ""  # request path
     operation_id: Optional[str] = None  # operation id(in route table)
 
-    func_name: Optional[str] = None  # func name
-    author: Optional[Tuple[str]] = None  # author
-    desc: Optional[str] = None  # description
-    status: Optional[PaitStatus] = None  # api status. example: test, release#
-    group: Optional[str] = None  # request group
+    func_name: str = ""  # func name
+    author: Tuple[str] = ('', )  # author
+    desc: str = ""  # description
+    status: PaitStatus = PaitStatus.undefined  # api status. example: test, release#
+    group: str = ""  # request group
     tag: Optional[Tuple[str, ...]] = None  # request tag
 
-    response_model_list: List[Type[PaitResponseModel]] = None
+    response_model_list: Optional[List[Type[PaitResponseModel]]] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not self.desc:
-            self.desc = self.func.__doc__
+            self.desc = self.func.__doc__ or ""
         if not self.group:
             self.group = "root"
         self.func_name = self.func.__name__

@@ -1,7 +1,8 @@
 import asyncio
 import inspect
 import logging
-from typing import Any, Callable, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union, get_type_hints
+from typing import Any, Callable, Coroutine, Dict, List, NoReturn, Mapping, Optional, Tuple, Type, Union, get_type_hints
+from types import ModuleType
 
 from pydantic import BaseModel, create_model
 
@@ -13,7 +14,9 @@ from pait.model import FuncSig, PaitBaseModel
 from pait.util import get_func_sig, get_parameter_list_from_class
 
 
-def raise_and_tip(_object: Union[FuncSig, Type], exception: "Exception", parameter: inspect.Parameter = None):
+def raise_and_tip(
+        _object: Union[FuncSig, Type], exception: "Exception", parameter: Optional[inspect.Parameter] = None
+) -> NoReturn:
     """Help users understand which parameter is wrong"""
     if parameter:
         param_value: BaseField = parameter.default
@@ -24,25 +27,28 @@ def raise_and_tip(_object: Union[FuncSig, Type], exception: "Exception", paramet
         if param_value is parameter.empty:
             param_str: str = f"{param_name}: {annotation}"
         else:
-            param_str: str = (
+            param_str = (
                 f"{param_name}: {annotation} = {parameter_value_name}"
                 f"(alias={param_value.alias}, default={param_value.default})"
             )
     else:
-        param_str: str = ""
+        param_str = ""
 
+    file: Optional[str] = None
     if isinstance(_object, FuncSig):
         title: str = "def"
         if inspect.iscoroutinefunction(_object.func):
             title = "async def"
-        file: str = inspect.getfile(_object.func)
+        file = inspect.getfile(_object.func)
         line: int = inspect.getsourcelines(_object.func)[1]
         error_object_name: str = _object.func.__name__
     else:
-        title: str = "class"
-        file: str = inspect.getmodule(_object).__file__
-        line: int = inspect.getsourcelines(_object.__class__)[1]
-        error_object_name: str = _object.__class__.__name__
+        title = "class"
+        module: Optional[ModuleType] = inspect.getmodule(_object)
+        if module:
+            file = module.__file__
+        line = inspect.getsourcelines(_object.__class__)[1]
+        error_object_name = _object.__class__.__name__
     logging.debug(
         f"""
 {title} {error_object_name}(
@@ -60,7 +66,7 @@ def raise_and_tip(_object: Union[FuncSig, Type], exception: "Exception", paramet
 
 def parameter_2_basemodel(parameter_value_dict: Dict["inspect.Parameter", Any]) -> BaseModel:
     """Convert all parameters into pydantic mods"""
-    annotation_dict: Dict[str, Type[Any, ...]] = {}
+    annotation_dict: Dict[str, Tuple[Type, Any]] = {}
     param_value_dict: Dict[str, Any] = {}
     for parameter, value in parameter_value_dict.items():
         annotation_dict[parameter.name] = (parameter.annotation, ...)
@@ -80,13 +86,15 @@ def get_request_value_from_parameter(
     # Note: not use hasattr with LazyProperty (
     #   because hasattr will calling getattr(obj, name) and catching AttributeError,
     # )
-    app_field_func: Union[Callable, Coroutine, None] = getattr(app_helper, field_name, ...)
-    if app_field_func is ...:
+    app_field_func: Optional[Callable] = getattr(app_helper, field_name, None)
+    if app_field_func is None:
         raise NotFoundFieldError(f"field: {field_name} not found in {app_helper}")
     return app_field_func()
 
 
-def set_parameter_value_to_args_list(parameter: inspect.Parameter, app_helper: "BaseAppHelper", func_args: list):
+def set_parameter_value_to_args_list(
+        parameter: inspect.Parameter, app_helper: "BaseAppHelper", func_args: list
+) -> None:
     """use func_args param faster return and extend func_args"""
     if parameter.name == "self":
         # Only support self param name
@@ -101,7 +109,7 @@ def set_parameter_value_to_args_list(parameter: inspect.Parameter, app_helper: "
         for param_name, param_annotation in get_type_hints(_pait_model).items():
             if param_name.startswith("_"):
                 continue
-            parameter: "inspect.Parameter" = inspect.Parameter(
+            parameter = inspect.Parameter(
                 param_name,
                 inspect.Parameter.POSITIONAL_ONLY,
                 default=getattr(_pait_model, param_name),
@@ -113,7 +121,9 @@ def set_parameter_value_to_args_list(parameter: inspect.Parameter, app_helper: "
         func_args.append(parameter_2_basemodel(single_field_dict))
 
 
-async def async_set_value_to_args_param(parameter: inspect.Parameter, dispatch_app: "BaseAppHelper", func_args: list):
+async def async_set_value_to_args_param(
+    parameter: inspect.Parameter, dispatch_app: "BaseAppHelper", func_args: list
+) -> None:
     """use func_args param faster return and extend func_args"""
     # args param
     if parameter.name == "self":
@@ -130,7 +140,7 @@ async def async_set_value_to_args_param(parameter: inspect.Parameter, dispatch_a
         for param_name, param_annotation in get_type_hints(_pait_model).items():
             if param_name.startswith("_"):
                 continue
-            parameter: "inspect.Parameter" = inspect.Parameter(
+            parameter = inspect.Parameter(
                 param_name,
                 inspect.Parameter.POSITIONAL_ONLY,
                 default=getattr(_pait_model, param_name),
@@ -150,7 +160,7 @@ def request_value_handle(
     base_model_dict: Optional[Dict[str, Any]],
     parameter_value_dict: Dict["inspect.Parameter", Any],
     app_helper: "BaseAppHelper",
-):
+) -> None:
     """parse request_value and set to base_model_dict or parameter_value_dict"""
     param_value: BaseField = parameter.default
     annotation: Type[BaseModel] = parameter.annotation
@@ -269,7 +279,7 @@ async def async_param_handle(
     return args_param_list, kwargs_param_dict
 
 
-async def async_class_param_handle(dispatch_web: "BaseAsyncAppHelper"):
+async def async_class_param_handle(dispatch_web: "BaseAsyncAppHelper") -> None:
     cbv_class: Optional[Type] = dispatch_web.cbv_class
     if not cbv_class:
         return
@@ -278,7 +288,7 @@ async def async_class_param_handle(dispatch_web: "BaseAsyncAppHelper"):
     cbv_class.__dict__.update(kwargs)
 
 
-def class_param_handle(dispatch_web: "BaseAppHelper"):
+def class_param_handle(dispatch_web: "BaseAppHelper") -> None:
     cbv_class: Optional[Type] = dispatch_web.cbv_class
     if not cbv_class:
         return

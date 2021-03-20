@@ -1,6 +1,6 @@
 import logging
 from abc import ABC
-from typing import Any, Mapping, Optional, Tuple, Type
+from typing import Any, List, Mapping, Optional, Tuple, Type
 
 
 class BaseAppHelper(object):
@@ -19,7 +19,7 @@ class BaseAppHelper(object):
         self.cbv_class: Optional[Type] = None
 
         request = None
-        new_args = []
+        new_args: List[Any] = []
         for param in args:
             if type(param) == self.RequestType:
                 request = param
@@ -34,9 +34,9 @@ class BaseAppHelper(object):
                 break
             new_args.append(param)
 
-        self.request = request
-        self.request_args = new_args
-        self.request_kwargs = kwargs
+        self.request: Any = request
+        self.request_args: List[Any] = new_args
+        self.request_kwargs: Mapping[str, Any] = kwargs
 
     def body(self) -> dict:
         raise NotImplementedError

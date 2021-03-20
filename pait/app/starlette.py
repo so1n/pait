@@ -45,14 +45,14 @@ class AppHelper(BaseAsyncAppHelper):
         return dict(self.request.query_params)
 
 
-def load_app(app: Starlette):
+def load_app(app: Starlette) -> None:
     """Read data from the route that has been registered to `pait`"""
     for route in app.routes:
         if not isinstance(route, Route):
             # not support
             continue
         path: str = route.path
-        method_set: set = route.methods
+        method_set: set = route.methods or {}
         route_name: str = route.name
         endpoint: Union[Callable, Type] = route.endpoint
         pait_id: str = getattr(route.endpoint, "_pait_id", None)
@@ -75,7 +75,7 @@ def pait(
     group: str = "root",
     tag: Optional[Tuple[str, ...]] = None,
     response_model_list: List[Type[PaitResponseModel]] = None,
-):
+) -> Callable:
     """Help starlette provide parameter checks and type conversions for each routing function/cbv class"""
     return _pait(
         AppHelper,
