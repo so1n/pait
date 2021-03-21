@@ -9,7 +9,7 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/starlette_example.py",
-            "lineno": 27,
+            "lineno": 28,
             "name": "test_raise_tip"
           },
           "path": "/api/raise_tip",
@@ -99,7 +99,6 @@
                             "uid": {
                               "title": "Uid",
                               "description": "user id",
-                              "default": 123456,
                               "exclusiveMinimum": 10,
                               "exclusiveMaximum": 1000,
                               "type": "integer"
@@ -107,8 +106,8 @@
                             "user_name": {
                               "title": "User Name",
                               "description": "user name",
-                              "minLength": 2,
                               "maxLength": 4,
+                              "minLength": 2,
                               "type": "string"
                             },
                             "age": {
@@ -128,6 +127,7 @@
                             }
                           },
                           "required": [
+                            "uid",
                             "user_name",
                             "age",
                             "content_type",
@@ -205,7 +205,6 @@
                             "uid": {
                               "title": "Uid",
                               "description": "user id",
-                              "default": 123456,
                               "exclusiveMinimum": 10,
                               "exclusiveMaximum": 1000,
                               "type": "integer"
@@ -213,8 +212,8 @@
                             "user_name": {
                               "title": "User Name",
                               "description": "user name",
-                              "minLength": 2,
                               "maxLength": 4,
+                              "minLength": 2,
                               "type": "string"
                             },
                             "age": {
@@ -234,6 +233,7 @@
                             }
                           },
                           "required": [
+                            "uid",
                             "user_name",
                             "age",
                             "content_type",
@@ -247,7 +247,7 @@
                 {
                   "param_name": "data.uid",
                   "description": "user id",
-                  "default": 123456,
+                  "default": "Required",
                   "type": "integer",
                   "other": {
                     "exclusiveMinimum": 10,
@@ -258,7 +258,6 @@
                     "schema": {
                       "title": "Uid",
                       "description": "user id",
-                      "default": 123456,
                       "exclusiveMinimum": 10,
                       "exclusiveMaximum": 1000,
                       "type": "integer"
@@ -270,7 +269,6 @@
                         "uid": {
                           "title": "Uid",
                           "description": "user id",
-                          "default": 123456,
                           "exclusiveMinimum": 10,
                           "exclusiveMaximum": 1000,
                           "type": "integer"
@@ -278,8 +276,8 @@
                         "user_name": {
                           "title": "User Name",
                           "description": "user name",
-                          "minLength": 2,
                           "maxLength": 4,
+                          "minLength": 2,
                           "type": "string"
                         },
                         "age": {
@@ -299,6 +297,7 @@
                         }
                       },
                       "required": [
+                        "uid",
                         "user_name",
                         "age",
                         "content_type",
@@ -313,16 +312,16 @@
                   "default": "Required",
                   "type": "string",
                   "other": {
-                    "minLength": 2,
-                    "maxLength": 4
+                    "maxLength": 4,
+                    "minLength": 2
                   },
                   "raw": {
                     "param_name": "user_name",
                     "schema": {
                       "title": "User Name",
                       "description": "user name",
-                      "minLength": 2,
                       "maxLength": 4,
+                      "minLength": 2,
                       "type": "string"
                     },
                     "parent_schema": {
@@ -332,7 +331,6 @@
                         "uid": {
                           "title": "Uid",
                           "description": "user id",
-                          "default": 123456,
                           "exclusiveMinimum": 10,
                           "exclusiveMaximum": 1000,
                           "type": "integer"
@@ -340,8 +338,8 @@
                         "user_name": {
                           "title": "User Name",
                           "description": "user name",
-                          "minLength": 2,
                           "maxLength": 4,
+                          "minLength": 2,
                           "type": "string"
                         },
                         "age": {
@@ -361,6 +359,7 @@
                         }
                       },
                       "required": [
+                        "uid",
                         "user_name",
                         "age",
                         "content_type",
@@ -394,7 +393,6 @@
                         "uid": {
                           "title": "Uid",
                           "description": "user id",
-                          "default": 123456,
                           "exclusiveMinimum": 10,
                           "exclusiveMaximum": 1000,
                           "type": "integer"
@@ -402,8 +400,8 @@
                         "user_name": {
                           "title": "User Name",
                           "description": "user name",
-                          "minLength": 2,
                           "maxLength": 4,
+                          "minLength": 2,
                           "type": "string"
                         },
                         "age": {
@@ -423,6 +421,7 @@
                         }
                       },
                       "required": [
+                        "uid",
                         "user_name",
                         "age",
                         "content_type",
@@ -451,7 +450,6 @@
                         "uid": {
                           "title": "Uid",
                           "description": "user id",
-                          "default": 123456,
                           "exclusiveMinimum": 10,
                           "exclusiveMaximum": 1000,
                           "type": "integer"
@@ -459,8 +457,8 @@
                         "user_name": {
                           "title": "User Name",
                           "description": "user name",
-                          "minLength": 2,
                           "maxLength": 4,
+                          "minLength": 2,
                           "type": "string"
                         },
                         "age": {
@@ -480,6 +478,7 @@
                         }
                       },
                       "required": [
+                        "uid",
                         "user_name",
                         "age",
                         "content_type",
@@ -638,7 +637,7 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/starlette_example.py",
-            "lineno": 112,
+            "lineno": 107,
             "name": "test_pait_model"
           },
           "path": "/api/pait_model",
@@ -819,7 +818,7 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/starlette_example.py",
-            "lineno": 46,
+            "lineno": 47,
             "name": "test_post"
           },
           "path": "/api/post",
@@ -909,7 +908,6 @@
                             "uid": {
                               "title": "Uid",
                               "description": "user id",
-                              "default": 123456,
                               "exclusiveMinimum": 10,
                               "exclusiveMaximum": 1000,
                               "type": "integer"
@@ -917,8 +915,8 @@
                             "user_name": {
                               "title": "User Name",
                               "description": "user name",
-                              "minLength": 2,
                               "maxLength": 4,
+                              "minLength": 2,
                               "type": "string"
                             },
                             "age": {
@@ -938,6 +936,7 @@
                             }
                           },
                           "required": [
+                            "uid",
                             "user_name",
                             "age",
                             "content_type",
@@ -1015,7 +1014,6 @@
                             "uid": {
                               "title": "Uid",
                               "description": "user id",
-                              "default": 123456,
                               "exclusiveMinimum": 10,
                               "exclusiveMaximum": 1000,
                               "type": "integer"
@@ -1023,8 +1021,8 @@
                             "user_name": {
                               "title": "User Name",
                               "description": "user name",
-                              "minLength": 2,
                               "maxLength": 4,
+                              "minLength": 2,
                               "type": "string"
                             },
                             "age": {
@@ -1044,6 +1042,7 @@
                             }
                           },
                           "required": [
+                            "uid",
                             "user_name",
                             "age",
                             "content_type",
@@ -1057,7 +1056,7 @@
                 {
                   "param_name": "data.uid",
                   "description": "user id",
-                  "default": 123456,
+                  "default": "Required",
                   "type": "integer",
                   "other": {
                     "exclusiveMinimum": 10,
@@ -1068,7 +1067,6 @@
                     "schema": {
                       "title": "Uid",
                       "description": "user id",
-                      "default": 123456,
                       "exclusiveMinimum": 10,
                       "exclusiveMaximum": 1000,
                       "type": "integer"
@@ -1080,7 +1078,6 @@
                         "uid": {
                           "title": "Uid",
                           "description": "user id",
-                          "default": 123456,
                           "exclusiveMinimum": 10,
                           "exclusiveMaximum": 1000,
                           "type": "integer"
@@ -1088,8 +1085,8 @@
                         "user_name": {
                           "title": "User Name",
                           "description": "user name",
-                          "minLength": 2,
                           "maxLength": 4,
+                          "minLength": 2,
                           "type": "string"
                         },
                         "age": {
@@ -1109,6 +1106,7 @@
                         }
                       },
                       "required": [
+                        "uid",
                         "user_name",
                         "age",
                         "content_type",
@@ -1123,16 +1121,16 @@
                   "default": "Required",
                   "type": "string",
                   "other": {
-                    "minLength": 2,
-                    "maxLength": 4
+                    "maxLength": 4,
+                    "minLength": 2
                   },
                   "raw": {
                     "param_name": "user_name",
                     "schema": {
                       "title": "User Name",
                       "description": "user name",
-                      "minLength": 2,
                       "maxLength": 4,
+                      "minLength": 2,
                       "type": "string"
                     },
                     "parent_schema": {
@@ -1142,7 +1140,6 @@
                         "uid": {
                           "title": "Uid",
                           "description": "user id",
-                          "default": 123456,
                           "exclusiveMinimum": 10,
                           "exclusiveMaximum": 1000,
                           "type": "integer"
@@ -1150,8 +1147,8 @@
                         "user_name": {
                           "title": "User Name",
                           "description": "user name",
-                          "minLength": 2,
                           "maxLength": 4,
+                          "minLength": 2,
                           "type": "string"
                         },
                         "age": {
@@ -1171,6 +1168,7 @@
                         }
                       },
                       "required": [
+                        "uid",
                         "user_name",
                         "age",
                         "content_type",
@@ -1204,7 +1202,6 @@
                         "uid": {
                           "title": "Uid",
                           "description": "user id",
-                          "default": 123456,
                           "exclusiveMinimum": 10,
                           "exclusiveMaximum": 1000,
                           "type": "integer"
@@ -1212,8 +1209,8 @@
                         "user_name": {
                           "title": "User Name",
                           "description": "user name",
-                          "minLength": 2,
                           "maxLength": 4,
+                          "minLength": 2,
                           "type": "string"
                         },
                         "age": {
@@ -1233,6 +1230,7 @@
                         }
                       },
                       "required": [
+                        "uid",
                         "user_name",
                         "age",
                         "content_type",
@@ -1261,7 +1259,6 @@
                         "uid": {
                           "title": "Uid",
                           "description": "user id",
-                          "default": 123456,
                           "exclusiveMinimum": 10,
                           "exclusiveMaximum": 1000,
                           "type": "integer"
@@ -1269,8 +1266,8 @@
                         "user_name": {
                           "title": "User Name",
                           "description": "user name",
-                          "minLength": 2,
                           "maxLength": 4,
+                          "minLength": 2,
                           "type": "string"
                         },
                         "age": {
@@ -1290,6 +1287,7 @@
                         }
                       },
                       "required": [
+                        "uid",
                         "user_name",
                         "age",
                         "content_type",
@@ -1448,7 +1446,7 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/starlette_example.py",
-            "lineno": 65,
+            "lineno": 66,
             "name": "test_depend"
           },
           "path": "/api/depend",
@@ -1539,7 +1537,6 @@
                             "uid": {
                               "title": "Uid",
                               "description": "user id",
-                              "default": 123456,
                               "exclusiveMinimum": 10,
                               "exclusiveMaximum": 1000,
                               "type": "integer"
@@ -1547,8 +1544,8 @@
                             "user_name": {
                               "title": "User Name",
                               "description": "user name",
-                              "minLength": 2,
                               "maxLength": 4,
+                              "minLength": 2,
                               "type": "string"
                             },
                             "age": {
@@ -1568,6 +1565,7 @@
                             }
                           },
                           "required": [
+                            "uid",
                             "user_name",
                             "age",
                             "content_type",
@@ -1645,7 +1643,6 @@
                             "uid": {
                               "title": "Uid",
                               "description": "user id",
-                              "default": 123456,
                               "exclusiveMinimum": 10,
                               "exclusiveMaximum": 1000,
                               "type": "integer"
@@ -1653,8 +1650,8 @@
                             "user_name": {
                               "title": "User Name",
                               "description": "user name",
-                              "minLength": 2,
                               "maxLength": 4,
+                              "minLength": 2,
                               "type": "string"
                             },
                             "age": {
@@ -1674,6 +1671,7 @@
                             }
                           },
                           "required": [
+                            "uid",
                             "user_name",
                             "age",
                             "content_type",
@@ -1687,7 +1685,7 @@
                 {
                   "param_name": "data.uid",
                   "description": "user id",
-                  "default": 123456,
+                  "default": "Required",
                   "type": "integer",
                   "other": {
                     "exclusiveMinimum": 10,
@@ -1698,7 +1696,6 @@
                     "schema": {
                       "title": "Uid",
                       "description": "user id",
-                      "default": 123456,
                       "exclusiveMinimum": 10,
                       "exclusiveMaximum": 1000,
                       "type": "integer"
@@ -1710,7 +1707,6 @@
                         "uid": {
                           "title": "Uid",
                           "description": "user id",
-                          "default": 123456,
                           "exclusiveMinimum": 10,
                           "exclusiveMaximum": 1000,
                           "type": "integer"
@@ -1718,8 +1714,8 @@
                         "user_name": {
                           "title": "User Name",
                           "description": "user name",
-                          "minLength": 2,
                           "maxLength": 4,
+                          "minLength": 2,
                           "type": "string"
                         },
                         "age": {
@@ -1739,6 +1735,7 @@
                         }
                       },
                       "required": [
+                        "uid",
                         "user_name",
                         "age",
                         "content_type",
@@ -1753,16 +1750,16 @@
                   "default": "Required",
                   "type": "string",
                   "other": {
-                    "minLength": 2,
-                    "maxLength": 4
+                    "maxLength": 4,
+                    "minLength": 2
                   },
                   "raw": {
                     "param_name": "user_name",
                     "schema": {
                       "title": "User Name",
                       "description": "user name",
-                      "minLength": 2,
                       "maxLength": 4,
+                      "minLength": 2,
                       "type": "string"
                     },
                     "parent_schema": {
@@ -1772,7 +1769,6 @@
                         "uid": {
                           "title": "Uid",
                           "description": "user id",
-                          "default": 123456,
                           "exclusiveMinimum": 10,
                           "exclusiveMaximum": 1000,
                           "type": "integer"
@@ -1780,8 +1776,8 @@
                         "user_name": {
                           "title": "User Name",
                           "description": "user name",
-                          "minLength": 2,
                           "maxLength": 4,
+                          "minLength": 2,
                           "type": "string"
                         },
                         "age": {
@@ -1801,6 +1797,7 @@
                         }
                       },
                       "required": [
+                        "uid",
                         "user_name",
                         "age",
                         "content_type",
@@ -1834,7 +1831,6 @@
                         "uid": {
                           "title": "Uid",
                           "description": "user id",
-                          "default": 123456,
                           "exclusiveMinimum": 10,
                           "exclusiveMaximum": 1000,
                           "type": "integer"
@@ -1842,8 +1838,8 @@
                         "user_name": {
                           "title": "User Name",
                           "description": "user name",
-                          "minLength": 2,
                           "maxLength": 4,
+                          "minLength": 2,
                           "type": "string"
                         },
                         "age": {
@@ -1863,6 +1859,7 @@
                         }
                       },
                       "required": [
+                        "uid",
                         "user_name",
                         "age",
                         "content_type",
@@ -1891,7 +1888,6 @@
                         "uid": {
                           "title": "Uid",
                           "description": "user id",
-                          "default": 123456,
                           "exclusiveMinimum": 10,
                           "exclusiveMaximum": 1000,
                           "type": "integer"
@@ -1899,8 +1895,8 @@
                         "user_name": {
                           "title": "User Name",
                           "description": "user name",
-                          "minLength": 2,
                           "maxLength": 4,
+                          "minLength": 2,
                           "type": "string"
                         },
                         "age": {
@@ -1920,6 +1916,7 @@
                         }
                       },
                       "required": [
+                        "uid",
                         "user_name",
                         "age",
                         "content_type",
@@ -2078,7 +2075,7 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/starlette_example.py",
-            "lineno": 87,
+            "lineno": 88,
             "name": "test_get"
           },
           "path": "/api/get/{age}",
@@ -2254,7 +2251,7 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/starlette_example.py",
-            "lineno": 126,
+            "lineno": 116,
             "name": "TestCbv.get"
           },
           "path": "/api/cbv",
@@ -2429,7 +2426,7 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/starlette_example.py",
-            "lineno": 150,
+            "lineno": 134,
             "name": "TestCbv.post"
           },
           "path": "/api/cbv",

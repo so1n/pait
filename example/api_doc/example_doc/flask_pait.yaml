@@ -4,11 +4,11 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/flask_example.py
-        lineno: 27
+        lineno: 20
         name: test_raise_tip
       method:
-      - POST
       - OPTIONS
+      - POST
       name: test_raise_tip
       path: /api/raise_tip
       request:
@@ -22,12 +22,12 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/flask_example.py
-        lineno: 91
+        lineno: 78
         name: test_model
       method:
-      - GET
       - OPTIONS
       - HEAD
+      - GET
       name: test_model
       path: /api/pait_model
       request:
@@ -44,11 +44,11 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/flask_example.py
-        lineno: 41
+        lineno: 34
         name: test_post
       method:
-      - POST
       - OPTIONS
+      - POST
       name: test_post
       path: /api/post
       request:
@@ -62,12 +62,12 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/flask_example.py
-        lineno: 55
+        lineno: 48
         name: demo_get2test_depend
       method:
-      - GET
       - OPTIONS
       - HEAD
+      - GET
       name: demo_get2test_depend
       path: /api/depend
       request:
@@ -81,12 +81,12 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/flask_example.py
-        lineno: 72
+        lineno: 65
         name: test_pait
       method:
-      - GET
       - OPTIONS
       - HEAD
+      - GET
       name: test_pait
       path: /api/get/<age>
       request:
@@ -100,7 +100,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/flask_example.py
-        lineno: 101
+        lineno: 88
         name: TestCbv.get
       method:
       - get
@@ -117,7 +117,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/flask_example.py
-        lineno: 118
+        lineno: 100
         name: TestCbv.post
       method:
       - post

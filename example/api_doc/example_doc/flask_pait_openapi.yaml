@@ -4,12 +4,17 @@ info:
   version: 0.0.1
 servers:
 - url: http://127.0.0.1
-tags: []
+tags:
+- name: default
+  description: ''
 paths:
   /api/raise_tip:
-    post:
+    options:
+      tags:
+      - default
       deprecated: true
       summary: test pait raise tip
+      operationId: test_raise_tip
       parameters:
       - name: content__type
         in: header
@@ -29,26 +34,23 @@ paths:
               properties:
                 uid:
                   title: Uid
-                  exclusiveMinimum: 10
-                  exclusiveMaximum: 1000
                   type: integer
                 user_name:
                   title: User Name
-                  minLength: 2
-                  maxLength: 4
                   type: string
                 age:
                   title: Age
-                  exclusiveMinimum: 1
-                  exclusiveMaximum: 100
                   type: integer
               required:
               - uid
               - user_name
               - age
-    options:
+    post:
+      tags:
+      - default
       deprecated: true
       summary: test pait raise tip
+      operationId: test_raise_tip
       parameters:
       - name: content__type
         in: header
@@ -68,26 +70,23 @@ paths:
               properties:
                 uid:
                   title: Uid
-                  exclusiveMinimum: 10
-                  exclusiveMaximum: 1000
                   type: integer
                 user_name:
                   title: User Name
-                  minLength: 2
-                  maxLength: 4
                   type: string
                 age:
                   title: Age
-                  exclusiveMinimum: 1
-                  exclusiveMaximum: 100
                   type: integer
               required:
               - uid
               - user_name
               - age
   /api/pait_model:
-    get:
+    options:
+      tags:
+      - default
       summary: Test Field
+      operationId: test_model
       parameters:
       - name: uid
         in: query
@@ -106,8 +105,8 @@ paths:
         schema: &id002
           title: User Name
           description: user name
-          minLength: 2
           maxLength: 4
+          minLength: 2
           type: string
       - name: user-agent
         in: header
@@ -118,8 +117,11 @@ paths:
           description: user agent
           type: string
       responses: {}
-    options:
+    head:
+      tags:
+      - default
       summary: Test Field
+      operationId: test_model
       parameters:
       - name: uid
         in: query
@@ -137,8 +139,11 @@ paths:
         description: user agent
         schema: *id003
       responses: {}
-    head:
+    get:
+      tags:
+      - default
       summary: Test Field
+      operationId: test_model
       parameters:
       - name: uid
         in: query
@@ -157,8 +162,11 @@ paths:
         schema: *id003
       responses: {}
   /api/post:
-    post:
+    options:
+      tags:
+      - default
       summary: Test Method:Post Pydantic Model
+      operationId: test_post
       parameters:
       - name: requestBody.content.<media-type>
         in: header
@@ -178,25 +186,22 @@ paths:
               properties:
                 uid:
                   title: Uid
-                  exclusiveMinimum: 10
-                  exclusiveMaximum: 1000
                   type: integer
                 user_name:
                   title: User Name
-                  minLength: 2
-                  maxLength: 4
                   type: string
                 age:
                   title: Age
-                  exclusiveMinimum: 1
-                  exclusiveMaximum: 100
                   type: integer
               required:
               - uid
               - user_name
               - age
-    options:
+    post:
+      tags:
+      - default
       summary: Test Method:Post Pydantic Model
+      operationId: test_post
       parameters:
       - name: requestBody.content.<media-type>
         in: header
@@ -216,35 +221,31 @@ paths:
               properties:
                 uid:
                   title: Uid
-                  exclusiveMinimum: 10
-                  exclusiveMaximum: 1000
                   type: integer
                 user_name:
                   title: User Name
-                  minLength: 2
-                  maxLength: 4
                   type: string
                 age:
                   title: Age
-                  exclusiveMinimum: 1
-                  exclusiveMaximum: 100
                   type: integer
               required:
               - uid
               - user_name
               - age
   /api/depend:
-    get:
+    options:
+      tags:
+      - default
       summary: Test Method:Post request, Pydantic Model
+      operationId: demo_get2test_depend
       parameters:
       - name: uid
         in: query
-        required: false
+        required: true
         description: user id
         schema: &id004
           title: Uid
           description: user id
-          default: 123456
           exclusiveMinimum: 10
           exclusiveMaximum: 1000
           type: integer
@@ -255,8 +256,8 @@ paths:
         schema: &id005
           title: User Name
           description: user name
-          minLength: 2
           maxLength: 4
+          minLength: 2
           type: string
       - name: age
         in: query
@@ -277,12 +278,15 @@ paths:
           description: user agent
           type: string
       responses: {}
-    options:
+    head:
+      tags:
+      - default
       summary: Test Method:Post request, Pydantic Model
+      operationId: demo_get2test_depend
       parameters:
       - name: uid
         in: query
-        required: false
+        required: true
         description: user id
         schema: *id004
       - name: user_name
@@ -304,12 +308,15 @@ paths:
           description: user agent
           type: string
       responses: {}
-    head:
+    get:
+      tags:
+      - default
       summary: Test Method:Post request, Pydantic Model
+      operationId: demo_get2test_depend
       parameters:
       - name: uid
         in: query
-        required: false
+        required: true
         description: user id
         schema: *id004
       - name: user_name
@@ -332,34 +339,45 @@ paths:
           type: string
       responses: {}
   /api/get/<age>:
-    get:
-      summary: Test Field
-      parameters:
-      - name: sex
-        in: query
-        required: false
-        description: null
-        schema:
-          title: SexEnum
-          description: An enumeration.
-          enum:
-          - man
-          - woman
-      - name: age
-        in: path
-        required: true
-        description: null
-        schema:
-          title: Age
-          type: string
-      responses: {}
     options:
+      tags:
+      - default
       summary: Test Field
+      operationId: test_pait
       parameters:
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+      - name: email
+        in: query
+        required: false
+        description: user email
+        schema:
+          title: Email
+          description: user email
+          default: example@xxx.com
+          type: string
       - name: sex
         in: query
         required: false
-        description: null
+        description: sex
         schema:
           title: SexEnum
           description: An enumeration.
@@ -375,12 +393,97 @@ paths:
           type: string
       responses: {}
     head:
+      tags:
+      - default
       summary: Test Field
+      operationId: test_pait
       parameters:
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+      - name: email
+        in: query
+        required: false
+        description: user email
+        schema:
+          title: Email
+          description: user email
+          default: example@xxx.com
+          type: string
       - name: sex
         in: query
         required: false
+        description: sex
+        schema:
+          title: SexEnum
+          description: An enumeration.
+          enum:
+          - man
+          - woman
+      - name: age
+        in: path
+        required: true
         description: null
+        schema:
+          title: Age
+          type: string
+      responses: {}
+    get:
+      tags:
+      - default
+      summary: Test Field
+      operationId: test_pait
+      parameters:
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+      - name: email
+        in: query
+        required: false
+        description: user email
+        schema:
+          title: Email
+          description: user email
+          default: example@xxx.com
+          type: string
+      - name: sex
+        in: query
+        required: false
+        description: sex
         schema:
           title: SexEnum
           description: An enumeration.
@@ -397,13 +500,36 @@ paths:
       responses: {}
   /api/cbv:
     get:
+      tags:
+      - default
       summary: Text Pydantic Model and Field
+      operationId: test_cbv.get
       parameters:
       - name: age
         in: query
         required: true
         description: age
         schema: *id006
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
       - name: email
         in: query
         required: false
@@ -423,7 +549,10 @@ paths:
           type: string
       responses: {}
     post:
+      tags:
+      - default
       summary: test cbv post method
+      operationId: test_cbv.post
       parameters:
       - name: user-agent
         in: header
@@ -443,18 +572,12 @@ paths:
               properties:
                 uid:
                   title: Uid
-                  exclusiveMinimum: 10
-                  exclusiveMaximum: 1000
                   type: integer
                 user_name:
                   title: User Name
-                  minLength: 2
-                  maxLength: 4
                   type: string
                 age:
                   title: Age
-                  exclusiveMinimum: 1
-                  exclusiveMaximum: 100
                   type: integer
               required:
               - uid

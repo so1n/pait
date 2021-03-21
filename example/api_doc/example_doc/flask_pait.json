@@ -9,13 +9,13 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/flask_example.py",
-            "lineno": 27,
+            "lineno": 20,
             "name": "test_raise_tip"
           },
           "path": "/api/raise_tip",
           "method": [
-            "POST",
-            "OPTIONS"
+            "OPTIONS",
+            "POST"
           ],
           "request": {
             "param_name": "content__type",
@@ -32,14 +32,14 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/flask_example.py",
-            "lineno": 91,
+            "lineno": 78,
             "name": "test_model"
           },
           "path": "/api/pait_model",
           "method": [
-            "GET",
             "OPTIONS",
-            "HEAD"
+            "HEAD",
+            "GET"
           ],
           "request": {
             "param_name": "user-agent",
@@ -61,13 +61,13 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/flask_example.py",
-            "lineno": 41,
+            "lineno": 34,
             "name": "test_post"
           },
           "path": "/api/post",
           "method": [
-            "POST",
-            "OPTIONS"
+            "OPTIONS",
+            "POST"
           ],
           "request": {
             "param_name": "Content-Type",
@@ -84,14 +84,14 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/flask_example.py",
-            "lineno": 55,
+            "lineno": 48,
             "name": "demo_get2test_depend"
           },
           "path": "/api/depend",
           "method": [
-            "GET",
             "OPTIONS",
-            "HEAD"
+            "HEAD",
+            "GET"
           ],
           "request": {
             "param_name": "user-agent",
@@ -108,14 +108,14 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/flask_example.py",
-            "lineno": 72,
+            "lineno": 65,
             "name": "test_pait"
           },
           "path": "/api/get/<age>",
           "method": [
-            "GET",
             "OPTIONS",
-            "HEAD"
+            "HEAD",
+            "GET"
           ],
           "request": {
             "param_name": "age",
@@ -132,7 +132,7 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/flask_example.py",
-            "lineno": 101,
+            "lineno": 88,
             "name": "TestCbv.get"
           },
           "path": "/api/cbv",
@@ -154,7 +154,7 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/flask_example.py",
-            "lineno": 118,
+            "lineno": 100,
             "name": "TestCbv.post"
           },
           "path": "/api/cbv",

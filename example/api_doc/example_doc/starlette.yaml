@@ -4,7 +4,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 27
+        lineno: 28
         name: test_raise_tip
       method:
       - POST
@@ -58,7 +58,6 @@ group:
                     test:
                       $ref: '#/definitions/Test'
                     uid: &id005
-                      default: 123456
                       description: user id
                       exclusiveMaximum: 1000
                       exclusiveMinimum: 10
@@ -71,6 +70,7 @@ group:
                       title: User Name
                       type: string
                   required:
+                  - uid
                   - user_name
                   - age
                   - content_type
@@ -108,7 +108,7 @@ group:
             parent_schema: *id002
             schema: *id003
           type: string
-        - default: 123456
+        - default: Required
           description: user id
           other:
             exclusiveMaximum: 1000
@@ -209,7 +209,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 112
+        lineno: 107
         name: test_pait_model
       method:
       - HEAD
@@ -289,7 +289,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 46
+        lineno: 47
         name: test_post
       method:
       - POST
@@ -325,7 +325,7 @@ group:
             parent_schema: *id002
             schema: *id003
           type: string
-        - default: 123456
+        - default: Required
           description: user id
           other:
             exclusiveMaximum: 1000
@@ -413,7 +413,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 65
+        lineno: 66
         name: test_depend
       method:
       - HEAD
@@ -450,7 +450,7 @@ group:
             parent_schema: *id002
             schema: *id003
           type: string
-        - default: 123456
+        - default: Required
           description: user id
           other:
             exclusiveMaximum: 1000
@@ -538,7 +538,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 87
+        lineno: 88
         name: test_get
       method:
       - HEAD
@@ -602,7 +602,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 126
+        lineno: 116
         name: TestCbv.get
       method:
       - get
@@ -665,7 +665,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 150
+        lineno: 134
         name: TestCbv.post
       method:
       - post

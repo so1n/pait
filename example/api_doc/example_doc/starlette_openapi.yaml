@@ -22,6 +22,7 @@ paths:
       - test
       deprecated: true
       summary: test pait raise tip
+      operationId: test_raise_tip
       parameters:
       - name: content_type
         in: header
@@ -49,18 +50,12 @@ paths:
               properties:
                 uid:
                   title: Uid
-                  exclusiveMinimum: 10
-                  exclusiveMaximum: 1000
                   type: integer
                 user_name:
                   title: User Name
-                  minLength: 2
-                  maxLength: 4
                   type: string
                 age:
                   title: Age
-                  exclusiveMinimum: 1
-                  exclusiveMaximum: 100
                   type: integer
               required:
               - uid
@@ -71,6 +66,7 @@ paths:
       tags:
       - test
       summary: Test Field
+      operationId: test_pait_model
       parameters:
       - name: uid
         in: query
@@ -89,8 +85,8 @@ paths:
         schema: &id002
           title: User Name
           description: user name
-          minLength: 2
           maxLength: 4
+          minLength: 2
           type: string
       - name: user-agent
         in: header
@@ -113,6 +109,7 @@ paths:
       tags:
       - test
       summary: Test Field
+      operationId: test_pait_model
       parameters:
       - name: uid
         in: query
@@ -144,6 +141,7 @@ paths:
       - user
       - post
       summary: Test Method:Post Pydantic Model
+      operationId: test_post
       parameters:
       - name: requestBody.content.<media-type>
         in: header
@@ -171,18 +169,12 @@ paths:
               properties:
                 uid:
                   title: Uid
-                  exclusiveMinimum: 10
-                  exclusiveMaximum: 1000
                   type: integer
                 user_name:
                   title: User Name
-                  minLength: 2
-                  maxLength: 4
                   type: string
                 age:
                   title: Age
-                  exclusiveMinimum: 1
-                  exclusiveMaximum: 100
                   type: integer
               required:
               - uid
@@ -194,15 +186,15 @@ paths:
       - user
       - depend
       summary: Test Method:Post request, Pydantic Model
+      operationId: test_depend
       parameters:
       - name: uid
         in: query
-        required: false
+        required: true
         description: user id
         schema: &id004
           title: Uid
           description: user id
-          default: 123456
           exclusiveMinimum: 10
           exclusiveMaximum: 1000
           type: integer
@@ -213,8 +205,8 @@ paths:
         schema: &id005
           title: User Name
           description: user name
-          minLength: 2
           maxLength: 4
+          minLength: 2
           type: string
       - name: age
         in: query
@@ -248,10 +240,11 @@ paths:
       - user
       - depend
       summary: Test Method:Post request, Pydantic Model
+      operationId: test_depend
       parameters:
       - name: uid
         in: query
-        required: false
+        required: true
         description: user id
         schema: *id004
       - name: user_name
@@ -287,6 +280,7 @@ paths:
       - user
       - get
       summary: Test Field
+      operationId: test_get
       parameters:
       - name: uid
         in: query
@@ -305,8 +299,8 @@ paths:
         schema:
           title: User Name
           description: user name
-          minLength: 2
           maxLength: 4
+          minLength: 2
           type: string
       - name: email
         in: query
@@ -349,6 +343,7 @@ paths:
       - user
       - get
       summary: Test Field
+      operationId: test_get
       parameters:
       - name: uid
         in: query
@@ -367,8 +362,8 @@ paths:
         schema:
           title: User Name
           description: user name
-          minLength: 2
           maxLength: 4
+          minLength: 2
           type: string
       - name: email
         in: query
@@ -412,6 +407,7 @@ paths:
       - user
       - get
       summary: Text Pydantic Model and Field
+      operationId: TestCbv.get
       parameters:
       - name: age
         in: query
@@ -435,8 +431,8 @@ paths:
         schema:
           title: User Name
           description: user name
-          minLength: 2
           maxLength: 4
+          minLength: 2
           type: string
       - name: email
         in: query
@@ -469,6 +465,7 @@ paths:
       - user
       - post
       summary: test cbv post method
+      operationId: TestCbv.post
       parameters:
       - name: user-agent
         in: header
@@ -496,18 +493,12 @@ paths:
               properties:
                 uid:
                   title: Uid
-                  exclusiveMinimum: 10
-                  exclusiveMaximum: 1000
                   type: integer
                 user_name:
                   title: User Name
-                  minLength: 2
-                  maxLength: 4
                   type: string
                 age:
                   title: Age
-                  exclusiveMinimum: 1
-                  exclusiveMaximum: 100
                   type: integer
               required:
               - uid

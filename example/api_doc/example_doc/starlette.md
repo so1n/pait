@@ -5,7 +5,7 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 27">test_raise_tip</abbr>|test pait raise tip|
+|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 28">test_raise_tip</abbr>|test pait raise tip|
 - Path: /api/raise_tip
 - Method: POST
 - Request:
@@ -13,8 +13,8 @@
 
         |param name|type|default value|description|other|
         |---|---|---|---|---|
-        |uid|integer|123456|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|user name|{'minLength': 2, 'maxLength': 4}|
+        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
         |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
     - Header
 
@@ -36,8 +36,8 @@
             |---|---|---|---|---|
             |code|integer|0|api code|{}|
             |msg|string|success|api status msg|{}|
-            |data.uid|integer|123456|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|**`Required`**|user name|{'minLength': 2, 'maxLength': 4}|
+            |data.uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+            |data.user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
             |data.age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
             |data.content_type|string|**`Required`**|content-type|{}|
             |data.test.test_a|integer|**`Required`**||{}|
@@ -58,7 +58,7 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 112">test_pait_model</abbr>|Test Field|
+|so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 107">test_pait_model</abbr>|Test Field|
 - Path: /api/pait_model
 - Method: HEAD,GET
 - Request:
@@ -72,7 +72,7 @@
         |param name|type|default value|description|other|
         |---|---|---|---|---|
         |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|user name|{'minLength': 2, 'maxLength': 4}|
+        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
 - Response:
 
     - SuccessRespModel
@@ -104,7 +104,7 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 46">test_post</abbr>|Test Method:Post Pydantic Model|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 47">test_post</abbr>|Test Method:Post Pydantic Model|
 - Path: /api/post
 - Method: POST
 - Request:
@@ -112,8 +112,8 @@
 
         |param name|type|default value|description|other|
         |---|---|---|---|---|
-        |uid|integer|123456|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|user name|{'minLength': 2, 'maxLength': 4}|
+        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
         |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
     - Header
 
@@ -135,8 +135,8 @@
             |---|---|---|---|---|
             |code|integer|0|api code|{}|
             |msg|string|success|api status msg|{}|
-            |data.uid|integer|123456|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|**`Required`**|user name|{'minLength': 2, 'maxLength': 4}|
+            |data.uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+            |data.user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
             |data.age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
             |data.content_type|string|**`Required`**|content-type|{}|
             |data.test.test_a|integer|**`Required`**||{}|
@@ -157,7 +157,7 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 65">test_depend</abbr>|Test Method:Post request, Pydantic Model|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 66">test_depend</abbr>|Test Method:Post request, Pydantic Model|
 - Path: /api/depend
 - Method: HEAD,GET
 - Request:
@@ -170,8 +170,8 @@
 
         |param name|type|default value|description|other|
         |---|---|---|---|---|
-        |uid|integer|123456|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|user name|{'minLength': 2, 'maxLength': 4}|
+        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
         |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
 - Response:
 
@@ -188,8 +188,8 @@
             |---|---|---|---|---|
             |code|integer|0|api code|{}|
             |msg|string|success|api status msg|{}|
-            |data.uid|integer|123456|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|**`Required`**|user name|{'minLength': 2, 'maxLength': 4}|
+            |data.uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+            |data.user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
             |data.age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
             |data.content_type|string|**`Required`**|content-type|{}|
             |data.test.test_a|integer|**`Required`**||{}|
@@ -210,7 +210,7 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 87">test_get</abbr>|Test Field|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 88">test_get</abbr>|Test Field|
 - Path: /api/get/{age}
 - Method: HEAD,GET
 - Request:
@@ -224,7 +224,7 @@
         |param name|type|default value|description|other|
         |---|---|---|---|---|
         |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|user name|{'minLength': 2, 'maxLength': 4}|
+        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
         |email|string|example@xxx.com|user email|{}|
         |sex|enum|Only choose from: `man`,`woman`|sex|{'enum': ['man', 'woman']}|
 - Response:
@@ -256,7 +256,7 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 126">TestCbv.get</abbr>|Text Pydantic Model and Field|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 116">TestCbv.get</abbr>|Text Pydantic Model and Field|
 - Path: /api/cbv
 - Method: get
 - Request:
@@ -271,7 +271,7 @@
         |---|---|---|---|---|
         |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
         |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|user name|{'minLength': 2, 'maxLength': 4}|
+        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
         |email|string|example@xxx.com|user email|{}|
 - Response:
 
@@ -302,7 +302,7 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 150">TestCbv.post</abbr>|test cbv post method|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 134">TestCbv.post</abbr>|test cbv post method|
 - Path: /api/cbv
 - Method: post
 - Request:
@@ -310,8 +310,8 @@
 
         |param name|type|default value|description|other|
         |---|---|---|---|---|
-        |uid|integer|123456|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|user name|{'minLength': 2, 'maxLength': 4}|
+        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
         |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
     - Header
 

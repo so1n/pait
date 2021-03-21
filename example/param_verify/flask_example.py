@@ -69,7 +69,7 @@ def test_pait(
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
     age: str = Path.i(),
-    sex: SexEnum = Query.i(),
+    sex: SexEnum = Query.i(description="sex"),
 ) -> dict:
     """Test Field"""
     return {"uid": uid, "user_name": user_name, "email": email, "age": age, "sex": sex.value}
