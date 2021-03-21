@@ -1,4 +1,5 @@
 import inspect
+import warnings
 from types import CodeType
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, get_type_hints
 
@@ -107,6 +108,13 @@ class PaitBaseParse(object):
             elif "items" in param_dict and "$ref" in param_dict["items"]:
                 # mad item ref support
                 key = param_dict["items"]["$ref"].split("/")[-1]
+                param_dict = _pydantic_model.schema()["definitions"][key]
+            elif "allOf" in param_dict:
+                if len(param_dict["allOf"]) > 1:
+                    warnings.warn(f"{param_dict['param_name']} only support 1 item")
+
+                param_dict.update(param_dict["allOf"][0])
+                key = param_dict["$ref"].split("/")[-1]
                 param_dict = _pydantic_model.schema()["definitions"][key]
             if "enum" in param_dict:
                 # enum support

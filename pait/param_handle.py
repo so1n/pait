@@ -259,7 +259,7 @@ async def async_param_handle(
                 else:
                     request_value: Any = get_request_value_from_parameter(parameter, dispatch_web)
 
-                    if asyncio.iscoroutine(request_value):
+                    if asyncio.iscoroutine(request_value) or asyncio.isfuture(request_value):
                         request_value = await request_value
 
                     request_value_handle(parameter, request_value, kwargs_param_dict, single_field_dict, dispatch_web)
