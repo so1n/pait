@@ -25,7 +25,7 @@ class LazyProperty:
             try:
                 res: Any = self.func(obj)
                 future.set_result(res)
-                return res
+                return lambda: res
             except Exception as e:
                 future.set_exception(e)
                 raise e
@@ -46,11 +46,11 @@ class LazyAsyncProperty:
         future: Optional["asyncio.Future"] = getattr(obj, self.cached_name, None)
 
         if future:
-            return future
+            return lambda: future
         else:
             future = asyncio.Future()
             setattr(obj, self.cached_name, future)
-            return self._execute_future(future, obj)
+            return lambda: self._execute_future(future, obj)
 
     async def _execute_future(self, future: asyncio.Future, obj: object) -> Any:
         try:
