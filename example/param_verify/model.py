@@ -2,25 +2,25 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import List
 
-from pydantic import BaseModel, Field, conint, constr
+from pydantic import BaseModel, Field
 
 from pait.field import Depends, Header, Query
 from pait.model import PaitBaseModel, PaitResponseModel
 
 
 class TestPaitModel(PaitBaseModel):
-    uid: conint(gt=10, lt=1000) = Query(description="user id")
-    user_name: constr(min_length=2, max_length=4) = Query(description="user name")
-    user_agent: str = Header(alias="user-agent", description="user agent")
+    uid: int = Query.i(description="user id", gt=10, lt=1000)
+    user_name: str = Query.i(description="user name", min_length=2, max_length=4)
+    user_agent: str = Header.i(alias="user-agent", description="user agent")
 
 
 class UserModel(BaseModel):
-    uid: conint(gt=10, lt=1000) = Field(123456, description="user id")
-    user_name: constr(min_length=2, max_length=4) = Field(description="user name")
+    uid: int = Query.i(description="user id", gt=10, lt=1000)
+    user_name: str = Query.i(description="user name", min_length=2, max_length=4)
 
 
 class UserOtherModel(BaseModel):
-    age: conint(gt=1, lt=100) = Field(description="age")
+    age: int = Field(description="age", gt=1, lt=100)
 
 
 class SexEnum(Enum):
@@ -28,12 +28,12 @@ class SexEnum(Enum):
     woman: str = "woman"
 
 
-def demo_sub_depend(user_agent: str = Header(alias="user-agent", description="user agent")):
+def demo_sub_depend(user_agent: str = Header.i(alias="user-agent", description="user agent")) -> str:
     print("sub_depend", user_agent)
     return user_agent
 
 
-def demo_depend(user_agent: str = Depends(demo_sub_depend)):
+def demo_depend(user_agent: str = Depends.i(demo_sub_depend)) -> str:
     print("depend", user_agent)
     return user_agent
 
@@ -57,9 +57,9 @@ class ResponseUserModel(ResponseModel):
             test_a: int
             test_b: str
 
-        uid: conint(gt=10, lt=1000) = Field(123456, description="user id")
-        user_name: constr(min_length=2, max_length=4) = Field(description="user name")
-        age: conint(gt=1, lt=100) = Field(description="age")
+        uid: int = Query.i(description="user id", gt=10, lt=1000)
+        user_name: str = Query.i(description="user name", min_length=2, max_length=4)
+        age: int = Field(description="age", gt=1, lt=100)
         content_type: str = Field(description="content-type")
         test: Test
 

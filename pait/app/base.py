@@ -64,7 +64,7 @@ class BaseAsyncAppHelper(BaseAppHelper, ABC):
     async def body(self) -> dict:
         raise NotImplementedError
 
-    async def file(self):
+    async def file(self) -> Any:
         raise NotImplementedError
 
     async def form(self) -> Mapping:

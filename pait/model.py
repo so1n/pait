@@ -100,6 +100,7 @@ class PaitCoreModel(object):
 
     func_name: str = ""  # func name
     author: Tuple[str] = ('', )  # author
+    
     desc: str = ""  # description
     status: PaitStatus = PaitStatus.undefined  # api status. example: test, release#
     group: str = ""  # request group

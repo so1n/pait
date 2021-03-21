@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 import yaml
 from pydantic import BaseModel, Field, HttpUrl, create_model
@@ -108,7 +108,13 @@ class PaitOpenApi(PaitBaseParse):
             pait_yaml: str = yaml.dump(open_api_dict, sort_keys=False)
             self.output(filename, pait_yaml, ".yaml")
 
-    def replace_pydantic_definitions(self, schema, path, open_api_dict: Dict[str, Any], parent_schema=None) -> None:
+    def replace_pydantic_definitions(
+            self,
+            schema: dict,
+            path: str,
+            open_api_dict: Dict[str, Any],
+            parent_schema: Optional[dict] = None
+    ) -> None:
         if not parent_schema:
             parent_schema = schema
         for key, value in schema.items():
@@ -124,7 +130,7 @@ class PaitOpenApi(PaitBaseParse):
     def field_2_request_body(media_type: str, method_dict: dict, field_dict_list: List[dict]) -> None:
         openapi_request_body_dict: dict = method_dict.setdefault("requestBody", {"content": {}})
 
-        annotation_dict: Dict[str, Type] = {
+        annotation_dict: Dict[str, Tuple[Type, Any]] = {
             field_dict["raw"]["param_name"]: (field_dict["raw"]["annotation"], field_dict["raw"]["field"])
             for field_dict in field_dict_list
         }
@@ -156,7 +162,7 @@ class PaitOpenApi(PaitBaseParse):
                     ):
                         openapi_method_dict["deprecated"] = True
                     openapi_method_dict["summary"] = pait_model.desc
-                    openapi_method_dict["operationId"]: pait_model.operation_id
+                    openapi_method_dict["operationId"] = pait_model.operation_id
                     openapi_parameters_list: list = openapi_method_dict.setdefault("parameters", [])
                     openapi_response_dict: dict = openapi_method_dict.setdefault("responses", {})
                     all_field_dict: Dict[str, List[Dict[str, Any]]] = self._parse_func_param(pait_model.func)
@@ -199,8 +205,10 @@ class PaitOpenApi(PaitBaseParse):
                         response_schema_dict: Dict[tuple, List[Dict[str, str]]] = {}
                         for resp_model_class in pait_model.response_model_list:
                             resp_model: PaitResponseModel = resp_model_class()
-                            schema_dict: dict = resp_model.response_data.schema()
-                            path: str = f"#/components/schemas/{schema_dict['title']}"
+                            schema_dict: dict = {}
+                            if resp_model.response_data:
+                                schema_dict = resp_model.response_data.schema()
+                            path = f"#/components/schemas/{schema_dict['title']}"
                             self.replace_pydantic_definitions(schema_dict, path, open_api_dict)
                             if "definitions" in schema_dict:
                                 del schema_dict["definitions"]
@@ -221,7 +229,7 @@ class PaitOpenApi(PaitBaseParse):
                         for key_tuple, path_list in response_schema_dict.items():
                             status_code, media_type = key_tuple
                             if len(path_list) == 1:
-                                ref_dict: dict = path_list[0]
+                                ref_dict = path_list[0]
                             else:
-                                ref_dict: dict = {"oneOf": path_list}
+                                ref_dict = {"oneOf": path_list}
                             openapi_response_dict[status_code]["content"] = {media_type: {"schema": ref_dict}}

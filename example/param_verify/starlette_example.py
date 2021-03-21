@@ -1,6 +1,4 @@
-from typing import Optional
-
-from pydantic import ValidationError, conint, constr
+from pydantic import ValidationError
 from starlette.applications import Starlette
 from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request
@@ -35,10 +33,10 @@ async def api_exception(request: Request, exc: Exception) -> JSONResponse:
     response_model_list=[UserSuccessRespModel, FailRespModel],
 )
 async def test_raise_tip(
-    model: UserModel = Body(),
-    other_model: UserOtherModel = Body(),
-    content_type: str = Header(description="content-type"),
-):
+    model: UserModel = Body.i(),
+    other_model: UserOtherModel = Body.i(),
+    content_type: str = Header.i(description="content-type"),
+) -> JSONResponse:
     """Test Method: error tip"""
     return_dict = model.dict()
     return_dict.update(other_model.dict())
@@ -54,10 +52,10 @@ async def test_raise_tip(
     response_model_list=[UserSuccessRespModel, FailRespModel],
 )
 async def test_post(
-    model: UserModel = Body(),
-    other_model: UserOtherModel = Body(),
-    content_type: str = Header(alias="Content-Type", description="content-type"),
-):
+    model: UserModel = Body.i(),
+    other_model: UserOtherModel = Body.i(),
+    content_type: str = Header.i(alias="Content-Type", description="content-type"),
+) -> JSONResponse:
     """Test Method:Post Pydantic Model"""
     return_dict = model.dict()
     return_dict.update(other_model.dict())
@@ -74,10 +72,10 @@ async def test_post(
 )
 async def test_depend(
     request: Request,
-    model: UserModel = Query(),
-    other_model: UserOtherModel = Query(),
-    user_agent: str = Depends(demo_depend),
-):
+    model: UserModel = Query.i(),
+    other_model: UserOtherModel = Query.i(),
+    user_agent: str = Depends.i(demo_depend),
+) -> JSONResponse:
     """Test Method:Post request, Pydantic Model"""
     assert request is not None, "Not found request"
     print(user_agent)
@@ -95,25 +93,25 @@ async def test_depend(
     response_model_list=[SuccessRespModel, FailRespModel],
 )
 async def test_get(
-    uid: conint(gt=10, lt=1000) = Query(description="user id"),
-    user_name: constr(min_length=2, max_length=4) = Query(description="user name"),
-    email: Optional[str] = Query(default="example@xxx.com", description="user email"),
-    age: str = Path(description="age"),
-    sex: SexEnum = Query(description="sex"),
-):
+    uid: int = Query.i(description="user id", gt=10, lt=1000),
+    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+    email: str = Query.i(default="example@xxx.com", description="user email"),
+    age: str = Path.i(description="age"),
+    sex: SexEnum = Query.i(description="sex"),
+) -> JSONResponse:
     """Test Field"""
     _dict = {"uid": uid, "user_name": user_name, "email": email, "age": age, "sex": sex.value}
     return JSONResponse(_dict)
 
 
 @pait(author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[SuccessRespModel, FailRespModel])
-async def test_pait_model(test_model: TestPaitModel):
+async def test_pait_model(test_model: TestPaitModel) -> JSONResponse:
     """Test Field"""
     return JSONResponse(test_model.dict())
 
 
 class TestCbv(HTTPEndpoint):
-    user_agent: str = Header(alias="user-agent", description="ua")  # remove key will raise error
+    user_agent: str = Header.i(alias="user-agent", description="ua")  # remove key will raise error
 
     @pait(
         author=("so1n",),
@@ -124,11 +122,11 @@ class TestCbv(HTTPEndpoint):
     )
     async def get(
         self,
-        uid: conint(gt=10, lt=1000) = Query(description="user id"),
-        user_name: constr(min_length=2, max_length=4) = Query(description="user name"),
-        email: Optional[str] = Query(default="example@xxx.com", description="user email"),
-        model: UserOtherModel = Query(),
-    ):
+        uid: int = Query.i(description="user id", gt=10, lt=1000),
+        user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+        email: str = Query.i(default="example@xxx.com", description="user email"),
+        model: UserOtherModel = Query.i(),
+    ) -> JSONResponse:
         """Text Pydantic Model and Field"""
         _dict = {"uid": uid, "user_name": user_name, "email": email, "age": model.age, "cbv_id": id(self)}
         return JSONResponse({"result": _dict})
@@ -143,9 +141,9 @@ class TestCbv(HTTPEndpoint):
     )
     async def post(
         self,
-        model: UserModel = Body(),
-        other_model: UserOtherModel = Body(),
-    ):
+        model: UserModel = Body.i(),
+        other_model: UserOtherModel = Body.i(),
+    ) -> JSONResponse:
         return_dict = model.dict()
         return_dict.update(other_model.dict())
         return_dict.update({"user-agent": self.user_agent})
@@ -169,6 +167,6 @@ app.add_exception_handler(ValidationError, api_exception)
 
 
 if __name__ == "__main__":
-    import uvicorn
+    import uvicorn  # type: ignore
 
     uvicorn.run(app, log_level="debug")
