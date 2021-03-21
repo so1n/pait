@@ -89,31 +89,34 @@ class PaitBaseModel(object):
         return cls.to_pydantic_model().schema(by_alias=by_alias)
 
 
-@dataclass()
 class PaitCoreModel(object):
-    func: Callable  # func object
-    pait_id: str  # pait id(in runtime)
-
-    method_set: Set[str] = field(default_factory=set)  # request method set
-    path: str = ""  # request path
-    operation_id: Optional[str] = None  # operation id(in route table)
-
-    func_name: str = ""  # func name
-    author: Tuple[str] = ('', )  # author
-    
-    desc: str = ""  # description
-    status: PaitStatus = PaitStatus.undefined  # api status. example: test, release#
-    group: str = ""  # request group
-    tag: Optional[Tuple[str, ...]] = None  # request tag
-
-    response_model_list: Optional[List[Type[PaitResponseModel]]] = None
-
-    def __post_init__(self) -> None:
-        if not self.desc:
-            self.desc = self.func.__doc__ or ""
-        if not self.group:
-            self.group = "root"
-        self.func_name = self.func.__name__
+    def __init__(
+            self,
+            func: Callable,
+            pait_id: str,
+            path: Optional[str] = None,
+            method_set: Optional[Set[str]] = None,
+            operation_id: Optional[str] = None,
+            func_name: Optional[str] = None,
+            author: Optional[Tuple[str, ...]] = None,
+            desc: Optional[str] = None,
+            status: Optional[PaitStatus] = None,
+            group: Optional[str] = None,
+            tag: Optional[Tuple[str, ...]] = None,
+            response_model_list: Optional[List[Type[PaitResponseModel]]] = None
+    ):
+        self.func: Callable = func  # route func
+        self.pait_id: str = pait_id  # qualname + func hash id
+        self.path: str = path or ""  # request url path
+        self.method_set: Set[str] = method_set or {}  # request method set
+        self.operation_id: Optional[str] = operation_id or None  # route name
+        self.func_name: str = func_name or func.__name__
+        self.author: Tuple[str, ...] = author or ('', )
+        self.desc = desc or func.__doc__ or ""
+        self.status: PaitStatus = status or PaitStatus.undefined
+        self.group: str = group or "root"
+        self.tag: Tuple[str, ...] = tag or ("default", )
+        self.response_model_list: Optional[List[Type[PaitResponseModel]]] = response_model_list
 
 
 @dataclass()
