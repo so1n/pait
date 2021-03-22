@@ -1,4 +1,9 @@
-### 0.5.0[now]
+### 0.5.1[Now]
+ - Style: add mypy check
+ - Feature: filed support mypy check
+ - Feature: support openapi allOf
+
+### 0.5.0
  - Refactor: New design&program architecture
  - Feature: add interface info(life cycle, author, group, desc....)
  - Feature: add auto load app

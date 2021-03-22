@@ -92,7 +92,7 @@ class PydanticModel(BaseModel):
 async def demo_post(
     # pait through the Body () to know the current need to get the value of the body from the request, and assign the value to the model, 
     # and the structure of the model is the above PydanticModel, he will be based on our definition of the field automatically get the value and conversion and judgment
-    model: PydanticModel = Body()
+    model: PydanticModel = Body.i()
 ):
     # Get the corresponding value to return
     return JSONResponse({'result': model.dict()})
@@ -122,8 +122,8 @@ pait in order to facilitate the use of users, support a variety of writing metho
 
 
     class TestModel(PaitBaseModel):
-        uid: int = Body()
-        content_type: str = Header(default='Content-Type')
+        uid: int = Body.i()
+        content_type: str = Header.i(default='Content-Type')
 
 
     @pait()
@@ -144,7 +144,7 @@ pait in order to facilitate the use of users, support a variety of writing metho
     
     
     @pait()
-    async def test(model: BaseModel = Body()):
+    async def test(model: BaseModel = Body.i()):
         return {'result': model.dict()}
     ````
 - When TypeHints is not one of the above two cases:
@@ -155,7 +155,7 @@ pait in order to facilitate the use of users, support a variety of writing metho
 
 
     @pait()
-    async def test(uid: int = Body(), user_name: str = Body()):
+    async def test(uid: int = Body.i(), user_name: str = Body.i()):
         return {'result': {'uid': uid, 'user_name': user_name}}
     ```
 ### 1.3Field
@@ -169,7 +169,7 @@ from pait.field import Body
 @pait()
 async def demo_post(
         # get uid from request body data
-        uid: int = Body()
+        uid: int = Body.i()
 ):
     pass
 ```
@@ -184,9 +184,9 @@ from pait.field import Body, Header
 @pait()
 async def demo_post(
         # get uid from request body data
-        uid: int = Body(),
+        uid: int = Body.i(),
         # get Content-Type from header
-        content_type: str = Header(default='Content-Type')
+        content_type: str = Header.i(default='Content-Type')
 ):
     pass
 ```
@@ -209,14 +209,14 @@ from pait.app.starlette import pait
 from pait.field import Body, Depends
 
 
-def demo_depend(uid: str = Body(), password: str = Body()) -> str:
+def demo_depend(uid: str = Body.i(), password: str = Body.i()) -> str:
     # fake db
     token: str = db.get_token(uid, password)
     return token
 
 
 @pait()
-async def test_depend(token: str = Depends(demo_depend)):
+async def test_depend(token: str = Depends.i(demo_depend)):
     return {'token': token}
 ```
 
@@ -230,7 +230,7 @@ from starlette.requests import Request
 async def demo_post(
     request: Requests,
     # get uid from request body data
-    uid: int = Body()  
+    uid: int = Body.i()  
 ):
     pass
 ```
@@ -315,7 +315,7 @@ class PydanticModel(BaseModel):
 async def demo_post(
     # pait through the Body () to know the current need to get the value of the body from the request, and assign the value to the model, 
     # and the structure of the model is the above PydanticModel, he will be based on our definition of the field automatically get the value and conversion and judgment
-    model: PydanticModel = Body()
+    model: PydanticModel = Body.i()
 ):
     # Get the corresponding value to return
     return JSONResponse({'result': model.dict()})

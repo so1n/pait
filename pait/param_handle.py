@@ -96,7 +96,7 @@ def set_parameter_value_to_args_list(
         parameter: inspect.Parameter, app_helper: "BaseAppHelper", func_args: list
 ) -> None:
     """use func_args param faster return and extend func_args"""
-    if parameter.name == "self":
+    if parameter.name == "self" and not func_args:
         # Only support self param name
         func_args.append(app_helper.cbv_class)
     elif parameter.annotation is app_helper.RequestType:
@@ -202,7 +202,7 @@ def request_value_handle(
 
 
 def param_handle(
-    app_herelper: "BaseAppHelper", _object: Union[FuncSig, Type], param_list: List["inspect.Parameter"]
+    app_helper: "BaseAppHelper", _object: Union[FuncSig, Type], param_list: List["inspect.Parameter"]
 ) -> Tuple[List[Any], Dict[str, Any]]:
     args_param_list: List[Any] = []
     kwargs_param_dict: Dict[str, Any] = {}
@@ -216,16 +216,16 @@ def param_handle(
                 if isinstance(parameter.default, field.Depends):
                     func: Callable = parameter.default.func
                     func_sig: FuncSig = get_func_sig(func)
-                    _func_args, _func_kwargs = param_handle(app_herelper, func_sig, func_sig.param_list)
+                    _func_args, _func_kwargs = param_handle(app_helper, func_sig, func_sig.param_list)
                     func_result: Any = func(*_func_args, **_func_kwargs)
                     kwargs_param_dict[parameter.name] = func_result
                 else:
-                    request_value: Any = get_request_value_from_parameter(parameter, app_herelper)
-                    request_value_handle(parameter, request_value, kwargs_param_dict, single_field_dict, app_herelper)
+                    request_value: Any = get_request_value_from_parameter(parameter, app_helper)
+                    request_value_handle(parameter, request_value, kwargs_param_dict, single_field_dict, app_helper)
             else:
                 # args param
                 # support model: model: ModelType
-                set_parameter_value_to_args_list(parameter, app_herelper, args_param_list)
+                set_parameter_value_to_args_list(parameter, app_helper, args_param_list)
         except PaitBaseException as e:
             raise_and_tip(_object, e, parameter)
     # support field: def demo(demo_param: int = pait.field.BaseField())
@@ -298,10 +298,10 @@ def class_param_handle(dispatch_web: "BaseAppHelper") -> None:
 
 
 async def async_func_param_handle(
-    dispatch_web: "BaseAsyncAppHelper", func_sig: FuncSig
+    dispatch_app: "BaseAsyncAppHelper", func_sig: FuncSig
 ) -> Tuple[List[Any], Dict[str, Any]]:
-    return await async_param_handle(dispatch_web, func_sig, func_sig.param_list)
+    return await async_param_handle(dispatch_app, func_sig, func_sig.param_list)
 
 
-def func_param_handle(dispatch_web: "BaseAppHelper", func_sig: FuncSig) -> Tuple[List[Any], Dict[str, Any]]:
-    return param_handle(dispatch_web, func_sig, func_sig.param_list)
+def func_param_handle(dispatch_app: "BaseAppHelper", func_sig: FuncSig) -> Tuple[List[Any], Dict[str, Any]]:
+    return param_handle(dispatch_app, func_sig, func_sig.param_list)

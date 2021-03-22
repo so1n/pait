@@ -94,7 +94,7 @@ class PydanticModel(BaseModel):
 async def demo_post(
     # pait通过Body()知道当前需要从请求中获取body的值,并赋值到model中, 
     # 而这个model的结构正是上面的PydanticModel,他会根据我们定义的字段自动获取值并进行转换和判断
-    model: PydanticModel = Body()
+    model: PydanticModel = Body.i()
 ):
     # 获取对应的值进行返回
     return JSONResponse({'result': model.dict()})
@@ -146,7 +146,7 @@ pait为了方便用户使用,支持多种写法(主要是TypeHints的不同):
     
     
     @pait()
-    async def test(model: BaseModel = Body()):
+    async def test(model: BaseModel = Body.i()):
         return {'result': model.dict()}
     ````
 - TypeHints不是上述两种情况时:
@@ -157,7 +157,7 @@ pait为了方便用户使用,支持多种写法(主要是TypeHints的不同):
 
 
     @pait()
-    async def test(uid: int = Body(), user_name: str = Body()):
+    async def test(uid: int = Body.i(), user_name: str = Body.i()):
         return {'result': {'uid': uid, 'user_name': user_name}}
     ```
 ### 1.3Field介绍
@@ -173,7 +173,7 @@ from pait.field import Body
 @pait()
 async def demo_post(
         # get uid from request body data
-        uid: int = Body()
+        uid: int = Body.i()
 ):
     pass
 ```
@@ -188,9 +188,9 @@ from pait.field import Body, Header
 @pait()
 async def demo_post(
         # get uid from request body data
-        uid: int = Body(),
+        uid: int = Body.i(),
         # get Content-Type from header
-        content_type: str = Header(default='Content-Type')
+        content_type: str = Header.i(default='Content-Type')
 ):
     pass
 ```
@@ -213,14 +213,14 @@ from pait.app.starlette import pait
 from pait.field import Body, Depends
 
 
-def demo_depend(uid: str = Body(), password: str = Body()) -> str:
+def demo_depend(uid: str = Body.i(), password: str = Body.i()) -> str:
     # fake db
     token: str = db.get_token(uid, password)
     return token
 
 
 @pait()
-async def test_depend(token: str = Depends(demo_depend)):
+async def test_depend(token: str = Depends.i(demo_depend)):
     return {'token': token}
 ```
 
@@ -237,7 +237,7 @@ from pait.field import Body
 async def demo_post(
         request: Request,
         # get uid from request body data
-        uid: int = Body()
+        uid: int = Body.i()
 ):
     pass
 ```
@@ -326,7 +326,7 @@ class PydanticModel(BaseModel):
 async def demo_post(
     # pait通过Body()知道当前需要从请求中获取body的值,并赋值到model中, 
     # 而这个model的结构正是上面的PydanticModel,他会根据我们定义的字段自动获取值并进行转换和判断
-    model: PydanticModel = Body()
+    model: PydanticModel = Body.i()
 ):
     # 获取对应的值进行返回
     return JSONResponse({'result': model.dict()})
