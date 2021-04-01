@@ -5,13 +5,14 @@ from flask import Flask, Request, request  # type: ignore
 from flask.views import MethodView
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 
-from pait.app.base import BaseAppHelper
+from pait.app.base import BaseSyncAppHelper
 from pait.core import pait as _pait
 from pait.g import pait_data
+from pait.lazy_property import LazyProperty
 from pait.model import PaitResponseModel, PaitStatus
 
 
-class AppHelper(BaseAppHelper):
+class AppHelper(BaseSyncAppHelper):
     RequestType = Request
     FormType = ImmutableMultiDict
     FileType = Request.files
@@ -24,24 +25,31 @@ class AppHelper(BaseAppHelper):
         self.path_dict: Dict[str, Any] = {}
         self.path_dict.update(self.request_kwargs)
 
+    @LazyProperty
     def body(self) -> dict:
         return request.json
 
+    @LazyProperty
     def cookie(self) -> dict:
         return request.cookies
 
+    @LazyProperty
     def file(self) -> Request.files:
         return request.files
 
+    @LazyProperty
     def form(self) -> Request.form:
         return request.form
 
+    @LazyProperty
     def header(self) -> ImmutableMultiDict:
         return request.headers
 
+    @LazyProperty
     def path(self) -> Dict[str, Any]:
         return self.path_dict
 
+    @LazyProperty
     def query(self) -> dict:
         return dict(request.args)
 

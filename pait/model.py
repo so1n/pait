@@ -108,7 +108,7 @@ class PaitCoreModel(object):
         self.func: Callable = func  # route func
         self.pait_id: str = pait_id  # qualname + func hash id
         self.path: str = path or ""  # request url path
-        self.method_set: Set[str] = method_set or {}  # request method set
+        self.method_set: Set[str] = method_set or set()  # request method set
         self.operation_id: Optional[str] = operation_id or None  # route name
         self.func_name: str = func_name or func.__name__
         self.author: Tuple[str, ...] = author or ('', )

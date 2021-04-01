@@ -26,6 +26,8 @@ class BaseField(FieldInfo):
         regex: str = None,
         **extra: Any,
     ):
+        if self.__class__.__mro__[2] != FieldInfo:
+            raise RuntimeError("Only classes that inherit BaseField can be used")
         super().__init__(
             default,
             default_factory=default_factory,

@@ -1,11 +1,11 @@
-from typing import Callable, List, Optional, Tuple, Type
+from typing import Any, Callable, List, Optional, Tuple, Type
 
 from pait.model import PaitResponseModel, PaitStatus
 
 from .auto_load_app import auto_load_app_class  # type: ignore
 
 
-def load_app(app) -> None:
+def load_app(app: Any) -> None:
     """Read data from the route that has been registered to `pait`
     Note:This is an implicit method
     """

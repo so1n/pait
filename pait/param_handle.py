@@ -80,7 +80,7 @@ def get_request_value_from_parameter(
     parameter: inspect.Parameter, app_helper: "BaseAppHelper"
 ) -> Union[Any, Coroutine]:
     if isinstance(parameter.default, field.File):
-        assert parameter.annotation is not app_helper.FileType, f"File type must be {app_helper.FileType}"
+        assert app_helper.check_file_type(parameter.annotation), f"File type must be {app_helper.FileType}"
 
     field_name: str = parameter.default.__class__.__name__.lower()
     # Note: not use hasattr with LazyProperty (
@@ -99,7 +99,7 @@ def set_parameter_value_to_args_list(
     if parameter.name == "self" and not func_args:
         # Only support self param name
         func_args.append(app_helper.cbv_class)
-    elif parameter.annotation is app_helper.RequestType:
+    elif app_helper.check_request_type(parameter.annotation):
         # support request param(def handle(request: Request))
         func_args.append(app_helper.request_args)
     elif issubclass(parameter.annotation, PaitBaseModel):
@@ -122,16 +122,16 @@ def set_parameter_value_to_args_list(
 
 
 async def async_set_value_to_args_param(
-    parameter: inspect.Parameter, dispatch_app: "BaseAppHelper", func_args: list
+    parameter: inspect.Parameter, app_helper: "BaseAppHelper", func_args: list
 ) -> None:
     """use func_args param faster return and extend func_args"""
     # args param
     if parameter.name == "self":
         # Only support self param name
-        func_args.append(dispatch_app.cbv_class)
-    elif parameter.annotation is dispatch_app.RequestType:
+        func_args.append(app_helper.cbv_class)
+    elif app_helper.check_request_type(parameter.annotation):
         # support request param(def handle(request: Request))
-        func_args.append(dispatch_app.request_args)
+        func_args.append(app_helper.request_args)
     elif issubclass(parameter.annotation, PaitBaseModel):
         # support pait_model param(def handle(model: PaitModel))
         single_field_dict: Dict["inspect.Parameter", Any] = {}
@@ -146,11 +146,11 @@ async def async_set_value_to_args_param(
                 default=getattr(_pait_model, param_name),
                 annotation=param_annotation,
             )
-            request_value: Any = get_request_value_from_parameter(parameter, dispatch_app)
+            request_value: Any = get_request_value_from_parameter(parameter, app_helper)
             if asyncio.iscoroutine(request_value):
                 request_value = await request_value
             # PaitModel's attributes  support BaseModel
-            request_value_handle(parameter, request_value, None, single_field_dict, dispatch_app)
+            request_value_handle(parameter, request_value, None, single_field_dict, app_helper)
         func_args.append(parameter_2_basemodel(single_field_dict))
 
 
@@ -167,8 +167,8 @@ def request_value_handle(
     param_name: str = parameter.name
     if (
         isinstance(request_value, Mapping)
-        or type(request_value) is app_helper.HeaderType
-        or type(request_value) is app_helper.FormType
+        or app_helper.check_header_type(type(request_value))
+        or app_helper.check_form_type(type(request_value))
     ):
         if not isinstance(param_value, BaseField):
             raise PaitBaseException(f"must use {BaseField.__class__.__name__}, no {param_value}")

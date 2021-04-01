@@ -23,6 +23,7 @@ class AppHelper(BaseAsyncAppHelper):
     async def body(self) -> dict:
         return await self.request.json()
 
+    @LazyProperty
     def cookie(self) -> dict:
         return self.request.cookies
 
@@ -34,9 +35,11 @@ class AppHelper(BaseAsyncAppHelper):
     async def form(self) -> FormData:
         return await self.request.form()
 
+    @LazyProperty
     def header(self) -> Headers:
         return self.request.headers
 
+    @LazyProperty
     def path(self) -> dict:
         return self.request.path_params
 
@@ -52,7 +55,7 @@ def load_app(app: Starlette) -> None:
             # not support
             continue
         path: str = route.path
-        method_set: set = route.methods or {}
+        method_set: set = route.methods or set()
         route_name: str = route.name
         endpoint: Union[Callable, Type] = route.endpoint
         pait_id: str = getattr(route.endpoint, "_pait_id", None)
