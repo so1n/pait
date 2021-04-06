@@ -4,9 +4,9 @@ from typing import Any, Callable, List, Optional, Tuple, Type, Union
 
 from pait.app.base import BaseSyncAppHelper, BaseAsyncAppHelper
 from pait.g import pait_data
-from pait.model import FuncSig, PaitCoreModel, PaitResponseModel, PaitStatus
+from pait.model import PaitCoreModel, PaitResponseModel, PaitStatus
 from pait.param_handle import async_class_param_handle, async_func_param_handle, class_param_handle, func_param_handle
-from pait.util import get_func_sig
+from pait.util import get_func_sig, FuncSig
 
 
 def pait(
@@ -44,7 +44,7 @@ def pait(
                 # only use in runtime, support cbv
                 class_ = getattr(inspect.getmodule(func), qualname)
                 # real param handle
-                app_helper: BaseAsyncAppHelper = app_helper_class(class_, args, kwargs)
+                app_helper: BaseAsyncAppHelper = app_helper_class(class_, args, kwargs)  # type: ignore
                 # auto gen param from request
                 func_args, func_kwargs = await async_func_param_handle(app_helper, func_sig)
                 # support sbv
@@ -59,7 +59,7 @@ def pait(
                 # only use in runtime
                 class_ = getattr(inspect.getmodule(func), qualname)
                 # real param handle
-                app_helper: BaseSyncAppHelper = app_helper_class(class_, args, kwargs)
+                app_helper: BaseSyncAppHelper = app_helper_class(class_, args, kwargs)  # type: ignore
                 # auto gen param from request
                 func_args, func_kwargs = func_param_handle(app_helper, func_sig)
                 # support sbv

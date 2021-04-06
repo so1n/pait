@@ -3,13 +3,13 @@ import warnings
 from types import CodeType
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, get_type_hints
 
-from pydantic import BaseModel, create_model
+from pydantic import BaseModel
 from pydantic.fields import Undefined
 
 from pait.field import BaseField, Depends
 from pait.g import pait_data
-from pait.model import FuncSig, PaitBaseModel, PaitCoreModel, PaitResponseModel
-from pait.util import get_func_sig, get_parameter_list_from_class
+from pait.model import PaitBaseModel, PaitCoreModel, PaitResponseModel
+from pait.util import create_pydantic_model, get_func_sig, get_parameter_list_from_class, FuncSig
 
 
 class PaitBaseParse(object):
@@ -221,14 +221,14 @@ class PaitBaseParse(object):
         self.parameter_list_handle(func_sig.param_list, field_dict, single_field_list)
 
         if single_field_list:
-            annotation_dict: Dict[str, Tuple] = {}
+            annotation_dict: Dict[str, Tuple[Type, Any]] = {}
             _pait_field_dict: Dict[str, BaseField] = {}
             for field_name, parameter in single_field_list:
                 field: BaseField = parameter.default
                 annotation_dict[parameter.name] = (parameter.annotation, field)
                 _pait_field_dict[parameter.name] = field
 
-            _pydantic_model: Type[BaseModel] = create_model("DynamicFoobarModel", **annotation_dict)
+            _pydantic_model: Type[BaseModel] = create_pydantic_model(annotation_dict)
             self._parse_base_model(field_dict, _pydantic_model, _pait_field_dict)
         return field_dict
 
@@ -272,7 +272,7 @@ class PaitBaseParse(object):
                             "name": pait_model.func.__qualname__,
                         },
                         "path": pait_model.path,
-                        "method": list(pait_model.method_set),
+                        "method": pait_model.method_list,
                         "request": field_dict,
                         "response_list": response_list,
                     }

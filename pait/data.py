@@ -17,7 +17,7 @@ class PaitData(object):
     ) -> None:
         if pait_id in self.pait_id_dict:
             self.pait_id_dict[pait_id].path = path
-            self.pait_id_dict[pait_id].method_set = method_set
+            self.pait_id_dict[pait_id].method_list = sorted(list(method_set or set()))
             self.pait_id_dict[pait_id].operation_id = route_name
         else:
             logging.warning(f"loan path:{path} fail, endpoint:{endpoint}, pait id:{pait_id}")

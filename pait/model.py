@@ -2,11 +2,10 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union, get_type_hints
 
-from pydantic import BaseModel, create_model
+from pydantic import BaseModel
+from pait.util import create_pydantic_model
 
 if TYPE_CHECKING:
-    import inspect
-
     from pydantic.typing import AbstractSetIntStr, DictStrAny, MappingIntStrAny
 
 
@@ -51,15 +50,16 @@ class PaitBaseModel(object):
 
     @classmethod
     def to_pydantic_model(cls) -> Type[BaseModel]:
-        if cls._pydantic_model:
+        if cls._pydantic_model is not None:
             return cls._pydantic_model
-        annotation_dict: Dict[str, Tuple[Type, Any]] = {
-            param_name: (annotation, getattr(cls, param_name, ...))
-            for param_name, annotation in get_type_hints(cls).items()
-            if not param_name.startswith("_")
-        }
-        cls._pydantic_model = create_model("DynamicFoobarModel", **annotation_dict)
-        return cls._pydantic_model
+        else:
+            annotation_dict: Dict[str, Tuple[Type, Any]] = {
+                param_name: (annotation, getattr(cls, param_name, ...))
+                for param_name, annotation in get_type_hints(cls).items()
+                if not param_name.startswith("_")
+            }
+            cls._pydantic_model = create_pydantic_model(annotation_dict)
+            return cls._pydantic_model
 
     def dict(
         self,
@@ -108,7 +108,7 @@ class PaitCoreModel(object):
         self.func: Callable = func  # route func
         self.pait_id: str = pait_id  # qualname + func hash id
         self.path: str = path or ""  # request url path
-        self.method_set: Set[str] = method_set or set()  # request method set
+        self.method_list: List[str] = sorted(list(method_set or set()))  # request method set
         self.operation_id: Optional[str] = operation_id or None  # route name
         self.func_name: str = func_name or func.__name__
         self.author: Tuple[str, ...] = author or ('', )
@@ -119,8 +119,3 @@ class PaitCoreModel(object):
         self.response_model_list: Optional[List[Type[PaitResponseModel]]] = response_model_list
 
 
-@dataclass()
-class FuncSig:
-    func: Callable
-    sig: "inspect.Signature"
-    param_list: List["inspect.Parameter"]

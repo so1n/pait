@@ -59,7 +59,7 @@ def load_app(app: Starlette) -> None:
         route_name: str = route.name
         endpoint: Union[Callable, Type] = route.endpoint
         pait_id: str = getattr(route.endpoint, "_pait_id", None)
-        if not pait_id and issubclass(endpoint, HTTPEndpoint):
+        if not pait_id and issubclass(endpoint, HTTPEndpoint):  # type: ignore
             for method in ["get", "post", "head", "options", "delete", "put", "trace", "patch"]:
                 method_endpoint = getattr(endpoint, method, None)
                 if not method_endpoint:

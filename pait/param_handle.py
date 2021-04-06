@@ -4,14 +4,14 @@ import logging
 from typing import Any, Callable, Coroutine, Dict, List, NoReturn, Mapping, Optional, Tuple, Type, Union, get_type_hints
 from types import ModuleType
 
-from pydantic import BaseModel, create_model
+from pydantic import BaseModel
 
 from pait import field
 from pait.app.base import BaseAppHelper, BaseAsyncAppHelper
 from pait.exceptions import NotFoundFieldError, NotFoundValueError, PaitBaseException
 from pait.field import BaseField
-from pait.model import FuncSig, PaitBaseModel
-from pait.util import get_func_sig, get_parameter_list_from_class
+from pait.model import PaitBaseModel
+from pait.util import create_pydantic_model, get_func_sig, get_parameter_list_from_class, FuncSig
 
 
 def raise_and_tip(
@@ -72,7 +72,7 @@ def parameter_2_basemodel(parameter_value_dict: Dict["inspect.Parameter", Any]) 
         annotation_dict[parameter.name] = (parameter.annotation, ...)
         param_value_dict[parameter.name] = value
 
-    dynamic_model: Type[BaseModel] = create_model("DynamicFoobarModel", **annotation_dict)
+    dynamic_model: Type[BaseModel] = create_pydantic_model(annotation_dict)
     return dynamic_model(**param_value_dict)
 
 
@@ -80,7 +80,8 @@ def get_request_value_from_parameter(
     parameter: inspect.Parameter, app_helper: "BaseAppHelper"
 ) -> Union[Any, Coroutine]:
     if isinstance(parameter.default, field.File):
-        assert app_helper.check_file_type(parameter.annotation), f"File type must be {app_helper.FileType}"
+        assert app_helper.check_file_type(parameter.annotation),\
+            f"File type must be {app_helper.FileType}"  # type: ignore
 
     field_name: str = parameter.default.__class__.__name__.lower()
     # Note: not use hasattr with LazyProperty (

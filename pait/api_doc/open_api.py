@@ -2,13 +2,14 @@ import json
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 import yaml
-from pydantic import BaseModel, Field, HttpUrl, create_model
+from pydantic import BaseModel, Field, HttpUrl
 from pydantic.fields import Undefined
 
 from pait import field as pait_field
 from pait.model import PaitResponseModel, PaitStatus
+from pait.util import create_pydantic_model
 
-from .base_parse import PaitBaseParse
+from pait.api_doc.base_parse import PaitBaseParse
 
 __all__ = ["PaitOpenApi"]
 
@@ -134,7 +135,7 @@ class PaitOpenApi(PaitBaseParse):
             field_dict["raw"]["param_name"]: (field_dict["raw"]["annotation"], field_dict["raw"]["field"])
             for field_dict in field_dict_list
         }
-        _pydantic_model: Type[BaseModel] = create_model("DynamicFoobarModel", **annotation_dict)
+        _pydantic_model: Type[BaseModel] = create_pydantic_model(annotation_dict)
         openapi_request_body_dict["content"].update({media_type: {"schema": _pydantic_model.schema()}})
 
     def parse_data_2_openapi(self, open_api_dict: Dict[str, Any]) -> None:
@@ -142,8 +143,8 @@ class PaitOpenApi(PaitBaseParse):
             for pait_model in pait_model_list:
                 path: str = pait_model.path
                 openapi_path_dict: dict = open_api_dict["paths"].setdefault(path, {})
-                method_set: set = pait_model.method_set
-                for method in method_set:
+                method_list: list = pait_model.method_list
+                for method in method_list:
                     openapi_method_dict: dict = openapi_path_dict.setdefault(method.lower(), {})
                     if pait_model.tag:
                         openapi_method_dict["tags"] = list(pait_model.tag)

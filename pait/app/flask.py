@@ -34,15 +34,15 @@ class AppHelper(BaseSyncAppHelper):
         return request.cookies
 
     @LazyProperty
-    def file(self) -> Request.files:
+    def file(self) -> Request.files:  # type: ignore
         return request.files
 
     @LazyProperty
-    def form(self) -> Request.form:
+    def form(self) -> Request.form:  # type: ignore
         return request.form
 
     @LazyProperty
-    def header(self) -> ImmutableMultiDict:
+    def header(self) -> EnvironHeaders:
         return request.headers
 
     @LazyProperty

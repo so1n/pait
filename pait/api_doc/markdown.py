@@ -43,8 +43,7 @@ class PaitMd(PaitBaseParse):
                     if sub_key not in sub_dict:
                         sub_dict[sub_key] = {}
                     sub_dict = sub_dict[sub_key]
-            type_: str = field_dict["type"]
-            sub_dict[key] = json_type_default_value_dict[type_]
+            sub_dict[key] = json_type_default_value_dict[field_dict["type"]]
         json_str: str = f"\n".join(
             [" " * blank_num + i for i in json.dumps(example_dict, indent=2).split('\n')]
         )
@@ -67,7 +66,7 @@ class PaitMd(PaitBaseParse):
                 f"|{field_info_dict['type']}"
                 f"|{default}"
                 f"|{description}"
-                f"|{field_info_dict['other']}"
+                f"|{field_info_dict['other'] or ''}"
                 f"|\n"
             )
         return markdown_text
@@ -106,12 +105,12 @@ class PaitMd(PaitBaseParse):
 
                 # request info
                 markdown_text += f"- Path: {pait_model.path}\n"
-                markdown_text += f"- Method: {','.join(pait_model.method_set)}\n"
+                markdown_text += f"- Method: {','.join(pait_model.method_list)}\n"
                 markdown_text += f"- Request:\n"
 
                 field_dict: Dict[str, List[Dict[str, Any]]] = self._parse_func_param(pait_model.func)
-                field_key_list: List[str] = sorted(field_dict.keys())
                 # request body info
+                field_key_list: List[str] = sorted(field_dict.keys())
                 for field in field_key_list:
                     field_dict_list = field_dict[field]
                     markdown_text += f"{' ' * 4}- {field.capitalize()} Param\n\n"
