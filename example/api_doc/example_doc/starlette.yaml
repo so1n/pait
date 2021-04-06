@@ -30,19 +30,6 @@ group:
             param_name: code
             parent_schema: &id002
               definitions:
-                Test: &id009
-                  properties:
-                    test_a: &id010
-                      title: Test A
-                      type: integer
-                    test_b: &id011
-                      title: Test B
-                      type: string
-                  required:
-                  - test_a
-                  - test_b
-                  title: Test
-                  type: object
                 _BaseModel: &id004
                   properties:
                     age: &id007
@@ -55,8 +42,6 @@ group:
                       description: content-type
                       title: Content Type
                       type: string
-                    test:
-                      $ref: '#/definitions/Test'
                     uid: &id005
                       description: user id
                       exclusiveMaximum: 1000
@@ -74,7 +59,6 @@ group:
                   - user_name
                   - age
                   - content_type
-                  - test
                   title: _BaseModel
                   type: object
               properties:
@@ -150,24 +134,6 @@ group:
             parent_schema: *id004
             schema: *id008
           type: string
-        - default: Required
-          description: ''
-          other: {}
-          param_name: data.test.test_a
-          raw:
-            param_name: test_a
-            parent_schema: *id009
-            schema: *id010
-          type: integer
-        - default: Required
-          description: ''
-          other: {}
-          param_name: data.test.test_b
-          raw:
-            param_name: test_b
-            parent_schema: *id009
-            schema: *id011
-          type: string
         status_code: '200'
       - description: fail response
         header: {}
@@ -179,21 +145,21 @@ group:
           param_name: code
           raw:
             param_name: code
-            parent_schema: &id013
+            parent_schema: &id010
               properties:
-                code: &id012
+                code: &id009
                   default: 1
                   description: api code
                   title: Code
                   type: integer
-                msg: &id014
+                msg: &id011
                   default: fail
                   description: api status msg
                   title: Msg
                   type: string
               title: ResponseFailModel
               type: object
-            schema: *id012
+            schema: *id009
           type: integer
         - default: fail
           description: api status msg
@@ -201,19 +167,19 @@ group:
           param_name: msg
           raw:
             param_name: msg
-            parent_schema: *id013
-            schema: *id014
+            parent_schema: *id010
+            schema: *id011
           type: string
         status_code: '200'
       status: abandoned
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 107
+        lineno: 131
         name: test_pait_model
       method:
-      - HEAD
       - GET
+      - HEAD
       name: test_pait_model
       path: /api/pait_model
       request:
@@ -224,7 +190,8 @@ group:
         type: string
       response_list:
       - description: success response
-        header: {}
+        header:
+          cookie: xxx
         media_type: application/json
         response_data:
         - default: 0
@@ -233,21 +200,8 @@ group:
           param_name: code
           raw:
             param_name: code
-            parent_schema: &id016
-              properties:
-                code: &id015
-                  default: 0
-                  description: api code
-                  title: Code
-                  type: integer
-                msg: &id017
-                  default: success
-                  description: api status msg
-                  title: Msg
-                  type: string
-              title: ResponseModel
-              type: object
-            schema: *id015
+            parent_schema: *id002
+            schema: *id001
           type: integer
         - default: success
           description: api status msg
@@ -255,8 +209,50 @@ group:
           param_name: msg
           raw:
             param_name: msg
-            parent_schema: *id016
-            schema: *id017
+            parent_schema: *id002
+            schema: *id003
+          type: string
+        - default: Required
+          description: user id
+          other:
+            exclusiveMaximum: 1000
+            exclusiveMinimum: 10
+          param_name: data.uid
+          raw:
+            param_name: uid
+            parent_schema: *id004
+            schema: *id005
+          type: integer
+        - default: Required
+          description: user name
+          other:
+            maxLength: 4
+            minLength: 2
+          param_name: data.user_name
+          raw:
+            param_name: user_name
+            parent_schema: *id004
+            schema: *id006
+          type: string
+        - default: Required
+          description: age
+          other:
+            exclusiveMaximum: 100
+            exclusiveMinimum: 1
+          param_name: data.age
+          raw:
+            param_name: age
+            parent_schema: *id004
+            schema: *id007
+          type: integer
+        - default: Required
+          description: content-type
+          other: {}
+          param_name: data.content_type
+          raw:
+            param_name: content_type
+            parent_schema: *id004
+            schema: *id008
           type: string
         status_code: '200'
       - description: fail response
@@ -269,8 +265,8 @@ group:
           param_name: code
           raw:
             param_name: code
-            parent_schema: *id013
-            schema: *id012
+            parent_schema: *id010
+            schema: *id009
           type: integer
         - default: fail
           description: api status msg
@@ -278,8 +274,8 @@ group:
           param_name: msg
           raw:
             param_name: msg
-            parent_schema: *id013
-            schema: *id014
+            parent_schema: *id010
+            schema: *id011
           type: string
         status_code: '200'
       status: test
@@ -289,7 +285,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 47
+        lineno: 53
         name: test_post
       method:
       - POST
@@ -367,24 +363,6 @@ group:
             parent_schema: *id004
             schema: *id008
           type: string
-        - default: Required
-          description: ''
-          other: {}
-          param_name: data.test.test_a
-          raw:
-            param_name: test_a
-            parent_schema: *id009
-            schema: *id010
-          type: integer
-        - default: Required
-          description: ''
-          other: {}
-          param_name: data.test.test_b
-          raw:
-            param_name: test_b
-            parent_schema: *id009
-            schema: *id011
-          type: string
         status_code: '200'
       - description: fail response
         header: {}
@@ -396,8 +374,8 @@ group:
           param_name: code
           raw:
             param_name: code
-            parent_schema: *id013
-            schema: *id012
+            parent_schema: *id010
+            schema: *id009
           type: integer
         - default: fail
           description: api status msg
@@ -405,19 +383,19 @@ group:
           param_name: msg
           raw:
             param_name: msg
-            parent_schema: *id013
-            schema: *id014
+            parent_schema: *id010
+            schema: *id011
           type: string
         status_code: '200'
       status: release
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 66
+        lineno: 78
         name: test_depend
       method:
-      - HEAD
       - GET
+      - HEAD
       name: test_depend
       path: /api/depend
       request:
@@ -492,24 +470,6 @@ group:
             parent_schema: *id004
             schema: *id008
           type: string
-        - default: Required
-          description: ''
-          other: {}
-          param_name: data.test.test_a
-          raw:
-            param_name: test_a
-            parent_schema: *id009
-            schema: *id010
-          type: integer
-        - default: Required
-          description: ''
-          other: {}
-          param_name: data.test.test_b
-          raw:
-            param_name: test_b
-            parent_schema: *id009
-            schema: *id011
-          type: string
         status_code: '200'
       - description: fail response
         header: {}
@@ -521,8 +481,8 @@ group:
           param_name: code
           raw:
             param_name: code
-            parent_schema: *id013
-            schema: *id012
+            parent_schema: *id010
+            schema: *id009
           type: integer
         - default: fail
           description: api status msg
@@ -530,19 +490,19 @@ group:
           param_name: msg
           raw:
             param_name: msg
-            parent_schema: *id013
-            schema: *id014
+            parent_schema: *id010
+            schema: *id011
           type: string
         status_code: '200'
       status: release
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 88
+        lineno: 106
         name: test_get
       method:
-      - HEAD
       - GET
+      - HEAD
       name: test_get
       path: /api/get/{age}
       request:
@@ -553,7 +513,8 @@ group:
         type: string
       response_list:
       - description: success response
-        header: {}
+        header:
+          cookie: xxx
         media_type: application/json
         response_data:
         - default: 0
@@ -562,8 +523,57 @@ group:
           param_name: code
           raw:
             param_name: code
-            parent_schema: *id016
-            schema: *id015
+            parent_schema: &id013
+              definitions:
+                _BaseModel: &id015
+                  properties:
+                    age: &id019
+                      description: age
+                      exclusiveMaximum: 100
+                      exclusiveMinimum: 1
+                      title: Age
+                      type: integer
+                    email: &id018
+                      description: user email
+                      title: Email
+                      type: string
+                    uid: &id016
+                      description: user id
+                      exclusiveMaximum: 1000
+                      exclusiveMinimum: 10
+                      title: Uid
+                      type: integer
+                    user_name: &id017
+                      description: user name
+                      maxLength: 4
+                      minLength: 2
+                      title: User Name
+                      type: string
+                  required:
+                  - uid
+                  - user_name
+                  - email
+                  - age
+                  title: _BaseModel
+                  type: object
+              properties:
+                code: &id012
+                  default: 0
+                  description: api code
+                  title: Code
+                  type: integer
+                data:
+                  $ref: '#/definitions/_BaseModel'
+                msg: &id014
+                  default: success
+                  description: api status msg
+                  title: Msg
+                  type: string
+              required:
+              - data
+              title: _ResponseUserModel
+              type: object
+            schema: *id012
           type: integer
         - default: success
           description: api status msg
@@ -571,9 +581,51 @@ group:
           param_name: msg
           raw:
             param_name: msg
-            parent_schema: *id016
+            parent_schema: *id013
+            schema: *id014
+          type: string
+        - default: Required
+          description: user id
+          other:
+            exclusiveMaximum: 1000
+            exclusiveMinimum: 10
+          param_name: data.uid
+          raw:
+            param_name: uid
+            parent_schema: *id015
+            schema: *id016
+          type: integer
+        - default: Required
+          description: user name
+          other:
+            maxLength: 4
+            minLength: 2
+          param_name: data.user_name
+          raw:
+            param_name: user_name
+            parent_schema: *id015
             schema: *id017
           type: string
+        - default: Required
+          description: user email
+          other: {}
+          param_name: data.email
+          raw:
+            param_name: email
+            parent_schema: *id015
+            schema: *id018
+          type: string
+        - default: Required
+          description: age
+          other:
+            exclusiveMaximum: 100
+            exclusiveMinimum: 1
+          param_name: data.age
+          raw:
+            param_name: age
+            parent_schema: *id015
+            schema: *id019
+          type: integer
         status_code: '200'
       - description: fail response
         header: {}
@@ -585,8 +637,8 @@ group:
           param_name: code
           raw:
             param_name: code
-            parent_schema: *id013
-            schema: *id012
+            parent_schema: *id010
+            schema: *id009
           type: integer
         - default: fail
           description: api status msg
@@ -594,15 +646,15 @@ group:
           param_name: msg
           raw:
             param_name: msg
-            parent_schema: *id013
-            schema: *id014
+            parent_schema: *id010
+            schema: *id011
           type: string
         status_code: '200'
       status: release
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 116
+        lineno: 151
         name: TestCbv.get
       method:
       - get
@@ -616,7 +668,8 @@ group:
         type: string
       response_list:
       - description: success response
-        header: {}
+        header:
+          cookie: xxx
         media_type: application/json
         response_data:
         - default: 0
@@ -625,8 +678,8 @@ group:
           param_name: code
           raw:
             param_name: code
-            parent_schema: *id016
-            schema: *id015
+            parent_schema: *id013
+            schema: *id012
           type: integer
         - default: success
           description: api status msg
@@ -634,9 +687,51 @@ group:
           param_name: msg
           raw:
             param_name: msg
-            parent_schema: *id016
+            parent_schema: *id013
+            schema: *id014
+          type: string
+        - default: Required
+          description: user id
+          other:
+            exclusiveMaximum: 1000
+            exclusiveMinimum: 10
+          param_name: data.uid
+          raw:
+            param_name: uid
+            parent_schema: *id015
+            schema: *id016
+          type: integer
+        - default: Required
+          description: user name
+          other:
+            maxLength: 4
+            minLength: 2
+          param_name: data.user_name
+          raw:
+            param_name: user_name
+            parent_schema: *id015
             schema: *id017
           type: string
+        - default: Required
+          description: user email
+          other: {}
+          param_name: data.email
+          raw:
+            param_name: email
+            parent_schema: *id015
+            schema: *id018
+          type: string
+        - default: Required
+          description: age
+          other:
+            exclusiveMaximum: 100
+            exclusiveMinimum: 1
+          param_name: data.age
+          raw:
+            param_name: age
+            parent_schema: *id015
+            schema: *id019
+          type: integer
         status_code: '200'
       - description: fail response
         header: {}
@@ -648,8 +743,8 @@ group:
           param_name: code
           raw:
             param_name: code
-            parent_schema: *id013
-            schema: *id012
+            parent_schema: *id010
+            schema: *id009
           type: integer
         - default: fail
           description: api status msg
@@ -657,15 +752,15 @@ group:
           param_name: msg
           raw:
             param_name: msg
-            parent_schema: *id013
-            schema: *id014
+            parent_schema: *id010
+            schema: *id011
           type: string
         status_code: '200'
       status: release
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 134
+        lineno: 175
         name: TestCbv.post
       method:
       - post
@@ -679,7 +774,8 @@ group:
         type: string
       response_list:
       - description: success response
-        header: {}
+        header:
+          cookie: xxx
         media_type: application/json
         response_data:
         - default: 0
@@ -688,8 +784,8 @@ group:
           param_name: code
           raw:
             param_name: code
-            parent_schema: *id016
-            schema: *id015
+            parent_schema: *id002
+            schema: *id001
           type: integer
         - default: success
           description: api status msg
@@ -697,8 +793,50 @@ group:
           param_name: msg
           raw:
             param_name: msg
-            parent_schema: *id016
-            schema: *id017
+            parent_schema: *id002
+            schema: *id003
+          type: string
+        - default: Required
+          description: user id
+          other:
+            exclusiveMaximum: 1000
+            exclusiveMinimum: 10
+          param_name: data.uid
+          raw:
+            param_name: uid
+            parent_schema: *id004
+            schema: *id005
+          type: integer
+        - default: Required
+          description: user name
+          other:
+            maxLength: 4
+            minLength: 2
+          param_name: data.user_name
+          raw:
+            param_name: user_name
+            parent_schema: *id004
+            schema: *id006
+          type: string
+        - default: Required
+          description: age
+          other:
+            exclusiveMaximum: 100
+            exclusiveMinimum: 1
+          param_name: data.age
+          raw:
+            param_name: age
+            parent_schema: *id004
+            schema: *id007
+          type: integer
+        - default: Required
+          description: content-type
+          other: {}
+          param_name: data.content_type
+          raw:
+            param_name: content_type
+            parent_schema: *id004
+            schema: *id008
           type: string
         status_code: '200'
       - description: fail response
@@ -711,8 +849,8 @@ group:
           param_name: code
           raw:
             param_name: code
-            parent_schema: *id013
-            schema: *id012
+            parent_schema: *id010
+            schema: *id009
           type: integer
         - default: fail
           description: api status msg
@@ -720,8 +858,8 @@ group:
           param_name: msg
           raw:
             param_name: msg
-            parent_schema: *id013
-            schema: *id014
+            parent_schema: *id010
+            schema: *id011
           type: string
         status_code: '200'
       status: release

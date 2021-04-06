@@ -45,7 +45,7 @@ paths:
         content:
           application/json:
             schema:
-              title: DynamicFoobarModel
+              title: DynamicModel
               type: object
               properties:
                 uid:
@@ -62,7 +62,7 @@ paths:
               - user_name
               - age
   /api/pait_model:
-    head:
+    get:
       tags:
       - test
       summary: Test Field
@@ -88,11 +88,21 @@ paths:
           maxLength: 4
           minLength: 2
           type: string
+      - name: age
+        in: query
+        required: true
+        description: age
+        schema: &id003
+          title: Age
+          description: age
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
+          type: integer
       - name: user-agent
         in: header
         required: true
         description: user agent
-        schema: &id003
+        schema: &id004
           title: User-Agent
           description: user agent
           type: string
@@ -103,9 +113,9 @@ paths:
             application/json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/ResponseModel'
+                - $ref: '#/components/schemas/ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
-    get:
+    head:
       tags:
       - test
       summary: Test Field
@@ -121,11 +131,16 @@ paths:
         required: true
         description: user name
         schema: *id002
+      - name: age
+        in: query
+        required: true
+        description: age
+        schema: *id003
       - name: user-agent
         in: header
         required: true
         description: user agent
-        schema: *id003
+        schema: *id004
       responses:
         200:
           description: success response|fail response
@@ -133,7 +148,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/ResponseModel'
+                - $ref: '#/components/schemas/ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
   /api/post:
     post:
@@ -164,7 +179,7 @@ paths:
         content:
           application/json:
             schema:
-              title: DynamicFoobarModel
+              title: DynamicModel
               type: object
               properties:
                 uid:
@@ -181,7 +196,7 @@ paths:
               - user_name
               - age
   /api/depend:
-    head:
+    get:
       tags:
       - user
       - depend
@@ -192,7 +207,7 @@ paths:
         in: query
         required: true
         description: user id
-        schema: &id004
+        schema: &id005
           title: Uid
           description: user id
           exclusiveMinimum: 10
@@ -202,7 +217,7 @@ paths:
         in: query
         required: true
         description: user name
-        schema: &id005
+        schema: &id006
           title: User Name
           description: user name
           maxLength: 4
@@ -212,7 +227,7 @@ paths:
         in: query
         required: true
         description: age
-        schema: &id006
+        schema: &id007
           title: Age
           description: age
           exclusiveMinimum: 1
@@ -235,7 +250,7 @@ paths:
                 oneOf:
                 - $ref: '#/components/schemas/ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
-    get:
+    head:
       tags:
       - user
       - depend
@@ -246,17 +261,17 @@ paths:
         in: query
         required: true
         description: user id
-        schema: *id004
+        schema: *id005
       - name: user_name
         in: query
         required: true
         description: user name
-        schema: *id005
+        schema: *id006
       - name: age
         in: query
         required: true
         description: age
-        schema: *id006
+        schema: *id007
       - name: user-agent
         in: header
         required: true
@@ -275,6 +290,69 @@ paths:
                 - $ref: '#/components/schemas/ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
   /api/get/{age}:
+    get:
+      tags:
+      - user
+      - get
+      summary: Test Field
+      operationId: test_get
+      parameters:
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+      - name: email
+        in: query
+        required: false
+        description: user email
+        schema:
+          title: Email
+          description: user email
+          default: example@xxx.com
+          type: string
+      - name: sex
+        in: query
+        required: false
+        description: sex
+        schema:
+          title: SexEnum
+          description: An enumeration.
+          enum:
+          - man
+          - woman
+      - name: age
+        in: path
+        required: true
+        description: age
+        schema:
+          title: Age
+          description: age
+          type: string
+      responses:
+        200:
+          description: success response|fail response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/_ResponseUserModel'
+                - $ref: '#/components/schemas/ResponseFailModel'
     head:
       tags:
       - user
@@ -336,70 +414,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/ResponseModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-    get:
-      tags:
-      - user
-      - get
-      summary: Test Field
-      operationId: test_get
-      parameters:
-      - name: uid
-        in: query
-        required: true
-        description: user id
-        schema:
-          title: Uid
-          description: user id
-          exclusiveMinimum: 10
-          exclusiveMaximum: 1000
-          type: integer
-      - name: user_name
-        in: query
-        required: true
-        description: user name
-        schema:
-          title: User Name
-          description: user name
-          maxLength: 4
-          minLength: 2
-          type: string
-      - name: email
-        in: query
-        required: false
-        description: user email
-        schema:
-          title: Email
-          description: user email
-          default: example@xxx.com
-          type: string
-      - name: sex
-        in: query
-        required: false
-        description: sex
-        schema:
-          title: SexEnum
-          description: An enumeration.
-          enum:
-          - man
-          - woman
-      - name: age
-        in: path
-        required: true
-        description: age
-        schema:
-          title: Age
-          description: age
-          type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseModel'
+                - $ref: '#/components/schemas/_ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
   /api/cbv:
     get:
@@ -413,7 +428,7 @@ paths:
         in: query
         required: true
         description: age
-        schema: *id006
+        schema: *id007
       - name: uid
         in: query
         required: true
@@ -458,7 +473,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/ResponseModel'
+                - $ref: '#/components/schemas/_ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
     post:
       tags:
@@ -482,13 +497,13 @@ paths:
             application/json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/ResponseModel'
+                - $ref: '#/components/schemas/ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
       requestBody:
         content:
           application/json:
             schema:
-              title: DynamicFoobarModel
+              title: DynamicModel
               type: object
               properties:
                 uid:
@@ -541,8 +556,8 @@ components:
           description: api status msg
           default: fail
           type: string
-    ResponseModel:
-      title: ResponseModel
+    _ResponseUserModel:
+      title: _ResponseUserModel
       type: object
       properties:
         code:
@@ -555,3 +570,7 @@ components:
           description: api status msg
           default: success
           type: string
+        data:
+          $ref: '#/components/schemas/_BaseModel'
+      required:
+      - data
