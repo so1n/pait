@@ -49,7 +49,7 @@ def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:
             parameter: "inspect.Parameter" = inspect.Parameter(
                 param_name,
                 inspect.Parameter.POSITIONAL_ONLY,
-                default=getattr(cbv_class, param_name),
+                default=getattr(cbv_class, param_name, Undefined),
                 annotation=param_annotation,
             )
             parameter_list.append(parameter)

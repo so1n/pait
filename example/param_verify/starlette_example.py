@@ -15,7 +15,7 @@ from example.param_verify.model import (
     UserSuccessRespModel2,
     demo_depend,
 )
-from pait.app import pait
+from pait.app.starlette import pait
 from pait.exceptions import PaitBaseException
 from pait.field import Body, Depends, Header, Path, Query
 from pait.model import PaitStatus
@@ -114,7 +114,7 @@ async def test_get(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
     email: str = Query.i(default="example@xxx.com", description="user email"),
-    age: str = Path.i(description="age"),
+    age: int = Path.i(description="age"),
     sex: SexEnum = Query.i(description="sex"),
 ) -> JSONResponse:
     """Test Field"""
@@ -163,7 +163,7 @@ class TestCbv(HTTPEndpoint):
         model: UserOtherModel = Query.i(),
     ) -> JSONResponse:
         """Text Pydantic Model and Field"""
-        return_dict = {"uid": uid, "user_name": user_name, "email": email, "age": model.age, "cbv_id": id(self)}
+        return_dict = {"uid": uid, "user_name": user_name, "email": email, "age": model.age}
         return JSONResponse(
             {
                 "code": 0,
@@ -187,8 +187,7 @@ class TestCbv(HTTPEndpoint):
     ) -> JSONResponse:
         return_dict = model.dict()
         return_dict.update(other_model.dict())
-        return_dict.update({"user-agent": self.user_agent})
-        return_dict.update({"cbv_id": id(self)})
+        return_dict.update({"user_agent": self.user_agent})
         return JSONResponse(
             {
                 "code": 0,

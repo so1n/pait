@@ -90,7 +90,6 @@ def demo_get2test_depend(
 ) -> dict:
     """Test Method:Post request, Pydantic Model"""
     assert request is not None, "Not found request"
-    print(user_agent)
     return_dict = model.dict()
     return_dict.update(other_model.dict())
     return_dict.update({"user_agent": user_agent})
@@ -113,7 +112,7 @@ def test_pait(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
-    age: str = Path.i(),
+    age: int = Path.i(),
     sex: SexEnum = Query.i(description="sex"),
 ) -> dict:
     """Test Field"""
@@ -181,7 +180,7 @@ class TestCbv(MethodView):
     ) -> dict:
         return_dict = model.dict()
         return_dict.update(other_model.dict())
-        return_dict.update({"content_type": self.user_agent})
+        return_dict.update({"user_agent": self.user_agent})
         return {
             "code": 0,
             "msg": "",
