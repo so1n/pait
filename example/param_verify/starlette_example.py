@@ -8,11 +8,11 @@ from starlette.routing import Route
 from example.param_verify.model import (
     FailRespModel,
     SexEnum,
-    SuccessRespModel,
     TestPaitModel,
     UserModel,
     UserOtherModel,
     UserSuccessRespModel,
+    UserSuccessRespModel2,
     demo_depend,
 )
 from pait.app import pait
@@ -41,7 +41,13 @@ async def test_raise_tip(
     return_dict = model.dict()
     return_dict.update(other_model.dict())
     return_dict.update({"content_type": content_type})
-    return JSONResponse(return_dict)
+    return JSONResponse(
+        {
+            "code": 0,
+            "msg": "",
+            "data": return_dict
+        }
+    )
 
 
 @pait(
@@ -60,7 +66,13 @@ async def test_post(
     return_dict = model.dict()
     return_dict.update(other_model.dict())
     return_dict.update({"content_type": content_type})
-    return JSONResponse(return_dict)
+    return JSONResponse(
+        {
+            "code": 0,
+            "msg": "",
+            "data": return_dict
+        }
+    )
 
 
 @pait(
@@ -82,7 +94,13 @@ async def test_depend(
     return_dict = model.dict()
     return_dict.update(other_model.dict())
     return_dict.update({"user_agent": user_agent})
-    return JSONResponse(return_dict)
+    return JSONResponse(
+        {
+            "code": 0,
+            "msg": "",
+            "data": return_dict
+        }
+    )
 
 
 @pait(
@@ -90,7 +108,7 @@ async def test_depend(
     group="user",
     status=PaitStatus.release,
     tag=("user", "get"),
-    response_model_list=[SuccessRespModel, FailRespModel],
+    response_model_list=[UserSuccessRespModel2, FailRespModel],
 )
 async def test_get(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
@@ -100,14 +118,31 @@ async def test_get(
     sex: SexEnum = Query.i(description="sex"),
 ) -> JSONResponse:
     """Test Field"""
-    _dict = {"uid": uid, "user_name": user_name, "email": email, "age": age, "sex": sex.value}
-    return JSONResponse(_dict)
+    return_dict = {"uid": uid, "user_name": user_name, "email": email, "age": age, "sex": sex.value}
+    return JSONResponse(
+        {
+            "code": 0,
+            "msg": "",
+            "data": return_dict
+        }
+    )
 
 
-@pait(author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[SuccessRespModel, FailRespModel])
+@pait(
+    author=("so1n",),
+    status=PaitStatus.test,
+    tag=("test",),
+    response_model_list=[UserSuccessRespModel, FailRespModel]
+)
 async def test_pait_model(test_model: TestPaitModel) -> JSONResponse:
     """Test Field"""
-    return JSONResponse(test_model.dict())
+    return JSONResponse(
+        {
+            "code": 0,
+            "msg": "",
+            "data": test_model.dict()
+        }
+    )
 
 
 class TestCbv(HTTPEndpoint):
@@ -118,7 +153,7 @@ class TestCbv(HTTPEndpoint):
         group="user",
         status=PaitStatus.release,
         tag=("user", "get"),
-        response_model_list=[SuccessRespModel, FailRespModel],
+        response_model_list=[UserSuccessRespModel2, FailRespModel],
     )
     async def get(
         self,
@@ -128,8 +163,14 @@ class TestCbv(HTTPEndpoint):
         model: UserOtherModel = Query.i(),
     ) -> JSONResponse:
         """Text Pydantic Model and Field"""
-        _dict = {"uid": uid, "user_name": user_name, "email": email, "age": model.age, "cbv_id": id(self)}
-        return JSONResponse({"result": _dict})
+        return_dict = {"uid": uid, "user_name": user_name, "email": email, "age": model.age, "cbv_id": id(self)}
+        return JSONResponse(
+            {
+                "code": 0,
+                "msg": "",
+                "data": return_dict
+            }
+        )
 
     @pait(
         author=("so1n",),
@@ -137,7 +178,7 @@ class TestCbv(HTTPEndpoint):
         group="user",
         tag=("user", "post"),
         status=PaitStatus.release,
-        response_model_list=[SuccessRespModel, FailRespModel],
+        response_model_list=[UserSuccessRespModel, FailRespModel],
     )
     async def post(
         self,
@@ -148,7 +189,13 @@ class TestCbv(HTTPEndpoint):
         return_dict.update(other_model.dict())
         return_dict.update({"user-agent": self.user_agent})
         return_dict.update({"cbv_id": id(self)})
-        return JSONResponse({"result": return_dict})
+        return JSONResponse(
+            {
+                "code": 0,
+                "msg": "",
+                "data": return_dict
+            }
+        )
 
 
 app = Starlette(
