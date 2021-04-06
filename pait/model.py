@@ -36,7 +36,7 @@ class PaitResponseModel(object):
     description: Optional[str] = ""
     header: dict = field(default_factory=dict)
     media_type: str = "application/json"
-    response_data: Optional[BaseModel] = None
+    response_data: Optional[Type[BaseModel]] = None
     status_code: List[int] = field(default_factory=lambda: [200])
 
     name: Optional[str] = None

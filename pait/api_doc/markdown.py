@@ -1,3 +1,4 @@
+import json
 from types import CodeType
 from typing import Any, Dict, List, Optional
 
@@ -5,6 +6,17 @@ from pydantic.fields import Undefined
 
 from ..model import PaitStatus
 from .base_parse import PaitBaseParse
+
+
+json_type_default_value_dict: Dict[str, Any] = {
+    "null": None,
+    "bool": True,
+    "string": "",
+    "float": 0.0,
+    "integer": 0,
+    "object": {},
+    "array": [],
+}
 
 
 class PaitMd(PaitBaseParse):
@@ -17,9 +29,34 @@ class PaitMd(PaitBaseParse):
         self.output(filename, markdown_text, ".md")
 
     @staticmethod
+    def gen_example_json(field_dict_list: List[dict], blank_num: int) -> str:
+        example_dict: dict = {}
+        for field_dict in field_dict_list:
+            sub_dict: dict = example_dict
+            key: str = field_dict["param_name"]
+            if '.' in key:
+                key_list: List[str] = key.split(".")
+                for sub_key in key_list:
+                    key = sub_key
+                    if sub_key == key_list[-1]:
+                        continue
+                    if sub_key not in sub_dict:
+                        sub_dict[sub_key] = {}
+                    sub_dict = sub_dict[sub_key]
+            type_: str = field_dict["type"]
+            sub_dict[key] = json_type_default_value_dict[type_]
+        json_str: str = f"\n".join(
+            [" " * blank_num + i for i in json.dumps(example_dict, indent=2).split('\n')]
+        )
+        return f"{' ' * blank_num}```json\n" \
+               f"{json_str}\n" \
+               f"{' ' * blank_num}```\n\n"
+
+    @staticmethod
     def gen_md_param_table(field_dict_list: List[dict], blank_num: int = 8) -> str:
         markdown_text: str = f"{' ' * blank_num}|param name|type|default value|description|other|\n"
         markdown_text += f"{' ' * blank_num}|---|---|---|---|---|\n"
+        field_dict_list = sorted(field_dict_list, key=lambda x: x["param_name"])
         for field_info_dict in field_dict_list:
             default = field_info_dict["default"]
             if default is Undefined:
@@ -62,7 +99,8 @@ class PaitMd(PaitBaseParse):
                 markdown_text += (
                     f"|{','.join(pait_model.author)}"
                     f"|{status_text}"
-                    f'|<abbr title="file:{func_code.co_filename};line: {func_code.co_firstlineno}">{pait_model.func.__qualname__}</abbr>'
+                    f'|<abbr title="file:{func_code.co_filename};line: {func_code.co_firstlineno}">'
+                    f'{pait_model.func.__qualname__}</abbr>'
                     f"|{pait_model.desc}|\n"
                 )
 
@@ -76,7 +114,7 @@ class PaitMd(PaitBaseParse):
                 # request body info
                 for field in field_key_list:
                     field_dict_list = field_dict[field]
-                    markdown_text += f"{' ' * 4}- {field.capitalize()}\n\n"
+                    markdown_text += f"{' ' * 4}- {field.capitalize()} Param\n\n"
                     markdown_text += self.gen_md_param_table(field_dict_list)
 
                 # response info
@@ -101,6 +139,8 @@ class PaitMd(PaitBaseParse):
                             schema_dict: dict = resp_model.response_data.schema()
                             field_dict_list = self._parse_schema(schema_dict)
                             markdown_text += self.gen_md_param_table(field_dict_list, blank_num=12)
+                            markdown_text += f"{' ' * 8}- Example Response Data Json\n\n"
+                            markdown_text += self.gen_example_json(field_dict_list, blank_num=12)
                 markdown_text += "\n"
             if self._use_html_details:
                 markdown_text += "</details>"
