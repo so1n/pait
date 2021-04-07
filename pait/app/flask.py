@@ -76,9 +76,9 @@ def load_app(app: Flask) -> None:
                 if not endpoint:
                     continue
                 pait_id = getattr(endpoint, "_pait_id", None)
-                pait_data.add_route_info(pait_id, path, method_set, f"{route_name}.{method}", endpoint)
+                pait_data.add_route_info(pait_id, path, method_set, f"{route_name}.{method}")
         else:
-            pait_data.add_route_info(pait_id, path, method_set, route_name, endpoint)
+            pait_data.add_route_info(pait_id, path, method_set, route_name)
 
 
 def pait(

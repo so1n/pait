@@ -18,6 +18,9 @@ def pait(
     tag: Optional[Tuple[str, ...]] = None,
     response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
 ) -> Callable:
+    if not isinstance(app_helper_class, type):
+        raise TypeError(f"{app_helper_class} must be class")
+
     def wrapper(func: Callable) -> Callable:
         func_sig: FuncSig = get_func_sig(func)
         qualname = func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0]

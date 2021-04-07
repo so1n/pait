@@ -23,6 +23,7 @@ starlette = "^0.14.1"
 uvicorn = "^0.13.4"
 coverage = "^5.5"
 requests = "^2.25.1"
+pytest-mock = "^3.5.1"
 
 [tool.black]
 line-length = 120

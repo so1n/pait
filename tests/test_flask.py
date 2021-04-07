@@ -1,9 +1,17 @@
+import sys
+
 from typing import Generator
+from unittest import mock
+
 from flask.ctx import AppContext
 from flask.testing import FlaskClient
+from flask import Response
+from pytest_mock import MockFixture
 import pytest
 
-from example.param_verify.flask_example import app
+from pait.app import auto_load_app
+from pait.field import Query
+from example.param_verify.flask_example import app, pait
 
 
 @pytest.fixture
@@ -49,7 +57,7 @@ class TestFlask:
         assert resp["code"] == 0
         assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
 
-    def test_post_post(self, client: FlaskClient) -> None:
+    def test_post(self, client: FlaskClient) -> None:
         resp: dict = client.post(
             "/api/post",
             headers={"user-agent": "customer_agent"},
@@ -57,6 +65,14 @@ class TestFlask:
         ).get_json()
         assert resp["code"] == 0
         assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "content_type": "application/json"}
+
+    def test_pait_model(self, client: FlaskClient) -> None:
+        resp: dict = client.get(
+            "/api/pait_model?uid=123&user_name=appl&age=2",
+            headers={"user-agent": "customer_agent"},
+        ).get_json()
+        assert resp["code"] == 0
+        assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
 
     def test_raise_tip(self, client: FlaskClient) -> None:
         resp: dict = client.post(
@@ -66,4 +82,20 @@ class TestFlask:
         ).get_json()
         assert "exc" in resp
 
+    def test_auto_load_app_class(self) -> None:
+        for i in auto_load_app.app_list:
+            sys.modules.pop(i, None)
+        import flask
+        with mock.patch.dict("sys.modules", sys.modules):
+            assert flask == auto_load_app.auto_load_app_class()
 
+    def test_lazy_property_raise_exc(self, client: FlaskClient, mocker: MockFixture) -> None:
+        mocker.patch("pait.lazy_property.futures.Future.set_result").side_effect = Exception("exc")
+
+        @app.route("/api/lazy_property", methods=["GET"])
+        @pait()
+        def demo(a: int = Query.i()) -> dict:
+            return {}
+
+        resp: Response = client.get("/api/lazy_property")
+        assert resp.status_code == 500

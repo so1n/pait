@@ -4,7 +4,7 @@ import logging
 from typing import Any, Callable, Coroutine, Dict, List, NoReturn, Mapping, Optional, Tuple, Type, Union, get_type_hints
 from types import ModuleType
 
-from pydantic import BaseModel
+from pydantic import BaseModel, fields
 
 from pait import field
 from pait.app.base import BaseAppHelper, BaseAsyncAppHelper
@@ -185,7 +185,7 @@ def request_value_handle(
             elif param_name in request_value:
                 value = request_value.get(param_name, param_value.default)
             else:
-                if param_value.default:
+                if param_value.default != fields.Undefined:
                     value = param_value.default
                 else:
                     parameter_value_name: str = param_value.__class__.__name__

@@ -9,12 +9,6 @@ class LazyProperty:
         self.cached_name: str = "cached" + func.__name__
 
     def __get__(self, obj: object, cls: Type[object]) -> Any:
-        if obj is None:
-            return self
-
-        if not hasattr(obj, "__dict__"):
-            raise AttributeError(f"{cls.__name__} object has no attribute '__dict__'")
-
         future: Optional["futures.Future"] = getattr(obj, self.cached_name, None)
 
         if future:
@@ -37,12 +31,6 @@ class LazyAsyncProperty:
         self.cached_name: str = "cached_" + func.__name__
 
     def __get__(self, obj: object, cls: Type[object]) -> Any:
-        if obj is None:
-            return self
-
-        if not hasattr(obj, "__dict__"):
-            raise AttributeError(f"{cls.__name__} object has no attribute '__dict__'")
-
         future: Optional["asyncio.Future"] = getattr(obj, self.cached_name, None)
 
         if future:
@@ -56,7 +44,6 @@ class LazyAsyncProperty:
         try:
             res = await self.func(obj)
             future.set_result(res)
-            return res
         except Exception as e:
             future.set_exception(e)
-            raise e
+        return await future

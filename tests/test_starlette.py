@@ -1,9 +1,16 @@
+import asyncio
+import sys
 from typing import Generator
+from unittest import mock
 import pytest
 
 from starlette.testclient import TestClient
+from requests import Response
+from pytest_mock import MockFixture
 
-from example.param_verify.starlette_example import app
+from example.param_verify.starlette_example import app, pait
+from pait.app import auto_load_app
+from pait.field import Body
 
 
 @pytest.fixture
@@ -43,7 +50,7 @@ class TestStarlette:
         assert resp["code"] == 0
         assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
 
-    def test_post_post(self, client: TestClient) -> None:
+    def test_post(self, client: TestClient) -> None:
         resp: dict = client.post(
             "/api/post",
             headers={"user-agent": "customer_agent"},
@@ -51,6 +58,14 @@ class TestStarlette:
         ).json()
         assert resp["code"] == 0
         assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "content_type": "application/json"}
+
+    def test_pait_model(self, client: TestClient) -> None:
+        resp: dict = client.get(
+            "/api/pait_model?uid=123&user_name=appl&age=2",
+            headers={"user-agent": "customer_agent"},
+        ).json()
+        assert resp["code"] == 0
+        assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
 
     def test_raise_tip(self, client: TestClient) -> None:
         resp: dict = client.post(
@@ -60,3 +75,25 @@ class TestStarlette:
         ).json()
         assert "exc" in resp
 
+    def test_auto_load_app_class(self) -> None:
+        for i in auto_load_app.app_list:
+            sys.modules.pop(i, None)
+        import starlette
+        with mock.patch.dict("sys.modules", sys.modules):
+            assert starlette == auto_load_app.auto_load_app_class()
+
+    def test_lazy_property_raise_exc(self, client: TestClient, mocker: MockFixture) -> None:
+        future: asyncio.Future = asyncio.Future()
+        future.set_exception(Exception("exc"))
+        mocker.patch("pait.app.starlette.Request.json").return_value = future
+
+        @app.route("/api/lazy_property", methods=["POST"])
+        @pait()
+        async def demo(a: int = Body.i(), b: int = Body.i()) -> dict:
+            return {}
+
+        with pytest.raises(Exception) as e:
+            client.post("/api/lazy_property")
+
+        exec_msg = e.value.args[0]
+        assert exec_msg == "exc"

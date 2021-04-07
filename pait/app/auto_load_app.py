@@ -2,9 +2,11 @@ import sys
 from typing import Any, List
 
 
+app_list: List = ["flask", "starlette"]
+
+
 def auto_load_app_class() -> Any:
     """A project using only a web framework, to use `auto_load_app_class`"""
-    app_list: List = ["flask", "starlette"]
     real_app = None
     for app in app_list:
         if app not in sys.modules:
