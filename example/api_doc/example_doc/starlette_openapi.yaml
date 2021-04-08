@@ -16,6 +16,8 @@ tags:
 - name: get
   description: ''
 paths:
+  ? ''
+  : {}
   /api/raise_tip:
     post:
       tags:
@@ -62,7 +64,7 @@ paths:
               - user_name
               - age
   /api/pait_model:
-    get:
+    post:
       tags:
       - test
       summary: Test Field
@@ -72,7 +74,7 @@ paths:
         in: query
         required: true
         description: user id
-        schema: &id001
+        schema:
           title: Uid
           description: user id
           exclusiveMinimum: 10
@@ -82,27 +84,17 @@ paths:
         in: query
         required: true
         description: user name
-        schema: &id002
+        schema:
           title: User Name
           description: user name
           maxLength: 4
           minLength: 2
           type: string
-      - name: age
-        in: query
-        required: true
-        description: age
-        schema: &id003
-          title: Age
-          description: age
-          exclusiveMinimum: 1
-          exclusiveMaximum: 100
-          type: integer
       - name: user-agent
         in: header
         required: true
         description: user agent
-        schema: &id004
+        schema:
           title: User-Agent
           description: user agent
           type: string
@@ -115,41 +107,21 @@ paths:
                 oneOf:
                 - $ref: '#/components/schemas/ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
-    head:
-      tags:
-      - test
-      summary: Test Field
-      operationId: test_pait_model
-      parameters:
-      - name: uid
-        in: query
-        required: true
-        description: user id
-        schema: *id001
-      - name: user_name
-        in: query
-        required: true
-        description: user name
-        schema: *id002
-      - name: age
-        in: query
-        required: true
-        description: age
-        schema: *id003
-      - name: user-agent
-        in: header
-        required: true
-        description: user agent
-        schema: *id004
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: DynamicModel
+              type: object
+              properties:
+                age:
+                  title: Age
+                  description: age
+                  exclusiveMinimum: 1
+                  exclusiveMaximum: 100
+                  type: integer
+              required:
+              - age
   /api/post:
     post:
       tags:
@@ -196,7 +168,7 @@ paths:
               - user_name
               - age
   /api/depend:
-    get:
+    post:
       tags:
       - user
       - depend
@@ -207,7 +179,7 @@ paths:
         in: query
         required: true
         description: user id
-        schema: &id005
+        schema:
           title: Uid
           description: user id
           exclusiveMinimum: 10
@@ -217,22 +189,12 @@ paths:
         in: query
         required: true
         description: user name
-        schema: &id006
+        schema:
           title: User Name
           description: user name
           maxLength: 4
           minLength: 2
           type: string
-      - name: age
-        in: query
-        required: true
-        description: age
-        schema: &id007
-          title: Age
-          description: age
-          exclusiveMinimum: 1
-          exclusiveMaximum: 100
-          type: integer
       - name: user-agent
         in: header
         required: true
@@ -250,45 +212,21 @@ paths:
                 oneOf:
                 - $ref: '#/components/schemas/ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
-    head:
-      tags:
-      - user
-      - depend
-      summary: Test Method:Post request, Pydantic Model
-      operationId: test_depend
-      parameters:
-      - name: uid
-        in: query
-        required: true
-        description: user id
-        schema: *id005
-      - name: user_name
-        in: query
-        required: true
-        description: user name
-        schema: *id006
-      - name: age
-        in: query
-        required: true
-        description: age
-        schema: *id007
-      - name: user-agent
-        in: header
-        required: true
-        description: user agent
-        schema:
-          title: User-Agent
-          description: user agent
-          type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: DynamicModel
+              type: object
+              properties:
+                age:
+                  title: Age
+                  description: age
+                  exclusiveMinimum: 1
+                  exclusiveMaximum: 100
+                  type: integer
+              required:
+              - age
   /api/get/{age}:
     get:
       tags:
@@ -343,7 +281,7 @@ paths:
         schema:
           title: Age
           description: age
-          type: string
+          type: integer
       responses:
         200:
           description: success response|fail response
@@ -406,7 +344,7 @@ paths:
         schema:
           title: Age
           description: age
-          type: string
+          type: integer
       responses:
         200:
           description: success response|fail response
@@ -416,6 +354,36 @@ paths:
                 oneOf:
                 - $ref: '#/components/schemas/_ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
+  /api/other_field:
+    post:
+      tags:
+      - user
+      - get
+      summary: ''
+      operationId: test_other_field
+      parameters:
+      - name: cookie
+        in: cookie
+        required: true
+        description: cookie
+        schema:
+          title: Cookie
+          description: cookie
+          type: object
+      responses: {}
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              title: DynamicModel
+              type: object
+              properties:
+                a:
+                  title: A
+                  description: form data
+                b:
+                  title: B
+                  description: form data
   /api/cbv:
     get:
       tags:
@@ -428,7 +396,12 @@ paths:
         in: query
         required: true
         description: age
-        schema: *id007
+        schema:
+          title: Age
+          description: age
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
+          type: integer
       - name: uid
         in: query
         required: true

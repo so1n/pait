@@ -5,7 +5,7 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 28">test_raise_tip</abbr>|test pait raise tip|
+|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 29">test_raise_tip</abbr>|test pait raise tip|
 - Path: /api/raise_tip
 - Method: POST
 - Request:
@@ -80,10 +80,15 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 131">test_pait_model</abbr>|Test Field|
+|so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 156">test_pait_model</abbr>|Test Field|
 - Path: /api/pait_model
-- Method: GET,HEAD
+- Method: POST
 - Request:
+    - Body Param
+
+        |param name|type|default value|description|other|
+        |---|---|---|---|---|
+        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
     - Header Param
 
         |param name|type|default value|description|other|
@@ -93,7 +98,6 @@
 
         |param name|type|default value|description|other|
         |---|---|---|---|---|
-        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
         |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
         |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
 - Response:
@@ -157,7 +161,7 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 53">test_post</abbr>|Test Method:Post Pydantic Model|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 54">test_post</abbr>|Test Method:Post Pydantic Model|
 - Path: /api/post
 - Method: POST
 - Request:
@@ -232,10 +236,15 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 78">test_depend</abbr>|Test Method:Post request, Pydantic Model|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 79">test_depend</abbr>|Test Method:Post request, Pydantic Model|
 - Path: /api/depend
-- Method: GET,HEAD
+- Method: POST
 - Request:
+    - Body Param
+
+        |param name|type|default value|description|other|
+        |---|---|---|---|---|
+        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
     - Header Param
 
         |param name|type|default value|description|other|
@@ -245,7 +254,6 @@
 
         |param name|type|default value|description|other|
         |---|---|---|---|---|
-        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
         |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
         |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
 - Response:
@@ -307,7 +315,7 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 106">test_get</abbr>|Test Field|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 104">test_get</abbr>|Test Field|
 - Path: /api/get/{age}
 - Method: GET,HEAD
 - Request:
@@ -315,7 +323,7 @@
 
         |param name|type|default value|description|other|
         |---|---|---|---|---|
-        |age|string|**`Required`**|age||
+        |age|integer|**`Required`**|age||
     - Query Param
 
         |param name|type|default value|description|other|
@@ -379,11 +387,38 @@
             ```
 
 
+### Name: test_other_field
+
+|Author|Status|func|description|
+|---|---|---|---|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 129">test_other_field</abbr>||
+- Path: /api/other_field
+- Method: POST
+- Request:
+    - Cookie Param
+
+        |param name|type|default value|description|other|
+        |---|---|---|---|---|
+        |cookie|object|**`Required`**|cookie||
+    - File Param
+
+        |param name|type|default value|description|other|
+        |---|---|---|---|---|
+        |upload_file|PydanticUndefined|**`Required`**|upload file||
+    - Form Param
+
+        |param name|type|default value|description|other|
+        |---|---|---|---|---|
+        |a|PydanticUndefined|**`Required`**|form data||
+        |b|PydanticUndefined|**`Required`**|form data||
+- Response:
+
+
 ### Name: TestCbv.get
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 151">TestCbv.get</abbr>|Text Pydantic Model and Field|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 176">TestCbv.get</abbr>|Text Pydantic Model and Field|
 - Path: /api/cbv
 - Method: get
 - Request:
@@ -459,7 +494,7 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 175">TestCbv.post</abbr>|test cbv post method|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 200">TestCbv.post</abbr>|test cbv post method|
 - Path: /api/cbv
 - Method: post
 - Request:
