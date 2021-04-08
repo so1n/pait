@@ -2,7 +2,7 @@ from example.api_doc import flask_example, starlette_example
 
 
 class TestApiDoc:
-    def atest(self) -> None:
+    def test(self) -> None:
         """Now, ignore test api doc"""
         flask_example.load_app(flask_example.app)
         flask_example.PaitMd(use_html_details=True)

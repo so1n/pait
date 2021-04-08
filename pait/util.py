@@ -12,13 +12,11 @@ class UndefinedType:
 Undefined: UndefinedType = UndefinedType()
 
 
-def create_pydantic_model(
-        annotation_dict: Dict[str, Tuple[Type, Any]], config: Optional[Type[BaseConfig]] = None
-) -> Type[BaseModel]:
+def create_pydantic_model(annotation_dict: Dict[str, Tuple[Type, Any]]) -> Type[BaseModel]:
     """if use create_model('DynamicModel', **annotation_dict), mypy will tip error"""
     return create_model(
         "DynamicModel",
-        __config__=config,
+        __config__=None,
         __base__=None,
         __module__="pydantic.main",
         __validators__=None,

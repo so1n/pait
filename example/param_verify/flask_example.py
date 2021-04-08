@@ -148,7 +148,7 @@ def test_pait(
     }
 
 
-@app.route("/api/pait_model", methods=["GET"])
+@app.route("/api/pait_model", methods=["POST"])
 @pait(
     author=("so1n",),
     status=PaitStatus.test,

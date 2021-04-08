@@ -25,6 +25,8 @@ class PaitBaseParse(object):
     def _init(self) -> None:
         """read from `pait_id_dict` and write PaitMd attributes"""
         for pait_id, pait_model in pait_data.pait_id_dict.items():
+            if not pait_model.operation_id:
+                continue
             group: str = pait_model.group
             if group not in self._group_pait_dict:
                 self._group_pait_dict[group] = [pait_model]
@@ -125,7 +127,7 @@ class PaitBaseParse(object):
                 description: str = _pait_field_dict[param_python_name].description
             else:
                 default = param_dict.get("default", self._undefined)
-                _type = param_dict["type"]
+                _type = param_dict.get("type", self._undefined)
                 description = param_dict.get("description")
             _field_dict = {
                 "param_name": param_name,

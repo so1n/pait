@@ -60,10 +60,13 @@ class PaitMd(PaitBaseParse):
             default = field_info_dict["default"]
             if default is Undefined:
                 default = "**`Required`**"
+            type_ = field_info_dict['type']
+            if default is Undefined:
+                type_ = "**`Required`**"
             description = field_info_dict["description"]
             markdown_text += (
                 f"{' ' * blank_num}|{field_info_dict['param_name']}"
-                f"|{field_info_dict['type']}"
+                f"|{type_}"
                 f"|{default}"
                 f"|{description}"
                 f"|{field_info_dict['other'] or ''}"

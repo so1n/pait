@@ -117,5 +117,3 @@ class PaitCoreModel(object):
         self.group: str = group or "root"
         self.tag: Tuple[str, ...] = tag or ("default", )
         self.response_model_list: Optional[List[Type[PaitResponseModel]]] = response_model_list
-
-

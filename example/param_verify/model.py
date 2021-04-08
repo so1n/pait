@@ -12,7 +12,7 @@ class TestPaitModel(PaitBaseModel):
     uid: int = Query.i(description="user id", gt=10, lt=1000)
     user_name: str = Query.i(description="user name", min_length=2, max_length=4)
     user_agent: str = Header.i(alias="user-agent", description="user agent")
-    age: int = Query.i(description="age", gt=1, lt=100)
+    age: int = Body.i(description="age", gt=1, lt=100)
 
 
 class UserModel(BaseModel):

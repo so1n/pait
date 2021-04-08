@@ -1,7 +1,6 @@
 from typing import Any, Tuple
 from pydantic import ValidationError
 from starlette.applications import Starlette
-from starlette.datastructures import FormData, UploadFile
 from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -134,9 +133,9 @@ async def test_get(
     tag=("user", "get"),
 )
 async def test_other_field(
-    upload_file: UploadFile = File.i(description="upload file"),
-    a: UploadFile = Form.i(description="form data"),
-    b: UploadFile = Form.i(description="form data"),
+    upload_file: Any = File.i(description="upload file"),
+    a: Any = Form.i(description="form data"),
+    b: Any = Form.i(description="form data"),
     cookie: dict = Cookie.i(raw_return=True, description="cookie")
 ) -> JSONResponse:
     return JSONResponse(
@@ -231,7 +230,7 @@ app = Starlette(
         Route("/api/other_field", test_other_field, methods=["POST"]),
         Route("/api/raise_tip", test_raise_tip, methods=["POST"]),
         Route("/api/cbv", TestCbv),
-        Route("/api/pait_model", test_pait_model, methods=["GET"]),
+        Route("/api/pait_model", test_pait_model, methods=["POST"]),
     ]
 )
 

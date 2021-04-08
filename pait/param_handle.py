@@ -4,7 +4,7 @@ import logging
 from typing import Any, Callable, Coroutine, Dict, List, NoReturn, Mapping, Optional, Tuple, Type, Union, get_type_hints
 from types import ModuleType
 
-from pydantic import BaseConfig, BaseModel, fields
+from pydantic import BaseModel, fields
 
 from pait import field
 from pait.app.base import BaseAppHelper, BaseAsyncAppHelper
@@ -71,10 +71,7 @@ def parameter_2_basemodel(parameter_value_dict: Dict["inspect.Parameter", Any]) 
         annotation_dict[parameter.name] = (parameter.annotation, ...)
         param_value_dict[parameter.name] = value
 
-    class Config(BaseConfig):
-        arbitrary_types_allowed = True
-
-    dynamic_model: Type[BaseModel] = create_pydantic_model(annotation_dict, Config)
+    dynamic_model: Type[BaseModel] = create_pydantic_model(annotation_dict)
     return dynamic_model(**param_value_dict)
 
 

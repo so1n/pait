@@ -69,9 +69,10 @@ class TestFlask:
         assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "content_type": "application/json"}
 
     def test_pait_model(self, client: FlaskClient) -> None:
-        resp: dict = client.get(
-            "/api/pait_model?uid=123&user_name=appl&age=2",
+        resp: dict = client.post(
+            "/api/pait_model?uid=123&user_name=appl",
             headers={"user-agent": "customer_agent"},
+            json={"age": 2}
         ).get_json()
         assert resp["code"] == 0
         assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
