@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 
 from flask import Flask, Request
 from flask.views import MethodView
@@ -16,7 +16,7 @@ from example.param_verify.model import (
 )
 from pait.app.flask import pait
 from pait.exceptions import PaitBaseException
-from pait.field import Body, Depends, Header, Path, Query
+from pait.field import Body, Cookie, Depends, File, Form, Header, Path, Query
 from pait.model import PaitStatus
 
 app = Flask(__name__)
@@ -74,7 +74,7 @@ def test_post(
     }
 
 
-@app.route("/api/depend", methods=["GET"])
+@app.route("/api/depend", methods=["POST"])
 @pait(
     author=("so1n",),
     group="user",
@@ -85,18 +85,42 @@ def test_post(
 def demo_get2test_depend(
     request: Request,
     model: UserModel = Query.i(),
-    other_model: UserOtherModel = Query.i(),
-    user_agent: str = Depends.i(demo_depend),
+    depend_tuple: Tuple[str, int] = Depends.i(demo_depend),
 ) -> dict:
     """Test Method:Post request, Pydantic Model"""
     assert request is not None, "Not found request"
     return_dict = model.dict()
-    return_dict.update(other_model.dict())
-    return_dict.update({"user_agent": user_agent})
+    return_dict.update({"user_agent": depend_tuple[0], "age": depend_tuple[1]})
     return {
         "code": 0,
         "msg": "",
         "data": return_dict
+    }
+
+
+@app.route("/api/other_field", methods=["POST"])
+@pait(
+    author=("so1n",),
+    group="user",
+    status=PaitStatus.release,
+    tag=("user", "get"),
+)
+def test_other_field(
+    upload_file: Any = File.i(description="upload file"),
+    a: str = Form.i(description="form data"),
+    b: str = Form.i(description="form data"),
+    cookie: dict = Cookie.i(raw_return=True, description="cookie")
+) -> dict:
+    return {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "filename": upload_file.filename,
+                "content": upload_file.read().decode(),
+                "form_a": a,
+                "form_b": b,
+                "cookie": cookie
+            }
     }
 
 

@@ -29,7 +29,7 @@ class AppHelper(BaseAsyncAppHelper):
 
     @LazyAsyncProperty
     async def file(self) -> UploadFile:
-        return await self.request.form()["upload_file"]
+        return await self.request.form()
 
     @LazyAsyncProperty
     async def form(self) -> FormData:
@@ -66,6 +66,8 @@ def load_app(app: Starlette) -> None:
                     continue
                 method_set = {method}
                 pait_id = getattr(method_endpoint, "_pait_id", None)
+                if not pait_id:
+                    continue
                 pait_data.add_route_info(pait_id, path, method_set, f"{route_name}.{method}")
         else:
             pait_data.add_route_info(pait_id, path, method_set, route_name)

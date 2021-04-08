@@ -4,7 +4,7 @@ import logging
 from typing import Any, Callable, Coroutine, Dict, List, NoReturn, Mapping, Optional, Tuple, Type, Union, get_type_hints
 from types import ModuleType
 
-from pydantic import BaseModel, fields
+from pydantic import BaseConfig, BaseModel, fields
 
 from pait import field
 from pait.app.base import BaseAppHelper, BaseAsyncAppHelper
@@ -27,10 +27,9 @@ def raise_and_tip(
         if param_value is parameter.empty:
             param_str: str = f"{param_name}: {annotation}"
         else:
-            param_str = (
-                f"{param_name}: {annotation} = {parameter_value_name}"
-                f"(alias={param_value.alias}, default={param_value.default})"
-            )
+            param_str = f"{param_name}: {annotation} = {parameter_value_name}"
+            if isinstance(param_value, BaseField):
+                param_str += f"(alias={param_value.alias}, default={param_value.default})"
     else:
         param_str = ""
 
@@ -42,15 +41,8 @@ def raise_and_tip(
         file = inspect.getfile(_object.func)
         line: int = inspect.getsourcelines(_object.func)[1]
         error_object_name: str = _object.func.__name__
-    else:
-        title = "class"
-        module: Optional[ModuleType] = inspect.getmodule(_object)
-        if module:
-            file = module.__file__
-        line = inspect.getsourcelines(_object.__class__)[1]
-        error_object_name = _object.__class__.__name__
-    logging.debug(
-        f"""
+        logging.debug(
+            f"""
 {title} {error_object_name}(
     ...
     {param_str} <-- error
@@ -58,7 +50,14 @@ def raise_and_tip(
 ):
     pass
 """
-    )
+        )
+    else:
+        module: Optional[ModuleType] = inspect.getmodule(_object)
+        if module:
+            file = module.__file__
+        line = inspect.getsourcelines(_object.__class__)[1]
+        error_object_name = _object.__class__.__name__
+        logging.debug(f"class: `{error_object_name}`  attributes error\n    {param_str}")
     raise PaitBaseException(
         f'File "{file}",' f" line {line}," f" in {error_object_name}." f" error:{str(exception)}"
     ) from exception
@@ -72,17 +71,16 @@ def parameter_2_basemodel(parameter_value_dict: Dict["inspect.Parameter", Any]) 
         annotation_dict[parameter.name] = (parameter.annotation, ...)
         param_value_dict[parameter.name] = value
 
-    dynamic_model: Type[BaseModel] = create_pydantic_model(annotation_dict)
+    class Config(BaseConfig):
+        arbitrary_types_allowed = True
+
+    dynamic_model: Type[BaseModel] = create_pydantic_model(annotation_dict, Config)
     return dynamic_model(**param_value_dict)
 
 
 def get_request_value_from_parameter(
     parameter: inspect.Parameter, app_helper: "BaseAppHelper"
 ) -> Union[Any, Coroutine]:
-    if isinstance(parameter.default, field.File):
-        assert app_helper.check_file_type(parameter.annotation),\
-            f"File type must be {app_helper.FileType}"  # type: ignore
-
     field_name: str = parameter.default.__class__.__name__.lower()
     # Note: not use hasattr with LazyProperty (
     #   because hasattr will calling getattr(obj, name) and catching AttributeError,
@@ -166,7 +164,9 @@ def request_value_handle(
     param_value: BaseField = parameter.default
     annotation: Type[BaseModel] = parameter.annotation
     param_name: str = parameter.name
-    if (
+    if param_value.raw_return:
+        parameter_value_dict[parameter] = request_value
+    elif (
         isinstance(request_value, Mapping)
         or app_helper.check_header_type(type(request_value))
         or app_helper.check_form_type(type(request_value))

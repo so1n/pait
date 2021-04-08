@@ -1,5 +1,6 @@
 import sys
 
+from tempfile import NamedTemporaryFile
 from typing import Generator
 from unittest import mock
 
@@ -33,9 +34,10 @@ class TestFlask:
         assert resp["data"] == {"uid": 123, "user_name": "appl", "email": "example@xxx.com", "age": 3, "sex": "man"}
 
     def test_depend(self, client: FlaskClient) -> None:
-        resp: dict = client.get(
-            "/api/depend?uid=123&user_name=appl&age=2",
-            headers={"user-agent": "customer_agent"}
+        resp: dict = client.post(
+            "/api/depend?uid=123&user_name=appl",
+            headers={"user-agent": "customer_agent"},
+            json={"age": 2}
         ).get_json()
         assert resp["code"] == 0
         assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
@@ -81,6 +83,26 @@ class TestFlask:
             json={"uid": 123, "user_name": "appl", "age": 2}
         ).get_json()
         assert "exc" in resp
+
+    def test_other_field(self, client: FlaskClient) -> None:
+
+        file_content: str = "Hello Word!"
+
+        f = NamedTemporaryFile(delete=True)
+        file_name: str = f.name
+        f.write(file_content.encode())
+        f.seek(0)
+
+        form_dict: dict = {"a": "1", "b": "2", "upload_file": f}
+        client.set_cookie('localhost', 'abcd', 'abcd')
+        resp: dict = client.post("/api/other_field", data=form_dict).get_json()
+        assert {
+            "filename": file_name,
+            "content": file_content,
+            "form_a": "1",
+            "form_b": "2",
+            "cookie": {"abcd": "abcd"}
+        } == resp["data"]
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:

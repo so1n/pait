@@ -1,5 +1,7 @@
+from typing import Any, Tuple
 from pydantic import ValidationError
 from starlette.applications import Starlette
+from starlette.datastructures import FormData, UploadFile
 from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -17,7 +19,7 @@ from example.param_verify.model import (
 )
 from pait.app.starlette import pait
 from pait.exceptions import PaitBaseException
-from pait.field import Body, Depends, Header, Path, Query
+from pait.field import Body, Cookie, Depends, File, Form, Header, Path, Query
 from pait.model import PaitStatus
 
 
@@ -85,15 +87,12 @@ async def test_post(
 async def test_depend(
     request: Request,
     model: UserModel = Query.i(),
-    other_model: UserOtherModel = Query.i(),
-    user_agent: str = Depends.i(demo_depend),
+    depend_tuple: Tuple[str, int] = Depends.i(demo_depend),
 ) -> JSONResponse:
     """Test Method:Post request, Pydantic Model"""
     assert request is not None, "Not found request"
-    print(user_agent)
     return_dict = model.dict()
-    return_dict.update(other_model.dict())
-    return_dict.update({"user_agent": user_agent})
+    return_dict.update({"user_agent": depend_tuple[0], "age": depend_tuple[1]})
     return JSONResponse(
         {
             "code": 0,
@@ -124,6 +123,33 @@ async def test_get(
             "code": 0,
             "msg": "",
             "data": return_dict
+        }
+    )
+
+
+@pait(
+    author=("so1n",),
+    group="user",
+    status=PaitStatus.release,
+    tag=("user", "get"),
+)
+async def test_other_field(
+    upload_file: UploadFile = File.i(description="upload file"),
+    a: UploadFile = Form.i(description="form data"),
+    b: UploadFile = Form.i(description="form data"),
+    cookie: dict = Cookie.i(raw_return=True, description="cookie")
+) -> JSONResponse:
+    return JSONResponse(
+        {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "filename": upload_file.filename,
+                "content": (await upload_file.read()).decode(),
+                "form_a": (await a.read()).decode(),
+                "form_b": (await b.read()).decode(),
+                "cookie": cookie
+            }
         }
     )
 
@@ -201,7 +227,8 @@ app = Starlette(
     routes=[
         Route("/api/get/{age}", test_get, methods=["GET"]),
         Route("/api/post", test_post, methods=["POST"]),
-        Route("/api/depend", test_depend, methods=["GET"]),
+        Route("/api/depend", test_depend, methods=["POST"]),
+        Route("/api/other_field", test_other_field, methods=["POST"]),
         Route("/api/raise_tip", test_raise_tip, methods=["POST"]),
         Route("/api/cbv", TestCbv),
         Route("/api/pait_model", test_pait_model, methods=["GET"]),

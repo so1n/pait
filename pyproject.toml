@@ -24,6 +24,7 @@ uvicorn = "^0.13.4"
 coverage = "^5.5"
 requests = "^2.25.1"
 pytest-mock = "^3.5.1"
+python-multipart = "^0.0.5"
 
 [tool.black]
 line-length = 120

@@ -63,9 +63,9 @@ def load_app(app: Flask) -> None:
         endpoint: Callable = app.view_functions[route_name]
         pait_id: str = getattr(endpoint, "_pait_id", None)
         if not pait_id:
-            view_class_endpoint = getattr(endpoint, "view_class", None)
             if route_name == "static":
                 continue
+            view_class_endpoint = getattr(endpoint, "view_class", None)
             if not view_class_endpoint or not issubclass(view_class_endpoint, MethodView):
                 logging.warning(f"loan path:{path} fail, endpoint:{endpoint} not `view_class` attributes")
                 continue
@@ -76,6 +76,8 @@ def load_app(app: Flask) -> None:
                 if not endpoint:
                     continue
                 pait_id = getattr(endpoint, "_pait_id", None)
+                if not pait_id:
+                    continue
                 pait_data.add_route_info(pait_id, path, method_set, f"{route_name}.{method}")
         else:
             pait_data.add_route_info(pait_id, path, method_set, route_name)

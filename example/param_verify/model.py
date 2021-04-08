@@ -1,10 +1,10 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional, Type
+from typing import List, Optional, Tuple, Type
 
 from pydantic import BaseModel, Field
 
-from pait.field import Depends, Header, Query
+from pait.field import Body, Depends, Header, Query
 from pait.model import PaitBaseModel, PaitResponseModel
 
 
@@ -29,14 +29,15 @@ class SexEnum(Enum):
     woman: str = "woman"
 
 
-def demo_sub_depend(user_agent: str = Header.i(alias="user-agent", description="user agent")) -> str:
-    print("sub_depend", user_agent)
-    return user_agent
+def demo_sub_depend(
+    user_agent: str = Header.i(alias="user-agent", description="user agent"),
+    age: int = Body.i(description="age", gt=1, lt=100)
+) -> Tuple[str, int]:
+    return user_agent, age
 
 
-def demo_depend(user_agent: str = Depends.i(demo_sub_depend)) -> str:
-    print("depend", user_agent)
-    return user_agent
+def demo_depend(depend_tuple: Tuple[str, int] = Depends.i(demo_sub_depend)) -> Tuple[str, int]:
+    return depend_tuple
 
 
 # response model
