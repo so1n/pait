@@ -12,6 +12,7 @@ pip install pait
 ```
 # Usage
 Note: The following code does not specify, all default to use the `starlette` framework. 
+Note: There is no test case for the document output function, and the function is still being improved
 ## 1.type checking and parameter type conversion
 ### 1.1Use in route handle
 A simple starlette route handler example:
@@ -113,7 +114,8 @@ Here is just a simple demo, because we write the model can be reused, so you can
 
 ### 1.2Parameter expression supported by pait
 pait in order to facilitate the use of users, support a variety of writing methods (mainly the difference between TypeHints)
-- TypeHints  is PaitBaseModel:
+- TypeHints  is PaitBaseModel, mainly used for parameters from multiple `Field`, and want to reuse model:
+  
     PaitBaseModel can be used only for args parameters, it is the most flexible, PaitBaseModel has most of the features of Pydantic. BaseModel, which is not possible with Pydantic.:
     ```Python
     from pait.app.starlette import pait
@@ -130,7 +132,8 @@ pait in order to facilitate the use of users, support a variety of writing metho
     async def test(model: PaitBaseModel):
         return {'result': model.dict()}
     ```
-- TypeHints is Pydantic.BaseModel: 
+- TypeHints is Pydantic.BaseModel, mainly used for parameters are derived from the same `Field`, and want to take the model: 
+  
     BaseModel can only be used with kwargs parameters, and the type hints of the parameters must be a class that inherits from `pydantic.BaseModel`, using the example:
     ````Python
     from pydantic import BaseModel
@@ -148,6 +151,7 @@ pait in order to facilitate the use of users, support a variety of writing metho
         return {'result': model.dict()}
     ````
 - When TypeHints is not one of the above two cases:
+  
     can only be used for kwargs parameters and type hints are not the above two cases, if the value is rarely reused, or if you do not want to create a Model, you can consider this approach
     ```Python
     from pait.app.starlette import pait
@@ -168,13 +172,14 @@ from pait.field import Body
 
 @pait()
 async def demo_post(
-        # get uid from request body data
-        uid: int = Body.i()
+    # get uid from request body data
+    uid: int = Body.i()
 ):
     pass
 ```
 The following example will use a parameter called default.
-Since you can't use Content-Type to name the variables in Python, you can only use content_type to name them according to the naming convention of python, so there is no way to get the value directly from the header, so you can set the value of `default` to Content-Type, and then Pait can get the value of Content-Type in the Header and assign it to the content_type variable.
+Since you can't use Content-Type to name the variables in Python, you can only use content_type to name them according to the naming convention of python, so there is no way to get the value directly from the header, so you can set the value of `alias` to Content-Type, and then Pait can get the value of Content-Type in the Header and assign it to the content_type variable.
+Another example uses `raw_return` and sets it to True. At this time, `Pait` will not use the parameter name `header_dict` as the key to get the data, but directly assign the data of the entire header to the header_dict.
 
 ```Python
 from pait.app.starlette import pait
@@ -183,10 +188,12 @@ from pait.field import Body, Header
 
 @pait()
 async def demo_post(
-        # get uid from request body data
-        uid: int = Body.i(),
-        # get Content-Type from header
-        content_type: str = Header.i(default='Content-Type')
+    # get uid from request body data
+    uid: int = Body.i(),
+    # get Content-Type from header
+    content_type: str = Header.i(alias='Content-Type'),
+    header_dict: str = Header.i(raw_return=True)
+
 ):
     pass
 ```

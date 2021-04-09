@@ -1,7 +1,7 @@
 # Pait
-Pait是一个可以用于python任何web框架(目前只支持`flask`,`starlette`, 其他框架会在Pait稳定后得到支持)的api工具.
+Pait是一个可以用于python任何web框架的api工具(目前只支持`flask`,`starlette`, 其他框架会在Pait稳定后得到支持).
 
-Pait的核心功能是让你可以在任何Python Web框架拥有像FastAPI一样的类型检查和类型转换的功能(依赖于Pydantic和inspect), 以及文档输出
+Pait的核心功能是让你可以在任何Python Web框架拥有像FastAPI一样的类型检查和类型转换的功能(依赖于Pydantic和inspect), 以及提供文档输出功能。
 
 Pait的文档输出功能愿景是代码既文档,只需要简单的配置,则可以得到一份md文档或者openapi(json, yaml)
 
@@ -13,7 +13,8 @@ pip install pait
 ```
 
 # 使用
-注:以下代码没有特别说明,都默认使用`starlette`框架.
+注:以下代码没有特别说明, 都默认使用`starlette`框架.
+注:文档输出功能没有测试用例, 功能还在完善中 
 
 ## 1.类型转换和类型校验
 ### 1.1在路由函数中使用使用pait
@@ -109,13 +110,14 @@ app = Starlette(
 uvicorn.run(app)
 ```
 可以看出,只需要对路由函数添加一个`pait`装饰器,并把`demo_post`的参数改为`model: PydanticModel = Body()`即可.
-pait通过`Body`知道需要获取post请求body的数据,并根据`conint(gt=10, lt=1000)`对数据进行转换和限制,并赋值给`PydanticModel`,用户只需要像使用`Pydantic`一样调用`model`即可获取到数据.
+`pait`装饰器会解析参数, 通过`Body`知道需要获取post请求body的数据,并根据`conint(gt=10, lt=1000)`对数据进行转换和限制,并赋值给`PydanticModel`,用户只需要像使用`Pydantic`一样调用`model`即可获取到数据.
 
 这里只是一个简单的demo,由于我们编写的model可以复用,所以可以节省到大量的开发量,上面的参数只使用到一种写法,下面会介绍pait支持的两种写法以及用途.
 
 ### 1.2pait支持的参数写法
 pait为了方便用户使用,支持多种写法(主要是TypeHints的不同):
-- TypeHints 为PaitBaseModel时:
+- TypeHints 为PaitBaseModel时, 主要用于参数来源于多个`Field`, 并想复用model:
+  
     PaitBaseModel只可用于args参数, 他是最灵活的, PaitBaseModel拥有大部分Pydantic.BaseModel的功能, 他的特点是当属性的值为Field类型时可以被Pait识别, 所以一个PaitBaseModel可以填写多个Field,这是Pydantic.BaseModel没办法做到的,使用示例:
     ```Python
     from pait.app.starlette import pait
@@ -132,7 +134,8 @@ pait为了方便用户使用,支持多种写法(主要是TypeHints的不同):
     async def test(model: PaitBaseModel):
         return {'result': model.dict()}
     ```
-- TypeHints 为Pydantic.BaseModel时: 
+- TypeHints 为Pydantic.BaseModel时, 主要用于参数都是来源于同一个Field, 并想服用model: 
+  
     Pydantic.BaseModel只可用于kwargs参数,且参数的type hints必须是一个继承于`pydantic.BaseModel`的类,使用示例:
     ````Python
     from pydantic import BaseModel
@@ -150,6 +153,7 @@ pait为了方便用户使用,支持多种写法(主要是TypeHints的不同):
         return {'result': model.dict()}
     ````
 - TypeHints不是上述两种情况时:
+  
     只可用于kwargs参数,且type hints并非上述两种情况, 如果该值很少被复用,或者不想创建Model时,可以考虑这种方式
     ```Python
     from pait.app.starlette import pait
@@ -172,13 +176,14 @@ from pait.field import Body
 
 @pait()
 async def demo_post(
-        # get uid from request body data
-        uid: int = Body.i()
+    # get uid from request body data
+    uid: int = Body.i(),
 ):
     pass
 ```
 下面的例子会用到一个叫default的参数.
-由于在Python的变量中无法用Content-Type来命名,按照python的命名习惯只能以content_type来命名,而content_type是没办法直接从header中获取到值的,所以可以设置default为Content-Type,这样Pait就可以获取到位于Header中Content-Type的值并赋给content_type变量.
+由于在Python的变量中无法用Content-Type来命名,按照python的命名习惯只能以content_type来命名,而content_type是没办法直接从header中获取到值的,所以可以设置alias为Content-Type,这样Pait就可以获取到位于Header中Content-Type的值并赋给content_type变量.
+还有一个例子用到了`raw_return`,并设置为True, 这时`Pait`不会以参数名`header_dict`为key来获取数据, 而是直接把整个header的数据赋值给header_dict.
 
 ```Python
 from pait.app.starlette import pait
@@ -187,10 +192,11 @@ from pait.field import Body, Header
 
 @pait()
 async def demo_post(
-        # get uid from request body data
-        uid: int = Body.i(),
-        # get Content-Type from header
-        content_type: str = Header.i(default='Content-Type')
+    # get uid from request body data
+    uid: int = Body.i(),
+    # get Content-Type from header
+    content_type: str = Header.i(alias='Content-Type'),
+    header_dict: str = Header.i(raw_return=True)
 ):
     pass
 ```
@@ -298,7 +304,10 @@ pait的openapi模块支持一下参数(下一个版本会提供更多的参数):
 - type_: 输出的类型, 可选json和yaml 
 - filename: 输出文件名, 如果为空则输出到终端
 
-以下是openapi文档输出的示例代码(通过1.1代码改造).具体的见[示例代码](https://github.com/so1n/pait/tree/master/example/api_doc)以及[文档输出例子](https://github.com/so1n/pait/blob/master/example/api_doc/example_doc)
+以下是openapi文档输出的示例代码(通过1.1代码改造).具体的见
+[示例代码](https://github.com/so1n/pait/tree/master/example/api_doc)
+以及
+[文档输出例子](https://github.com/so1n/pait/blob/master/example/api_doc/example_doc)
 ```Python
 import uvicorn
 

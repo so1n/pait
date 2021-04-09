@@ -1,4 +1,13 @@
-### 0.5.1[Now]
+### 0.5.2[Now]
+ - Test: add pait param verify test
+ - Feature: BaseField add raw_return
+ - Feature: add create_pydantic_model func
+ - Feature: add BaseField inherit limit
+ - Refactor: refactor app helper  
+ - Fix: fix param_handle bug
+ - Example: add example Response 
+
+### 0.5.1
  - Style: add mypy check
  - Feature: filed support mypy check
  - Feature: support openapi allOf

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pait"
-version = "0.5.1"
+version = "0.5.2"
 description = "Pait is a Python api tool. Pait enables your Python web framework to have type checking, parameter type conversion and interface document generation (power by inspect, pydantic)"
 authors = ["So1n <so1n897046026@gmail.com>"]
 license = "Apache Software License"
