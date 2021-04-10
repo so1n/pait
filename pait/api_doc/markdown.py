@@ -7,7 +7,6 @@ from pydantic.fields import Undefined
 from ..model import PaitStatus
 from .base_parse import PaitBaseParse
 
-
 json_type_default_value_dict: Dict[str, Any] = {
     "null": None,
     "bool": True,
@@ -34,7 +33,7 @@ class PaitMd(PaitBaseParse):
         for field_dict in field_dict_list:
             sub_dict: dict = example_dict
             key: str = field_dict["param_name"]
-            if '.' in key:
+            if "." in key:
                 key_list: List[str] = key.split(".")
                 for sub_key in key_list:
                     key = sub_key
@@ -44,12 +43,8 @@ class PaitMd(PaitBaseParse):
                         sub_dict[sub_key] = {}
                     sub_dict = sub_dict[sub_key]
             sub_dict[key] = json_type_default_value_dict[field_dict["type"]]
-        json_str: str = f"\n".join(
-            [" " * blank_num + i for i in json.dumps(example_dict, indent=2).split('\n')]
-        )
-        return f"{' ' * blank_num}```json\n" \
-               f"{json_str}\n" \
-               f"{' ' * blank_num}```\n\n"
+        json_str: str = f"\n".join([" " * blank_num + i for i in json.dumps(example_dict, indent=2).split("\n")])
+        return f"{' ' * blank_num}```json\n" f"{json_str}\n" f"{' ' * blank_num}```\n\n"
 
     @staticmethod
     def gen_md_param_table(field_dict_list: List[dict], blank_num: int = 8) -> str:
@@ -60,7 +55,7 @@ class PaitMd(PaitBaseParse):
             default = field_info_dict["default"]
             if default is Undefined:
                 default = "**`Required`**"
-            type_ = field_info_dict['type']
+            type_ = field_info_dict["type"]
             if default is Undefined:
                 type_ = "**`Required`**"
             description = field_info_dict["description"]
@@ -102,7 +97,7 @@ class PaitMd(PaitBaseParse):
                     f"|{','.join(pait_model.author)}"
                     f"|{status_text}"
                     f'|<abbr title="file:{func_code.co_filename};line: {func_code.co_firstlineno}">'
-                    f'{pait_model.func.__qualname__}</abbr>'
+                    f"{pait_model.func.__qualname__}</abbr>"
                     f"|{pait_model.desc}|\n"
                 )
 

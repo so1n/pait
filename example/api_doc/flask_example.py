@@ -1,14 +1,15 @@
-from example.param_verify.flask_example import app
+from flask import Flask
+
+from example.param_verify.flask_example import create_app
 from pait.api_doc.markdown import PaitMd
 from pait.api_doc.open_api import PaitOpenApi
 from pait.api_doc.pait_json import PaitJson
 from pait.api_doc.pait_yaml import PaitYaml
 from pait.app import load_app
 
-
 if __name__ == "__main__":
     filename: str = "./example_doc/flask_pait"
-    load_app(app)
+    load_app(create_app())
     PaitMd(use_html_details=True, filename=filename)
     PaitJson(filename=filename, indent=2)
     PaitYaml(filename=filename)

@@ -1,4 +1,5 @@
 from typing import Any, Tuple
+
 from pydantic import ValidationError
 from starlette.applications import Starlette
 from starlette.endpoints import HTTPEndpoint
@@ -42,13 +43,7 @@ async def test_raise_tip(
     return_dict = model.dict()
     return_dict.update(other_model.dict())
     return_dict.update({"content_type": content_type})
-    return JSONResponse(
-        {
-            "code": 0,
-            "msg": "",
-            "data": return_dict
-        }
-    )
+    return JSONResponse({"code": 0, "msg": "", "data": return_dict})
 
 
 @pait(
@@ -67,13 +62,7 @@ async def test_post(
     return_dict = model.dict()
     return_dict.update(other_model.dict())
     return_dict.update({"content_type": content_type})
-    return JSONResponse(
-        {
-            "code": 0,
-            "msg": "",
-            "data": return_dict
-        }
-    )
+    return JSONResponse({"code": 0, "msg": "", "data": return_dict})
 
 
 @pait(
@@ -92,13 +81,7 @@ async def test_depend(
     assert request is not None, "Not found request"
     return_dict = model.dict()
     return_dict.update({"user_agent": depend_tuple[0], "age": depend_tuple[1]})
-    return JSONResponse(
-        {
-            "code": 0,
-            "msg": "",
-            "data": return_dict
-        }
-    )
+    return JSONResponse({"code": 0, "msg": "", "data": return_dict})
 
 
 @pait(
@@ -117,13 +100,7 @@ async def test_get(
 ) -> JSONResponse:
     """Test Field"""
     return_dict = {"uid": uid, "user_name": user_name, "email": email, "age": age, "sex": sex.value}
-    return JSONResponse(
-        {
-            "code": 0,
-            "msg": "",
-            "data": return_dict
-        }
-    )
+    return JSONResponse({"code": 0, "msg": "", "data": return_dict})
 
 
 @pait(
@@ -136,7 +113,7 @@ async def test_other_field(
     upload_file: Any = File.i(description="upload file"),
     a: Any = Form.i(description="form data"),
     b: Any = Form.i(description="form data"),
-    cookie: dict = Cookie.i(raw_return=True, description="cookie")
+    cookie: dict = Cookie.i(raw_return=True, description="cookie"),
 ) -> JSONResponse:
     return JSONResponse(
         {
@@ -147,27 +124,18 @@ async def test_other_field(
                 "content": (await upload_file.read()).decode(),
                 "form_a": (await a.read()).decode(),
                 "form_b": (await b.read()).decode(),
-                "cookie": cookie
-            }
+                "cookie": cookie,
+            },
         }
     )
 
 
 @pait(
-    author=("so1n",),
-    status=PaitStatus.test,
-    tag=("test",),
-    response_model_list=[UserSuccessRespModel, FailRespModel]
+    author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[UserSuccessRespModel, FailRespModel]
 )
 async def test_pait_model(test_model: TestPaitModel) -> JSONResponse:
     """Test Field"""
-    return JSONResponse(
-        {
-            "code": 0,
-            "msg": "",
-            "data": test_model.dict()
-        }
-    )
+    return JSONResponse({"code": 0, "msg": "", "data": test_model.dict()})
 
 
 class TestCbv(HTTPEndpoint):
@@ -189,13 +157,7 @@ class TestCbv(HTTPEndpoint):
     ) -> JSONResponse:
         """Text Pydantic Model and Field"""
         return_dict = {"uid": uid, "user_name": user_name, "email": email, "age": model.age}
-        return JSONResponse(
-            {
-                "code": 0,
-                "msg": "",
-                "data": return_dict
-            }
-        )
+        return JSONResponse({"code": 0, "msg": "", "data": return_dict})
 
     @pait(
         author=("so1n",),
@@ -213,32 +175,28 @@ class TestCbv(HTTPEndpoint):
         return_dict = model.dict()
         return_dict.update(other_model.dict())
         return_dict.update({"user_agent": self.user_agent})
-        return JSONResponse(
-            {
-                "code": 0,
-                "msg": "",
-                "data": return_dict
-            }
-        )
+        return JSONResponse({"code": 0, "msg": "", "data": return_dict})
 
 
-app = Starlette(
-    routes=[
-        Route("/api/get/{age}", test_get, methods=["GET"]),
-        Route("/api/post", test_post, methods=["POST"]),
-        Route("/api/depend", test_depend, methods=["POST"]),
-        Route("/api/other_field", test_other_field, methods=["POST"]),
-        Route("/api/raise_tip", test_raise_tip, methods=["POST"]),
-        Route("/api/cbv", TestCbv),
-        Route("/api/pait_model", test_pait_model, methods=["POST"]),
-    ]
-)
+def create_app() -> Starlette:
+    app: Starlette = Starlette(
+        routes=[
+            Route("/api/get/{age}", test_get, methods=["GET"]),
+            Route("/api/post", test_post, methods=["POST"]),
+            Route("/api/depend", test_depend, methods=["POST"]),
+            Route("/api/other_field", test_other_field, methods=["POST"]),
+            Route("/api/raise_tip", test_raise_tip, methods=["POST"]),
+            Route("/api/cbv", TestCbv),
+            Route("/api/pait_model", test_pait_model, methods=["POST"]),
+        ]
+    )
 
-app.add_exception_handler(PaitBaseException, api_exception)
-app.add_exception_handler(ValidationError, api_exception)
+    app.add_exception_handler(PaitBaseException, api_exception)
+    app.add_exception_handler(ValidationError, api_exception)
+    return app
 
 
 if __name__ == "__main__":
     import uvicorn  # type: ignore
 
-    uvicorn.run(app, log_level="debug")
+    uvicorn.run(create_app(), log_level="debug")

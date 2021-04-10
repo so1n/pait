@@ -31,7 +31,7 @@ class SexEnum(Enum):
 
 def demo_sub_depend(
     user_agent: str = Header.i(alias="user-agent", description="user agent"),
-    age: int = Body.i(description="age", gt=1, lt=100)
+    age: int = Body.i(description="age", gt=1, lt=100),
 ) -> Tuple[str, int]:
     return user_agent, age
 

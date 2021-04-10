@@ -2,15 +2,15 @@ import inspect
 from functools import wraps
 from typing import Any, Callable, List, Optional, Tuple, Type, Union
 
-from pait.app.base import BaseSyncAppHelper, BaseAsyncAppHelper
+from pait.app.base import BaseAppHelper
 from pait.g import pait_data
 from pait.model import PaitCoreModel, PaitResponseModel, PaitStatus
 from pait.param_handle import async_class_param_handle, async_func_param_handle, class_param_handle, func_param_handle
-from pait.util import get_func_sig, FuncSig
+from pait.util import FuncSig, get_func_sig
 
 
 def pait(
-    app_helper_class: "Type[Union[BaseSyncAppHelper, BaseAsyncAppHelper]]",
+    app_helper_class: "Type[BaseAppHelper]",
     author: Optional[Tuple[str]] = None,
     desc: Optional[str] = None,
     status: Optional[PaitStatus] = None,
@@ -40,7 +40,7 @@ def pait(
             )
         )
 
-        if inspect.iscoroutinefunction(func) and issubclass(app_helper_class, BaseAsyncAppHelper):
+        if inspect.iscoroutinefunction(func):
 
             @wraps(func)
             async def dispatch(*args: Any, **kwargs: Any) -> Callable:
@@ -55,7 +55,7 @@ def pait(
                 return await func(*func_args, **func_kwargs)
 
             return dispatch
-        elif issubclass(app_helper_class, BaseSyncAppHelper):
+        else:
 
             @wraps(func)
             def dispatch(*args: Any, **kwargs: Any) -> Callable:
@@ -70,7 +70,5 @@ def pait(
                 return func(*func_args, **func_kwargs)
 
             return dispatch
-        else:
-            raise RuntimeError("Please check pait app helper or func")
 
     return wrapper

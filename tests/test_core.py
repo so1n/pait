@@ -1,35 +1,19 @@
-import importlib
-import inspect
 import pytest
-import sys
-from unittest import mock
-from typing import Type
-
 from pytest_mock import MockFixture
-from pydantic import BaseModel
-from pait import app, core, field, g, model, util
-from example import param_verify
+
+from pait import core, g
 
 
 class TestPaitCore:
     def test_pait_core(self) -> None:
         with pytest.raises(TypeError) as e:
+
             @core.pait("a")
-            def demo() -> None: pass
+            def demo() -> None:
+                pass
 
         exec_msg: str = e.value.args[0]
         assert exec_msg.endswith("must be class")
-
-        with pytest.raises(RuntimeError) as e:
-
-            class Demo:
-                pass
-
-            @core.pait(Demo)
-            def demo() -> None: pass
-
-        exec_msg = e.value.args[0]
-        assert exec_msg == "Please check pait app helper or func"
 
     def test_pait_id_not_in_data(self, mocker: MockFixture) -> None:
         patch = mocker.patch("pait.data.logging.warning")

@@ -3,6 +3,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union, get_type_hints
 
 from pydantic import BaseModel
+
 from pait.util import create_pydantic_model
 
 if TYPE_CHECKING:
@@ -91,19 +92,19 @@ class PaitBaseModel(object):
 
 class PaitCoreModel(object):
     def __init__(
-            self,
-            func: Callable,
-            pait_id: str,
-            path: Optional[str] = None,
-            method_set: Optional[Set[str]] = None,
-            operation_id: Optional[str] = None,
-            func_name: Optional[str] = None,
-            author: Optional[Tuple[str, ...]] = None,
-            desc: Optional[str] = None,
-            status: Optional[PaitStatus] = None,
-            group: Optional[str] = None,
-            tag: Optional[Tuple[str, ...]] = None,
-            response_model_list: Optional[List[Type[PaitResponseModel]]] = None
+        self,
+        func: Callable,
+        pait_id: str,
+        path: Optional[str] = None,
+        method_set: Optional[Set[str]] = None,
+        operation_id: Optional[str] = None,
+        func_name: Optional[str] = None,
+        author: Optional[Tuple[str, ...]] = None,
+        desc: Optional[str] = None,
+        status: Optional[PaitStatus] = None,
+        group: Optional[str] = None,
+        tag: Optional[Tuple[str, ...]] = None,
+        response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
     ):
         self.func: Callable = func  # route func
         self.pait_id: str = pait_id  # qualname + func hash id
@@ -111,9 +112,9 @@ class PaitCoreModel(object):
         self.method_list: List[str] = sorted(list(method_set or set()))  # request method set
         self.operation_id: Optional[str] = operation_id or None  # route name
         self.func_name: str = func_name or func.__name__
-        self.author: Tuple[str, ...] = author or ('', )
+        self.author: Tuple[str, ...] = author or ("",)
         self.desc = desc or func.__doc__ or ""
         self.status: PaitStatus = status or PaitStatus.undefined
         self.group: str = group or "root"
-        self.tag: Tuple[str, ...] = tag or ("default", )
+        self.tag: Tuple[str, ...] = tag or ("default",)
         self.response_model_list: Optional[List[Type[PaitResponseModel]]] = response_model_list

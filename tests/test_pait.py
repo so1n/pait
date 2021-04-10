@@ -1,11 +1,6 @@
-import importlib
 import pytest
-import sys
-from unittest import mock
 
-from pytest_mock import MockFixture
-from pait import app, field, model
-from example import param_verify
+from pait import field, model
 
 
 class TestField:

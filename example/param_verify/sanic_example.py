@@ -1,8 +1,8 @@
 from typing import Any, Tuple
 
 from pydantic import ValidationError
-from sanic.app import Sanic
 from sanic import response
+from sanic.app import Sanic
 from sanic.request import Request
 from sanic.views import HTTPMethodView
 
@@ -43,13 +43,7 @@ async def test_raise_tip(
     return_dict = model.dict()
     return_dict.update(other_model.dict())
     return_dict.update({"content_type": content_type})
-    return response.json(
-        {
-            "code": 0,
-            "msg": "",
-            "data": return_dict
-        }
-    )
+    return response.json({"code": 0, "msg": "", "data": return_dict})
 
 
 @pait(
@@ -68,13 +62,7 @@ async def test_post(
     return_dict = model.dict()
     return_dict.update(other_model.dict())
     return_dict.update({"content_type": content_type})
-    return response.json(
-        {
-            "code": 0,
-            "msg": "",
-            "data": return_dict
-        }
-    )
+    return response.json({"code": 0, "msg": "", "data": return_dict})
 
 
 @pait(
@@ -93,13 +81,7 @@ async def test_depend(
     assert request is not None, "Not found request"
     return_dict = model.dict()
     return_dict.update({"user_agent": depend_tuple[0], "age": depend_tuple[1]})
-    return response.json(
-        {
-            "code": 0,
-            "msg": "",
-            "data": return_dict
-        }
-    )
+    return response.json({"code": 0, "msg": "", "data": return_dict})
 
 
 @pait(
@@ -118,13 +100,7 @@ async def test_get(
 ) -> response.HTTPResponse:
     """Test Field"""
     return_dict = {"uid": uid, "user_name": user_name, "email": email, "age": age, "sex": sex.value}
-    return response.json(
-        {
-            "code": 0,
-            "msg": "",
-            "data": return_dict
-        }
-    )
+    return response.json({"code": 0, "msg": "", "data": return_dict})
 
 
 @pait(
@@ -137,7 +113,7 @@ async def test_other_field(
     upload_file: Any = File.i(description="upload file"),
     a: str = Form.i(description="form data"),
     b: str = Form.i(description="form data"),
-    cookie: dict = Cookie.i(raw_return=True, description="cookie")
+    cookie: dict = Cookie.i(raw_return=True, description="cookie"),
 ) -> response.HTTPResponse:
     return response.json(
         {
@@ -148,27 +124,18 @@ async def test_other_field(
                 "content": upload_file.body.decode(),
                 "form_a": a,
                 "form_b": b,
-                "cookie": cookie
-            }
+                "cookie": cookie,
+            },
         }
     )
 
 
 @pait(
-    author=("so1n",),
-    status=PaitStatus.test,
-    tag=("test",),
-    response_model_list=[UserSuccessRespModel, FailRespModel]
+    author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[UserSuccessRespModel, FailRespModel]
 )
 async def test_pait_model(test_model: TestPaitModel) -> response.HTTPResponse:
     """Test Field"""
-    return response.json(
-        {
-            "code": 0,
-            "msg": "",
-            "data": test_model.dict()
-        }
-    )
+    return response.json({"code": 0, "msg": "", "data": test_model.dict()})
 
 
 class TestCbv(HTTPMethodView):
@@ -190,13 +157,7 @@ class TestCbv(HTTPMethodView):
     ) -> response.HTTPResponse:
         """Text Pydantic Model and Field"""
         return_dict = {"uid": uid, "user_name": user_name, "email": email, "age": model.age}
-        return response.json(
-            {
-                "code": 0,
-                "msg": "",
-                "data": return_dict
-            }
-        )
+        return response.json({"code": 0, "msg": "", "data": return_dict})
 
     @pait(
         author=("so1n",),
@@ -214,28 +175,24 @@ class TestCbv(HTTPMethodView):
         return_dict = model.dict()
         return_dict.update(other_model.dict())
         return_dict.update({"user_agent": self.user_agent})
-        return response.json(
-            {
-                "code": 0,
-                "msg": "",
-                "data": return_dict
-            }
-        )
+        return response.json({"code": 0, "msg": "", "data": return_dict})
 
 
-app: Sanic = Sanic(name="pait")
-app.add_route(test_get, "/api/get/<age>", methods={"GET"})
-app.add_route(test_post, "/api/post", methods={"POST"})
-app.add_route(test_depend, "/api/depend", methods={"POST"})
-app.add_route(test_other_field, "/api/other_field", methods={"POST"})
-app.add_route(test_raise_tip, "/api/raise_tip", methods={"POST"})
-app.add_route(TestCbv.as_view(), "/api/cbv")
-app.add_route(test_pait_model, "/api/pait_model", methods={"POST"})
-app.exception(PaitBaseException)(api_exception)
-app.exception(ValidationError)(api_exception)
+def create_app() -> Sanic:
+    app: Sanic = Sanic(name="pait")
+    app.add_route(test_get, "/api/get/<age>", methods={"GET"})
+    app.add_route(test_post, "/api/post", methods={"POST"})
+    app.add_route(test_depend, "/api/depend", methods={"POST"})
+    app.add_route(test_other_field, "/api/other_field", methods={"POST"})
+    app.add_route(test_raise_tip, "/api/raise_tip", methods={"POST"})
+    app.add_route(TestCbv.as_view(), "/api/cbv")
+    app.add_route(test_pait_model, "/api/pait_model", methods={"POST"})
+    app.exception(PaitBaseException)(api_exception)
+    app.exception(ValidationError)(api_exception)
+    return app
 
 
 if __name__ == "__main__":
     import uvicorn  # type: ignore
 
-    uvicorn.run(app, log_level="debug")
+    uvicorn.run(create_app(), log_level="debug")

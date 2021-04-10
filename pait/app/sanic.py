@@ -2,19 +2,16 @@ import logging
 from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Type
 
 from sanic.app import Sanic
-from sanic.request import Request
-from sanic.request import RequestParameters
 from sanic.headers import HeaderIterable
-from sanic.request import File
+from sanic.request import File, Request, RequestParameters
 
-from pait.app.base import BaseAsyncAppHelper
+from pait.app.base import BaseAppHelper
 from pait.core import pait as _pait
 from pait.g import pait_data
-from pait.lazy_property import LazyAsyncProperty, LazyProperty
 from pait.model import PaitResponseModel, PaitStatus
 
 
-class AppHelper(BaseAsyncAppHelper):
+class AppHelper(BaseAppHelper):
     RequestType = Request
     FormType = RequestParameters
     FileType = File
@@ -26,31 +23,24 @@ class AppHelper(BaseAsyncAppHelper):
         self.path_dict: Dict[str, Any] = {}
         self.path_dict.update(self.request_kwargs)
 
-    @LazyAsyncProperty
-    async def body(self) -> dict:
+    def body(self) -> dict:
         return self.request.json
 
-    @LazyProperty
     def cookie(self) -> dict:
         return self.request.cookies
 
-    @LazyAsyncProperty
-    async def file(self) -> File:
+    def file(self) -> File:
         return self.request.files
 
-    @LazyAsyncProperty
-    async def form(self) -> RequestParameters:
+    def form(self) -> RequestParameters:
         return self.request.form
 
-    @LazyProperty
     def header(self) -> HeaderIterable:
         return self.request.headers
 
-    @LazyProperty
     def path(self) -> dict:
         return self.path_dict
 
-    @LazyProperty
     def query(self) -> dict:
         return {key: value[0] for key, value in self.request.args.items()}
 

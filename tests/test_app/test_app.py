@@ -1,15 +1,15 @@
 import importlib
-import pytest
 import sys
 from unittest import mock
 
+import pytest
 from pytest_mock import MockFixture
-from pait import app
+
 from example import param_verify
+from pait import app
 
 
 class TestApp:
-
     @staticmethod
     def _clean_app_from_sys_module() -> None:
         for i in app.auto_load_app.app_list:
@@ -18,7 +18,7 @@ class TestApp:
     def test_load_app(self, mocker: MockFixture) -> None:
         for i in app.auto_load_app.app_list:
             patch = mocker.patch(f"pait.app.{i}.load_app")
-            app.load_app(getattr(param_verify, f"{i}_example").app)
+            app.load_app(getattr(param_verify, f"{i}_example").create_app())
             patch.assert_called_once()
 
         class Demo:
@@ -80,7 +80,7 @@ class TestApp:
         assert base_app_helper.request_kwargs == {"a": 1, "b": 2, "c": 3}
 
         # route func param: request
-        base_app_helper = BaseAppHelper(Demo, (None, ), {"a": 1, "b": 2, "c": 3})
+        base_app_helper = BaseAppHelper(Demo, (None,), {"a": 1, "b": 2, "c": 3})
         assert base_app_helper.request is None
         assert base_app_helper.cbv_class is None
         assert base_app_helper.request_args == []

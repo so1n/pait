@@ -1,24 +1,23 @@
 import asyncio
 import inspect
 import logging
-from typing import Any, Callable, Coroutine, Dict, List, NoReturn, Mapping, Optional, Tuple, Type, Union, get_type_hints
 from types import ModuleType
+from typing import Any, Callable, Coroutine, Dict, List, Mapping, NoReturn, Optional, Tuple, Type, Union, get_type_hints
 
 from pydantic import BaseModel, fields
 
 from pait import field
-from pait.app.base import BaseAppHelper, BaseAsyncAppHelper
+from pait.app.base import BaseAppHelper
 from pait.exceptions import NotFoundFieldError, NotFoundValueError, PaitBaseException
 from pait.field import BaseField
 from pait.model import PaitBaseModel
-from pait.util import create_pydantic_model, get_func_sig, get_parameter_list_from_class, FuncSig
+from pait.util import FuncSig, create_pydantic_model, get_func_sig, get_parameter_list_from_class
 
 
 def raise_and_tip(
-        _object: Union[FuncSig, Type], exception: "Exception", parameter: Optional[inspect.Parameter] = None
+    _object: Union[FuncSig, Type], exception: "Exception", parameter: Optional[inspect.Parameter] = None
 ) -> NoReturn:
     """Help users understand which parameter is wrong"""
-    raise exception
     if parameter:
         param_value: BaseField = parameter.default
         annotation: Type[BaseModel] = parameter.annotation
@@ -90,7 +89,7 @@ def get_request_value_from_parameter(
 
 
 def set_parameter_value_to_args_list(
-        parameter: inspect.Parameter, app_helper: "BaseAppHelper", func_args: list
+    parameter: inspect.Parameter, app_helper: "BaseAppHelper", func_args: list
 ) -> None:
     """use func_args param faster return and extend func_args"""
     if parameter.name == "self" and not func_args:
@@ -237,7 +236,7 @@ def param_handle(
 
 
 async def async_param_handle(
-    dispatch_web: "BaseAsyncAppHelper", _object: Union[FuncSig, Type], param_list: List["inspect.Parameter"]
+    dispatch_web: "BaseAppHelper", _object: Union[FuncSig, Type], param_list: List["inspect.Parameter"]
 ) -> Tuple[List[Any], Dict[str, Any]]:
     args_param_list: List[Any] = []
     kwargs_param_dict: Dict[str, Any] = {}
@@ -282,7 +281,7 @@ async def async_param_handle(
     return args_param_list, kwargs_param_dict
 
 
-async def async_class_param_handle(dispatch_web: "BaseAsyncAppHelper") -> None:
+async def async_class_param_handle(dispatch_web: "BaseAppHelper") -> None:
     cbv_class: Optional[Type] = dispatch_web.cbv_class
     if not cbv_class:
         return
@@ -300,9 +299,7 @@ def class_param_handle(dispatch_web: "BaseAppHelper") -> None:
     cbv_class.__dict__.update(kwargs)
 
 
-async def async_func_param_handle(
-    dispatch_app: "BaseAsyncAppHelper", func_sig: FuncSig
-) -> Tuple[List[Any], Dict[str, Any]]:
+async def async_func_param_handle(dispatch_app: "BaseAppHelper", func_sig: FuncSig) -> Tuple[List[Any], Dict[str, Any]]:
     return await async_param_handle(dispatch_app, func_sig, func_sig.param_list)
 
 

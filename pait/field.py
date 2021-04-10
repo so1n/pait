@@ -92,7 +92,7 @@ class BaseField(FieldInfo):
             min_length=min_length,
             max_length=max_length,
             regex=regex,
-            **extra
+            **extra,
         )
 
 

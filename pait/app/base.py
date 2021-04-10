@@ -1,7 +1,5 @@
 import logging
-from abc import ABC
 from typing import Any, List, Mapping, Optional, Tuple, Type
-from pait.lazy_property import LazyAsyncProperty, LazyProperty
 
 
 class BaseAppHelper(object):
@@ -39,20 +37,25 @@ class BaseAppHelper(object):
         self.request_args: List[Any] = new_args
         self.request_kwargs: Mapping[str, Any] = kwargs
 
-    @LazyProperty
     def cookie(self) -> Any:
         raise NotImplementedError
 
-    @LazyProperty
     def header(self) -> Any:
         raise NotImplementedError
 
-    @LazyProperty
     def path(self) -> Any:
         raise NotImplementedError
 
-    @LazyProperty
     def query(self) -> Any:
+        raise NotImplementedError
+
+    def body(self) -> Any:
+        raise NotImplementedError
+
+    def file(self) -> Any:
+        raise NotImplementedError
+
+    def form(self) -> Any:
         raise NotImplementedError
 
     def check_request_type(self, value: Any) -> bool:
@@ -66,33 +69,3 @@ class BaseAppHelper(object):
 
     def check_header_type(self, value: Any) -> bool:
         return value is self.HeaderType
-
-
-class BaseSyncAppHelper(BaseAppHelper, ABC):
-
-    @LazyProperty
-    def body(self) -> Any:
-        raise NotImplementedError
-
-    @LazyProperty
-    def file(self) -> Any:
-        raise NotImplementedError
-
-    @LazyProperty
-    def form(self) -> Any:
-        raise NotImplementedError
-
-
-class BaseAsyncAppHelper(BaseAppHelper, ABC):
-
-    @LazyAsyncProperty
-    async def body(self) -> dict:
-        raise NotImplementedError
-
-    @LazyAsyncProperty
-    async def file(self) -> Any:
-        raise NotImplementedError
-
-    @LazyAsyncProperty
-    async def form(self) -> Mapping:
-        raise NotImplementedError

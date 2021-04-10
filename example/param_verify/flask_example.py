@@ -19,14 +19,11 @@ from pait.exceptions import PaitBaseException
 from pait.field import Body, Cookie, Depends, File, Form, Header, Path, Query
 from pait.model import PaitStatus
 
-app = Flask(__name__)
-
 
 def api_exception(exc: Exception) -> Dict[str, str]:
     return {"exc": str(exc)}
 
 
-@app.route("/api/raise_tip", methods=["POST"])
 @pait(
     author=("so1n",),
     desc="test pait raise tip",
@@ -43,14 +40,9 @@ def test_raise_tip(
     return_dict = model.dict()
     return_dict.update(other_model.dict())
     return_dict.update({"content_type": content__type})
-    return {
-        "code": 0,
-        "msg": "",
-        "data": return_dict
-    }
+    return {"code": 0, "msg": "", "data": return_dict}
 
 
-@app.route("/api/post", methods=["POST"])
 @pait(
     author=("so1n",),
     group="user",
@@ -67,14 +59,9 @@ def test_post(
     return_dict = model.dict()
     return_dict.update(other_model.dict())
     return_dict.update({"content_type": content_type})
-    return {
-        "code": 0,
-        "msg": "",
-        "data": return_dict
-    }
+    return {"code": 0, "msg": "", "data": return_dict}
 
 
-@app.route("/api/depend", methods=["POST"])
 @pait(
     author=("so1n",),
     group="user",
@@ -91,14 +78,9 @@ def demo_get2test_depend(
     assert request is not None, "Not found request"
     return_dict = model.dict()
     return_dict.update({"user_agent": depend_tuple[0], "age": depend_tuple[1]})
-    return {
-        "code": 0,
-        "msg": "",
-        "data": return_dict
-    }
+    return {"code": 0, "msg": "", "data": return_dict}
 
 
-@app.route("/api/other_field", methods=["POST"])
 @pait(
     author=("so1n",),
     group="user",
@@ -109,22 +91,21 @@ def test_other_field(
     upload_file: Any = File.i(description="upload file"),
     a: str = Form.i(description="form data"),
     b: str = Form.i(description="form data"),
-    cookie: dict = Cookie.i(raw_return=True, description="cookie")
+    cookie: dict = Cookie.i(raw_return=True, description="cookie"),
 ) -> dict:
     return {
-            "code": 0,
-            "msg": "",
-            "data": {
-                "filename": upload_file.filename,
-                "content": upload_file.read().decode(),
-                "form_a": a,
-                "form_b": b,
-                "cookie": cookie
-            }
+        "code": 0,
+        "msg": "",
+        "data": {
+            "filename": upload_file.filename,
+            "content": upload_file.read().decode(),
+            "form_a": a,
+            "form_b": b,
+            "cookie": cookie,
+        },
     }
 
 
-@app.route("/api/get/<age>", methods=["GET"])
 @pait(
     author=("so1n",),
     group="user",
@@ -141,27 +122,15 @@ def test_pait(
 ) -> dict:
     """Test Field"""
     return_dict = {"uid": uid, "user_name": user_name, "email": email, "age": age, "sex": sex.value}
-    return {
-        "code": 0,
-        "msg": "",
-        "data": return_dict
-    }
+    return {"code": 0, "msg": "", "data": return_dict}
 
 
-@app.route("/api/pait_model", methods=["POST"])
 @pait(
-    author=("so1n",),
-    status=PaitStatus.test,
-    tag=("test",),
-    response_model_list=[UserSuccessRespModel, FailRespModel]
+    author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[UserSuccessRespModel, FailRespModel]
 )
 def test_model(test_model: TestPaitModel) -> dict:
     """Test Field"""
-    return {
-        "code": 0,
-        "msg": "",
-        "data": test_model.dict()
-    }
+    return {"code": 0, "msg": "", "data": test_model.dict()}
 
 
 class TestCbv(MethodView):
@@ -183,11 +152,7 @@ class TestCbv(MethodView):
     ) -> dict:
         """Text Pydantic Model and Field"""
         return_dict = {"uid": uid, "user_name": user_name, "email": email, "age": model.age}
-        return {
-            "code": 0,
-            "msg": "",
-            "data": return_dict
-        }
+        return {"code": 0, "msg": "", "data": return_dict}
 
     @pait(
         author=("so1n",),
@@ -205,17 +170,22 @@ class TestCbv(MethodView):
         return_dict = model.dict()
         return_dict.update(other_model.dict())
         return_dict.update({"user_agent": self.user_agent})
-        return {
-            "code": 0,
-            "msg": "",
-            "data": return_dict
-        }
+        return {"code": 0, "msg": "", "data": return_dict}
 
 
-app.add_url_rule("/api/cbv", view_func=TestCbv.as_view("test_cbv"))
-app.errorhandler(PaitBaseException)(api_exception)
-app.errorhandler(ValidationError)(api_exception)
+def create_app() -> Flask:
+    app: Flask = Flask(__name__)
+    app.add_url_rule("/api/raise_tip", view_func=test_raise_tip, methods=["POST"])
+    app.add_url_rule("/api/post", view_func=test_post, methods=["POST"])
+    app.add_url_rule("/api/depend", view_func=demo_get2test_depend, methods=["POST"])
+    app.add_url_rule("/api/other_field", view_func=test_other_field, methods=["POST"])
+    app.add_url_rule("/api/get/<age>", view_func=test_pait, methods=["GET"])
+    app.add_url_rule("/api/pait_model", view_func=test_model, methods=["POST"])
+    app.add_url_rule("/api/cbv", view_func=TestCbv.as_view("test_cbv"))
+    app.errorhandler(PaitBaseException)(api_exception)
+    app.errorhandler(ValidationError)(api_exception)
+    return app
 
 
 if __name__ == "__main__":
-    app.run(port=8000, debug=True)
+    create_app().run(port=8000, debug=True)

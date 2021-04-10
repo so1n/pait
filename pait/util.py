@@ -1,6 +1,7 @@
 import inspect
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, get_type_hints
+
 from pydantic import BaseConfig, BaseModel, create_model
 
 
@@ -20,7 +21,7 @@ def create_pydantic_model(annotation_dict: Dict[str, Tuple[Type, Any]]) -> Type[
         __base__=None,
         __module__="pydantic.main",
         __validators__=None,
-        **annotation_dict
+        **annotation_dict,
     )
 
 

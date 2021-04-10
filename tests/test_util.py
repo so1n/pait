@@ -2,6 +2,7 @@ import inspect
 from typing import Type
 
 from pydantic import BaseModel
+
 from pait import util
 
 
@@ -12,7 +13,8 @@ class TestUtil:
         assert pydantic_model.dict() == {"a": 1, "b": "a"}
 
     def test_func_sig(self) -> None:
-        def demo(a: int, b: str) -> int: pass
+        def demo(a: int, b: str) -> int:
+            pass
 
         func_sig: util.FuncSig = util.get_func_sig(demo)
         assert func_sig.func == demo
@@ -34,16 +36,16 @@ class TestUtil:
 
         assert [] == util.get_parameter_list_from_class(Demo1)
         assert [
-           inspect.Parameter(
-               "a",
-               inspect.Parameter.POSITIONAL_ONLY,
-               default=util.Undefined,
-               annotation=int,
-           ),
-           inspect.Parameter(
-               "b",
-               inspect.Parameter.POSITIONAL_ONLY,
-               default="",
-               annotation=str,
-           )
+            inspect.Parameter(
+                "a",
+                inspect.Parameter.POSITIONAL_ONLY,
+                default=util.Undefined,
+                annotation=int,
+            ),
+            inspect.Parameter(
+                "b",
+                inspect.Parameter.POSITIONAL_ONLY,
+                default="",
+                annotation=str,
+            ),
         ] == util.get_parameter_list_from_class(Demo2)

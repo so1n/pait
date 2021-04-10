@@ -9,7 +9,7 @@ from pydantic.fields import Undefined
 from pait.field import BaseField, Depends
 from pait.g import pait_data
 from pait.model import PaitBaseModel, PaitCoreModel, PaitResponseModel
-from pait.util import create_pydantic_model, get_func_sig, get_parameter_list_from_class, FuncSig
+from pait.util import FuncSig, create_pydantic_model, get_func_sig, get_parameter_list_from_class
 
 
 class PaitBaseParse(object):
@@ -57,6 +57,7 @@ class PaitBaseParse(object):
                 # mad item ref support
                 key = param_dict["items"]["$ref"].split("/")[-1]
                 if isinstance(definition_dict, dict):
+                    raise Exception((key, param_dict))
                     field_dict_list.extend(self._parse_schema(definition_dict[key], definition_dict, all_param_name))
             else:
                 if "enum" in param_dict:
@@ -97,8 +98,7 @@ class PaitBaseParse(object):
         """gen field dict"""
         # TODO design like _parse_schema
         param_python_name_dict: Dict[str, str] = {
-            value.alias: key for key, value in _pait_field_dict.items()
-            if isinstance(value, BaseField) and value.alias
+            value.alias: key for key, value in _pait_field_dict.items() if isinstance(value, BaseField) and value.alias
         }
         property_dict: Dict[str, Any] = _pydantic_model.schema()["properties"]
         for param_name, param_dict in property_dict.items():

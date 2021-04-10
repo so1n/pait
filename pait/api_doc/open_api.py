@@ -6,10 +6,9 @@ from pydantic import BaseModel, Field, HttpUrl
 from pydantic.fields import Undefined
 
 from pait import field as pait_field
+from pait.api_doc.base_parse import PaitBaseParse
 from pait.model import PaitResponseModel, PaitStatus
 from pait.util import create_pydantic_model
-
-from pait.api_doc.base_parse import PaitBaseParse
 
 __all__ = ["PaitOpenApi"]
 
@@ -110,11 +109,7 @@ class PaitOpenApi(PaitBaseParse):
             self.output(filename, pait_yaml, ".yaml")
 
     def replace_pydantic_definitions(
-            self,
-            schema: dict,
-            path: str,
-            open_api_dict: Dict[str, Any],
-            parent_schema: Optional[dict] = None
+        self, schema: dict, path: str, open_api_dict: Dict[str, Any], parent_schema: Optional[dict] = None
     ) -> None:
         if not parent_schema:
             parent_schema = schema

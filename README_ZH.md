@@ -21,11 +21,10 @@ pip install pait
 先看看普通的路由函数代码:
 ```Python
 import uvicorn
-
 from starlette.applications import Starlette
-from starlette.routing import Route
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+from starlette.routing import Route
 
 
 async def demo_post(request: Request):
@@ -70,18 +69,13 @@ uvicorn.run(app)
 
 ```Python
 import uvicorn
-
+from pydantic import BaseModel, conint, constr
 from starlette.applications import Starlette
-from starlette.routing import Route
 from starlette.responses import JSONResponse
+from starlette.routing import Route
 
-from pait.field import Body
 from pait.app.starlette import pait
-from pydantic import (
-    BaseModel,
-    conint,
-    constr,
-)
+from pait.field import Body
 
 
 # 创建一个基于Pydantic.BaseModel的Model
@@ -139,6 +133,7 @@ pait为了方便用户使用,支持多种写法(主要是TypeHints的不同):
     Pydantic.BaseModel只可用于kwargs参数,且参数的type hints必须是一个继承于`pydantic.BaseModel`的类,使用示例:
     ````Python
     from pydantic import BaseModel
+
     from pait.app.starlette import pait
     from pait.field import Body
     
@@ -235,6 +230,7 @@ async def test_depend(token: str = Depends.i(demo_depend)):
 
 ```Python
 from starlette.requests import Request
+
 from pait.app.starlette import pait
 from pait.field import Body
 
@@ -251,12 +247,13 @@ async def demo_post(
 ### 3.1异常处理
 pait并不会为异常进行响应,而是把异常处理交给用户自己处理,正常情况下,pait只会抛出`pydantic`的异常和`PaitBaseException`异常,用户需要自己捕获异常并进行处理,如下所示:
 ```Python
+from pydantic import ValidationError
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import Response
 
 from pait.exceptions import PaitBaseException
-from pydantic import ValidationError
+
 
 async def api_exception(request: Request, exc: Exception) -> Response:
     """
@@ -277,7 +274,6 @@ APP.add_exception_handler(ValidationError, api_exception)
 ```Bash
   File "/home/so1n/github/pait/pait/param_handle.py", line 65, in raise_and_tip
     )
- from exception
 PaitBaseException: 'File "/home/so1n/github/pait/example/starlette_example.py", line 29, in demo_post2  kwargs param:content_type: <class \'str\'> = Header(key=None, default=None) not found in Header({\'host\': \'127.0.0.1:8000\', \'user-agent\': \'curl/7.52.1\', \'accept\': \'*/*\', \'content-type\': \'application/json\', \'data_type\': \'msg\', \'content-length\': \'38\'}), try use Header(key={key name})'
 ```
 如果你想查看更多消息,那可以把日志等级设置为debug,pait会输出如下的日志信息.
@@ -310,18 +306,13 @@ pait的openapi模块支持一下参数(下一个版本会提供更多的参数):
 [文档输出例子](https://github.com/so1n/pait/blob/master/example/api_doc/example_doc)
 ```Python
 import uvicorn
-
+from pydantic import BaseModel, conint, constr
 from starlette.applications import Starlette
-from starlette.routing import Route
 from starlette.responses import JSONResponse
+from starlette.routing import Route
 
-from pait.field import Body
 from pait.app.starlette import pait
-from pydantic import (
-    BaseModel,
-    conint,
-    constr,
-)
+from pait.field import Body
 
 
 # 创建一个基于Pydantic.BaseModel的Model
@@ -349,9 +340,8 @@ app = Starlette(
 
 # 上面是跟1.1的例子一样
 
-from pait.app import load_app
 from pait.api_doc.open_api import PaitOpenApi
-
+from pait.app import load_app
 
 # 提取路由信息到pait的数据模块
 load_app(app)

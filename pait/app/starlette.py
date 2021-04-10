@@ -6,44 +6,36 @@ from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request
 from starlette.routing import Route
 
-from pait.app.base import BaseAsyncAppHelper
+from pait.app.base import BaseAppHelper
 from pait.core import pait as _pait
 from pait.g import pait_data
-from pait.lazy_property import LazyAsyncProperty, LazyProperty
 from pait.model import PaitResponseModel, PaitStatus
 
 
-class AppHelper(BaseAsyncAppHelper):
+class AppHelper(BaseAppHelper):
     RequestType = Request
     FormType = FormData
     FileType = UploadFile
     HeaderType = Headers
 
-    @LazyAsyncProperty
-    async def body(self) -> dict:
-        return await self.request.json()
+    def body(self) -> dict:
+        return self.request.json()
 
-    @LazyProperty
     def cookie(self) -> dict:
         return self.request.cookies
 
-    @LazyAsyncProperty
-    async def file(self) -> UploadFile:
-        return await self.request.form()
+    def file(self) -> UploadFile:
+        return self.request.form()
 
-    @LazyAsyncProperty
-    async def form(self) -> FormData:
-        return await self.request.form()
+    def form(self) -> FormData:
+        return self.request.form()
 
-    @LazyProperty
     def header(self) -> Headers:
         return self.request.headers
 
-    @LazyProperty
     def path(self) -> dict:
         return self.request.path_params
 
-    @LazyProperty
     def query(self) -> dict:
         return dict(self.request.query_params)
 

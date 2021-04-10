@@ -1,7 +1,6 @@
 import sys
 from typing import Any, List
 
-
 app_list: List = ["flask", "starlette"]
 
 
