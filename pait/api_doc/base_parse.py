@@ -97,7 +97,8 @@ class PaitBaseParse(object):
         """gen field dict"""
         # TODO design like _parse_schema
         param_python_name_dict: Dict[str, str] = {
-            value.alias: key for key, value in _pait_field_dict.items() if value.alias
+            value.alias: key for key, value in _pait_field_dict.items()
+            if isinstance(value, BaseField) and value.alias
         }
         property_dict: Dict[str, Any] = _pydantic_model.schema()["properties"]
         for param_name, param_dict in property_dict.items():

@@ -18,6 +18,7 @@ def raise_and_tip(
         _object: Union[FuncSig, Type], exception: "Exception", parameter: Optional[inspect.Parameter] = None
 ) -> NoReturn:
     """Help users understand which parameter is wrong"""
+    raise exception
     if parameter:
         param_value: BaseField = parameter.default
         annotation: Type[BaseModel] = parameter.annotation
@@ -271,7 +272,11 @@ async def async_param_handle(
     # support field: def demo(demo_param: int = pait.field.BaseField())
     if single_field_dict:
         try:
-            kwargs_param_dict.update(parameter_2_basemodel(single_field_dict).dict())
+            try:
+                kwargs_param_dict.update(parameter_2_basemodel(single_field_dict).dict())
+            except TypeError:
+                kwargs_param_dict.update(parameter_2_basemodel(single_field_dict).__dict__)
+
         except Exception as e:
             raise_and_tip(_object, e)
     return args_param_list, kwargs_param_dict

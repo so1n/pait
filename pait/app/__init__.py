@@ -18,6 +18,10 @@ def load_app(app: Any) -> None:
         from .starlette import load_app  # type: ignore
 
         load_app(app)
+    elif app_name == "sanic":
+        from .sanic import load_app  # type: ignore
+
+        load_app(app)
     else:
         raise NotImplementedError(f"Pait not support:{app}")
 
