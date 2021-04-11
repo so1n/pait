@@ -316,9 +316,14 @@ paths:
                 a:
                   title: A
                   description: form data
+                  type: string
                 b:
                   title: B
                   description: form data
+                  type: string
+              required:
+              - a
+              - b
   api/cbv:
     get:
       tags:

@@ -27,6 +27,8 @@ pytest-mock = "^3.5.1"
 python-multipart = "^0.0.5"
 sanic = "^21.3.2"
 sanic-testing = "^0.3.0"
+tornado = "^6.1"
+pytest-tornado = "^0.8.1"
 
 [tool.black]
 line-length = 120

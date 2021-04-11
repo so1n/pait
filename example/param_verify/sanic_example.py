@@ -23,7 +23,6 @@ from pait.model import PaitStatus
 
 
 async def api_exception(request: Request, exc: Exception) -> response.HTTPResponse:
-    print(exc)
     return response.json({"exc": str(exc)})
 
 

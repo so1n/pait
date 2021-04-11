@@ -8,6 +8,9 @@ class PaitData(object):
     def __init__(self) -> None:
         self.pait_id_dict: Dict[str, "PaitCoreModel"] = {}
 
+    def reset(self) -> None:
+        self.pait_id_dict = {}
+
     def register(self, pait_info_model: "PaitCoreModel") -> None:
         pait_id: str = pait_info_model.pait_id
         self.pait_id_dict[pait_id] = pait_info_model

@@ -16,13 +16,13 @@ tags:
 - name: get
   description: ''
 paths:
-  /api/raise_tip:
+  /api/raise_tip$:
     post:
       tags:
       - test
       deprecated: true
       summary: test pait raise tip
-      operationId: test_raise_tip
+      operationId: RaiseTipHandler.post
       parameters:
       - name: content_type
         in: header
@@ -61,12 +61,12 @@ paths:
               - uid
               - user_name
               - age
-  /api/pait_model:
+  /api/pait_model$:
     post:
       tags:
       - test
       summary: Test Field
-      operationId: test_pait_model
+      operationId: TestPaitModelHanler.post
       parameters:
       - name: uid
         in: query
@@ -120,13 +120,13 @@ paths:
                   type: integer
               required:
               - age
-  /api/post:
+  /api/post$:
     post:
       tags:
       - user
       - post
       summary: Test Method:Post Pydantic Model
-      operationId: test_post
+      operationId: TestPostHandler.post
       parameters:
       - name: requestBody.content.<media-type>
         in: header
@@ -165,13 +165,13 @@ paths:
               - uid
               - user_name
               - age
-  /api/depend:
+  /api/depend$:
     post:
       tags:
       - user
       - depend
       summary: Test Method:Post request, Pydantic Model
-      operationId: test_depend
+      operationId: TestDependHandler.post
       parameters:
       - name: uid
         in: query
@@ -225,13 +225,13 @@ paths:
                   type: integer
               required:
               - age
-  /api/get/{age}:
+  /api/get/(?P<age>\w+)$:
     get:
       tags:
       - user
       - get
       summary: Test Field
-      operationId: test_get
+      operationId: TestGetHandler.get
       parameters:
       - name: uid
         in: query
@@ -289,76 +289,13 @@ paths:
                 oneOf:
                 - $ref: '#/components/schemas/_ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
-    head:
-      tags:
-      - user
-      - get
-      summary: Test Field
-      operationId: test_get
-      parameters:
-      - name: uid
-        in: query
-        required: true
-        description: user id
-        schema:
-          title: Uid
-          description: user id
-          exclusiveMinimum: 10
-          exclusiveMaximum: 1000
-          type: integer
-      - name: user_name
-        in: query
-        required: true
-        description: user name
-        schema:
-          title: User Name
-          description: user name
-          maxLength: 4
-          minLength: 2
-          type: string
-      - name: email
-        in: query
-        required: false
-        description: user email
-        schema:
-          title: Email
-          description: user email
-          default: example@xxx.com
-          type: string
-      - name: sex
-        in: query
-        required: false
-        description: sex
-        schema:
-          title: SexEnum
-          description: An enumeration.
-          enum:
-          - man
-          - woman
-      - name: age
-        in: path
-        required: true
-        description: age
-        schema:
-          title: Age
-          description: age
-          type: integer
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/_ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-  /api/other_field:
+  /api/other_field$:
     post:
       tags:
       - user
       - get
       summary: ''
-      operationId: test_other_field
+      operationId: TestOtherFieldHandler.post
       parameters:
       - name: cookie
         in: cookie
@@ -379,16 +316,21 @@ paths:
                 a:
                   title: A
                   description: form data
+                  type: string
                 b:
                   title: B
                   description: form data
-  /api/cbv:
+                  type: string
+              required:
+              - a
+              - b
+  /api/cbv$:
     get:
       tags:
       - user
       - get
       summary: Text Pydantic Model and Field
-      operationId: TestCbv.get
+      operationId: TestCbvHandler.get
       parameters:
       - name: age
         in: query
@@ -451,7 +393,7 @@ paths:
       - user
       - post
       summary: test cbv post method
-      operationId: TestCbv.post
+      operationId: TestCbvHandler.post
       parameters:
       - name: user-agent
         in: header

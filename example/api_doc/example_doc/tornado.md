@@ -1,13 +1,13 @@
 # Pait Doc
 <details><summary>Group: root</summary>
 
-### Name: test_raise_tip
+### Name: RaiseTipHandler.post
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 30">test_raise_tip</abbr>|test pait raise tip|
-- Path: /api/raise_tip
-- Method: POST
+|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 34">RaiseTipHandler.post</abbr>|test pait raise tip|
+- Path: /api/raise_tip$
+- Method: post
 - Request:
     - Body Param
 
@@ -76,13 +76,13 @@
             ```
 
 
-### Name: test_pait_model
+### Name: TestPaitModelHanler.post
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 133">test_pait_model</abbr>|Test Field|
-- Path: /api/pait_model
-- Method: POST
+|so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 147">TestPaitModelHanler.post</abbr>|Test Field|
+- Path: /api/pait_model$
+- Method: post
 - Request:
     - Body Param
 
@@ -157,13 +157,13 @@
 
 </details><details><summary>Group: user</summary>
 
-### Name: test_post
+### Name: TestPostHandler.post
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 49">test_post</abbr>|Test Method:Post Pydantic Model|
-- Path: /api/post
-- Method: POST
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 55">TestPostHandler.post</abbr>|Test Method:Post Pydantic Model|
+- Path: /api/post$
+- Method: post
 - Request:
     - Body Param
 
@@ -232,13 +232,13 @@
             ```
 
 
-### Name: test_depend
+### Name: TestDependHandler.post
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 68">test_depend</abbr>|Test Method:Post request, Pydantic Model|
-- Path: /api/depend
-- Method: POST
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 76">TestDependHandler.post</abbr>|Test Method:Post request, Pydantic Model|
+- Path: /api/depend$
+- Method: post
 - Request:
     - Body Param
 
@@ -311,13 +311,13 @@
             ```
 
 
-### Name: test_get
+### Name: TestGetHandler.get
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 87">test_get</abbr>|Test Field|
-- Path: /api/get/{age}
-- Method: GET,HEAD
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 97">TestGetHandler.get</abbr>|Test Field|
+- Path: /api/get/(?P<age>\w+)$
+- Method: get
 - Request:
     - Path Param
 
@@ -387,13 +387,13 @@
             ```
 
 
-### Name: test_other_field
+### Name: TestOtherFieldHandler.post
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 106">test_other_field</abbr>||
-- Path: /api/other_field
-- Method: POST
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 118">TestOtherFieldHandler.post</abbr>||
+- Path: /api/other_field$
+- Method: post
 - Request:
     - Cookie Param
 
@@ -409,17 +409,17 @@
 
         |param name|type|default value|description|other|
         |---|---|---|---|---|
-        |a|PydanticUndefined|**`Required`**|form data||
-        |b|PydanticUndefined|**`Required`**|form data||
+        |a|string|**`Required`**|form data||
+        |b|string|**`Required`**|form data||
 - Response:
 
 
-### Name: TestCbv.get
+### Name: TestCbvHandler.get
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 144">TestCbv.get</abbr>|Text Pydantic Model and Field|
-- Path: /api/cbv
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 161">TestCbvHandler.get</abbr>|Text Pydantic Model and Field|
+- Path: /api/cbv$
 - Method: get
 - Request:
     - Header Param
@@ -490,12 +490,12 @@
             ```
 
 
-### Name: TestCbv.post
+### Name: TestCbvHandler.post
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 162">TestCbv.post</abbr>|test cbv post method|
-- Path: /api/cbv
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 179">TestCbvHandler.post</abbr>|test cbv post method|
+- Path: /api/cbv$
 - Method: post
 - Request:
     - Body Param

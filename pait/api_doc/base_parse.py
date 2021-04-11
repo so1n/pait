@@ -57,7 +57,6 @@ class PaitBaseParse(object):
                 # mad item ref support
                 key = param_dict["items"]["$ref"].split("/")[-1]
                 if isinstance(definition_dict, dict):
-                    raise Exception((key, param_dict))
                     field_dict_list.extend(self._parse_schema(definition_dict[key], definition_dict, all_param_name))
             else:
                 if "enum" in param_dict:

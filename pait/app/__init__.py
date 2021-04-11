@@ -22,6 +22,10 @@ def load_app(app: Any) -> None:
         from .sanic import load_app  # type: ignore
 
         load_app(app)
+    elif app_name == "application" and app.__class__.__module__ == "tornado.web":
+        from .tornado import load_app  # type: ignore
+
+        load_app(app)
     else:
         raise NotImplementedError(f"Pait not support:{app}")
 

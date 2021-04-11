@@ -3,13 +3,13 @@ group:
     group_list:
     - author: so1n
       func:
-        file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 30
-        name: test_raise_tip
+        file: /home/so1n/github/pait/example/param_verify/tornado_example.py
+        lineno: 34
+        name: RaiseTipHandler.post
       method:
-      - POST
-      name: test_raise_tip
-      path: /api/raise_tip
+      - post
+      name: RaiseTipHandler.post
+      path: /api/raise_tip$
       request:
         default: Required
         description: content-type
@@ -174,13 +174,13 @@ group:
       status: abandoned
     - author: so1n
       func:
-        file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 133
-        name: test_pait_model
+        file: /home/so1n/github/pait/example/param_verify/tornado_example.py
+        lineno: 147
+        name: TestPaitModelHanler.post
       method:
-      - POST
-      name: test_pait_model
-      path: /api/pait_model
+      - post
+      name: TestPaitModelHanler.post
+      path: /api/pait_model$
       request:
         default: Required
         description: age
@@ -285,13 +285,13 @@ group:
     group_list:
     - author: so1n
       func:
-        file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 49
-        name: test_post
+        file: /home/so1n/github/pait/example/param_verify/tornado_example.py
+        lineno: 55
+        name: TestPostHandler.post
       method:
-      - POST
-      name: test_post
-      path: /api/post
+      - post
+      name: TestPostHandler.post
+      path: /api/post$
       request:
         default: Required
         description: content-type
@@ -391,13 +391,13 @@ group:
       status: release
     - author: so1n
       func:
-        file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 68
-        name: test_depend
+        file: /home/so1n/github/pait/example/param_verify/tornado_example.py
+        lineno: 76
+        name: TestDependHandler.post
       method:
-      - POST
-      name: test_depend
-      path: /api/depend
+      - post
+      name: TestDependHandler.post
+      path: /api/depend$
       request:
         default: Required
         description: age
@@ -499,14 +499,13 @@ group:
       status: release
     - author: so1n
       func:
-        file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 87
-        name: test_get
+        file: /home/so1n/github/pait/example/param_verify/tornado_example.py
+        lineno: 97
+        name: TestGetHandler.get
       method:
-      - GET
-      - HEAD
-      name: test_get
-      path: /api/get/{age}
+      - get
+      name: TestGetHandler.get
+      path: /api/get/(?P<age>\w+)$
       request:
         default: Required
         description: age
@@ -655,13 +654,13 @@ group:
       status: release
     - author: so1n
       func:
-        file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 106
-        name: test_other_field
+        file: /home/so1n/github/pait/example/param_verify/tornado_example.py
+        lineno: 118
+        name: TestOtherFieldHandler.post
       method:
-      - POST
-      name: test_other_field
-      path: /api/other_field
+      - post
+      name: TestOtherFieldHandler.post
+      path: /api/other_field$
       request:
         default: Required
         description: cookie
@@ -672,13 +671,13 @@ group:
       status: release
     - author: so1n
       func:
-        file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 144
-        name: TestCbv.get
+        file: /home/so1n/github/pait/example/param_verify/tornado_example.py
+        lineno: 161
+        name: TestCbvHandler.get
       method:
       - get
-      name: TestCbv.get
-      path: /api/cbv
+      name: TestCbvHandler.get
+      path: /api/cbv$
       request:
         default: Required
         description: ua
@@ -778,13 +777,13 @@ group:
       status: release
     - author: so1n
       func:
-        file: /home/so1n/github/pait/example/param_verify/starlette_example.py
-        lineno: 162
-        name: TestCbv.post
+        file: /home/so1n/github/pait/example/param_verify/tornado_example.py
+        lineno: 179
+        name: TestCbvHandler.post
       method:
       - post
-      name: TestCbv.post
-      path: /api/cbv
+      name: TestCbvHandler.post
+      path: /api/cbv$
       request:
         default: Required
         description: ua

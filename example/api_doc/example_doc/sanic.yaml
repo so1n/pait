@@ -4,7 +4,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/sanic_example.py
-        lineno: 29
+        lineno: 30
         name: test_raise_tip
       method:
       - POST
@@ -175,7 +175,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/sanic_example.py
-        lineno: 156
+        lineno: 133
         name: test_pait_model
       method:
       - POST
@@ -286,7 +286,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/sanic_example.py
-        lineno: 54
+        lineno: 49
         name: test_post
       method:
       - POST
@@ -392,7 +392,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/sanic_example.py
-        lineno: 79
+        lineno: 68
         name: test_depend
       method:
       - POST
@@ -500,7 +500,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/sanic_example.py
-        lineno: 104
+        lineno: 87
         name: test_get
       method:
       - GET
@@ -655,7 +655,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/sanic_example.py
-        lineno: 129
+        lineno: 106
         name: test_other_field
       method:
       - POST
@@ -672,7 +672,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/sanic_example.py
-        lineno: 176
+        lineno: 144
         name: TestCbv.get
       method:
       - GET
@@ -778,7 +778,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/sanic_example.py
-        lineno: 200
+        lineno: 162
         name: TestCbv.post
       method:
       - POST

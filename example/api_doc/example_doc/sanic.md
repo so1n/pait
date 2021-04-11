@@ -5,7 +5,7 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 29">test_raise_tip</abbr>|test pait raise tip|
+|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 30">test_raise_tip</abbr>|test pait raise tip|
 - Path: api/raise_tip
 - Method: POST
 - Request:
@@ -80,7 +80,7 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 156">test_pait_model</abbr>|Test Field|
+|so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 133">test_pait_model</abbr>|Test Field|
 - Path: api/pait_model
 - Method: POST
 - Request:
@@ -161,7 +161,7 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 54">test_post</abbr>|Test Method:Post Pydantic Model|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 49">test_post</abbr>|Test Method:Post Pydantic Model|
 - Path: api/post
 - Method: POST
 - Request:
@@ -236,7 +236,7 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 79">test_depend</abbr>|Test Method:Post request, Pydantic Model|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 68">test_depend</abbr>|Test Method:Post request, Pydantic Model|
 - Path: api/depend
 - Method: POST
 - Request:
@@ -315,7 +315,7 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 104">test_get</abbr>|Test Field|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 87">test_get</abbr>|Test Field|
 - Path: api/get/<age>
 - Method: GET
 - Request:
@@ -391,7 +391,7 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 129">test_other_field</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 106">test_other_field</abbr>||
 - Path: api/other_field
 - Method: POST
 - Request:
@@ -409,8 +409,8 @@
 
         |param name|type|default value|description|other|
         |---|---|---|---|---|
-        |a|PydanticUndefined|**`Required`**|form data||
-        |b|PydanticUndefined|**`Required`**|form data||
+        |a|string|**`Required`**|form data||
+        |b|string|**`Required`**|form data||
 - Response:
 
 
@@ -418,7 +418,7 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 176">TestCbv.get</abbr>|Text Pydantic Model and Field|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 144">TestCbv.get</abbr>|Text Pydantic Model and Field|
 - Path: api/cbv
 - Method: GET
 - Request:
@@ -494,7 +494,7 @@
 
 |Author|Status|func|description|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 200">TestCbv.post</abbr>|test cbv post method|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 162">TestCbv.post</abbr>|test cbv post method|
 - Path: api/cbv
 - Method: POST
 - Request:

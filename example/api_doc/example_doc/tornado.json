@@ -4,17 +4,17 @@
       "name": "root",
       "group_list": [
         {
-          "name": "pait.test_raise_tip",
+          "name": "RaiseTipHandler.post",
           "status": "abandoned",
           "author": "so1n",
           "func": {
-            "file": "/home/so1n/github/pait/example/param_verify/sanic_example.py",
-            "lineno": 30,
-            "name": "test_raise_tip"
+            "file": "/home/so1n/github/pait/example/param_verify/tornado_example.py",
+            "lineno": 34,
+            "name": "RaiseTipHandler.post"
           },
-          "path": "api/raise_tip",
+          "path": "/api/raise_tip$",
           "method": [
-            "POST"
+            "post"
           ],
           "request": {
             "param_name": "content_type",
@@ -508,17 +508,17 @@
           ]
         },
         {
-          "name": "pait.test_pait_model",
+          "name": "TestPaitModelHanler.post",
           "status": "test",
           "author": "so1n",
           "func": {
-            "file": "/home/so1n/github/pait/example/param_verify/sanic_example.py",
-            "lineno": 133,
-            "name": "test_pait_model"
+            "file": "/home/so1n/github/pait/example/param_verify/tornado_example.py",
+            "lineno": 147,
+            "name": "TestPaitModelHanler.post"
           },
-          "path": "api/pait_model",
+          "path": "/api/pait_model$",
           "method": [
-            "POST"
+            "post"
           ],
           "request": {
             "param_name": "age",
@@ -1020,17 +1020,17 @@
       "name": "user",
       "group_list": [
         {
-          "name": "pait.test_post",
+          "name": "TestPostHandler.post",
           "status": "release",
           "author": "so1n",
           "func": {
-            "file": "/home/so1n/github/pait/example/param_verify/sanic_example.py",
-            "lineno": 49,
-            "name": "test_post"
+            "file": "/home/so1n/github/pait/example/param_verify/tornado_example.py",
+            "lineno": 55,
+            "name": "TestPostHandler.post"
           },
-          "path": "api/post",
+          "path": "/api/post$",
           "method": [
-            "POST"
+            "post"
           ],
           "request": {
             "param_name": "Content-Type",
@@ -1524,17 +1524,17 @@
           ]
         },
         {
-          "name": "pait.test_depend",
+          "name": "TestDependHandler.post",
           "status": "release",
           "author": "so1n",
           "func": {
-            "file": "/home/so1n/github/pait/example/param_verify/sanic_example.py",
-            "lineno": 68,
-            "name": "test_depend"
+            "file": "/home/so1n/github/pait/example/param_verify/tornado_example.py",
+            "lineno": 76,
+            "name": "TestDependHandler.post"
           },
-          "path": "api/depend",
+          "path": "/api/depend$",
           "method": [
-            "POST"
+            "post"
           ],
           "request": {
             "param_name": "age",
@@ -2031,17 +2031,17 @@
           ]
         },
         {
-          "name": "pait.test_get",
+          "name": "TestGetHandler.get",
           "status": "release",
           "author": "so1n",
           "func": {
-            "file": "/home/so1n/github/pait/example/param_verify/sanic_example.py",
-            "lineno": 87,
-            "name": "test_get"
+            "file": "/home/so1n/github/pait/example/param_verify/tornado_example.py",
+            "lineno": 97,
+            "name": "TestGetHandler.get"
           },
-          "path": "api/get/<age>",
+          "path": "/api/get/(?P<age>\\w+)$",
           "method": [
-            "GET"
+            "get"
           ],
           "request": {
             "param_name": "age",
@@ -2527,17 +2527,17 @@
           ]
         },
         {
-          "name": "pait.test_other_field",
+          "name": "TestOtherFieldHandler.post",
           "status": "release",
           "author": "so1n",
           "func": {
-            "file": "/home/so1n/github/pait/example/param_verify/sanic_example.py",
-            "lineno": 106,
-            "name": "test_other_field"
+            "file": "/home/so1n/github/pait/example/param_verify/tornado_example.py",
+            "lineno": 118,
+            "name": "TestOtherFieldHandler.post"
           },
-          "path": "api/other_field",
+          "path": "/api/other_field$",
           "method": [
-            "POST"
+            "post"
           ],
           "request": {
             "param_name": "cookie",
@@ -2549,17 +2549,17 @@
           "response_list": []
         },
         {
-          "name": "pait.TestCbv",
+          "name": "TestCbvHandler.get",
           "status": "release",
           "author": "so1n",
           "func": {
-            "file": "/home/so1n/github/pait/example/param_verify/sanic_example.py",
-            "lineno": 144,
-            "name": "TestCbv.get"
+            "file": "/home/so1n/github/pait/example/param_verify/tornado_example.py",
+            "lineno": 161,
+            "name": "TestCbvHandler.get"
           },
-          "path": "api/cbv",
+          "path": "/api/cbv$",
           "method": [
-            "GET"
+            "get"
           ],
           "request": {
             "param_name": "user-agent",
@@ -3045,17 +3045,17 @@
           ]
         },
         {
-          "name": "pait.TestCbv",
+          "name": "TestCbvHandler.post",
           "status": "release",
           "author": "so1n",
           "func": {
-            "file": "/home/so1n/github/pait/example/param_verify/sanic_example.py",
-            "lineno": 162,
-            "name": "TestCbv.post"
+            "file": "/home/so1n/github/pait/example/param_verify/tornado_example.py",
+            "lineno": 179,
+            "name": "TestCbvHandler.post"
           },
-          "path": "api/cbv",
+          "path": "/api/cbv$",
           "method": [
-            "POST"
+            "post"
           ],
           "request": {
             "param_name": "user-agent",
