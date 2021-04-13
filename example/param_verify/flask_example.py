@@ -16,7 +16,7 @@ from example.param_verify.model import (
 )
 from pait.app.flask import pait
 from pait.exceptions import PaitBaseException
-from pait.field import Body, Cookie, Depends, File, Form, Header, Path, Query, MultiForm, MultiQuery
+from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model import PaitStatus
 
 
@@ -124,6 +124,7 @@ def test_pait(
     sex: SexEnum = Query.i(description="sex"),
 ) -> dict:
     from flask import request
+
     """Test Field"""
     return {
         "code": 0,
@@ -134,7 +135,8 @@ def test_pait(
             "email": email,
             "age": age,
             "sex": sex.value,
-            "multi_user_name": multi_user_name}
+            "multi_user_name": multi_user_name,
+        },
     }
 
 

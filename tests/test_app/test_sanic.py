@@ -32,7 +32,7 @@ class TestSanic:
             "email": "example@xxx.com",
             "age": 3,
             "sex": "man",
-            "multi_user_name": ["abc", "efg"]
+            "multi_user_name": ["abc", "efg"],
         }
 
     def test_depend(self, client: SanicTestClient) -> None:
@@ -96,7 +96,7 @@ class TestSanic:
             "/api/other_field",
             headers={"cookie": cookie_str},
             data={"a": "1", "b": "2", "c": "3"},
-            files={"upload_file": f}
+            files={"upload_file": f},
         )
         resp: dict = response.json
         assert {

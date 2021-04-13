@@ -42,7 +42,7 @@ class TestStarlette:
             "email": "example@xxx.com",
             "age": 3,
             "sex": "man",
-            "multi_user_name": ["abc", "efg"]
+            "multi_user_name": ["abc", "efg"],
         }
 
     def test_depend(self, client: TestClient) -> None:

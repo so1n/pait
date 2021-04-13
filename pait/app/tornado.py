@@ -40,7 +40,7 @@ class AppHelper(BaseAppHelper):
         return self.request.headers
 
     def path(self) -> dict:
-        return self.cbv_class.path_kwargs
+        return self.path_kwargs
 
     @LazyProperty()
     def query(self) -> dict:
@@ -55,11 +55,10 @@ class AppHelper(BaseAppHelper):
         return {key: [i.decode() for i in value] for key, value in self.request.query_arguments.items()}
 
 
-
 def load_app(app: Application) -> None:
     """Read data from the route that has been registered to `pait`"""
     for rule in app.wildcard_router.rules:
-        path: str = rule.matcher.regex.pattern
+        path: str = rule.matcher.regex.pattern  # type: ignore
         base_name: str = rule.target.__name__
         for method in ["get", "post", "head", "options", "delete", "put", "trace", "patch"]:
             try:

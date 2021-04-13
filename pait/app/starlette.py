@@ -45,12 +45,12 @@ class AppHelper(BaseAppHelper):
         async def _() -> Dict[str, List[Any]]:
             form_data = await self.request.form()
             return {key: form_data.getlist(key) for key, _ in form_data.items()}
+
         return _()
 
     @LazyProperty()
     def multiquery(self) -> Dict[str, Any]:
         return {key: self.request.query_params.getlist(key) for key, _ in self.request.query_params.items()}
-
 
 
 def load_app(app: Starlette) -> None:

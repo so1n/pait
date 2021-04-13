@@ -26,9 +26,7 @@ class TestTornado(AsyncHTTPTestCase):
         return "%s://localhost:%s%s" % (self.get_protocol(), self.get_http_port(), path)
 
     def test_get(self) -> None:
-        response = self.fetch(
-            "/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
-        )
+        response = self.fetch("/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg")
         resp: dict = json.loads(response.body.decode())
 
         assert resp["code"] == 0
@@ -38,7 +36,7 @@ class TestTornado(AsyncHTTPTestCase):
             "email": "example@xxx.com",
             "age": 3,
             "sex": "man",
-            "multi_user_name": ["abc", "efg"]
+            "multi_user_name": ["abc", "efg"],
         }
 
     def test_depend(self) -> None:

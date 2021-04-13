@@ -19,7 +19,7 @@ from example.param_verify.model import (
 )
 from pait.app.starlette import pait
 from pait.exceptions import PaitBaseException
-from pait.field import Body, Cookie, Depends, File, Form, Header, Path, Query, MultiForm, MultiQuery
+from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model import PaitStatus
 
 
@@ -110,8 +110,8 @@ async def test_get(
                 "email": email,
                 "age": age,
                 "sex": sex.value,
-                "multi_user_name": multi_user_name
-            }
+                "multi_user_name": multi_user_name,
+            },
         }
     )
 

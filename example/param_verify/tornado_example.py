@@ -16,7 +16,7 @@ from example.param_verify.model import (
     demo_depend,
 )
 from pait.app.tornado import pait
-from pait.field import Body, Cookie, Depends, File, Form, Header, Path, Query, MultiForm, MultiQuery
+from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model import PaitStatus
 
 
@@ -117,8 +117,8 @@ class TestGetHandler(MyHandler):
                     "email": email,
                     "age": age,
                     "sex": sex.value,
-                    "multi_user_name": multi_user_name
-                }
+                    "multi_user_name": multi_user_name,
+                },
             }
         )
 

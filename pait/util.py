@@ -16,10 +16,11 @@ Undefined: UndefinedType = UndefinedType()
 
 class LazyProperty:
     def __call__(self, func: Callable) -> Callable:
-
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             class_ = args[0]
-            future: Optional[futures.Future] = getattr(class_, f"{self.__class__.__name__}_{func.__name__}_future", None)
+            future: Optional[futures.Future] = getattr(
+                class_, f"{self.__class__.__name__}_{func.__name__}_future", None
+            )
             if not future:
                 future = futures.Future()
                 result: Any = func(*args, **kwargs)
