@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 
 class PaitStatus(Enum):
+    """Interface life cycle"""
     undefined = "undefined"
     # The interface is under development and will frequently change
     design = "design"
@@ -33,6 +34,7 @@ class PaitStatus(Enum):
 
 @dataclass()
 class PaitResponseModel(object):
+    """response model"""
     description: Optional[str] = ""
     header: dict = field(default_factory=dict)
     media_type: str = "application/json"
@@ -47,6 +49,12 @@ class PaitResponseModel(object):
 
 
 class PaitBaseModel(object):
+    """pait base model, The value of the attribute supports filling in the pait field 
+    >>> from pait import field
+    >>> class Demo(PaitBaseModel):
+    ...     a: int = field.Query.i()
+    ...     b: str = field.Body.i()
+    """
     _pydantic_model: Optional[Type[BaseModel]] = None
 
     @classmethod
@@ -112,9 +120,9 @@ class PaitCoreModel(object):
         self.method_list: List[str] = sorted(list(method_set or set()))  # request method set
         self.operation_id: Optional[str] = operation_id or None  # route name
         self.func_name: str = func_name or func.__name__
-        self.author: Tuple[str, ...] = author or ("",)
-        self.desc = desc or func.__doc__ or ""
-        self.status: PaitStatus = status or PaitStatus.undefined
-        self.group: str = group or "root"
-        self.tag: Tuple[str, ...] = tag or ("default",)
+        self.author: Tuple[str, ...] = author or ("",)  # The main developer of this func
+        self.desc = desc or func.__doc__ or ""  # desc of this func
+        self.status: PaitStatus = status or PaitStatus.undefined  # Interface development progress (life cycle)
+        self.group: str = group or "root"  # Which group this interface belongs to
+        self.tag: Tuple[str, ...] = tag or ("default",)  # Interface tag
         self.response_model_list: Optional[List[Type[PaitResponseModel]]] = response_model_list

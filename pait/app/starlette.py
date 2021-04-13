@@ -1,4 +1,4 @@
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Callable, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union
 
 from starlette.applications import Starlette
 from starlette.datastructures import FormData, Headers, UploadFile
@@ -18,6 +18,10 @@ class AppHelper(BaseAppHelper):
     FormType = FormData
     FileType = UploadFile
     HeaderType = Headers
+    app_name = "starlette"
+
+    def __init__(self, class_: Any, args: Tuple[Any, ...], kwargs: Mapping[str, Any]):
+        super().__init__(class_, args, kwargs)
 
     def body(self) -> dict:
         return self.request.json()
@@ -53,7 +57,7 @@ class AppHelper(BaseAppHelper):
         return {key: self.request.query_params.getlist(key) for key, _ in self.request.query_params.items()}
 
 
-def load_app(app: Starlette) -> None:
+def load_app(app: Starlette) -> str:
     """Read data from the route that has been registered to `pait`"""
     for route in app.routes:
         if not isinstance(route, Route):
@@ -73,9 +77,10 @@ def load_app(app: Starlette) -> None:
                 pait_id = getattr(method_endpoint, "_pait_id", None)
                 if not pait_id:
                     continue
-                pait_data.add_route_info(pait_id, path, method_set, f"{route_name}.{method}")
+                pait_data.add_route_info(AppHelper.app_name, pait_id, path, method_set, f"{route_name}.{method}")
         else:
-            pait_data.add_route_info(pait_id, path, method_set, route_name)
+            pait_data.add_route_info(AppHelper.app_name, pait_id, path, method_set, route_name)
+    return AppHelper.app_name
 
 
 def pait(

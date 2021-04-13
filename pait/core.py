@@ -1,6 +1,6 @@
 import inspect
 from functools import wraps
-from typing import Any, Callable, List, Optional, Tuple, Type, Union
+from typing import Any, Callable, List, Optional, Tuple, Type
 
 from pait.app.base import BaseAppHelper
 from pait.g import pait_data
@@ -20,6 +20,8 @@ def pait(
 ) -> Callable:
     if not isinstance(app_helper_class, type):
         raise TypeError(f"{app_helper_class} must be class")
+    if not issubclass(app_helper_class, BaseAppHelper):
+        raise TypeError(f"{app_helper_class} must sub {BaseAppHelper.__class__.__name__}")
 
     def wrapper(func: Callable) -> Callable:
         func_sig: FuncSig = get_func_sig(func)
@@ -28,6 +30,7 @@ def pait(
         pait_id: str = f"{qualname}_{id(func)}"
         setattr(func, "_pait_id", pait_id)
         pait_data.register(
+            app_helper_class.app_name,
             PaitCoreModel(
                 author=author,
                 desc=desc,

@@ -6,20 +6,22 @@ from pait.model import PaitCoreModel
 
 class PaitData(object):
     def __init__(self) -> None:
-        self.pait_id_dict: Dict[str, "PaitCoreModel"] = {}
+        self.pait_id_dict: Dict[str, Dict[str, "PaitCoreModel"]] = {}
 
     def reset(self) -> None:
         self.pait_id_dict = {}
 
-    def register(self, pait_info_model: "PaitCoreModel") -> None:
+    def register(self, app_name: str, pait_info_model: "PaitCoreModel") -> None:
         pait_id: str = pait_info_model.pait_id
-        self.pait_id_dict[pait_id] = pait_info_model
+        if app_name not in self.pait_id_dict:
+            self.pait_id_dict[app_name] = {}
+        self.pait_id_dict[app_name][pait_id] = pait_info_model
 
-    def add_route_info(self, pait_id: str, path: str, method_set: Set[str], route_name: str) -> None:
-        if pait_id in self.pait_id_dict:
-            self.pait_id_dict[pait_id].path = path
-            self.pait_id_dict[pait_id].method_list = sorted(list(method_set or set()))
-            self.pait_id_dict[pait_id].operation_id = route_name
+    def add_route_info(self, app_name: str, pait_id: str, path: str, method_set: Set[str], route_name: str) -> None:
+        if pait_id in self.pait_id_dict[app_name]:
+            self.pait_id_dict[app_name][pait_id].path = path
+            self.pait_id_dict[app_name][pait_id].method_list = sorted(list(method_set or set()))
+            self.pait_id_dict[app_name][pait_id].operation_id = route_name
         else:
             logging.warning(f"loan path:{path} fail, pait id:{pait_id}")
 

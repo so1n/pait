@@ -16,11 +16,13 @@ class AppHelper(BaseAppHelper):
     FormType = dict
     FileType = dict
     HeaderType = dict
+    app_name = "tornado"
 
     def __init__(self, class_: Any, args: Tuple[Any, ...], kwargs: Mapping[str, Any]):
         super().__init__(class_, args, kwargs)
         if not self.cbv_class:
             raise RuntimeError("Can not load Tornado handle")
+
         self.request = self.cbv_class.request
         self.path_kwargs: Dict[str, Any] = self.cbv_class.path_kwargs
 
@@ -55,7 +57,7 @@ class AppHelper(BaseAppHelper):
         return {key: [i.decode() for i in value] for key, value in self.request.query_arguments.items()}
 
 
-def load_app(app: Application) -> None:
+def load_app(app: Application) -> str:
     """Read data from the route that has been registered to `pait`"""
     for rule in app.wildcard_router.rules:
         path: str = rule.matcher.regex.pattern  # type: ignore
@@ -69,7 +71,8 @@ def load_app(app: Application) -> None:
             pait_id: Optional[str] = getattr(handler, "_pait_id", None)
             if not pait_id:
                 continue
-            pait_data.add_route_info(pait_id, path, {method}, route_name)
+            pait_data.add_route_info(AppHelper.app_name, pait_id, path, {method}, route_name)
+    return AppHelper.app_name
 
 
 def pait(

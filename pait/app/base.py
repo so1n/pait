@@ -9,6 +9,7 @@ class BaseAppHelper(object):
     FormType = type(None)
     FileType = type(None)
     HeaderType = type(None)
+    app_name: Optional[str] = None
 
     def __init__(self, class_: Any, args: Tuple[Any, ...], kwargs: Mapping[str, Any]):
         """

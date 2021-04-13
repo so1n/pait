@@ -19,10 +19,12 @@ json_type_default_value_dict: Dict[str, Any] = {
 
 
 class PaitMd(PaitBaseParse):
-    def __init__(self, title: str = "Pait Doc", use_html_details: bool = True, filename: Optional[str] = None):
+    def __init__(
+            self, app_name: str, title: str = "Pait Doc", use_html_details: bool = True, filename: Optional[str] = None
+    ):
         self._use_html_details: bool = use_html_details  # some not support markdown in html
         self._title: str = title
-        super().__init__()
+        super().__init__(app_name)
 
         markdown_text: str = self.gen_markdown_text()
         self.output(filename, markdown_text, ".md")

@@ -13,18 +13,18 @@ from pait.util import FuncSig, create_pydantic_model, get_func_sig, get_paramete
 
 
 class PaitBaseParse(object):
-    def __init__(self, undefined: Any = Undefined):
+    def __init__(self, app_name: str, undefined: Any = Undefined):
         if not pait_data:
             raise RuntimeError(f"`pait info not init`, please run load_app")
         self._undefined: Any = undefined
         self._group_list: List[str] = []
         self._group_pait_dict: Dict[str, List[PaitCoreModel]] = {}
 
-        self._init()
+        self._init(app_name)
 
-    def _init(self) -> None:
+    def _init(self, app_name: str) -> None:
         """read from `pait_id_dict` and write PaitMd attributes"""
-        for pait_id, pait_model in pait_data.pait_id_dict.items():
+        for pait_id, pait_model in pait_data.pait_id_dict[app_name].items():
             if not pait_model.operation_id:
                 continue
             group: str = pait_model.group

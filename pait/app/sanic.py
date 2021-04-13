@@ -17,6 +17,7 @@ class AppHelper(BaseAppHelper):
     FormType = RequestParameters
     FileType = File
     HeaderType = HeaderIterable
+    app_name = "sanic"
 
     def __init__(self, class_: Any, args: Tuple[Any, ...], kwargs: Mapping[str, Any]):
         super().__init__(class_, args, kwargs)
@@ -52,7 +53,7 @@ class AppHelper(BaseAppHelper):
         return {key: self.request.args.getlist(key) for key, _ in self.request.args.items()}
 
 
-def load_app(app: Sanic) -> None:
+def load_app(app: Sanic) -> str:
     """Read data from the route that has been registered to `pait`"""
     for parts, route in app.router.routes_all.items():
         if route.name and "static" in route.name:
@@ -72,7 +73,8 @@ def load_app(app: Sanic) -> None:
                     if not pait_id:
                         logging.warning(f"{route_name} can not found pait id")
                         continue
-                    pait_data.add_route_info(pait_id, path, {method}, route_name)
+                    pait_data.add_route_info(AppHelper.app_name, pait_id, path, {method}, route_name)
+    return AppHelper.app_name
 
 
 def pait(

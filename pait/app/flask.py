@@ -17,6 +17,7 @@ class AppHelper(BaseAppHelper):
     FormType = ImmutableMultiDict
     FileType = Request.files
     HeaderType = EnvironHeaders
+    app_name = "flask"
 
     def __init__(self, class_: Any, args: Tuple[Any, ...], kwargs: Mapping[str, Any]):
         super().__init__(class_, args, kwargs)
@@ -53,7 +54,7 @@ class AppHelper(BaseAppHelper):
         return {key: request.args.getlist(key) for key, _ in request.args.items()}
 
 
-def load_app(app: Flask) -> None:
+def load_app(app: Flask) -> str:
     """Read data from the route that has been registered to `pait`"""
     for route in app.url_map.iter_rules():
         path: str = route.rule
@@ -77,9 +78,10 @@ def load_app(app: Flask) -> None:
                 pait_id = getattr(endpoint, "_pait_id", None)
                 if not pait_id:
                     continue
-                pait_data.add_route_info(pait_id, path, method_set, f"{route_name}.{method}")
+                pait_data.add_route_info(AppHelper.app_name, pait_id, path, method_set, f"{route_name}.{method}")
         else:
-            pait_data.add_route_info(pait_id, path, method_set, route_name)
+            pait_data.add_route_info(AppHelper.app_name, pait_id, path, method_set, route_name)
+    return AppHelper.app_name
 
 
 def pait(

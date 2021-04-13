@@ -11,10 +11,17 @@ class UndefinedType:
         return "PaitUndefined"
 
 
+# pait undefined flag
 Undefined: UndefinedType = UndefinedType()
 
 
 class LazyProperty:
+    """Cache field computing resources
+    >>> class Demo:
+    ...     @LazyProperty
+    ...     def value(self, value):
+    ...         return value * value
+    """
     def __call__(self, func: Callable) -> Callable:
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             class_ = args[0]
@@ -33,7 +40,9 @@ class LazyProperty:
 
 
 def create_pydantic_model(annotation_dict: Dict[str, Tuple[Type, Any]]) -> Type[BaseModel]:
-    """if use create_model('DynamicModel', **annotation_dict), mypy will tip error"""
+    """pydantic create_model helper
+    if use create_model('DynamicModel', **annotation_dict), mypy will tip error
+    """
     return create_model(
         "DynamicModel",
         __config__=None,
@@ -46,12 +55,14 @@ def create_pydantic_model(annotation_dict: Dict[str, Tuple[Type, Any]]) -> Type[
 
 @dataclass()
 class FuncSig:
+    """func inspect.Signature model"""
     func: Callable
     sig: "inspect.Signature"
     param_list: List["inspect.Parameter"]
 
 
 def get_func_sig(func: Callable) -> FuncSig:
+    """get func inspect.Signature model"""
     sig: inspect.Signature = inspect.signature(func)
     param_list: List[inspect.Parameter] = [
         sig.parameters[key]
@@ -63,6 +74,7 @@ def get_func_sig(func: Callable) -> FuncSig:
 
 
 def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:
+    """get class parameter list by attributes, if attributes not default value, it will be set `Undefined`"""
     parameter_list: List["inspect.Parameter"] = []
     if hasattr(cbv_class, "__annotations__"):
         for param_name, param_annotation in get_type_hints(cbv_class).items():

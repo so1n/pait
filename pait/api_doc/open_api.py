@@ -53,6 +53,7 @@ class _OpenApiServerModel(BaseModel):
 class PaitOpenApi(PaitBaseParse):
     def __init__(
         self,
+        app_name: str,
         title: Optional[str] = None,
         open_api_info: Optional[Dict[str, Any]] = None,
         open_api_tag_list: Optional[List[Dict[str, Any]]] = None,
@@ -61,7 +62,7 @@ class PaitOpenApi(PaitBaseParse):
         type_: str = "json",
         filename: Optional[str] = None,
     ):
-        super().__init__()
+        super().__init__(app_name)
         self._header_keyword_dict: Dict[str, str] = {
             "Content-Type": "requestBody.content.<media-type>",
             "Accept": "responses.<code>.content.<media-type>",

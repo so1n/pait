@@ -9,9 +9,9 @@ from pait.app import load_app
 
 if __name__ == "__main__":
     filename: str = "./example_doc/flask_pait"
-    load_app(create_app())
-    PaitMd(use_html_details=True, filename=filename)
-    PaitJson(filename=filename, indent=2)
-    PaitYaml(filename=filename)
+    app_name: str = load_app(create_app())
+    PaitMd(app_name, use_html_details=True, filename=filename)
+    PaitJson(app_name, filename=filename, indent=2)
+    PaitYaml(app_name, filename=filename)
     for i in ("json", "yaml"):
-        PaitOpenApi(title="Pait Doc", filename=filename + "_openapi", type_=i)
+        PaitOpenApi(app_name, title="Pait Doc", filename=filename + "_openapi", type_=i)
