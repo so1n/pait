@@ -1,20 +1,23 @@
+from typing import Dict
+
 from example.param_verify.starlette_example import create_app
 from pait.api_doc.markdown import PaitMd
 from pait.api_doc.open_api import PaitOpenApi
 from pait.api_doc.pait_json import PaitJson
 from pait.api_doc.pait_yaml import PaitYaml
 from pait.app import load_app
+from pait.model import PaitCoreModel
 
 if __name__ == "__main__":
     filename: str = "./example_doc/starlette"
-    app_name: str = load_app(create_app())
-    PaitMd(app_name, use_html_details=True, filename=filename)
-    PaitJson(app_name, filename=filename, indent=2)
-    PaitYaml(app_name, filename=filename)
+    pait_dict: Dict[str, PaitCoreModel] = load_app(create_app())
+    PaitMd(pait_dict, use_html_details=True, filename=filename)
+    PaitJson(pait_dict, filename=filename, indent=2)
+    PaitYaml(pait_dict, filename=filename)
 
     for i in ("json", "yaml"):
         PaitOpenApi(
-            app_name,
+            pait_dict,
             title="Pait Doc",
             open_api_tag_list=[
                 {"name": "test", "description": "test api"},

@@ -8,7 +8,7 @@ from sanic.request import File, Request, RequestParameters
 from pait.app.base import BaseAppHelper
 from pait.core import pait as _pait
 from pait.g import pait_data
-from pait.model import PaitResponseModel, PaitStatus
+from pait.model import PaitCoreModel, PaitResponseModel, PaitStatus
 from pait.util import LazyProperty
 
 
@@ -53,7 +53,8 @@ class AppHelper(BaseAppHelper):
         return {key: self.request.args.getlist(key) for key, _ in self.request.args.items()}
 
 
-def load_app(app: Sanic) -> str:
+def load_app(app: Sanic) -> Dict[str, PaitCoreModel]:
+    _pait_data: Dict[str, PaitCoreModel] = {}
     """Read data from the route that has been registered to `pait`"""
     for parts, route in app.router.routes_all.items():
         if route.name and "static" in route.name:
@@ -74,7 +75,8 @@ def load_app(app: Sanic) -> str:
                         logging.warning(f"{route_name} can not found pait id")
                         continue
                     pait_data.add_route_info(AppHelper.app_name, pait_id, path, {method}, route_name)
-    return AppHelper.app_name
+                    _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
+    return _pait_data
 
 
 def pait(

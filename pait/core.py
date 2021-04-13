@@ -22,6 +22,9 @@ def pait(
         raise TypeError(f"{app_helper_class} must be class")
     if not issubclass(app_helper_class, BaseAppHelper):
         raise TypeError(f"{app_helper_class} must sub {BaseAppHelper.__class__.__name__}")
+    app_name: str = getattr(app_helper_class, "app_name", "")
+    if not app_name:
+        raise AttributeError(f"{app_helper_class} can not fount `app_name`")
 
     def wrapper(func: Callable) -> Callable:
         func_sig: FuncSig = get_func_sig(func)
@@ -30,7 +33,7 @@ def pait(
         pait_id: str = f"{qualname}_{id(func)}"
         setattr(func, "_pait_id", pait_id)
         pait_data.register(
-            app_helper_class.app_name,
+            app_name,
             PaitCoreModel(
                 author=author,
                 desc=desc,

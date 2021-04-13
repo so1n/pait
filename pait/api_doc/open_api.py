@@ -7,7 +7,7 @@ from pydantic.fields import Undefined
 
 from pait import field as pait_field
 from pait.api_doc.base_parse import PaitBaseParse
-from pait.model import PaitResponseModel, PaitStatus
+from pait.model import PaitCoreModel, PaitResponseModel, PaitStatus
 from pait.util import create_pydantic_model
 
 __all__ = ["PaitOpenApi"]
@@ -53,7 +53,7 @@ class _OpenApiServerModel(BaseModel):
 class PaitOpenApi(PaitBaseParse):
     def __init__(
         self,
-        app_name: str,
+        pait_dict: Dict[str, PaitCoreModel],
         title: Optional[str] = None,
         open_api_info: Optional[Dict[str, Any]] = None,
         open_api_tag_list: Optional[List[Dict[str, Any]]] = None,
@@ -62,7 +62,7 @@ class PaitOpenApi(PaitBaseParse):
         type_: str = "json",
         filename: Optional[str] = None,
     ):
-        super().__init__(app_name)
+        super().__init__(pait_dict)
         self._header_keyword_dict: Dict[str, str] = {
             "Content-Type": "requestBody.content.<media-type>",
             "Accept": "responses.<code>.content.<media-type>",

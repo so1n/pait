@@ -7,24 +7,21 @@ from pydantic import BaseModel
 from pydantic.fields import Undefined
 
 from pait.field import BaseField, Depends
-from pait.g import pait_data
 from pait.model import PaitBaseModel, PaitCoreModel, PaitResponseModel
 from pait.util import FuncSig, create_pydantic_model, get_func_sig, get_parameter_list_from_class
 
 
 class PaitBaseParse(object):
-    def __init__(self, app_name: str, undefined: Any = Undefined):
-        if not pait_data:
-            raise RuntimeError(f"`pait info not init`, please run load_app")
+    def __init__(self, pait_dict: Dict[str, PaitCoreModel], undefined: Any = Undefined):
         self._undefined: Any = undefined
         self._group_list: List[str] = []
         self._group_pait_dict: Dict[str, List[PaitCoreModel]] = {}
 
-        self._init(app_name)
+        self._init(pait_dict)
 
-    def _init(self, app_name: str) -> None:
+    def _init(self, pait_dict: Dict[str, PaitCoreModel]) -> None:
         """read from `pait_id_dict` and write PaitMd attributes"""
-        for pait_id, pait_model in pait_data.pait_id_dict[app_name].items():
+        for pait_id, pait_model in pait_dict.items():
             if not pait_model.operation_id:
                 continue
             group: str = pait_model.group

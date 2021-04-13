@@ -7,7 +7,7 @@ from tornado.web import Application
 from pait.app.base import BaseAppHelper
 from pait.core import pait as _pait
 from pait.g import pait_data
-from pait.model import PaitResponseModel, PaitStatus
+from pait.model import PaitCoreModel, PaitResponseModel, PaitStatus
 from pait.util import LazyProperty
 
 
@@ -57,8 +57,9 @@ class AppHelper(BaseAppHelper):
         return {key: [i.decode() for i in value] for key, value in self.request.query_arguments.items()}
 
 
-def load_app(app: Application) -> str:
+def load_app(app: Application) -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`"""
+    _pait_data: Dict[str, PaitCoreModel] = {}
     for rule in app.wildcard_router.rules:
         path: str = rule.matcher.regex.pattern  # type: ignore
         base_name: str = rule.target.__name__
@@ -72,7 +73,8 @@ def load_app(app: Application) -> str:
             if not pait_id:
                 continue
             pait_data.add_route_info(AppHelper.app_name, pait_id, path, {method}, route_name)
-    return AppHelper.app_name
+            _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
+    return _pait_data
 
 
 def pait(

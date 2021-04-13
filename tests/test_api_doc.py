@@ -1,64 +1,28 @@
-from example.api_doc import flask_example, starlette_example, sanic_example, tornado_example
+import importlib
+from typing import Dict
+
+from pait.app.auto_load_app import app_list
+from pait.model import PaitCoreModel
+from pait.g import pait_data
 
 
 class TestApiDoc:
-    def test_flask(self) -> None:
-        """Now, ignore test api doc"""
-        app_name: str = flask_example.load_app(flask_example.create_app())
-        flask_example.PaitMd(app_name, use_html_details=True)
-        flask_example.PaitJson(app_name, indent=2)
-        flask_example.PaitYaml(app_name, )
-        for i in ("json", "yaml"):
-            flask_example.PaitOpenApi(app_name, title="Pait Doc", type_=i)
+    """Now, ignore test api doc"""
+    def test_app_api_doc(self) -> None:
+        for app_name in app_list:
+            module = importlib.import_module(f"example.api_doc.{app_name}_example")  # type: ignore
+            pait_dict: Dict[str, PaitCoreModel] = module.load_app(module.create_app())  # type: ignore
 
-    def test_starlette(self) -> None:
-        """Now, ignore test api doc"""
-        app_name: str = starlette_example.load_app(starlette_example.create_app())
-        starlette_example.PaitMd(app_name, use_html_details=True)
-        starlette_example.PaitJson(app_name, indent=2)
-        starlette_example.PaitYaml(app_name)
-        for i in ("json", "yaml"):
-            starlette_example.PaitOpenApi(
-                app_name,
-                title="Pait Doc",
-                open_api_tag_list=[
-                    {"name": "test", "description": "test api"},
-                    {"name": "user", "description": "user api"},
-                ],
-                type_=i,
-            )
-
-    def test_sanic(self) -> None:
-        """Now, ignore test api doc"""
-        app_name: str = sanic_example.load_app(sanic_example.create_app())
-        sanic_example.PaitMd(app_name, use_html_details=True)
-        sanic_example.PaitJson(app_name, indent=2)
-        sanic_example.PaitYaml(app_name)
-        for i in ("json", "yaml"):
-            sanic_example.PaitOpenApi(
-                app_name,
-                title="Pait Doc",
-                open_api_tag_list=[
-                    {"name": "test", "description": "test api"},
-                    {"name": "user", "description": "user api"},
-                ],
-                type_=i,
-            )
-
-    def test_tornado(self) -> None:
-        """Now, ignore test api doc"""
-        app_name: str = tornado_example.load_app(tornado_example.create_app())
-        tornado_example.PaitMd(app_name, use_html_details=True)
-        tornado_example.PaitJson(app_name, indent=2)
-        tornado_example.PaitYaml(app_name)
-        for i in ("json", "yaml"):
-            tornado_example.PaitOpenApi(
-                app_name,
-                title="Pait Doc",
-                open_api_tag_list=[
-                    {"name": "test", "description": "test api"},
-                    {"name": "user", "description": "user api"},
-                ],
-                type_=i,
-            )
-
+            module.PaitMd(pait_dict, use_html_details=True)  # type: ignore
+            module.PaitJson(pait_dict, indent=2)  # type: ignore
+            module.PaitYaml(pait_dict)  # type: ignore
+            for i in ("json", "yaml"):
+                module.PaitOpenApi(  # type: ignore
+                    pait_dict,
+                    title="Pait Doc",
+                    open_api_tag_list=[
+                        {"name": "test", "description": "test api"},
+                        {"name": "user", "description": "user api"},
+                    ],
+                    type_=i,
+                )

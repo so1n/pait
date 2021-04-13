@@ -8,7 +8,7 @@ from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 from pait.app.base import BaseAppHelper
 from pait.core import pait as _pait
 from pait.g import pait_data
-from pait.model import PaitResponseModel, PaitStatus
+from pait.model import PaitCoreModel, PaitResponseModel, PaitStatus
 from pait.util import LazyProperty
 
 
@@ -54,8 +54,9 @@ class AppHelper(BaseAppHelper):
         return {key: request.args.getlist(key) for key, _ in request.args.items()}
 
 
-def load_app(app: Flask) -> str:
+def load_app(app: Flask) -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`"""
+    _pait_data: Dict[str, PaitCoreModel] = {}
     for route in app.url_map.iter_rules():
         path: str = route.rule
         method_set: Set[str] = route.methods
@@ -79,9 +80,11 @@ def load_app(app: Flask) -> str:
                 if not pait_id:
                     continue
                 pait_data.add_route_info(AppHelper.app_name, pait_id, path, method_set, f"{route_name}.{method}")
+                _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
         else:
             pait_data.add_route_info(AppHelper.app_name, pait_id, path, method_set, route_name)
-    return AppHelper.app_name
+            _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
+    return _pait_data
 
 
 def pait(

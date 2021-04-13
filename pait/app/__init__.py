@@ -1,11 +1,11 @@
-from typing import Any, Callable, List, Optional, Tuple, Type
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
-from pait.model import PaitResponseModel, PaitStatus
+from pait.model import PaitCoreModel, PaitResponseModel, PaitStatus
 
 from .auto_load_app import auto_load_app_class  # type: ignore
 
 
-def load_app(app: Any) -> str:
+def load_app(app: Any) -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`
     Note:This is an implicit method
     """

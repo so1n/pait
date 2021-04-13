@@ -17,6 +17,9 @@ class PaitData(object):
             self.pait_id_dict[app_name] = {}
         self.pait_id_dict[app_name][pait_id] = pait_info_model
 
+    def get_pait_data(self, app_name: str, pait_id: str) -> PaitCoreModel:
+        return self.pait_id_dict[app_name][pait_id]
+
     def add_route_info(self, app_name: str, pait_id: str, path: str, method_set: Set[str], route_name: str) -> None:
         if pait_id in self.pait_id_dict[app_name]:
             self.pait_id_dict[app_name][pait_id].path = path
