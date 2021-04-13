@@ -42,13 +42,15 @@ def pait(
     Note:This is an implicit method
     """
     load_class_app = auto_load_app_class()
-    if load_class_app.__name__.lower() == "flask":
+    app_name: str = load_class_app.__name__.lower()
+    if app_name == "flask":
         from .flask import pait
-
-        return pait(author, desc, status, group, tag, response_model_list)
-    elif load_class_app.__name__.lower() == "starlette":
+    elif app_name == "starlette":
         from .starlette import pait
-
-        return pait(author, desc, status, group, tag, response_model_list)
+    elif app_name == "sanic":
+        from .sanic import pait
+    elif app_name == "tornado":
+        from .tornado import pait
     else:
         raise NotImplementedError(f"Pait not support:{load_class_app}")
+    return pait(author, desc, status, group, tag, response_model_list)

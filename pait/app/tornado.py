@@ -1,4 +1,3 @@
-import logging
 import json
 from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Type
 
@@ -9,6 +8,7 @@ from pait.app.base import BaseAppHelper
 from pait.core import pait as _pait
 from pait.g import pait_data
 from pait.model import PaitResponseModel, PaitStatus
+from pait.util import LazyProperty
 
 
 class AppHelper(BaseAppHelper):
@@ -19,8 +19,10 @@ class AppHelper(BaseAppHelper):
 
     def __init__(self, class_: Any, args: Tuple[Any, ...], kwargs: Mapping[str, Any]):
         super().__init__(class_, args, kwargs)
+        if not self.cbv_class:
+            raise RuntimeError("Can not load Tornado handle")
         self.request = self.cbv_class.request
-        self._path_kwargs = self.cbv_class.path_kwargs
+        self.path_kwargs: Dict[str, Any] = self.cbv_class.path_kwargs
 
     def body(self) -> dict:
         return json.loads(self.request.body.decode())
@@ -32,16 +34,26 @@ class AppHelper(BaseAppHelper):
         return self.request.files
 
     def form(self) -> dict:
-        return self.request.body_arguments
+        return {key: value[0] for key, value in self.request.body_arguments}
 
     def header(self) -> dict:
         return self.request.headers
 
     def path(self) -> dict:
-        return self._path_kwargs
+        return self.cbv_class.path_kwargs
 
+    @LazyProperty()
     def query(self) -> dict:
         return {key: value[0].decode() for key, value in self.request.query_arguments.items()}
+
+    @LazyProperty()
+    def multiform(self) -> Dict[str, List[Any]]:
+        return self.request.body_arguments
+
+    @LazyProperty()
+    def multiquery(self) -> Dict[str, Any]:
+        return {key: [i.decode() for i in value] for key, value in self.request.query_arguments.items()}
+
 
 
 def load_app(app: Application) -> None:

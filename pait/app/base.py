@@ -58,6 +58,12 @@ class BaseAppHelper(object):
     def form(self) -> Any:
         raise NotImplementedError
 
+    def multiform(self) -> Any:
+        raise NotImplementedError
+
+    def multiquery(self) -> Any:
+        raise NotImplementedError
+
     def check_request_type(self, value: Any) -> bool:
         return value is self.RequestType
 

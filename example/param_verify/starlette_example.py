@@ -1,4 +1,4 @@
-from typing import Any, Tuple
+from typing import Any, List, Tuple
 
 from pydantic import ValidationError
 from starlette.applications import Starlette
@@ -19,7 +19,7 @@ from example.param_verify.model import (
 )
 from pait.app.starlette import pait
 from pait.exceptions import PaitBaseException
-from pait.field import Body, Cookie, Depends, File, Form, Header, Path, Query
+from pait.field import Body, Cookie, Depends, File, Form, Header, Path, Query, MultiForm, MultiQuery
 from pait.model import PaitStatus
 
 
@@ -97,10 +97,23 @@ async def test_get(
     email: str = Query.i(default="example@xxx.com", description="user email"),
     age: int = Path.i(description="age"),
     sex: SexEnum = Query.i(description="sex"),
+    multi_user_name: List[str] = MultiQuery.i(description="user name", min_length=2, max_length=4),
 ) -> JSONResponse:
     """Test Field"""
-    return_dict = {"uid": uid, "user_name": user_name, "email": email, "age": age, "sex": sex.value}
-    return JSONResponse({"code": 0, "msg": "", "data": return_dict})
+    return JSONResponse(
+        {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "uid": uid,
+                "user_name": user_name,
+                "email": email,
+                "age": age,
+                "sex": sex.value,
+                "multi_user_name": multi_user_name
+            }
+        }
+    )
 
 
 @pait(
@@ -113,6 +126,7 @@ async def test_other_field(
     upload_file: Any = File.i(description="upload file"),
     a: Any = Form.i(description="form data"),
     b: Any = Form.i(description="form data"),
+    c: Any = MultiForm.i(description="form data"),
     cookie: dict = Cookie.i(raw_return=True, description="cookie"),
 ) -> JSONResponse:
     return JSONResponse(
@@ -124,6 +138,7 @@ async def test_other_field(
                 "content": (await upload_file.read()).decode(),
                 "form_a": (await a.read()).decode(),
                 "form_b": (await b.read()).decode(),
+                "form_c": [(await i.read()).decode() for i in c],
                 "cookie": cookie,
             },
         }

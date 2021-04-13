@@ -27,9 +27,18 @@ def client() -> Generator[FlaskClient, None, None]:
 
 class TestFlask:
     def test_get(self, client: FlaskClient) -> None:
-        resp: dict = client.get("/api/get/3?uid=123&user_name=appl&sex=man").get_json()
+        resp: dict = client.get(
+            "/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
+        ).get_json()
         assert resp["code"] == 0
-        assert resp["data"] == {"uid": 123, "user_name": "appl", "email": "example@xxx.com", "age": 3, "sex": "man"}
+        assert resp["data"] == {
+            "uid": 123,
+            "user_name": "appl",
+            "email": "example@xxx.com",
+            "age": 3,
+            "sex": "man",
+            "multi_user_name": ["abc", "efg"]
+        }
 
     def test_depend(self, client: FlaskClient) -> None:
         resp: dict = client.post(
@@ -81,7 +90,7 @@ class TestFlask:
         f.write(file_content.encode())
         f.seek(0)
 
-        form_dict: dict = {"a": "1", "b": "2", "upload_file": f}
+        form_dict: dict = {"a": "1", "b": "2", "upload_file": f, "c": "3"}
         client.set_cookie("localhost", "abcd", "abcd")
         resp: dict = client.post("/api/other_field", data=form_dict).get_json()
         assert {
@@ -89,6 +98,7 @@ class TestFlask:
             "content": file_content,
             "form_a": "1",
             "form_b": "2",
+            "form_c": ["3"],
             "cookie": {"abcd": "abcd"},
         } == resp["data"]
 

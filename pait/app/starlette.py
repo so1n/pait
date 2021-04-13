@@ -1,4 +1,4 @@
-from typing import Callable, List, Optional, Tuple, Type, Union
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Type, Union
 
 from starlette.applications import Starlette
 from starlette.datastructures import FormData, Headers, UploadFile
@@ -10,6 +10,7 @@ from pait.app.base import BaseAppHelper
 from pait.core import pait as _pait
 from pait.g import pait_data
 from pait.model import PaitResponseModel, PaitStatus
+from pait.util import LazyProperty
 
 
 class AppHelper(BaseAppHelper):
@@ -38,6 +39,18 @@ class AppHelper(BaseAppHelper):
 
     def query(self) -> dict:
         return dict(self.request.query_params)
+
+    @LazyProperty()
+    def multiform(self) -> Coroutine[Any, Any, Dict[str, List[Any]]]:
+        async def _() -> Dict[str, List[Any]]:
+            form_data = await self.request.form()
+            return {key: form_data.getlist(key) for key, _ in form_data.items()}
+        return _()
+
+    @LazyProperty()
+    def multiquery(self) -> Dict[str, Any]:
+        return {key: self.request.query_params.getlist(key) for key, _ in self.request.query_params.items()}
+
 
 
 def load_app(app: Starlette) -> None:
@@ -69,7 +82,7 @@ def pait(
     author: Optional[Tuple[str]] = None,
     desc: Optional[str] = None,
     status: Optional[PaitStatus] = None,
-    group: str = "root",
+    group: Optional[str] = None,
     tag: Optional[Tuple[str, ...]] = None,
     response_model_list: List[Type[PaitResponseModel]] = None,
 ) -> Callable:

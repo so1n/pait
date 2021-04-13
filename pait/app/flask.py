@@ -9,6 +9,7 @@ from pait.app.base import BaseAppHelper
 from pait.core import pait as _pait
 from pait.g import pait_data
 from pait.model import PaitResponseModel, PaitStatus
+from pait.util import LazyProperty
 
 
 class AppHelper(BaseAppHelper):
@@ -21,8 +22,6 @@ class AppHelper(BaseAppHelper):
         super().__init__(class_, args, kwargs)
 
         self.request = request
-        self.path_dict: Dict[str, Any] = {}
-        self.path_dict.update(self.request_kwargs)
 
     def body(self) -> dict:
         return request.json
@@ -39,11 +38,19 @@ class AppHelper(BaseAppHelper):
     def header(self) -> EnvironHeaders:
         return request.headers
 
-    def path(self) -> Dict[str, Any]:
-        return self.path_dict
+    def path(self) -> Mapping[str, Any]:
+        return self.request_kwargs
 
-    def query(self) -> dict:
-        return dict(request.args)
+    def query(self) -> Dict[str, Any]:
+        return request.args
+
+    @LazyProperty()
+    def multiform(self) -> Dict[str, List[Any]]:
+        return {key: request.form.getlist(key) for key, _ in request.form.items()}
+
+    @LazyProperty()
+    def multiquery(self) -> Dict[str, List[Any]]:
+        return {key: request.args.getlist(key) for key, _ in request.args.items()}
 
 
 def load_app(app: Flask) -> None:
@@ -79,7 +86,7 @@ def pait(
     author: Optional[Tuple[str]] = None,
     desc: Optional[str] = None,
     status: Optional[PaitStatus] = None,
-    group: str = "root",
+    group: Optional[str] = None,
     tag: Optional[Tuple[str, ...]] = None,
     response_model_list: List[Type[PaitResponseModel]] = None,
 ) -> Callable:

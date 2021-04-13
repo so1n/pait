@@ -1,6 +1,7 @@
 import inspect
+from concurrent import futures
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, get_type_hints
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union, get_type_hints
 
 from pydantic import BaseConfig, BaseModel, create_model
 
@@ -11,6 +12,23 @@ class UndefinedType:
 
 
 Undefined: UndefinedType = UndefinedType()
+
+
+class LazyProperty:
+    def __call__(self, func: Callable) -> Callable:
+
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            class_ = args[0]
+            future: Optional[futures.Future] = getattr(class_, f"{self.__class__.__name__}_{func.__name__}_future", None)
+            if not future:
+                future = futures.Future()
+                result: Any = func(*args, **kwargs)
+                future.set_result(result)
+                setattr(class_, f"{self.__class__.__name__}_future", future)
+                return result
+            return future.result()
+
+        return wrapper
 
 
 def create_pydantic_model(annotation_dict: Dict[str, Tuple[Type, Any]]) -> Type[BaseModel]:

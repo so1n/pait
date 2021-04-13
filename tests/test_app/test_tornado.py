@@ -5,8 +5,9 @@ from typing import Generator
 from unittest import mock
 
 import pytest
-from tornado.web import Application
 from tornado.testing import AsyncHTTPTestCase, HTTPResponse
+from tornado.web import Application
+
 from example.param_verify.tornado_example import create_app
 from pait.app import auto_load_app
 
@@ -22,21 +23,30 @@ class TestTornado(AsyncHTTPTestCase):
 
     def get_url(self, path: str) -> str:
         """Returns an absolute url for the given path on the test server."""
-        return '%s://localhost:%s%s' % (self.get_protocol(), self.get_http_port(), path)
+        return "%s://localhost:%s%s" % (self.get_protocol(), self.get_http_port(), path)
 
     def test_get(self) -> None:
-        response = self.fetch("/api/get/3?uid=123&user_name=appl&sex=man")
+        response = self.fetch(
+            "/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
+        )
         resp: dict = json.loads(response.body.decode())
 
         assert resp["code"] == 0
-        assert resp["data"] == {"uid": 123, "user_name": "appl", "email": "example@xxx.com", "age": 3, "sex": "man"}
+        assert resp["data"] == {
+            "uid": 123,
+            "user_name": "appl",
+            "email": "example@xxx.com",
+            "age": 3,
+            "sex": "man",
+            "multi_user_name": ["abc", "efg"]
+        }
 
     def test_depend(self) -> None:
         response: HTTPResponse = self.fetch(
             "/api/depend?uid=123&user_name=appl",
             method="POST",
             headers={"user-agent": "customer_agent"},
-            body='{"age": 2}'
+            body='{"age": 2}',
         )
         resp: dict = json.loads(response.body.decode())
         assert resp["code"] == 0
@@ -55,7 +65,7 @@ class TestTornado(AsyncHTTPTestCase):
             "/api/cbv",
             headers={"user-agent": "customer_agent"},
             method="POST",
-            body='{"uid": 123, "user_name": "appl", "age": 2}'
+            body='{"uid": 123, "user_name": "appl", "age": 2}',
         )
         resp: dict = json.loads(response.body.decode())
         assert resp["code"] == 0
@@ -66,7 +76,7 @@ class TestTornado(AsyncHTTPTestCase):
             "/api/post",
             headers={"user-agent": "customer_agent"},
             method="POST",
-            body='{"uid": 123, "user_name": "appl", "age": 2}'
+            body='{"uid": 123, "user_name": "appl", "age": 2}',
         )
         resp: dict = json.loads(response.body.decode())
         assert resp["code"] == 0
@@ -74,7 +84,7 @@ class TestTornado(AsyncHTTPTestCase):
             "uid": 123,
             "user_name": "appl",
             "age": 2,
-            "content_type": "application/x-www-form-urlencoded"
+            "content_type": "application/x-www-form-urlencoded",
         }
 
     def test_pait_model(self) -> None:
@@ -82,7 +92,7 @@ class TestTornado(AsyncHTTPTestCase):
             "/api/pait_model?uid=123&user_name=appl",
             headers={"user-agent": "customer_agent"},
             method="POST",
-            body='{"age": 2}'
+            body='{"age": 2}',
         )
         resp: dict = json.loads(response.body.decode())
         assert resp["code"] == 0
@@ -93,7 +103,7 @@ class TestTornado(AsyncHTTPTestCase):
             "/api/raise_tip",
             headers={"user-agent": "customer_agent"},
             method="POST",
-            body='{"uid": 123, "user_name": "appl", "age": 2}'
+            body='{"uid": 123, "user_name": "appl", "age": 2}',
         )
         resp: dict = json.loads(response.body.decode())
         assert "exc" in resp
@@ -113,7 +123,7 @@ class TestTornado(AsyncHTTPTestCase):
     #         "/api/other_field",
     #         headers={"cookie": cookie_str},
     #         method="POST",
-    #         body={"a": "1", "b": "2"},
+    #         body={"a": "1", "b": "2", "c": "3"},
     #         files={"upload_file": f}
     #     )
     #     resp: dict = json.loads(response.body.decode())
@@ -122,6 +132,7 @@ class TestTornado(AsyncHTTPTestCase):
     #         "content": file_content,
     #         "form_a": "1",
     #         "form_b": "2",
+    #         "form_c": ["3"],
     #         "cookie": {"abcd": "abcd"},
     #     } == resp["data"]
 

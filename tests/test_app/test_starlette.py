@@ -32,9 +32,18 @@ def client(mocker: MockFixture) -> Generator[TestClient, None, None]:
 
 class TestStarlette:
     def test_get(self, client: TestClient) -> None:
-        resp: dict = client.get("/api/get/3?uid=123&user_name=appl&sex=man").json()
+        resp: dict = client.get(
+            "/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
+        ).json()
         assert resp["code"] == 0
-        assert resp["data"] == {"uid": 123, "user_name": "appl", "email": "example@xxx.com", "age": 3, "sex": "man"}
+        assert resp["data"] == {
+            "uid": 123,
+            "user_name": "appl",
+            "email": "example@xxx.com",
+            "age": 3,
+            "sex": "man",
+            "multi_user_name": ["abc", "efg"]
+        }
 
     def test_depend(self, client: TestClient) -> None:
         resp: dict = client.post(
@@ -87,13 +96,14 @@ class TestStarlette:
         f.write(file_content.encode())
         f.seek(0)
 
-        form_dict: dict = {"a": "1", "b": "2", "upload_file": f}
+        form_dict: dict = {"a": "1", "b": "2", "c": "3", "upload_file": f}
         resp: dict = client.post("/api/other_field", headers={"cookie": cookie_str}, files=form_dict).json()
         assert {
             "filename": file_name.split("/")[-1],
             "content": file_content,
             "form_a": "1",
             "form_b": "2",
+            "form_c": ["3"],
             "cookie": {"abcd": "abcd"},
         } == resp["data"]
 

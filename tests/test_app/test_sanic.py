@@ -21,11 +21,19 @@ def client() -> Generator[SanicTestClient, None, None]:
 
 class TestSanic:
     def test_get(self, client: SanicTestClient) -> None:
-        request, response = client.get("/api/get/3?uid=123&user_name=appl&sex=man")
+        request, response = client.get(
+            "/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
+        )
         resp: dict = response.json
-
         assert resp["code"] == 0
-        assert resp["data"] == {"uid": 123, "user_name": "appl", "email": "example@xxx.com", "age": 3, "sex": "man"}
+        assert resp["data"] == {
+            "uid": 123,
+            "user_name": "appl",
+            "email": "example@xxx.com",
+            "age": 3,
+            "sex": "man",
+            "multi_user_name": ["abc", "efg"]
+        }
 
     def test_depend(self, client: SanicTestClient) -> None:
         request, response = client.post(
@@ -85,7 +93,10 @@ class TestSanic:
         f.seek(0)
 
         request, response = client.post(
-            "/api/other_field", headers={"cookie": cookie_str}, data={"a": "1", "b": "2"}, files={"upload_file": f}
+            "/api/other_field",
+            headers={"cookie": cookie_str},
+            data={"a": "1", "b": "2", "c": "3"},
+            files={"upload_file": f}
         )
         resp: dict = response.json
         assert {
@@ -93,6 +104,7 @@ class TestSanic:
             "content": file_content,
             "form_a": "1",
             "form_b": "2",
+            "form_c": ["3"],
             "cookie": {"abcd": "abcd"},
         } == resp["data"]
 

@@ -1,8 +1,8 @@
-from typing import Any, Awaitable, Optional, Tuple
+from typing import Any, List, Tuple
 
 from tornado.httpserver import HTTPServer
-from tornado.ioloop import IOLoop
 from tornado.httputil import RequestStartLine
+from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
 
 from example.param_verify.model import (
@@ -16,7 +16,7 @@ from example.param_verify.model import (
     demo_depend,
 )
 from pait.app.tornado import pait
-from pait.field import Body, Cookie, Depends, File, Form, Header, Path, Query
+from pait.field import Body, Cookie, Depends, File, Form, Header, Path, Query, MultiForm, MultiQuery
 from pait.model import PaitStatus
 
 
@@ -25,12 +25,8 @@ class MyHandler(RequestHandler):
         self.write({"exc": str(exc)})
         self.finish()
 
-    def write_error(self, status_code: int, **kwargs: Any) -> None:
-        print('aaa', status_code, kwargs)
-
 
 class RaiseTipHandler(MyHandler):
-
     @pait(
         author=("so1n",),
         desc="test pait raise tip",
@@ -108,10 +104,23 @@ class TestGetHandler(MyHandler):
         email: str = Query.i(default="example@xxx.com", description="user email"),
         age: int = Path.i(description="age"),
         sex: SexEnum = Query.i(description="sex"),
+        multi_user_name: List[str] = MultiQuery.i(description="user name", min_length=2, max_length=4),
     ) -> None:
         """Test Field"""
-        return_dict = {"uid": uid, "user_name": user_name, "email": email, "age": age, "sex": sex.value}
-        self.write({"code": 0, "msg": "", "data": return_dict})
+        self.write(
+            {
+                "code": 0,
+                "msg": "",
+                "data": {
+                    "uid": uid,
+                    "user_name": user_name,
+                    "email": email,
+                    "age": age,
+                    "sex": sex.value,
+                    "multi_user_name": multi_user_name
+                }
+            }
+        )
 
 
 class TestOtherFieldHandler(MyHandler):
@@ -126,6 +135,7 @@ class TestOtherFieldHandler(MyHandler):
         upload_file: Any = File.i(description="upload file"),
         a: str = Form.i(description="form data"),
         b: str = Form.i(description="form data"),
+        c: List[str] = MultiForm.i(description="form data"),
         cookie: dict = Cookie.i(raw_return=True, description="cookie"),
     ) -> None:
         self.write(
@@ -137,6 +147,7 @@ class TestOtherFieldHandler(MyHandler):
                     "content": upload_file.body.decode(),
                     "form_a": a,
                     "form_b": b,
+                    "form_c": c,
                     "cookie": cookie,
                 },
             }
@@ -148,7 +159,7 @@ class TestPaitModelHanler(MyHandler):
         author=("so1n",),
         status=PaitStatus.test,
         tag=("test",),
-        response_model_list=[UserSuccessRespModel, FailRespModel]
+        response_model_list=[UserSuccessRespModel, FailRespModel],
     )
     async def post(self, test_model: TestPaitModel) -> None:
         """Test Field"""
@@ -204,7 +215,7 @@ def create_app() -> Application:
             (r"/api/other_field", TestOtherFieldHandler),
             (r"/api/raise_tip", RaiseTipHandler),
             (r"/api/cbv", TestCbvHandler),
-            (r"/api/pait_model", TestPaitModelHanler)
+            (r"/api/pait_model", TestPaitModelHanler),
         ]
     )
     return app

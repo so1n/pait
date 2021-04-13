@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from flask import Flask, Request
 from flask.views import MethodView
@@ -16,7 +16,7 @@ from example.param_verify.model import (
 )
 from pait.app.flask import pait
 from pait.exceptions import PaitBaseException
-from pait.field import Body, Cookie, Depends, File, Form, Header, Path, Query
+from pait.field import Body, Cookie, Depends, File, Form, Header, Path, Query, MultiForm, MultiQuery
 from pait.model import PaitStatus
 
 
@@ -91,6 +91,7 @@ def test_other_field(
     upload_file: Any = File.i(description="upload file"),
     a: str = Form.i(description="form data"),
     b: str = Form.i(description="form data"),
+    c: List[str] = MultiForm.i(description="form data"),
     cookie: dict = Cookie.i(raw_return=True, description="cookie"),
 ) -> dict:
     return {
@@ -101,6 +102,7 @@ def test_other_field(
             "content": upload_file.read().decode(),
             "form_a": a,
             "form_b": b,
+            "form_c": c,
             "cookie": cookie,
         },
     }
@@ -117,12 +119,23 @@ def test_pait(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    multi_user_name: List[str] = MultiQuery.i(description="user name", min_length=2, max_length=4),
     age: int = Path.i(),
     sex: SexEnum = Query.i(description="sex"),
 ) -> dict:
+    from flask import request
     """Test Field"""
-    return_dict = {"uid": uid, "user_name": user_name, "email": email, "age": age, "sex": sex.value}
-    return {"code": 0, "msg": "", "data": return_dict}
+    return {
+        "code": 0,
+        "msg": "",
+        "data": {
+            "uid": uid,
+            "user_name": user_name,
+            "email": email,
+            "age": age,
+            "sex": sex.value,
+            "multi_user_name": multi_user_name}
+    }
 
 
 @pait(

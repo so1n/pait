@@ -18,7 +18,7 @@ class TestApp:
     def test_load_app(self, mocker: MockFixture) -> None:
         for i in app.auto_load_app.app_list:
             patch = mocker.patch(f"pait.app.{i}.load_app")
-            app.load_app(getattr(param_verify, f"{i}_example").create_app())
+            app.load_app(importlib.import_module(f"example.param_verify.{i}_example").create_app())  # type: ignore
             patch.assert_called_once()
 
         class Demo:

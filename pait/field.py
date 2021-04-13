@@ -112,6 +112,10 @@ class Form(BaseField):
     pass
 
 
+class MultiForm(BaseField):
+    pass
+
+
 class Header(BaseField):
     pass
 
@@ -121,6 +125,10 @@ class Path(BaseField):
 
 
 class Query(BaseField):
+    pass
+
+
+class MultiQuery(BaseField):
     pass
 
 
