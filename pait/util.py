@@ -1,9 +1,9 @@
 import inspect
 from concurrent import futures
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union, get_type_hints
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, get_type_hints
 
-from pydantic import BaseConfig, BaseModel, create_model
+from pydantic import BaseModel, create_model
 
 
 class UndefinedType:
@@ -25,7 +25,7 @@ class LazyProperty:
                 future = futures.Future()
                 result: Any = func(*args, **kwargs)
                 future.set_result(result)
-                setattr(class_, f"{self.__class__.__name__}_future", future)
+                setattr(class_, f"{self.__class__.__name__}_{func.__name__}_future", future)
                 return result
             return future.result()
 
