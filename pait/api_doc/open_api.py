@@ -1,3 +1,4 @@
+import copy
 import json
 from typing import Any, Dict, List, Optional, Tuple, Type
 
@@ -145,12 +146,11 @@ class PaitOpenApi(PaitBaseParse):
                     if pait_model.tag:
                         openapi_method_dict["tags"] = list(pait_model.tag)
                         for tag in pait_model.tag:
-                            tag_dict: dict = {
-                                "name": tag,
-                                "description": "",
-                            }
                             if tag not in {tag_dict["name"] for tag_dict in open_api_dict["tags"]}:
-                                open_api_dict["tags"].append(tag_dict)
+                                open_api_dict["tags"].append({
+                                    "name": tag,
+                                    "description": "",
+                                })
                     if pait_model.status in (
                         PaitStatus.abnormal,
                         PaitStatus.maintenance,
@@ -205,6 +205,9 @@ class PaitOpenApi(PaitBaseParse):
                             schema_dict: dict = {}
                             if resp_model.response_data:
                                 schema_dict = resp_model.response_data.schema()
+
+                            # fix del schema dict
+                            schema_dict = copy.deepcopy(schema_dict)
                             path = f"#/components/schemas/{schema_dict['title']}"
                             self.replace_pydantic_definitions(schema_dict, path, open_api_dict)
                             if "definitions" in schema_dict:
