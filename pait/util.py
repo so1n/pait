@@ -2,7 +2,7 @@ import inspect
 import sys
 from concurrent import futures
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, ForwardRef, get_type_hints, _eval_type
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, ForwardRef, get_type_hints
 
 from pydantic import BaseModel, create_model
 
@@ -71,9 +71,8 @@ def get_func_sig(func: Callable) -> FuncSig:
             continue
         parameter: inspect.Parameter = sig.parameters[key]
         if isinstance(parameter.annotation, str):
-            value: Any = ForwardRef(parameter.annotation, is_argument=False)
-            value = _eval_type(value, sys.modules[func.__module__].__dict__, None)
-            setattr(parameter, "_annotation", value)
+            value: ForwardRef = ForwardRef(parameter.annotation, is_argument=False)
+            setattr(parameter, "_annotation", value._evaluate(sys.modules[func.__module__].__dict__, None))
         param_list.append(parameter)
 
     # return_param = sig.return_annotation
