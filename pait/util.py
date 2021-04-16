@@ -1,7 +1,8 @@
 import inspect
+import sys
 from concurrent import futures
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, get_type_hints
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, ForwardRef, get_type_hints, _eval_type
 
 from pydantic import BaseModel, create_model
 
@@ -64,11 +65,17 @@ class FuncSig:
 def get_func_sig(func: Callable) -> FuncSig:
     """get func inspect.Signature model"""
     sig: inspect.Signature = inspect.signature(func)
-    param_list: List[inspect.Parameter] = [
-        sig.parameters[key]
-        for key in sig.parameters
-        if sig.parameters[key].annotation != sig.empty or sig.parameters[key].name == "self"
-    ]
+    param_list: List[inspect.Parameter] = []
+    for key in sig.parameters:
+        if not (sig.parameters[key].annotation != sig.empty or sig.parameters[key].name == "self"):
+            continue
+        parameter: inspect.Parameter = sig.parameters[key]
+        if isinstance(parameter.annotation, str):
+            value: Any = ForwardRef(parameter.annotation, is_argument=False)
+            value = _eval_type(value, sys.modules[func.__module__].__dict__, None)
+            setattr(parameter, "_annotation", value)
+        param_list.append(parameter)
+
     # return_param = sig.return_annotation
     return FuncSig(func=func, sig=sig, param_list=param_list)
 
