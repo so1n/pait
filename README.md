@@ -326,7 +326,7 @@ Param:
     - design: Interface design 
     - dev: Under development and testing 
   - Development completed:  
-    - integration: 联合调试
+    - integration: integration test
     - complete: development completed 
     - test: testing
   - online:  
@@ -399,9 +399,9 @@ from pait.api_doc.open_api import PaitOpenApi
 
 
 # Extracting routing information to pait's data module
-load_app(app)
+pait_dict = load_app(app)
 # Generate openapi for routing based on data from the data module
-PaitOpenApi()
+PaitOpenApi(pait_dict)
 ```
 ## 3.How to used in other web framework?
 If the web framework is not supported, which you are using.
