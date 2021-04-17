@@ -147,10 +147,12 @@ class PaitOpenApi(PaitBaseParse):
                         openapi_method_dict["tags"] = list(pait_model.tag)
                         for tag in pait_model.tag:
                             if tag not in {tag_dict["name"] for tag_dict in open_api_dict["tags"]}:
-                                open_api_dict["tags"].append({
-                                    "name": tag,
-                                    "description": "",
-                                })
+                                open_api_dict["tags"].append(
+                                    {
+                                        "name": tag,
+                                        "description": "",
+                                    }
+                                )
                     if pait_model.status in (
                         PaitStatus.abnormal,
                         PaitStatus.maintenance,
@@ -159,10 +161,12 @@ class PaitOpenApi(PaitBaseParse):
                     ):
                         openapi_method_dict["deprecated"] = True
                     openapi_method_dict["summary"] = pait_model.desc
-                    openapi_method_dict["operationId"] = pait_model.operation_id
+                    openapi_method_dict["operationId"] = f"{method}.{pait_model.operation_id}"
                     openapi_parameters_list: list = openapi_method_dict.setdefault("parameters", [])
                     openapi_response_dict: dict = openapi_method_dict.setdefault("responses", {})
-                    all_field_dict: Dict[str, List[Dict[str, Any]]] = self._parse_func_param(pait_model.func)
+                    all_field_dict: Dict[str, List[Dict[str, Any]]] = self._parse_func_param_to_field_dict(
+                        pait_model.func
+                    )
 
                     for field, field_dict_list in all_field_dict.items():
                         if field in (

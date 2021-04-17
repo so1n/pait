@@ -1,10 +1,18 @@
 # pait
-Pait is an api tool that can be used in any python web framework (currently only `flask`, `starlette` are supported, other frameworks will be supported once Pait is stable).
+Pait is an api tool that can be used in any python web framework (currently only `flask`, `starlette`, `sanic`, `tornado` are supported, other frameworks will be supported once Pait is stable).
 
 The core functionality of Pait is to allow you to have FastAPI-like type checking and type conversion functionality (dependent on Pydantic and inspect) in any Python web framework, as well as documentation output
 
 Pait's vision of documentation output is both code and documentation, with a simple configuration, you can get an md document or openapi (json, yaml)
 
+> Note:
+> 
+> mypy check 100%
+> 
+> test coverage 95%+ (exclude api_doc)
+> 
+> python version >= 3.7 (support postponed annotations)
+ 
 [中文文档](https://github.com/so1n/pait/blob/master/README_ZH.md)
 # Installation
 ```Bash
@@ -14,7 +22,7 @@ pip install pait
 Note: The following code does not specify, all default to use the `starlette` framework. 
 Note: There is no test case for the document output function, and the function is still being improved
 ## 1.type checking and parameter type conversion
-### 1.1Use in route handle
+### 1.1.Use in route handle
 A simple starlette route handler example:
 ```Python
 import uvicorn
@@ -25,7 +33,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 
-async def demo_post(request: Request):
+async def demo_post(request: Request) -> JSONResponse:
     body_dict: dict = await request.json()
     uid: int = body_dict.get('uid')
     user_name: str = body_dict.get('user_name')
@@ -112,7 +120,7 @@ pait through `Body` to know the need to get the post request body data, and acco
 
 Here is just a simple demo, because we write the model can be reused, so you can save a lot of development time, the above parameters are only used to a way to write, the following will introduce pait support for the two ways to write and use.
 
-### 1.2Parameter expression supported by pait
+### 1.2.Parameter expression supported by pait
 pait in order to facilitate the use of users, support a variety of writing methods (mainly the difference between TypeHints)
 - TypeHints  is PaitBaseModel, mainly used for parameters from multiple `Field`, and want to reuse model:
   
@@ -162,7 +170,7 @@ pait in order to facilitate the use of users, support a variety of writing metho
     async def test(uid: int = Body.i(), user_name: str = Body.i()):
         return {'result': {'uid': uid, 'user_name': user_name}}
     ```
-### 1.3Field
+### 1.3.Field
 Field will help pait know how to get data from request.
 Before introducing the function of Field, let’s take a look at the following example. `pait` will obtain the body data of the request according to Field.Body, and obtain the value with the parameter named key. Finally, the parameter is verified and assigned to the uid.
 ```Python
@@ -201,10 +209,12 @@ The above only demonstrates the Body and Header of the field, but there are othe
 - Field.Body   Get the json data of the current request
 - Field.Cookie Get the cookie data of the current request
 - Field.File   Get the file data of the current request, depending on the web framework will return different file object types
-- Field.Form   Get the form data of the current request
+- Field.Form   Get the form data of the current request, if there are multiple duplicate keys, only the first one will be returned 
 - Field.Header Get the header data of the current request
 - Field.Path   Get the path data of the current request (e.g. /api/{version}/test, you can get the version data)
-- Field.Query  Get the url parameters of the current request and the corresponding data
+- Field.Query  Get the url parameters of the current request and the corresponding data, if there are multiple duplicate keys, only the first one will be returned 
+- Field.MultiQuery Get the url parameter data of the current request, and return the list corresponding to the key
+- Field.MultiForm Get the form data of the current request, return the list corresponding to the key 
 
 All the fields above are inherited from `pydantic.fields.FieldInfo`, most of the parameters here are for api documentation, see for specific usage[pydantic doc](https://pydantic-docs.helpmanual.io/usage/schema/#field-customisation)
 
@@ -227,7 +237,7 @@ async def test_depend(token: str = Depends.i(demo_depend)):
     return {'token': token}
 ```
 
-## 2.requests object
+### 1.4.requests object
 After using `Pait`, the proportion of the number of times the requests object is used will decrease, so `pait` does not return the requests object. If you need the requests object, you can fill in the parameters like `requests: Requests` (you need to use the TypeHints format) , You can get the requests object corresponding to the web framework
 ```Python
 from starlette.requests import Request
@@ -242,8 +252,8 @@ async def demo_post(
     pass
 ```
 
-## 3.Exception
-### 3.1Exception Handling
+### 1.5.Exception
+#### 1.5.1Exception Handling
 Pait will leave the exception to the user to handle it. Under normal circumstances, pait will only throw the exception of `pydantic` and `PaitBaseException`. The user needs to catch the exception and handle it by himself, for example:
 ```Python
 from starlette.applications import Starlette
@@ -262,7 +272,7 @@ APP = Starlette()
 APP.add_exception_handler(PaitBaseException, api_exception)
 APP.add_exception_handler(ValidationError, api_exception)
 ```
-### 3.2Error Tip
+#### 1.5.2Error Tip
 When you use pait incorrectly, pait will indicate in the exception the file path and line number of the function.
 ```Bash
   File "/home/so1n/github/pait/pait/func_param_handle.py", line 101, in set_value_to_kwargs_param
@@ -279,10 +289,57 @@ async def demo_post(
 ):
     pass
 ```
-## 4.Document Generation
-In addition to parameter verification and conversion, pait also provides the ability to output api documentation, which can be configured with simple parameters to output perfect documentation.
-Note: Currently only md, json, yaml type documents and openapi documents for json and yaml are supported for output. 
+## 2.Document Generation
+> Note: The function is being improved... 
 
+In addition to parameter verification and conversion, pait also provides the ability to output api documentation, which can be configured with simple parameters to output perfect documentation.
+
+Note: Currently only md, json, yaml type documents and openapi documents for json and yaml are supported for output.For the output of md, json, yaml, see 
+[doc example](https://github.com/so1n/pait/blob/master/example/api_doc/example_doc)
+
+`pait` will automatically capture the request parameters and url, method and other information of the routing function.
+In addition, it also supports labeling some relevant information. These labels will only be loaded into the memory when the Python program starts running, and will not affect the performance of the request, as in the following example:
+```Python
+from pait.app.starlette import pait
+from pait.model import PaitStatus
+
+from example.param_verify.model import UserSuccessRespModel, FailRespModel
+
+
+@pait(
+    author=("so1n",),
+    group="user",
+    status=PaitStatus.release,
+    tag=("user", "post"),
+    response_model_list=[UserSuccessRespModel, FailRespModel],
+)
+def demo() -> None: 
+  pass
+```
+Param:
+- author: List of authors who wrote the interface 
+- group: The group to which the interface belongs 
+- status: The status of the interface, currently only supports several states of `PaitStatus` 
+  - default status:
+    - undefined: undefined 
+  - in development:  
+    - design: Interface design 
+    - dev: Under development and testing 
+  - Development completed:  
+    - integration: 联合调试
+    - complete: development completed 
+    - test: testing
+  - online:  
+    - release: online
+  - offline:  
+    - abnormal: The interface is abnormal and needs to be offline 
+    - maintenance: In maintenance 
+    - archive: archive
+    - abandoned: abandoned
+- tag: interface tag 
+- response_model_list: return data, Need to inherit from `pait.model.PaitResponseModel`
+
+### 2.1.openapi
 Currently pait supports most of the functions of openapi, a few unrealized features will be gradually improved through iterations (response-related more complex)
 
 The openapi module of pait supports the following parameters (more parameters will be provided in the next version):
@@ -346,15 +403,15 @@ load_app(app)
 # Generate openapi for routing based on data from the data module
 PaitOpenApi()
 ```
-## 5.How to used in other web framework?
+## 3.How to used in other web framework?
 If the web framework is not supported, which you are using.
 Can be modified sync web framework according to [pait.app.flask](https://github.com/so1n/pait/blob/master/pait/app/flask.py)
 
 Can be modified async web framework according to [pait.app.starlette](https://github.com/so1n/pait/blob/master/pait/app/starlette.py)
-## 6.IDE Support
+## 4.IDE Support
 While pydantic will work well with any IDE out of the box.
 - [PyCharm plugin](https://pydantic-docs.helpmanual.io/pycharm_plugin/)
 - [Mypy plugin](https://pydantic-docs.helpmanual.io/mypy_plugin/)
 
-## 7.Full example
-For more complete examples, please refer to[example](https://github.com/so1n/pait/tree/master/example)
+## 5.Full example
+For more complete examples, please refer to [example](https://github.com/so1n/pait/tree/master/example)

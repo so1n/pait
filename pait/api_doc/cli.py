@@ -1,12 +1,13 @@
 import argparse
 import importlib
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from pait.api_doc.markdown import PaitMd
 from pait.api_doc.open_api import PaitOpenApi
 from pait.api_doc.pait_json import PaitJson
 from pait.api_doc.pait_yaml import PaitYaml
 from pait.app import load_app
+from pait.model import PaitCoreModel
 
 if __name__ == "__main__":
     output_type_list: List[str] = ["md", "json", "yaml", "openapi_json", "openapi_yaml"]
@@ -37,18 +38,18 @@ if __name__ == "__main__":
     app = getattr(module, app_name, None)
     if not app:
         raise ImportError(f"Can't found {app} in {module}")
-    load_app(app)
+    pait_dict: Dict[str, PaitCoreModel] = load_app(app)
 
     for type_ in input_output_type_list:
         if type_ == "md":
-            PaitMd(title=title, filename=filename, use_html_details=use_html_details)
+            PaitMd(pait_dict, title=title, filename=filename, use_html_details=use_html_details)
         elif type_ == "json":
-            PaitJson(title=title, filename=filename, indent=indent)
+            PaitJson(pait_dict, title=title, filename=filename, indent=indent)
         elif type_ == "yaml":
-            PaitYaml(title=title, filename=filename)
+            PaitYaml(pait_dict, title=title, filename=filename)
         elif type_ == "openapi_json":
-            PaitOpenApi(title=title, filename=filename, type_="json")
+            PaitOpenApi(pait_dict, title=title, filename=filename, type_="json")
         elif type_ == "openapi_yaml":
-            PaitOpenApi(title=title, filename=filename, type_="yaml")
+            PaitOpenApi(pait_dict, title=title, filename=filename, type_="yaml")
         else:
             raise ValueError(f"Not support output type: {type_}, please select from the following options")

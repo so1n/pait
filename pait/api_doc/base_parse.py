@@ -34,9 +34,12 @@ class PaitBaseParse(object):
     def _parse_schema(
         self, schema_dict: dict, definition_dict: Optional[dict] = None, parent_key: str = ""
     ) -> List[dict]:
-        """gen field dict from pydantic basemodel schema"""
+        """gen pait field dict from pydantic basemodel schema"""
         field_dict_list: List[dict] = []
+        # model property openapi dict
+        # e.g. : {'code': {'title': 'Code', 'description': 'api code', 'default': 1, 'type': 'integer'}}
         property_dict: dict = schema_dict["properties"]
+        # class schema in the parent schema
         if not definition_dict:
             definition_dict = schema_dict.get("definitions", {})
         for param_name, param_dict in property_dict.items():
@@ -85,20 +88,50 @@ class PaitBaseParse(object):
                 )
         return field_dict_list
 
-    def _parse_base_model(
+    def _parse_base_model_to_field_dict(
         self,
         field_dict: Dict[str, List[Dict[str, Any]]],
         _pydantic_model: Type[BaseModel],
         _pait_field_dict: Dict[str, BaseField],
     ) -> None:
-        """gen field dict"""
+        """
+        write field dict from _pydantic_model or _pait_field_dict
+        :param field_dict:
+          e.g.
+            {
+                [
+                    {
+                        "param_name": "",
+                        "description": "",
+                        "default": "",
+                        "type": _"",
+                        "other": {"": ""},
+                        "raw": {
+                            "param_name": "",
+                            "schema": {"": ""},
+                            "parent_schema": {"": ""},
+                        },
+                    }
+                ]
+            }
+        :param _pydantic_model: pydantic.basemodel
+        :param _pait_field_dict:
+            e.g.
+            {
+                'uid': Query(default=Ellipsis, description='user id', gt=10, lt=1000, extra={}),
+                'user_name': Query(default=Ellipsis, description='user name', min_length=2, max_length=4, extra={}),
+                'user_agent': Header(default=Ellipsis, alias='user-agent', alias_priority=2, description='user agent', extra={}),
+                'age': Body(default=Ellipsis, description='age', gt=1, lt=100, extra={})
+            }
+        :return:
+        """
         # TODO design like _parse_schema
-        param_python_name_dict: Dict[str, str] = {
+        param_name_alias_dict: Dict[str, str] = {
             value.alias: key for key, value in _pait_field_dict.items() if isinstance(value, BaseField) and value.alias
         }
         property_dict: Dict[str, Any] = _pydantic_model.schema()["properties"]
         for param_name, param_dict in property_dict.items():
-            param_python_name: str = param_python_name_dict.get(param_name, param_name)
+            param_python_name: str = param_name_alias_dict.get(param_name, param_name)
             field_name = _pait_field_dict[param_python_name].__class__.__name__.lower()
             if "$ref" in param_dict:
                 # ref support
@@ -155,7 +188,7 @@ class PaitBaseParse(object):
         field_dict: Dict[str, List[Dict[str, Any]]],
         single_field_list: List[Tuple[str, "inspect.Parameter"]],
     ) -> None:
-        """gen field dict from parameter_list"""
+        """write field_dict or single_field_list from parameter_list"""
         for parameter in parameter_list:
             if parameter.default != parameter.empty:
                 annotation: type = parameter.annotation
@@ -166,28 +199,26 @@ class PaitBaseParse(object):
                         for param_name, annotation in get_type_hints(annotation).items()
                         if not param_name.startswith("_")
                     }
-                    self._parse_base_model(field_dict, annotation, _pait_field_dict)
+                    self._parse_base_model_to_field_dict(field_dict, annotation, _pait_field_dict)
                 else:
                     # def test(test_model: int = Body())
                     if isinstance(parameter.default, Depends):
-                        field_dict.update(self._parse_func_param(parameter.default.func))
+                        field_dict.update(self._parse_func_param_to_field_dict(parameter.default.func))
                     else:
                         field_name: str = parameter.default.__class__.__name__.lower()
                         single_field_list.append((field_name, parameter))
             elif issubclass(parameter.annotation, PaitBaseModel):
                 # def test(test_model: PaitBaseModel)
                 _pait_model: Type[PaitBaseModel] = parameter.annotation
-                _pait_field_dict = {}
-                for param_name, param_annotation in get_type_hints(_pait_model).items():
-                    if param_name.startswith("_"):
-                        continue
-                    field: BaseField = getattr(_pait_model, param_name)
-                    _pait_field_dict[param_name] = field
-
+                _pait_field_dict = {
+                    param_name: getattr(_pait_model, param_name)
+                    for param_name, param_annotation in get_type_hints(_pait_model).items()
+                    if not param_name.startswith("_")
+                }
                 pait_base_model = _pait_model.to_pydantic_model()
-                self._parse_base_model(field_dict, pait_base_model, _pait_field_dict)
+                self._parse_base_model_to_field_dict(field_dict, pait_base_model, _pait_field_dict)
 
-    def _parse_func_param(self, func: Callable) -> Dict[str, List[Dict[str, Any]]]:
+    def _parse_func_param_to_field_dict(self, func: Callable) -> Dict[str, List[Dict[str, Any]]]:
         """gen filed dict from func
         [
             {
@@ -228,10 +259,11 @@ class PaitBaseParse(object):
                 _pait_field_dict[parameter.name] = field
 
             _pydantic_model: Type[BaseModel] = create_pydantic_model(annotation_dict)
-            self._parse_base_model(field_dict, _pydantic_model, _pait_field_dict)
+            self._parse_base_model_to_field_dict(field_dict, _pydantic_model, _pait_field_dict)
         return field_dict
 
     def gen_dict(self) -> Dict[str, Any]:
+        """gen pait api dict"""
         api_doc_dict: Dict[str, Any] = {"group": {}}
         for group in self._group_list:
             group_dict: Dict[str, Any] = {"name": group, "group_list": []}
@@ -255,7 +287,7 @@ class PaitBaseParse(object):
                                 "response_data": self._parse_schema(schema_dict),
                             }
                         )
-                field_dict: Dict[str, List[Dict[str, Any]]] = self._parse_func_param(pait_model.func)
+                field_dict: Dict[str, List[Dict[str, Any]]] = self._parse_func_param_to_field_dict(pait_model.func)
                 for field_name, field_dict_list in field_dict.items():
                     for field_dict in field_dict_list:
                         del field_dict["raw"]

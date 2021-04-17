@@ -2,6 +2,7 @@ import json
 from typing import Any, Dict, Optional
 
 from pait.model import PaitCoreModel
+
 from .base_parse import PaitBaseParse  # type: ignore
 
 
@@ -11,7 +12,7 @@ class PaitJson(PaitBaseParse):
         pait_dict: Dict[str, PaitCoreModel],
         title: str = "Pait Json",
         filename: Optional[str] = None,
-        indent: Optional[int] = None
+        indent: Optional[int] = None,
     ):
         super().__init__(pait_dict, undefined="Required")
 

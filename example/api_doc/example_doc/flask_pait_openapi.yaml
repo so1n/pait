@@ -5,15 +5,15 @@ info:
 servers:
 - url: http://127.0.0.1
 tags:
+- name: test
+  description: test api
 - name: user
-  description: ''
+  description: user api
 - name: get
   description: ''
 - name: depend
   description: ''
 - name: post
-  description: ''
-- name: test
   description: ''
 paths:
   /api/other_field:
@@ -22,7 +22,7 @@ paths:
       - user
       - get
       summary: ''
-      operationId: test_other_field
+      operationId: OPTIONS.test_other_field
       parameters:
       - name: cookie
         in: cookie
@@ -56,7 +56,7 @@ paths:
       - user
       - get
       summary: ''
-      operationId: test_other_field
+      operationId: POST.test_other_field
       parameters:
       - name: cookie
         in: cookie
@@ -91,7 +91,7 @@ paths:
       - user
       - depend
       summary: Test Method:Post request, Pydantic Model
-      operationId: demo_get2test_depend
+      operationId: OPTIONS.demo_get2test_depend
       parameters:
       - name: uid
         in: query
@@ -150,7 +150,7 @@ paths:
       - user
       - depend
       summary: Test Method:Post request, Pydantic Model
-      operationId: demo_get2test_depend
+      operationId: POST.demo_get2test_depend
       parameters:
       - name: uid
         in: query
@@ -200,7 +200,7 @@ paths:
       - user
       - post
       summary: Test Method:Post Pydantic Model
-      operationId: test_post
+      operationId: OPTIONS.test_post
       parameters:
       - name: requestBody.content.<media-type>
         in: header
@@ -244,7 +244,7 @@ paths:
       - user
       - post
       summary: Test Method:Post Pydantic Model
-      operationId: test_post
+      operationId: POST.test_post
       parameters:
       - name: requestBody.content.<media-type>
         in: header
@@ -289,7 +289,7 @@ paths:
       - user
       - post
       summary: test cbv post method
-      operationId: test_cbv.post
+      operationId: post.test_cbv.post
       parameters:
       - name: user-agent
         in: header
@@ -333,7 +333,7 @@ paths:
       - user
       - get
       summary: Text Pydantic Model and Field
-      operationId: test_cbv.get
+      operationId: get.test_cbv.get
       parameters:
       - name: age
         in: query
@@ -397,7 +397,7 @@ paths:
       - user
       - get
       summary: ''
-      operationId: test_pait
+      operationId: GET.test_pait
       parameters:
       - name: uid
         in: query
@@ -459,7 +459,7 @@ paths:
       - user
       - get
       summary: ''
-      operationId: test_pait
+      operationId: HEAD.test_pait
       parameters:
       - name: uid
         in: query
@@ -521,7 +521,7 @@ paths:
       - user
       - get
       summary: ''
-      operationId: test_pait
+      operationId: OPTIONS.test_pait
       parameters:
       - name: uid
         in: query
@@ -583,7 +583,7 @@ paths:
       tags:
       - test
       summary: Test Field
-      operationId: test_model
+      operationId: OPTIONS.test_model
       parameters:
       - name: uid
         in: query
@@ -641,7 +641,7 @@ paths:
       tags:
       - test
       summary: Test Field
-      operationId: test_model
+      operationId: POST.test_model
       parameters:
       - name: uid
         in: query
@@ -688,7 +688,7 @@ paths:
       - test
       deprecated: true
       summary: test pait raise tip
-      operationId: test_raise_tip
+      operationId: OPTIONS.test_raise_tip
       parameters:
       - name: content__type
         in: header
@@ -732,7 +732,7 @@ paths:
       - test
       deprecated: true
       summary: test pait raise tip
-      operationId: test_raise_tip
+      operationId: POST.test_raise_tip
       parameters:
       - name: content__type
         in: header
@@ -773,6 +773,37 @@ paths:
               - age
 components:
   schemas:
+    _BaseModel:
+      title: _BaseModel
+      type: object
+      properties:
+        uid:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+        user_name:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+        age:
+          title: Age
+          description: age
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
+          type: integer
+        content_type:
+          title: Content Type
+          description: content-type
+          type: string
+      required:
+      - uid
+      - user_name
+      - age
+      - content_type
     ResponseUserModel:
       title: ResponseUserModel
       type: object

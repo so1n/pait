@@ -8,7 +8,6 @@ from pait.api_doc.pait_yaml import PaitYaml
 from pait.app import load_app
 from pait.model import PaitCoreModel
 
-
 if __name__ == "__main__":
     filename: str = "./example_doc/tornado"
     pait_dict: Dict[str, PaitCoreModel] = load_app(create_app())

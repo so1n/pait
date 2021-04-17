@@ -1,4 +1,11 @@
-### 0.5.2[Now]
+### 0.5.3[Now]
+ - Test: add param handle test
+ - Test: add util test
+ - Feature: support postponed annotations 
+ - Feature: load_app support return pait data
+ - Feature: add multi field and add lazyproperty
+ - Feature: support tornado, sanic
+### 0.5.2
  - Test: add pait param verify test
  - Feature: BaseField add raw_return
  - Feature: add create_pydantic_model func

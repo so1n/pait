@@ -1,4 +1,5 @@
 from typing import Dict
+
 from example.param_verify.sanic_example import create_app
 from pait.api_doc.markdown import PaitMd
 from pait.api_doc.open_api import PaitOpenApi
