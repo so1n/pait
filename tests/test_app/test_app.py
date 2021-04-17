@@ -5,8 +5,8 @@ from unittest import mock
 import pytest
 from pytest_mock import MockFixture
 
-from example import param_verify
 from pait import app
+from pait.app.base import BaseAppHelper
 
 
 class TestApp:
@@ -65,9 +65,7 @@ class TestApp:
         exec_msg = e.value.args[0]
         assert exec_msg.startswith("Pait unable to make a choice")
 
-    def test_base_app_helper(self, mocker: MockFixture) -> None:
-        from pait.app.base import BaseAppHelper
-
+    def test_base_app_helper__init__(self, mocker: MockFixture) -> None:
         class Demo:
             pass
 
@@ -90,3 +88,16 @@ class TestApp:
         # route func param: other param, self, request
         BaseAppHelper(Demo, (1, demo, None), {"a": 1, "b": 2, "c": 3})
         patch.assert_called_once()
+
+    def test_base_app_helper_check_type(self) -> None:
+        class FakeAppHelper(BaseAppHelper):
+            RequestType = str
+            FormType = int
+            FileType = float
+            HeaderType = type(None)
+
+        fake_app_helper: FakeAppHelper = FakeAppHelper(None, (), {})
+        assert fake_app_helper.check_request_type(type(""))
+        assert fake_app_helper.check_form_type(type(0))
+        assert fake_app_helper.check_file_type(type(0.0))
+        assert fake_app_helper.check_header_type(type(None))

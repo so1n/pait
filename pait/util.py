@@ -2,7 +2,7 @@ import inspect
 import sys
 from concurrent import futures
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, ForwardRef, get_type_hints
+from typing import Any, Callable, Dict, ForwardRef, List, Optional, Tuple, Type, get_type_hints
 
 from pydantic import BaseModel, create_model
 
@@ -23,6 +23,7 @@ class LazyProperty:
     ...     def value(self, value):
     ...         return value * value
     """
+
     def __call__(self, func: Callable) -> Callable:
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             class_ = args[0]
@@ -57,6 +58,7 @@ def create_pydantic_model(annotation_dict: Dict[str, Tuple[Type, Any]]) -> Type[
 @dataclass()
 class FuncSig:
     """func inspect.Signature model"""
+
     func: Callable
     sig: "inspect.Signature"
     param_list: List["inspect.Parameter"]
@@ -72,7 +74,9 @@ def get_func_sig(func: Callable) -> FuncSig:
         parameter: inspect.Parameter = sig.parameters[key]
         if isinstance(parameter.annotation, str):
             value: ForwardRef = ForwardRef(parameter.annotation, is_argument=False)
-            setattr(parameter, "_annotation", value._evaluate(sys.modules[func.__module__].__dict__, None))
+            setattr(
+                parameter, "_annotation", value._evaluate(sys.modules[func.__module__].__dict__, None)  # type: ignore
+            )
         param_list.append(parameter)
 
     # return_param = sig.return_annotation

@@ -28,11 +28,11 @@ class AppHelper(BaseAppHelper):
     def cookie(self) -> dict:
         return self.request.cookies
 
-    def file(self) -> File:
-        return self.request.files
+    def file(self) -> Dict[str, File]:
+        return {key: value[0] for key, value in self.request.files.items()}
 
-    def form(self) -> RequestParameters:
-        return self.request.form
+    def form(self) -> dict:
+        return {key: value[0] for key, value in self.request.form.items()}
 
     def header(self) -> HeaderIterable:
         return self.request.headers
@@ -57,7 +57,7 @@ def load_app(app: Sanic) -> Dict[str, PaitCoreModel]:
     _pait_data: Dict[str, PaitCoreModel] = {}
     """Read data from the route that has been registered to `pait`"""
     for parts, route in app.router.routes_all.items():
-        if route.name and "static" in route.name:
+        if "static" in route.name:
             continue
 
         route_name: str = route.name

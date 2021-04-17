@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
 class PaitStatus(Enum):
     """Interface life cycle"""
+
     undefined = "undefined"
     # The interface is under development and will frequently change
     design = "design"
@@ -35,6 +36,7 @@ class PaitStatus(Enum):
 @dataclass()
 class PaitResponseModel(object):
     """response model"""
+
     description: Optional[str] = ""
     header: dict = field(default_factory=dict)
     media_type: str = "application/json"
@@ -49,12 +51,13 @@ class PaitResponseModel(object):
 
 
 class PaitBaseModel(object):
-    """pait base model, The value of the attribute supports filling in the pait field 
+    """pait base model, The value of the attribute supports filling in the pait field
     >>> from pait import field
     >>> class Demo(PaitBaseModel):
     ...     a: int = field.Query.i()
     ...     b: str = field.Body.i()
     """
+
     _pydantic_model: Optional[Type[BaseModel]] = None
 
     @classmethod

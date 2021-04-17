@@ -62,7 +62,7 @@ def load_app(app: Flask) -> Dict[str, PaitCoreModel]:
         method_set: Set[str] = route.methods
         route_name: str = route.endpoint
         endpoint: Callable = app.view_functions[route_name]
-        pait_id: str = getattr(endpoint, "_pait_id", None)
+        pait_id: Optional[str] = getattr(endpoint, "_pait_id", None)
         if not pait_id:
             if route_name == "static":
                 continue

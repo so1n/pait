@@ -23,8 +23,6 @@ def pait(
     if not issubclass(app_helper_class, BaseAppHelper):
         raise TypeError(f"{app_helper_class} must sub {BaseAppHelper.__class__.__name__}")
     app_name: str = getattr(app_helper_class, "app_name", "")
-    if not app_name:
-        raise AttributeError(f"{app_helper_class} can not fount `app_name`")
 
     def wrapper(func: Callable) -> Callable:
         func_sig: FuncSig = get_func_sig(func)
@@ -43,7 +41,7 @@ def pait(
                 group=group,
                 tag=tag,
                 response_model_list=response_model_list,
-            )
+            ),
         )
 
         if inspect.iscoroutinefunction(func):

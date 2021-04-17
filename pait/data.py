@@ -8,9 +8,6 @@ class PaitData(object):
     def __init__(self) -> None:
         self.pait_id_dict: Dict[str, Dict[str, "PaitCoreModel"]] = {}
 
-    def reset(self) -> None:
-        self.pait_id_dict = {}
-
     def register(self, app_name: str, pait_info_model: "PaitCoreModel") -> None:
         pait_id: str = pait_info_model.pait_id
         if app_name not in self.pait_id_dict:

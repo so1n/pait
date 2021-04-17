@@ -2,12 +2,13 @@ import importlib
 from typing import Dict
 
 from pait.app.auto_load_app import app_list
-from pait.model import PaitCoreModel
 from pait.g import pait_data
+from pait.model import PaitCoreModel
 
 
 class TestApiDoc:
     """Now, ignore test api doc"""
+
     def test_app_api_doc(self) -> None:
         for app_name in app_list:
             module = importlib.import_module(f"example.api_doc.{app_name}_example")  # type: ignore

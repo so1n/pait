@@ -14,9 +14,7 @@ from pait.model import PaitBaseModel
 from pait.util import FuncSig, create_pydantic_model, get_func_sig, get_parameter_list_from_class
 
 
-def raise_and_tip(
-    _object: Union[FuncSig, Type], exception: "Exception", parameter: Optional[inspect.Parameter] = None
-) -> NoReturn:
+def raise_and_tip(_object: Any, exception: "Exception", parameter: Optional[inspect.Parameter] = None) -> NoReturn:
     """Help users understand which parameter is wrong"""
     if parameter:
         param_value: BaseField = parameter.default
@@ -25,9 +23,9 @@ def raise_and_tip(
 
         parameter_value_name: str = param_value.__class__.__name__
         if param_value is parameter.empty:
-            param_str: str = f"{param_name}: {annotation}"
+            param_str: str = f"{param_name}: {annotation.__name__}"
         else:
-            param_str = f"{param_name}: {annotation} = {parameter_value_name}"
+            param_str = f"{param_name}: {annotation.__name__} = {parameter_value_name}"
             if isinstance(param_value, BaseField):
                 param_str += f"(alias={param_value.alias}, default={param_value.default})"
     else:
@@ -88,17 +86,24 @@ def get_request_value_from_parameter(
     return app_field_func()
 
 
-def set_parameter_value_to_args_list(
-    parameter: inspect.Parameter, app_helper: "BaseAppHelper", func_args: list
-) -> None:
+def _set_parameter_value_to_args(parameter: inspect.Parameter, app_helper: "BaseAppHelper", func_args: list) -> bool:
     """use func_args param faster return and extend func_args"""
     if parameter.name == "self" and not func_args:
         # Only support self param name
         func_args.append(app_helper.cbv_class)
     elif app_helper.check_request_type(parameter.annotation):
         # support request param(def handle(request: Request))
-        func_args.append(app_helper.request_args)
+        func_args.append(app_helper.request)
     elif issubclass(parameter.annotation, PaitBaseModel):
+        return True
+    else:
+        logging.warning(f"Pait not support args: {parameter}")
+    return False
+
+
+def set_parameter_value_to_args(parameter: inspect.Parameter, app_helper: "BaseAppHelper", func_args: list) -> None:
+    """use func_args param faster return and extend func_args"""
+    if _set_parameter_value_to_args(parameter, app_helper, func_args):
         # support pait_model param(def handle(model: PaitBaseModel))
         single_field_dict: Dict["inspect.Parameter", Any] = {}
         _pait_model: Type[PaitBaseModel] = parameter.annotation
@@ -117,18 +122,9 @@ def set_parameter_value_to_args_list(
         func_args.append(parameter_2_basemodel(single_field_dict))
 
 
-async def async_set_value_to_args_param(
-    parameter: inspect.Parameter, app_helper: "BaseAppHelper", func_args: list
-) -> None:
+async def async_set_value_to_args(parameter: inspect.Parameter, app_helper: "BaseAppHelper", func_args: list) -> None:
     """use func_args param faster return and extend func_args"""
-    # args param
-    if parameter.name == "self":
-        # Only support self param name
-        func_args.append(app_helper.cbv_class)
-    elif app_helper.check_request_type(parameter.annotation):
-        # support request param(def handle(request: Request))
-        func_args.append(app_helper.request_args)
-    elif issubclass(parameter.annotation, PaitBaseModel):
+    if _set_parameter_value_to_args(parameter, app_helper, func_args):
         # support pait_model param(def handle(model: PaitModel))
         single_field_dict: Dict["inspect.Parameter", Any] = {}
         _pait_model: Type[PaitBaseModel] = parameter.annotation
@@ -161,6 +157,9 @@ def request_value_handle(
     param_value: BaseField = parameter.default
     annotation: Type[BaseModel] = parameter.annotation
     param_name: str = parameter.name
+
+    if not isinstance(param_value, BaseField):
+        raise PaitBaseException(f"must use {BaseField.__class__.__name__}, no {param_value}")
     if param_value.raw_return:
         parameter_value_dict[parameter] = request_value
     elif (
@@ -168,20 +167,18 @@ def request_value_handle(
         or app_helper.check_header_type(type(request_value))
         or app_helper.check_form_type(type(request_value))
     ):
-        if not isinstance(param_value, BaseField):
-            raise PaitBaseException(f"must use {BaseField.__class__.__name__}, no {param_value}")
 
         if base_model_dict is not None and inspect.isclass(annotation) and issubclass(annotation, BaseModel):
             # parse annotation is pydantic.BaseModel and base_model_dict not None
-            value: Any = annotation(**request_value)
-            base_model_dict[parameter.name] = value
+            base_model_dict[parameter.name] = annotation(**request_value)
         else:
             # parse annotation is python type and pydantic.field
             if type(param_value.alias) is str and param_value.alias in request_value:
-                value = request_value.get(param_value.alias, param_value.default)
+                value = request_value[param_value.alias]
             elif param_name in request_value:
-                value = request_value.get(param_name, param_value.default)
+                value = request_value[param_name]
             else:
+                # not found value
                 if param_value.default != fields.Undefined:
                     value = param_value.default
                 else:
@@ -191,7 +188,7 @@ def request_value_handle(
                         f"alias={param_value.alias}, default={param_value.default})"
                     )
                     raise NotFoundValueError(
-                        f" kwargs param:{param_str} not found in {request_value},"
+                        f"kwargs param:{param_str} not found in {request_value},"
                         f" try use {parameter_value_name}(alias={{alias}})"
                     )
             parameter_value_dict[parameter] = value
@@ -223,7 +220,7 @@ def param_handle(
             else:
                 # args param
                 # support model: model: ModelType
-                set_parameter_value_to_args_list(parameter, app_helper, args_param_list)
+                set_parameter_value_to_args(parameter, app_helper, args_param_list)
         except PaitBaseException as e:
             raise_and_tip(_object, e, parameter)
     # support field: def demo(demo_param: int = pait.field.BaseField())
@@ -264,7 +261,7 @@ async def async_param_handle(
             else:
                 # args param
                 # support model: model: ModelType
-                await async_set_value_to_args_param(parameter, dispatch_web, args_param_list)
+                await async_set_value_to_args(parameter, dispatch_web, args_param_list)
         except PaitBaseException as e:
             raise_and_tip(_object, e, parameter)
 

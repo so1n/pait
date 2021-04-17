@@ -26,6 +26,13 @@ class TestUtil:
             if sig.parameters[key].annotation != sig.empty or sig.parameters[key].name == "self"
         ]
 
+        def demo1(self, a) -> int:  # type: ignore
+            pass
+
+        func_sig = util.get_func_sig(demo1)
+        assert len(func_sig.param_list) == 1
+        assert func_sig.param_list[0].name == "self"
+
     def test_get_parameter_list_from_class(self) -> None:
         class Demo1(object):
             pass

@@ -5,7 +5,8 @@ from pait import core, g
 from pait.model import PaitCoreModel
 
 
-def demo() -> None: pass
+def demo() -> None:
+    pass
 
 
 pait_id: str = "fake_id"
@@ -16,12 +17,24 @@ class TestPaitCore:
     def test_pait_core(self) -> None:
         with pytest.raises(TypeError) as e:
 
-            @core.pait("a")
-            def demo() -> None:
+            @core.pait("a")  # type: ignore
+            def demo_() -> None:
                 pass
 
         exec_msg: str = e.value.args[0]
         assert exec_msg.endswith("must be class")
+
+        class Demo:
+            pass
+
+        with pytest.raises(TypeError) as e:
+
+            @core.pait(Demo)  # type: ignore
+            def demo() -> None:
+                pass
+
+        exec_msg = e.value.args[0]
+        assert "must sub " in exec_msg
 
     def test_pait_id_not_in_data(self, mocker: MockFixture) -> None:
         g.pait_data.register(app_name, PaitCoreModel(demo, pait_id))
