@@ -80,6 +80,7 @@ def load_app(app: Application) -> Dict[str, PaitCoreModel]:
 def pait(
     author: Optional[Tuple[str]] = None,
     desc: Optional[str] = None,
+    summary: Optional[str] = None,
     status: Optional[PaitStatus] = None,
     group: str = "root",
     tag: Optional[Tuple[str, ...]] = None,
@@ -90,6 +91,7 @@ def pait(
         AppHelper,
         author=author,
         desc=desc,
+        summary=summary,
         status=status,
         group=group,
         tag=tag,

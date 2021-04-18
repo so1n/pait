@@ -16,117 +16,14 @@ tags:
 - name: get
   description: ''
 paths:
-  api/raise_tip:
-    post:
-      tags:
-      - test
-      deprecated: true
-      summary: test pait raise tip
-      operationId: pait.test_raise_tip
-      parameters:
-      - name: content_type
-        in: header
-        required: true
-        description: content-type
-        schema:
-          title: Content Type
-          description: content-type
-          type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              title: DynamicModel
-              type: object
-              properties:
-                uid:
-                  title: Uid
-                  type: integer
-                user_name:
-                  title: User Name
-                  type: string
-                age:
-                  title: Age
-                  type: integer
-              required:
-              - uid
-              - user_name
-              - age
-  api/pait_model:
-    post:
-      tags:
-      - test
-      summary: Test Field
-      operationId: pait.test_pait_model
-      parameters:
-      - name: uid
-        in: query
-        required: true
-        description: user id
-        schema:
-          title: Uid
-          description: user id
-          exclusiveMinimum: 10
-          exclusiveMaximum: 1000
-          type: integer
-      - name: user_name
-        in: query
-        required: true
-        description: user name
-        schema:
-          title: User Name
-          description: user name
-          maxLength: 4
-          minLength: 2
-          type: string
-      - name: user-agent
-        in: header
-        required: true
-        description: user agent
-        schema:
-          title: User-Agent
-          description: user agent
-          type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              title: DynamicModel
-              type: object
-              properties:
-                age:
-                  title: Age
-                  description: age
-                  exclusiveMinimum: 1
-                  exclusiveMaximum: 100
-                  type: integer
-              required:
-              - age
   api/post:
     post:
       tags:
       - user
       - post
-      summary: Test Method:Post Pydantic Model
-      operationId: pait.test_post
+      summary: ''
+      description: Test Method:Post Pydantic Model
+      operationId: POST.pait.test_post
       parameters:
       - name: requestBody.content.<media-type>
         in: header
@@ -170,8 +67,9 @@ paths:
       tags:
       - user
       - depend
-      summary: Test Method:Post request, Pydantic Model
-      operationId: pait.test_depend
+      summary: ''
+      description: Test Method:Post request, Pydantic Model
+      operationId: POST.pait.test_depend
       parameters:
       - name: uid
         in: query
@@ -225,77 +123,14 @@ paths:
                   type: integer
               required:
               - age
-  api/get/<age>:
-    get:
-      tags:
-      - user
-      - get
-      summary: Test Field
-      operationId: pait.test_get
-      parameters:
-      - name: uid
-        in: query
-        required: true
-        description: user id
-        schema:
-          title: Uid
-          description: user id
-          exclusiveMinimum: 10
-          exclusiveMaximum: 1000
-          type: integer
-      - name: user_name
-        in: query
-        required: true
-        description: user name
-        schema:
-          title: User Name
-          description: user name
-          maxLength: 4
-          minLength: 2
-          type: string
-      - name: email
-        in: query
-        required: false
-        description: user email
-        schema:
-          title: Email
-          description: user email
-          default: example@xxx.com
-          type: string
-      - name: sex
-        in: query
-        required: false
-        description: sex
-        schema:
-          title: SexEnum
-          description: An enumeration.
-          enum:
-          - man
-          - woman
-      - name: age
-        in: path
-        required: true
-        description: age
-        schema:
-          title: Age
-          description: age
-          type: integer
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/_ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
   api/other_field:
     post:
       tags:
       - user
       - get
       summary: ''
-      operationId: pait.test_other_field
+      description: ''
+      operationId: POST.pait.test_other_field
       parameters:
       - name: cookie
         in: cookie
@@ -325,12 +160,58 @@ paths:
               - a
               - b
   api/cbv:
+    post:
+      tags:
+      - user
+      - post
+      summary: ''
+      description: test cbv post method
+      operationId: POST.pait.TestCbv
+      parameters:
+      - name: user-agent
+        in: header
+        required: true
+        description: ua
+        schema:
+          title: User-Agent
+          description: ua
+          type: string
+      responses:
+        200:
+          description: success response|fail response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ResponseUserModel'
+                - $ref: '#/components/schemas/ResponseFailModel'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: DynamicModel
+              type: object
+              properties:
+                uid:
+                  title: Uid
+                  type: integer
+                user_name:
+                  title: User Name
+                  type: string
+                age:
+                  title: Age
+                  type: integer
+              required:
+              - uid
+              - user_name
+              - age
     get:
       tags:
       - user
       - get
-      summary: Text Pydantic Model and Field
-      operationId: pait.TestCbv
+      summary: ''
+      description: Text Pydantic Model and Field
+      operationId: GET.pait.TestCbv
       parameters:
       - name: age
         in: query
@@ -388,20 +269,87 @@ paths:
                 oneOf:
                 - $ref: '#/components/schemas/_ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
-    post:
+  api/get/<age>:
+    get:
       tags:
       - user
-      - post
-      summary: test cbv post method
-      operationId: pait.TestCbv
+      - get
+      summary: ''
+      description: Test Field
+      operationId: GET.pait.test_get
       parameters:
-      - name: user-agent
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+      - name: email
+        in: query
+        required: false
+        description: user email
+        schema:
+          title: Email
+          description: user email
+          default: example@xxx.com
+          type: string
+      - name: sex
+        in: query
+        required: false
+        description: sex
+        schema:
+          title: SexEnum
+          description: An enumeration.
+          enum:
+          - man
+          - woman
+      - name: age
+        in: path
+        required: true
+        description: age
+        schema:
+          title: Age
+          description: age
+          type: integer
+      responses:
+        200:
+          description: success response|fail response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/_ResponseUserModel'
+                - $ref: '#/components/schemas/ResponseFailModel'
+  api/raise_tip:
+    post:
+      tags:
+      - test
+      deprecated: true
+      summary: ''
+      description: test pait raise tip
+      operationId: POST.pait.test_raise_tip
+      parameters:
+      - name: content_type
         in: header
         required: true
-        description: ua
+        description: content-type
         schema:
-          title: User-Agent
-          description: ua
+          title: Content Type
+          description: content-type
           type: string
       responses:
         200:
@@ -432,8 +380,99 @@ paths:
               - uid
               - user_name
               - age
+  api/pait_model:
+    post:
+      tags:
+      - test
+      summary: ''
+      description: Test Field
+      operationId: POST.pait.test_pait_model
+      parameters:
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+      - name: user-agent
+        in: header
+        required: true
+        description: user agent
+        schema:
+          title: User-Agent
+          description: user agent
+          type: string
+      responses:
+        200:
+          description: success response|fail response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ResponseUserModel'
+                - $ref: '#/components/schemas/ResponseFailModel'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: DynamicModel
+              type: object
+              properties:
+                age:
+                  title: Age
+                  description: age
+                  exclusiveMinimum: 1
+                  exclusiveMaximum: 100
+                  type: integer
+              required:
+              - age
 components:
   schemas:
+    _BaseModel:
+      title: _BaseModel
+      type: object
+      properties:
+        uid:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+        user_name:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+        age:
+          title: Age
+          description: age
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
+          type: integer
+        content_type:
+          title: Content Type
+          description: content-type
+          type: string
+      required:
+      - uid
+      - user_name
+      - age
+      - content_type
     ResponseUserModel:
       title: ResponseUserModel
       type: object

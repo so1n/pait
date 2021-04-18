@@ -121,16 +121,19 @@ class PaitMd(PaitBaseParse):
                 elif pait_model.status:
                     status_text = f"{pait_model.status.value}"
 
+                if pait_model.desc:
+                    markdown_text += f"\n\n**Desc**:{pait_model.desc}\n\n"
+
                 # func or interface details
                 func_code: CodeType = pait_model.func.__code__
-                markdown_text += f"|Author|Status|func|description|\n"
+                markdown_text += f"|Author|Status|func|summary|\n"
                 markdown_text += f"|---|---|---|---|\n"
                 markdown_text += (
                     f"|{','.join(pait_model.author)}"
                     f"|{status_text}"
                     f'|<abbr title="file:{func_code.co_filename};line: {func_code.co_firstlineno}">'
                     f"{pait_model.func.__qualname__}</abbr>"
-                    f"|{pait_model.desc}|\n"
+                    f"|{pait_model.summary}|\n"
                 )
 
                 # request info

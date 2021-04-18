@@ -13,6 +13,7 @@ def pait(
     app_helper_class: "Type[BaseAppHelper]",
     author: Optional[Tuple[str]] = None,
     desc: Optional[str] = None,
+    summary: Optional[str] = None,
     status: Optional[PaitStatus] = None,
     group: Optional[str] = None,
     tag: Optional[Tuple[str, ...]] = None,
@@ -35,6 +36,7 @@ def pait(
             PaitCoreModel(
                 author=author,
                 desc=desc,
+                summary=summary,
                 func=func,
                 pait_id=pait_id,
                 status=status,

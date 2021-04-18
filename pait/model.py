@@ -111,6 +111,7 @@ class PaitCoreModel(object):
         operation_id: Optional[str] = None,
         func_name: Optional[str] = None,
         author: Optional[Tuple[str, ...]] = None,
+        summary: Optional[str] = None,
         desc: Optional[str] = None,
         status: Optional[PaitStatus] = None,
         group: Optional[str] = None,
@@ -124,7 +125,8 @@ class PaitCoreModel(object):
         self.operation_id: Optional[str] = operation_id or None  # route name
         self.func_name: str = func_name or func.__name__
         self.author: Tuple[str, ...] = author or ("",)  # The main developer of this func
-        self.desc = desc or func.__doc__ or ""  # desc of this func
+        self.summary: str = summary or ""
+        self.desc: str = desc or func.__doc__ or ""  # desc of this func
         self.status: PaitStatus = status or PaitStatus.undefined  # Interface development progress (life cycle)
         self.group: str = group or "root"  # Which group this interface belongs to
         self.tag: Tuple[str, ...] = tag or ("default",)  # Interface tag

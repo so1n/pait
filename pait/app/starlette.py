@@ -89,6 +89,7 @@ def load_app(app: Starlette) -> Dict[str, PaitCoreModel]:
 def pait(
     author: Optional[Tuple[str]] = None,
     desc: Optional[str] = None,
+    summary: Optional[str] = None,
     status: Optional[PaitStatus] = None,
     group: Optional[str] = None,
     tag: Optional[Tuple[str, ...]] = None,
@@ -99,6 +100,7 @@ def pait(
         AppHelper,
         author=author,
         desc=desc,
+        summary=summary,
         status=status,
         group=group,
         tag=tag,

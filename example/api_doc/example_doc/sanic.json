@@ -9,7 +9,7 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/sanic_example.py",
-            "lineno": 30,
+            "lineno": 31,
             "name": "test_raise_tip"
           },
           "path": "api/raise_tip",
@@ -513,7 +513,7 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/sanic_example.py",
-            "lineno": 133,
+            "lineno": 149,
             "name": "test_pait_model"
           },
           "path": "api/pait_model",
@@ -1025,7 +1025,7 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/sanic_example.py",
-            "lineno": 49,
+            "lineno": 50,
             "name": "test_post"
           },
           "path": "api/post",
@@ -1529,7 +1529,7 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/sanic_example.py",
-            "lineno": 68,
+            "lineno": 69,
             "name": "test_depend"
           },
           "path": "api/depend",
@@ -2031,23 +2031,45 @@
           ]
         },
         {
-          "name": "pait.test_get",
+          "name": "pait.test_other_field",
           "status": "release",
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/sanic_example.py",
-            "lineno": 87,
-            "name": "test_get"
+            "lineno": 120,
+            "name": "test_other_field"
           },
-          "path": "api/get/<age>",
+          "path": "api/other_field",
           "method": [
-            "GET"
+            "POST"
           ],
           "request": {
-            "param_name": "age",
-            "description": "age",
+            "param_name": "cookie",
+            "description": "cookie",
             "default": "Required",
-            "type": "integer",
+            "type": "object",
+            "other": {}
+          },
+          "response_list": []
+        },
+        {
+          "name": "pait.TestCbv",
+          "status": "release",
+          "author": "so1n",
+          "func": {
+            "file": "/home/so1n/github/pait/example/param_verify/sanic_example.py",
+            "lineno": 178,
+            "name": "TestCbv.post"
+          },
+          "path": "api/cbv",
+          "method": [
+            "POST"
+          ],
+          "request": {
+            "param_name": "user-agent",
+            "description": "ua",
+            "default": "Required",
+            "type": "string",
             "other": {}
           },
           "response_list": [
@@ -2074,7 +2096,7 @@
                       "type": "integer"
                     },
                     "parent_schema": {
-                      "title": "_ResponseUserModel",
+                      "title": "ResponseUserModel",
                       "type": "object",
                       "properties": {
                         "code": {
@@ -2090,7 +2112,11 @@
                           "type": "string"
                         },
                         "data": {
-                          "$ref": "#/definitions/_BaseModel"
+                          "title": "Data",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/definitions/_BaseModel"
+                          }
                         }
                       },
                       "required": [
@@ -2115,24 +2141,24 @@
                               "minLength": 2,
                               "type": "string"
                             },
-                            "email": {
-                              "title": "Email",
-                              "description": "user email",
-                              "type": "string"
-                            },
                             "age": {
                               "title": "Age",
                               "description": "age",
                               "exclusiveMinimum": 1,
                               "exclusiveMaximum": 100,
                               "type": "integer"
+                            },
+                            "content_type": {
+                              "title": "Content Type",
+                              "description": "content-type",
+                              "type": "string"
                             }
                           },
                           "required": [
                             "uid",
                             "user_name",
-                            "email",
-                            "age"
+                            "age",
+                            "content_type"
                           ]
                         }
                       }
@@ -2154,7 +2180,7 @@
                       "type": "string"
                     },
                     "parent_schema": {
-                      "title": "_ResponseUserModel",
+                      "title": "ResponseUserModel",
                       "type": "object",
                       "properties": {
                         "code": {
@@ -2170,7 +2196,11 @@
                           "type": "string"
                         },
                         "data": {
-                          "$ref": "#/definitions/_BaseModel"
+                          "title": "Data",
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/definitions/_BaseModel"
+                          }
                         }
                       },
                       "required": [
@@ -2195,24 +2225,24 @@
                               "minLength": 2,
                               "type": "string"
                             },
-                            "email": {
-                              "title": "Email",
-                              "description": "user email",
-                              "type": "string"
-                            },
                             "age": {
                               "title": "Age",
                               "description": "age",
                               "exclusiveMinimum": 1,
                               "exclusiveMaximum": 100,
                               "type": "integer"
+                            },
+                            "content_type": {
+                              "title": "Content Type",
+                              "description": "content-type",
+                              "type": "string"
                             }
                           },
                           "required": [
                             "uid",
                             "user_name",
-                            "email",
-                            "age"
+                            "age",
+                            "content_type"
                           ]
                         }
                       }
@@ -2255,24 +2285,24 @@
                           "minLength": 2,
                           "type": "string"
                         },
-                        "email": {
-                          "title": "Email",
-                          "description": "user email",
-                          "type": "string"
-                        },
                         "age": {
                           "title": "Age",
                           "description": "age",
                           "exclusiveMinimum": 1,
                           "exclusiveMaximum": 100,
                           "type": "integer"
+                        },
+                        "content_type": {
+                          "title": "Content Type",
+                          "description": "content-type",
+                          "type": "string"
                         }
                       },
                       "required": [
                         "uid",
                         "user_name",
-                        "email",
-                        "age"
+                        "age",
+                        "content_type"
                       ]
                     }
                   }
@@ -2313,77 +2343,24 @@
                           "minLength": 2,
                           "type": "string"
                         },
-                        "email": {
-                          "title": "Email",
-                          "description": "user email",
-                          "type": "string"
-                        },
                         "age": {
                           "title": "Age",
                           "description": "age",
                           "exclusiveMinimum": 1,
                           "exclusiveMaximum": 100,
                           "type": "integer"
+                        },
+                        "content_type": {
+                          "title": "Content Type",
+                          "description": "content-type",
+                          "type": "string"
                         }
                       },
                       "required": [
                         "uid",
                         "user_name",
-                        "email",
-                        "age"
-                      ]
-                    }
-                  }
-                },
-                {
-                  "param_name": "data.email",
-                  "description": "user email",
-                  "default": "Required",
-                  "type": "string",
-                  "other": {},
-                  "raw": {
-                    "param_name": "email",
-                    "schema": {
-                      "title": "Email",
-                      "description": "user email",
-                      "type": "string"
-                    },
-                    "parent_schema": {
-                      "title": "_BaseModel",
-                      "type": "object",
-                      "properties": {
-                        "uid": {
-                          "title": "Uid",
-                          "description": "user id",
-                          "exclusiveMinimum": 10,
-                          "exclusiveMaximum": 1000,
-                          "type": "integer"
-                        },
-                        "user_name": {
-                          "title": "User Name",
-                          "description": "user name",
-                          "maxLength": 4,
-                          "minLength": 2,
-                          "type": "string"
-                        },
-                        "email": {
-                          "title": "Email",
-                          "description": "user email",
-                          "type": "string"
-                        },
-                        "age": {
-                          "title": "Age",
-                          "description": "age",
-                          "exclusiveMinimum": 1,
-                          "exclusiveMaximum": 100,
-                          "type": "integer"
-                        }
-                      },
-                      "required": [
-                        "uid",
-                        "user_name",
-                        "email",
-                        "age"
+                        "age",
+                        "content_type"
                       ]
                     }
                   }
@@ -2424,9 +2401,57 @@
                           "minLength": 2,
                           "type": "string"
                         },
-                        "email": {
-                          "title": "Email",
-                          "description": "user email",
+                        "age": {
+                          "title": "Age",
+                          "description": "age",
+                          "exclusiveMinimum": 1,
+                          "exclusiveMaximum": 100,
+                          "type": "integer"
+                        },
+                        "content_type": {
+                          "title": "Content Type",
+                          "description": "content-type",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "uid",
+                        "user_name",
+                        "age",
+                        "content_type"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "param_name": "data.content_type",
+                  "description": "content-type",
+                  "default": "Required",
+                  "type": "string",
+                  "other": {},
+                  "raw": {
+                    "param_name": "content_type",
+                    "schema": {
+                      "title": "Content Type",
+                      "description": "content-type",
+                      "type": "string"
+                    },
+                    "parent_schema": {
+                      "title": "_BaseModel",
+                      "type": "object",
+                      "properties": {
+                        "uid": {
+                          "title": "Uid",
+                          "description": "user id",
+                          "exclusiveMinimum": 10,
+                          "exclusiveMaximum": 1000,
+                          "type": "integer"
+                        },
+                        "user_name": {
+                          "title": "User Name",
+                          "description": "user name",
+                          "maxLength": 4,
+                          "minLength": 2,
                           "type": "string"
                         },
                         "age": {
@@ -2435,13 +2460,18 @@
                           "exclusiveMinimum": 1,
                           "exclusiveMaximum": 100,
                           "type": "integer"
+                        },
+                        "content_type": {
+                          "title": "Content Type",
+                          "description": "content-type",
+                          "type": "string"
                         }
                       },
                       "required": [
                         "uid",
                         "user_name",
-                        "email",
-                        "age"
+                        "age",
+                        "content_type"
                       ]
                     }
                   }
@@ -2527,34 +2557,12 @@
           ]
         },
         {
-          "name": "pait.test_other_field",
-          "status": "release",
-          "author": "so1n",
-          "func": {
-            "file": "/home/so1n/github/pait/example/param_verify/sanic_example.py",
-            "lineno": 106,
-            "name": "test_other_field"
-          },
-          "path": "api/other_field",
-          "method": [
-            "POST"
-          ],
-          "request": {
-            "param_name": "cookie",
-            "description": "cookie",
-            "default": "Required",
-            "type": "object",
-            "other": {}
-          },
-          "response_list": []
-        },
-        {
           "name": "pait.TestCbv",
           "status": "release",
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/sanic_example.py",
-            "lineno": 144,
+            "lineno": 160,
             "name": "TestCbv.get"
           },
           "path": "api/cbv",
@@ -3045,24 +3053,32 @@
           ]
         },
         {
-          "name": "pait.TestCbv",
+          "name": "pait.test_get",
           "status": "release",
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/sanic_example.py",
-            "lineno": 162,
-            "name": "TestCbv.post"
+            "lineno": 88,
+            "name": "test_get"
           },
-          "path": "api/cbv",
+          "path": "api/get/<age>",
           "method": [
-            "POST"
+            "GET"
           ],
           "request": {
-            "param_name": "user-agent",
-            "description": "ua",
+            "param_name": "multi_user_name",
+            "description": "user name",
             "default": "Required",
-            "type": "string",
-            "other": {}
+            "type": "array",
+            "other": {
+              "maxLength": 4,
+              "minLength": 2,
+              "items": {
+                "type": "string",
+                "minLength": 2,
+                "maxLength": 4
+              }
+            }
           },
           "response_list": [
             {
@@ -3088,7 +3104,7 @@
                       "type": "integer"
                     },
                     "parent_schema": {
-                      "title": "ResponseUserModel",
+                      "title": "_ResponseUserModel",
                       "type": "object",
                       "properties": {
                         "code": {
@@ -3104,11 +3120,7 @@
                           "type": "string"
                         },
                         "data": {
-                          "title": "Data",
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/definitions/_BaseModel"
-                          }
+                          "$ref": "#/definitions/_BaseModel"
                         }
                       },
                       "required": [
@@ -3133,24 +3145,24 @@
                               "minLength": 2,
                               "type": "string"
                             },
+                            "email": {
+                              "title": "Email",
+                              "description": "user email",
+                              "type": "string"
+                            },
                             "age": {
                               "title": "Age",
                               "description": "age",
                               "exclusiveMinimum": 1,
                               "exclusiveMaximum": 100,
                               "type": "integer"
-                            },
-                            "content_type": {
-                              "title": "Content Type",
-                              "description": "content-type",
-                              "type": "string"
                             }
                           },
                           "required": [
                             "uid",
                             "user_name",
-                            "age",
-                            "content_type"
+                            "email",
+                            "age"
                           ]
                         }
                       }
@@ -3172,7 +3184,7 @@
                       "type": "string"
                     },
                     "parent_schema": {
-                      "title": "ResponseUserModel",
+                      "title": "_ResponseUserModel",
                       "type": "object",
                       "properties": {
                         "code": {
@@ -3188,11 +3200,7 @@
                           "type": "string"
                         },
                         "data": {
-                          "title": "Data",
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/definitions/_BaseModel"
-                          }
+                          "$ref": "#/definitions/_BaseModel"
                         }
                       },
                       "required": [
@@ -3217,24 +3225,24 @@
                               "minLength": 2,
                               "type": "string"
                             },
+                            "email": {
+                              "title": "Email",
+                              "description": "user email",
+                              "type": "string"
+                            },
                             "age": {
                               "title": "Age",
                               "description": "age",
                               "exclusiveMinimum": 1,
                               "exclusiveMaximum": 100,
                               "type": "integer"
-                            },
-                            "content_type": {
-                              "title": "Content Type",
-                              "description": "content-type",
-                              "type": "string"
                             }
                           },
                           "required": [
                             "uid",
                             "user_name",
-                            "age",
-                            "content_type"
+                            "email",
+                            "age"
                           ]
                         }
                       }
@@ -3277,24 +3285,24 @@
                           "minLength": 2,
                           "type": "string"
                         },
+                        "email": {
+                          "title": "Email",
+                          "description": "user email",
+                          "type": "string"
+                        },
                         "age": {
                           "title": "Age",
                           "description": "age",
                           "exclusiveMinimum": 1,
                           "exclusiveMaximum": 100,
                           "type": "integer"
-                        },
-                        "content_type": {
-                          "title": "Content Type",
-                          "description": "content-type",
-                          "type": "string"
                         }
                       },
                       "required": [
                         "uid",
                         "user_name",
-                        "age",
-                        "content_type"
+                        "email",
+                        "age"
                       ]
                     }
                   }
@@ -3335,24 +3343,77 @@
                           "minLength": 2,
                           "type": "string"
                         },
+                        "email": {
+                          "title": "Email",
+                          "description": "user email",
+                          "type": "string"
+                        },
                         "age": {
                           "title": "Age",
                           "description": "age",
                           "exclusiveMinimum": 1,
                           "exclusiveMaximum": 100,
                           "type": "integer"
-                        },
-                        "content_type": {
-                          "title": "Content Type",
-                          "description": "content-type",
-                          "type": "string"
                         }
                       },
                       "required": [
                         "uid",
                         "user_name",
-                        "age",
-                        "content_type"
+                        "email",
+                        "age"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "param_name": "data.email",
+                  "description": "user email",
+                  "default": "Required",
+                  "type": "string",
+                  "other": {},
+                  "raw": {
+                    "param_name": "email",
+                    "schema": {
+                      "title": "Email",
+                      "description": "user email",
+                      "type": "string"
+                    },
+                    "parent_schema": {
+                      "title": "_BaseModel",
+                      "type": "object",
+                      "properties": {
+                        "uid": {
+                          "title": "Uid",
+                          "description": "user id",
+                          "exclusiveMinimum": 10,
+                          "exclusiveMaximum": 1000,
+                          "type": "integer"
+                        },
+                        "user_name": {
+                          "title": "User Name",
+                          "description": "user name",
+                          "maxLength": 4,
+                          "minLength": 2,
+                          "type": "string"
+                        },
+                        "email": {
+                          "title": "Email",
+                          "description": "user email",
+                          "type": "string"
+                        },
+                        "age": {
+                          "title": "Age",
+                          "description": "age",
+                          "exclusiveMinimum": 1,
+                          "exclusiveMaximum": 100,
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "uid",
+                        "user_name",
+                        "email",
+                        "age"
                       ]
                     }
                   }
@@ -3393,57 +3454,9 @@
                           "minLength": 2,
                           "type": "string"
                         },
-                        "age": {
-                          "title": "Age",
-                          "description": "age",
-                          "exclusiveMinimum": 1,
-                          "exclusiveMaximum": 100,
-                          "type": "integer"
-                        },
-                        "content_type": {
-                          "title": "Content Type",
-                          "description": "content-type",
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "uid",
-                        "user_name",
-                        "age",
-                        "content_type"
-                      ]
-                    }
-                  }
-                },
-                {
-                  "param_name": "data.content_type",
-                  "description": "content-type",
-                  "default": "Required",
-                  "type": "string",
-                  "other": {},
-                  "raw": {
-                    "param_name": "content_type",
-                    "schema": {
-                      "title": "Content Type",
-                      "description": "content-type",
-                      "type": "string"
-                    },
-                    "parent_schema": {
-                      "title": "_BaseModel",
-                      "type": "object",
-                      "properties": {
-                        "uid": {
-                          "title": "Uid",
-                          "description": "user id",
-                          "exclusiveMinimum": 10,
-                          "exclusiveMaximum": 1000,
-                          "type": "integer"
-                        },
-                        "user_name": {
-                          "title": "User Name",
-                          "description": "user name",
-                          "maxLength": 4,
-                          "minLength": 2,
+                        "email": {
+                          "title": "Email",
+                          "description": "user email",
                           "type": "string"
                         },
                         "age": {
@@ -3452,18 +3465,13 @@
                           "exclusiveMinimum": 1,
                           "exclusiveMaximum": 100,
                           "type": "integer"
-                        },
-                        "content_type": {
-                          "title": "Content Type",
-                          "description": "content-type",
-                          "type": "string"
                         }
                       },
                       "required": [
                         "uid",
                         "user_name",
-                        "age",
-                        "content_type"
+                        "email",
+                        "age"
                       ]
                     }
                   }

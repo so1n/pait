@@ -3,9 +3,13 @@
 
 ### Name: test_model
 
-|Author|Status|func|description|
+
+
+**Desc**:Test Field
+
+|Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 143">test_model</abbr>|Test Field|
+|so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 145">test_model</abbr>||
 - Path: /api/pait_model
 - Method: OPTIONS,POST
 - Request:
@@ -82,9 +86,13 @@
 
 ### Name: test_raise_tip
 
-|Author|Status|func|description|
+
+
+**Desc**:test pait raise tip
+
+|Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 27">test_raise_tip</abbr>|test pait raise tip|
+|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 29">test_raise_tip</abbr>||
 - Path: /api/raise_tip
 - Method: OPTIONS,POST
 - Request:
@@ -159,9 +167,9 @@
 
 ### Name: test_other_field
 
-|Author|Status|func|description|
+|Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 84">test_other_field</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 86">test_other_field</abbr>||
 - Path: /api/other_field
 - Method: OPTIONS,POST
 - Request:
@@ -191,9 +199,13 @@
 
 ### Name: demo_get2test_depend
 
-|Author|Status|func|description|
+
+
+**Desc**:Test Method:Post request, Pydantic Model
+
+|Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 65">demo_get2test_depend</abbr>|Test Method:Post request, Pydantic Model|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 67">demo_get2test_depend</abbr>||
 - Path: /api/depend
 - Method: OPTIONS,POST
 - Request:
@@ -270,9 +282,13 @@
 
 ### Name: test_post
 
-|Author|Status|func|description|
+
+
+**Desc**:Test Method:Post Pydantic Model
+
+|Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 46">test_post</abbr>|Test Method:Post Pydantic Model|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 48">test_post</abbr>||
 - Path: /api/post
 - Method: OPTIONS,POST
 - Request:
@@ -343,86 +359,15 @@
             ```
 
 
-### Name: test_cbv.post
-
-|Author|Status|func|description|
-|---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 172">TestCbv.post</abbr>|test cbv post method|
-- Path: /api/cbv
-- Method: post
-- Request:
-    - Body Param
-
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
-    - Header Param
-
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |user-agent|string|**`Required`**|ua||
-- Response:
-
-    - UserSuccessRespModel
-
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|success response|
-        - Header
-            {'cookie': 'xxx'}
-        - Data
-
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|0|api code||
-            |data.age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.content_type|string|**`Required`**|content-type||
-            |data.uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
-            |msg|string|success|api status msg||
-        - Example Response Data Json
-
-            ```json
-            {
-              "code": 0,
-              "msg": "",
-              "data": {
-                "uid": 0,
-                "user_name": "",
-                "age": 0,
-                "content_type": ""
-              }
-            }
-            ```
-
-    - FailRespModel
-
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|fail response|
-        - Data
-
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|1|api code||
-            |msg|string|fail|api status msg||
-        - Example Response Data Json
-
-            ```json
-            {
-              "code": 0,
-              "msg": ""
-            }
-            ```
-
-
 ### Name: test_cbv.get
 
-|Author|Status|func|description|
+
+
+**Desc**:Text Pydantic Model and Field
+
+|Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 154">TestCbv.get</abbr>|Text Pydantic Model and Field|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 156">TestCbv.get</abbr>||
 - Path: /api/cbv
 - Method: get
 - Request:
@@ -494,11 +439,90 @@
             ```
 
 
+### Name: test_cbv.post
+
+
+
+**Desc**:test cbv post method
+
+|Author|Status|func|summary|
+|---|---|---|---|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 174">TestCbv.post</abbr>||
+- Path: /api/cbv
+- Method: post
+- Request:
+    - Body Param
+
+        |param name|type|default value|description|other|
+        |---|---|---|---|---|
+        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
+    - Header Param
+
+        |param name|type|default value|description|other|
+        |---|---|---|---|---|
+        |user-agent|string|**`Required`**|ua||
+- Response:
+
+    - UserSuccessRespModel
+
+        |status code|media type|description|
+        |---|---|---|
+        |200|application/json|success response|
+        - Header
+            {'cookie': 'xxx'}
+        - Data
+
+            |param name|type|default value|description|other|
+            |---|---|---|---|---|
+            |code|integer|0|api code||
+            |data.age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+            |data.content_type|string|**`Required`**|content-type||
+            |data.uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+            |data.user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
+            |msg|string|success|api status msg||
+        - Example Response Data Json
+
+            ```json
+            {
+              "code": 0,
+              "msg": "",
+              "data": {
+                "uid": 0,
+                "user_name": "",
+                "age": 0,
+                "content_type": ""
+              }
+            }
+            ```
+
+    - FailRespModel
+
+        |status code|media type|description|
+        |---|---|---|
+        |200|application/json|fail response|
+        - Data
+
+            |param name|type|default value|description|other|
+            |---|---|---|---|---|
+            |code|integer|1|api code||
+            |msg|string|fail|api status msg||
+        - Example Response Data Json
+
+            ```json
+            {
+              "code": 0,
+              "msg": ""
+            }
+            ```
+
+
 ### Name: test_pait
 
-|Author|Status|func|description|
+|Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 111">test_pait</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/flask_example.py;line: 113">test_pait</abbr>||
 - Path: /api/get/<age>
 - Method: GET,HEAD,OPTIONS
 - Request:

@@ -22,6 +22,7 @@ paths:
       - user
       - get
       summary: ''
+      description: ''
       operationId: OPTIONS.test_other_field
       parameters:
       - name: cookie
@@ -56,6 +57,7 @@ paths:
       - user
       - get
       summary: ''
+      description: ''
       operationId: POST.test_other_field
       parameters:
       - name: cookie
@@ -90,7 +92,8 @@ paths:
       tags:
       - user
       - depend
-      summary: Test Method:Post request, Pydantic Model
+      summary: ''
+      description: Test Method:Post request, Pydantic Model
       operationId: OPTIONS.demo_get2test_depend
       parameters:
       - name: uid
@@ -149,7 +152,8 @@ paths:
       tags:
       - user
       - depend
-      summary: Test Method:Post request, Pydantic Model
+      summary: ''
+      description: Test Method:Post request, Pydantic Model
       operationId: POST.demo_get2test_depend
       parameters:
       - name: uid
@@ -199,7 +203,8 @@ paths:
       tags:
       - user
       - post
-      summary: Test Method:Post Pydantic Model
+      summary: ''
+      description: Test Method:Post Pydantic Model
       operationId: OPTIONS.test_post
       parameters:
       - name: requestBody.content.<media-type>
@@ -243,7 +248,8 @@ paths:
       tags:
       - user
       - post
-      summary: Test Method:Post Pydantic Model
+      summary: ''
+      description: Test Method:Post Pydantic Model
       operationId: POST.test_post
       parameters:
       - name: requestBody.content.<media-type>
@@ -284,55 +290,12 @@ paths:
               - user_name
               - age
   /api/cbv:
-    post:
-      tags:
-      - user
-      - post
-      summary: test cbv post method
-      operationId: post.test_cbv.post
-      parameters:
-      - name: user-agent
-        in: header
-        required: true
-        description: ua
-        schema:
-          title: User-Agent
-          description: ua
-          type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              title: DynamicModel
-              type: object
-              properties:
-                uid:
-                  title: Uid
-                  type: integer
-                user_name:
-                  title: User Name
-                  type: string
-                age:
-                  title: Age
-                  type: integer
-              required:
-              - uid
-              - user_name
-              - age
     get:
       tags:
       - user
       - get
-      summary: Text Pydantic Model and Field
+      summary: ''
+      description: Text Pydantic Model and Field
       operationId: get.test_cbv.get
       parameters:
       - name: age
@@ -391,12 +354,58 @@ paths:
                 oneOf:
                 - $ref: '#/components/schemas/_ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
+    post:
+      tags:
+      - user
+      - post
+      summary: ''
+      description: test cbv post method
+      operationId: post.test_cbv.post
+      parameters:
+      - name: user-agent
+        in: header
+        required: true
+        description: ua
+        schema:
+          title: User-Agent
+          description: ua
+          type: string
+      responses:
+        200:
+          description: success response|fail response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ResponseUserModel'
+                - $ref: '#/components/schemas/ResponseFailModel'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: DynamicModel
+              type: object
+              properties:
+                uid:
+                  title: Uid
+                  type: integer
+                user_name:
+                  title: User Name
+                  type: string
+                age:
+                  title: Age
+                  type: integer
+              required:
+              - uid
+              - user_name
+              - age
   /api/get/<age>:
     get:
       tags:
       - user
       - get
       summary: ''
+      description: ''
       operationId: GET.test_pait
       parameters:
       - name: uid
@@ -459,6 +468,7 @@ paths:
       - user
       - get
       summary: ''
+      description: ''
       operationId: HEAD.test_pait
       parameters:
       - name: uid
@@ -521,6 +531,7 @@ paths:
       - user
       - get
       summary: ''
+      description: ''
       operationId: OPTIONS.test_pait
       parameters:
       - name: uid
@@ -582,7 +593,8 @@ paths:
     options:
       tags:
       - test
-      summary: Test Field
+      summary: ''
+      description: Test Field
       operationId: OPTIONS.test_model
       parameters:
       - name: uid
@@ -640,7 +652,8 @@ paths:
     post:
       tags:
       - test
-      summary: Test Field
+      summary: ''
+      description: Test Field
       operationId: POST.test_model
       parameters:
       - name: uid
@@ -687,7 +700,8 @@ paths:
       tags:
       - test
       deprecated: true
-      summary: test pait raise tip
+      summary: ''
+      description: test pait raise tip
       operationId: OPTIONS.test_raise_tip
       parameters:
       - name: content__type
@@ -731,7 +745,8 @@ paths:
       tags:
       - test
       deprecated: true
-      summary: test pait raise tip
+      summary: ''
+      description: test pait raise tip
       operationId: POST.test_raise_tip
       parameters:
       - name: content__type

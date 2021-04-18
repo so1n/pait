@@ -160,7 +160,8 @@ class PaitOpenApi(PaitBaseParse):
                         PaitStatus.abandoned,
                     ):
                         openapi_method_dict["deprecated"] = True
-                    openapi_method_dict["summary"] = pait_model.desc
+                    openapi_method_dict["summary"] = pait_model.summary
+                    openapi_method_dict["description"] = pait_model.desc
                     openapi_method_dict["operationId"] = f"{method}.{pait_model.operation_id}"
                     openapi_parameters_list: list = openapi_method_dict.setdefault("parameters", [])
                     openapi_response_dict: dict = openapi_method_dict.setdefault("responses", {})
