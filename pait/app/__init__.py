@@ -33,6 +33,7 @@ def load_app(app: Any) -> Dict[str, PaitCoreModel]:
 def pait(
     author: Optional[Tuple[str]] = None,
     desc: Optional[str] = None,
+    summary: Optional[str] = None,
     status: Optional[PaitStatus] = None,
     group: str = "root",
     tag: Optional[Tuple[str, ...]] = None,
@@ -44,13 +45,13 @@ def pait(
     load_class_app = auto_load_app_class()
     app_name: str = load_class_app.__name__.lower()
     if app_name == "flask":
-        from .flask import pait
+        from .flask import pait as _pait
     elif app_name == "starlette":
-        from .starlette import pait
+        from .starlette import pait as _pait  # type: ignore
     elif app_name == "sanic":
-        from .sanic import pait
+        from .sanic import pait as _pait  # type: ignore
     elif app_name == "tornado":
-        from .tornado import pait
+        from .tornado import pait as _pait  # type: ignore
     else:
         raise NotImplementedError(f"Pait not support:{load_class_app}")
-    return pait(author, desc, status, group, tag, response_model_list)
+    return _pait(author, desc, summary, status, group, tag, response_model_list)

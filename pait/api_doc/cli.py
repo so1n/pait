@@ -1,5 +1,6 @@
 import argparse
 import importlib
+import inspect
 from typing import Dict, List, Optional
 
 from pait.api_doc.markdown import PaitMd
@@ -9,7 +10,8 @@ from pait.api_doc.pait_yaml import PaitYaml
 from pait.app import load_app
 from pait.model import PaitCoreModel
 
-if __name__ == "__main__":
+
+def main() -> None:
     output_type_list: List[str] = ["md", "json", "yaml", "openapi_json", "openapi_yaml"]
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -38,6 +40,8 @@ if __name__ == "__main__":
     app = getattr(module, app_name, None)
     if not app:
         raise ImportError(f"Can't found {app} in {module}")
+    if inspect.isfunction(app):
+        app = app()
     pait_dict: Dict[str, PaitCoreModel] = load_app(app)
 
     for type_ in input_output_type_list:
@@ -53,3 +57,7 @@ if __name__ == "__main__":
             PaitOpenApi(pait_dict, title=title, filename=filename, type_="yaml")
         else:
             raise ValueError(f"Not support output type: {type_}, please select from the following options")
+
+
+if __name__ == "__main__":
+    main()
