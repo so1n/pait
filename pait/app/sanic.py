@@ -53,7 +53,7 @@ class AppHelper(BaseAppHelper):
         return {key: self.request.args.getlist(key) for key, _ in self.request.args.items()}
 
 
-def load_app(app: Sanic) -> Dict[str, PaitCoreModel]:
+def load_app(app: Sanic, project_name: str = "") -> Dict[str, PaitCoreModel]:
     _pait_data: Dict[str, PaitCoreModel] = {}
     """Read data from the route that has been registered to `pait`"""
     for parts, route in app.router.routes_all.items():
@@ -74,7 +74,7 @@ def load_app(app: Sanic) -> Dict[str, PaitCoreModel]:
                     if not pait_id:
                         logging.warning(f"{route_name} can not found pait id")
                         continue
-                    pait_data.add_route_info(AppHelper.app_name, pait_id, path, {method}, route_name)
+                    pait_data.add_route_info(AppHelper.app_name, pait_id, path, {method}, route_name, project_name)
                     _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
     return _pait_data
 

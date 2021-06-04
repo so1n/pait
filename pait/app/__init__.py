@@ -5,7 +5,7 @@ from pait.model import PaitCoreModel, PaitResponseModel, PaitStatus
 from .auto_load_app import auto_load_app_class  # type: ignore
 
 
-def load_app(app: Any) -> Dict[str, PaitCoreModel]:
+def load_app(app: Any, project_name: str = "") -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`
     Note:This is an implicit method
     """
@@ -13,19 +13,19 @@ def load_app(app: Any) -> Dict[str, PaitCoreModel]:
     if app_name == "flask":
         from .flask import load_app  # type: ignore
 
-        return load_app(app)
+        return load_app(app, project_name)
     elif app_name == "starlette":
         from .starlette import load_app  # type: ignore
 
-        return load_app(app)
+        return load_app(app, project_name)
     elif app_name == "sanic":
         from .sanic import load_app  # type: ignore
 
-        return load_app(app)
+        return load_app(app, project_name)
     elif app_name == "application" and app.__class__.__module__ == "tornado.web":
         from .tornado import load_app  # type: ignore
 
-        return load_app(app)
+        return load_app(app, project_name)
     else:
         raise NotImplementedError(f"Pait not support:{app}")
 

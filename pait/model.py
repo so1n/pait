@@ -131,3 +131,4 @@ class PaitCoreModel(object):
         self.group: str = group or "root"  # Which group this interface belongs to
         self.tag: Tuple[str, ...] = tag or ("default",)  # Interface tag
         self.response_model_list: Optional[List[Type[PaitResponseModel]]] = response_model_list
+        self.func_path: str = ""

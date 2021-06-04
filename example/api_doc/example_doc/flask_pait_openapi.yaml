@@ -17,41 +17,6 @@ tags:
   description: ''
 paths:
   /api/other_field:
-    options:
-      tags:
-      - user
-      - get
-      summary: ''
-      description: ''
-      operationId: OPTIONS.test_other_field
-      parameters:
-      - name: cookie
-        in: cookie
-        required: true
-        description: cookie
-        schema:
-          title: Cookie
-          description: cookie
-          type: object
-      responses: {}
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              title: DynamicModel
-              type: object
-              properties:
-                a:
-                  title: A
-                  description: form data
-                  type: string
-                b:
-                  title: B
-                  description: form data
-                  type: string
-              required:
-              - a
-              - b
     post:
       tags:
       - user
@@ -87,14 +52,49 @@ paths:
               required:
               - a
               - b
-  /api/depend:
     options:
+      tags:
+      - user
+      - get
+      summary: ''
+      description: ''
+      operationId: OPTIONS.test_other_field
+      parameters:
+      - name: cookie
+        in: cookie
+        required: true
+        description: cookie
+        schema:
+          title: Cookie
+          description: cookie
+          type: object
+      responses: {}
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              title: DynamicModel
+              type: object
+              properties:
+                a:
+                  title: A
+                  description: form data
+                  type: string
+                b:
+                  title: B
+                  description: form data
+                  type: string
+              required:
+              - a
+              - b
+  /api/depend:
+    post:
       tags:
       - user
       - depend
       summary: ''
       description: Test Method:Post request, Pydantic Model
-      operationId: OPTIONS.demo_get2test_depend
+      operationId: POST.demo_get2test_depend
       parameters:
       - name: uid
         in: query
@@ -148,13 +148,13 @@ paths:
                   type: integer
               required:
               - age
-    post:
+    options:
       tags:
       - user
       - depend
       summary: ''
       description: Test Method:Post request, Pydantic Model
-      operationId: POST.demo_get2test_depend
+      operationId: OPTIONS.demo_get2test_depend
       parameters:
       - name: uid
         in: query
@@ -199,51 +199,6 @@ paths:
               required:
               - age
   /api/post:
-    options:
-      tags:
-      - user
-      - post
-      summary: ''
-      description: Test Method:Post Pydantic Model
-      operationId: OPTIONS.test_post
-      parameters:
-      - name: requestBody.content.<media-type>
-        in: header
-        required: true
-        description: Content-Type
-        schema:
-          title: Content-Type
-          description: Content-Type
-          type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              title: DynamicModel
-              type: object
-              properties:
-                uid:
-                  title: Uid
-                  type: integer
-                user_name:
-                  title: User Name
-                  type: string
-                age:
-                  title: Age
-                  type: integer
-              required:
-              - uid
-              - user_name
-              - age
     post:
       tags:
       - user
@@ -289,7 +244,97 @@ paths:
               - uid
               - user_name
               - age
+    options:
+      tags:
+      - user
+      - post
+      summary: ''
+      description: Test Method:Post Pydantic Model
+      operationId: OPTIONS.test_post
+      parameters:
+      - name: requestBody.content.<media-type>
+        in: header
+        required: true
+        description: Content-Type
+        schema:
+          title: Content-Type
+          description: Content-Type
+          type: string
+      responses:
+        200:
+          description: success response|fail response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ResponseUserModel'
+                - $ref: '#/components/schemas/ResponseFailModel'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: DynamicModel
+              type: object
+              properties:
+                uid:
+                  title: Uid
+                  type: integer
+                user_name:
+                  title: User Name
+                  type: string
+                age:
+                  title: Age
+                  type: integer
+              required:
+              - uid
+              - user_name
+              - age
   /api/cbv:
+    post:
+      tags:
+      - user
+      - post
+      summary: ''
+      description: test cbv post method
+      operationId: post.test_cbv.post
+      parameters:
+      - name: user-agent
+        in: header
+        required: true
+        description: ua
+        schema:
+          title: User-Agent
+          description: ua
+          type: string
+      responses:
+        200:
+          description: success response|fail response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ResponseUserModel'
+                - $ref: '#/components/schemas/ResponseFailModel'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: DynamicModel
+              type: object
+              properties:
+                uid:
+                  title: Uid
+                  type: integer
+                user_name:
+                  title: User Name
+                  type: string
+                age:
+                  title: Age
+                  type: integer
+              required:
+              - uid
+              - user_name
+              - age
     get:
       tags:
       - user
@@ -354,59 +399,14 @@ paths:
                 oneOf:
                 - $ref: '#/components/schemas/_ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
-    post:
-      tags:
-      - user
-      - post
-      summary: ''
-      description: test cbv post method
-      operationId: post.test_cbv.post
-      parameters:
-      - name: user-agent
-        in: header
-        required: true
-        description: ua
-        schema:
-          title: User-Agent
-          description: ua
-          type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              title: DynamicModel
-              type: object
-              properties:
-                uid:
-                  title: Uid
-                  type: integer
-                user_name:
-                  title: User Name
-                  type: string
-                age:
-                  title: Age
-                  type: integer
-              required:
-              - uid
-              - user_name
-              - age
   /api/get/<age>:
-    get:
+    options:
       tags:
       - user
       - get
       summary: ''
       description: ''
-      operationId: GET.test_pait
+      operationId: OPTIONS.test_pait
       parameters:
       - name: uid
         in: query
@@ -526,13 +526,13 @@ paths:
                 oneOf:
                 - $ref: '#/components/schemas/_ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
-    options:
+    get:
       tags:
       - user
       - get
       summary: ''
       description: ''
-      operationId: OPTIONS.test_pait
+      operationId: GET.test_pait
       parameters:
       - name: uid
         in: query
@@ -590,12 +590,12 @@ paths:
                 - $ref: '#/components/schemas/_ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
   /api/pait_model:
-    options:
+    post:
       tags:
       - test
       summary: ''
       description: Test Field
-      operationId: OPTIONS.test_model
+      operationId: POST.test_model
       parameters:
       - name: uid
         in: query
@@ -649,12 +649,12 @@ paths:
                   type: integer
               required:
               - age
-    post:
+    options:
       tags:
       - test
       summary: ''
       description: Test Field
-      operationId: POST.test_model
+      operationId: OPTIONS.test_model
       parameters:
       - name: uid
         in: query
@@ -696,13 +696,13 @@ paths:
               required:
               - age
   /api/raise_tip:
-    options:
+    post:
       tags:
       - test
       deprecated: true
       summary: ''
       description: test pait raise tip
-      operationId: OPTIONS.test_raise_tip
+      operationId: POST.test_raise_tip
       parameters:
       - name: content__type
         in: header
@@ -741,13 +741,13 @@ paths:
               - uid
               - user_name
               - age
-    post:
+    options:
       tags:
       - test
       deprecated: true
       summary: ''
       description: test pait raise tip
-      operationId: POST.test_raise_tip
+      operationId: OPTIONS.test_raise_tip
       parameters:
       - name: content__type
         in: header

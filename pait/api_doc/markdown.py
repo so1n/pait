@@ -131,7 +131,8 @@ class PaitMd(PaitBaseParse):
                 markdown_text += (
                     f"|{','.join(pait_model.author)}"
                     f"|{status_text}"
-                    f'|<abbr title="file:{func_code.co_filename};line: {func_code.co_firstlineno}">'
+                    f'|<abbr title="file:{pait_model.func_path or func_code.co_filename};'
+                    f'line: {func_code.co_firstlineno}">'
                     f"{pait_model.func.__qualname__}</abbr>"
                     f"|{pait_model.summary}|\n"
                 )
@@ -167,10 +168,10 @@ class PaitMd(PaitBaseParse):
                             markdown_text += f"{' ' * 8}- Header\n"
                             markdown_text += f"{' ' * 12}{resp_model.header}\n"
                         if resp_model.response_data:
-                            markdown_text += f"{' ' * 8}- Data\n\n"
+                            markdown_text += f"{' ' * 8}- Response Data\n\n"
                             field_dict_list = self._parse_schema(resp_model.response_data.schema())
                             markdown_text += self.gen_md_param_table(field_dict_list, blank_num=12)
-                            markdown_text += f"{' ' * 8}- Example Response Data Json\n\n"
+                            markdown_text += f"{' ' * 8}- Example Response Json Data\n\n"
                             markdown_text += self.gen_example_json(field_dict_list, blank_num=12)
                 markdown_text += "\n"
             if self._use_html_details:

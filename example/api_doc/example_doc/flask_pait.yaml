@@ -7,8 +7,8 @@ group:
         lineno: 145
         name: test_model
       method:
-      - OPTIONS
       - POST
+      - OPTIONS
       name: test_model
       path: /api/pait_model
       request:
@@ -181,8 +181,8 @@ group:
         lineno: 29
         name: test_raise_tip
       method:
-      - OPTIONS
       - POST
+      - OPTIONS
       name: test_raise_tip
       path: /api/raise_tip
       request:
@@ -291,8 +291,8 @@ group:
         lineno: 86
         name: test_other_field
       method:
-      - OPTIONS
       - POST
+      - OPTIONS
       name: test_other_field
       path: /api/other_field
       request:
@@ -309,8 +309,8 @@ group:
         lineno: 67
         name: demo_get2test_depend
       method:
-      - OPTIONS
       - POST
+      - OPTIONS
       name: demo_get2test_depend
       path: /api/depend
       request:
@@ -418,8 +418,8 @@ group:
         lineno: 48
         name: test_post
       method:
-      - OPTIONS
       - POST
+      - OPTIONS
       name: test_post
       path: /api/post
       request:
@@ -427,6 +427,112 @@ group:
         description: Content-Type
         other: {}
         param_name: Content-Type
+        type: string
+      response_list:
+      - description: success response
+        header:
+          cookie: xxx
+        media_type: application/json
+        response_data:
+        - default: 0
+          description: api code
+          other: {}
+          param_name: code
+          raw:
+            param_name: code
+            parent_schema: *id002
+            schema: *id001
+          type: integer
+        - default: success
+          description: api status msg
+          other: {}
+          param_name: msg
+          raw:
+            param_name: msg
+            parent_schema: *id002
+            schema: *id003
+          type: string
+        - default: Required
+          description: user id
+          other:
+            exclusiveMaximum: 1000
+            exclusiveMinimum: 10
+          param_name: data.uid
+          raw:
+            param_name: uid
+            parent_schema: *id004
+            schema: *id005
+          type: integer
+        - default: Required
+          description: user name
+          other:
+            maxLength: 4
+            minLength: 2
+          param_name: data.user_name
+          raw:
+            param_name: user_name
+            parent_schema: *id004
+            schema: *id006
+          type: string
+        - default: Required
+          description: age
+          other:
+            exclusiveMaximum: 100
+            exclusiveMinimum: 1
+          param_name: data.age
+          raw:
+            param_name: age
+            parent_schema: *id004
+            schema: *id007
+          type: integer
+        - default: Required
+          description: content-type
+          other: {}
+          param_name: data.content_type
+          raw:
+            param_name: content_type
+            parent_schema: *id004
+            schema: *id008
+          type: string
+        status_code: '200'
+      - description: fail response
+        header: {}
+        media_type: application/json
+        response_data:
+        - default: 1
+          description: api code
+          other: {}
+          param_name: code
+          raw:
+            param_name: code
+            parent_schema: *id010
+            schema: *id009
+          type: integer
+        - default: fail
+          description: api status msg
+          other: {}
+          param_name: msg
+          raw:
+            param_name: msg
+            parent_schema: *id010
+            schema: *id011
+          type: string
+        status_code: '200'
+      status: release
+    - author: so1n
+      func:
+        file: /home/so1n/github/pait/example/param_verify/flask_example.py
+        lineno: 174
+        name: TestCbv.post
+      method:
+      - post
+      name: test_cbv.post
+      path: /api/cbv
+      request:
+        default: Required
+        description: ua
+        other: {}
+        param_name: user-agent
         type: string
       response_list:
       - description: success response
@@ -677,118 +783,12 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/flask_example.py
-        lineno: 174
-        name: TestCbv.post
-      method:
-      - post
-      name: test_cbv.post
-      path: /api/cbv
-      request:
-        default: Required
-        description: ua
-        other: {}
-        param_name: user-agent
-        type: string
-      response_list:
-      - description: success response
-        header:
-          cookie: xxx
-        media_type: application/json
-        response_data:
-        - default: 0
-          description: api code
-          other: {}
-          param_name: code
-          raw:
-            param_name: code
-            parent_schema: *id002
-            schema: *id001
-          type: integer
-        - default: success
-          description: api status msg
-          other: {}
-          param_name: msg
-          raw:
-            param_name: msg
-            parent_schema: *id002
-            schema: *id003
-          type: string
-        - default: Required
-          description: user id
-          other:
-            exclusiveMaximum: 1000
-            exclusiveMinimum: 10
-          param_name: data.uid
-          raw:
-            param_name: uid
-            parent_schema: *id004
-            schema: *id005
-          type: integer
-        - default: Required
-          description: user name
-          other:
-            maxLength: 4
-            minLength: 2
-          param_name: data.user_name
-          raw:
-            param_name: user_name
-            parent_schema: *id004
-            schema: *id006
-          type: string
-        - default: Required
-          description: age
-          other:
-            exclusiveMaximum: 100
-            exclusiveMinimum: 1
-          param_name: data.age
-          raw:
-            param_name: age
-            parent_schema: *id004
-            schema: *id007
-          type: integer
-        - default: Required
-          description: content-type
-          other: {}
-          param_name: data.content_type
-          raw:
-            param_name: content_type
-            parent_schema: *id004
-            schema: *id008
-          type: string
-        status_code: '200'
-      - description: fail response
-        header: {}
-        media_type: application/json
-        response_data:
-        - default: 1
-          description: api code
-          other: {}
-          param_name: code
-          raw:
-            param_name: code
-            parent_schema: *id010
-            schema: *id009
-          type: integer
-        - default: fail
-          description: api status msg
-          other: {}
-          param_name: msg
-          raw:
-            param_name: msg
-            parent_schema: *id010
-            schema: *id011
-          type: string
-        status_code: '200'
-      status: release
-    - author: so1n
-      func:
-        file: /home/so1n/github/pait/example/param_verify/flask_example.py
         lineno: 113
         name: test_pait
       method:
-      - GET
-      - HEAD
       - OPTIONS
+      - HEAD
+      - GET
       name: test_pait
       path: /api/get/<age>
       request:

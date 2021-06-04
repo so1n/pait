@@ -57,7 +57,7 @@ class AppHelper(BaseAppHelper):
         return {key: self.request.query_params.getlist(key) for key, _ in self.request.query_params.items()}
 
 
-def load_app(app: Starlette) -> Dict[str, PaitCoreModel]:
+def load_app(app: Starlette, project_name: str = "") -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`"""
     _pait_data: Dict[str, PaitCoreModel] = {}
     for route in app.routes:
@@ -78,10 +78,12 @@ def load_app(app: Starlette) -> Dict[str, PaitCoreModel]:
                 pait_id = getattr(method_endpoint, "_pait_id", None)
                 if not pait_id:
                     continue
-                pait_data.add_route_info(AppHelper.app_name, pait_id, path, method_set, f"{route_name}.{method}")
+                pait_data.add_route_info(
+                    AppHelper.app_name, pait_id, path, method_set, f"{route_name}.{method}", project_name
+                )
                 _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
         else:
-            pait_data.add_route_info(AppHelper.app_name, pait_id, path, method_set, route_name)
+            pait_data.add_route_info(AppHelper.app_name, pait_id, path, method_set, route_name, project_name)
             _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
     return _pait_data
 
