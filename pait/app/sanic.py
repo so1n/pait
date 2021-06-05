@@ -4,8 +4,11 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Type
 from sanic.app import Sanic
 from sanic.headers import HeaderIterable
 from sanic.request import File, Request, RequestParameters
+from sanic import HTTPResponse, response
 
 from pait.app.base import BaseAppHelper
+from pait.api_doc.html import get_redoc_html as _get_redoc_html
+from pait.api_doc.open_api import PaitOpenApi
 from pait.core import pait as _pait
 from pait.g import pait_data
 from pait.model import PaitCoreModel, PaitResponseModel, PaitStatus
@@ -99,3 +102,32 @@ def pait(
         tag=tag,
         response_model_list=response_model_list,
     )
+
+
+def get_redoc_html(request: Request) -> HTTPResponse:
+    return response.html(
+        _get_redoc_html(f"http://{request.host}{'/'.join(request.path.split('/')[:-1])}/openapi.json", "test")
+    )
+
+
+def openapi_route(request: Request) -> HTTPResponse:
+    pait_dict: Dict[str, PaitCoreModel] = load_app(request.app)
+    pait_openapi: PaitOpenApi = PaitOpenApi(
+        pait_dict,
+        title="Pait Doc",
+        open_api_server_list=[
+            {"url": f"http://{request.host}", "description": ""}
+        ],
+        open_api_tag_list=[
+            {"name": "test", "description": "test api"},
+            {"name": "user", "description": "user api"},
+        ],
+    )
+    return response.json(pait_openapi.open_api_dict)
+
+
+def add_reddoc_route(app: Sanic, prefix: str = "/") -> None:
+    if not prefix.endswith("/"):
+        prefix = prefix + "/"
+    app.add_route(get_redoc_html, f"{prefix}redoc", methods={"GET"})
+    app.add_route(openapi_route, f"{prefix}openapi.json", methods={"GET"})

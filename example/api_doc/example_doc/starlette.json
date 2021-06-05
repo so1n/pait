@@ -1030,8 +1030,8 @@
           },
           "path": "/api/get/{age}",
           "method": [
-            "GET",
-            "HEAD"
+            "HEAD",
+            "GET"
           ],
           "request": {
             "param_name": "multi_user_name",

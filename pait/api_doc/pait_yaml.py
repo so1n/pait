@@ -14,5 +14,5 @@ class PaitYaml(PaitBaseParse):
         _pait_dict: Dict[str, Any] = self.gen_dict()
         _pait_dict["title"] = title
 
-        pait_yaml: str = yaml.dump(_pait_dict)
-        self.output(filename, pait_yaml, ".yaml")
+        self.content = yaml.dump(_pait_dict)
+        self._content_type = ".yaml"

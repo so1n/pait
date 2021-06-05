@@ -25,14 +25,13 @@ class PaitMd(PaitBaseParse):
         pait_dict: Dict[str, PaitCoreModel],
         title: str = "Pait Doc",
         use_html_details: bool = True,
-        filename: Optional[str] = None,
     ):
         self._use_html_details: bool = use_html_details  # some not support markdown in html
         self._title: str = title
         super().__init__(pait_dict)
 
-        markdown_text: str = self.gen_markdown_text()
-        self.output(filename, markdown_text, ".md")
+        self.content = self.gen_markdown_text()
+        self._content_type = ".md"
 
     @staticmethod
     def gen_example_json(field_dict_list: List[dict], blank_num: int, indent: int = 2) -> str:

@@ -17,13 +17,13 @@ tags:
   description: ''
 paths:
   /api/get/{age}:
-    get:
+    head:
       tags:
       - user
       - get
       summary: ''
       description: Test Field
-      operationId: GET.test_get
+      operationId: HEAD.test_get
       parameters:
       - name: uid
         in: query
@@ -81,13 +81,13 @@ paths:
                 oneOf:
                 - $ref: '#/components/schemas/_ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
-    head:
+    get:
       tags:
       - user
       - get
       summary: ''
       description: Test Field
-      operationId: HEAD.test_get
+      operationId: GET.test_get
       parameters:
       - name: uid
         in: query

@@ -1,12 +1,16 @@
+import inspect
 from typing import Any, Callable, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union
 
 from starlette.applications import Starlette
 from starlette.datastructures import FormData, Headers, UploadFile
 from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request
+from starlette.responses import HTMLResponse, JSONResponse
 from starlette.routing import Route
 
 from pait.app.base import BaseAppHelper
+from pait.api_doc.html import get_redoc_html as _get_redoc_html
+from pait.api_doc.open_api import PaitOpenApi
 from pait.core import pait as _pait
 from pait.g import pait_data
 from pait.model import PaitCoreModel, PaitResponseModel, PaitStatus
@@ -69,7 +73,7 @@ def load_app(app: Starlette, project_name: str = "") -> Dict[str, PaitCoreModel]
         route_name: str = route.name
         endpoint: Union[Callable, Type] = route.endpoint
         pait_id: str = getattr(route.endpoint, "_pait_id", None)
-        if not pait_id and issubclass(endpoint, HTTPEndpoint):  # type: ignore
+        if not pait_id and inspect.isclass(endpoint) and issubclass(endpoint, HTTPEndpoint):  # type: ignore
             for method in ["get", "post", "head", "options", "delete", "put", "trace", "patch"]:
                 method_endpoint = getattr(endpoint, method, None)
                 if not method_endpoint:
@@ -82,7 +86,7 @@ def load_app(app: Starlette, project_name: str = "") -> Dict[str, PaitCoreModel]
                     AppHelper.app_name, pait_id, path, method_set, f"{route_name}.{method}", project_name
                 )
                 _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
-        else:
+        elif pait_id:
             pait_data.add_route_info(AppHelper.app_name, pait_id, path, method_set, route_name, project_name)
             _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
     return _pait_data
@@ -108,3 +112,33 @@ def pait(
         tag=tag,
         response_model_list=response_model_list,
     )
+
+
+def get_redoc_html(request: Request) -> HTMLResponse:
+    return HTMLResponse(_get_redoc_html(
+        f"http://{request.url.hostname}:{request.url.port}{'/'.join(request.url.path.split('/')[:-1])}/openapi.json",
+        "test"
+    ))
+
+
+def openapi_route(request: Request) -> JSONResponse:
+    pait_dict: Dict[str, PaitCoreModel] = load_app(request.app)
+    pait_openapi: PaitOpenApi = PaitOpenApi(
+        pait_dict,
+        title="Pait Doc",
+        open_api_server_list=[
+            {"url": f"http://{request.url.hostname}:{request.url.port}", "description": ""}
+        ],
+        open_api_tag_list=[
+            {"name": "test", "description": "test api"},
+            {"name": "user", "description": "user api"},
+        ],
+    )
+    return JSONResponse(pait_openapi.open_api_dict)
+
+
+def add_reddoc_route(app: Starlette, prefix: str = "/") -> None:
+    if not prefix.endswith("/"):
+        prefix = prefix + "/"
+    app.add_route(f"{prefix}redoc", get_redoc_html, methods=["GET"])
+    app.add_route(f"{prefix}openapi.json", openapi_route, methods=["GET"])

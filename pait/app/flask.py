@@ -1,11 +1,13 @@
 import logging
 from typing import Any, Callable, Dict, List, Mapping, Optional, Set, Tuple, Type
 
-from flask import Flask, Request, request  # type: ignore
+from flask import Flask, Request, current_app, request  # type: ignore
 from flask.views import MethodView
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 
 from pait.app.base import BaseAppHelper
+from pait.api_doc.html import get_redoc_html as _get_redoc_html
+from pait.api_doc.open_api import PaitOpenApi
 from pait.core import pait as _pait
 from pait.g import pait_data
 from pait.model import PaitCoreModel, PaitResponseModel, PaitStatus
@@ -111,3 +113,30 @@ def pait(
         tag=tag,
         response_model_list=response_model_list,
     )
+
+
+def get_redoc_html() -> str:
+    return _get_redoc_html(f"http://{request.host}{'/'.join(request.path.split('/')[:-1])}/openapi.json", "test")
+
+
+def openapi_route() -> dict:
+    pait_dict: Dict[str, PaitCoreModel] = load_app(current_app)
+    pait_openapi: PaitOpenApi = PaitOpenApi(
+        pait_dict,
+        title="Pait Doc",
+        open_api_server_list=[
+            {"url": f"http://{request.host}", "description": ""}
+        ],
+        open_api_tag_list=[
+            {"name": "test", "description": "test api"},
+            {"name": "user", "description": "user api"},
+        ],
+    )
+    return pait_openapi.open_api_dict
+
+
+def add_reddoc_route(app: Flask, prefix: str = "/") -> None:
+    if not prefix.endswith("/"):
+        prefix = prefix + "/"
+    app.add_url_rule(f"{prefix}redoc", view_func=get_redoc_html, methods=["GET"])
+    app.add_url_rule(f"{prefix}openapi.json", view_func=openapi_route, methods=["GET"])

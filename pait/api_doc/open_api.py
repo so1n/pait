@@ -61,7 +61,6 @@ class PaitOpenApi(PaitBaseParse):
         open_api_server_list: Optional[List[Dict[str, Any]]] = None,
         # default_response: Optional[...] = None,  # TODO
         type_: str = "json",
-        filename: Optional[str] = None,
     ):
         super().__init__(pait_dict)
         self._header_keyword_dict: Dict[str, str] = {
@@ -91,7 +90,7 @@ class PaitOpenApi(PaitBaseParse):
                 temp_open_api_tag_list.append(_OpenApiTagModel(**open_api_tag).dict(exclude_none=True))
             open_api_tag_list = temp_open_api_tag_list
 
-        open_api_dict: Dict[str, Any] = {
+        self.open_api_dict: Dict[str, Any] = {
             "openapi": "3.0.0",
             "info": open_api_info,
             "servers": open_api_server_list,
@@ -102,13 +101,13 @@ class PaitOpenApi(PaitBaseParse):
             # "security": {},
             # "externalDocs": {}
         }
-        self.parse_data_2_openapi(open_api_dict)
+        self.parse_data_2_openapi(self.open_api_dict)
         if type_ == "json":
-            pait_json: str = json.dumps(open_api_dict)
-            self.output(filename, pait_json, ".json")
+            self.content = json.dumps(self.open_api_dict)
+            self._content_type = ".json"
         elif type_ == "yaml":
-            pait_yaml: str = yaml.dump(open_api_dict, sort_keys=False)
-            self.output(filename, pait_yaml, ".yaml")
+            self.content = yaml.dump(self.open_api_dict, sort_keys=False)
+            self._content_type = ".yaml"
 
     def replace_pydantic_definitions(
         self, schema: dict, path: str, open_api_dict: Dict[str, Any], parent_schema: Optional[dict] = None

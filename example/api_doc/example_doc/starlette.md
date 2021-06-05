@@ -34,7 +34,7 @@
         |200|application/json|success response|
         - Header
             {'cookie': 'xxx'}
-        - Data
+        - Response Data
 
             |param name|type|default value|description|other|
             |---|---|---|---|---|
@@ -44,7 +44,7 @@
             |data.uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
             |data.user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
             |msg|string|success|api status msg||
-        - Example Response Data Json
+        - Example Response Json Data
 
             ```json
             {
@@ -64,13 +64,13 @@
         |status code|media type|description|
         |---|---|---|
         |200|application/json|fail response|
-        - Data
+        - Response Data
 
             |param name|type|default value|description|other|
             |---|---|---|---|---|
             |code|integer|1|api code||
             |msg|string|fail|api status msg||
-        - Example Response Data Json
+        - Example Response Json Data
 
             ```json
             {
@@ -117,7 +117,7 @@
         |200|application/json|success response|
         - Header
             {'cookie': 'xxx'}
-        - Data
+        - Response Data
 
             |param name|type|default value|description|other|
             |---|---|---|---|---|
@@ -127,7 +127,7 @@
             |data.uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
             |data.user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
             |msg|string|success|api status msg||
-        - Example Response Data Json
+        - Example Response Json Data
 
             ```json
             {
@@ -147,13 +147,13 @@
         |status code|media type|description|
         |---|---|---|
         |200|application/json|fail response|
-        - Data
+        - Response Data
 
             |param name|type|default value|description|other|
             |---|---|---|---|---|
             |code|integer|1|api code||
             |msg|string|fail|api status msg||
-        - Example Response Data Json
+        - Example Response Json Data
 
             ```json
             {
@@ -175,7 +175,7 @@
 |---|---|---|---|
 |so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 89">test_get</abbr>||
 - Path: /api/get/{age}
-- Method: GET,HEAD
+- Method: HEAD,GET
 - Request:
     - Multiquery Param
 
@@ -204,7 +204,7 @@
         |200|application/json|success response|
         - Header
             {'cookie': 'xxx'}
-        - Data
+        - Response Data
 
             |param name|type|default value|description|other|
             |---|---|---|---|---|
@@ -214,7 +214,7 @@
             |data.uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
             |data.user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
             |msg|string|success|api status msg||
-        - Example Response Data Json
+        - Example Response Json Data
 
             ```json
             {
@@ -234,13 +234,13 @@
         |status code|media type|description|
         |---|---|---|
         |200|application/json|fail response|
-        - Data
+        - Response Data
 
             |param name|type|default value|description|other|
             |---|---|---|---|---|
             |code|integer|1|api code||
             |msg|string|fail|api status msg||
-        - Example Response Data Json
+        - Example Response Json Data
 
             ```json
             {
@@ -283,7 +283,7 @@
         |200|application/json|success response|
         - Header
             {'cookie': 'xxx'}
-        - Data
+        - Response Data
 
             |param name|type|default value|description|other|
             |---|---|---|---|---|
@@ -293,7 +293,7 @@
             |data.uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
             |data.user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
             |msg|string|success|api status msg||
-        - Example Response Data Json
+        - Example Response Json Data
 
             ```json
             {
@@ -313,13 +313,13 @@
         |status code|media type|description|
         |---|---|---|
         |200|application/json|fail response|
-        - Data
+        - Response Data
 
             |param name|type|default value|description|other|
             |---|---|---|---|---|
             |code|integer|1|api code||
             |msg|string|fail|api status msg||
-        - Example Response Data Json
+        - Example Response Json Data
 
             ```json
             {
@@ -366,7 +366,7 @@
         |200|application/json|success response|
         - Header
             {'cookie': 'xxx'}
-        - Data
+        - Response Data
 
             |param name|type|default value|description|other|
             |---|---|---|---|---|
@@ -376,7 +376,7 @@
             |data.uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
             |data.user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
             |msg|string|success|api status msg||
-        - Example Response Data Json
+        - Example Response Json Data
 
             ```json
             {
@@ -396,13 +396,13 @@
         |status code|media type|description|
         |---|---|---|
         |200|application/json|fail response|
-        - Data
+        - Response Data
 
             |param name|type|default value|description|other|
             |---|---|---|---|---|
             |code|integer|1|api code||
             |msg|string|fail|api status msg||
-        - Example Response Data Json
+        - Example Response Json Data
 
             ```json
             {
@@ -478,7 +478,7 @@
         |200|application/json|success response|
         - Header
             {'cookie': 'xxx'}
-        - Data
+        - Response Data
 
             |param name|type|default value|description|other|
             |---|---|---|---|---|
@@ -488,7 +488,7 @@
             |data.uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
             |data.user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
             |msg|string|success|api status msg||
-        - Example Response Data Json
+        - Example Response Json Data
 
             ```json
             {
@@ -508,13 +508,13 @@
         |status code|media type|description|
         |---|---|---|
         |200|application/json|fail response|
-        - Data
+        - Response Data
 
             |param name|type|default value|description|other|
             |---|---|---|---|---|
             |code|integer|1|api code||
             |msg|string|fail|api status msg||
-        - Example Response Data Json
+        - Example Response Json Data
 
             ```json
             {
@@ -557,7 +557,7 @@
         |200|application/json|success response|
         - Header
             {'cookie': 'xxx'}
-        - Data
+        - Response Data
 
             |param name|type|default value|description|other|
             |---|---|---|---|---|
@@ -567,7 +567,7 @@
             |data.uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
             |data.user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
             |msg|string|success|api status msg||
-        - Example Response Data Json
+        - Example Response Json Data
 
             ```json
             {
@@ -587,13 +587,13 @@
         |status code|media type|description|
         |---|---|---|
         |200|application/json|fail response|
-        - Data
+        - Response Data
 
             |param name|type|default value|description|other|
             |---|---|---|---|---|
             |code|integer|1|api code||
             |msg|string|fail|api status msg||
-        - Example Response Data Json
+        - Example Response Json Data
 
             ```json
             {

@@ -289,8 +289,8 @@ group:
         lineno: 89
         name: test_get
       method:
-      - GET
       - HEAD
+      - GET
       name: test_get
       path: /api/get/{age}
       request:

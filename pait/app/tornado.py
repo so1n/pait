@@ -2,9 +2,11 @@ import json
 from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Type
 
 from tornado.httputil import RequestStartLine
-from tornado.web import Application
+from tornado.web import Application, RequestHandler
 
 from pait.app.base import BaseAppHelper
+from pait.api_doc.html import get_redoc_html as _get_redoc_html
+from pait.api_doc.open_api import PaitOpenApi
 from pait.core import pait as _pait
 from pait.g import pait_data
 from pait.model import PaitCoreModel, PaitResponseModel, PaitStatus
@@ -57,7 +59,7 @@ class AppHelper(BaseAppHelper):
         return {key: [i.decode() for i in value] for key, value in self.request.query_arguments.items()}
 
 
-def load_app(app: Application, project_name: str) -> Dict[str, PaitCoreModel]:
+def load_app(app: Application, project_name: str = "") -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`"""
     _pait_data: Dict[str, PaitCoreModel] = {}
     for rule in app.wildcard_router.rules:
@@ -96,4 +98,41 @@ def pait(
         group=group,
         tag=tag,
         response_model_list=response_model_list,
+    )
+
+
+class GetRedocHtmlHandle(RequestHandler):
+    async def get(self) -> None:
+        self.write(_get_redoc_html(
+            f"http://{self.request.host}{'/'.join(self.request.path.split('/')[:-1])}/openapi.json",
+            "test"
+        ))
+
+
+class OpenApiHandle(RequestHandler):
+    async def get(self) -> None:
+        pait_dict: Dict[str, PaitCoreModel] = load_app(self.application)
+        pait_openapi: PaitOpenApi = PaitOpenApi(
+            pait_dict,
+            title="Pait Doc",
+            open_api_server_list=[
+                {"url": f"http://{self.request.host}", "description": ""}
+            ],
+            open_api_tag_list=[
+                {"name": "test", "description": "test api"},
+                {"name": "user", "description": "user api"},
+            ],
+        )
+        self.write(pait_openapi.open_api_dict)
+
+
+def add_reddoc_route(app: Application, prefix: str = "/") -> None:
+    if not prefix.endswith("/"):
+        prefix = prefix + "/"
+    app.add_handlers(
+        r".*",
+        [
+            (r"{}redoc".format(prefix), GetRedocHtmlHandle),
+            (r"{}openapi.json".format(prefix), OpenApiHandle),
+        ]
     )

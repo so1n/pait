@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Tuple
 
-from flask import Flask, Request
+from flask import Flask, Request, jsonify
 from flask.views import MethodView
 from pydantic import ValidationError
 
@@ -16,7 +16,7 @@ from example.param_verify.model import (
     UserSuccessRespModel2,
     demo_depend,
 )
-from pait.app.flask import pait
+from pait.app.flask import pait, add_reddoc_route
 from pait.exceptions import PaitBaseException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model import PaitStatus
@@ -122,7 +122,7 @@ def test_pait(
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
     multi_user_name: List[str] = MultiQuery.i(description="user name", min_length=2, max_length=4),
-    age: int = Path.i(),
+    age: int = Path.i(description="age", gt=1, lt=100),
     sex: SexEnum = Query.i(description="sex"),
 ) -> dict:
     from flask import request
@@ -192,6 +192,7 @@ class TestCbv(MethodView):
 
 def create_app() -> Flask:
     app: Flask = Flask(__name__)
+    add_reddoc_route(app)
     app.add_url_rule("/api/raise_tip", view_func=test_raise_tip, methods=["POST"])
     app.add_url_rule("/api/post", view_func=test_post, methods=["POST"])
     app.add_url_rule("/api/depend", view_func=demo_get2test_depend, methods=["POST"])

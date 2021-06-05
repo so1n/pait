@@ -18,6 +18,8 @@ class PaitBaseParse(object):
         self._group_pait_dict: Dict[str, List[PaitCoreModel]] = {}
 
         self._init(pait_dict)
+        self.content: str = ""
+        self._content_type: str = ""
 
     def _init(self, pait_dict: Dict[str, PaitCoreModel]) -> None:
         """read from `pait_id_dict` and write PaitMd attributes"""
@@ -310,12 +312,13 @@ class PaitBaseParse(object):
                 )
         return api_doc_dict
 
-    @staticmethod
-    def output(filename: Optional[str], content: str, suffix: str) -> None:
+    def output(self, filename: Optional[str], suffix: str = "") -> None:
+        if not suffix:
+            suffix = self._content_type
         if not filename:
-            print(content)
+            print(self.content)
         else:
             if not filename.endswith(suffix):
                 filename += suffix
             with open(filename, mode="w") as f:
-                f.write(content)
+                f.write(self.content)

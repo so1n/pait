@@ -11,9 +11,9 @@ from pait.model import PaitCoreModel
 if __name__ == "__main__":
     filename: str = "./example_doc/flask_pait"
     pait_dict: Dict[str, PaitCoreModel] = load_app(create_app())
-    PaitMd(pait_dict, use_html_details=True, filename=filename)
-    PaitJson(pait_dict, filename=filename, indent=2)
-    PaitYaml(pait_dict, filename=filename)
+    PaitMd(pait_dict, use_html_details=True).output(filename)
+    PaitJson(pait_dict, indent=2).output(filename)
+    PaitYaml(pait_dict, filename=filename).output(filename)
     for i in ("json", "yaml"):
         PaitOpenApi(
             pait_dict,
@@ -23,5 +23,4 @@ if __name__ == "__main__":
                 {"name": "user", "description": "user api"},
             ],
             type_=i,
-            filename=filename + "_openapi",
-        )
+        ).output(filename + "_openapi")
