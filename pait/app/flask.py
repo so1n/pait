@@ -1,13 +1,14 @@
 import logging
 from typing import Any, Callable, Dict, List, Mapping, Optional, Set, Tuple, Type
 
-from flask import Flask, Request, current_app, Blueprint, request  # type: ignore
+from flask import Blueprint, Flask, Request, current_app, request  # type: ignore
 from flask.views import MethodView
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 
-from pait.app.base import BaseAppHelper
 from pait.api_doc.html import get_redoc_html as _get_redoc_html
+from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenApi
+from pait.app.base import BaseAppHelper
 from pait.core import pait as _pait
 from pait.g import pait_data
 from pait.model import PaitCoreModel, PaitResponseModel, PaitStatus
@@ -119,14 +120,16 @@ def get_redoc_html() -> str:
     return _get_redoc_html(f"http://{request.host}{'/'.join(request.path.split('/')[:-1])}/openapi.json", "test")
 
 
+def get_swagger_ui_html() -> str:
+    return _get_swagger_ui_html(f"http://{request.host}{'/'.join(request.path.split('/')[:-1])}/openapi.json", "test")
+
+
 def openapi_route() -> dict:
     pait_dict: Dict[str, PaitCoreModel] = load_app(current_app)
     pait_openapi: PaitOpenApi = PaitOpenApi(
         pait_dict,
         title="Pait Doc",
-        open_api_server_list=[
-            {"url": f"http://{request.host}", "description": ""}
-        ],
+        open_api_server_list=[{"url": f"http://{request.host}", "description": ""}],
         open_api_tag_list=[
             {"name": "test", "description": "test api"},
             {"name": "user", "description": "user api"},
@@ -138,5 +141,6 @@ def openapi_route() -> dict:
 def add_redoc_route(app: Flask, prefix: str = "/") -> None:
     blueprint: Blueprint = Blueprint("api doc", __name__, url_prefix=prefix)
     blueprint.add_url_rule("/redoc", view_func=get_redoc_html, methods=["GET"])
+    blueprint.add_url_rule("/swagger", view_func=get_swagger_ui_html, methods=["GET"])
     blueprint.add_url_rule("/openapi.json", view_func=openapi_route, methods=["GET"])
     app.register_blueprint(blueprint)

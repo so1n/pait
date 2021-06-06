@@ -2,16 +2,16 @@ import inspect
 from typing import Any, Callable, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union
 
 from starlette.applications import Starlette
-from starlette.routing import Mount
 from starlette.datastructures import FormData, Headers, UploadFile
 from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse
-from starlette.routing import Route
+from starlette.routing import Mount, Route
 
-from pait.app.base import BaseAppHelper
 from pait.api_doc.html import get_redoc_html as _get_redoc_html
+from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenApi
+from pait.app.base import BaseAppHelper
 from pait.core import pait as _pait
 from pait.g import pait_data
 from pait.model import PaitCoreModel, PaitResponseModel, PaitStatus
@@ -116,10 +116,21 @@ def pait(
 
 
 def get_redoc_html(request: Request) -> HTMLResponse:
-    return HTMLResponse(_get_redoc_html(
-        f"http://{request.url.hostname}:{request.url.port}{'/'.join(request.url.path.split('/')[:-1])}/openapi.json",
-        "test"
-    ))
+    return HTMLResponse(
+        _get_redoc_html(
+            f"http://{request.url.hostname}:{request.url.port}{'/'.join(request.url.path.split('/')[:-1])}/openapi.json",
+            "test",
+        )
+    )
+
+
+def get_swagger_ui_html(request: Request) -> HTMLResponse:
+    return HTMLResponse(
+        _get_swagger_ui_html(
+            f"http://{request.url.hostname}:{request.url.port}{'/'.join(request.url.path.split('/')[:-1])}/openapi.json",
+            "test",
+        )
+    )
 
 
 def openapi_route(request: Request) -> JSONResponse:
@@ -127,9 +138,7 @@ def openapi_route(request: Request) -> JSONResponse:
     pait_openapi: PaitOpenApi = PaitOpenApi(
         pait_dict,
         title="Pait Doc",
-        open_api_server_list=[
-            {"url": f"http://{request.url.hostname}:{request.url.port}", "description": ""}
-        ],
+        open_api_server_list=[{"url": f"http://{request.url.hostname}:{request.url.port}", "description": ""}],
         open_api_tag_list=[
             {"name": "test", "description": "test api"},
             {"name": "user", "description": "user api"},
@@ -139,8 +148,13 @@ def openapi_route(request: Request) -> JSONResponse:
 
 
 def add_redoc_route(app: Starlette, prefix: str = "/") -> None:
-    route: Mount = Mount(prefix, name="api doc", routes=[
-        Route("/redoc", get_redoc_html, methods=["GET"]),
-        Route("/openapi.json", openapi_route, methods=["GET"]),
-    ])
+    route: Mount = Mount(
+        prefix,
+        name="api doc",
+        routes=[
+            Route("/redoc", get_redoc_html, methods=["GET"]),
+            Route("/swagger", get_swagger_ui_html, methods=["GET"]),
+            Route("/openapi.json", openapi_route, methods=["GET"]),
+        ],
+    )
     app.routes.append(route)

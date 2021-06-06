@@ -8,7 +8,7 @@ from .base_parse import PaitBaseParse  # type: ignore
 
 
 class PaitYaml(PaitBaseParse):
-    def __init__(self, pait_dict: Dict[str, PaitCoreModel], title: str = "Pait Yaml", filename: Optional[str] = None):
+    def __init__(self, pait_dict: Dict[str, PaitCoreModel], title: str = "Pait Yaml"):
         super().__init__(pait_dict, undefined="Required")
 
         _pait_dict: Dict[str, Any] = self.gen_dict()

@@ -4,9 +4,10 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Type
 from tornado.httputil import RequestStartLine
 from tornado.web import Application, RequestHandler
 
-from pait.app.base import BaseAppHelper
 from pait.api_doc.html import get_redoc_html as _get_redoc_html
+from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenApi
+from pait.app.base import BaseAppHelper
 from pait.core import pait as _pait
 from pait.g import pait_data
 from pait.model import PaitCoreModel, PaitResponseModel, PaitStatus
@@ -103,10 +104,20 @@ def pait(
 
 class GetRedocHtmlHandle(RequestHandler):
     async def get(self) -> None:
-        self.write(_get_redoc_html(
-            f"http://{self.request.host}{'/'.join(self.request.path.split('/')[:-1])}/openapi.json",
-            "test"
-        ))
+        self.write(
+            _get_redoc_html(
+                f"http://{self.request.host}{'/'.join(self.request.path.split('/')[:-1])}/openapi.json", "test"
+            )
+        )
+
+
+class GetSwaggerUiHtmlHandle(RequestHandler):
+    async def get(self) -> None:
+        self.write(
+            _get_swagger_ui_html(
+                f"http://{self.request.host}{'/'.join(self.request.path.split('/')[:-1])}/openapi.json", "test"
+            )
+        )
 
 
 class OpenApiHandle(RequestHandler):
@@ -115,9 +126,7 @@ class OpenApiHandle(RequestHandler):
         pait_openapi: PaitOpenApi = PaitOpenApi(
             pait_dict,
             title="Pait Doc",
-            open_api_server_list=[
-                {"url": f"http://{self.request.host}", "description": ""}
-            ],
+            open_api_server_list=[{"url": f"http://{self.request.host}", "description": ""}],
             open_api_tag_list=[
                 {"name": "test", "description": "test api"},
                 {"name": "user", "description": "user api"},
@@ -133,6 +142,7 @@ def add_reddoc_route(app: Application, prefix: str = "/") -> None:
         r".*",
         [
             (r"{}redoc".format(prefix), GetRedocHtmlHandle),
+            (r"{}swagger".format(prefix), GetSwaggerUiHtmlHandle),
             (r"{}openapi.json".format(prefix), OpenApiHandle),
-        ]
+        ],
     )

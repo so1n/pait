@@ -1,6 +1,6 @@
 import json
 from types import CodeType
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from pydantic.fields import Undefined
 

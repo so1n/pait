@@ -13,7 +13,7 @@ if __name__ == "__main__":
     pait_dict: Dict[str, PaitCoreModel] = load_app(create_app())
     PaitMd(pait_dict, use_html_details=True).output(filename)
     PaitJson(pait_dict, indent=2).output(filename)
-    PaitYaml(pait_dict, filename=filename).output(filename)
+    PaitYaml(pait_dict).output(filename)
     for i in ("json", "yaml"):
         PaitOpenApi(
             pait_dict,

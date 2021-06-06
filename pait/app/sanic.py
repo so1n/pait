@@ -1,14 +1,15 @@
 import logging
 from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Type
 
+from sanic import Blueprint, HTTPResponse, response
 from sanic.app import Sanic
 from sanic.headers import HeaderIterable
 from sanic.request import File, Request, RequestParameters
-from sanic import Blueprint, HTTPResponse, response
 
-from pait.app.base import BaseAppHelper
 from pait.api_doc.html import get_redoc_html as _get_redoc_html
+from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenApi
+from pait.app.base import BaseAppHelper
 from pait.core import pait as _pait
 from pait.g import pait_data
 from pait.model import PaitCoreModel, PaitResponseModel, PaitStatus
@@ -110,14 +111,18 @@ def get_redoc_html(request: Request) -> HTTPResponse:
     )
 
 
+def get_swagger_ui_html(request: Request) -> HTTPResponse:
+    return response.html(
+        _get_swagger_ui_html(f"http://{request.host}{'/'.join(request.path.split('/')[:-1])}/openapi.json", "test")
+    )
+
+
 def openapi_route(request: Request) -> HTTPResponse:
     pait_dict: Dict[str, PaitCoreModel] = load_app(request.app)
     pait_openapi: PaitOpenApi = PaitOpenApi(
         pait_dict,
         title="Pait Doc",
-        open_api_server_list=[
-            {"url": f"http://{request.host}", "description": ""}
-        ],
+        open_api_server_list=[{"url": f"http://{request.host}", "description": ""}],
         open_api_tag_list=[
             {"name": "test", "description": "test api"},
             {"name": "user", "description": "user api"},
@@ -129,5 +134,6 @@ def openapi_route(request: Request) -> HTTPResponse:
 def add_reddoc_route(app: Sanic, prefix: str = "/") -> None:
     blueprint: Blueprint = Blueprint("api doc", prefix)
     blueprint.add_route(get_redoc_html, "/redoc", methods={"GET"})
+    blueprint.add_route(get_swagger_ui_html, "/swagger", methods={"GET"})
     blueprint.add_route(openapi_route, "/openapi.json", methods={"GET"})
     app.blueprint(blueprint)

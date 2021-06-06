@@ -16,7 +16,7 @@ from example.param_verify.model import (
     UserSuccessRespModel2,
     demo_depend,
 )
-from pait.app.flask import pait, add_redoc_route
+from pait.app.flask import add_redoc_route, pait
 from pait.exceptions import PaitBaseException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model import PaitStatus

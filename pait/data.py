@@ -26,8 +26,9 @@ class PaitData(object):
             model.method_list = sorted(list(method_set or set()), reverse=True)
             model.operation_id = route_name
             if project_name:
-                model.func_path = project_name \
-                                  + f"{project_name}".join(model.func.__code__.co_filename.split(project_name)[1:])
+                model.func_path = project_name + f"{project_name}".join(
+                    model.func.__code__.co_filename.split(project_name)[1:]
+                )
             else:
                 model.func_path = model.func.__code__.co_filename
         else:

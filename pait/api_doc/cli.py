@@ -46,15 +46,15 @@ def main() -> None:
 
     for type_ in input_output_type_list:
         if type_ == "md":
-            PaitMd(pait_dict, title=title, filename=filename, use_html_details=use_html_details)
+            PaitMd(pait_dict, title=title, use_html_details=use_html_details).output(filename)
         elif type_ == "json":
-            PaitJson(pait_dict, title=title, filename=filename, indent=indent)
+            PaitJson(pait_dict, title=title, indent=indent).output(filename)
         elif type_ == "yaml":
-            PaitYaml(pait_dict, title=title, filename=filename)
+            PaitYaml(pait_dict, title=title).output(filename)
         elif type_ == "openapi_json":
-            PaitOpenApi(pait_dict, title=title, filename=filename, type_="json")
+            PaitOpenApi(pait_dict, title=title, type_="json").output(filename)
         elif type_ == "openapi_yaml":
-            PaitOpenApi(pait_dict, title=title, filename=filename, type_="yaml")
+            PaitOpenApi(pait_dict, title=title, type_="yaml").output(filename)
         else:
             raise ValueError(f"Not support output type: {type_}, please select from the following options")
 

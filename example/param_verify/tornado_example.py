@@ -17,7 +17,7 @@ from example.param_verify.model import (
     UserSuccessRespModel2,
     demo_depend,
 )
-from pait.app.tornado import pait, add_reddoc_route
+from pait.app.tornado import add_reddoc_route, pait
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model import PaitStatus
 
