@@ -12,6 +12,8 @@ Pait's vision of documentation output is both code and documentation, with a sim
 > test coverage 95%+ (exclude api_doc)
 > 
 > python version >= 3.7 (support postponed annotations)
+> 
+> The function is being expanded... the documentation may not be perfect
  
 [中文文档](https://github.com/so1n/pait/blob/master/README_ZH.md)
 # Installation
@@ -35,8 +37,8 @@ from starlette.responses import JSONResponse
 
 async def demo_post(request: Request) -> JSONResponse:
     body_dict: dict = await request.json()
-    uid: int = body_dict.get('uid')
-    user_name: str = body_dict.get('user_name')
+    uid: int = body_dict.get('uid', 0)
+    user_name: str = body_dict.get('user_name', "")
     # The following code is only for demonstration, in general, we do some wrapping 
     if not uid:
         raise ValueError('xxx')
@@ -74,7 +76,7 @@ uvicorn.run(app)
 use pait in starletter route handler:
 
 ```Python
-import uvicorn
+import uvicorn  # type: ignore
 
 from starlette.applications import Starlette
 from starlette.routing import Route
@@ -84,16 +86,16 @@ from pait.field import Body
 from pait.app.starlette import pait
 from pydantic import (
     BaseModel,
-    conint,
-    constr,
+    Field
 )
 
 
 # Create a Model based on Pydantic.BaseModel 
-class PydanticModel(BaseModel):
-    uid: conint(gt=10, lt=1000)  # Whether the auto-check type is int, and whether it is greater than or equal to 10 and less than or equal to 1000 
-    user_name: constr(min_length=2, max_length=4)  # Whether the auto-check type is str, and whether the length is greater than or equal to 2, less than or equal to 4
-
+class UserModel(BaseModel):
+    # Whether the auto-check type is int, and whether it is greater than or equal to 10 and less than or equal to 1000 
+    uid: int = Field(description="user id", gt=10, lt=1000)
+    # Whether the auto-check type is str, and whether the length is greater than or equal to 2, less than or equal to 4
+    user_name: str = Field(description="user name", min_length=2, max_length=4)
 
 
 # Decorating functions with the pait decorator
@@ -101,8 +103,8 @@ class PydanticModel(BaseModel):
 async def demo_post(
     # pait through the Body () to know the current need to get the value of the body from the request, and assign the value to the model, 
     # and the structure of the model is the above PydanticModel, he will be based on our definition of the field automatically get the value and conversion and judgment
-    model: PydanticModel = Body.i()
-):
+    model: UserModel = Body.i()
+) -> JSONResponse:
     # Get the corresponding value to return
     return JSONResponse({'result': model.dict()})
 
@@ -173,6 +175,8 @@ pait in order to facilitate the use of users, support a variety of writing metho
 ### 1.3.Field
 Field will help pait know how to get data from request.
 Before introducing the function of Field, let’s take a look at the following example. `pait` will obtain the body data of the request according to Field.Body, and obtain the value with the parameter named key. Finally, the parameter is verified and assigned to the uid.
+
+> Note: Use Field.Body() directly, `mypy` will check that the type does not match, then just change to Field.Body.i() to solve the problem. 
 ```Python
 from pait.app.starlette import pait
 from pait.field import Body
@@ -182,7 +186,7 @@ from pait.field import Body
 async def demo_post(
     # get uid from request body data
     uid: int = Body.i()
-):
+) -> None:
     pass
 ```
 The following example will use a parameter called default.
@@ -233,7 +237,7 @@ def demo_depend(uid: str = Body.i(), password: str = Body.i()) -> str:
 
 
 @pait()
-async def test_depend(token: str = Depends.i(demo_depend)):
+async def test_depend(token: str = Depends.i(demo_depend)) -> dict:
     return {'token': token}
 ```
 
@@ -242,13 +246,16 @@ After using `Pait`, the proportion of the number of times the requests object is
 ```Python
 from starlette.requests import Request
 
+from pait.app.starlette import pait
+from pait.field import Body
 
-@params_verify()
+
+@pait()
 async def demo_post(
-    request: Requests,
-    # get uid from request body data
-    uid: int = Body.i()  
-):
+        request: Request,
+        # get uid from request body data
+        uid: int = Body.i()
+) -> None:
     pass
 ```
 
@@ -263,10 +270,14 @@ from starlette.responses import Response
 from pait.exceptions import PaitBaseException
 from pydantic import ValidationError
 
-async def api_exception(request: Request, exc: Exception) -> Response:
+async def api_exception(request: Request, exc: Exception) -> None:
     """
     Handle exception code    
     """
+    if isinstance(exc, PaitBaseException):
+        pass 
+    else:
+        pass
 
 APP = Starlette()
 APP.add_exception_handler(PaitBaseException, api_exception)
@@ -290,12 +301,6 @@ async def demo_post(
     pass
 ```
 ## 2.Document Generation
-> Note: The function is being improved... 
-
-In addition to parameter verification and conversion, pait also provides the ability to output api documentation, which can be configured with simple parameters to output perfect documentation.
-
-Note: Currently only md, json, yaml type documents and openapi documents for json and yaml are supported for output.For the output of md, json, yaml, see 
-[doc example](https://github.com/so1n/pait/blob/master/example/api_doc/example_doc)
 
 `pait` will automatically capture the request parameters and url, method and other information of the routing function.
 In addition, it also supports labeling some relevant information. These labels will only be loaded into the memory when the Python program starts running, and will not affect the performance of the request, as in the following example:
@@ -340,6 +345,7 @@ Param:
 - response_model_list: return data, Need to inherit from `pait.model.PaitResponseModel`
 
 ### 2.1.openapi
+#### 2.1.1openapi doc output
 Currently pait supports most of the functions of openapi, a few unrealized features will be gradually improved through iterations (response-related more complex)
 
 The openapi module of pait supports the following parameters (more parameters will be provided in the next version):
@@ -403,6 +409,64 @@ pait_dict = load_app(app)
 # Generate openapi for routing based on data from the data module
 PaitOpenApi(pait_dict)
 ```
+#### 2.1.2.OpenApi Route
+`Pait` currently supports openapi.json routing, and also supports page display of `Redoc` and `Swagger`, and these only need to call the `add_doc_route` function to add three routes to the `app` instance:
+- /openapi.json
+- /redoc
+- /swagger
+If you want to define a prefix, such as /doc/openapi.json, just pass in /doc through the prefix parameter. Specific examples are as follows:
+```Python
+import uvicorn  # type: ignore
+
+from starlette.applications import Starlette
+from starlette.routing import Route
+from starlette.responses import JSONResponse
+
+from pait.field import Body
+from pait.app.starlette import pait
+from pydantic import (
+    BaseModel,
+    Field
+)
+
+
+# Create a Model based on Pydantic.BaseModel 
+class UserModel(BaseModel):
+    # Whether the auto-check type is int, and whether it is greater than or equal to 10 and less than or equal to 1000 
+    uid: int = Field(description="user id", gt=10, lt=1000)
+    # Whether the auto-check type is str, and whether the length is greater than or equal to 2, less than or equal to 4
+    user_name: str = Field(description="user name", min_length=2, max_length=4)
+
+
+# Decorating functions with the pait decorator
+@pait()
+async def demo_post(
+    # pait through the Body () to know the current need to get the value of the body from the request, and assign the value to the model, 
+    # and the structure of the model is the above PydanticModel, he will be based on our definition of the field automatically get the value and conversion and judgment
+    model: UserModel = Body.i()
+) -> JSONResponse:
+    # Get the corresponding value to return
+    return JSONResponse({'result': model.dict()})
+
+
+app = Starlette(
+    routes=[
+        Route('/api', demo_post, methods=['POST']),
+    ]
+)
+# Inject the route into the app 
+add_doc_route(app)
+# Inject the route into the app, and prefix it with /doc 
+add_doc_route(app, prefix='/doc')
+```
+### 2.2.Other doc output
+> Note: The function is being improved... 
+
+In addition to parameter verification and conversion, pait also provides the ability to output api documentation, which can be configured with simple parameters to output perfect documentation.
+
+Note: Currently only md, json, yaml type documents and openapi documents for json and yaml are supported for output.For the output of md, json, yaml, see 
+[doc example](https://github.com/so1n/pait/blob/master/example/api_doc/example_doc)
+
 ## 3.How to used in other web framework?
 If the web framework is not supported, which you are using.
 Can be modified sync web framework according to [pait.app.flask](https://github.com/so1n/pait/blob/master/pait/app/flask.py)

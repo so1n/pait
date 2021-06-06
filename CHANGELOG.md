@@ -1,4 +1,11 @@
-### 0.5.3[Now]
+### 0.5.4[Now]
+ - Feature: support summary column
+ - Feature: doc module support project name
+ - Feature: support redoc ui route
+ - Feature: support swagger ui route  
+ - Refactor: pait.api_doc & pait.app
+
+### 0.5.3
  - Test: add param handle test
  - Test: add util test
  - Feature: support postponed annotations 

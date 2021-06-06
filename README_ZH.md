@@ -1,9 +1,9 @@
 # Pait
 Pait是一个可以用于python任何web框架的api工具(目前只支持`flask`,`starlette`, `sanic`, `tornado(实验性)`, 其他框架会在Pait稳定后得到支持).
 
-Pait的核心功能是让你可以在任何Python Web框架拥有像FastAPI一样的类型检查和类型转换的功能(依赖于Pydantic和inspect), 以及提供文档输出功能。
+Pait可以任何Python Web框架拥有像FastAPI一样的类型检查, 类型转换的功能(依赖于Pydantic和inspect), 和提供文档输出功能。
 
-Pait的文档输出功能愿景是代码既文档,只需要简单的配置,则可以得到一份md文档或者openapi(json, yaml)
+Pait的文档输出功能愿景是代码既文档,只需要简单的配置,则可以得到一份md文档或者生成基于openapi的swagger和Redoc页面
 
 [了解如何实现类型转换和检查功能](http://so1n.me/2019/04/15/%E7%BB%99python%E6%8E%A5%E5%8F%A3%E5%8A%A0%E4%B8%8A%E4%B8%80%E5%B1%82%E7%B1%BB%E5%9E%8B%E6%A3%80/)
 
@@ -12,20 +12,22 @@ Pait的文档输出功能愿景是代码既文档,只需要简单的配置,则�
 > test coverage 95%+ (排除api_doc)
 > 
 > python version >= 3.7 (支持延迟注释)
+> 
+> 功能正在拓展中...文档可能不太完善 
 # 安装
 ```bash
 pip install pait
 ```
 
 # 使用
-注:以下代码没有特别说明, 都默认使用`starlette`框架.
+注:以下代码没有特别说明, 都默认以`starlette`框架为例.
 注:文档输出功能没有测试用例, 功能还在完善中 
 
 ## 1.类型转换和类型校验
 ### 1.1.在路由函数中使用使用pait
-先看看普通的路由函数代码:
+在使用`Pait`之前, 先看看普通的路由函数代码:
 ```Python
-import uvicorn
+import uvicorn  # type: ignore
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -34,8 +36,8 @@ from starlette.routing import Route
 
 async def demo_post(request: Request) -> JSONResponse:
     body_dict: dict = await request.json()
-    uid: int = body_dict.get('uid')
-    user_name: str = body_dict.get('user_name')
+    uid: int = body_dict.get('uid', 0)
+    user_name: str = body_dict.get('user_name', "")
     # 以下代码只是作为示范, 一般情况下, 我们都会做一些封装, 不会显得过于冗余
     if not uid:
         raise ValueError('xxx')
@@ -70,11 +72,10 @@ app = Starlette(
 
 uvicorn.run(app)
 ```
-在使用pait后,路由函数代码可以改为:
-
+在使用pait后,路由函数代码可以改写为:
 ```Python
-import uvicorn
-from pydantic import BaseModel, conint, constr
+import uvicorn  # type: ignore
+from pydantic import BaseModel, Field
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse
 from starlette.routing import Route
@@ -84,9 +85,9 @@ from pait.field import Body
 
 
 # 创建一个基于Pydantic.BaseModel的Model
-class PydanticModel(BaseModel):
-    uid: conint(gt=10, lt=1000)  # 自动校验类型是否为int,且是否大于10小于1000
-    user_name: constr(min_length=2, max_length=4)  # 自动校验类型是否为str, 且长度是否大于等于2,小于等于4
+class UserModel(BaseModel):
+    uid: int = Field(description="user id", gt=10, lt=1000)
+    user_name: str = Field(description="user name", min_length=2, max_length=4)
 
 
 # 使用pait装饰器装饰函数
@@ -94,8 +95,8 @@ class PydanticModel(BaseModel):
 async def demo_post(
     # pait通过Body()知道当前需要从请求中获取body的值,并赋值到model中, 
     # 而这个model的结构正是上面的PydanticModel,他会根据我们定义的字段自动获取值并进行转换和判断
-    model: PydanticModel = Body.i()
-):
+    model: UserModel = Body.i()  # 使用i函数可以解决mypy类型校验的问题
+) -> JSONResponse:
     # 获取对应的值进行返回
     return JSONResponse({'result': model.dict()})
 
@@ -109,7 +110,7 @@ app = Starlette(
 uvicorn.run(app)
 ```
 可以看出,只需要对路由函数添加一个`pait`装饰器,并把`demo_post`的参数改为`model: PydanticModel = Body()`即可.
-`pait`装饰器会解析参数, 通过`Body`知道需要获取post请求body的数据,并根据`conint(gt=10, lt=1000)`对数据进行转换和限制,并赋值给`PydanticModel`,用户只需要像使用`Pydantic`一样调用`model`即可获取到数据.
+`pait`装饰器会解析参数, 通过`Body`知道需要获取post请求body的数据,并根据`Field(gt=10, lt=1000)`对数据进行转换和限制,并赋值给`PydanticModel`,用户只需要像使用`Pydantic`一样调用`model`即可获取到数据.
 
 这里只是一个简单的demo,由于我们编写的model可以复用,所以可以节省到大量的开发量,上面的参数只使用到一种写法,下面会介绍pait支持的两种写法以及用途.
 
@@ -169,6 +170,8 @@ Field的作用是助于Pait从请求中获取对应的数据,在介绍Field的�
 
 与上面一样,`pait` 会根据Field.Body获取到请求的body数据,并以参数名为key获取到值,最后进行参数验证并赋值到uid.
 
+> 注: 直接使用Field.Body(), `mypy`会检查到类型不匹配, 这时候只要改为Field.Body.i()即可解决该问题.
+
 ```Python
 from pait.app.starlette import pait
 from pait.field import Body
@@ -178,7 +181,7 @@ from pait.field import Body
 async def demo_post(
     # get uid from request body data
     uid: int = Body.i(),
-):
+) -> None:
     pass
 ```
 下面的例子会用到一个叫default的参数.
@@ -228,7 +231,7 @@ def demo_depend(uid: str = Body.i(), password: str = Body.i()) -> str:
 
 
 @pait()
-async def test_depend(token: str = Depends.i(demo_depend)):
+async def test_depend(token: str = Depends.i(demo_depend)) -> dict:
     return {'token': token}
 ```
 
@@ -247,7 +250,7 @@ async def demo_post(
         request: Request,
         # get uid from request body data
         uid: int = Body.i()
-):
+) -> None:
     pass
 ```
 ### 1.5.异常
@@ -257,12 +260,11 @@ pait并不会为异常进行响应,而是把异常处理交给用户自己处理
 from pydantic import ValidationError
 from starlette.applications import Starlette
 from starlette.requests import Request
-from starlette.responses import Response
 
 from pait.exceptions import PaitBaseException
 
 
-async def api_exception(request: Request, exc: Exception) -> Response:
+async def api_exception(request: Request, exc: Exception) -> None:
     """
     自己处理异常的逻辑    
     """
@@ -284,7 +286,7 @@ APP.add_exception_handler(ValidationError, api_exception)
 PaitBaseException: 'File "/home/so1n/github/pait/example/starlette_example.py", line 29, in demo_post2  kwargs param:content_type: <class \'str\'> = Header(key=None, default=None) not found in Header({\'host\': \'127.0.0.1:8000\', \'user-agent\': \'curl/7.52.1\', \'accept\': \'*/*\', \'content-type\': \'application/json\', \'data_type\': \'msg\', \'content-length\': \'38\'}), try use Header(key={key name})'
 ```
 如果你想查看更多消息,那可以把日志等级设置为debug,pait会输出如下的日志信息.
-```Python
+```Python3
 DEBUG:root:
 async def demo_post(
     ...
@@ -293,12 +295,7 @@ async def demo_post(
 ):
     pass
 ```
-## 2.文档输出
-> 注: 功能正在完善中...
-
-`pait`除了参数校验和转化外还提供输出api文档的功能, 通过简单的配置即可输出完善的文档.
-注: 目前只支持输出md, json, yaml以及openapi格式的json和yaml. 关于md, json, yaml的输出见
-[文档输出例子](https://github.com/so1n/pait/blob/master/example/api_doc/example_doc)
+## 2.文档
 
 `pait`会自动捕获路由函数的请求参数和url,method等信息, 此外还支持标注一些相关信息, 这些标注只会在Python程序开始运行时加载到内存中, 不会对请求性能造成影响, 如下面的例子:
 ```Python
@@ -342,6 +339,7 @@ def demo() -> None:
 
 
 ### 2.1.openapi
+#### 2.1.1.openapi文档输出
 目前pait支持openapi的大多数功能,少数未实现的功能将通过迭代逐步完善
 
 pait的openapi模块支持一下参数(下一个版本会提供更多的参数):
@@ -400,6 +398,57 @@ pair_dict = load_app(app)
 # 根据数据模块的数据生成路由的openapi
 PaitOpenApi(pair_dict)
 ```
+#### 2.1.2.OpenApi路由
+`Pait`目前支持openapi.json路由, 同时支持`Redoc`和`Swagger`的页面展示, 而这些只需要调用`add_doc_route`函数即可为`app`实例增加三个路由:
+- /openapi.json
+- /redoc
+- /swagger
+如果想定义前缀, 如定义为/doc/openapi.json, 则只要通过prefix参数把/doc传进去, 具体例子如下:
+```Python3
+import uvicorn  # type: ignore
+from pydantic import BaseModel, Field
+from starlette.applications import Starlette
+from starlette.responses import JSONResponse
+from starlette.routing import Route
+
+# 引入add_doc_route, 针对每个框架都有一个具体的实现
+from pait.app.starlette import add_doc_route, pait
+from pait.field import Body
+
+
+# 创建一个基于Pydantic.BaseModel的Model
+class UserModel(BaseModel):
+    uid: int = Field(description="user id", gt=10, lt=1000)
+    user_name: str = Field(description="user name", min_length=2, max_length=4)
+
+
+# 使用pait装饰器装饰函数
+@pait()
+async def demo_post(
+    # pait通过Body()知道当前需要从请求中获取body的值,并赋值到model中, 
+    # 而这个model的结构正是上面的PydanticModel,他会根据我们定义的字段自动获取值并进行转换和判断
+    model: UserModel = Body.i()  # 使用i函数可以解决mypy类型校验的问题
+) -> JSONResponse:
+    # 获取对应的值进行返回
+    return JSONResponse({'result': model.dict()})
+
+
+app = Starlette(
+    routes=[
+        Route('/api', demo_post, methods=['POST']),
+    ]
+)
+# 把路由注入到app中 
+add_doc_route(app)
+# 把路由注入到app中, 并且以/doc为前缀
+add_doc_route(app, prefix='/doc')
+```
+### 2.2.其他文档输出
+> 注: 功能正在完善中...
+
+`pait`除了参数校验和转化外还提供输出api文档的功能, 通过简单的配置即可输出完善的文档.
+注: 目前只支持输出md, json, yaml以及openapi格式的json和yaml. 关于md, json, yaml的输出见
+[文档输出例子](https://github.com/so1n/pait/blob/master/example/api_doc/example_doc)
 
 ## 3.如何在其他web框架使用?
 如果要在其他尚未支持的框架中使用pait, 或者要对功能进行拓展, 可以查照两个框架进行简单的适配即可.

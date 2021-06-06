@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pait",
-    version="0.5.3",
+    version="0.5.4",
     author="so1n",
     author_email="so1n897046026@gmail.com",
     description="Pait is a Python api tool. Pait enables your Python web framework to have type checking,"
