@@ -417,17 +417,13 @@ PaitOpenApi(pait_dict)
 If you want to define a prefix, such as /doc/openapi.json, just pass in /doc through the prefix parameter. Specific examples are as follows:
 ```Python
 import uvicorn  # type: ignore
-
+from pydantic import BaseModel, Field
 from starlette.applications import Starlette
-from starlette.routing import Route
 from starlette.responses import JSONResponse
+from starlette.routing import Route
 
-from pait.field import Body
 from pait.app.starlette import pait
-from pydantic import (
-    BaseModel,
-    Field
-)
+from pait.field import Body
 
 
 # Create a Model based on Pydantic.BaseModel 
