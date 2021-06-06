@@ -18,7 +18,7 @@ from example.param_verify.model import (
     UserSuccessRespModel2,
     demo_depend,
 )
-from pait.app.sanic import add_reddoc_route, pait
+from pait.app.sanic import add_doc_route, pait
 from pait.exceptions import PaitBaseException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model import PaitStatus
@@ -196,7 +196,7 @@ class TestCbv(HTTPMethodView):
 
 def create_app() -> Sanic:
     app: Sanic = Sanic(name="pait")
-    add_reddoc_route(app)
+    add_doc_route(app)
     app.add_route(test_get, "/api/get/<age>", methods={"GET"})
     app.add_route(test_post, "/api/post", methods={"POST"})
     app.add_route(test_depend, "/api/depend", methods={"POST"})

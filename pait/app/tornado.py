@@ -135,7 +135,7 @@ class OpenApiHandle(RequestHandler):
         self.write(pait_openapi.open_api_dict)
 
 
-def add_reddoc_route(app: Application, prefix: str = "/") -> None:
+def add_doc_route(app: Application, prefix: str = "/") -> None:
     if not prefix.endswith("/"):
         prefix = prefix + "/"
     app.add_handlers(

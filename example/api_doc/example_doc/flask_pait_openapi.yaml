@@ -290,6 +290,51 @@ paths:
               - user_name
               - age
   /api/cbv:
+    post:
+      tags:
+      - user
+      - post
+      summary: ''
+      description: test cbv post method
+      operationId: post.test_cbv.post
+      parameters:
+      - name: user-agent
+        in: header
+        required: true
+        description: ua
+        schema:
+          title: User-Agent
+          description: ua
+          type: string
+      responses:
+        200:
+          description: success response|fail response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ResponseUserModel'
+                - $ref: '#/components/schemas/ResponseFailModel'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: DynamicModel
+              type: object
+              properties:
+                uid:
+                  title: Uid
+                  type: integer
+                user_name:
+                  title: User Name
+                  type: string
+                age:
+                  title: Age
+                  type: integer
+              required:
+              - uid
+              - user_name
+              - age
     get:
       tags:
       - user
@@ -354,51 +399,6 @@ paths:
                 oneOf:
                 - $ref: '#/components/schemas/_ResponseUserModel'
                 - $ref: '#/components/schemas/ResponseFailModel'
-    post:
-      tags:
-      - user
-      - post
-      summary: ''
-      description: test cbv post method
-      operationId: post.test_cbv.post
-      parameters:
-      - name: user-agent
-        in: header
-        required: true
-        description: ua
-        schema:
-          title: User-Agent
-          description: ua
-          type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              title: DynamicModel
-              type: object
-              properties:
-                uid:
-                  title: Uid
-                  type: integer
-                user_name:
-                  title: User Name
-                  type: string
-                age:
-                  title: Age
-                  type: integer
-              required:
-              - uid
-              - user_name
-              - age
   /api/get/<age>:
     options:
       tags:
@@ -450,9 +450,12 @@ paths:
       - name: age
         in: path
         required: true
-        description: null
+        description: age
         schema:
           title: Age
+          description: age
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
           type: integer
       responses:
         200:
@@ -513,9 +516,12 @@ paths:
       - name: age
         in: path
         required: true
-        description: null
+        description: age
         schema:
           title: Age
+          description: age
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
           type: integer
       responses:
         200:
@@ -576,9 +582,12 @@ paths:
       - name: age
         in: path
         required: true
-        description: null
+        description: age
         schema:
           title: Age
+          description: age
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
           type: integer
       responses:
         200:

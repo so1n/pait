@@ -131,7 +131,7 @@ def openapi_route(request: Request) -> HTTPResponse:
     return response.json(pait_openapi.open_api_dict)
 
 
-def add_reddoc_route(app: Sanic, prefix: str = "/") -> None:
+def add_doc_route(app: Sanic, prefix: str = "/") -> None:
     blueprint: Blueprint = Blueprint("api doc", prefix)
     blueprint.add_route(get_redoc_html, "/redoc", methods={"GET"})
     blueprint.add_route(get_swagger_ui_html, "/swagger", methods={"GET"})

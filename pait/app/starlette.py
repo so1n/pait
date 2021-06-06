@@ -147,7 +147,7 @@ def openapi_route(request: Request) -> JSONResponse:
     return JSONResponse(pait_openapi.open_api_dict)
 
 
-def add_redoc_route(app: Starlette, prefix: str = "/") -> None:
+def add_doc_route(app: Starlette, prefix: str = "/") -> None:
     route: Mount = Mount(
         prefix,
         name="api doc",

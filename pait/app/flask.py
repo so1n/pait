@@ -138,7 +138,7 @@ def openapi_route() -> dict:
     return pait_openapi.open_api_dict
 
 
-def add_redoc_route(app: Flask, prefix: str = "/") -> None:
+def add_doc_route(app: Flask, prefix: str = "/") -> None:
     blueprint: Blueprint = Blueprint("api doc", __name__, url_prefix=prefix)
     blueprint.add_url_rule("/redoc", view_func=get_redoc_html, methods=["GET"])
     blueprint.add_url_rule("/swagger", view_func=get_swagger_ui_html, methods=["GET"])

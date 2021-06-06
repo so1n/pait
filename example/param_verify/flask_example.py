@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Tuple
 
-from flask import Flask, Request, jsonify
+from flask import Flask, Request
 from flask.views import MethodView
 from pydantic import ValidationError
 
@@ -16,7 +16,7 @@ from example.param_verify.model import (
     UserSuccessRespModel2,
     demo_depend,
 )
-from pait.app.flask import add_redoc_route, pait
+from pait.app.flask import add_doc_route, pait
 from pait.exceptions import PaitBaseException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model import PaitStatus
@@ -125,8 +125,6 @@ def test_pait(
     age: int = Path.i(description="age", gt=1, lt=100),
     sex: SexEnum = Query.i(description="sex"),
 ) -> dict:
-    from flask import request
-
     """Test Field"""
     return {
         "code": 0,
@@ -192,7 +190,7 @@ class TestCbv(MethodView):
 
 def create_app() -> Flask:
     app: Flask = Flask(__name__)
-    add_redoc_route(app)
+    add_doc_route(app)
     app.add_url_rule("/api/raise_tip", view_func=test_raise_tip, methods=["POST"])
     app.add_url_rule("/api/post", view_func=test_post, methods=["POST"])
     app.add_url_rule("/api/depend", view_func=demo_get2test_depend, methods=["POST"])

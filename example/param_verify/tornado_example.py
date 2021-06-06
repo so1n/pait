@@ -17,7 +17,7 @@ from example.param_verify.model import (
     UserSuccessRespModel2,
     demo_depend,
 )
-from pait.app.tornado import add_reddoc_route, pait
+from pait.app.tornado import add_doc_route, pait
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model import PaitStatus
 
@@ -220,7 +220,7 @@ def create_app() -> Application:
             (r"/api/pait_model", TestPaitModelHanler),
         ]
     )
-    add_reddoc_route(app)
+    add_doc_route(app)
     return app
 
 
