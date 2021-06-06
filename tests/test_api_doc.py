@@ -12,7 +12,7 @@ class TestApiDoc:
     def test_app_api_doc(self) -> None:
         for app_name in app_list:
             module = importlib.import_module(f"example.api_doc.{app_name}_example")  # type: ignore
-            pait_dict: Dict[str, PaitCoreModel] = module.load_app(module.create_app())  # type: ignore
+            pait_dict: Dict[str, PaitCoreModel] = module.load_app(module.create_app(), project_name="")  # type: ignore
 
             module.PaitMd(pait_dict, use_html_details=True)  # type: ignore
             module.PaitJson(pait_dict, indent=2)  # type: ignore

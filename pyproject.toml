@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "pait"
 version = "0.5.4"
-description = "Pait is a Python api tool. Pait enables your Python web framework to have type checking, parameter type conversion and interface document generation (power by inspect, pydantic)"
+description = "Pait is a Python api tool. Pait enables your Python web framework to have type checking, parameter type conversion, interface document generation and can display your documents through Redoc or Swagger (power by inspect, pydantic)"
 authors = ["So1n <so1n897046026@gmail.com>"]
 license = "Apache Software License"
 readme = "./README.md"
@@ -12,6 +12,7 @@ homepage = "https://github.com/so1n/pait"
 python = "^3.7"
 pydantic = "^1.7.3"
 PyYAML = "^5.4.1"
+sanic = "21.3.4"
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"

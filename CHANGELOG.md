@@ -1,4 +1,9 @@
-### 0.5.4[Now]
+### 0.5.5[Now]
+ - Fix: update requirements and resolve pydantic`s CVE-2021-29510
+ - Fix: sanic new version bug
+ - Fix: new version pait.app pait func bug
+
+### 0.5.4
  - Feature: support summary column
  - Feature: doc module support project name
  - Feature: support redoc ui route

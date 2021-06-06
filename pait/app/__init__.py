@@ -17,7 +17,7 @@ def _import_func(app: Any, fun_name: str) -> Callable:
     elif app_name == "application" and app.__class__.__module__ == "tornado.web":
         return getattr(import_module("pait.app.tornado"), fun_name)
     else:
-        raise NotImplementedError(f"Pait not support:{app}")
+        raise NotImplementedError(f"Pait not support app name:{app_name}, please check app:{app}")
 
 
 def _base_call_func(app: Any, fun_name: str, *args: Any, **kwargs: Any) -> Any:
@@ -28,7 +28,11 @@ def load_app(app: Any, project_name: str = "") -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`
     Note:This is an implicit method
     """
-    return _base_call_func(app, "load_app", project_name=project_name)
+    return _base_call_func(app, "load_app", app, project_name=project_name)
+
+
+def add_doc_route(app: Any, prefix: str = "/") -> None:
+    return _base_call_func(app, "add_doc_route", prefix=prefix)
 
 
 def pait(
@@ -44,8 +48,15 @@ def pait(
     Note:This is an implicit method
     """
     load_class_app = auto_load_app_class()
-    return _import_func(load_class_app, "_pait")(author, desc, summary, status, group, tag, response_model_list)
-
-
-def add_doc_route(app: Any, prefix: str = "/") -> None:
-    return _base_call_func(app, "add_doc_route", prefix=prefix)
+    app_name: str = load_class_app.__name__.lower()
+    if app_name == "flask":
+        from .flask import pait as _pait  # type: ignore
+    elif app_name == "starlette":
+        from .starlette import pait as _pait  # type: ignore
+    elif app_name == "sanic":
+        from .sanic import pait as _pait  # type: ignore
+    elif app_name == "tornado":
+        from .tornado import pait as _pait  # type: ignore
+    else:
+        raise NotImplementedError(f"Pait not support:{load_class_app}")
+    return _pait(author, desc, summary, status, group, tag, response_model_list)
