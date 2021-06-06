@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pait",
-    version="0.5.4",
+    version="0.5.5",
     author="so1n",
     author_email="so1n897046026@gmail.com",
     description=(
