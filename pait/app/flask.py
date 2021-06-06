@@ -1,7 +1,7 @@
 import logging
 from typing import Any, Callable, Dict, List, Mapping, Optional, Set, Tuple, Type
 
-from flask import Flask, Request, current_app, request  # type: ignore
+from flask import Flask, Request, current_app, Blueprint, request  # type: ignore
 from flask.views import MethodView
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 
@@ -135,8 +135,8 @@ def openapi_route() -> dict:
     return pait_openapi.open_api_dict
 
 
-def add_reddoc_route(app: Flask, prefix: str = "/") -> None:
-    if not prefix.endswith("/"):
-        prefix = prefix + "/"
-    app.add_url_rule(f"{prefix}redoc", view_func=get_redoc_html, methods=["GET"])
-    app.add_url_rule(f"{prefix}openapi.json", view_func=openapi_route, methods=["GET"])
+def add_redoc_route(app: Flask, prefix: str = "/") -> None:
+    blueprint: Blueprint = Blueprint("api doc", __name__, url_prefix=prefix)
+    blueprint.add_url_rule("/redoc", view_func=get_redoc_html, methods=["GET"])
+    blueprint.add_url_rule("/openapi.json", view_func=openapi_route, methods=["GET"])
+    app.register_blueprint(blueprint)

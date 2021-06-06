@@ -4,7 +4,7 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Type
 from sanic.app import Sanic
 from sanic.headers import HeaderIterable
 from sanic.request import File, Request, RequestParameters
-from sanic import HTTPResponse, response
+from sanic import Blueprint, HTTPResponse, response
 
 from pait.app.base import BaseAppHelper
 from pait.api_doc.html import get_redoc_html as _get_redoc_html
@@ -127,7 +127,7 @@ def openapi_route(request: Request) -> HTTPResponse:
 
 
 def add_reddoc_route(app: Sanic, prefix: str = "/") -> None:
-    if not prefix.endswith("/"):
-        prefix = prefix + "/"
-    app.add_route(get_redoc_html, f"{prefix}redoc", methods={"GET"})
-    app.add_route(openapi_route, f"{prefix}openapi.json", methods={"GET"})
+    blueprint: Blueprint = Blueprint("api doc", prefix)
+    blueprint.add_route(get_redoc_html, "/redoc", methods={"GET"})
+    blueprint.add_route(openapi_route, "/openapi.json", methods={"GET"})
+    app.blueprint(blueprint)

@@ -2,6 +2,7 @@ import inspect
 from typing import Any, Callable, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union
 
 from starlette.applications import Starlette
+from starlette.routing import Mount
 from starlette.datastructures import FormData, Headers, UploadFile
 from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request
@@ -137,8 +138,9 @@ def openapi_route(request: Request) -> JSONResponse:
     return JSONResponse(pait_openapi.open_api_dict)
 
 
-def add_reddoc_route(app: Starlette, prefix: str = "/") -> None:
-    if not prefix.endswith("/"):
-        prefix = prefix + "/"
-    app.add_route(f"{prefix}redoc", get_redoc_html, methods=["GET"])
-    app.add_route(f"{prefix}openapi.json", openapi_route, methods=["GET"])
+def add_redoc_route(app: Starlette, prefix: str = "/") -> None:
+    route: Mount = Mount(prefix, name="api doc", routes=[
+        Route("/redoc", get_redoc_html, methods=["GET"]),
+        Route("/openapi.json", openapi_route, methods=["GET"]),
+    ])
+    app.routes.append(route)

@@ -16,7 +16,7 @@ from example.param_verify.model import (
     UserSuccessRespModel2,
     demo_depend,
 )
-from pait.app.flask import pait, add_reddoc_route
+from pait.app.flask import pait, add_redoc_route
 from pait.exceptions import PaitBaseException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model import PaitStatus
@@ -192,7 +192,7 @@ class TestCbv(MethodView):
 
 def create_app() -> Flask:
     app: Flask = Flask(__name__)
-    add_reddoc_route(app)
+    add_redoc_route(app)
     app.add_url_rule("/api/raise_tip", view_func=test_raise_tip, methods=["POST"])
     app.add_url_rule("/api/post", view_func=test_post, methods=["POST"])
     app.add_url_rule("/api/depend", view_func=demo_get2test_depend, methods=["POST"])
