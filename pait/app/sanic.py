@@ -1,10 +1,13 @@
 import logging
 from typing import Any, Callable, Dict, List, Mapping, Optional, Set, Tuple, Type
 
-from sanic import Blueprint, HTTPResponse, response
+from sanic import response
 from sanic.app import Sanic
+from sanic.blueprints import Blueprint
+from sanic.exceptions import NotFound
 from sanic.headers import HeaderIterable
 from sanic.request import File, Request, RequestParameters
+from sanic.response import HTTPResponse
 
 from pait.api_doc.html import get_redoc_html as _get_redoc_html
 from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
@@ -124,33 +127,47 @@ def pait(
     )
 
 
-def get_redoc_html(request: Request) -> HTTPResponse:
-    return response.html(
-        _get_redoc_html(f"http://{request.host}{'/'.join(request.path.split('/')[:-1])}/openapi.json", "test")
-    )
+def add_doc_route(
+    app: Sanic,
+    prefix: str = "/",
+    pin_code: str = "",
+    title: str = "Pait Doc",
+    open_api_tag_list: Optional[List[Dict[str, Any]]] = None,
+) -> None:
+    if pin_code:
+        logging.info(f"doc route start pin code:{pin_code}")
 
+    def _get_request_pin_code(request: Request) -> Optional[str]:
+        r_pin_code: Optional[str] = request.args.get("pin_code", None)
+        if pin_code:
+            if r_pin_code != pin_code:
+                raise NotFound
+        return r_pin_code
 
-def get_swagger_ui_html(request: Request) -> HTTPResponse:
-    return response.html(
-        _get_swagger_ui_html(f"http://{request.host}{'/'.join(request.path.split('/')[:-1])}/openapi.json", "test")
-    )
+    def _get_open_json_url(request: Request) -> str:
+        r_pin_code: Optional[str] = _get_request_pin_code(request)
+        openapi_json_url: str = f"http://{request.host}{'/'.join(request.path.split('/')[:-1])}/openapi.json"
+        if r_pin_code:
+            openapi_json_url += f"?pin_code={r_pin_code}"
+        return openapi_json_url
 
+    def get_redoc_html(request: Request) -> HTTPResponse:
+        return response.html(_get_redoc_html(_get_open_json_url(request), title))
 
-def openapi_route(request: Request) -> HTTPResponse:
-    pait_dict: Dict[str, PaitCoreModel] = load_app(request.app)
-    pait_openapi: PaitOpenApi = PaitOpenApi(
-        pait_dict,
-        title="Pait Doc",
-        open_api_server_list=[{"url": f"http://{request.host}", "description": ""}],
-        open_api_tag_list=[
-            {"name": "test", "description": "test api"},
-            {"name": "user", "description": "user api"},
-        ],
-    )
-    return response.json(pait_openapi.open_api_dict)
+    def get_swagger_ui_html(request: Request) -> HTTPResponse:
+        return response.html(_get_swagger_ui_html(_get_open_json_url(request), title))
 
+    def openapi_route(request: Request) -> HTTPResponse:
+        _get_request_pin_code(request)
+        pait_dict: Dict[str, PaitCoreModel] = load_app(request.app)
+        pait_openapi: PaitOpenApi = PaitOpenApi(
+            pait_dict,
+            title=title,
+            open_api_server_list=[{"url": f"http://{request.host}", "description": ""}],
+            open_api_tag_list=open_api_tag_list,
+        )
+        return response.json(pait_openapi.open_api_dict)
 
-def add_doc_route(app: Sanic, prefix: str = "/") -> None:
     blueprint: Blueprint = Blueprint("api doc", prefix)
     blueprint.add_route(get_redoc_html, "/redoc", methods={"GET"})
     blueprint.add_route(get_swagger_ui_html, "/swagger", methods={"GET"})
