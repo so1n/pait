@@ -24,6 +24,7 @@ class PaitStatus(Enum):
     test = "test"
 
     # The interface is online
+    pre_release = "pre_release"
     release = "release"
 
     # The interface has been online, but needs to be offline for some reasons

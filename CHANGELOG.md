@@ -1,4 +1,8 @@
-### 0.5.5[Now]
+### 0.5.6[Now]
+ - Fix: fix python3.8 annotation
+ - Fix: single filed not pydantic filed info
+
+### 0.5.5
  - Fix: update requirements and resolve pydantic`s CVE-2021-29510
  - Fix: sanic new version bug
  - Fix: new version pait.app pait func bug

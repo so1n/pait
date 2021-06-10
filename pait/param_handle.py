@@ -4,11 +4,11 @@ import logging
 from types import ModuleType
 from typing import Any, Callable, Coroutine, Dict, List, Mapping, NoReturn, Optional, Tuple, Type, Union, get_type_hints
 
-from pydantic import BaseModel, fields
+from pydantic import BaseModel, ValidationError, fields
 
 from pait import field
 from pait.app.base import BaseAppHelper
-from pait.exceptions import NotFoundFieldError, NotFoundValueError, PaitBaseException
+from pait.exceptions import NotFoundFieldError, PaitBaseException
 from pait.field import BaseField
 from pait.model import PaitBaseModel
 from pait.util import FuncSig, create_pydantic_model, get_func_sig, get_parameter_list_from_class
@@ -23,9 +23,9 @@ def raise_and_tip(_object: Any, exception: "Exception", parameter: Optional[insp
 
         parameter_value_name: str = param_value.__class__.__name__
         if param_value is parameter.empty:
-            param_str: str = f"{param_name}: {annotation.__name__}"
+            param_str: str = f"{param_name}: {annotation}"
         else:
-            param_str = f"{param_name}: {annotation.__name__} = {parameter_value_name}"
+            param_str = f"{param_name}: {annotation} = {parameter_value_name}"
             if isinstance(param_value, BaseField):
                 param_str += f"(alias={param_value.alias}, default={param_value.default})"
     else:
@@ -66,7 +66,7 @@ def parameter_2_basemodel(parameter_value_dict: Dict["inspect.Parameter", Any]) 
     annotation_dict: Dict[str, Tuple[Type, Any]] = {}
     param_value_dict: Dict[str, Any] = {}
     for parameter, value in parameter_value_dict.items():
-        annotation_dict[parameter.name] = (parameter.annotation, ...)
+        annotation_dict[parameter.name] = (parameter.annotation, parameter.default)
         param_value_dict[parameter.name] = value
 
     dynamic_model: Type[BaseModel] = create_pydantic_model(annotation_dict)
@@ -182,15 +182,7 @@ def request_value_handle(
                 if param_value.default != fields.Undefined:
                     value = param_value.default
                 else:
-                    parameter_value_name: str = param_value.__class__.__name__
-                    param_str: str = (
-                        f"{param_name}: {annotation} = {parameter_value_name}("
-                        f"alias={param_value.alias}, default={param_value.default})"
-                    )
-                    raise NotFoundValueError(
-                        f"kwargs param:{param_str} not found in {request_value},"
-                        f" try use {parameter_value_name}(alias={{alias}})"
-                    )
+                    value = fields.Undefined
             parameter_value_dict[parameter] = value
     else:
         parameter_value_dict[parameter] = request_value
@@ -228,7 +220,7 @@ def param_handle(
         try:
             kwargs_param_dict.update(parameter_2_basemodel(single_field_dict).dict())
         except Exception as e:
-            raise_and_tip(_object, e)
+            raise ValidationError from raise_and_tip(_object, e)
     return args_param_list, kwargs_param_dict
 
 
