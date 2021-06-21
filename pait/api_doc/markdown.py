@@ -1,6 +1,6 @@
 import json
 from types import CodeType
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from pydantic.fields import Undefined
 
@@ -8,10 +8,12 @@ from pait.model import PaitCoreModel, PaitStatus
 
 from .base_parse import PaitBaseParse  # type: ignore
 
-json_type_default_value_dict: Dict[str, Any] = {
+_json_type_default_value_dict: Dict[str, Any] = {
     "null": None,
     "bool": True,
+    "boolean": True,
     "string": "",
+    "number": 0,
     "float": 0.0,
     "integer": 0,
     "object": {},
@@ -25,16 +27,20 @@ class PaitMd(PaitBaseParse):
         pait_dict: Dict[str, PaitCoreModel],
         title: str = "Pait Doc",
         use_html_details: bool = True,
+        json_type_default_value_dict: Optional[Dict[str, Any]] = None
     ):
         self._use_html_details: bool = use_html_details  # some not support markdown in html
         self._title: str = title
+        self._json_type_default_value_dict: Dict[str, Any] = _json_type_default_value_dict.copy()
+        if json_type_default_value_dict:
+            self._json_type_default_value_dict.update(json_type_default_value_dict)
+
         super().__init__(pait_dict)
 
         self.content = self.gen_markdown_text()
         self._content_type = ".md"
 
-    @staticmethod
-    def gen_example_json(field_dict_list: List[dict], blank_num: int, indent: int = 2) -> str:
+    def gen_example_json(self, field_dict_list: List[dict], blank_num: int, indent: int = 2) -> str:
         """
         gen example json by field dict list
         :param field_dict_list:
@@ -62,7 +68,7 @@ class PaitMd(PaitBaseParse):
                     if sub_key not in sub_dict:
                         sub_dict[sub_key] = {}
                     sub_dict = sub_dict[sub_key]
-            sub_dict[key] = json_type_default_value_dict[field_dict["type"]]
+            sub_dict[key] = self._json_type_default_value_dict[field_dict["type"]]
         json_str: str = f"\n".join([blank_num_str + i for i in json.dumps(example_dict, indent=indent).split("\n")])
         return f"{blank_num_str}```json\n{json_str}\n{blank_num_str}```\n\n"
 
