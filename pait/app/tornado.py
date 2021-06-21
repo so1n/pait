@@ -9,9 +9,10 @@ from pait.api_doc.html import get_redoc_html as _get_redoc_html
 from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenApi
 from pait.app.base import BaseAppHelper
+from pait.core import PaitCoreModel
 from pait.core import pait as _pait
 from pait.g import pait_data
-from pait.model import PaitCoreModel, PaitResponseModel, PaitStatus
+from pait.model import PaitResponseModel, PaitStatus
 from pait.util import LazyProperty
 
 

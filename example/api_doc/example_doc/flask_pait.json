@@ -9,7 +9,7 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/flask_example.py",
-            "lineno": 145,
+            "lineno": 143,
             "name": "test_model"
           },
           "path": "/api/pait_model",
@@ -2063,7 +2063,7 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/flask_example.py",
-            "lineno": 174,
+            "lineno": 172,
             "name": "TestCbv.post"
           },
           "path": "/api/cbv",
@@ -2567,7 +2567,7 @@
           "author": "so1n",
           "func": {
             "file": "/home/so1n/github/pait/example/param_verify/flask_example.py",
-            "lineno": 156,
+            "lineno": 154,
             "name": "TestCbv.get"
           },
           "path": "/api/cbv",

@@ -1,12 +1,12 @@
 import inspect
-from typing import Any, Type
+from typing import Any, Dict
 
 import pytest
-from pydantic import BaseModel
 from pytest_mock import MockFixture
 
 from pait import exceptions, field, model, param_handle
 from pait.app.base import BaseAppHelper
+from pait.field import Undefined
 
 pytestmark = pytest.mark.asyncio
 
@@ -54,6 +54,7 @@ class FakeAppHelper(BaseAppHelper):
 
 class AnyStringWith(str):
     def __eq__(self, other: Any) -> bool:
+        print(other)
         return self in other
 
 
@@ -72,7 +73,6 @@ class TestUtil:
         )
         with pytest.raises(Exception):
             param_handle.raise_and_tip(Demo(), Exception(), parameter)
-        patch.assert_called_with(AnyStringWith("b: str"))
         patch.assert_called_with(AnyStringWith("class: `Demo`  attributes error"))
 
     def test_raise_and_tip_param_value_is_pait_field(self, mocker: MockFixture) -> None:
@@ -82,7 +82,7 @@ class TestUtil:
         )
         with pytest.raises(Exception):
             param_handle.raise_and_tip(Demo(), Exception(), parameter)
-        patch.assert_called_with(AnyStringWith("b: str = FakeField(alias"))
+
         patch.assert_called_with(AnyStringWith("class: `Demo`  attributes error"))
 
     def test_raise_and_tip_param_value_is_not_pait_field(self, mocker: MockFixture) -> None:
@@ -193,11 +193,9 @@ class TestUtil:
         parameter: inspect.Parameter = inspect.Parameter(
             "a", inspect.Parameter.POSITIONAL_ONLY, annotation=FakePaitBaseModel, default=field.Query.i()
         )
-        with pytest.raises(exceptions.NotFoundValueError) as e:
-            param_handle.request_value_handle(parameter, {"fake": ""}, None, {}, fake_app_helper)
-
-        exec_msg: str = e.value.args[0]
-        assert exec_msg.startswith("kwargs param")
+        _dict: Dict[inspect.Parameter, Undefined] = {}
+        param_handle.request_value_handle(parameter, {"fake": ""}, None, _dict, fake_app_helper)
+        assert _dict[parameter] == Undefined
 
     def test_request_value_handle_param_value_request_value_is_not_mapping(self) -> None:
         fake_app_helper: FakeAppHelper = FakeAppHelper(None, (), {})

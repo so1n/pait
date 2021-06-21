@@ -1,10 +1,11 @@
+import copy
 import inspect
 from functools import wraps
-from typing import Any, Callable, List, Optional, Tuple, Type
+from typing import Any, Callable, List, Optional, Set, Tuple, Type
 
 from pait.app.base import BaseAppHelper
-from pait.g import pait_data
-from pait.model import PaitCoreModel, PaitResponseModel, PaitStatus
+from pait.g import config, pait_data
+from pait.model import PaitResponseModel, PaitStatus
 from pait.param_handle import async_class_param_handle, async_func_param_handle, class_param_handle, func_param_handle
 from pait.util import FuncSig, get_func_sig
 
@@ -78,3 +79,53 @@ def pait(
             return dispatch
 
     return wrapper
+
+
+class PaitCoreModel(object):
+    def __init__(
+        self,
+        func: Callable,
+        pait_id: str,
+        path: Optional[str] = None,
+        method_set: Optional[Set[str]] = None,
+        operation_id: Optional[str] = None,
+        func_name: Optional[str] = None,
+        author: Optional[Tuple[str, ...]] = None,
+        summary: Optional[str] = None,
+        desc: Optional[str] = None,
+        status: Optional[PaitStatus] = None,
+        group: Optional[str] = None,
+        tag: Optional[Tuple[str, ...]] = None,
+        response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
+    ):
+        self.func: Callable = func  # route func
+        self.pait_id: str = pait_id  # qualname + func hash id
+        self.path: str = path or ""  # request url path
+        self.method_list: List[str] = sorted(list(method_set or set()))  # request method set
+        self.operation_id: Optional[str] = operation_id or None  # route name
+        self.func_name: str = func_name or func.__name__
+        self._author: Optional[Tuple[str, ...]] = author  # The main developer of this func
+        self.summary: str = summary or ""
+        self.desc: str = desc or func.__doc__ or ""  # desc of this func
+        self._status: Optional[PaitStatus] = status  # Interface development progress (life cycle)
+        self.group: str = group or "root"  # Which group this interface belongs to
+        self.tag: Tuple[str, ...] = tag or ("default",)  # Interface tag
+        self._response_model_list: Optional[List[Type[PaitResponseModel]]] = response_model_list
+        self.func_path: str = ""
+
+    @property
+    def author(self) -> Tuple[str, ...]:
+        return self._author or config.author
+
+    @property
+    def status(self) -> PaitStatus:
+        return self._status or config.status
+
+    @property
+    def response_model_list(self) -> List[Type[PaitResponseModel]]:
+        if self._response_model_list:
+            response_model_list: List[Type[PaitResponseModel]] = copy.deepcopy(self._response_model_list)
+        else:
+            response_model_list = []
+        response_model_list.extend(config.default_response_model_list)
+        return response_model_list

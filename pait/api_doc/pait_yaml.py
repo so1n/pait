@@ -2,8 +2,7 @@ from typing import Any, Dict, Optional
 
 import yaml
 
-from pait.model import PaitCoreModel
-
+from ..core import PaitCoreModel
 from .base_parse import PaitBaseParse  # type: ignore
 
 

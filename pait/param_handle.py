@@ -55,6 +55,8 @@ def raise_and_tip(_object: Any, exception: "Exception", parameter: Optional[insp
             file = module.__file__
         line = inspect.getsourcelines(_object.__class__)[1]
         error_object_name = _object.__class__.__name__
+        if "class" in error_object_name:
+            error_object_name = str(_object.__class__)
         logging.debug(f"class: `{error_object_name}`  attributes error\n    {param_str}")
     raise PaitBaseException(
         f'File "{file}",' f" line {line}," f" in {error_object_name}." f" error:{str(exception)}"
@@ -67,7 +69,10 @@ def parameter_2_basemodel(parameter_value_dict: Dict["inspect.Parameter", Any]) 
     param_value_dict: Dict[str, Any] = {}
     for parameter, value in parameter_value_dict.items():
         annotation_dict[parameter.name] = (parameter.annotation, parameter.default)
-        param_value_dict[parameter.name] = value
+        key: str = parameter.name
+        if isinstance(parameter.default, BaseField) and parameter.default.alias:
+            key = parameter.default.alias
+        param_value_dict[key] = value
 
     dynamic_model: Type[BaseModel] = create_pydantic_model(annotation_dict)
     return dynamic_model(**param_value_dict)

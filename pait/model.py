@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union, get_type_hints
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union, get_type_hints
 
 from pydantic import BaseModel
 
@@ -100,36 +100,3 @@ class PaitBaseModel(object):
     @classmethod
     def schema(cls, by_alias: bool = True) -> "DictStrAny":
         return cls.to_pydantic_model().schema(by_alias=by_alias)
-
-
-class PaitCoreModel(object):
-    def __init__(
-        self,
-        func: Callable,
-        pait_id: str,
-        path: Optional[str] = None,
-        method_set: Optional[Set[str]] = None,
-        operation_id: Optional[str] = None,
-        func_name: Optional[str] = None,
-        author: Optional[Tuple[str, ...]] = None,
-        summary: Optional[str] = None,
-        desc: Optional[str] = None,
-        status: Optional[PaitStatus] = None,
-        group: Optional[str] = None,
-        tag: Optional[Tuple[str, ...]] = None,
-        response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
-    ):
-        self.func: Callable = func  # route func
-        self.pait_id: str = pait_id  # qualname + func hash id
-        self.path: str = path or ""  # request url path
-        self.method_list: List[str] = sorted(list(method_set or set()))  # request method set
-        self.operation_id: Optional[str] = operation_id or None  # route name
-        self.func_name: str = func_name or func.__name__
-        self.author: Tuple[str, ...] = author or ("",)  # The main developer of this func
-        self.summary: str = summary or ""
-        self.desc: str = desc or func.__doc__ or ""  # desc of this func
-        self.status: PaitStatus = status or PaitStatus.undefined  # Interface development progress (life cycle)
-        self.group: str = group or "root"  # Which group this interface belongs to
-        self.tag: Tuple[str, ...] = tag or ("default",)  # Interface tag
-        self.response_model_list: Optional[List[Type[PaitResponseModel]]] = response_model_list
-        self.func_path: str = ""

@@ -4,8 +4,9 @@ from typing import Any, Dict, List, Optional
 
 from pydantic.fields import Undefined
 
-from pait.model import PaitCoreModel, PaitStatus
+from pait.model import PaitStatus
 
+from ..core import PaitCoreModel
 from .base_parse import PaitBaseParse  # type: ignore
 
 _json_type_default_value_dict: Dict[str, Any] = {
@@ -27,7 +28,7 @@ class PaitMd(PaitBaseParse):
         pait_dict: Dict[str, PaitCoreModel],
         title: str = "Pait Doc",
         use_html_details: bool = True,
-        json_type_default_value_dict: Optional[Dict[str, Any]] = None
+        json_type_default_value_dict: Optional[Dict[str, Any]] = None,
     ):
         self._use_html_details: bool = use_html_details  # some not support markdown in html
         self._title: str = title

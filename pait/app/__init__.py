@@ -1,8 +1,9 @@
 from importlib import import_module
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
-from pait.model import PaitCoreModel, PaitResponseModel, PaitStatus
+from pait.model import PaitResponseModel, PaitStatus
 
+from ..core import PaitCoreModel
 from .auto_load_app import auto_load_app_class  # type: ignore
 
 

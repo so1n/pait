@@ -4,7 +4,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/flask_example.py
-        lineno: 145
+        lineno: 143
         name: test_model
       method:
       - POST
@@ -522,7 +522,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/flask_example.py
-        lineno: 174
+        lineno: 172
         name: TestCbv.post
       method:
       - post
@@ -628,7 +628,7 @@ group:
     - author: so1n
       func:
         file: /home/so1n/github/pait/example/param_verify/flask_example.py
-        lineno: 156
+        lineno: 154
         name: TestCbv.get
       method:
       - get

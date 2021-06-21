@@ -6,7 +6,7 @@ from pait.api_doc.open_api import PaitOpenApi
 from pait.api_doc.pait_json import PaitJson
 from pait.api_doc.pait_yaml import PaitYaml
 from pait.app import load_app
-from pait.model import PaitCoreModel
+from pait.core import PaitCoreModel
 
 if __name__ == "__main__":
     filename: str = "./example_doc/starlette"

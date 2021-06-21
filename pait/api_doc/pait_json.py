@@ -1,8 +1,7 @@
 import json
 from typing import Any, Dict, Optional
 
-from pait.model import PaitCoreModel
-
+from ..core import PaitCoreModel
 from .base_parse import PaitBaseParse  # type: ignore
 
 

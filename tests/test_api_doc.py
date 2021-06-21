@@ -2,8 +2,8 @@ import importlib
 from typing import Dict
 
 from pait.app.auto_load_app import app_list
+from pait.core import PaitCoreModel
 from pait.g import pait_data
-from pait.model import PaitCoreModel
 
 
 class TestApiDoc:
