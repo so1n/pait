@@ -5,7 +5,8 @@ from typing import List, Optional, Tuple, Type
 from pydantic import BaseModel, Field
 
 from pait.field import Body, Depends, Header, Query
-from pait.model import PaitBaseModel, PaitResponseModel
+from pait.model.base_model import PaitBaseModel
+from pait.model.response import PaitResponseModel
 
 
 class TestPaitModel(PaitBaseModel):

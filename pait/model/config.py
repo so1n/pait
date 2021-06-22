@@ -1,6 +1,7 @@
 from typing import List, Tuple, Type
 
-from pait.model import PaitResponseModel, PaitStatus
+from pait.model.response import PaitResponseModel
+from pait.model.status import PaitStatus
 
 
 class Config(object):

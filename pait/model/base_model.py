@@ -1,6 +1,4 @@
-from dataclasses import dataclass, field
-from enum import Enum
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union, get_type_hints
+from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple, Type, Union, get_type_hints
 
 from pydantic import BaseModel
 
@@ -8,47 +6,6 @@ from pait.util import create_pydantic_model
 
 if TYPE_CHECKING:
     from pydantic.typing import AbstractSetIntStr, DictStrAny, MappingIntStrAny
-
-
-class PaitStatus(Enum):
-    """Interface life cycle"""
-
-    undefined = "undefined"
-    # The interface is under development and will frequently change
-    design = "design"
-    dev = "dev"
-
-    # The interface has been completed, but there may be some bugs
-    integration = "integration"
-    complete = "complete"
-    test = "test"
-
-    # The interface is online
-    pre_release = "pre_release"
-    release = "release"
-
-    # The interface has been online, but needs to be offline for some reasons
-    abnormal = "abnormal"
-    maintenance = "maintenance"
-    archive = "archive"
-    abandoned = "abandoned"
-
-
-@dataclass()
-class PaitResponseModel(object):
-    """response model"""
-
-    description: Optional[str] = ""
-    header: dict = field(default_factory=dict)
-    media_type: str = "application/json"
-    response_data: Optional[Type[BaseModel]] = None
-    status_code: List[int] = field(default_factory=lambda: [200])
-
-    name: Optional[str] = None
-
-    def __post_init__(self) -> None:
-        if not self.name:
-            self.name = self.__class__.__name__
 
 
 class PaitBaseModel(object):

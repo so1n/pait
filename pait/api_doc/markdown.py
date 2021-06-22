@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic.fields import Undefined
 
-from pait.model import PaitStatus
+from pait.model.status import PaitStatus
 
 from ..core import PaitCoreModel
 from .base_parse import PaitBaseParse  # type: ignore

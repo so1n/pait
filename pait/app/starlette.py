@@ -17,7 +17,8 @@ from pait.app.base import BaseAppHelper
 from pait.core import PaitCoreModel
 from pait.core import pait as _pait
 from pait.g import pait_data
-from pait.model import PaitResponseModel, PaitStatus
+from pait.model.status import PaitStatus
+from pait.model.response import PaitResponseModel
 from pait.util import LazyProperty
 
 

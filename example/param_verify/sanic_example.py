@@ -21,7 +21,7 @@ from example.param_verify.model import (
 from pait.app.sanic import add_doc_route, pait
 from pait.exceptions import PaitBaseException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
-from pait.model import PaitStatus
+from pait.model.status import PaitStatus
 
 
 async def api_exception(request: Request, exc: Exception) -> response.HTTPResponse:

@@ -10,7 +10,7 @@ from pait import field
 from pait.app.base import BaseAppHelper
 from pait.exceptions import NotFoundFieldError, PaitBaseException
 from pait.field import BaseField
-from pait.model import PaitBaseModel
+from pait.model.base_model import PaitBaseModel
 from pait.util import FuncSig, create_pydantic_model, get_func_sig, get_parameter_list_from_class
 
 

@@ -298,20 +298,21 @@ async def demo_post(
 ## 2.文档
 
 `pait`会自动捕获路由函数的请求参数和url,method等信息, 此外还支持标注一些相关信息, 这些标注只会在Python程序开始运行时加载到内存中, 不会对请求性能造成影响, 如下面的例子:
+
 ```Python
 from example.param_verify.model import FailRespModel, UserSuccessRespModel
 from pait.app.starlette import pait
-from pait.model import PaitStatus
+from pait.model.status import PaitStatus
 
 
 @pait(
-    author=("so1n",),
-    group="user",
-    status=PaitStatus.release,
-    tag=("user", "post"),
-    response_model_list=[UserSuccessRespModel, FailRespModel],
+  author=("so1n",),
+  group="user",
+  status=PaitStatus.release,
+  tag=("user", "post"),
+  response_model_list=[UserSuccessRespModel, FailRespModel],
 )
-def demo() -> None: 
+def demo() -> None:
   pass
 ```
 参数:

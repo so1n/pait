@@ -19,7 +19,7 @@ from example.param_verify.model import (
 )
 from pait.app.tornado import add_doc_route, pait
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
-from pait.model import PaitStatus
+from pait.model.status import PaitStatus
 
 
 class MyHandler(RequestHandler):

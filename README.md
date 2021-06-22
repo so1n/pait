@@ -124,13 +124,13 @@ Here is just a simple demo, because we write the model can be reused, so you can
 
 ### 1.2.Parameter expression supported by pait
 pait in order to facilitate the use of users, support a variety of writing methods (mainly the difference between TypeHints)
-- TypeHints  is PaitBaseModel, mainly used for parameters from multiple `Field`, and want to reuse model:
+- TypeHints is PaitBaseModel, mainly used for parameters from multiple `Field`, and want to reuse model:
   
     PaitBaseModel can be used only for args parameters, it is the most flexible, PaitBaseModel has most of the features of Pydantic. BaseModel, which is not possible with Pydantic.:
     ```Python
     from pait.app.starlette import pait
     from pait.field import Body, Header
-    from pait.model import PaitBaseModel
+    from pait.model.base_model import PaitBaseModel
 
 
     class TestModel(PaitBaseModel):
@@ -304,21 +304,22 @@ async def demo_post(
 
 `pait` will automatically capture the request parameters and url, method and other information of the routing function.
 In addition, it also supports labeling some relevant information. These labels will only be loaded into the memory when the Python program starts running, and will not affect the performance of the request, as in the following example:
+
 ```Python
 from pait.app.starlette import pait
-from pait.model import PaitStatus
+from pait.model.status import PaitStatus
 
 from example.param_verify.model import UserSuccessRespModel, FailRespModel
 
 
 @pait(
-    author=("so1n",),
-    group="user",
-    status=PaitStatus.release,
-    tag=("user", "post"),
-    response_model_list=[UserSuccessRespModel, FailRespModel],
+  author=("so1n",),
+  group="user",
+  status=PaitStatus.release,
+  tag=("user", "post"),
+  response_model_list=[UserSuccessRespModel, FailRespModel],
 )
-def demo() -> None: 
+def demo() -> None:
   pass
 ```
 Param:

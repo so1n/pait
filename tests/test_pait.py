@@ -1,6 +1,7 @@
 import pytest
 
-from pait import field, model
+from pait import field
+from pait.model.base_model import PaitBaseModel
 
 
 class TestField:
@@ -18,7 +19,7 @@ class TestField:
 
 class TestPaitBaseModel:
     def test_pait_base_model(self) -> None:
-        class Demo(model.PaitBaseModel):
+        class Demo(PaitBaseModel):
             a: int
             b: str
 
