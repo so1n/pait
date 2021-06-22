@@ -6,7 +6,7 @@ from pydantic.fields import Undefined
 
 from pait.model.status import PaitStatus
 
-from ..core import PaitCoreModel
+from pait.core import PaitCoreModel
 from .base_parse import PaitBaseParse  # type: ignore
 
 _json_type_default_value_dict: Dict[str, Any] = {
@@ -40,38 +40,6 @@ class PaitMd(PaitBaseParse):
 
         self.content = self.gen_markdown_text()
         self._content_type = ".md"
-
-    def gen_example_json(self, field_dict_list: List[dict], blank_num: int, indent: int = 2) -> str:
-        """
-        gen example json by field dict list
-        :param field_dict_list:
-        :param blank_num: Indent the first character of each line of json
-        :param indent: json indent
-        :return:
-        blank_num: -> .
-        indent: -> `
-        ....{
-        ....``"code": 0,
-        ....``"msg": "msg,
-        ....}
-        """
-        blank_num_str: str = " " * blank_num
-        example_dict: dict = {}
-        for field_dict in field_dict_list:
-            sub_dict: dict = example_dict
-            key: str = field_dict["param_name"]
-            if "." in key:
-                key_list: List[str] = key.split(".")
-                for sub_key in key_list:
-                    key = sub_key
-                    if sub_key == key_list[-1]:
-                        continue
-                    if sub_key not in sub_dict:
-                        sub_dict[sub_key] = {}
-                    sub_dict = sub_dict[sub_key]
-            sub_dict[key] = self._json_type_default_value_dict[field_dict["type"]]
-        json_str: str = f"\n".join([blank_num_str + i for i in json.dumps(example_dict, indent=indent).split("\n")])
-        return f"{blank_num_str}```json\n{json_str}\n{blank_num_str}```\n\n"
 
     @staticmethod
     def gen_md_param_table(field_dict_list: List[dict], blank_num: int = 8) -> str:
@@ -178,8 +146,37 @@ class PaitMd(PaitBaseParse):
                             field_dict_list = self._parse_schema(resp_model.response_data.schema())
                             markdown_text += self.gen_md_param_table(field_dict_list, blank_num=12)
                             markdown_text += f"{' ' * 8}- Example Response Json Data\n\n"
-                            markdown_text += self.gen_example_json(field_dict_list, blank_num=12)
+
+                            example_dict = self.gen_example_json_from_schema(resp_model.response_data.schema())
+                            blank_num_str: str = " " * 12
+                            json_str: str = f"\n".join(
+                                [blank_num_str + i for i in json.dumps(example_dict, indent=2).split("\n")]
+                            )
+                            markdown_text += f"{blank_num_str}```json\n{json_str}\n{blank_num_str}```\n\n"
                 markdown_text += "\n"
             if self._use_html_details:
                 markdown_text += "</details>"
         return markdown_text
+
+    def gen_example_json_from_schema(
+            self, schema_dict: Dict[str, Any], definition_dict: Optional[dict] = None
+    ) -> Dict[str, Any]:
+        gen_dict: Dict[str, Any] = {}
+        property_dict: Dict[str, Any] = schema_dict["properties"]
+        if not definition_dict:
+            definition_dict = schema_dict.get("definitions", {})
+        for key, value in property_dict.items():
+            if "items" in value and value["type"] == "array":
+                if "$ref" in value["items"]:
+                    model_key: str = value["items"]["$ref"].split("/")[-1]
+                    gen_dict[key] = [
+                        self.gen_example_json_from_schema(definition_dict.get(model_key, {}), definition_dict)
+                    ]
+                else:
+                    gen_dict[key] = []
+            elif "$ref" in value:
+                model_key = value["$ref"].split("/")[-1]
+                gen_dict[key] = self.gen_example_json_from_schema(definition_dict.get(model_key, {}), definition_dict)
+            else:
+                gen_dict[key] = self._json_type_default_value_dict[value["type"]]
+        return gen_dict

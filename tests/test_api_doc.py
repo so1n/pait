@@ -3,7 +3,6 @@ from typing import Dict
 
 from pait.app.auto_load_app import app_list
 from pait.core import PaitCoreModel
-from pait.g import pait_data
 
 
 class TestApiDoc:
@@ -15,8 +14,6 @@ class TestApiDoc:
             pait_dict: Dict[str, PaitCoreModel] = module.load_app(module.create_app(), project_name="")  # type: ignore
 
             module.PaitMd(pait_dict, use_html_details=True)  # type: ignore
-            module.PaitJson(pait_dict, indent=2)  # type: ignore
-            module.PaitYaml(pait_dict)  # type: ignore
             for i in ("json", "yaml"):
                 module.PaitOpenApi(  # type: ignore
                     pait_dict,

@@ -54,12 +54,14 @@
             {
               "code": 0,
               "msg": "",
-              "data": {
-                "uid": 0,
-                "user_name": "",
-                "age": 0,
-                "content_type": ""
-              }
+              "data": [
+                {
+                  "uid": 0,
+                  "user_name": "",
+                  "age": 0,
+                  "content_type": ""
+                }
+              ]
             }
             ```
 
@@ -133,12 +135,14 @@
             {
               "code": 0,
               "msg": "",
-              "data": {
-                "uid": 0,
-                "user_name": "",
-                "age": 0,
-                "content_type": ""
-              }
+              "data": [
+                {
+                  "uid": 0,
+                  "user_name": "",
+                  "age": 0,
+                  "content_type": ""
+                }
+              ]
             }
             ```
 
@@ -250,12 +254,14 @@
             {
               "code": 0,
               "msg": "",
-              "data": {
-                "uid": 0,
-                "user_name": "",
-                "age": 0,
-                "content_type": ""
-              }
+              "data": [
+                {
+                  "uid": 0,
+                  "user_name": "",
+                  "age": 0,
+                  "content_type": ""
+                }
+              ]
             }
             ```
 
@@ -329,12 +335,14 @@
             {
               "code": 0,
               "msg": "",
-              "data": {
-                "uid": 0,
-                "user_name": "",
-                "age": 0,
-                "content_type": ""
-              }
+              "data": [
+                {
+                  "uid": 0,
+                  "user_name": "",
+                  "age": 0,
+                  "content_type": ""
+                }
+              ]
             }
             ```
 
@@ -408,12 +416,14 @@
             {
               "code": 0,
               "msg": "",
-              "data": {
-                "uid": 0,
-                "user_name": "",
-                "age": 0,
-                "content_type": ""
-              }
+              "data": [
+                {
+                  "uid": 0,
+                  "user_name": "",
+                  "age": 0,
+                  "content_type": ""
+                }
+              ]
             }
             ```
 

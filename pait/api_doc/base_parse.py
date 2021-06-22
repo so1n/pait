@@ -266,54 +266,6 @@ class PaitBaseParse(object):
             self._parse_base_model_to_field_dict(field_dict, _pydantic_model, _pait_field_dict)
         return field_dict
 
-    def gen_dict(self) -> Dict[str, Any]:
-        """gen pait api dict"""
-        api_doc_dict: Dict[str, Any] = {"group": {}}
-        for group in self._group_list:
-            group_dict: Dict[str, Any] = {"name": group, "group_list": []}
-            api_doc_dict["group"][group] = group_dict
-            for pait_model in self._group_pait_dict[group]:
-                func_code: CodeType = pait_model.func.__code__
-                response_list: List[Dict[str, Any]] = []
-                if pait_model.response_model_list:
-                    for resp_model_class in pait_model.response_model_list:
-                        resp_model: PaitResponseModel = resp_model_class()
-                        if resp_model.response_data:
-                            schema_dict: dict = resp_model.response_data.schema()
-                        else:
-                            schema_dict = {}
-                        response_list.append(
-                            {
-                                "status_code": ",".join([str(i) for i in resp_model.status_code]),
-                                "media_type": resp_model.media_type,
-                                "description": resp_model.description,
-                                "header": resp_model.header,
-                                "response_data": self._parse_schema(schema_dict),
-                            }
-                        )
-                field_dict: Dict[str, List[Dict[str, Any]]] = self._parse_func_param_to_field_dict(pait_model.func)
-                for field_name, field_dict_list in field_dict.items():
-                    for field_dict in field_dict_list:
-                        del field_dict["raw"]
-
-                group_dict["group_list"].append(
-                    {
-                        "name": pait_model.operation_id,
-                        "status": pait_model.status.value,
-                        "author": ",".join(pait_model.author),
-                        "func": {
-                            "file": func_code.co_filename,
-                            "lineno": func_code.co_firstlineno,
-                            "name": pait_model.func.__qualname__,
-                        },
-                        "path": pait_model.path,
-                        "method": pait_model.method_list,
-                        "request": field_dict,
-                        "response_list": response_list,
-                    }
-                )
-        return api_doc_dict
-
     def output(self, filename: Optional[str], suffix: str = "") -> None:
         if not suffix:
             suffix = self._content_type

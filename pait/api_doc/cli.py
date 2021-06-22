@@ -5,14 +5,12 @@ from typing import Dict, List, Optional
 
 from pait.api_doc.markdown import PaitMd
 from pait.api_doc.open_api import PaitOpenApi
-from pait.api_doc.pait_json import PaitJson
-from pait.api_doc.pait_yaml import PaitYaml
 from pait.app import load_app
 from pait.core import PaitCoreModel
 
 
 def main() -> None:
-    output_type_list: List[str] = ["md", "json", "yaml", "openapi_json", "openapi_yaml"]
+    output_type_list: List[str] = ["md", "openapi_json", "openapi_yaml"]
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "app",
@@ -47,10 +45,6 @@ def main() -> None:
     for type_ in input_output_type_list:
         if type_ == "md":
             PaitMd(pait_dict, title=title, use_html_details=use_html_details).output(filename)
-        elif type_ == "json":
-            PaitJson(pait_dict, title=title, indent=indent).output(filename)
-        elif type_ == "yaml":
-            PaitYaml(pait_dict, title=title).output(filename)
         elif type_ == "openapi_json":
             PaitOpenApi(pait_dict, title=title, type_="json").output(filename)
         elif type_ == "openapi_yaml":
