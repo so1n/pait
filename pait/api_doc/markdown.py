@@ -1,9 +1,11 @@
+import inspect
 import json
 from types import CodeType
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 from pydantic.fields import Undefined
 
+from pait import field
 from pait.core import PaitCoreModel
 from pait.model.status import PaitStatus
 
@@ -37,6 +39,12 @@ class PaitMd(PaitBaseParse):
             self._json_type_default_value_dict.update(json_type_default_value_dict)
 
         super().__init__(pait_dict)
+
+        self._field_name_set: Set[str] = set()
+        for field_class_name in dir(field):
+            class_: type = getattr(field, field_class_name, None)
+            if inspect.isclass(class_) and issubclass(class_, field.BaseField) and class_ != field.BaseField:
+                self._field_name_set.add(field_class_name.lower())
 
         self.content = self.gen_markdown_text()
         self._content_type = ".md"
@@ -120,6 +128,8 @@ class PaitMd(PaitBaseParse):
                 # request body info
                 field_key_list: List[str] = sorted(field_dict.keys())
                 for field in field_key_list:
+                    if field.lower() not in self._field_name_set:
+                        continue
                     field_dict_list = field_dict[field]
                     markdown_text += f"{' ' * 4}- {field.capitalize()} Param\n\n"
                     markdown_text += self.gen_md_param_table(field_dict_list)
