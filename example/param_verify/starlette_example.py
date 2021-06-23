@@ -58,10 +58,12 @@ async def test_raise_tip(
 async def test_post(
     model: UserModel = Body.i(),
     other_model: UserOtherModel = Body.i(),
+    sex: SexEnum = Body.i(description="sex"),
     content_type: str = Header.i(alias="Content-Type", description="content-type"),
 ) -> JSONResponse:
     """Test Method:Post Pydantic Model"""
     return_dict = model.dict()
+    return_dict["sex"] = sex.value
     return_dict.update(other_model.dict())
     return_dict.update({"content_type": content_type})
     return JSONResponse({"code": 0, "msg": "", "data": return_dict})

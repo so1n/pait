@@ -164,19 +164,21 @@ class PaitMd(PaitBaseParse):
         gen_dict: Dict[str, Any] = {}
         property_dict: Dict[str, Any] = schema_dict["properties"]
         if not definition_dict:
-            definition_dict = schema_dict.get("definitions", {})
+            _definition_dict: dict = schema_dict.get("definitions", {})
+        else:
+            _definition_dict = definition_dict
         for key, value in property_dict.items():
             if "items" in value and value["type"] == "array":
                 if "$ref" in value["items"]:
                     model_key: str = value["items"]["$ref"].split("/")[-1]
                     gen_dict[key] = [
-                        self.gen_example_json_from_schema(definition_dict.get(model_key, {}), definition_dict)
+                        self.gen_example_json_from_schema(_definition_dict.get(model_key, {}), _definition_dict)
                     ]
                 else:
                     gen_dict[key] = []
             elif "$ref" in value:
                 model_key = value["$ref"].split("/")[-1]
-                gen_dict[key] = self.gen_example_json_from_schema(definition_dict.get(model_key, {}), definition_dict)
+                gen_dict[key] = self.gen_example_json_from_schema(_definition_dict.get(model_key, {}), _definition_dict)
             else:
                 gen_dict[key] = self._json_type_default_value_dict[value["type"]]
         return gen_dict

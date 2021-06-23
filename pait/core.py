@@ -103,8 +103,8 @@ class PaitCoreModel(object):
         self.pait_id: str = pait_id  # qualname + func hash id
         self.path: str = path or ""  # request url path
         self.method_list: List[str] = sorted(list(method_set or set()))  # request method set
-        self.operation_id: Optional[str] = operation_id or None  # route name
         self.func_name: str = func_name or func.__name__
+        self.operation_id: str = operation_id or self.func_name  # route name
         self._author: Optional[Tuple[str, ...]] = author  # The main developer of this func
         self.summary: str = summary or ""
         self.desc: str = desc or func.__doc__ or ""  # desc of this func

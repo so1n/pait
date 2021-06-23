@@ -41,12 +41,14 @@ class LazyProperty:
         return wrapper
 
 
-def create_pydantic_model(annotation_dict: Dict[str, Tuple[Type, Any]]) -> Type[BaseModel]:
+def create_pydantic_model(
+        annotation_dict: Dict[str, Tuple[Type, Any]], class_name: str = "DynamicModel"
+) -> Type[BaseModel]:
     """pydantic create_model helper
     if use create_model('DynamicModel', **annotation_dict), mypy will tip error
     """
     return create_model(
-        "DynamicModel",
+        class_name,
         __config__=None,
         __base__=None,
         __module__="pydantic.main",

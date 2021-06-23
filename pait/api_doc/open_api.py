@@ -103,7 +103,7 @@ class PaitOpenApi(PaitBaseParse):
             # "security": {},
             # "externalDocs": {}
         }
-        self.parse_data_2_openapi(self.open_api_dict)
+        self.parse_data_2_openapi()
         if type_ == "json":
             self.content = json.dumps(self.open_api_dict)
             self._content_type = ".json"
@@ -111,9 +111,10 @@ class PaitOpenApi(PaitBaseParse):
             self.content = yaml.dump(self.open_api_dict, sort_keys=False)
             self._content_type = ".yaml"
 
-    def replace_pydantic_definitions(
-        self, schema: dict, path: str, open_api_dict: Dict[str, Any], parent_schema: Optional[dict] = None
+    def _replace_pydantic_definitions(
+        self, schema: dict, path: str, parent_schema: Optional[dict] = None
     ) -> None:
+        """update schemas'definitions to components schemas"""
         if not parent_schema:
             parent_schema = schema
         for key, value in schema.items():
@@ -121,34 +122,54 @@ class PaitOpenApi(PaitBaseParse):
                 index: int = value.rfind("/") + 1
                 model_key: str = value[index:]
                 schema[key] = f"#/components/schemas/{model_key}"
-                open_api_dict["components"]["schemas"][model_key] = parent_schema["definitions"][model_key]
-            if type(value) is dict:
-                self.replace_pydantic_definitions(value, path, open_api_dict, parent_schema)
+                self.open_api_dict["components"]["schemas"][model_key] = parent_schema["definitions"][model_key]
+            elif isinstance(value, dict):
+                self._replace_pydantic_definitions(value, path, parent_schema)
+            elif isinstance(value, list):
+                for item in value:
+                    if isinstance(item, dict):
+                        self._replace_pydantic_definitions(item, path, parent_schema)
 
     @staticmethod
-    def field_2_request_body(media_type: str, method_dict: dict, field_dict_list: List[dict]) -> None:
-        openapi_request_body_dict: dict = method_dict.setdefault("requestBody", {"content": {}})
+    def _snake_name_to_hump_name(name: str) -> str:
+        return "".join([item.upper() for item in name.split("_")])
 
+    def _field_list_2_request_body(
+        self, media_type: str, openapi_method_dict: dict, field_dict_list: List[dict], operation_id: str
+    ) -> None:
+        """gen request body schema and update request body schemas'definitions to components schemas"""
+        openapi_request_body_dict: dict = openapi_method_dict.setdefault(
+            "requestBody", {"content": {}}
+        )
         annotation_dict: Dict[str, Tuple[Type, Any]] = {
-            field_dict["raw"]["param_name"]: (field_dict["raw"]["annotation"], field_dict["raw"]["field"])
+            field_dict["raw"]["param_name"]: (
+                field_dict["raw"]["annotation"], field_dict["raw"]["field"]
+            )
             for field_dict in field_dict_list
         }
-        _pydantic_model: Type[BaseModel] = create_pydantic_model(annotation_dict)
-        openapi_request_body_dict["content"].update({media_type: {"schema": _pydantic_model.schema()}})
+        _pydantic_model: Type[BaseModel] = create_pydantic_model(
+            annotation_dict, class_name=f"{self._snake_name_to_hump_name(operation_id)}DynamicModel"
+        )
+        schema_dict = copy.deepcopy(_pydantic_model.schema())
+        path = f"#/components/schemas/{schema_dict['title']}"
+        self._replace_pydantic_definitions(schema_dict, path)
+        if "definitions" in schema_dict:
+            del schema_dict["definitions"]
 
-    def parse_data_2_openapi(self, open_api_dict: Dict[str, Any]) -> None:
+        openapi_request_body_dict["content"].update({media_type: {"schema": schema_dict}})
+
+    def parse_data_2_openapi(self) -> None:
         for group, pait_model_list in self._group_pait_dict.items():
             for pait_model in pait_model_list:
                 path: str = pait_model.path
-                openapi_path_dict: dict = open_api_dict["paths"].setdefault(path, {})
-                method_list: list = pait_model.method_list
-                for method in method_list:
+                openapi_path_dict: dict = self.open_api_dict["paths"].setdefault(path, {})
+                for method in pait_model.method_list:
                     openapi_method_dict: dict = openapi_path_dict.setdefault(method.lower(), {})
                     if pait_model.tag:
                         openapi_method_dict["tags"] = list(pait_model.tag)
                         for tag in pait_model.tag:
-                            if tag not in {tag_dict["name"] for tag_dict in open_api_dict["tags"]}:
-                                open_api_dict["tags"].append(
+                            if tag not in {tag_dict["name"] for tag_dict in self.open_api_dict["tags"]}:
+                                self.open_api_dict["tags"].append(
                                     {
                                         "name": tag,
                                         "description": "",
@@ -194,11 +215,14 @@ class PaitOpenApi(PaitBaseParse):
                                 )
                         elif field == pait_field.Body.__name__.lower():
                             # support args BodyField
-                            self.field_2_request_body("application/json", openapi_method_dict, field_dict_list)
+                            self._field_list_2_request_body(
+                                "application/json", openapi_method_dict, field_dict_list, pait_model.operation_id
+                            )
                         elif field == pait_field.Form.__name__.lower():
                             # support args FormField
-                            self.field_2_request_body(
-                                "application/x-www-form-urlencoded", openapi_method_dict, field_dict_list
+                            self._field_list_2_request_body(
+                                "application/x-www-form-urlencoded", openapi_method_dict, field_dict_list,
+                                pait_model.operation_id
                             )
                         else:
                             # TODO
@@ -215,7 +239,7 @@ class PaitOpenApi(PaitBaseParse):
                             # fix del schema dict
                             schema_dict = copy.deepcopy(schema_dict)
                             path = f"#/components/schemas/{schema_dict['title']}"
-                            self.replace_pydantic_definitions(schema_dict, path, open_api_dict)
+                            self._replace_pydantic_definitions(schema_dict, path)
                             if "definitions" in schema_dict:
                                 del schema_dict["definitions"]
                             for _status_code in resp_model.status_code:
@@ -229,7 +253,7 @@ class PaitOpenApi(PaitBaseParse):
                                     openapi_response_dict[_status_code]["description"] += f"|{resp_model.description}"
                                 else:
                                     openapi_response_dict[_status_code] = {"description": resp_model.description}
-                                open_api_dict["components"]["schemas"].update({schema_dict["title"]: schema_dict})
+                                self.open_api_dict["components"]["schemas"].update({schema_dict["title"]: schema_dict})
                         # mutli response support
                         # only response example see https://swagger.io/docs/specification/describing-responses/   FAQ
                         for key_tuple, path_list in response_schema_dict.items():

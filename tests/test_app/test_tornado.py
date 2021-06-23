@@ -74,7 +74,7 @@ class TestTornado(AsyncHTTPTestCase):
             "/api/post",
             headers={"user-agent": "customer_agent"},
             method="POST",
-            body='{"uid": 123, "user_name": "appl", "age": 2}',
+            body='{"uid": 123, "user_name": "appl", "age": 2, "sex": "man"}',
         )
         resp: dict = json.loads(response.body.decode())
         assert resp["code"] == 0
@@ -83,6 +83,7 @@ class TestTornado(AsyncHTTPTestCase):
             "user_name": "appl",
             "age": 2,
             "content_type": "application/x-www-form-urlencoded",
+            "sex": "man"
         }
 
     def test_pait_model(self) -> None:

@@ -4,10 +4,11 @@ from typing import Any, Dict
 import pytest
 from pytest_mock import MockFixture
 
-from pait import exceptions, field, model, param_handle
+from pait import exceptions, field, param_handle
 from pait.model.base_model import PaitBaseModel
 from pait.app.base import BaseAppHelper
 from pait.field import Undefined
+from pait.util import UndefinedType
 
 pytestmark = pytest.mark.asyncio
 
@@ -194,7 +195,7 @@ class TestUtil:
         parameter: inspect.Parameter = inspect.Parameter(
             "a", inspect.Parameter.POSITIONAL_ONLY, annotation=FakePaitBaseModel, default=field.Query.i()
         )
-        _dict: Dict[inspect.Parameter, Undefined] = {}
+        _dict: Dict[inspect.Parameter, UndefinedType] = {}
         param_handle.request_value_handle(parameter, {"fake": ""}, None, _dict, fake_app_helper)
         assert _dict[parameter] == Undefined
 
