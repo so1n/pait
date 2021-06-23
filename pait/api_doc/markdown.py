@@ -180,5 +180,8 @@ class PaitMd(PaitBaseParse):
                 model_key = value["$ref"].split("/")[-1]
                 gen_dict[key] = self.gen_example_json_from_schema(_definition_dict.get(model_key, {}), _definition_dict)
             else:
-                gen_dict[key] = self._json_type_default_value_dict[value["type"]]
+                if "default" in value:
+                    gen_dict[key] = value["default"]
+                else:
+                    gen_dict[key] = self._json_type_default_value_dict[value["type"]]
         return gen_dict
