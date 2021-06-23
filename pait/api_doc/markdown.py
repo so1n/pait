@@ -4,9 +4,9 @@ from typing import Any, Dict, List, Optional
 
 from pydantic.fields import Undefined
 
+from pait.core import PaitCoreModel
 from pait.model.status import PaitStatus
 
-from pait.core import PaitCoreModel
 from .base_parse import PaitBaseParse  # type: ignore
 
 _json_type_default_value_dict: Dict[str, Any] = {
@@ -159,7 +159,7 @@ class PaitMd(PaitBaseParse):
         return markdown_text
 
     def gen_example_json_from_schema(
-            self, schema_dict: Dict[str, Any], definition_dict: Optional[dict] = None
+        self, schema_dict: Dict[str, Any], definition_dict: Optional[dict] = None
     ) -> Dict[str, Any]:
         gen_dict: Dict[str, Any] = {}
         property_dict: Dict[str, Any] = schema_dict["properties"]

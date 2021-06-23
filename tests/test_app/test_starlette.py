@@ -70,11 +70,15 @@ class TestStarlette:
         resp: dict = client.post(
             "/api/post",
             headers={"user-agent": "customer_agent"},
-            json={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"}
+            json={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
         ).json()
         assert resp["code"] == 0
         assert resp["data"] == {
-            "uid": 123, "user_name": "appl", "age": 2, "content_type": "application/json", "sex": "man"
+            "uid": 123,
+            "user_name": "appl",
+            "age": 2,
+            "content_type": "application/json",
+            "sex": "man",
         }
 
     def test_pait_model(self, client: TestClient) -> None:

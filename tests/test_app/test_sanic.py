@@ -68,7 +68,11 @@ class TestSanic:
         resp: dict = response.json
         assert resp["code"] == 0
         assert resp["data"] == {
-            "uid": 123, "user_name": "appl", "age": 2, "content_type": "application/json", "sex": "man"
+            "uid": 123,
+            "user_name": "appl",
+            "age": 2,
+            "content_type": "application/json",
+            "sex": "man",
         }
 
     def test_pait_model(self, client: SanicTestClient) -> None:

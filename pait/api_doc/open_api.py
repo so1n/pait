@@ -111,9 +111,7 @@ class PaitOpenApi(PaitBaseParse):
             self.content = yaml.dump(self.open_api_dict, sort_keys=False)
             self._content_type = ".yaml"
 
-    def _replace_pydantic_definitions(
-        self, schema: dict, path: str, parent_schema: Optional[dict] = None
-    ) -> None:
+    def _replace_pydantic_definitions(self, schema: dict, path: str, parent_schema: Optional[dict] = None) -> None:
         """update schemas'definitions to components schemas"""
         if not parent_schema:
             parent_schema = schema
@@ -138,13 +136,9 @@ class PaitOpenApi(PaitBaseParse):
         self, media_type: str, openapi_method_dict: dict, field_dict_list: List[dict], operation_id: str
     ) -> None:
         """gen request body schema and update request body schemas'definitions to components schemas"""
-        openapi_request_body_dict: dict = openapi_method_dict.setdefault(
-            "requestBody", {"content": {}}
-        )
+        openapi_request_body_dict: dict = openapi_method_dict.setdefault("requestBody", {"content": {}})
         annotation_dict: Dict[str, Tuple[Type, Any]] = {
-            field_dict["raw"]["param_name"]: (
-                field_dict["raw"]["annotation"], field_dict["raw"]["field"]
-            )
+            field_dict["raw"]["param_name"]: (field_dict["raw"]["annotation"], field_dict["raw"]["field"])
             for field_dict in field_dict_list
         }
         _pydantic_model: Type[BaseModel] = create_pydantic_model(
@@ -221,8 +215,10 @@ class PaitOpenApi(PaitBaseParse):
                         elif field == pait_field.Form.__name__.lower():
                             # support args FormField
                             self._field_list_2_request_body(
-                                "application/x-www-form-urlencoded", openapi_method_dict, field_dict_list,
-                                pait_model.operation_id
+                                "application/x-www-form-urlencoded",
+                                openapi_method_dict,
+                                field_dict_list,
+                                pait_model.operation_id,
                             )
                         else:
                             # TODO

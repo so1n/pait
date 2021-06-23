@@ -83,7 +83,7 @@ class TestTornado(AsyncHTTPTestCase):
             "user_name": "appl",
             "age": 2,
             "content_type": "application/x-www-form-urlencoded",
-            "sex": "man"
+            "sex": "man",
         }
 
     def test_pait_model(self) -> None:

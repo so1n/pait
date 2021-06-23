@@ -1,6 +1,5 @@
 import logging
-from typing import Dict, Set, TYPE_CHECKING
-
+from typing import TYPE_CHECKING, Dict, Set
 
 if TYPE_CHECKING:
     from pait.core import PaitCoreModel

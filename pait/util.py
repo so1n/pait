@@ -42,7 +42,7 @@ class LazyProperty:
 
 
 def create_pydantic_model(
-        annotation_dict: Dict[str, Tuple[Type, Any]], class_name: str = "DynamicModel"
+    annotation_dict: Dict[str, Tuple[Type, Any]], class_name: str = "DynamicModel"
 ) -> Type[BaseModel]:
     """pydantic create_model helper
     if use create_model('DynamicModel', **annotation_dict), mypy will tip error
