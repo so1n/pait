@@ -30,39 +30,34 @@ def pait(
 
     def wrapper(func: Callable) -> Callable:
         func_sig: FuncSig = get_func_sig(func)
-        qualname = func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0]
 
-        pait_id: str = f"{qualname}_{id(func)}"
-        setattr(func, "_pait_id", pait_id)
-        pait_data.register(
-            app_name,
-            PaitCoreModel(
-                author=author,
-                desc=desc,
-                summary=summary,
-                func=func,
-                func_name=name,
-                pait_id=pait_id,
-                status=status,
-                group=group,
-                tag=tag,
-                response_model_list=response_model_list,
-            ),
+        pait_core_model: PaitCoreModel = PaitCoreModel(
+            author=author,
+            app_helper_class=app_helper_class,
+            desc=desc,
+            summary=summary,
+            func=func,
+            func_name=name,
+            status=status,
+            group=group,
+            tag=tag,
+            response_model_list=response_model_list,
         )
+        pait_data.register(app_name, pait_core_model)
 
         if inspect.iscoroutinefunction(func):
 
             @wraps(func)
             async def dispatch(*args: Any, **kwargs: Any) -> Callable:
                 # only use in runtime, support cbv
-                class_ = getattr(inspect.getmodule(func), qualname)
+                class_ = getattr(inspect.getmodule(func), pait_core_model.qualname)
                 # real param handle
                 app_helper: BaseAsyncAppHelper = app_helper_class(class_, args, kwargs)  # type: ignore
                 # auto gen param from request
                 func_args, func_kwargs = await async_func_param_handle(app_helper, func_sig)
                 # support sbv
                 await async_class_param_handle(app_helper)
-                return await func(*func_args, **func_kwargs)
+                return await pait_core_model.func(*func_args, **func_kwargs)
 
             return dispatch
         else:
@@ -70,14 +65,14 @@ def pait(
             @wraps(func)
             def dispatch(*args: Any, **kwargs: Any) -> Callable:
                 # only use in runtime
-                class_ = getattr(inspect.getmodule(func), qualname)
+                class_ = getattr(inspect.getmodule(func), pait_core_model.qualname)
                 # real param handle
                 app_helper: BaseSyncAppHelper = app_helper_class(class_, args, kwargs)  # type: ignore
                 # auto gen param from request
                 func_args, func_kwargs = func_param_handle(app_helper, func_sig)
                 # support sbv
                 class_param_handle(app_helper)
-                return func(*func_args, **func_kwargs)
+                return pait_core_model.func(*func_args, **func_kwargs)
 
             return dispatch
 

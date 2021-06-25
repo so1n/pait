@@ -33,7 +33,7 @@ class PaitData(object):
             else:
                 model.func_path = model.func.__code__.co_filename
         else:
-            logging.warning(f"loan path:{path} fail, pait id:{pait_id}")
+            logging.warning(f"load path:{path} fail, pait id:{pait_id}")
 
     def __bool__(self) -> bool:
         return bool(self.pait_id_dict)

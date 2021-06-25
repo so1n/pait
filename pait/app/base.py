@@ -1,6 +1,8 @@
 import logging
 from typing import Any, List, Mapping, Optional, Tuple, Type
 
+from pait.model.response import PaitResponseModel
+
 
 class BaseAppHelper(object):
     """Provide a unified framework call interface for pait"""
@@ -16,7 +18,7 @@ class BaseAppHelper(object):
         Extract the required data from the passed parameters,
         such as the self parameter in cvb mode, the request parameter in starletter
         """
-        self.cbv_class: Optional[Type] = None
+        self.cbv_class: Any = None
 
         request = None
         new_args: List[Any] = []
@@ -76,3 +78,7 @@ class BaseAppHelper(object):
 
     def check_header_type(self, value: Any) -> bool:
         return value is self.HeaderType
+
+    @staticmethod
+    def make_mock_response(pait_response: Type[PaitResponseModel]) -> Any:
+        raise NotImplementedError

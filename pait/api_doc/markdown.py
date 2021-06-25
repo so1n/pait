@@ -7,21 +7,10 @@ from pydantic.fields import Undefined
 
 from pait import field
 from pait.model.status import PaitStatus
+from pait.util import gen_example_json_from_schema
 
 from ..model.core import PaitCoreModel
 from .base_parse import PaitBaseParse  # type: ignore
-
-_json_type_default_value_dict: Dict[str, Any] = {
-    "null": None,
-    "bool": True,
-    "boolean": True,
-    "string": "",
-    "number": 0.0,
-    "float": 0.0,
-    "integer": 0,
-    "object": {},
-    "array": [],
-}
 
 
 class PaitMd(PaitBaseParse):
@@ -34,9 +23,6 @@ class PaitMd(PaitBaseParse):
     ):
         self._use_html_details: bool = use_html_details  # some not support markdown in html
         self._title: str = title
-        self._json_type_default_value_dict: Dict[str, Any] = _json_type_default_value_dict.copy()
-        if json_type_default_value_dict:
-            self._json_type_default_value_dict.update(json_type_default_value_dict)
 
         super().__init__(pait_dict)
 
@@ -139,7 +125,7 @@ class PaitMd(PaitBaseParse):
                 if pait_model.response_model_list:
                     for resp_model_class in pait_model.response_model_list:
                         resp_model = resp_model_class()
-                        markdown_text += f"{' ' * 4}- {resp_model.name}\n\n"
+                        markdown_text += f"{' ' * 4}- {resp_model.name or resp_model.__class__.__name__}\n\n"
                         markdown_text += f"{' ' * 8}|status code|media type|description|\n"
                         markdown_text += f"{' ' * 8}|---|---|---|\n"
                         markdown_text += (
@@ -157,7 +143,7 @@ class PaitMd(PaitBaseParse):
                             markdown_text += self.gen_md_param_table(field_dict_list, blank_num=12)
                             markdown_text += f"{' ' * 8}- Example Response Json Data\n\n"
 
-                            example_dict = self.gen_example_json_from_schema(resp_model.response_data.schema())
+                            example_dict = gen_example_json_from_schema(resp_model.response_data.schema())
                             blank_num_str: str = " " * 12
                             json_str: str = f"\n".join(
                                 [blank_num_str + i for i in json.dumps(example_dict, indent=2).split("\n")]
@@ -167,31 +153,3 @@ class PaitMd(PaitBaseParse):
             if self._use_html_details:
                 markdown_text += "</details>"
         return markdown_text
-
-    def gen_example_json_from_schema(
-        self, schema_dict: Dict[str, Any], definition_dict: Optional[dict] = None
-    ) -> Dict[str, Any]:
-        gen_dict: Dict[str, Any] = {}
-        property_dict: Dict[str, Any] = schema_dict["properties"]
-        if not definition_dict:
-            _definition_dict: dict = schema_dict.get("definitions", {})
-        else:
-            _definition_dict = definition_dict
-        for key, value in property_dict.items():
-            if "items" in value and value["type"] == "array":
-                if "$ref" in value["items"]:
-                    model_key: str = value["items"]["$ref"].split("/")[-1]
-                    gen_dict[key] = [
-                        self.gen_example_json_from_schema(_definition_dict.get(model_key, {}), _definition_dict)
-                    ]
-                else:
-                    gen_dict[key] = []
-            elif "$ref" in value:
-                model_key = value["$ref"].split("/")[-1]
-                gen_dict[key] = self.gen_example_json_from_schema(_definition_dict.get(model_key, {}), _definition_dict)
-            else:
-                if "default" in value:
-                    gen_dict[key] = value["default"]
-                else:
-                    gen_dict[key] = self._json_type_default_value_dict[value["type"]]
-        return gen_dict

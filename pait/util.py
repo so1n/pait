@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Dict, ForwardRef, List, Optional, Tuple, Type, get_type_hints
 
 from pydantic import BaseModel, create_model
+from pait.g import config
 
 
 class UndefinedType:
@@ -55,6 +56,35 @@ def create_pydantic_model(
         __validators__=None,
         **annotation_dict,
     )
+
+
+def gen_example_json_from_schema(schema_dict: Dict[str, Any], definition_dict: Optional[dict] = None) -> Dict[str, Any]:
+    gen_dict: Dict[str, Any] = {}
+    property_dict: Dict[str, Any] = schema_dict["properties"]
+    if not definition_dict:
+        _definition_dict: dict = schema_dict.get("definitions", {})
+    else:
+        _definition_dict = definition_dict
+    for key, value in property_dict.items():
+        if "items" in value and value["type"] == "array":
+            if "$ref" in value["items"]:
+                model_key: str = value["items"]["$ref"].split("/")[-1]
+                gen_dict[key] = [
+                    gen_example_json_from_schema(_definition_dict.get(model_key, {}), _definition_dict)
+                ]
+            else:
+                gen_dict[key] = []
+        elif "$ref" in value:
+            model_key = value["$ref"].split("/")[-1]
+            gen_dict[key] = gen_example_json_from_schema(_definition_dict.get(model_key, {}), _definition_dict)
+        else:
+            if "default" in value:
+                gen_dict[key] = value["default"]
+            else:
+                if value["type"] not in config.json_type_default_value_dict:
+                    raise KeyError(f"Can not found type: {key} in json type")
+                gen_dict[key] = config.json_type_default_value_dict[value["type"]]
+    return gen_dict
 
 
 @dataclass()

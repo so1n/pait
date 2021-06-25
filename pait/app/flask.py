@@ -1,7 +1,7 @@
 import logging
 from typing import Any, Callable, Dict, List, Mapping, Optional, Set, Tuple, Type
 
-from flask import Blueprint, Flask, Request, current_app, request  # type: ignore
+from flask import Blueprint, Flask, Request, Response, current_app, jsonify, request, make_response as _make_response  # type: ignore
 from flask.views import MethodView
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 from werkzeug.exceptions import NotFound
@@ -15,7 +15,7 @@ from pait.g import pait_data
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
-from pait.util import LazyProperty
+from pait.util import LazyProperty, gen_example_json_from_schema
 
 
 class AppHelper(BaseAppHelper):
@@ -58,6 +58,17 @@ class AppHelper(BaseAppHelper):
     @LazyProperty()
     def multiquery(self) -> Dict[str, List[Any]]:
         return {key: request.args.getlist(key) for key, _ in request.args.items()}
+
+    @staticmethod
+    def make_mock_response(pait_response: Type[PaitResponseModel]) -> Response:
+        if pait_response.media_type == "application/json" and pait_response.response_data:
+            resp: Response = jsonify(gen_example_json_from_schema(pait_response.response_data.schema()))
+            resp.status_code = pait_response.status_code[0]
+            if pait_response.header:
+                resp.headers.update(pait_response.header)  # type: ignore
+            return resp
+        else:
+            raise NotImplementedError()
 
 
 def load_app(app: Flask, project_name: str = "") -> Dict[str, PaitCoreModel]:

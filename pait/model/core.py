@@ -1,15 +1,20 @@
-from typing import Callable, List, Optional, Set, Tuple, Type
+import asyncio
+import inspect
+from typing import Any, Callable, List, Optional, Set, Tuple, Type, TYPE_CHECKING
 
 from pait.g import config
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
+
+if TYPE_CHECKING:
+    from pait.app.base import BaseAppHelper
 
 
 class PaitCoreModel(object):
     def __init__(
         self,
         func: Callable,
-        pait_id: str,
+        app_helper_class: "Type[BaseAppHelper]",
         path: Optional[str] = None,
         method_set: Optional[Set[str]] = None,
         operation_id: Optional[str] = None,
@@ -22,8 +27,11 @@ class PaitCoreModel(object):
         tag: Optional[Tuple[str, ...]] = None,
         response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
     ):
-        self.func: Callable = func  # route func
-        self.pait_id: str = pait_id  # qualname + func hash id
+        self.app_helper_class: "Type[BaseAppHelper]" = app_helper_class
+        self._func: Callable = func  # route func
+        self.qualname: str = func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0]
+        self.pait_id: str = f"{self.qualname}_{id(func)}"
+        setattr(func, "_pait_id", self.pait_id)
         self.path: str = path or ""  # request url path
         self.method_list: List[str] = sorted(list(method_set or set()))  # request method set
         self.func_name: str = func_name or func.__name__
@@ -44,6 +52,34 @@ class PaitCoreModel(object):
     @property
     def status(self) -> PaitStatus:
         return self._status or config.status
+
+    @property
+    def func(self) -> Callable:
+        if config.enable_mock_response:
+            return self.return_mock_response
+        return self._func
+
+    def return_mock_response(self, *args: Any, **kwargs: Any) -> Any:
+        if not self.response_model_list:
+            raise RuntimeError(f"{self.func} can not set response model")
+        pait_response: Optional[Type[PaitResponseModel]] = None
+        if config.enable_mock_response_filter_fn:
+            for _pait_response in self.response_model_list:
+                if config.enable_mock_response_filter_fn(_pait_response):
+                    pait_response = _pait_response
+                    break
+        if not pait_response:
+            pait_response = self.response_model_list[0]
+
+        # fix tornado
+        if self.app_helper_class.app_name == "tornado":
+            setattr(pait_response, "handle", args[0])
+        resp: Any = self.app_helper_class.make_mock_response(pait_response)
+        if inspect.iscoroutinefunction(self._func):
+            future: asyncio.Future = asyncio.Future()
+            future.set_result(resp)
+            resp = future
+        return resp
 
     @property
     def response_model_list(self) -> List[Type[PaitResponseModel]]:

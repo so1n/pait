@@ -7,7 +7,7 @@ from starlette.datastructures import FormData, Headers, UploadFile
 from starlette.endpoints import HTTPEndpoint
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
-from starlette.responses import HTMLResponse, JSONResponse
+from starlette.responses import Response, HTMLResponse, JSONResponse
 from starlette.routing import Mount, Route
 
 from pait.api_doc.html import get_redoc_html as _get_redoc_html
@@ -19,7 +19,7 @@ from pait.g import pait_data
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
-from pait.util import LazyProperty
+from pait.util import LazyProperty, gen_example_json_from_schema
 
 
 class AppHelper(BaseAppHelper):
@@ -64,6 +64,17 @@ class AppHelper(BaseAppHelper):
     @LazyProperty()
     def multiquery(self) -> Dict[str, Any]:
         return {key: self.request.query_params.getlist(key) for key, _ in self.request.query_params.items()}
+
+    @staticmethod
+    def make_mock_response(pait_response: Type[PaitResponseModel]) -> Response:
+        if pait_response.media_type == "application/json" and pait_response.response_data:
+            resp: Response = JSONResponse(gen_example_json_from_schema(pait_response.response_data.schema()))
+            resp.status_code = pait_response.status_code[0]
+            if pait_response.header:
+                resp.headers.update(pait_response.header)
+            return resp
+        else:
+            raise NotImplementedError()
 
 
 def load_app(app: Starlette, project_name: str = "") -> Dict[str, PaitCoreModel]:
