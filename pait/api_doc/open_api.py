@@ -8,7 +8,7 @@ from pydantic.fields import Undefined
 
 from pait import field as pait_field
 from pait.api_doc.base_parse import PaitBaseParse
-from pait.core import PaitCoreModel
+from pait.model.core import PaitCoreModel
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
 from pait.util import create_pydantic_model

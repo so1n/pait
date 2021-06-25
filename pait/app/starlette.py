@@ -14,9 +14,9 @@ from pait.api_doc.html import get_redoc_html as _get_redoc_html
 from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenApi
 from pait.app.base import BaseAppHelper
-from pait.core import PaitCoreModel
 from pait.core import pait as _pait
 from pait.g import pait_data
+from pait.model.core import PaitCoreModel
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
 from pait.util import LazyProperty
@@ -101,6 +101,7 @@ def pait(
     author: Optional[Tuple[str]] = None,
     desc: Optional[str] = None,
     summary: Optional[str] = None,
+    name: Optional[str] = None,
     status: Optional[PaitStatus] = None,
     group: Optional[str] = None,
     tag: Optional[Tuple[str, ...]] = None,
@@ -112,6 +113,7 @@ def pait(
         author=author,
         desc=desc,
         summary=summary,
+        name=name,
         status=status,
         group=group,
         tag=tag,

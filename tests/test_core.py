@@ -2,7 +2,7 @@ import pytest
 from pytest_mock import MockFixture
 
 from pait import core, g
-from pait.core import PaitCoreModel
+from pait.model.core import PaitCoreModel
 
 
 def demo() -> None:

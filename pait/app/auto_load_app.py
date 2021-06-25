@@ -6,7 +6,7 @@ app_list: List = ["flask", "starlette", "sanic", "tornado"]
 
 def auto_load_app_class() -> Any:
     """A project using only a web framework, to use `auto_load_app_class`"""
-    real_app = None
+    real_app: Any = None
     for app in app_list:
         if app not in sys.modules:
             continue

@@ -3,12 +3,12 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
 from pait.model.status import PaitStatus
 
-from ..core import PaitCoreModel
-from ..model.response import PaitResponseModel
+from ..model.core import PaitCoreModel  # type: ignore
+from ..model.response import PaitResponseModel  # type: ignore
 from .auto_load_app import auto_load_app_class  # type: ignore
 
 
-def _import_func(app: Any, fun_name: str) -> Callable:
+def _import_func_from_app(app: Any, fun_name: str) -> Callable:
     app_name: str = app.__class__.__name__.lower()
     if app_name == "flask":
         return getattr(import_module("pait.app.flask"), fun_name)
@@ -23,7 +23,7 @@ def _import_func(app: Any, fun_name: str) -> Callable:
 
 
 def _base_call_func(app: Any, fun_name: str, *args: Any, **kwargs: Any) -> Any:
-    return _import_func(app, fun_name)(*args, **kwargs)
+    return _import_func_from_app(app, fun_name)(*args, **kwargs)
 
 
 def load_app(app: Any, project_name: str = "") -> Dict[str, PaitCoreModel]:
@@ -41,6 +41,7 @@ def pait(
     author: Optional[Tuple[str]] = None,
     desc: Optional[str] = None,
     summary: Optional[str] = None,
+    name: Optional[str] = None,
     status: Optional[PaitStatus] = None,
     group: str = "root",
     tag: Optional[Tuple[str, ...]] = None,
@@ -61,4 +62,4 @@ def pait(
         from .tornado import pait as _pait  # type: ignore
     else:
         raise NotImplementedError(f"Pait not support:{load_class_app}")
-    return _pait(author, desc, summary, status, group, tag, response_model_list)
+    return _pait(author, desc, summary, name, status, group, tag, response_model_list)

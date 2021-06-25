@@ -4,7 +4,7 @@ from example.param_verify.flask_example import create_app
 from pait.api_doc.markdown import PaitMd
 from pait.api_doc.open_api import PaitOpenApi
 from pait.app import load_app
-from pait.core import PaitCoreModel
+from pait.model.core import PaitCoreModel
 
 if __name__ == "__main__":
     filename: str = "./example_doc/flask_pait"

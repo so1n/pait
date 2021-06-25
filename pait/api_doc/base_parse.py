@@ -6,9 +6,9 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Type, get_type_hi
 from pydantic import BaseModel
 from pydantic.fields import Undefined
 
-from pait.core import PaitCoreModel
 from pait.field import BaseField, Depends
 from pait.model.base_model import PaitBaseModel
+from pait.model.core import PaitCoreModel
 from pait.model.response import PaitResponseModel
 from pait.util import FuncSig, create_pydantic_model, get_func_sig, get_parameter_list_from_class
 

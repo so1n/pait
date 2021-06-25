@@ -6,7 +6,7 @@ from typing import Dict, List, Optional
 from pait.api_doc.markdown import PaitMd
 from pait.api_doc.open_api import PaitOpenApi
 from pait.app import load_app
-from pait.core import PaitCoreModel
+from pait.model.core import PaitCoreModel
 
 
 def main() -> None:

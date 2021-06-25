@@ -6,9 +6,9 @@ from typing import Any, Dict, List, Optional, Set
 from pydantic.fields import Undefined
 
 from pait import field
-from pait.core import PaitCoreModel
 from pait.model.status import PaitStatus
 
+from ..model.core import PaitCoreModel
 from .base_parse import PaitBaseParse  # type: ignore
 
 _json_type_default_value_dict: Dict[str, Any] = {
@@ -16,7 +16,7 @@ _json_type_default_value_dict: Dict[str, Any] = {
     "bool": True,
     "boolean": True,
     "string": "",
-    "number": 0,
+    "number": 0.0,
     "float": 0.0,
     "integer": 0,
     "object": {},
