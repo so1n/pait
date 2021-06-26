@@ -38,7 +38,7 @@ class Config(object):
         default_response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
         json_type_default_value_dict: Optional[Dict[str, Any]] = None,
         enable_mock_response: bool = False,
-        enable_mock_response_filter_fn: Optional[Callable[[Type[PaitResponseModel]], bool]] = None
+        enable_mock_response_filter_fn: Optional[Callable[[Type[PaitResponseModel]], bool]] = None,
     ) -> None:
         self.author = author
         self.status = status

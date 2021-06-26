@@ -1,6 +1,6 @@
 import asyncio
 import inspect
-from typing import Any, Callable, List, Optional, Set, Tuple, Type, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
 
 from pait.g import config
 from pait.model.response import PaitResponseModel

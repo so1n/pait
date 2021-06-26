@@ -2,6 +2,7 @@ import pytest
 from pytest_mock import MockFixture
 
 from pait import core, g
+from pait.app.base import BaseAppHelper
 from pait.model.core import PaitCoreModel
 
 
@@ -9,8 +10,14 @@ def demo() -> None:
     pass
 
 
-pait_id: str = "fake_id"
 app_name: str = "fake_name"
+
+
+class FakeAppHelper(BaseAppHelper):
+    RequestType = str
+    FormType = int
+    FileType = float
+    HeaderType = type(None)
 
 
 class TestPaitCore:
@@ -37,13 +44,17 @@ class TestPaitCore:
         assert "must sub " in exec_msg
 
     def test_pait_id_not_in_data(self, mocker: MockFixture) -> None:
-        g.pait_data.register(app_name, PaitCoreModel(demo, pait_id))
+        pait_core_model: PaitCoreModel = PaitCoreModel(demo, FakeAppHelper)
+        pait_id: str = pait_core_model.pait_id
+        g.pait_data.register(app_name, pait_core_model)
         patch = mocker.patch("pait.data.logging.warning")
         g.pait_data.add_route_info(app_name, pait_id + "o", "/", {"get"}, "fake", "")
         patch.assert_called_once()
 
     def test_pait_id_in_data(self) -> None:
-        g.pait_data.register(app_name, PaitCoreModel(demo, pait_id))
+        pait_core_model: PaitCoreModel = PaitCoreModel(demo, FakeAppHelper)
+        pait_id: str = pait_core_model.pait_id
+        g.pait_data.register(app_name, pait_core_model)
         g.pait_data.add_route_info(app_name, pait_id, "/", {"get"}, "fake", "")
         assert g.pait_data.pait_id_dict[app_name][pait_id].path == "/"
         assert g.pait_data.pait_id_dict[app_name][pait_id].method_list == ["get"]

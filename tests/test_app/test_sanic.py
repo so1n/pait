@@ -10,6 +10,7 @@ from sanic_testing.testing import SanicTestClient  # type: ignore
 
 from example.param_verify.sanic_example import create_app
 from pait.app import auto_load_app
+from pait.g import config
 
 
 @pytest.fixture
@@ -34,6 +35,19 @@ class TestSanic:
             "sex": "man",
             "multi_user_name": ["abc", "efg"],
         }
+
+    def test_mock_get(self, client: SanicTestClient) -> None:
+        config.enable_mock_response = True
+
+        request, response = client.get(
+            "/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
+        )
+        assert response.json == {
+            "code": 0,
+            "data": {"age": 99, "email": "example@so1n.me", "uid": 6666666666, "user_name": "mock_name"},
+            "msg": "success",
+        }
+        config.enable_mock_response = False
 
     def test_depend(self, client: SanicTestClient) -> None:
         request, response = client.post(

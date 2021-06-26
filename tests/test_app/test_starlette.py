@@ -10,6 +10,7 @@ from starlette.testclient import TestClient
 
 from example.param_verify.starlette_example import create_app
 from pait.app import auto_load_app
+from pait.g import config
 
 
 @pytest.fixture
@@ -44,6 +45,18 @@ class TestStarlette:
             "sex": "man",
             "multi_user_name": ["abc", "efg"],
         }
+
+    def test_mock_get(self, client: TestClient) -> None:
+        config.enable_mock_response = True
+        resp: dict = client.get(
+            "/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
+        ).json()
+        assert resp == {
+            "code": 0,
+            "data": {"age": 99, "email": "example@so1n.me", "uid": 6666666666, "user_name": "mock_name"},
+            "msg": "success",
+        }
+        config.enable_mock_response = False
 
     def test_depend(self, client: TestClient) -> None:
         resp: dict = client.post(

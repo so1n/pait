@@ -10,6 +10,7 @@ from flask.testing import FlaskClient
 
 from example.param_verify.flask_example import create_app
 from pait.app import auto_load_app
+from pait.g import config
 
 
 @pytest.fixture
@@ -23,6 +24,13 @@ def client() -> Generator[FlaskClient, None, None]:
     ctx.push()
     yield client  # this is where the testing happens!
     ctx.pop()
+
+
+@pytest.fixture
+def enable_mock_response() -> Generator[None, None, None]:
+    config.enable_mock_response = True
+    yield None
+    config.enable_mock_response = False
 
 
 class TestFlask:
@@ -39,6 +47,18 @@ class TestFlask:
             "sex": "man",
             "multi_user_name": ["abc", "efg"],
         }
+
+    def test_mock_get(self, client: FlaskClient) -> None:
+        config.enable_mock_response = True
+        resp: dict = client.get(
+            "/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
+        ).get_json()
+        assert resp == {
+            "code": 0,
+            "data": {"age": 99, "email": "example@so1n.me", "uid": 6666666666, "user_name": "mock_name"},
+            "msg": "success",
+        }
+        config.enable_mock_response = False
 
     def test_depend(self, client: FlaskClient) -> None:
         resp: dict = client.post(

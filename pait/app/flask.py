@@ -1,7 +1,9 @@
 import logging
 from typing import Any, Callable, Dict, List, Mapping, Optional, Set, Tuple, Type
 
-from flask import Blueprint, Flask, Request, Response, current_app, jsonify, request, make_response as _make_response  # type: ignore
+from flask import Blueprint, Flask, Request, Response, current_app, jsonify
+from flask import make_response as _make_response  # type: ignore
+from flask import request
 from flask.views import MethodView
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 from werkzeug.exceptions import NotFound

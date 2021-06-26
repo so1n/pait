@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Dict, ForwardRef, List, Optional, Tuple, Type, get_type_hints
 
 from pydantic import BaseModel, create_model
+
 from pait.g import config
 
 
@@ -69,9 +70,7 @@ def gen_example_json_from_schema(schema_dict: Dict[str, Any], definition_dict: O
         if "items" in value and value["type"] == "array":
             if "$ref" in value["items"]:
                 model_key: str = value["items"]["$ref"].split("/")[-1]
-                gen_dict[key] = [
-                    gen_example_json_from_schema(_definition_dict.get(model_key, {}), _definition_dict)
-                ]
+                gen_dict[key] = [gen_example_json_from_schema(_definition_dict.get(model_key, {}), _definition_dict)]
             else:
                 gen_dict[key] = []
         elif "$ref" in value:

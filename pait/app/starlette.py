@@ -7,7 +7,7 @@ from starlette.datastructures import FormData, Headers, UploadFile
 from starlette.endpoints import HTTPEndpoint
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
-from starlette.responses import Response, HTMLResponse, JSONResponse
+from starlette.responses import HTMLResponse, JSONResponse, Response
 from starlette.routing import Mount, Route
 
 from pait.api_doc.html import get_redoc_html as _get_redoc_html

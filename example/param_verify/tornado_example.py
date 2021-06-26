@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Any, List, Tuple
 
-from tornado.httpserver import HTTPServer
 from tornado.httputil import RequestStartLine
 from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
