@@ -122,7 +122,7 @@ class TestTornado(AsyncHTTPTestCase):
         resp: dict = json.loads(response.body.decode())
         assert "exc" in resp
 
-    # def test_other_field(self) -> None:
+    # def other_field_route(self) -> None:
     #     cookie_str: str = "abcd=abcd;"
     #
     #     file_content: str = "Hello Word!"

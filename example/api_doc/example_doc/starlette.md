@@ -1,7 +1,7 @@
 # Pait Doc
 <details><summary>Group: root</summary>
 
-### Name: test_raise_tip
+### Name: raise_tip_route
 
 
 
@@ -9,7 +9,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 32">test_raise_tip</abbr>||
+|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 32">raise_tip_route</abbr>||
 - Path: /api/raise_tip
 - Method: POST
 - Request:
@@ -250,7 +250,7 @@
             ```
 
 
-### Name: test_post
+### Name: post_route
 
 
 
@@ -258,7 +258,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 51">test_post</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 51">post_route</abbr>||
 - Path: /api/post
 - Method: POST
 - Request:
@@ -412,11 +412,11 @@
             ```
 
 
-### Name: test_other_field
+### Name: other_field_route
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 121">test_other_field</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 121">other_field_route</abbr>||
 - Path: /api/other_field
 - Method: POST
 - Request:

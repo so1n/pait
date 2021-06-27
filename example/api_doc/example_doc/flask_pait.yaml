@@ -5,11 +5,11 @@ group:
       func:
         file: /home/so1n/github/pait/example/param_verify/flask_example.py
         lineno: 143
-        name: test_model
+        name: model_route
       method:
       - POST
       - OPTIONS
-      name: test_model
+      name: model_route
       path: /api/pait_model
       request:
         default: Required
@@ -179,11 +179,11 @@ group:
       func:
         file: /home/so1n/github/pait/example/param_verify/flask_example.py
         lineno: 29
-        name: test_raise_tip
+        name: raise_tip_route
       method:
       - POST
       - OPTIONS
-      name: test_raise_tip
+      name: raise_tip_route
       path: /api/raise_tip
       request:
         default: Required
@@ -289,11 +289,11 @@ group:
       func:
         file: /home/so1n/github/pait/example/param_verify/flask_example.py
         lineno: 86
-        name: test_other_field
+        name: other_field_route
       method:
       - POST
       - OPTIONS
-      name: test_other_field
+      name: other_field_route
       path: /api/other_field
       request:
         default: Required
@@ -416,11 +416,11 @@ group:
       func:
         file: /home/so1n/github/pait/example/param_verify/flask_example.py
         lineno: 48
-        name: test_post
+        name: post_route
       method:
       - POST
       - OPTIONS
-      name: test_post
+      name: post_route
       path: /api/post
       request:
         default: Required
@@ -784,12 +784,12 @@ group:
       func:
         file: /home/so1n/github/pait/example/param_verify/flask_example.py
         lineno: 113
-        name: test_pait
+        name: pait_route
       method:
       - OPTIONS
       - HEAD
       - GET
-      name: test_pait
+      name: pait_route
       path: /api/get/<age>
       request:
         default: Required

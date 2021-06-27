@@ -152,7 +152,7 @@ paths:
       - post
       summary: ''
       description: Test Method:Post Pydantic Model
-      operationId: POST.test_post
+      operationId: POST.post_route
       parameters:
       - name: requestBody.content.<media-type>
         in: header
@@ -259,7 +259,7 @@ paths:
       - get
       summary: ''
       description: ''
-      operationId: POST.test_other_field
+      operationId: POST.other_field_route
       parameters:
       - name: cookie
         in: cookie
@@ -400,7 +400,7 @@ paths:
       deprecated: true
       summary: ''
       description: test pait raise tip
-      operationId: POST.test_raise_tip
+      operationId: POST.raise_tip_route
       parameters:
       - name: content_type
         in: header

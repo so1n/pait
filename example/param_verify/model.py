@@ -60,7 +60,7 @@ class ResponseUserModel(ResponseModel):
         age: int = Field(99, description="age", gt=1, lt=100)
         content_type: str = Field("application/json", description="content-type")
 
-    data: List[_BaseModel]
+    data: _BaseModel
 
 
 class UserSuccessRespModel(PaitResponseModel):

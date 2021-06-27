@@ -1,7 +1,7 @@
 # Pait Doc
 <details><summary>Group: root</summary>
 
-### Name: pait.test_raise_tip
+### Name: pait.raise_tip_route
 
 
 
@@ -9,7 +9,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 31">test_raise_tip</abbr>||
+|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 31">raise_tip_route</abbr>||
 - Path: api/raise_tip
 - Method: POST
 - Request:
@@ -165,7 +165,7 @@
 
 </details><details><summary>Group: user</summary>
 
-### Name: pait.test_post
+### Name: pait.post_route
 
 
 
@@ -173,7 +173,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 50">test_post</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 50">post_route</abbr>||
 - Path: api/post
 - Method: POST
 - Request:
@@ -327,11 +327,11 @@
             ```
 
 
-### Name: pait.test_other_field
+### Name: pait.other_field_route
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 120">test_other_field</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 120">other_field_route</abbr>||
 - Path: api/other_field
 - Method: POST
 - Request:

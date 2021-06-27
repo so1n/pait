@@ -1,6 +1,6 @@
 import sys
 from tempfile import NamedTemporaryFile
-from typing import Generator
+from typing import Generator, List
 from unittest import mock
 
 import pytest
@@ -8,8 +8,9 @@ from flask import Flask
 from flask.ctx import AppContext
 from flask.testing import FlaskClient
 
-from example.param_verify.flask_example import create_app
+from example.param_verify.flask_example import create_app, other_field_route, pait_route, post_route
 from pait.app import auto_load_app
+from pait.app.flask import flask_test_helper
 from pait.g import config
 
 
@@ -35,18 +36,25 @@ def enable_mock_response() -> Generator[None, None, None]:
 
 class TestFlask:
     def test_get(self, client: FlaskClient) -> None:
-        resp: dict = client.get(
-            "/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
-        ).get_json()
-        assert resp["code"] == 0
-        assert resp["data"] == {
-            "uid": 123,
-            "user_name": "appl",
-            "email": "example@xxx.com",
-            "age": 3,
-            "sex": "man",
-            "multi_user_name": ["abc", "efg"],
-        }
+        resp_list: List[dict] = [
+            client.get("/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg").get_json(),
+            flask_test_helper(
+                client,
+                pait_route,
+                path_dict={"age": 3},
+                query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
+            ).get_json(),
+        ]
+        for resp in resp_list:
+            assert resp["code"] == 0
+            assert resp["data"] == {
+                "uid": 123,
+                "user_name": "appl",
+                "email": "example@xxx.com",
+                "age": 3,
+                "sex": "man",
+                "multi_user_name": ["abc", "efg"],
+            }
 
     def test_mock_get(self, client: FlaskClient) -> None:
         config.enable_mock_response = True
@@ -82,19 +90,27 @@ class TestFlask:
         assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
 
     def test_post(self, client: FlaskClient) -> None:
-        resp: dict = client.post(
-            "/api/post",
-            headers={"user-agent": "customer_agent"},
-            json={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
-        ).get_json()
-        assert resp["code"] == 0
-        assert resp["data"] == {
-            "uid": 123,
-            "user_name": "appl",
-            "age": 2,
-            "content_type": "application/json",
-            "sex": "man",
-        }
+        for resp in [
+            flask_test_helper(
+                client,
+                post_route,
+                body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
+                header_dict={"user-agent": "customer_agent"},
+            ).get_json(),
+            client.post(
+                "/api/post",
+                headers={"user-agent": "customer_agent"},
+                json={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
+            ).get_json(),
+        ]:
+            assert resp["code"] == 0
+            assert resp["data"] == {
+                "uid": 123,
+                "user_name": "appl",
+                "age": 2,
+                "content_type": "application/json",
+                "sex": "man",
+            }
 
     def test_pait_model(self, client: FlaskClient) -> None:
         resp: dict = client.post(
@@ -113,22 +129,30 @@ class TestFlask:
 
         file_content: str = "Hello Word!"
 
-        f = NamedTemporaryFile(delete=True)
-        file_name: str = f.name
-        f.write(file_content.encode())
-        f.seek(0)
+        f1 = NamedTemporaryFile(delete=True)
+        file_name: str = f1.name
+        f1.write(file_content.encode())
+        f1.seek(0)
+        f2 = NamedTemporaryFile(delete=True)
+        f2.name = file_name  # type: ignore
+        f2.write(file_content.encode())
+        f2.seek(0)
 
-        form_dict: dict = {"a": "1", "b": "2", "upload_file": f, "c": "3"}
         client.set_cookie("localhost", "abcd", "abcd")
-        resp: dict = client.post("/api/other_field", data=form_dict).get_json()
-        assert {
-            "filename": file_name,
-            "content": file_content,
-            "form_a": "1",
-            "form_b": "2",
-            "form_c": ["3"],
-            "cookie": {"abcd": "abcd"},
-        } == resp["data"]
+        for resp in [
+            flask_test_helper(
+                client, other_field_route, file_dict={"upload_file": f1}, form_dict={"a": "1", "b": "2", "c": "3"}
+            ).get_json(),
+            client.post("/api/other_field", data={"a": "1", "b": "2", "upload_file": f2, "c": "3"}).get_json(),
+        ]:
+            assert {
+                "filename": file_name,
+                "content": file_content,
+                "form_a": "1",
+                "form_b": "2",
+                "form_c": ["3"],
+                "cookie": {"abcd": "abcd"},
+            } == resp["data"]
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:

@@ -1,4 +1,20 @@
-### 0.5.6[Now]
+### 0.5.9[Now]
+ - Feature: mock response
+ - Feature: test client helper
+### 0.5.8.2
+ - Feature: global config support not call `setatter` in runtime
+ - Feature: support set customer name  
+ - Fix, fix md doc display other filed param
+### 0.5.8.1
+ - Feature: openapi support RequestBody schema
+ - Remove: remove pait&json&yaml doc
+### 0.5.8
+ - Fix: refactor circular reference
+### 0.5.7
+ - Feature: add global config
+ - Fix: fix `param_handle` can not parse single field bug  
+ - Fix: support update json type default value
+### 0.5.6
  - Fix: fix python3.8 annotation
  - Fix: single filed not pydantic filed info
 

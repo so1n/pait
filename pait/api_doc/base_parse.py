@@ -197,7 +197,7 @@ class PaitBaseParse(object):
             if parameter.default != parameter.empty:
                 annotation: type = parameter.annotation
                 if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
-                    # def test(test_model: BaseModel = Body())
+                    # def test(model_route: BaseModel = Body())
                     _pait_field_dict: Dict[str, BaseField] = {
                         param_name: parameter.default
                         for param_name, annotation in get_type_hints(annotation).items()
@@ -205,14 +205,14 @@ class PaitBaseParse(object):
                     }
                     self._parse_base_model_to_field_dict(field_dict, annotation, _pait_field_dict)
                 else:
-                    # def test(test_model: int = Body())
+                    # def test(model_route: int = Body())
                     if isinstance(parameter.default, Depends):
                         field_dict.update(self._parse_func_param_to_field_dict(parameter.default.func))
                     else:
                         field_name: str = parameter.default.__class__.__name__.lower()
                         single_field_list.append((field_name, parameter))
             elif issubclass(parameter.annotation, PaitBaseModel):
-                # def test(test_model: PaitBaseModel)
+                # def test(model_route: PaitBaseModel)
                 _pait_model: Type[PaitBaseModel] = parameter.annotation
                 _pait_field_dict = {
                     param_name: getattr(_pait_model, param_name)

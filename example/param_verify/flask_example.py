@@ -33,7 +33,7 @@ def api_exception(exc: Exception) -> Dict[str, str]:
     tag=("test",),
     response_model_list=[UserSuccessRespModel, FailRespModel],
 )
-def test_raise_tip(
+def raise_tip_route(
     model: UserModel = Body.i(),
     other_model: UserOtherModel = Body.i(),
     content__type: str = Header.i(description="Content-Type"),  # in flask, Content-Type's key is content_type
@@ -52,7 +52,7 @@ def test_raise_tip(
     tag=("user", "post"),
     response_model_list=[UserSuccessRespModel, FailRespModel],
 )
-def test_post(
+def post_route(
     model: UserModel = Body.i(),
     other_model: UserOtherModel = Body.i(),
     sex: SexEnum = Body.i(description="sex"),
@@ -91,7 +91,7 @@ def demo_get2test_depend(
     status=PaitStatus.release,
     tag=("user", "get"),
 )
-def test_other_field(
+def other_field_route(
     upload_file: Any = File.i(description="upload file"),
     a: str = Form.i(description="form data"),
     b: str = Form.i(description="form data"),
@@ -119,7 +119,7 @@ def test_other_field(
     tag=("user", "get"),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
 )
-def test_pait(
+def pait_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
@@ -145,12 +145,12 @@ def test_pait(
 @pait(
     author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[UserSuccessRespModel, FailRespModel]
 )
-def test_model(test_model: TestPaitModel) -> dict:
+def model_route(test_model: TestPaitModel) -> dict:
     """Test Field"""
     return {"code": 0, "msg": "", "data": test_model.dict()}
 
 
-class TestCbv(MethodView):
+class Cbv(MethodView):
     user_agent: str = Header.i(alias="user-agent", description="ua")  # remove key will raise error
 
     @pait(
@@ -193,13 +193,13 @@ class TestCbv(MethodView):
 def create_app() -> Flask:
     app: Flask = Flask(__name__)
     add_doc_route(app)
-    app.add_url_rule("/api/raise_tip", view_func=test_raise_tip, methods=["POST"])
-    app.add_url_rule("/api/post", view_func=test_post, methods=["POST"])
+    app.add_url_rule("/api/raise_tip", view_func=raise_tip_route, methods=["POST"])
+    app.add_url_rule("/api/post", view_func=post_route, methods=["POST"])
     app.add_url_rule("/api/depend", view_func=demo_get2test_depend, methods=["POST"])
-    app.add_url_rule("/api/other_field", view_func=test_other_field, methods=["POST"])
-    app.add_url_rule("/api/get/<age>", view_func=test_pait, methods=["GET"])
-    app.add_url_rule("/api/pait_model", view_func=test_model, methods=["POST"])
-    app.add_url_rule("/api/cbv", view_func=TestCbv.as_view("test_cbv"))
+    app.add_url_rule("/api/other_field", view_func=other_field_route, methods=["POST"])
+    app.add_url_rule("/api/get/<age>", view_func=pait_route, methods=["GET"])
+    app.add_url_rule("/api/pait_model", view_func=model_route, methods=["POST"])
+    app.add_url_rule("/api/cbv", view_func=Cbv.as_view("test_cbv"))
     app.errorhandler(PaitBaseException)(api_exception)
     app.errorhandler(ValidationError)(api_exception)
     return app

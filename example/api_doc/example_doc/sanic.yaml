@@ -5,10 +5,10 @@ group:
       func:
         file: /home/so1n/github/pait/example/param_verify/sanic_example.py
         lineno: 31
-        name: test_raise_tip
+        name: raise_tip_route
       method:
       - POST
-      name: pait.test_raise_tip
+      name: pait.raise_tip_route
       path: api/raise_tip
       request:
         default: Required
@@ -287,10 +287,10 @@ group:
       func:
         file: /home/so1n/github/pait/example/param_verify/sanic_example.py
         lineno: 50
-        name: test_post
+        name: post_route
       method:
       - POST
-      name: pait.test_post
+      name: pait.post_route
       path: api/post
       request:
         default: Required
@@ -501,10 +501,10 @@ group:
       func:
         file: /home/so1n/github/pait/example/param_verify/sanic_example.py
         lineno: 120
-        name: test_other_field
+        name: other_field_route
       method:
       - POST
-      name: pait.test_other_field
+      name: pait.other_field_route
       path: api/other_field
       request:
         default: Required
