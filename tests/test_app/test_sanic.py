@@ -6,10 +6,14 @@ from unittest import mock
 import pytest
 from sanic import Sanic
 from sanic_testing import TestManager  # type: ignore
-from sanic_testing.testing import SanicTestClient  # type: ignore
+from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
 
 from example.param_verify.sanic_example import create_app
+from example.param_verify.sanic_example import test_get as get_route
+from example.param_verify.sanic_example import test_post as post_route
+from example.param_verify.sanic_example import test_other_field as other_field_route
 from pait.app import auto_load_app
+from pait.app.sanic import SanicTestHelper
 from pait.g import config
 
 
@@ -22,19 +26,25 @@ def client() -> Generator[SanicTestClient, None, None]:
 
 class TestSanic:
     def test_get(self, client: SanicTestClient) -> None:
+        sanic_test_helper: SanicTestHelper[TestingResponse] = SanicTestHelper(
+            client,
+            get_route,
+            path_dict={"age": 3},
+            query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
+        )
         request, response = client.get(
             "/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
         )
-        resp: dict = response.json
-        assert resp["code"] == 0
-        assert resp["data"] == {
-            "uid": 123,
-            "user_name": "appl",
-            "email": "example@xxx.com",
-            "age": 3,
-            "sex": "man",
-            "multi_user_name": ["abc", "efg"],
-        }
+        for resp in [sanic_test_helper.get().json, response.json]:
+            assert resp["code"] == 0
+            assert resp["data"] == {
+                "uid": 123,
+                "user_name": "appl",
+                "email": "example@xxx.com",
+                "age": 3,
+                "sex": "man",
+                "multi_user_name": ["abc", "efg"],
+            }
 
     def test_mock_get(self, client: SanicTestClient) -> None:
         config.enable_mock_response = True
@@ -74,20 +84,26 @@ class TestSanic:
         assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
 
     def test_post(self, client: SanicTestClient) -> None:
+        sanic_test_helper: SanicTestHelper[TestingResponse] = SanicTestHelper(
+            client,
+            post_route,
+            body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
+            header_dict={"user-agent": "customer_agent"},
+        )
         request, response = client.post(
             "/api/post",
             headers={"user-agent": "customer_agent"},
             json={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
         )
-        resp: dict = response.json
-        assert resp["code"] == 0
-        assert resp["data"] == {
-            "uid": 123,
-            "user_name": "appl",
-            "age": 2,
-            "content_type": "application/json",
-            "sex": "man",
-        }
+        for resp in [sanic_test_helper.post().json, response.json]:
+            assert resp["code"] == 0
+            assert resp["data"] == {
+                "uid": 123,
+                "user_name": "appl",
+                "age": 2,
+                "content_type": "application/json",
+                "sex": "man",
+            }
 
     def test_pait_model(self, client: SanicTestClient) -> None:
         request, response = client.post(
@@ -109,26 +125,34 @@ class TestSanic:
 
         file_content: str = "Hello Word!"
 
-        f = NamedTemporaryFile(delete=True)
-        file_name: str = f.name
-        f.write(file_content.encode())
-        f.seek(0)
+        f1 = NamedTemporaryFile(delete=True)
+        file_name: str = f1.name
+        f1.write(file_content.encode())
+        f1.seek(0)
+        f2 = NamedTemporaryFile(delete=True)
+        f2.name = file_name  # type: ignore
+        f2.write(file_content.encode())
+        f2.seek(0)
 
+        sanic_test_helper: SanicTestHelper[TestingResponse] = SanicTestHelper(
+            client, other_field_route,
+            cookie_dict={"cookie": cookie_str}, file_dict={"upload_file": f1}, form_dict={"a": "1", "b": "2", "c": "3"}
+        )
         request, response = client.post(
             "/api/other_field",
             headers={"cookie": cookie_str},
             data={"a": "1", "b": "2", "c": "3"},
-            files={"upload_file": f},
+            files={"upload_file": f2},
         )
-        resp: dict = response.json
-        assert {
-            "filename": file_name.split("/")[-1],
-            "content": file_content,
-            "form_a": "1",
-            "form_b": "2",
-            "form_c": ["3"],
-            "cookie": {"abcd": "abcd"},
-        } == resp["data"]
+        for resp in [sanic_test_helper.post().json, response.json]:
+            assert {
+                "filename": file_name.split("/")[-1],
+                "content": file_content,
+                "form_a": "1",
+                "form_b": "2",
+                "form_c": ["3"],
+                "cookie": {"abcd": "abcd"},
+            } == resp["data"]
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:

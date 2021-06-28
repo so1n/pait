@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Callable, Dict, List, Mapping, Optional, Set, Tuple, Type
+from typing import Any, Callable, Dict, Generic, List, Mapping, Optional, Set, Tuple, Type, TypeVar
 
 from sanic import response
 from sanic.app import Sanic
@@ -8,11 +8,12 @@ from sanic.exceptions import NotFound
 from sanic.headers import HeaderIterable
 from sanic.request import File, Request, RequestParameters
 from sanic.response import HTTPResponse, json
+from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
 
 from pait.api_doc.html import get_redoc_html as _get_redoc_html
 from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenApi
-from pait.app.base import BaseAppHelper
+from pait.app.base import BaseAppHelper, BaseTestHelper
 from pait.core import pait as _pait
 from pait.g import pait_data
 from pait.model.core import PaitCoreModel
@@ -116,6 +117,45 @@ def load_app(app: Sanic, project_name: str = "") -> Dict[str, PaitCoreModel]:
         #             pait_data.add_route_info(AppHelper.app_name, pait_id, path, {method}, route_name, project_name)
         #             _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
     return _pait_data
+
+
+_T = TypeVar("_T", bound=TestingResponse)
+
+
+class SanicTestHelper(BaseTestHelper, Generic[_T]):
+    client: SanicTestClient
+
+    def _app_init_field(self) -> None:
+        if self.cookie_dict:
+            self.header_dict.update(self.cookie_dict)
+
+    def _gen_pait_dict(self) -> Dict[str, PaitCoreModel]:
+        return load_app(self.client.app)
+
+    def _assert_response(self, resp: TestingResponse) -> None:
+        response_model: Type[PaitResponseModel] = self.pait_core_model.response_model_list[0]
+        assert resp.status in response_model.status_code
+        assert resp.content_type == response_model.media_type
+        if response_model.response_data:
+            assert response_model.response_data(**resp.json)
+
+    def _replace_path(self, path_str: str) -> Optional[str]:
+        if self.path_dict and path_str[0] == "<" and path_str[-1] == ">":
+            return self.path_dict[path_str[1:-1]]
+        return None
+
+    def _make_response(self, method: str) -> TestingResponse:
+        method = method.lower()
+        if method == "get":
+            request, resp = self.client._sanic_endpoint_test(
+                method, uri=self.path, headers=self.header_dict
+            )
+        else:
+            request, resp = self.client._sanic_endpoint_test(
+                method,
+                uri=self.path, data=self.form_dict, json=self.body_dict, headers=self.header_dict, files=self.file_dict
+            )
+        return resp
 
 
 def pait(

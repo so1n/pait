@@ -116,6 +116,12 @@ class FlaskTestHelper(BaseTestHelper, Generic[_T]):
     client: FlaskClient
 
     def _app_init_field(self) -> None:
+        if self.file_dict:
+            if self.form_dict:
+                self.form_dict.update(self.file_dict)
+            else:
+                self.form_dict = self.file_dict
+
         if self.cookie_dict:
             for key, value in self.cookie_dict.items():
                 self.client.set_cookie("localhost", key, value)

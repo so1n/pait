@@ -119,7 +119,7 @@ class BaseTestHelper(Generic[RESP_T]):
         self.cookie_dict: Optional[dict] = cookie_dict
         self.file_dict: Optional[dict] = file_dict
         self.form_dict: Optional[dict] = form_dict
-        self.header_dict: Optional[dict] = header_dict
+        self.header_dict: dict = header_dict or {}
         self.path_dict: Optional[dict] = path_dict
         self.query_dict: Optional[dict] = query_dict
 
@@ -140,11 +140,6 @@ class BaseTestHelper(Generic[RESP_T]):
 
         if self.query_dict:
             self.path = self.path + "?" + urlencode(self.query_dict, True)
-        if self.file_dict:
-            if self.form_dict:
-                self.form_dict.update(self.file_dict)
-            else:
-                self.form_dict = self.file_dict
 
         self.method: Optional[str] = None
         if len(self.pait_core_model.method_list) == 1:
