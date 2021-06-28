@@ -1,7 +1,8 @@
 import inspect
 import logging
-from typing import Any, Callable, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union
+from typing import Any, Callable, Coroutine, Dict, Generic, List, Mapping, Optional, Tuple, Type, TypeVar, Union
 
+from requests import Response as _Response
 from starlette.applications import Starlette
 from starlette.datastructures import FormData, Headers, UploadFile
 from starlette.endpoints import HTTPEndpoint
@@ -9,11 +10,12 @@ from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
 from starlette.routing import Mount, Route
+from starlette.testclient import TestClient
 
 from pait.api_doc.html import get_redoc_html as _get_redoc_html
 from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenApi
-from pait.app.base import BaseAppHelper
+from pait.app.base import BaseAppHelper, BaseTestHelper
 from pait.core import pait as _pait
 from pait.g import pait_data
 from pait.model.core import PaitCoreModel
@@ -31,18 +33,33 @@ class AppHelper(BaseAppHelper):
 
     def __init__(self, class_: Any, args: Tuple[Any, ...], kwargs: Mapping[str, Any]):
         super().__init__(class_, args, kwargs)
+        self._form: Optional[FormData] = None
 
     def body(self) -> dict:
         return self.request.json()
 
     def cookie(self) -> dict:
         return self.request.cookies
+    
+    async def get_form(self) -> FormData:
+        if self._form:
+            return self._form
+        form: FormData = await self.request.form()
+        self._form = form
+        return form
 
-    def file(self) -> UploadFile:
-        return self.request.form()
+    def file(self) -> Coroutine[Any, Any, FormData]:
+        async def _() -> FormData:
+            return await self.get_form()
+        return _()
 
-    def form(self) -> FormData:
-        return self.request.form()
+    def form(self) -> Coroutine[Any, Any, Dict[str, Any]]:
+        @LazyProperty()
+        async def _form() -> Dict[str, Any]:
+            form_data: FormData = await self.get_form()
+            return {key: form_data.getlist(key)[0] for key, _ in form_data.items()}
+
+        return _form()
 
     def header(self) -> Headers:
         return self.request.headers
@@ -53,15 +70,17 @@ class AppHelper(BaseAppHelper):
     def query(self) -> dict:
         return dict(self.request.query_params)
 
-    @LazyProperty()
     def multiform(self) -> Coroutine[Any, Any, Dict[str, List[Any]]]:
-        async def _() -> Dict[str, List[Any]]:
-            form_data = await self.request.form()
-            return {key: form_data.getlist(key) for key, _ in form_data.items()}
+        @LazyProperty()
+        async def _multiform() -> Dict[str, List[Any]]:
+            form_data: FormData = await self.get_form()
+            return {
+                key: [i for i in form_data.getlist(key) if not isinstance(i, UploadFile)]
+                for key, _ in form_data.items()
+            }
+        return _multiform()
 
-        return _()
-
-    @LazyProperty()
+    @LazyProperty(is_class_func=True)
     def multiquery(self) -> Dict[str, Any]:
         return {key: self.request.query_params.getlist(key) for key, _ in self.request.query_params.items()}
 
@@ -106,6 +125,41 @@ def load_app(app: Starlette, project_name: str = "") -> Dict[str, PaitCoreModel]
             pait_data.add_route_info(AppHelper.app_name, pait_id, path, method_set, route_name, project_name)
             _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
     return _pait_data
+
+
+_T = TypeVar("_T", bound=_Response)
+
+
+class StarletteTestHelper(BaseTestHelper, Generic[_T]):
+    client: TestClient
+
+    def _app_init_field(self) -> None:
+        if self.cookie_dict:
+            self.header_dict.update(self.cookie_dict)
+
+    def _gen_pait_dict(self) -> Dict[str, PaitCoreModel]:
+        return load_app(self.client.app)
+
+    def _assert_response(self, resp: _Response) -> None:
+        response_model: Type[PaitResponseModel] = self.pait_core_model.response_model_list[0]
+        assert resp.status_code in response_model.status_code
+        assert resp.headers["content-type"] == response_model.media_type
+        if response_model.response_data:
+            assert response_model.response_data(**resp.json())
+
+    def _replace_path(self, path_str: str) -> Optional[str]:
+        if self.path_dict and path_str[0] == "{" and path_str[-1] == "}":
+            return self.path_dict[path_str[1:-1]]
+        return None
+
+    def _make_response(self, method: str) -> _Response:
+        method = method.upper()
+        resp: _Response = self.client.request(
+            method,
+            url=self.path, cookies=self.cookie_dict, data=self.form_dict, json=self.body_dict,
+            headers=self.header_dict, files=self.file_dict
+        )
+        return resp
 
 
 def pait(

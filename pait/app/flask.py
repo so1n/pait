@@ -52,11 +52,11 @@ class AppHelper(BaseAppHelper):
     def query(self) -> Dict[str, Any]:
         return request.args
 
-    @LazyProperty()
+    @LazyProperty(is_class_func=True)
     def multiform(self) -> Dict[str, List[Any]]:
         return {key: request.form.getlist(key) for key, _ in request.form.items()}
 
-    @LazyProperty()
+    @LazyProperty(is_class_func=True)
     def multiquery(self) -> Dict[str, List[Any]]:
         return {key: request.args.getlist(key) for key, _ in request.args.items()}
 

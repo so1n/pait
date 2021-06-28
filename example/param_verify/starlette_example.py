@@ -128,9 +128,9 @@ async def test_get(
 )
 async def test_other_field(
     upload_file: Any = File.i(description="upload file"),
-    a: Any = Form.i(description="form data"),
-    b: Any = Form.i(description="form data"),
-    c: Any = MultiForm.i(description="form data"),
+    a: str = Form.i(description="form data"),
+    b: str = Form.i(description="form data"),
+    c: List[str] = MultiForm.i(description="form data"),
     cookie: dict = Cookie.i(raw_return=True, description="cookie"),
 ) -> JSONResponse:
     return JSONResponse(
@@ -140,9 +140,9 @@ async def test_other_field(
             "data": {
                 "filename": upload_file.filename,
                 "content": (await upload_file.read()).decode(),
-                "form_a": (await a.read()).decode(),
-                "form_b": (await b.read()).decode(),
-                "form_c": [(await i.read()).decode() for i in c],
+                "form_a": a,
+                "form_b": b,
+                "form_c": c,
                 "cookie": cookie,
             },
         }

@@ -50,15 +50,15 @@ class AppHelper(BaseAppHelper):
     def path(self) -> dict:
         return self.path_kwargs
 
-    @LazyProperty()
+    @LazyProperty(is_class_func=True)
     def query(self) -> dict:
         return {key: value[0].decode() for key, value in self.request.query_arguments.items()}
 
-    @LazyProperty()
+    @LazyProperty(is_class_func=True)
     def multiform(self) -> Dict[str, List[Any]]:
         return self.request.body_arguments
 
-    @LazyProperty()
+    @LazyProperty(is_class_func=True)
     def multiquery(self) -> Dict[str, Any]:
         return {key: [i.decode() for i in value] for key, value in self.request.query_arguments.items()}
 
