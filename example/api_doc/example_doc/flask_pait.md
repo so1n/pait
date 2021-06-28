@@ -1,7 +1,7 @@
 # Pait Doc
 <details><summary>Group: root</summary>
 
-### Name: model_route
+### Name: test_model
 
 
 
@@ -9,7 +9,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#00BFFF>test</font>|<abbr title="file:example/param_verify/flask_example.py;line: 145">model_route</abbr>||
+|so1n|<font color=#00BFFF>test</font>|<abbr title="file:example/param_verify/flask_example.py;line: 145">test_model</abbr>||
 - Path: /api/pait_model
 - Method: POST,OPTIONS
 - Request:
@@ -86,7 +86,7 @@
             ```
 
 
-### Name: raise_tip_route
+### Name: test_raise_tip
 
 
 
@@ -94,7 +94,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:example/param_verify/flask_example.py;line: 29">raise_tip_route</abbr>||
+|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:example/param_verify/flask_example.py;line: 29">test_raise_tip</abbr>||
 - Path: /api/raise_tip
 - Method: POST,OPTIONS
 - Request:
@@ -169,11 +169,11 @@
 
 </details><details><summary>Group: user</summary>
 
-### Name: other_field_route
+### Name: test_other_field
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 88">other_field_route</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 88">test_other_field</abbr>||
 - Path: /api/other_field
 - Method: POST,OPTIONS
 - Request:
@@ -286,7 +286,7 @@
             ```
 
 
-### Name: post_route
+### Name: test_post
 
 
 
@@ -294,7 +294,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 48">post_route</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 48">test_post</abbr>||
 - Path: /api/post
 - Method: POST,OPTIONS
 - Request:
@@ -529,7 +529,7 @@
             ```
 
 
-### Name: pait_route
+### Name: test_pait
 
 
 
@@ -537,7 +537,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 115">pait_route</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 115">test_pait</abbr>||
 - Path: /api/get/<age>
 - Method: OPTIONS,HEAD,GET
 - Request:

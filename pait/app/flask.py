@@ -1,10 +1,7 @@
 import logging
-from typing import Any, Callable, Dict, List, Mapping, Optional, Set, Tuple, Type
-from urllib.parse import urlencode
+from typing import Any, Callable, Dict, Generic, List, Mapping, Optional, Set, Tuple, Type, TypeVar
 
-from flask import Blueprint, Flask, Request, Response, current_app, jsonify
-from flask import make_response as _make_response  # type: ignore
-from flask import request
+from flask import Blueprint, Flask, Request, Response, current_app, jsonify, request
 from flask.testing import FlaskClient
 from flask.views import MethodView
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
@@ -13,7 +10,7 @@ from werkzeug.exceptions import NotFound
 from pait.api_doc.html import get_redoc_html as _get_redoc_html
 from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenApi
-from pait.app.base import BaseAppHelper
+from pait.app.base import BaseAppHelper, BaseTestHelper
 from pait.core import pait as _pait
 from pait.g import pait_data
 from pait.model.core import PaitCoreModel
@@ -112,66 +109,36 @@ def load_app(app: Flask, project_name: str = "") -> Dict[str, PaitCoreModel]:
     return _pait_data
 
 
-def flask_test_helper(
-    flask_client: FlaskClient,
-    func: Callable,
-    pait_dict: Optional[Dict[str, PaitCoreModel]] = None,
-    body_dict: Optional[dict] = None,
-    cookie_dict: Optional[dict] = None,
-    file_dict: Optional[dict] = None,
-    form_dict: Optional[dict] = None,
-    header_dict: Optional[dict] = None,
-    path_dict: Optional[dict] = None,
-    query_dict: Optional[dict] = None,
-    method: Optional[str] = None,
-) -> Response:
-    pait_id: str = getattr(func, "_pait_id", "")
-    if not pait_id:
-        raise RuntimeError(f"Can not found pait id from {func}")
+_T = TypeVar("_T", bound=Response)
 
-    if not pait_dict:
-        if not pait_dict:
-            pait_dict = load_app(flask_client.application)
 
-    pait_core_model: PaitCoreModel = pait_dict[pait_id]
-    path: str = pait_core_model.path
-    if path_dict:
-        path_list: List[str] = path.split("/")
-        new_path_list: List[str] = []
-        for sub_path in path_list:
-            if not sub_path:
-                continue
-            if sub_path[0] == "<" and sub_path[-1] == ">":
-                key = sub_path[1:-1]
-                new_path_list.append(path_dict[key])
-            else:
-                new_path_list.append(sub_path)
-        path = "/".join([str(i) for i in new_path_list])
-    if query_dict:
-        path = path + "?" + urlencode(query_dict, True)
-    if cookie_dict:
-        for key, value in cookie_dict.items():
-            flask_client.set_cookie("localhost", key, value)
-    if file_dict:
-        if form_dict:
-            form_dict.update(file_dict)
-        else:
-            form_dict = file_dict
-    if not method:
-        if len(pait_core_model.method_list) == 1:
-            method = pait_core_model.method_list[0]
-        elif "GET" in pait_core_model.method_list:
-            method = "GET"
-        elif "POST" in pait_core_model.method_list:
-            method = "POST"
-    resp: Response = flask_client.open(path, data=form_dict, json=body_dict, headers=header_dict, method=method)
-    if pait_core_model.response_model_list:
-        response_model: Type[PaitResponseModel] = pait_core_model.response_model_list[0]
+class FlaskTestHelper(BaseTestHelper, Generic[_T]):
+    client: FlaskClient
+
+    def _app_init_field(self) -> None:
+        if self.cookie_dict:
+            for key, value in self.cookie_dict.items():
+                self.client.set_cookie("localhost", key, value)
+
+    def _gen_pait_dict(self) -> Dict[str, PaitCoreModel]:
+        return load_app(self.client.application)
+
+    def _assert_response(self, resp: Response) -> None:
+        response_model: Type[PaitResponseModel] = self.pait_core_model.response_model_list[0]
         assert resp.status_code in response_model.status_code
         assert resp.mimetype == response_model.media_type
         if response_model.response_data:
             assert response_model.response_data(**resp.get_json())
-    return resp
+
+    def _replace_path(self, path_str: str) -> Optional[str]:
+        if self.path_dict and path_str[0] == "<" and path_str[-1] == ">":
+            return self.path_dict[path_str[1:-1]]
+        return None
+
+    def _make_response(self, method: str) -> Response:
+        return self.client.open(
+            self.path, data=self.form_dict, json=self.body_dict, headers=self.header_dict, method=method
+        )
 
 
 def pait(

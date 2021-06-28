@@ -4,13 +4,16 @@ from typing import Generator, List
 from unittest import mock
 
 import pytest
-from flask import Flask
+from flask import Flask, Response
 from flask.ctx import AppContext
 from flask.testing import FlaskClient
 
-from example.param_verify.flask_example import create_app, other_field_route, pait_route, post_route
+from example.param_verify.flask_example import create_app
+from example.param_verify.flask_example import test_other_field as other_field_route
+from example.param_verify.flask_example import test_pait as pait_route
+from example.param_verify.flask_example import test_post as post_route
 from pait.app import auto_load_app
-from pait.app.flask import flask_test_helper
+from pait.app.flask import FlaskTestHelper
 from pait.g import config
 
 
@@ -36,14 +39,15 @@ def enable_mock_response() -> Generator[None, None, None]:
 
 class TestFlask:
     def test_get(self, client: FlaskClient) -> None:
+        flask_test_helper: FlaskTestHelper[Response] = FlaskTestHelper(
+            client,
+            pait_route,
+            path_dict={"age": 3},
+            query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
+        )
         resp_list: List[dict] = [
             client.get("/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg").get_json(),
-            flask_test_helper(
-                client,
-                pait_route,
-                path_dict={"age": 3},
-                query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
-            ).get_json(),
+            flask_test_helper.get().get_json(),
         ]
         for resp in resp_list:
             assert resp["code"] == 0
@@ -90,13 +94,14 @@ class TestFlask:
         assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
 
     def test_post(self, client: FlaskClient) -> None:
+        flask_test_helper: FlaskTestHelper[Response] = FlaskTestHelper(
+            client,
+            post_route,
+            body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
+            header_dict={"user-agent": "customer_agent"},
+        )
         for resp in [
-            flask_test_helper(
-                client,
-                post_route,
-                body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
-                header_dict={"user-agent": "customer_agent"},
-            ).get_json(),
+            flask_test_helper.post().get_json(),
             client.post(
                 "/api/post",
                 headers={"user-agent": "customer_agent"},
@@ -138,11 +143,13 @@ class TestFlask:
         f2.write(file_content.encode())
         f2.seek(0)
 
+        flask_test_helper: FlaskTestHelper[Response] = FlaskTestHelper(
+            client, other_field_route, file_dict={"upload_file": f1}, form_dict={"a": "1", "b": "2", "c": "3"}
+        )
+
         client.set_cookie("localhost", "abcd", "abcd")
         for resp in [
-            flask_test_helper(
-                client, other_field_route, file_dict={"upload_file": f1}, form_dict={"a": "1", "b": "2", "c": "3"}
-            ).get_json(),
+            flask_test_helper.post().get_json(),
             client.post("/api/other_field", data={"a": "1", "b": "2", "upload_file": f2, "c": "3"}).get_json(),
         ]:
             assert {
