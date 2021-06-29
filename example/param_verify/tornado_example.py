@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, Tuple
+from typing import Dict, List, Tuple
 
 from tornado.httputil import RequestStartLine
 from tornado.ioloop import IOLoop
@@ -135,7 +135,7 @@ class TestOtherFieldHandler(MyHandler):
     )
     async def post(
         self,
-        upload_file: Any = File.i(description="upload file"),
+        upload_file: Dict = File.i(raw_return=True, description="upload file"),
         a: str = Form.i(description="form data"),
         b: str = Form.i(description="form data"),
         c: List[str] = MultiForm.i(description="form data"),
@@ -146,12 +146,12 @@ class TestOtherFieldHandler(MyHandler):
                 "code": 0,
                 "msg": "",
                 "data": {
-                    "filename": upload_file.name,
-                    "content": upload_file.body.decode(),
+                    "filename": list(upload_file.values())[0]["filename"],
+                    "content": list(upload_file.values())[0]["body"].decode(),
                     "form_a": a,
                     "form_b": b,
                     "form_c": c,
-                    "cookie": cookie,
+                    "cookie": {key: key for key, _ in cookie.items()},
                 },
             }
         )

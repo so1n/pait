@@ -1,7 +1,10 @@
+import binascii
 import json
 import sys
+import os
+from io import BytesIO
 from tempfile import NamedTemporaryFile
-from typing import Generator
+from typing import Generator, Optional, Tuple
 from unittest import mock
 
 import pytest
@@ -122,33 +125,75 @@ class TestTornado(AsyncHTTPTestCase):
         resp: dict = json.loads(response.body.decode())
         assert "exc" in resp
 
-    # def test_other_field(self) -> None:
-    #     cookie_str: str = "abcd=abcd;"
-    #
-    #     file_content: str = "Hello Word!"
-    #
-    #     f = NamedTemporaryFile(delete=True)
-    #     file_name: str = f.name
-    #     f.write(file_content.encode())
-    #     f.seek(0)
-    #
-    #     # oh! fuck
-    #     response: HTTPResponse = self.fetch(
-    #         "/api/other_field",
-    #         headers={"cookie": cookie_str},
-    #         method="POST",
-    #         body={"a": "1", "b": "2", "c": "3"},
-    #         files={"upload_file": f}
-    #     )
-    #     resp: dict = json.loads(response.body.decode())
-    #     assert {
-    #         "filename": file_name.split("/")[-1],
-    #         "content": file_content,
-    #         "form_a": "1",
-    #         "form_b": "2",
-    #         "form_c": ["3"],
-    #         "cookie": {"abcd": "abcd"},
-    #     } == resp["data"]
+    def test_other_field(self) -> None:
+        cookie_str: str = "abcd=abcd;"
+
+        file_content: str = "Hello Word!"
+
+        f = NamedTemporaryFile(delete=True)
+        file_name: str = f.name
+        f.write(file_content.encode())
+        f.seek(0)
+
+        content_type, body = self.encode_multipart_formdata(
+            data={"a": "1", "b": "2", "c": "3"}, files={file_name: f.read()}
+        )
+
+        response: HTTPResponse = self.fetch(
+            "/api/other_field",
+            headers={"cookie": cookie_str, "Content-Type": content_type, 'content-length': str(len(body))},
+            method="POST",
+            body=body
+        )
+        resp: dict = json.loads(response.body.decode())
+        assert {
+            "filename": file_name,
+            "content": file_content,
+            "form_a": "1",
+            "form_b": "2",
+            "form_c": ["3"],
+            "cookie": {"abcd": "abcd"},
+        } == resp["data"]
+
+    @staticmethod
+    def choose_boundary() -> str:
+        """
+        Our embarrassingly-simple replacement for mimetools.choose_boundary.
+        """
+        boundary: bytes = binascii.hexlify(os.urandom(16))
+        return boundary.decode('ascii')
+
+    def encode_multipart_formdata(self, data: Optional[dict] = None, files: Optional[dict] = None) -> Tuple[str, bytes]:
+        """
+        fields is a sequence of (name, value) elements for regular form fields.
+        files is a sequence of (name, filename, value) elements for data to be
+        uploaded as files.
+        Return (content_type, body) ready for httplib.HTTP instance
+        """
+        body: BytesIO = BytesIO()
+        boundary: str = self.choose_boundary()
+        if data:
+            for key, value in data.items():
+                body.write(('--%s\r\n' % boundary).encode(encoding="utf-8"))
+                body.write(('Content-Disposition:form-data;name="%s"\r\n' % key).encode(encoding="utf-8"))
+                body.write('\r\n'.encode(encoding="utf-8"))
+                if isinstance(value, int):
+                    value = str(value)
+                body.write(('%s\r\n' % value).encode(encoding="utf-8"))
+
+        if files:
+            for key, value in files.items():
+                body.write(('--%s\r\n' % boundary).encode(encoding="utf-8"))
+                body.write(
+                    ('Content-Disposition:form-data;name="file";filename="%s"\r\n' % key).encode(encoding="utf-8")
+                )
+                body.write('\r\n'.encode(encoding="utf-8"))
+                body.write(value)
+                body.write('\r\n'.encode(encoding="utf-8"))
+
+        body.write(('--%s--\r\n' % boundary).encode(encoding="utf-8"))
+        content_type: str = 'multipart/form-data;boundary=%s' % boundary
+        return content_type, body.getvalue()
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:
