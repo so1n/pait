@@ -10,8 +10,8 @@ from sanic_testing.testing import SanicTestClient, TestingResponse  # type: igno
 
 from example.param_verify.sanic_example import create_app
 from example.param_verify.sanic_example import test_get as get_route
-from example.param_verify.sanic_example import test_post as post_route
 from example.param_verify.sanic_example import test_other_field as other_field_route
+from example.param_verify.sanic_example import test_post as post_route
 from pait.app import auto_load_app
 from pait.app.sanic import SanicTestHelper
 from pait.g import config
@@ -135,8 +135,11 @@ class TestSanic:
         f2.seek(0)
 
         sanic_test_helper: SanicTestHelper[TestingResponse] = SanicTestHelper(
-            client, other_field_route,
-            cookie_dict={"cookie": cookie_str}, file_dict={"upload_file": f1}, form_dict={"a": "1", "b": "2", "c": "3"}
+            client,
+            other_field_route,
+            cookie_dict={"cookie": cookie_str},
+            file_dict={"upload_file": f1},
+            form_dict={"a": "1", "b": "2", "c": "3"},
         )
         request, response = client.post(
             "/api/other_field",

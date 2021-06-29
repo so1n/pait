@@ -10,8 +10,8 @@ from requests import Response
 from starlette.testclient import TestClient
 
 from example.param_verify.starlette_example import create_app
-from example.param_verify.starlette_example import test_other_field as other_field_route
 from example.param_verify.starlette_example import test_get as get_route
+from example.param_verify.starlette_example import test_other_field as other_field_route
 from example.param_verify.starlette_example import test_post as post_route
 from pait.app import auto_load_app
 from pait.app.starlette import StarletteTestHelper
@@ -46,9 +46,7 @@ class TestStarlette:
         )
         for resp in [
             test_helper.get().json(),
-            client.get(
-                "/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
-            ).json()
+            client.get("/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg").json(),
         ]:
             assert resp["code"] == 0
             assert resp["data"] == {
@@ -106,7 +104,7 @@ class TestStarlette:
                 "/api/post",
                 headers={"user-agent": "customer_agent"},
                 json={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
-            ).json()
+            ).json(),
         ]:
             assert resp["code"] == 0
             assert resp["data"] == {
@@ -149,7 +147,7 @@ class TestStarlette:
             other_field_route,
             cookie_dict={"cookie": cookie_str},
             file_dict={"upload_file": f1},
-            form_dict={"a": "1", "b": "2", "c": ["3"]}
+            form_dict={"a": "1", "b": "2", "c": ["3"]},
         )
         for resp in [
             test_helper.post().json(),
@@ -158,7 +156,7 @@ class TestStarlette:
                 data={"a": "1", "b": "2", "c": ["3"]},
                 headers={"cookie": cookie_str},
                 files={"upload_file": f2},
-            ).json()
+            ).json(),
         ]:
             assert {
                 "filename": file_name.split("/")[-1],

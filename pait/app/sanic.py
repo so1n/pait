@@ -147,13 +147,15 @@ class SanicTestHelper(BaseTestHelper, Generic[_T]):
     def _make_response(self, method: str) -> TestingResponse:
         method = method.lower()
         if method == "get":
-            request, resp = self.client._sanic_endpoint_test(
-                method, uri=self.path, headers=self.header_dict
-            )
+            request, resp = self.client._sanic_endpoint_test(method, uri=self.path, headers=self.header_dict)
         else:
             request, resp = self.client._sanic_endpoint_test(
                 method,
-                uri=self.path, data=self.form_dict, json=self.body_dict, headers=self.header_dict, files=self.file_dict
+                uri=self.path,
+                data=self.form_dict,
+                json=self.body_dict,
+                headers=self.header_dict,
+                files=self.file_dict,
             )
         return resp
 

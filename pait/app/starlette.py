@@ -40,7 +40,7 @@ class AppHelper(BaseAppHelper):
 
     def cookie(self) -> dict:
         return self.request.cookies
-    
+
     async def get_form(self) -> FormData:
         if self._form:
             return self._form
@@ -51,6 +51,7 @@ class AppHelper(BaseAppHelper):
     def file(self) -> Coroutine[Any, Any, FormData]:
         async def _() -> FormData:
             return await self.get_form()
+
         return _()
 
     def form(self) -> Coroutine[Any, Any, Dict[str, Any]]:
@@ -78,6 +79,7 @@ class AppHelper(BaseAppHelper):
                 key: [i for i in form_data.getlist(key) if not isinstance(i, UploadFile)]
                 for key, _ in form_data.items()
             }
+
         return _multiform()
 
     @LazyProperty(is_class_func=True)
@@ -138,7 +140,7 @@ class StarletteTestHelper(BaseTestHelper, Generic[_T]):
             self.header_dict.update(self.cookie_dict)
 
     def _gen_pait_dict(self) -> Dict[str, PaitCoreModel]:
-        return load_app(self.client.app)
+        return load_app(self.client.app)  # type: ignore
 
     def _assert_response(self, resp: _Response) -> None:
         response_model: Type[PaitResponseModel] = self.pait_core_model.response_model_list[0]
@@ -156,8 +158,12 @@ class StarletteTestHelper(BaseTestHelper, Generic[_T]):
         method = method.upper()
         resp: _Response = self.client.request(
             method,
-            url=self.path, cookies=self.cookie_dict, data=self.form_dict, json=self.body_dict,
-            headers=self.header_dict, files=self.file_dict
+            url=self.path,
+            cookies=self.cookie_dict,
+            data=self.form_dict,
+            json=self.body_dict,
+            headers=self.header_dict,
+            files=self.file_dict,
         )
         return resp
 

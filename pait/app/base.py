@@ -140,6 +140,8 @@ class BaseTestHelper(Generic[RESP_T]):
 
         if self.query_dict:
             self.path = self.path + "?" + urlencode(self.query_dict, True)
+        if not self.path.startswith("/"):
+            self.path = "/" + self.path
 
         self.method: Optional[str] = None
         if len(self.pait_core_model.method_list) == 1:

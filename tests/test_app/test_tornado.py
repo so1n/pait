@@ -1,7 +1,7 @@
 import binascii
 import json
-import sys
 import os
+import sys
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 from typing import Generator, Optional, Tuple
@@ -11,8 +11,12 @@ import pytest
 from tornado.testing import AsyncHTTPTestCase, HTTPResponse
 from tornado.web import Application
 
+from example.param_verify.tornado_example import TestGetHandler as GetHandler
+from example.param_verify.tornado_example import TestOtherFieldHandler as OtherFieldHandler
+from example.param_verify.tornado_example import TestPostHandler as PostHandler
 from example.param_verify.tornado_example import create_app
 from pait.app import auto_load_app
+from pait.app.tornado import TornadoTestHelper
 from pait.g import config
 
 
@@ -30,18 +34,27 @@ class TestTornado(AsyncHTTPTestCase):
         return "%s://localhost:%s%s" % (self.get_protocol(), self.get_http_port(), path)
 
     def test_get(self) -> None:
-        response = self.fetch("/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg")
-        resp: dict = json.loads(response.body.decode())
+        test_helper: TornadoTestHelper[HTTPResponse] = TornadoTestHelper(
+            self,
+            GetHandler.get,
+            path_dict={"age": 3},
+            query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
+        )
+        response: HTTPResponse = self.fetch(
+            "/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
+        )
+        for resp in [test_helper.get(), response]:
+            resp = json.loads(resp.body.decode())
 
-        assert resp["code"] == 0
-        assert resp["data"] == {
-            "uid": 123,
-            "user_name": "appl",
-            "email": "example@xxx.com",
-            "age": 3,
-            "sex": "man",
-            "multi_user_name": ["abc", "efg"],
-        }
+            assert resp["code"] == 0
+            assert resp["data"] == {
+                "uid": 123,
+                "user_name": "appl",
+                "email": "example@xxx.com",
+                "age": 3,
+                "sex": "man",
+                "multi_user_name": ["abc", "efg"],
+            }
 
     def test_mock_get(self) -> None:
         config.enable_mock_response = True
@@ -88,21 +101,28 @@ class TestTornado(AsyncHTTPTestCase):
         assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
 
     def test_post(self) -> None:
+        test_helper: TornadoTestHelper[HTTPResponse] = TornadoTestHelper(
+            self,
+            PostHandler.post,
+            body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
+            header_dict={"user-agent": "customer_agent"},
+        )
         response: HTTPResponse = self.fetch(
             "/api/post",
             headers={"user-agent": "customer_agent"},
             method="POST",
             body='{"uid": 123, "user_name": "appl", "age": 2, "sex": "man"}',
         )
-        resp: dict = json.loads(response.body.decode())
-        assert resp["code"] == 0
-        assert resp["data"] == {
-            "uid": 123,
-            "user_name": "appl",
-            "age": 2,
-            "content_type": "application/x-www-form-urlencoded",
-            "sex": "man",
-        }
+        for resp in [test_helper.post(), response]:
+            resp = json.loads(resp.body.decode())
+            assert resp["code"] == 0
+            assert resp["data"] == {
+                "uid": 123,
+                "user_name": "appl",
+                "age": 2,
+                "content_type": "application/x-www-form-urlencoded",
+                "sex": "man",
+            }
 
     def test_pait_model(self) -> None:
         response: HTTPResponse = self.fetch(
@@ -130,30 +150,41 @@ class TestTornado(AsyncHTTPTestCase):
 
         file_content: str = "Hello Word!"
 
-        f = NamedTemporaryFile(delete=True)
-        file_name: str = f.name
-        f.write(file_content.encode())
-        f.seek(0)
+        f1 = NamedTemporaryFile(delete=True)
+        file_name: str = f1.name
+        f1.write(file_content.encode())
+        f1.seek(0)
+        f2 = NamedTemporaryFile(delete=True)
+        f2.name = file_name  # type: ignore
+        f2.write(file_content.encode())
+        f2.seek(0)
 
-        content_type, body = self.encode_multipart_formdata(
-            data={"a": "1", "b": "2", "c": "3"}, files={file_name: f.read()}
+        test_helper: TornadoTestHelper[HTTPResponse] = TornadoTestHelper(
+            self,
+            OtherFieldHandler.post,
+            cookie_dict={"cookie": cookie_str},
+            file_dict={f1.name: f1.read()},
+            form_dict={"a": "1", "b": "2", "c": "3"},
         )
-
+        content_type, body = self.encode_multipart_formdata(
+            data={"a": "1", "b": "2", "c": "3"}, files={file_name: f2.read()}
+        )
         response: HTTPResponse = self.fetch(
             "/api/other_field",
-            headers={"cookie": cookie_str, "Content-Type": content_type, 'content-length': str(len(body))},
+            headers={"cookie": cookie_str, "Content-Type": content_type, "content-length": str(len(body))},
             method="POST",
-            body=body
+            body=body,
         )
-        resp: dict = json.loads(response.body.decode())
-        assert {
-            "filename": file_name,
-            "content": file_content,
-            "form_a": "1",
-            "form_b": "2",
-            "form_c": ["3"],
-            "cookie": {"abcd": "abcd"},
-        } == resp["data"]
+        for resp in [test_helper.post(), response]:
+            resp = json.loads(resp.body.decode())
+            assert {
+                "filename": file_name,
+                "content": file_content,
+                "form_a": "1",
+                "form_b": "2",
+                "form_c": ["3"],
+                "cookie": {"abcd": "abcd"},
+            } == resp["data"]
 
     @staticmethod
     def choose_boundary() -> str:
@@ -161,7 +192,7 @@ class TestTornado(AsyncHTTPTestCase):
         Our embarrassingly-simple replacement for mimetools.choose_boundary.
         """
         boundary: bytes = binascii.hexlify(os.urandom(16))
-        return boundary.decode('ascii')
+        return boundary.decode("ascii")
 
     def encode_multipart_formdata(self, data: Optional[dict] = None, files: Optional[dict] = None) -> Tuple[str, bytes]:
         """
@@ -174,25 +205,25 @@ class TestTornado(AsyncHTTPTestCase):
         boundary: str = self.choose_boundary()
         if data:
             for key, value in data.items():
-                body.write(('--%s\r\n' % boundary).encode(encoding="utf-8"))
+                body.write(("--%s\r\n" % boundary).encode(encoding="utf-8"))
                 body.write(('Content-Disposition:form-data;name="%s"\r\n' % key).encode(encoding="utf-8"))
-                body.write('\r\n'.encode(encoding="utf-8"))
+                body.write("\r\n".encode(encoding="utf-8"))
                 if isinstance(value, int):
                     value = str(value)
-                body.write(('%s\r\n' % value).encode(encoding="utf-8"))
+                body.write(("%s\r\n" % value).encode(encoding="utf-8"))
 
         if files:
             for key, value in files.items():
-                body.write(('--%s\r\n' % boundary).encode(encoding="utf-8"))
+                body.write(("--%s\r\n" % boundary).encode(encoding="utf-8"))
                 body.write(
                     ('Content-Disposition:form-data;name="file";filename="%s"\r\n' % key).encode(encoding="utf-8")
                 )
-                body.write('\r\n'.encode(encoding="utf-8"))
+                body.write("\r\n".encode(encoding="utf-8"))
                 body.write(value)
-                body.write('\r\n'.encode(encoding="utf-8"))
+                body.write("\r\n".encode(encoding="utf-8"))
 
-        body.write(('--%s--\r\n' % boundary).encode(encoding="utf-8"))
-        content_type: str = 'multipart/form-data;boundary=%s' % boundary
+        body.write(("--%s--\r\n" % boundary).encode(encoding="utf-8"))
+        content_type: str = "multipart/form-data;boundary=%s" % boundary
         return content_type, body.getvalue()
 
     def test_auto_load_app_class(self) -> None:
