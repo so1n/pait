@@ -133,11 +133,23 @@ class SanicTestHelper(BaseTestHelper, Generic[_T]):
         return load_app(self.client.app)
 
     def _assert_response(self, resp: TestingResponse) -> None:
-        response_model: Type[PaitResponseModel] = self.pait_core_model.response_model_list[0]
-        assert resp.status in response_model.status_code
-        assert resp.content_type == response_model.media_type
-        if response_model.response_data:
-            assert response_model.response_data(**resp.json)
+        if not self.pait_core_model.response_model_list:
+            return
+
+        for response_model in self.pait_core_model.response_model_list:
+            check_list: List[bool] = [
+                resp.status in response_model.status_code,
+                resp.content_type == response_model.media_type,
+            ]
+            if response_model.response_data:
+                try:
+                    response_model.response_data(**resp.json)
+                    check_list.append(True)
+                except:
+                    check_list.append(False)
+            if all(check_list):
+                return
+        raise RuntimeError(f"response check error by:{self.pait_core_model.response_model_list}. resp:{resp}")
 
     def _replace_path(self, path_str: str) -> Optional[str]:
         if self.path_dict and path_str[0] == "<" and path_str[-1] == ">":
