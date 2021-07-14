@@ -135,7 +135,7 @@ async def test_check_param(
     user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
     alias_user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
     age: int = Query.i(description="age", gt=1, lt=100),
-    birthday: str = Query.i(default="birthday"),
+    birthday: str = Query.i(None, description="birthday"),
     sex: SexEnum = Query.i(description="sex"),
 ) -> JSONResponse:
     """Test check param"""

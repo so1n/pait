@@ -118,7 +118,9 @@ class TornadoTestHelper(BaseTestHelper, Generic[_T]):
     def _app_init_field(self) -> None:
         if self.cookie_dict:
             self.header_dict.update(self.cookie_dict)
-        if self.path.endswith("$"):
+        if "$?" in self.path:
+            self.path = self.path.replace("$?", "?")
+        elif self.path.endswith("$"):
             self.path = self.path[:-1]
 
     def _gen_pait_dict(self) -> Dict[str, PaitCoreModel]:

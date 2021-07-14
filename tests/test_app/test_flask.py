@@ -9,6 +9,7 @@ from flask.ctx import AppContext
 from flask.testing import FlaskClient
 
 from example.param_verify.flask_example import create_app
+from example.param_verify.flask_example import test_check_param as check_param_route
 from example.param_verify.flask_example import test_other_field as other_field_route
 from example.param_verify.flask_example import test_pait as pait_route
 from example.param_verify.flask_example import test_post as post_route
@@ -59,6 +60,21 @@ class TestFlask:
                 "sex": "man",
                 "multi_user_name": ["abc", "efg"],
             }
+
+    def test_check_param(self, client: FlaskClient) -> None:
+        flask_test_helper: FlaskTestHelper[Response] = FlaskTestHelper(
+            client,
+            check_param_route,
+            query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
+        )
+        assert "requires at most one of param user_name or alias_user_name" in flask_test_helper.get().get_json()["exc"]
+        flask_test_helper = FlaskTestHelper(
+            client, check_param_route, query_dict={"uid": 123, "sex": "man", "age": 10, "alias_user_name": "appe"}
+        )
+        assert (
+            "error:birthday requires param alias_user_name, which if not none"
+            in flask_test_helper.get().get_json()["exc"]
+        )
 
     def test_mock_get(self, client: FlaskClient) -> None:
         config.enable_mock_response = True

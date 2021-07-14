@@ -29,7 +29,7 @@ def _check_required_by(required_by: Dict[str, List[str]], func_kwargs: Dict[str,
         if pre_param not in func_kwargs:
             continue
         for param in param_list:
-            if func_kwargs.get(param, None) is None:
+            if func_kwargs.get(param, None) is not None and func_kwargs[pre_param] is None:
                 raise CheckValueError(f"{pre_param} requires param {' and '.join(param_list)}, which if not none")
 
 

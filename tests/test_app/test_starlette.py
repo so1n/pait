@@ -10,6 +10,7 @@ from requests import Response
 from starlette.testclient import TestClient
 
 from example.param_verify.starlette_example import create_app
+from example.param_verify.starlette_example import test_check_param as check_param_route
 from example.param_verify.starlette_example import test_get as get_route
 from example.param_verify.starlette_example import test_other_field as other_field_route
 from example.param_verify.starlette_example import test_post as post_route
@@ -57,6 +58,23 @@ class TestStarlette:
                 "sex": "man",
                 "multi_user_name": ["abc", "efg"],
             }
+
+    def test_check_param(self, client: TestClient) -> None:
+        startlette_test_helper: StarletteTestHelper[Response] = StarletteTestHelper(
+            client,
+            check_param_route,
+            query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
+        )
+        assert (
+            "requires at most one of param user_name or alias_user_name" in startlette_test_helper.get().json()["exc"]
+        )
+        startlette_test_helper = StarletteTestHelper(
+            client, check_param_route, query_dict={"uid": 123, "sex": "man", "age": 10, "alias_user_name": "appe"}
+        )
+        assert (
+            "error:birthday requires param alias_user_name, which if not none"
+            in startlette_test_helper.get().json()["exc"]
+        )
 
     def test_mock_get(self, client: TestClient) -> None:
         config.enable_mock_response = True

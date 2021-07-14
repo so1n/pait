@@ -11,6 +11,7 @@ import pytest
 from tornado.testing import AsyncHTTPTestCase, HTTPResponse
 from tornado.web import Application
 
+from example.param_verify.tornado_example import TestCheckParamHandler as CheckParamHandler
 from example.param_verify.tornado_example import TestGetHandler as GetHandler
 from example.param_verify.tornado_example import TestOtherFieldHandler as OtherFieldHandler
 from example.param_verify.tornado_example import TestPostHandler as PostHandler
@@ -55,6 +56,24 @@ class TestTornado(AsyncHTTPTestCase):
                 "sex": "man",
                 "multi_user_name": ["abc", "efg"],
             }
+
+    def test_check_param(self) -> None:
+        test_helper: TornadoTestHelper[HTTPResponse] = TornadoTestHelper(
+            self,
+            CheckParamHandler.get,
+            query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
+        )
+        assert (
+            "requires at most one of param user_name or alias_user_name"
+            in json.loads(test_helper.get().body.decode())["exc"]
+        )
+        test_helper = TornadoTestHelper(
+            self, CheckParamHandler.get, query_dict={"uid": 123, "sex": "man", "age": 10, "alias_user_name": "appe"}
+        )
+        assert (
+            "error:birthday requires param alias_user_name, which if not none"
+            in json.loads(test_helper.get().body.decode())["exc"]
+        )
 
     def test_mock_get(self) -> None:
         config.enable_mock_response = True
