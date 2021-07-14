@@ -174,7 +174,7 @@ class SanicTestHelper(BaseTestHelper, Generic[_T]):
 
 def pait(
     # param check
-    at_most_one_of: Optional[List[str]] = None,
+    at_most_one_of_list: Optional[List[List[str]]] = None,
     required_by: Optional[Dict[str, List[str]]] = None,
     # doc
     author: Optional[Tuple[str]] = None,
@@ -197,8 +197,8 @@ def pait(
         group=group,
         tag=tag,
         response_model_list=response_model_list,
-        at_most_one_of=at_most_one_of,
-        required_by=required_by
+        at_most_one_of_list=at_most_one_of_list,
+        required_by=required_by,
     )
 
 

@@ -1,3 +1,7 @@
+### 0.6.0
+ - Feature: add param required check
+ - Feature: support DynamicModel config
+ - Refactor: core structure
 ### 0.5.9[Now]
  - Feature: mock response
  - Feature: test client helper

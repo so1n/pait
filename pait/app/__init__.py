@@ -39,7 +39,7 @@ def add_doc_route(app: Any, prefix: str = "/") -> None:
 
 def pait(
     # param check
-    at_most_one_of: Optional[List[str]] = None,
+    at_most_one_of_list: Optional[List[List[str]]] = None,
     required_by: Optional[Dict[str, List[str]]] = None,
     # doc
     author: Optional[Tuple[str]] = None,
@@ -67,7 +67,7 @@ def pait(
     else:
         raise NotImplementedError(f"Pait not support:{load_class_app}")
     return _pait(
-        at_most_one_of=at_most_one_of,
+        at_most_one_of_list=at_most_one_of_list,
         required_by=required_by,
         author=author,
         desc=desc,
@@ -76,5 +76,5 @@ def pait(
         status=status,
         group=group,
         tag=tag,
-        response_model_list=response_model_list
+        response_model_list=response_model_list,
     )

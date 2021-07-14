@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from tornado.httputil import RequestStartLine
 from tornado.ioloop import IOLoop
@@ -126,6 +126,43 @@ class TestGetHandler(MyHandler):
         )
 
 
+class TestCheckParamHandler(MyHandler):
+    @pait(
+        author=("so1n",),
+        group="user",
+        status=PaitStatus.release,
+        tag=("user", "get"),
+        response_model_list=[UserSuccessRespModel2, FailRespModel],
+        at_most_one_of_list=[["user_name", "alias_user_name"]],
+        required_by={"birthday": ["alias_user_name"]},
+    )
+    async def get(
+        self,
+        uid: int = Query.i(description="user id", gt=10, lt=1000),
+        email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+        user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
+        alias_user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
+        age: int = Query.i(description="age", gt=1, lt=100),
+        birthday: str = Query.i(default="birthday"),
+        sex: SexEnum = Query.i(description="sex"),
+    ) -> None:
+        """Test check param"""
+        self.write(
+            {
+                "code": 0,
+                "msg": "",
+                "data": {
+                    "birthday": birthday,
+                    "uid": uid,
+                    "user_name": user_name or alias_user_name,
+                    "email": email,
+                    "age": age,
+                    "sex": sex.value,
+                },
+            }
+        )
+
+
 class TestOtherFieldHandler(MyHandler):
     @pait(
         author=("so1n",),
@@ -219,6 +256,7 @@ def create_app() -> Application:
             (r"/api/raise_tip", RaiseTipHandler),
             (r"/api/cbv", TestCbvHandler),
             (r"/api/pait_model", TestPaitModelHanler),
+            (r"/api/check_param", TestCheckParamHandler),
         ]
     )
     add_doc_route(app)

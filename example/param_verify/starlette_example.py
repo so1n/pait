@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, Tuple
+from typing import Any, List, Optional, Tuple
 
 from pydantic import ValidationError
 from starlette.applications import Starlette
@@ -125,6 +125,41 @@ async def test_get(
     group="user",
     status=PaitStatus.release,
     tag=("user", "get"),
+    response_model_list=[UserSuccessRespModel2, FailRespModel],
+    at_most_one_of_list=[["user_name", "alias_user_name"]],
+    required_by={"birthday": ["alias_user_name"]},
+)
+async def test_check_param(
+    uid: int = Query.i(description="user id", gt=10, lt=1000),
+    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
+    alias_user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
+    age: int = Query.i(description="age", gt=1, lt=100),
+    birthday: str = Query.i(default="birthday"),
+    sex: SexEnum = Query.i(description="sex"),
+) -> JSONResponse:
+    """Test check param"""
+    return JSONResponse(
+        {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "birthday": birthday,
+                "uid": uid,
+                "user_name": user_name or alias_user_name,
+                "email": email,
+                "age": age,
+                "sex": sex.value,
+            },
+        }
+    )
+
+
+@pait(
+    author=("so1n",),
+    group="user",
+    status=PaitStatus.release,
+    tag=("user", "get"),
 )
 async def test_other_field(
     upload_file: Any = File.i(description="upload file"),
@@ -201,6 +236,7 @@ def create_app() -> Starlette:
     app: Starlette = Starlette(
         routes=[
             Route("/api/get/{age}", test_get, methods=["GET"]),
+            Route("/api/check_param", test_check_param, methods=["GET"]),
             Route("/api/post", test_post, methods=["POST"]),
             Route("/api/depend", test_depend, methods=["POST"]),
             Route("/api/other_field", test_other_field, methods=["POST"]),

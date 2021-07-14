@@ -8,16 +8,20 @@ from pait.g import pait_data
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
-from pait.param_handle import async_class_param_handle, async_func_param_handle, class_param_handle, func_param_handle
-from pait.param_handle import raise_and_tip
+from pait.param_handle import (
+    async_class_param_handle,
+    async_func_param_handle,
+    class_param_handle,
+    func_param_handle,
+    raise_and_tip,
+)
 from pait.util import FuncSig, get_func_sig
 
 
-def _check_at_most_one_of(at_most_one_of: List[str], func_kwargs: Dict[str, Any]) -> None:
-    if len([i for i in at_most_one_of if func_kwargs.get(i, None) is not None]) > 1:
-        raise CheckValueError(
-            f"requires at most one of param {' or '.join(at_most_one_of)}"
-        )
+def _check_at_most_one_of(at_most_one_of_list: List[List[str]], func_kwargs: Dict[str, Any]) -> None:
+    for at_most_one_of in at_most_one_of_list:
+        if len([i for i in at_most_one_of if func_kwargs.get(i, None) is not None]) > 1:
+            raise CheckValueError(f"requires at most one of param {' or '.join(at_most_one_of)}")
 
 
 def _check_required_by(required_by: Dict[str, List[str]], func_kwargs: Dict[str, Any]) -> None:
@@ -26,15 +30,13 @@ def _check_required_by(required_by: Dict[str, List[str]], func_kwargs: Dict[str,
             continue
         for param in param_list:
             if func_kwargs.get(param, None) is None:
-                raise CheckValueError(
-                    f"{pre_param} requires param {' and '.join(param_list)}, which if not none"
-                )
+                raise CheckValueError(f"{pre_param} requires param {' and '.join(param_list)}, which if not none")
 
 
 def pait(
     # param check
     app_helper_class: "Type[BaseAppHelper]",
-    at_most_one_of: Optional[List[str]] = None,
+    at_most_one_of_list: Optional[List[List[str]]] = None,
     required_by: Optional[Dict[str, List[str]]] = None,
     # doc
     author: Optional[Tuple[str]] = None,
@@ -83,8 +85,8 @@ def pait(
                     # support sbv
                     await async_class_param_handle(app_helper)
                     # param check
-                    if at_most_one_of:
-                        _check_at_most_one_of(at_most_one_of, func_kwargs)
+                    if at_most_one_of_list:
+                        _check_at_most_one_of(at_most_one_of_list, func_kwargs)
                     if required_by:
                         _check_required_by(required_by, func_kwargs)
                 except Exception as e:
@@ -106,8 +108,8 @@ def pait(
                     # support sbv
                     class_param_handle(app_helper)
                     # param check
-                    if at_most_one_of:
-                        _check_at_most_one_of(at_most_one_of, func_kwargs)
+                    if at_most_one_of_list:
+                        _check_at_most_one_of(at_most_one_of_list, func_kwargs)
                     if required_by:
                         _check_required_by(required_by, func_kwargs)
                 except Exception as e:

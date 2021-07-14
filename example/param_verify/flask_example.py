@@ -118,8 +118,8 @@ def test_other_field(
     status=PaitStatus.release,
     tag=("user", "get"),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
-    at_most_one_of=["user_name", "alias_user_name"],
-    required_by={"birthday": ["alias_user_name"]}
+    at_most_one_of_list=[["user_name", "alias_user_name"]],
+    required_by={"birthday": ["alias_user_name"]},
 )
 def test_check_param(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
@@ -130,7 +130,7 @@ def test_check_param(
     birthday: str = Query.i(default="birthday"),
     sex: SexEnum = Query.i(description="sex"),
 ) -> dict:
-    """Test Field"""
+    """Test check param"""
     return {
         "code": 0,
         "msg": "",

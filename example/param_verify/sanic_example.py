@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, Tuple
+from typing import Any, List, Optional, Tuple
 
 from pydantic import ValidationError
 from sanic import response
@@ -124,6 +124,41 @@ async def test_get(
     group="user",
     status=PaitStatus.release,
     tag=("user", "get"),
+    response_model_list=[UserSuccessRespModel2, FailRespModel],
+    at_most_one_of_list=[["user_name", "alias_user_name"]],
+    required_by={"birthday": ["alias_user_name"]},
+)
+async def test_check_param(
+    uid: int = Query.i(description="user id", gt=10, lt=1000),
+    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
+    alias_user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
+    age: int = Query.i(description="age", gt=1, lt=100),
+    birthday: str = Query.i(default="birthday"),
+    sex: SexEnum = Query.i(description="sex"),
+) -> response.HTTPResponse:
+    """Test check param"""
+    return response.json(
+        {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "birthday": birthday,
+                "uid": uid,
+                "user_name": user_name or alias_user_name,
+                "email": email,
+                "age": age,
+                "sex": sex.value,
+            },
+        }
+    )
+
+
+@pait(
+    author=("so1n",),
+    group="user",
+    status=PaitStatus.release,
+    tag=("user", "get"),
 )
 async def test_other_field(
     upload_file: Any = File.i(description="upload file"),
@@ -200,6 +235,7 @@ def create_app() -> Sanic:
     app: Sanic = Sanic(name="pait")
     add_doc_route(app)
     app.add_route(test_get, "/api/get/<age>", methods={"GET"})
+    app.add_route(test_check_param, "/api/check_param", methods={"GET"})
     app.add_route(test_post, "/api/post", methods={"POST"})
     app.add_route(test_depend, "/api/depend", methods={"POST"})
     app.add_route(test_other_field, "/api/other_field", methods={"POST"})
