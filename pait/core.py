@@ -1,18 +1,42 @@
 import inspect
 from functools import wraps
-from typing import Any, Callable, List, Optional, Tuple, Type
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
 from pait.app.base import BaseAppHelper
+from pait.exceptions import CheckValueError
 from pait.g import pait_data
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
 from pait.param_handle import async_class_param_handle, async_func_param_handle, class_param_handle, func_param_handle
+from pait.param_handle import raise_and_tip
 from pait.util import FuncSig, get_func_sig
 
 
+def _check_at_most_one_of(at_most_one_of: List[str], func_kwargs: Dict[str, Any]) -> None:
+    if len([i for i in at_most_one_of if func_kwargs.get(i, None) is not None]) > 1:
+        raise CheckValueError(
+            f"requires at most one of param {' or '.join(at_most_one_of)}"
+        )
+
+
+def _check_required_by(required_by: Dict[str, List[str]], func_kwargs: Dict[str, Any]) -> None:
+    for pre_param, param_list in required_by.items():
+        if pre_param not in func_kwargs:
+            continue
+        for param in param_list:
+            if func_kwargs.get(param, None) is None:
+                raise CheckValueError(
+                    f"{pre_param} requires param {' and '.join(param_list)}, which if not none"
+                )
+
+
 def pait(
+    # param check
     app_helper_class: "Type[BaseAppHelper]",
+    at_most_one_of: Optional[List[str]] = None,
+    required_by: Optional[Dict[str, List[str]]] = None,
+    # doc
     author: Optional[Tuple[str]] = None,
     desc: Optional[str] = None,
     summary: Optional[str] = None,
@@ -49,14 +73,22 @@ def pait(
 
             @wraps(func)
             async def dispatch(*args: Any, **kwargs: Any) -> Callable:
-                # only use in runtime, support cbv
-                class_ = getattr(inspect.getmodule(func), pait_core_model.qualname)
-                # real param handle
-                app_helper: BaseAsyncAppHelper = app_helper_class(class_, args, kwargs)  # type: ignore
-                # auto gen param from request
-                func_args, func_kwargs = await async_func_param_handle(app_helper, func_sig)
-                # support sbv
-                await async_class_param_handle(app_helper)
+                try:
+                    # only use in runtime, support cbv
+                    class_ = getattr(inspect.getmodule(func), pait_core_model.qualname)
+                    # real param handle
+                    app_helper: BaseAsyncAppHelper = app_helper_class(class_, args, kwargs)  # type: ignore
+                    # auto gen param from request
+                    func_args, func_kwargs = await async_func_param_handle(app_helper, func_sig)
+                    # support sbv
+                    await async_class_param_handle(app_helper)
+                    # param check
+                    if at_most_one_of:
+                        _check_at_most_one_of(at_most_one_of, func_kwargs)
+                    if required_by:
+                        _check_required_by(required_by, func_kwargs)
+                except Exception as e:
+                    raise raise_and_tip(func, e)
                 return await pait_core_model.func(*func_args, **func_kwargs)
 
             return dispatch
@@ -64,14 +96,22 @@ def pait(
 
             @wraps(func)
             def dispatch(*args: Any, **kwargs: Any) -> Callable:
-                # only use in runtime
-                class_ = getattr(inspect.getmodule(func), pait_core_model.qualname)
-                # real param handle
-                app_helper: BaseSyncAppHelper = app_helper_class(class_, args, kwargs)  # type: ignore
-                # auto gen param from request
-                func_args, func_kwargs = func_param_handle(app_helper, func_sig)
-                # support sbv
-                class_param_handle(app_helper)
+                try:
+                    # only use in runtime
+                    class_ = getattr(inspect.getmodule(func), pait_core_model.qualname)
+                    # real param handle
+                    app_helper: BaseSyncAppHelper = app_helper_class(class_, args, kwargs)  # type: ignore
+                    # auto gen param from request
+                    func_args, func_kwargs = func_param_handle(app_helper, func_sig)
+                    # support sbv
+                    class_param_handle(app_helper)
+                    # param check
+                    if at_most_one_of:
+                        _check_at_most_one_of(at_most_one_of, func_kwargs)
+                    if required_by:
+                        _check_required_by(required_by, func_kwargs)
+                except Exception as e:
+                    raise raise_and_tip(func, e)
                 return pait_core_model.func(*func_args, **func_kwargs)
 
             return dispatch

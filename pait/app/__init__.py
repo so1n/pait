@@ -38,14 +38,18 @@ def add_doc_route(app: Any, prefix: str = "/") -> None:
 
 
 def pait(
+    # param check
+    at_most_one_of: Optional[List[str]] = None,
+    required_by: Optional[Dict[str, List[str]]] = None,
+    # doc
     author: Optional[Tuple[str]] = None,
     desc: Optional[str] = None,
     summary: Optional[str] = None,
     name: Optional[str] = None,
     status: Optional[PaitStatus] = None,
-    group: str = "root",
+    group: Optional[str] = None,
     tag: Optional[Tuple[str, ...]] = None,
-    response_model_list: List[Type[PaitResponseModel]] = None,
+    response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
 ) -> Callable:
     """provide parameter checks and type conversions for each routing function/cbv class
     Note:This is an implicit method
@@ -62,4 +66,15 @@ def pait(
         from .tornado import pait as _pait  # type: ignore
     else:
         raise NotImplementedError(f"Pait not support:{load_class_app}")
-    return _pait(author, desc, summary, name, status, group, tag, response_model_list)
+    return _pait(
+        at_most_one_of=at_most_one_of,
+        required_by=required_by,
+        author=author,
+        desc=desc,
+        summary=summary,
+        name=name,
+        status=status,
+        group=group,
+        tag=tag,
+        response_model_list=response_model_list
+    )

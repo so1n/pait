@@ -852,10 +852,7 @@ components:
           default: success
           type: string
         data:
-          title: Data
-          type: array
-          items:
-            $ref: '#/components/schemas/_BaseModel'
+          $ref: '#/components/schemas/_BaseModel'
       required:
       - data
     ResponseFailModel:

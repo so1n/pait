@@ -5,7 +5,9 @@
 
 
 
-**Desc**:Test Field
+**Desc**:
+
+```Test Field```
 
 |Author|Status|func|summary|
 |---|---|---|---|
@@ -54,14 +56,12 @@
             {
               "code": 0,
               "msg": "success",
-              "data": [
-                {
-                  "uid": 6666666666,
-                  "user_name": "mock_name",
-                  "age": 99,
-                  "content_type": "application/json"
-                }
-              ]
+              "data": {
+                "uid": 6666666666,
+                "user_name": "mock_name",
+                "age": 99,
+                "content_type": "application/json"
+              }
             }
             ```
 
@@ -90,7 +90,9 @@
 
 
 
-**Desc**:test pait raise tip
+**Desc**:
+
+```test pait raise tip```
 
 |Author|Status|func|summary|
 |---|---|---|---|
@@ -135,14 +137,12 @@
             {
               "code": 0,
               "msg": "success",
-              "data": [
-                {
-                  "uid": 6666666666,
-                  "user_name": "mock_name",
-                  "age": 99,
-                  "content_type": "application/json"
-                }
-              ]
+              "data": {
+                "uid": 6666666666,
+                "user_name": "mock_name",
+                "age": 99,
+                "content_type": "application/json"
+              }
             }
             ```
 
@@ -205,7 +205,9 @@
 
 
 
-**Desc**:Test Method:Post request, Pydantic Model
+**Desc**:
+
+```Test Method:Post request, Pydantic Model```
 
 |Author|Status|func|summary|
 |---|---|---|---|
@@ -254,14 +256,12 @@
             {
               "code": 0,
               "msg": "success",
-              "data": [
-                {
-                  "uid": 6666666666,
-                  "user_name": "mock_name",
-                  "age": 99,
-                  "content_type": "application/json"
-                }
-              ]
+              "data": {
+                "uid": 6666666666,
+                "user_name": "mock_name",
+                "age": 99,
+                "content_type": "application/json"
+              }
             }
             ```
 
@@ -290,7 +290,9 @@
 
 
 
-**Desc**:Test Method:Post Pydantic Model
+**Desc**:
+
+```Test Method:Post Pydantic Model```
 
 |Author|Status|func|summary|
 |---|---|---|---|
@@ -336,14 +338,12 @@
             {
               "code": 0,
               "msg": "success",
-              "data": [
-                {
-                  "uid": 6666666666,
-                  "user_name": "mock_name",
-                  "age": 99,
-                  "content_type": "application/json"
-                }
-              ]
+              "data": {
+                "uid": 6666666666,
+                "user_name": "mock_name",
+                "age": 99,
+                "content_type": "application/json"
+              }
             }
             ```
 
@@ -372,7 +372,9 @@
 
 
 
-**Desc**:Text Pydantic Model and Field
+**Desc**:
+
+```Text Pydantic Model and Field```
 
 |Author|Status|func|summary|
 |---|---|---|---|
@@ -452,7 +454,9 @@
 
 
 
-**Desc**:test cbv post method
+**Desc**:
+
+```test cbv post method```
 
 |Author|Status|func|summary|
 |---|---|---|---|
@@ -497,14 +501,12 @@
             {
               "code": 0,
               "msg": "success",
-              "data": [
-                {
-                  "uid": 6666666666,
-                  "user_name": "mock_name",
-                  "age": 99,
-                  "content_type": "application/json"
-                }
-              ]
+              "data": {
+                "uid": 6666666666,
+                "user_name": "mock_name",
+                "age": 99,
+                "content_type": "application/json"
+              }
             }
             ```
 
@@ -533,7 +535,9 @@
 
 
 
-**Desc**:Test Field
+**Desc**:
+
+```Test Field```
 
 |Author|Status|func|summary|
 |---|---|---|---|

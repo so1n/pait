@@ -8,3 +8,7 @@ class NotFoundFieldError(PaitBaseException):
 
 class NotFoundValueError(PaitBaseException):
     pass
+
+
+class CheckValueError(PaitBaseException):
+    pass

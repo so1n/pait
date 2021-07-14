@@ -118,6 +118,39 @@ def test_other_field(
     status=PaitStatus.release,
     tag=("user", "get"),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
+    at_most_one_of=["user_name", "alias_user_name"],
+    required_by={"birthday": ["alias_user_name"]}
+)
+def test_check_param(
+    uid: int = Query.i(description="user id", gt=10, lt=1000),
+    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
+    alias_user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
+    age: int = Query.i(description="age", gt=1, lt=100),
+    birthday: str = Query.i(default="birthday"),
+    sex: SexEnum = Query.i(description="sex"),
+) -> dict:
+    """Test Field"""
+    return {
+        "code": 0,
+        "msg": "",
+        "data": {
+            "birthday": birthday,
+            "uid": uid,
+            "user_name": user_name or alias_user_name,
+            "email": email,
+            "age": age,
+            "sex": sex.value,
+        },
+    }
+
+
+@pait(
+    author=("so1n",),
+    group="user",
+    status=PaitStatus.release,
+    tag=("user", "get"),
+    response_model_list=[UserSuccessRespModel2, FailRespModel],
 )
 def test_pait(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
@@ -200,6 +233,7 @@ def create_app() -> Flask:
     app.add_url_rule("/api/get/<age>", view_func=test_pait, methods=["GET"])
     app.add_url_rule("/api/pait_model", view_func=test_model, methods=["POST"])
     app.add_url_rule("/api/cbv", view_func=TestCbv.as_view("test_cbv"))
+    app.add_url_rule("/api/check_param", view_func=test_check_param, methods=["GET"])
     app.errorhandler(PaitBaseException)(api_exception)
     app.errorhandler(ValidationError)(api_exception)
     return app

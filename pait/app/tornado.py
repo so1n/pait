@@ -211,14 +211,18 @@ class TornadoTestHelper(BaseTestHelper, Generic[_T]):
 
 
 def pait(
+    # param check
+    at_most_one_of: Optional[List[str]] = None,
+    required_by: Optional[Dict[str, List[str]]] = None,
+    # doc
     author: Optional[Tuple[str]] = None,
     desc: Optional[str] = None,
     summary: Optional[str] = None,
     name: Optional[str] = None,
     status: Optional[PaitStatus] = None,
-    group: str = "root",
+    group: Optional[str] = None,
     tag: Optional[Tuple[str, ...]] = None,
-    response_model_list: List[Type[PaitResponseModel]] = None,
+    response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
 ) -> Callable:
     """Help starlette provide parameter checks and type conversions for each routing function/cbv class"""
     return _pait(
@@ -231,6 +235,8 @@ def pait(
         group=group,
         tag=tag,
         response_model_list=response_model_list,
+        at_most_one_of=at_most_one_of,
+        required_by=required_by
     )
 
 

@@ -33,12 +33,14 @@ def raise_and_tip(_object: Any, exception: "Exception", parameter: Optional[insp
 
     file: Optional[str] = None
     if isinstance(_object, FuncSig):
+        _object = _object.func
+    if inspect.isfunction(_object):
         title: str = "def"
-        if inspect.iscoroutinefunction(_object.func):
+        if inspect.iscoroutinefunction(_object):
             title = "async def"
-        file = inspect.getfile(_object.func)
-        line: int = inspect.getsourcelines(_object.func)[1]
-        error_object_name: str = _object.func.__name__
+        file = inspect.getfile(_object)
+        line: int = inspect.getsourcelines(_object)[1]
+        error_object_name: str = _object.__name__
         logging.debug(
             f"""
 {title} {error_object_name}(
@@ -58,7 +60,11 @@ def raise_and_tip(_object: Any, exception: "Exception", parameter: Optional[insp
         if "class" in error_object_name:
             error_object_name = str(_object.__class__)
         logging.debug(f"class: `{error_object_name}`  attributes error\n    {param_str}")
-    raise PaitBaseException(
+    if isinstance(exception, PaitBaseException):
+        exc_class: Type[Exception] = exception.__class__
+    else:
+        exc_class = PaitBaseException
+    raise exc_class(
         f'File "{file}",' f" line {line}," f" in {error_object_name}." f" error:{str(exception)}"
     ) from exception
 
