@@ -1,9 +1,29 @@
-from typing import Callable, Dict, List, Optional, Tuple, Type
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type
+
+from tornado.web import RequestHandler
 
 from pait.core import pait as _pait
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
+from pait.util import gen_example_json_from_schema
 from ._app_helper import AppHelper
+
+
+__all__ = ["pait"]
+
+
+def make_mock_response(pait_response: Type[PaitResponseModel]) -> Any:
+    tornado_handle: RequestHandler = getattr(pait_response, "handle", None)
+    if not tornado_handle:
+        raise RuntimeError("Can not load Tornado handle")
+    tornado_handle.set_status(pait_response.status_code[0])
+    for key, value in pait_response.header.items():
+        tornado_handle.set_header(key, value)
+    if pait_response.media_type == "application/json" and pait_response.response_data:
+        tornado_handle.write(gen_example_json_from_schema(pait_response.response_data.schema()))
+        return
+    else:
+        raise NotImplementedError()
 
 
 def pait(
@@ -23,6 +43,7 @@ def pait(
     """Help starlette provide parameter checks and type conversions for each routing function/cbv class"""
     return _pait(
         AppHelper,
+        make_mock_response_fn=make_mock_response,
         author=author,
         desc=desc,
         summary=summary,

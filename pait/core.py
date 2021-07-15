@@ -34,8 +34,9 @@ def _check_required_by(required_by: Dict[str, List[str]], func_kwargs: Dict[str,
 
 
 def pait(
-    # param check
     app_helper_class: "Type[BaseAppHelper]",
+    make_mock_response_fn: Callable[[Type[PaitResponseModel]], Any],
+    # param check
     at_most_one_of_list: Optional[List[List[str]]] = None,
     required_by: Optional[Dict[str, List[str]]] = None,
     # doc
@@ -60,6 +61,7 @@ def pait(
         pait_core_model: PaitCoreModel = PaitCoreModel(
             author=author,
             app_helper_class=app_helper_class,
+            make_mock_response_fn=make_mock_response_fn,
             desc=desc,
             summary=summary,
             func=func,

@@ -1,12 +1,10 @@
 import json
-from typing import Any, Dict, List, Mapping, Tuple, Type
+from typing import Any, Dict, List, Mapping, Tuple
 
 from tornado.httputil import RequestStartLine
-from tornado.web import RequestHandler
 
 from pait.app.base import BaseAppHelper
-from pait.model.response import PaitResponseModel
-from pait.util import LazyProperty, gen_example_json_from_schema
+from pait.util import LazyProperty
 
 __all__ = ["AppHelper"]
 
@@ -63,18 +61,3 @@ class AppHelper(BaseAppHelper):
     @LazyProperty(is_class_func=True)
     def multiquery(self) -> Dict[str, Any]:
         return {key: [i.decode() for i in value] for key, value in self.request.query_arguments.items()}
-
-    @staticmethod
-    def make_mock_response(pait_response: Type[PaitResponseModel]) -> Any:
-        tornado_handle: RequestHandler = getattr(pait_response, "handle", None)
-        if not tornado_handle:
-            raise RuntimeError("Can not load Tornado handle")
-        tornado_handle.set_status(pait_response.status_code[0])
-        for key, value in pait_response.header.items():
-            tornado_handle.set_header(key, value)
-        if pait_response.media_type == "application/json" and pait_response.response_data:
-            tornado_handle.write(gen_example_json_from_schema(pait_response.response_data.schema()))
-            return
-        else:
-            raise NotImplementedError()
-

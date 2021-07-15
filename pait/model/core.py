@@ -15,6 +15,7 @@ class PaitCoreModel(object):
         self,
         func: Callable,
         app_helper_class: "Type[BaseAppHelper]",
+        make_mock_response_fn: Callable[[Type[PaitResponseModel]], Any],
         path: Optional[str] = None,
         method_set: Optional[Set[str]] = None,
         operation_id: Optional[str] = None,
@@ -28,6 +29,7 @@ class PaitCoreModel(object):
         response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
     ):
         self.app_helper_class: "Type[BaseAppHelper]" = app_helper_class
+        self.make_mock_response_fn: Callable[[Type[PaitResponseModel]], Any] = make_mock_response_fn
         self._func: Callable = func  # route func
         self.qualname: str = func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0]
         self.pait_id: str = f"{self.qualname}_{id(func)}"
@@ -74,7 +76,7 @@ class PaitCoreModel(object):
         # fix tornado
         if self.app_helper_class.app_name == "tornado":
             setattr(pait_response, "handle", args[0])
-        resp: Any = self.app_helper_class.make_mock_response(pait_response)
+        resp: Any = self.make_mock_response_fn(pait_response)
         if inspect.iscoroutinefunction(self._func):
             future: asyncio.Future = asyncio.Future()
             future.set_result(resp)
