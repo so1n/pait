@@ -173,7 +173,7 @@ class BaseTestHelper(Generic[RESP_T]):
             method = self.method
         if not method:
             raise ValueError("Method is Null")
-        resp = self._make_response(method)
+        resp: RESP_T = self._make_response(method)
         if self.pait_core_model.response_model_list:
             self._assert_response(resp)
         return resp
