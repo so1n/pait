@@ -6,8 +6,8 @@ from pait.core import pait as _pait
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
 from pait.util import gen_example_json_from_schema
-from ._app_helper import AppHelper
 
+from ._app_helper import AppHelper
 
 __all__ = ["pait"]
 

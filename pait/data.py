@@ -7,6 +7,7 @@ if TYPE_CHECKING:
 
 class PaitData(object):
     """为了pait减少对应用框架的入侵，pait通过PaitData进行数据交互"""
+
     def __init__(self) -> None:
         self.pait_id_dict: Dict[str, Dict[str, "PaitCoreModel"]] = {}
 

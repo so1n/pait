@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 class PaitResponseModel(object):
     """response model"""
+
     # response name
     name: Optional[str] = None
     # response description

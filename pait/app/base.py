@@ -155,7 +155,7 @@ class BaseTestHelper(Generic[RESP_T]):
         if not self.path.startswith("/"):
             self.path = "/" + self.path
 
-        # auto select method 
+        # auto select method
         self.method: Optional[str] = None
         if len(self.pait_core_model.method_list) == 1:
             self.method = self.pait_core_model.method_list[0]
@@ -209,10 +209,10 @@ class BaseTestHelper(Generic[RESP_T]):
         return self.request("HEAD")
 
     def put(self) -> RESP_T:
-        return self.make_response("PUT")
+        return self.request("PUT")
 
     def delete(self) -> RESP_T:
-        return self.make_response("DELETE")
+        return self.request("DELETE")
 
     def options(self) -> RESP_T:
-        return self.make_response("OPTIONS")
+        return self.request("OPTIONS")

@@ -7,6 +7,7 @@ from pait.api_doc.html import get_redoc_html as _get_redoc_html
 from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenApi
 from pait.model.core import PaitCoreModel
+
 from ._load_app import load_app
 
 __all__ = ["add_doc_route"]

@@ -49,4 +49,3 @@ class AppHelper(BaseAppHelper):
     @LazyProperty(is_class_func=True)
     def multiquery(self) -> Dict[str, Any]:
         return {key: self.request.args.getlist(key) for key, _ in self.request.args.items()}
-

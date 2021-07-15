@@ -1,6 +1,6 @@
 import asyncio
 from concurrent import futures
-from typing import Callable, Any, Optional
+from typing import Any, Callable, Optional
 
 
 class _BoundClass(object):

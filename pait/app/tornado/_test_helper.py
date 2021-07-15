@@ -8,6 +8,7 @@ from tornado.testing import AsyncHTTPTestCase, HTTPResponse
 
 from pait.app.base import BaseTestHelper
 from pait.model.core import PaitCoreModel
+
 from ._load_app import load_app
 
 _T = TypeVar("_T", bound=HTTPResponse)
@@ -112,4 +113,3 @@ class TornadoTestHelper(BaseTestHelper, Generic[_T]):
         body.write(("--%s--\r\n" % boundary).encode(encoding="utf-8"))
         content_type: str = "multipart/form-data;boundary=%s" % boundary
         return content_type, body.getvalue()
-

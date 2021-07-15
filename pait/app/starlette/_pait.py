@@ -1,11 +1,12 @@
 from typing import Callable, Dict, List, Optional, Tuple, Type
 
-from starlette.responses import Response, JSONResponse
+from starlette.responses import JSONResponse, Response
 
 from pait.core import pait as _pait
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
 from pait.util import gen_example_json_from_schema
+
 from ._app_helper import AppHelper
 
 __all__ = ["pait"]
@@ -51,4 +52,3 @@ def pait(
         at_most_one_of_list=at_most_one_of_list,
         required_by=required_by,
     )
-

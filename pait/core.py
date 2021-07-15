@@ -8,12 +8,7 @@ from pait.g import pait_data
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
-from pait.param_handle import (
-    async_class_param_handle,
-    async_func_param_handle,
-    class_param_handle,
-    func_param_handle,
-)
+from pait.param_handle import async_class_param_handle, async_func_param_handle, class_param_handle, func_param_handle
 from pait.util import FuncSig, get_func_sig, raise_and_tip
 
 

@@ -35,7 +35,7 @@ class PaitCoreModel(object):
         self.pait_id: str = f"{self.qualname}_{id(func)}"
         setattr(func, "_pait_id", self.pait_id)
         self.path: str = path or ""  # request url path
-        self.method_list: List[str] = sorted(list(method_set or set()))  # request method set
+        self._method_list: List[str] = sorted(list(method_set or set()))  # request method set
         self.func_name: str = func_name or func.__name__
         self.operation_id: str = operation_id or self.func_name  # route name
         self._author: Optional[Tuple[str, ...]] = author  # The main developer of this func
@@ -60,6 +60,16 @@ class PaitCoreModel(object):
         if config.enable_mock_response:
             return self.return_mock_response
         return self._func
+
+    @property
+    def method_list(self) -> List[str]:
+        return self._method_list
+
+    @method_list.setter
+    def method_list(self, method_list: List[str]) -> None:
+        _temp_set: Set[str] = set(self._method_list) | set(method_list)
+        _temp_set.difference_update(config.block_http_method_set)
+        self._method_list = sorted(list(_temp_set))
 
     def return_mock_response(self, *args: Any, **kwargs: Any) -> Any:
         if not self.response_model_list:

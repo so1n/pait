@@ -6,8 +6,9 @@ from pait.model.status import PaitStatus
 
 class Config(object):
     """
-    Provide pait parameter configuration, the init_config method is valid only before the application service is started 
+    Provide pait parameter configuration, the init_config method is valid only before the application service is started
     """
+
     __initialized: bool = False
 
     def __init__(self) -> None:

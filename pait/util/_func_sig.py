@@ -1,7 +1,7 @@
 import inspect
 import sys
 from dataclasses import dataclass
-from typing import Callable, List, ForwardRef
+from typing import Callable, ForwardRef, List
 
 
 @dataclass()

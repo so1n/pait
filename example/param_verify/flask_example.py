@@ -19,6 +19,7 @@ from example.param_verify.model import (
 from pait.app.flask import add_doc_route, pait
 from pait.exceptions import PaitBaseException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
+from pait.g import config
 from pait.model.status import PaitStatus
 
 
@@ -240,4 +241,5 @@ def create_app() -> Flask:
 
 
 if __name__ == "__main__":
+    config.init_config(block_http_method_set={"HEAD", "OPTIONS"})
     create_app().run(port=8000, debug=True)

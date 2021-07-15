@@ -8,7 +8,6 @@ from pait.model.core import PaitCoreModel
 
 from ._load_app import load_app
 
-
 _T = TypeVar("_T", bound=Response)
 __all__ = ["FlaskTestHelper"]
 

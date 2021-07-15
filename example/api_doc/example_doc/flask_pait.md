@@ -5,15 +5,13 @@
 
 
 
-**Desc**:
-
-```Test Field```
+**Desc**:Test Field
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#00BFFF>test</font>|<abbr title="file:example/param_verify/flask_example.py;line: 145">test_model</abbr>||
+|so1n|<font color=#00BFFF>test</font>|<abbr title="file:example/param_verify/flask_example.py;line: 179">test_model</abbr>||
 - Path: /api/pait_model
-- Method: POST,OPTIONS
+- Method: POST
 - Request:
     - Body Param
 
@@ -90,15 +88,13 @@
 
 
 
-**Desc**:
-
-```test pait raise tip```
+**Desc**:test pait raise tip
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:example/param_verify/flask_example.py;line: 29">test_raise_tip</abbr>||
+|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:example/param_verify/flask_example.py;line: 30">test_raise_tip</abbr>||
 - Path: /api/raise_tip
-- Method: POST,OPTIONS
+- Method: POST
 - Request:
     - Body Param
 
@@ -173,9 +169,9 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 88">test_other_field</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 89">test_other_field</abbr>||
 - Path: /api/other_field
-- Method: POST,OPTIONS
+- Method: POST
 - Request:
     - Cookie Param
 
@@ -201,19 +197,95 @@
 - Response:
 
 
+### Name: test_check_param
+
+
+
+**Desc**:Test check param
+
+|Author|Status|func|summary|
+|---|---|---|---|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 116">test_check_param</abbr>||
+- Path: /api/check_param
+- Method: GET
+- Request:
+    - Query Param
+
+        |param name|type|default value|description|other|
+        |---|---|---|---|---|
+        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |alias_user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
+        |birthday|string|**`Required`**|birthday||
+        |email|string|example@xxx.com|user email||
+        |sex|enum|Only choose from: `man`,`woman`|sex|{'enum': ['man', 'woman']}|
+        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
+- Response:
+
+    - UserSuccessRespModel2
+
+        |status code|media type|description|
+        |---|---|---|
+        |200|application/json|success response|
+        - Header
+            {'cookie': 'xxx'}
+        - Response Data
+
+            |param name|type|default value|description|other|
+            |---|---|---|---|---|
+            |code|integer|0|api code||
+            |data.age|integer|99|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+            |data.email|string|example@so1n.me|user email||
+            |data.uid|integer|6666666666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+            |data.user_name|string|mock_name|user name|{'maxLength': 4, 'minLength': 2}|
+            |msg|string|success|api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 0,
+              "msg": "success",
+              "data": {
+                "uid": 6666666666,
+                "user_name": "mock_name",
+                "age": 99,
+                "email": "example@so1n.me"
+              }
+            }
+            ```
+
+    - FailRespModel
+
+        |status code|media type|description|
+        |---|---|---|
+        |200|application/json|fail response|
+        - Response Data
+
+            |param name|type|default value|description|other|
+            |---|---|---|---|---|
+            |code|integer|1|api code||
+            |msg|string|fail|api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 1,
+              "msg": "fail"
+            }
+            ```
+
+
 ### Name: demo_get2test_depend
 
 
 
-**Desc**:
-
-```Test Method:Post request, Pydantic Model```
+**Desc**:Test Method:Post request, Pydantic Model
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 69">demo_get2test_depend</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 70">demo_get2test_depend</abbr>||
 - Path: /api/depend
-- Method: POST,OPTIONS
+- Method: POST
 - Request:
     - Body Param
 
@@ -290,15 +362,13 @@
 
 
 
-**Desc**:
-
-```Test Method:Post Pydantic Model```
+**Desc**:Test Method:Post Pydantic Model
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 48">test_post</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 49">test_post</abbr>||
 - Path: /api/post
-- Method: POST,OPTIONS
+- Method: POST
 - Request:
     - Body Param
 
@@ -372,13 +442,11 @@
 
 
 
-**Desc**:
-
-```Text Pydantic Model and Field```
+**Desc**:Text Pydantic Model and Field
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 156">TestCbv.get</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 190">TestCbv.get</abbr>||
 - Path: /api/cbv
 - Method: get
 - Request:
@@ -454,13 +522,11 @@
 
 
 
-**Desc**:
-
-```test cbv post method```
+**Desc**:test cbv post method
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 174">TestCbv.post</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 208">TestCbv.post</abbr>||
 - Path: /api/cbv
 - Method: post
 - Request:
@@ -535,15 +601,13 @@
 
 
 
-**Desc**:
-
-```Test Field```
+**Desc**:Test Field
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 115">test_pait</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 149">test_pait</abbr>||
 - Path: /api/get/<age>
-- Method: OPTIONS,HEAD,GET
+- Method: GET
 - Request:
     - Multiquery Param
 

@@ -1,4 +1,5 @@
 from typing import Any, Type
+
 import pytest
 from pytest_mock import MockFixture
 

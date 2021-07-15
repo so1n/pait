@@ -22,7 +22,6 @@ from pait.util import LazyProperty, gen_example_json_from_schema
 
 from ._app_helper import AppHelper
 
-
 __all__ = ["load_app"]
 
 
@@ -44,4 +43,3 @@ def load_app(app: Application, project_name: str = "") -> Dict[str, PaitCoreMode
             pait_data.add_route_info(AppHelper.app_name, pait_id, path, {method}, route_name, project_name)
             _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
     return _pait_data
-

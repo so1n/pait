@@ -52,41 +52,91 @@ paths:
               required:
               - a
               - b
-    options:
+  /api/check_param:
+    get:
       tags:
       - user
       - get
       summary: ''
-      description: ''
-      operationId: OPTIONS.test_other_field
+      description: Test check param
+      operationId: GET.test_check_param
       parameters:
-      - name: cookie
-        in: cookie
+      - name: uid
+        in: query
         required: true
-        description: cookie
+        description: user id
         schema:
-          title: Cookie
-          description: cookie
-          type: object
-      responses: {}
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              title: TESTOTHERFIELDDynamicModel
-              type: object
-              properties:
-                a:
-                  title: A
-                  description: form data
-                  type: string
-                b:
-                  title: B
-                  description: form data
-                  type: string
-              required:
-              - a
-              - b
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      - name: email
+        in: query
+        required: false
+        description: user email
+        schema:
+          title: Email
+          description: user email
+          default: example@xxx.com
+          type: string
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+      - name: alias_user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: Alias User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+      - name: age
+        in: query
+        required: true
+        description: age
+        schema:
+          title: Age
+          description: age
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
+          type: integer
+      - name: birthday
+        in: query
+        required: true
+        description: birthday
+        schema:
+          title: Birthday
+          description: birthday
+          type: string
+      - name: sex
+        in: query
+        required: false
+        description: sex
+        schema:
+          title: SexEnum
+          description: An enumeration.
+          enum:
+          - man
+          - woman
+      responses:
+        200:
+          description: success response|fail response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/_ResponseUserModel'
+                - $ref: '#/components/schemas/ResponseFailModel'
   /api/depend:
     post:
       tags:
@@ -100,7 +150,7 @@ paths:
         in: query
         required: true
         description: user id
-        schema: &id001
+        schema:
           title: Uid
           description: user id
           exclusiveMinimum: 10
@@ -110,62 +160,12 @@ paths:
         in: query
         required: true
         description: user name
-        schema: &id002
+        schema:
           title: User Name
           description: user name
           maxLength: 4
           minLength: 2
           type: string
-      - name: user-agent
-        in: header
-        required: true
-        description: user agent
-        schema:
-          title: User-Agent
-          description: user agent
-          type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              title: DEMOGET2TESTDEPENDDynamicModel
-              type: object
-              properties:
-                age:
-                  title: Age
-                  description: age
-                  exclusiveMinimum: 1
-                  exclusiveMaximum: 100
-                  type: integer
-              required:
-              - age
-    options:
-      tags:
-      - user
-      - depend
-      summary: ''
-      description: Test Method:Post request, Pydantic Model
-      operationId: OPTIONS.demo_get2test_depend
-      parameters:
-      - name: uid
-        in: query
-        required: true
-        description: user id
-        schema: *id001
-      - name: user_name
-        in: query
-        required: true
-        description: user name
-        schema: *id002
       - name: user-agent
         in: header
         required: true
@@ -206,56 +206,6 @@ paths:
       summary: ''
       description: Test Method:Post Pydantic Model
       operationId: POST.test_post
-      parameters:
-      - name: requestBody.content.<media-type>
-        in: header
-        required: true
-        description: Content-Type
-        schema:
-          title: Content-Type
-          description: Content-Type
-          type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              title: TESTPOSTDynamicModel
-              type: object
-              properties:
-                uid:
-                  title: Uid
-                  type: integer
-                user_name:
-                  title: User Name
-                  type: string
-                age:
-                  title: Age
-                  type: integer
-                sex:
-                  description: sex
-                  allOf:
-                  - $ref: '#/components/schemas/SexEnum'
-              required:
-              - uid
-              - user_name
-              - age
-              - sex
-    options:
-      tags:
-      - user
-      - post
-      summary: ''
-      description: Test Method:Post Pydantic Model
-      operationId: OPTIONS.test_post
       parameters:
       - name: requestBody.content.<media-type>
         in: header
@@ -410,138 +360,6 @@ paths:
               - user_name
               - age
   /api/get/<age>:
-    options:
-      tags:
-      - user
-      - get
-      summary: ''
-      description: Test Field
-      operationId: OPTIONS.test_pait
-      parameters:
-      - name: uid
-        in: query
-        required: true
-        description: user id
-        schema:
-          title: Uid
-          description: user id
-          exclusiveMinimum: 10
-          exclusiveMaximum: 1000
-          type: integer
-      - name: user_name
-        in: query
-        required: true
-        description: user name
-        schema:
-          title: User Name
-          description: user name
-          maxLength: 4
-          minLength: 2
-          type: string
-      - name: email
-        in: query
-        required: false
-        description: user email
-        schema:
-          title: Email
-          description: user email
-          default: example@xxx.com
-          type: string
-      - name: sex
-        in: query
-        required: false
-        description: sex
-        schema:
-          title: SexEnum
-          description: An enumeration.
-          enum:
-          - man
-          - woman
-      - name: age
-        in: path
-        required: true
-        description: age
-        schema:
-          title: Age
-          description: age
-          exclusiveMinimum: 1
-          exclusiveMaximum: 100
-          type: integer
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/_ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-    head:
-      tags:
-      - user
-      - get
-      summary: ''
-      description: Test Field
-      operationId: HEAD.test_pait
-      parameters:
-      - name: uid
-        in: query
-        required: true
-        description: user id
-        schema:
-          title: Uid
-          description: user id
-          exclusiveMinimum: 10
-          exclusiveMaximum: 1000
-          type: integer
-      - name: user_name
-        in: query
-        required: true
-        description: user name
-        schema:
-          title: User Name
-          description: user name
-          maxLength: 4
-          minLength: 2
-          type: string
-      - name: email
-        in: query
-        required: false
-        description: user email
-        schema:
-          title: Email
-          description: user email
-          default: example@xxx.com
-          type: string
-      - name: sex
-        in: query
-        required: false
-        description: sex
-        schema:
-          title: SexEnum
-          description: An enumeration.
-          enum:
-          - man
-          - woman
-      - name: age
-        in: path
-        required: true
-        description: age
-        schema:
-          title: Age
-          description: age
-          exclusiveMinimum: 1
-          exclusiveMaximum: 100
-          type: integer
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/_ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
     get:
       tags:
       - user
@@ -620,7 +438,7 @@ paths:
         in: query
         required: true
         description: user id
-        schema: &id003
+        schema:
           title: Uid
           description: user id
           exclusiveMinimum: 10
@@ -630,7 +448,7 @@ paths:
         in: query
         required: true
         description: user name
-        schema: &id004
+        schema:
           title: User Name
           description: user name
           maxLength: 4
@@ -640,56 +458,10 @@ paths:
         in: header
         required: true
         description: user agent
-        schema: &id005
+        schema:
           title: User-Agent
           description: user agent
           type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              title: TESTMODELDynamicModel
-              type: object
-              properties:
-                age:
-                  title: Age
-                  description: age
-                  exclusiveMinimum: 1
-                  exclusiveMaximum: 100
-                  type: integer
-              required:
-              - age
-    options:
-      tags:
-      - test
-      summary: ''
-      description: Test Field
-      operationId: OPTIONS.test_model
-      parameters:
-      - name: uid
-        in: query
-        required: true
-        description: user id
-        schema: *id003
-      - name: user_name
-        in: query
-        required: true
-        description: user name
-        schema: *id004
-      - name: user-agent
-        in: header
-        required: true
-        description: user agent
-        schema: *id005
       responses:
         200:
           description: success response|fail response
@@ -760,51 +532,6 @@ paths:
               - uid
               - user_name
               - age
-    options:
-      tags:
-      - test
-      deprecated: true
-      summary: ''
-      description: test pait raise tip
-      operationId: OPTIONS.test_raise_tip
-      parameters:
-      - name: content__type
-        in: header
-        required: true
-        description: Content-Type
-        schema:
-          title: Content  Type
-          description: Content-Type
-          type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              title: TESTRAISETIPDynamicModel
-              type: object
-              properties:
-                uid:
-                  title: Uid
-                  type: integer
-                user_name:
-                  title: User Name
-                  type: string
-                age:
-                  title: Age
-                  type: integer
-              required:
-              - uid
-              - user_name
-              - age
 components:
   schemas:
     _BaseModel:
@@ -837,8 +564,8 @@ components:
           description: content-type
           default: application/json
           type: string
-    ResponseUserModel:
-      title: ResponseUserModel
+    _ResponseUserModel:
+      title: _ResponseUserModel
       type: object
       properties:
         code:
@@ -869,14 +596,8 @@ components:
           description: api status msg
           default: fail
           type: string
-    SexEnum:
-      title: SexEnum
-      description: An enumeration.
-      enum:
-      - man
-      - woman
-    _ResponseUserModel:
-      title: _ResponseUserModel
+    ResponseUserModel:
+      title: ResponseUserModel
       type: object
       properties:
         code:
@@ -893,3 +614,9 @@ components:
           $ref: '#/components/schemas/_BaseModel'
       required:
       - data
+    SexEnum:
+      title: SexEnum
+      description: An enumeration.
+      enum:
+      - man
+      - woman

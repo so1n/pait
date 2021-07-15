@@ -4,6 +4,7 @@ from sanic_testing.testing import SanicTestClient, TestingResponse  # type: igno
 
 from pait.app.base import BaseTestHelper
 from pait.model.core import PaitCoreModel
+
 from ._load_app import load_app
 
 _T = TypeVar("_T", bound=TestingResponse)
@@ -58,4 +59,3 @@ class SanicTestHelper(BaseTestHelper, Generic[_T]):
                 files=self.file_dict,
             )
         return resp
-

@@ -8,7 +8,6 @@ from pait.model.core import PaitCoreModel
 
 from ._load_app import load_app
 
-
 _T = TypeVar("_T", bound=_Response)
 __all__ = ["StarletteTestHelper"]
 
@@ -59,4 +58,3 @@ class StarletteTestHelper(BaseTestHelper, Generic[_T]):
             files=self.file_dict,
         )
         return resp
-

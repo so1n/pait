@@ -4,11 +4,10 @@ from typing import Any, Dict
 import pytest
 from pytest_mock import MockFixture
 
-from pait import exceptions, field, param_handle
+from pait import exceptions, field, param_handle, util
 from pait.app.base import BaseAppHelper
 from pait.field import Undefined
 from pait.model.base_model import PaitBaseModel
-from pait import util
 from pait.util import UndefinedType
 
 pytestmark = pytest.mark.asyncio

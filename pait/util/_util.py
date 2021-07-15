@@ -1,13 +1,13 @@
 import inspect
 import logging
-from typing import Any, Dict, List, Optional, Tuple, Type, get_type_hints, NoReturn
+from typing import Any, Dict, List, NoReturn, Optional, Tuple, Type, get_type_hints
 
 from pydantic import BaseConfig, BaseModel, create_model
 
 from pait.exceptions import PaitBaseException
 from pait.field import BaseField
-
 from pait.g import config
+
 from ._func_sig import FuncSig
 
 

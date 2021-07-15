@@ -11,7 +11,6 @@ from pait.model.core import PaitCoreModel
 
 from ._load_app import load_app
 
-
 __all__ = ["add_doc_route"]
 
 

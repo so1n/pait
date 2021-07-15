@@ -7,6 +7,7 @@ from starlette.routing import Route
 
 from pait.g import pait_data
 from pait.model.core import PaitCoreModel
+
 from ._app_helper import AppHelper
 
 __all__ = ["load_app"]

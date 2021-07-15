@@ -9,7 +9,6 @@ from pait.model.core import PaitCoreModel
 
 from ._app_helper import AppHelper
 
-
 __all__ = ["load_app"]
 
 
@@ -48,4 +47,3 @@ def load_app(app: Flask, project_name: str = "") -> Dict[str, PaitCoreModel]:
             pait_data.add_route_info(AppHelper.app_name, pait_id, path, method_set, route_name, project_name)
             _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
     return _pait_data
-
