@@ -81,10 +81,6 @@ class BaseAppHelper(object):
     def check_header_type(self, value: Any) -> bool:
         return value is self.HeaderType
 
-    @staticmethod
-    def make_mock_response(pait_response: Type[PaitResponseModel]) -> Any:
-        raise NotImplementedError
-
 
 RESP_T = TypeVar("RESP_T")
 
@@ -105,15 +101,30 @@ class BaseTestHelper(Generic[RESP_T]):
         path_dict: Optional[dict] = None,
         query_dict: Optional[dict] = None,
     ):
+        """
+        :param client:  test client
+        :param func:  route handle decorated by pait
+        :param pait_dict:  pait core data
+        :param body_dict:  request body param
+        :param cookie_dict:  request cookie param
+        :param file_dict:  request file param
+        :param form_dict:  request form param
+        :param header_dict:  request herder param
+        :param path_dict:  request path param
+        :param query_dict:  request query param
+        """
         pait_id: str = getattr(func, "_pait_id", "")
         if not pait_id:
             raise RuntimeError(f"Can not found pait id from {func}")
+
         self.client: Any = client
         self.func: Callable = func
+        # pait dict handle
         if pait_dict:
             self.pait_dict: Dict[str, PaitCoreModel] = pait_dict
         else:
             self.pait_dict = self._gen_pait_dict()
+        self.pait_core_model: PaitCoreModel = self.pait_dict[pait_id]
 
         self.body_dict: Optional[dict] = body_dict
         self.cookie_dict: Optional[dict] = cookie_dict
@@ -123,7 +134,7 @@ class BaseTestHelper(Generic[RESP_T]):
         self.path_dict: Optional[dict] = path_dict
         self.query_dict: Optional[dict] = query_dict
 
-        self.pait_core_model: PaitCoreModel = self.pait_dict[pait_id]
+        # path handle
         self.path: str = self.pait_core_model.path
         if self.path_dict:
             path_list: List[str] = self.path.split("/")
@@ -138,11 +149,13 @@ class BaseTestHelper(Generic[RESP_T]):
                     new_path_list.append(sub_path)
             self.path = "/".join([str(i) for i in new_path_list])
 
+        # add query path by path
         if self.query_dict:
             self.path = self.path + "?" + urlencode(self.query_dict, True)
         if not self.path.startswith("/"):
             self.path = "/" + self.path
 
+        # auto select method 
         self.method: Optional[str] = None
         if len(self.pait_core_model.method_list) == 1:
             self.method = self.pait_core_model.method_list[0]
@@ -154,21 +167,26 @@ class BaseTestHelper(Generic[RESP_T]):
         self._app_init_field()
 
     def _app_init_field(self) -> None:
+        """init request param by application framework"""
         raise NotImplementedError()
 
     def _gen_pait_dict(self) -> Dict[str, PaitCoreModel]:
+        """load pait dict"""
         raise NotImplementedError()
 
     def _assert_response(self, resp: RESP_T) -> None:
+        """Whether the structure of the check response is correct"""
         raise NotImplementedError()
 
     def _replace_path(self, path_str: str) -> Optional[str]:
         raise NotImplementedError()
 
     def _make_response(self, method: str) -> RESP_T:
+        """Whether the structure of the check response is correct"""
         raise NotImplementedError()
 
-    def make_response(self, method: Optional[str] = None) -> RESP_T:
+    def request(self, method: Optional[str] = None) -> RESP_T:
+        """user call test request api"""
         if not method:
             method = self.method
         if not method:
@@ -179,16 +197,16 @@ class BaseTestHelper(Generic[RESP_T]):
         return resp
 
     def get(self) -> RESP_T:
-        return self.make_response("GET")
+        return self.request("GET")
 
     def patch(self) -> RESP_T:
-        return self.make_response("PATCH")
+        return self.request("PATCH")
 
     def post(self) -> RESP_T:
-        return self.make_response("POST")
+        return self.request("POST")
 
     def head(self) -> RESP_T:
-        return self.make_response("HEAD")
+        return self.request("HEAD")
 
     def put(self) -> RESP_T:
         return self.make_response("PUT")
