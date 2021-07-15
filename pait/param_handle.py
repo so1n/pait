@@ -1,8 +1,7 @@
 import asyncio
 import inspect
 import logging
-from types import ModuleType
-from typing import Any, Callable, Coroutine, Dict, List, Mapping, NoReturn, Optional, Tuple, Type, Union, get_type_hints
+from typing import Any, Callable, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union, get_type_hints
 
 from pydantic import BaseModel, ValidationError, fields
 
@@ -11,62 +10,7 @@ from pait.app.base import BaseAppHelper
 from pait.exceptions import NotFoundFieldError, PaitBaseException
 from pait.field import BaseField
 from pait.model.base_model import PaitBaseModel
-from pait.util import FuncSig, create_pydantic_model, get_func_sig, get_parameter_list_from_class
-
-
-def raise_and_tip(_object: Any, exception: "Exception", parameter: Optional[inspect.Parameter] = None) -> NoReturn:
-    """Help users understand which parameter is wrong"""
-    if parameter:
-        param_value: BaseField = parameter.default
-        annotation: Type[BaseModel] = parameter.annotation
-        param_name: str = parameter.name
-
-        parameter_value_name: str = param_value.__class__.__name__
-        if param_value is parameter.empty:
-            param_str: str = f"{param_name}: {annotation}"
-        else:
-            param_str = f"{param_name}: {annotation} = {parameter_value_name}"
-            if isinstance(param_value, BaseField):
-                param_str += f"(alias={param_value.alias}, default={param_value.default})"
-    else:
-        param_str = ""
-
-    file: Optional[str] = None
-    if isinstance(_object, FuncSig):
-        _object = _object.func
-    if inspect.isfunction(_object):
-        title: str = "def"
-        if inspect.iscoroutinefunction(_object):
-            title = "async def"
-        file = inspect.getfile(_object)
-        line: int = inspect.getsourcelines(_object)[1]
-        error_object_name: str = _object.__name__
-        logging.debug(
-            f"""
-{title} {error_object_name}(
-    ...
-    {param_str} <-- error
-    ...
-):
-    pass
-"""
-        )
-    else:
-        module: Optional[ModuleType] = inspect.getmodule(_object)
-        if module:
-            file = module.__file__
-        line = inspect.getsourcelines(_object.__class__)[1]
-        error_object_name = _object.__class__.__name__
-        if "class" in error_object_name:
-            error_object_name = str(_object.__class__)
-        logging.debug(f"class: `{error_object_name}`  attributes error\n    {param_str}")
-    if isinstance(exception, PaitBaseException):
-        exc_class: Type[Exception] = exception.__class__
-    else:
-        exc_class = PaitBaseException
-    raise exc_class(
-        f'File "{file}",' f" line {line}," f" in {error_object_name}." f" error:{str(exception)}"
-    ) from exception
+from pait.util import FuncSig, create_pydantic_model, get_func_sig, get_parameter_list_from_class, raise_and_tip
 
 
 def parameter_2_basemodel(parameter_value_dict: Dict["inspect.Parameter", Any]) -> BaseModel:

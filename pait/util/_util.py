@@ -1,13 +1,14 @@
-import asyncio
 import inspect
-import sys
-from concurrent import futures
-from dataclasses import dataclass
-from typing import Any, Callable, Dict, ForwardRef, List, Optional, Tuple, Type, get_type_hints
+import logging
+from typing import Any, Dict, List, Optional, Tuple, Type, get_type_hints, NoReturn
 
 from pydantic import BaseConfig, BaseModel, create_model
 
+from pait.exceptions import PaitBaseException
+from pait.field import BaseField
+
 from pait.g import config
+from ._func_sig import FuncSig
 
 
 class UndefinedType:
@@ -17,56 +18,6 @@ class UndefinedType:
 
 # pait undefined flag
 Undefined: UndefinedType = UndefinedType()
-
-
-class _BoundClass(object):
-    pass
-
-
-_bound_class: _BoundClass = _BoundClass()
-
-
-class LazyProperty:
-    """Cache field computing resources
-    >>> class Demo:
-    ...     @LazyProperty(is_class_func=True)
-    ...     def value(self, value):
-    ...         return value * value
-    """
-
-    def __init__(self, is_class_func: bool = False):
-        self._is_class_func: bool = is_class_func
-
-    def __call__(self, func: Callable) -> Callable:
-        key: str = f"{self.__class__.__name__}_{func.__name__}_future"
-        if not asyncio.iscoroutinefunction(func):
-
-            def wrapper(*args: Any, **kwargs: Any) -> Any:
-                class_: Any = args[0] if self._is_class_func else _bound_class
-                future: Optional[futures.Future] = getattr(class_, key, None)
-                if not future:
-                    future = futures.Future()
-                    result: Any = func(*args, **kwargs)
-                    future.set_result(result)
-                    setattr(class_, key, future)
-                    return result
-                return future.result()
-
-            return wrapper
-        else:
-
-            async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
-                class_: Any = args[0] if self._is_class_func else _bound_class
-                future: Optional[asyncio.Future] = getattr(class_, key, None)
-                if not future:
-                    future = asyncio.Future()
-                    result: Any = await func(*args, **kwargs)
-                    future.set_result(result)
-                    setattr(class_, key, future)
-                    return result
-                return future.result()
-
-            return async_wrapper
 
 
 def create_pydantic_model(
@@ -117,34 +68,6 @@ def gen_example_json_from_schema(schema_dict: Dict[str, Any], definition_dict: O
     return gen_dict
 
 
-@dataclass()
-class FuncSig:
-    """func inspect.Signature model"""
-
-    func: Callable
-    sig: "inspect.Signature"
-    param_list: List["inspect.Parameter"]
-
-
-def get_func_sig(func: Callable) -> FuncSig:
-    """get func inspect.Signature model"""
-    sig: inspect.Signature = inspect.signature(func)
-    param_list: List[inspect.Parameter] = []
-    for key in sig.parameters:
-        if not (sig.parameters[key].annotation != sig.empty or sig.parameters[key].name == "self"):
-            continue
-        parameter: inspect.Parameter = sig.parameters[key]
-        if isinstance(parameter.annotation, str):
-            value: ForwardRef = ForwardRef(parameter.annotation, is_argument=False)
-            setattr(
-                parameter, "_annotation", value._evaluate(sys.modules[func.__module__].__dict__, None)  # type: ignore
-            )
-        param_list.append(parameter)
-
-    # return_param = sig.return_annotation
-    return FuncSig(func=func, sig=sig, param_list=param_list)
-
-
 def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:
     """get class parameter list by attributes, if attributes not default value, it will be set `Undefined`"""
     parameter_list: List["inspect.Parameter"] = []
@@ -158,3 +81,58 @@ def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:
             )
             parameter_list.append(parameter)
     return parameter_list
+
+
+def raise_and_tip(_object: Any, exception: "Exception", parameter: Optional[inspect.Parameter] = None) -> NoReturn:
+    """Help users understand which parameter is wrong"""
+    if parameter:
+        param_value: BaseField = parameter.default
+        annotation: Type[BaseModel] = parameter.annotation
+        param_name: str = parameter.name
+
+        parameter_value_name: str = param_value.__class__.__name__
+        if param_value is parameter.empty:
+            param_str: str = f"{param_name}: {annotation}"
+        else:
+            param_str = f"{param_name}: {annotation} = {parameter_value_name}"
+            if isinstance(param_value, BaseField):
+                param_str += f"(alias={param_value.alias}, default={param_value.default})"
+    else:
+        param_str = ""
+
+    file: Optional[str] = None
+    if isinstance(_object, FuncSig):
+        _object = _object.func
+    if inspect.isfunction(_object):
+        title: str = "def"
+        if inspect.iscoroutinefunction(_object):
+            title = "async def"
+        file = inspect.getfile(_object)
+        line: int = inspect.getsourcelines(_object)[1]
+        error_object_name: str = _object.__name__
+        logging.debug(
+            f"""
+{title} {error_object_name}(
+    ...
+    {param_str} <-- error
+    ...
+):
+    pass
+"""
+        )
+    else:
+        module: Any = inspect.getmodule(_object)
+        if module:
+            file = module.__file__
+        line = inspect.getsourcelines(_object.__class__)[1]
+        error_object_name = _object.__class__.__name__
+        if "class" in error_object_name:
+            error_object_name = str(_object.__class__)
+        logging.debug(f"class: `{error_object_name}`  attributes error\n    {param_str}")
+    if isinstance(exception, PaitBaseException):
+        exc_class: Type[Exception] = exception.__class__
+    else:
+        exc_class = PaitBaseException
+    raise exc_class(
+        f'File "{file}",' f" line {line}," f" in {error_object_name}." f" error:{str(exception)}"
+    ) from exception

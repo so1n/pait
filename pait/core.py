@@ -13,18 +13,19 @@ from pait.param_handle import (
     async_func_param_handle,
     class_param_handle,
     func_param_handle,
-    raise_and_tip,
 )
-from pait.util import FuncSig, get_func_sig
+from pait.util import FuncSig, get_func_sig, raise_and_tip
 
 
 def _check_at_most_one_of(at_most_one_of_list: List[List[str]], func_kwargs: Dict[str, Any]) -> None:
+    """Check whether each group of parameters appear at the same time"""
     for at_most_one_of in at_most_one_of_list:
         if len([i for i in at_most_one_of if func_kwargs.get(i, None) is not None]) > 1:
             raise CheckValueError(f"requires at most one of param {' or '.join(at_most_one_of)}")
 
 
 def _check_required_by(required_by: Dict[str, List[str]], func_kwargs: Dict[str, Any]) -> None:
+    """Check dependencies between parameters"""
     for pre_param, param_list in required_by.items():
         if pre_param not in func_kwargs:
             continue
