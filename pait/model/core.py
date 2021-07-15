@@ -77,6 +77,7 @@ class PaitCoreModel(object):
         if self.app_helper_class.app_name == "tornado":
             setattr(pait_response, "handle", args[0])
         resp: Any = self.make_mock_response_fn(pait_response)
+        # support async def
         if inspect.iscoroutinefunction(self._func):
             future: asyncio.Future = asyncio.Future()
             future.set_result(resp)
