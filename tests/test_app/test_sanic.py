@@ -84,8 +84,12 @@ class TestSanic:
         assert response.json == {
             "code": 0,
             "data": {
-                "age": 99, "email": "example@so1n.me", "uid": 666, "user_name": "mock_name", "multi_user_name": [],
-                "sex": "man"
+                "age": 99,
+                "email": "example@so1n.me",
+                "uid": 666,
+                "user_name": "mock_name",
+                "multi_user_name": [],
+                "sex": "man",
             },
             "msg": "success",
         }

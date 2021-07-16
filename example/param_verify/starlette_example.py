@@ -170,7 +170,7 @@ async def test_check_resp(
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
     user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
     age: int = Query.i(description="age", gt=1, lt=100),
-    display_age: int = Query.i(0, description="display_age")
+    display_age: int = Query.i(0, description="display_age"),
 ) -> JSONResponse:
     """Test check param"""
     return_dict: dict = {

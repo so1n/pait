@@ -1,11 +1,10 @@
-import logging
 import inspect
+import logging
 import sys
-
 from typing import Any, Callable, Dict, Generic, List, Mapping, Optional, Tuple, Type, TypeVar
+from urllib.parse import urlencode
 
 from pydantic import BaseModel, ValidationError
-from urllib.parse import urlencode
 
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitResponseModel
@@ -222,7 +221,7 @@ class BaseTestHelper(Generic[RESP_T]):
         for response_model in self.pait_core_model.response_model_list:
             check_list: List[bool] = [
                 self._check_resp_status(resp, response_model),
-                self._check_resp_media_type(resp, response_model)
+                self._check_resp_media_type(resp, response_model),
             ]
             if response_model.media_type == "application/json":
                 response_data_model: Any = response_model.response_data

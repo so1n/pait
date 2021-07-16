@@ -53,7 +53,7 @@ class ResponseFailModel(ResponseModel):
 
 
 class ResponseUserModel(ResponseModel):
-    class _BaseModel(BaseModel):
+    class ResponseUserDataModel(BaseModel):
 
         uid: int = Field(666, description="user id", gt=10, lt=1000)
         user_name: str = Field("mock_name", description="user name", min_length=2, max_length=10)
@@ -61,7 +61,7 @@ class ResponseUserModel(ResponseModel):
         sex: SexEnum = Field(SexEnum.man, description="sex")
         content_type: str = Field("application/json", description="content-type")
 
-    data: _BaseModel
+    data: ResponseUserDataModel
 
 
 class UserSuccessRespModel(PaitResponseModel):
@@ -71,8 +71,8 @@ class UserSuccessRespModel(PaitResponseModel):
 
 
 class UserSuccessRespModel2(PaitResponseModel):
-    class _ResponseUser2Model(ResponseModel):
-        class _BaseModel(BaseModel):
+    class UserResponseModel2(ResponseModel):
+        class UserResponseData2(BaseModel):
             uid: int = Field(666, description="user id", gt=10, lt=1000)
             user_name: str = Field("mock_name", description="user name", min_length=2, max_length=10)
             multi_user_name: List[str] = Field(("mock_name",), description="user name", min_length=2, max_length=4)
@@ -80,11 +80,11 @@ class UserSuccessRespModel2(PaitResponseModel):
             age: int = Field(99, description="age", gt=1, lt=100)
             email: str = Field("example@so1n.me", description="user email")
 
-        data: _BaseModel
+        data: UserResponseData2
 
     description: str = "success response"
     header: dict = {"cookie": "xxx"}
-    response_data: Optional[Type[BaseModel]] = _ResponseUser2Model
+    response_data: Optional[Type[BaseModel]] = UserResponseModel2
 
 
 class UserSuccessRespModel3(PaitResponseModel):

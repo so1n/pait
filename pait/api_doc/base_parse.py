@@ -62,15 +62,26 @@ class PaitBaseParse(object):
                 key = param_dict["items"]["$ref"].split("/")[-1]
                 if isinstance(definition_dict, dict):
                     field_dict_list.extend(self._parse_schema(definition_dict[key], definition_dict, all_param_name))
+            elif "allOf" in param_dict:
+                for item in param_dict["allOf"]:
+                    key = item["$ref"].split("/")[-1]
+                    if not isinstance(definition_dict, dict):
+                        continue
+                    if "enum" in definition_dict[key]:
+                        if len(param_dict["allOf"]) > 1:
+                            raise RuntimeError("Not support")
+                        default: str = definition_dict[key].get("enum", self._undefined)
+                        if default is not self._undefined:
+                            default = f'Only choose from: {",".join(["`" + i + "`" for i in default])}'
+                        _type: str = "enum"
             else:
                 if "enum" in param_dict:
                     # enum support
-                    default: str = param_dict.get("enum", self._undefined)
+                    default = param_dict.get("enum", self._undefined)
                     if default is not self._undefined:
                         default = f'Only choose from: {",".join(["`" + i + "`" for i in default])}'
-                    _type: str = "enum"
+                    _type = "enum"
                 else:
-                    print(param_name, param_dict, schema_dict)
                     default = param_dict.get("default", self._undefined)
                     _type = param_dict["type"]
                 field_dict_list.append(

@@ -2,8 +2,8 @@ import inspect
 import sys
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
 
-from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
 from pydantic import BaseModel, ValidationError
+from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
 
 from pait.app.base import BaseTestHelper
 from pait.model.core import PaitCoreModel
