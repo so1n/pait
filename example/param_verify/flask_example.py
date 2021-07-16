@@ -14,6 +14,7 @@ from example.param_verify.model import (
     UserOtherModel,
     UserSuccessRespModel,
     UserSuccessRespModel2,
+    UserSuccessRespModel3,
     demo_depend,
 )
 from pait.app.flask import add_doc_route, pait
@@ -23,8 +24,8 @@ from pait.g import config
 from pait.model.status import PaitStatus
 
 
-def api_exception(exc: Exception) -> Dict[str, str]:
-    return {"exc": str(exc)}
+def api_exception(exc: Exception) -> Dict[str, Any]:
+    return {"code": -1, "msg": str(exc)}
 
 
 @pait(
@@ -151,6 +152,35 @@ def test_check_param(
     group="user",
     status=PaitStatus.release,
     tag=("user", "get"),
+    response_model_list=[UserSuccessRespModel3, FailRespModel],
+)
+def test_check_response(
+    uid: int = Query.i(description="user id", gt=10, lt=1000),
+    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
+    age: int = Query.i(description="age", gt=1, lt=100),
+    display_age: int = Query.i(0, description="display_age")
+) -> dict:
+    """Test check param"""
+    return_dict: dict = {
+        "code": 0,
+        "msg": "",
+        "data": {
+            "uid": uid,
+            "user_name": user_name,
+            "email": email,
+        },
+    }
+    if display_age is 1:
+        return_dict["data"]["age"] = age
+    return return_dict
+
+
+@pait(
+    author=("so1n",),
+    group="user",
+    status=PaitStatus.release,
+    tag=("user", "get"),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
 )
 def test_pait(
@@ -235,6 +265,7 @@ def create_app() -> Flask:
     app.add_url_rule("/api/pait_model", view_func=test_model, methods=["POST"])
     app.add_url_rule("/api/cbv", view_func=TestCbv.as_view("test_cbv"))
     app.add_url_rule("/api/check_param", view_func=test_check_param, methods=["GET"])
+    app.add_url_rule("/api/check_resp", view_func=test_check_response, methods=["GET"])
     app.errorhandler(PaitBaseException)(api_exception)
     app.errorhandler(ValidationError)(api_exception)
     return app

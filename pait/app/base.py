@@ -1,9 +1,15 @@
 import logging
+import inspect
+import sys
+
 from typing import Any, Callable, Dict, Generic, List, Mapping, Optional, Tuple, Type, TypeVar
+
+from pydantic import BaseModel, ValidationError
 from urllib.parse import urlencode
 
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitResponseModel
+from pait.util import gen_example_json_from_schema
 
 
 class BaseAppHelper(object):
@@ -174,9 +180,78 @@ class BaseTestHelper(Generic[RESP_T]):
         """load pait dict"""
         raise NotImplementedError()
 
+    @staticmethod
+    def _check_resp_status(resp: RESP_T, response_model: Type[PaitResponseModel]) -> bool:
+        raise NotImplementedError()
+
+    @staticmethod
+    def _check_resp_media_type(resp: RESP_T, response_model: Type[PaitResponseModel]) -> bool:
+        raise NotImplementedError()
+
+    @staticmethod
+    def _get_json(resp: RESP_T) -> dict:
+        raise NotImplementedError()
+
+    def _diff_resp_dict(self, raw_resp: Any, default_resp: Any) -> bool:
+        """check resp data structure diff"""
+        try:
+            if isinstance(raw_resp, dict):
+                for key, value in raw_resp.items():
+                    if not self._diff_resp_dict(value, default_resp[key]):
+                        return False
+                return True
+            elif isinstance(raw_resp, list) or isinstance(raw_resp, tuple):
+                if raw_resp and default_resp and not self._diff_resp_dict(raw_resp[0], default_resp[0]):
+                    return False
+                return True
+            elif raw_resp == default_resp:
+                return True
+            elif type(raw_resp) == type(default_resp):
+                return True
+            else:
+                return False
+        except Exception:
+            return False
+
     def _assert_response(self, resp: RESP_T) -> None:
         """Whether the structure of the check response is correct"""
-        raise NotImplementedError()
+        if not self.pait_core_model.response_model_list:
+            return
+
+        json_error_response_dict: Dict[str, ValidationError] = {}
+        for response_model in self.pait_core_model.response_model_list:
+            check_list: List[bool] = [
+                self._check_resp_status(resp, response_model),
+                self._check_resp_media_type(resp, response_model)
+            ]
+            if response_model.media_type == "application/json":
+                response_data_model: Any = response_model.response_data
+                if response_data_model:
+                    if not (inspect.isclass(response_data_model) and issubclass(response_data_model, BaseModel)):
+                        raise TypeError(f"{response_data_model} not issubclass {BaseModel}")
+                    try:
+                        resp_dict: dict = self._get_json(resp)
+                        response_data_model(**resp_dict)
+                        response_data_default_dict: dict = gen_example_json_from_schema(response_data_model.schema())
+                        check_list.append(self._diff_resp_dict(resp_dict, response_data_default_dict))
+                    except ValidationError as e:
+                        check_list.append(False)
+                        json_error_response_dict[response_data_model.__name__] = e
+            if all(check_list):
+                return
+        if json_error_response_dict:
+            exc: Optional[Exception] = None
+            min_error_cnt: int = sys.maxsize
+            for name, response_e in json_error_response_dict.items():
+                if len(response_e.errors()) < min_error_cnt:
+                    min_error_cnt = 0
+                    exc = response_e
+            if exc:
+                raise RuntimeError(
+                    f"response check error by:{self.pait_core_model.response_model_list}. resp:{resp}, "
+                    f"maybe error:{exc}"
+                ) from exc
+        raise RuntimeError(f"response check error by:{self.pait_core_model.response_model_list}. resp:{resp}")
 
     def _replace_path(self, path_str: str) -> Optional[str]:
         raise NotImplementedError()

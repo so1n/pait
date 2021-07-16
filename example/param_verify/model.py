@@ -55,9 +55,10 @@ class ResponseFailModel(ResponseModel):
 class ResponseUserModel(ResponseModel):
     class _BaseModel(BaseModel):
 
-        uid: int = Field(6666666666, description="user id", gt=10, lt=1000)
-        user_name: str = Field("mock_name", description="user name", min_length=2, max_length=4)
+        uid: int = Field(666, description="user id", gt=10, lt=1000)
+        user_name: str = Field("mock_name", description="user name", min_length=2, max_length=10)
         age: int = Field(99, description="age", gt=1, lt=100)
+        sex: SexEnum = Field(SexEnum.man, description="sex")
         content_type: str = Field("application/json", description="content-type")
 
     data: _BaseModel
@@ -70,10 +71,12 @@ class UserSuccessRespModel(PaitResponseModel):
 
 
 class UserSuccessRespModel2(PaitResponseModel):
-    class _ResponseUserModel(ResponseModel):
+    class _ResponseUser2Model(ResponseModel):
         class _BaseModel(BaseModel):
-            uid: int = Field(6666666666, description="user id", gt=10, lt=1000)
-            user_name: str = Field("mock_name", description="user name", min_length=2, max_length=4)
+            uid: int = Field(666, description="user id", gt=10, lt=1000)
+            user_name: str = Field("mock_name", description="user name", min_length=2, max_length=10)
+            multi_user_name: List[str] = Field(("mock_name",), description="user name", min_length=2, max_length=4)
+            sex: SexEnum = Field(SexEnum.man, description="sex")
             age: int = Field(99, description="age", gt=1, lt=100)
             email: str = Field("example@so1n.me", description="user email")
 
@@ -81,7 +84,22 @@ class UserSuccessRespModel2(PaitResponseModel):
 
     description: str = "success response"
     header: dict = {"cookie": "xxx"}
-    response_data: Optional[Type[BaseModel]] = _ResponseUserModel
+    response_data: Optional[Type[BaseModel]] = _ResponseUser2Model
+
+
+class UserSuccessRespModel3(PaitResponseModel):
+    class UserResponseModel3(ResponseModel):
+        class UserResponseData3(BaseModel):
+            uid: int = Field(description="user id", gt=10, lt=1000)
+            user_name: str = Field(description="user name", min_length=2, max_length=4)
+            age: int = Field(description="age", gt=1, lt=100)
+            email: str = Field(description="user email")
+
+        data: UserResponseData3
+
+    description: str = "success response"
+    header: dict = {"cookie": "xxx"}
+    response_data: Optional[Type[BaseModel]] = UserResponseModel3
 
 
 class FailRespModel(PaitResponseModel):

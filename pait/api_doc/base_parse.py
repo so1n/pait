@@ -70,6 +70,7 @@ class PaitBaseParse(object):
                         default = f'Only choose from: {",".join(["`" + i + "`" for i in default])}'
                     _type: str = "enum"
                 else:
+                    print(param_name, param_dict, schema_dict)
                     default = param_dict.get("default", self._undefined)
                     _type = param_dict["type"]
                 field_dict_list.append(

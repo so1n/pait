@@ -2,12 +2,13 @@ import binascii
 import json
 import os
 from io import BytesIO
-from typing import Dict, Generic, List, Optional, Tuple, TypeVar
+from typing import Dict, Generic, Optional, Tuple, Type, TypeVar
 
 from tornado.testing import AsyncHTTPTestCase, HTTPResponse
 
 from pait.app.base import BaseTestHelper
 from pait.model.core import PaitCoreModel
+from pait.model.response import PaitResponseModel
 
 from ._load_app import load_app
 
@@ -29,24 +30,17 @@ class TornadoTestHelper(BaseTestHelper, Generic[_T]):
     def _gen_pait_dict(self) -> Dict[str, PaitCoreModel]:
         return load_app(self.client.get_app())
 
-    def _assert_response(self, resp: HTTPResponse) -> None:
-        if not self.pait_core_model.response_model_list:
-            return
+    @staticmethod
+    def _check_resp_status(resp: HTTPResponse, response_model: Type[PaitResponseModel]) -> bool:
+        return resp.code in response_model.status_code
 
-        for response_model in self.pait_core_model.response_model_list:
-            check_list: List[bool] = [
-                resp.code in response_model.status_code,
-                response_model.media_type in resp.headers["Content-Type"],
-            ]
-            if response_model.response_data:
-                try:
-                    response_model.response_data(**json.loads(resp.body.decode()))
-                    check_list.append(True)
-                except:
-                    check_list.append(False)
-            if all(check_list):
-                return
-        raise RuntimeError(f"response check error by:{self.pait_core_model.response_model_list}. resp:{resp}")
+    @staticmethod
+    def _check_resp_media_type(resp: HTTPResponse, response_model: Type[PaitResponseModel]) -> bool:
+        return response_model.media_type in resp.headers["Content-Type"]
+
+    @staticmethod
+    def _get_json(resp: HTTPResponse) -> dict:
+        return json.loads(resp.body.decode())
 
     def _replace_path(self, path_str: str) -> Optional[str]:
         if self.path_dict:

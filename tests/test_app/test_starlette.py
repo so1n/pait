@@ -11,6 +11,7 @@ from starlette.testclient import TestClient
 
 from example.param_verify.starlette_example import create_app
 from example.param_verify.starlette_example import test_check_param as check_param_route
+from example.param_verify.starlette_example import test_check_resp as check_resp_route
 from example.param_verify.starlette_example import test_get as get_route
 from example.param_verify.starlette_example import test_other_field as other_field_route
 from example.param_verify.starlette_example import test_post as post_route
@@ -66,15 +67,30 @@ class TestStarlette:
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
         )
         assert (
-            "requires at most one of param user_name or alias_user_name" in startlette_test_helper.get().json()["exc"]
+            "requires at most one of param user_name or alias_user_name" in startlette_test_helper.get().json()["msg"]
         )
         startlette_test_helper = StarletteTestHelper(
             client, check_param_route, query_dict={"uid": 123, "sex": "man", "age": 10, "alias_user_name": "appe"}
         )
         assert (
             "error:birthday requires param alias_user_name, which if not none"
-            in startlette_test_helper.get().json()["exc"]
+            in startlette_test_helper.get().json()["msg"]
         )
+
+    def test_check_response(self, client: TestClient) -> None:
+        test_helper: StarletteTestHelper[Response] = StarletteTestHelper(
+            client,
+            check_resp_route,
+            query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10},
+        )
+        with pytest.raises(RuntimeError):
+            test_helper.get().json()
+        test_helper = StarletteTestHelper(
+            client,
+            check_resp_route,
+            query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "display_age": 1},
+        )
+        test_helper.get().json()
 
     def test_mock_get(self, client: TestClient) -> None:
         config.enable_mock_response = True
@@ -83,7 +99,10 @@ class TestStarlette:
         ).json()
         assert resp == {
             "code": 0,
-            "data": {"age": 99, "email": "example@so1n.me", "uid": 6666666666, "user_name": "mock_name"},
+            "data": {
+                "age": 99, "email": "example@so1n.me", "uid": 666, "user_name": "mock_name", "multi_user_name": [],
+                "sex": "man"
+            },
             "msg": "success",
         }
         config.enable_mock_response = False
@@ -144,7 +163,7 @@ class TestStarlette:
         resp: dict = client.post(
             "/api/raise_tip", headers={"user-agent": "customer_agent"}, json={"uid": 123, "user_name": "appl", "age": 2}
         ).json()
-        assert "exc" in resp
+        assert "msg" in resp
 
     def test_other_field(self, client: TestClient) -> None:
         cookie_str: str = "abcd=abcd;"

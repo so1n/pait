@@ -10,6 +10,7 @@ from sanic_testing.testing import SanicTestClient, TestingResponse  # type: igno
 
 from example.param_verify.sanic_example import create_app
 from example.param_verify.sanic_example import test_check_param as check_param_route
+from example.param_verify.sanic_example import test_check_resp as check_resp_route
 from example.param_verify.sanic_example import test_get as get_route
 from example.param_verify.sanic_example import test_other_field as other_field_route
 from example.param_verify.sanic_example import test_post as post_route
@@ -53,11 +54,26 @@ class TestSanic:
             check_param_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
         )
-        assert "requires at most one of param user_name or alias_user_name" in sanic_test_helper.get().json["exc"]
+        assert "requires at most one of param user_name or alias_user_name" in sanic_test_helper.get().json["msg"]
         sanic_test_helper = SanicTestHelper(
             client, check_param_route, query_dict={"uid": 123, "sex": "man", "age": 10, "alias_user_name": "appe"}
         )
-        assert "error:birthday requires param alias_user_name, which if not none" in sanic_test_helper.get().json["exc"]
+        assert "error:birthday requires param alias_user_name, which if not none" in sanic_test_helper.get().json["msg"]
+
+    def test_check_response(self, client: SanicTestClient) -> None:
+        test_helper: SanicTestHelper[TestingResponse] = SanicTestHelper(
+            client,
+            check_resp_route,
+            query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10},
+        )
+        with pytest.raises(RuntimeError):
+            test_helper.get().json
+        test_helper = SanicTestHelper(
+            client,
+            check_resp_route,
+            query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "display_age": 1},
+        )
+        test_helper.get().json
 
     def test_mock_get(self, client: SanicTestClient) -> None:
         config.enable_mock_response = True
@@ -67,7 +83,10 @@ class TestSanic:
         )
         assert response.json == {
             "code": 0,
-            "data": {"age": 99, "email": "example@so1n.me", "uid": 6666666666, "user_name": "mock_name"},
+            "data": {
+                "age": 99, "email": "example@so1n.me", "uid": 666, "user_name": "mock_name", "multi_user_name": [],
+                "sex": "man"
+            },
             "msg": "success",
         }
         config.enable_mock_response = False
@@ -131,7 +150,7 @@ class TestSanic:
             "/api/raise_tip", headers={"user-agent": "customer_agent"}, json={"uid": 123, "user_name": "appl", "age": 2}
         )
         resp: dict = response.json
-        assert "exc" in resp
+        assert "msg" in resp
 
     def test_other_field(self, client: SanicTestClient) -> None:
         cookie_str: str = "abcd=abcd;"

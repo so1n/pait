@@ -1,11 +1,10 @@
-from typing import Any, Dict, List, Mapping, Tuple, Type
+from typing import Any, Dict, List, Mapping, Tuple
 
-from flask import Request, Response, jsonify, request
+from flask import Request, request
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 
 from pait.app.base import BaseAppHelper
-from pait.model.response import PaitResponseModel
-from pait.util import LazyProperty, gen_example_json_from_schema
+from pait.util import LazyProperty
 
 __all__ = ["AppHelper"]
 

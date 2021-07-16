@@ -10,6 +10,7 @@ from flask.testing import FlaskClient
 
 from example.param_verify.flask_example import create_app
 from example.param_verify.flask_example import test_check_param as check_param_route
+from example.param_verify.flask_example import test_check_response as check_resp_route
 from example.param_verify.flask_example import test_other_field as other_field_route
 from example.param_verify.flask_example import test_pait as pait_route
 from example.param_verify.flask_example import test_post as post_route
@@ -61,19 +62,34 @@ class TestFlask:
                 "multi_user_name": ["abc", "efg"],
             }
 
+    def test_check_response(self, client: FlaskClient) -> None:
+        flask_test_helper: FlaskTestHelper[Response] = FlaskTestHelper(
+            client,
+            check_resp_route,
+            query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10},
+        )
+        with pytest.raises(RuntimeError):
+            flask_test_helper.get().get_json()
+        flask_test_helper = FlaskTestHelper(
+            client,
+            check_resp_route,
+            query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "display_age": 1},
+        )
+        flask_test_helper.get().get_json()
+
     def test_check_param(self, client: FlaskClient) -> None:
         flask_test_helper: FlaskTestHelper[Response] = FlaskTestHelper(
             client,
             check_param_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
         )
-        assert "requires at most one of param user_name or alias_user_name" in flask_test_helper.get().get_json()["exc"]
+        assert "requires at most one of param user_name or alias_user_name" in flask_test_helper.get().get_json()["msg"]
         flask_test_helper = FlaskTestHelper(
             client, check_param_route, query_dict={"uid": 123, "sex": "man", "age": 10, "alias_user_name": "appe"}
         )
         assert (
             "error:birthday requires param alias_user_name, which if not none"
-            in flask_test_helper.get().get_json()["exc"]
+            in flask_test_helper.get().get_json()["msg"]
         )
 
     def test_mock_get(self, client: FlaskClient) -> None:
@@ -83,7 +99,10 @@ class TestFlask:
         ).get_json()
         assert resp == {
             "code": 0,
-            "data": {"age": 99, "email": "example@so1n.me", "uid": 6666666666, "user_name": "mock_name"},
+            "data": {
+                "age": 99, "email": "example@so1n.me", "uid": 666, "user_name": "mock_name", "multi_user_name": [],
+                "sex": "man"
+            },
             "msg": "success",
         }
         config.enable_mock_response = False
@@ -144,7 +163,7 @@ class TestFlask:
         resp: dict = client.post(
             "/api/raise_tip", headers={"user-agent": "customer_agent"}, json={"uid": 123, "user_name": "appl", "age": 2}
         ).get_json()
-        assert "exc" in resp
+        assert "msg" in resp
 
     def test_other_field(self, client: FlaskClient) -> None:
 

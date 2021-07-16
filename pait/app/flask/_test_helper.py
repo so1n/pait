@@ -1,10 +1,11 @@
-from typing import Dict, Generic, List, Optional, TypeVar
+from typing import Dict, Generic, List, Optional, Type, TypeVar
 
 from flask import Response
 from flask.testing import FlaskClient
 
 from pait.app.base import BaseTestHelper
 from pait.model.core import PaitCoreModel
+from pait.model.response import PaitResponseModel
 
 from ._load_app import load_app
 
@@ -29,24 +30,17 @@ class FlaskTestHelper(BaseTestHelper, Generic[_T]):
     def _gen_pait_dict(self) -> Dict[str, PaitCoreModel]:
         return load_app(self.client.application)
 
-    def _assert_response(self, resp: Response) -> None:
-        if not self.pait_core_model.response_model_list:
-            return
+    @staticmethod
+    def _check_resp_status(resp: Response, response_model: Type[PaitResponseModel]) -> bool:
+        return resp.status_code in response_model.status_code
 
-        for response_model in self.pait_core_model.response_model_list:
-            check_list: List[bool] = [
-                resp.status_code in response_model.status_code,
-                resp.mimetype == response_model.media_type,
-            ]
-            if response_model.response_data:
-                try:
-                    response_model.response_data(**resp.get_json())
-                    check_list.append(True)
-                except:
-                    check_list.append(False)
-            if all(check_list):
-                return
-        raise RuntimeError(f"response check error by:{self.pait_core_model.response_model_list}. resp:{resp}")
+    @staticmethod
+    def _check_resp_media_type(resp: Response, response_model: Type[PaitResponseModel]) -> bool:
+        return resp.mimetype == response_model.media_type
+
+    @staticmethod
+    def _get_json(resp: Response) -> dict:
+        return resp.get_json()
 
     def _replace_path(self, path_str: str) -> Optional[str]:
         if self.path_dict and path_str[0] == "<" and path_str[-1] == ">":

@@ -12,6 +12,7 @@ from tornado.testing import AsyncHTTPTestCase, HTTPResponse
 from tornado.web import Application
 
 from example.param_verify.tornado_example import TestCheckParamHandler as CheckParamHandler
+from example.param_verify.tornado_example import TestCheckRespHandler as CheckRespHandler
 from example.param_verify.tornado_example import TestGetHandler as GetHandler
 from example.param_verify.tornado_example import TestOtherFieldHandler as OtherFieldHandler
 from example.param_verify.tornado_example import TestPostHandler as PostHandler
@@ -65,15 +66,30 @@ class TestTornado(AsyncHTTPTestCase):
         )
         assert (
             "requires at most one of param user_name or alias_user_name"
-            in json.loads(test_helper.get().body.decode())["exc"]
+            in json.loads(test_helper.get().body.decode())["msg"]
         )
         test_helper = TornadoTestHelper(
             self, CheckParamHandler.get, query_dict={"uid": 123, "sex": "man", "age": 10, "alias_user_name": "appe"}
         )
         assert (
             "error:birthday requires param alias_user_name, which if not none"
-            in json.loads(test_helper.get().body.decode())["exc"]
+            in json.loads(test_helper.get().body.decode())["msg"]
         )
+
+    def test_check_response(self) -> None:
+        test_helper: TornadoTestHelper[HTTPResponse] = TornadoTestHelper(
+            self,
+            CheckRespHandler.get,
+            query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10},
+        )
+        with pytest.raises(RuntimeError):
+            test_helper.get()
+        test_helper = TornadoTestHelper(
+            self,
+            CheckRespHandler.get,
+            query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "display_age": 1},
+        )
+        test_helper.get()
 
     def test_mock_get(self) -> None:
         config.enable_mock_response = True
@@ -84,7 +100,10 @@ class TestTornado(AsyncHTTPTestCase):
         )
         assert resp == {
             "code": 0,
-            "data": {"age": 99, "email": "example@so1n.me", "uid": 6666666666, "user_name": "mock_name"},
+            "data": {
+                "age": 99, "email": "example@so1n.me", "uid": 666, "user_name": "mock_name", "multi_user_name": [],
+                "sex": "man"
+            },
             "msg": "success",
         }
         config.enable_mock_response = False
@@ -162,7 +181,7 @@ class TestTornado(AsyncHTTPTestCase):
             body='{"uid": 123, "user_name": "appl", "age": 2}',
         )
         resp: dict = json.loads(response.body.decode())
-        assert "exc" in resp
+        assert "msg" in resp
 
     def test_other_field(self) -> None:
         cookie_str: str = "abcd=abcd;"

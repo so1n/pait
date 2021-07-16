@@ -19,7 +19,6 @@ class PaitMd(PaitBaseParse):
         pait_dict: Dict[str, PaitCoreModel],
         title: str = "Pait Doc",
         use_html_details: bool = True,
-        json_type_default_value_dict: Optional[Dict[str, Any]] = None,
     ):
         self._use_html_details: bool = use_html_details  # some not support markdown in html
         self._title: str = title

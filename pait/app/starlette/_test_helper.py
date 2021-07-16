@@ -1,10 +1,11 @@
-from typing import Dict, Generic, List, Optional, TypeVar
+from typing import Dict, Generic, List, Optional, Type, TypeVar
 
 from requests import Response as _Response
 from starlette.testclient import TestClient
 
 from pait.app.base import BaseTestHelper
 from pait.model.core import PaitCoreModel
+from pait.model.response import PaitResponseModel
 
 from ._load_app import load_app
 
@@ -22,24 +23,17 @@ class StarletteTestHelper(BaseTestHelper, Generic[_T]):
     def _gen_pait_dict(self) -> Dict[str, PaitCoreModel]:
         return load_app(self.client.app)  # type: ignore
 
-    def _assert_response(self, resp: _Response) -> None:
-        if not self.pait_core_model.response_model_list:
-            return
+    @staticmethod
+    def _check_resp_status(resp: _Response, response_model: Type[PaitResponseModel]) -> bool:
+        return resp.status_code in response_model.status_code
 
-        for response_model in self.pait_core_model.response_model_list:
-            check_list: List[bool] = [
-                resp.status_code in response_model.status_code,
-                resp.headers["content-type"] == response_model.media_type,
-            ]
-            if response_model.response_data:
-                try:
-                    response_model.response_data(**resp.json())
-                    check_list.append(True)
-                except:
-                    check_list.append(False)
-            if all(check_list):
-                return
-        raise RuntimeError(f"response check error by:{self.pait_core_model.response_model_list}. resp:{resp}")
+    @staticmethod
+    def _check_resp_media_type(resp: _Response, response_model: Type[PaitResponseModel]) -> bool:
+        return resp.headers["content-type"] == response_model.media_type
+
+    @staticmethod
+    def _get_json(resp: _Response) -> dict:
+        return resp.json()
 
     def _replace_path(self, path_str: str) -> Optional[str]:
         if self.path_dict and path_str[0] == "{" and path_str[-1] == "}":
