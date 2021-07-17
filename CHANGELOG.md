@@ -1,8 +1,10 @@
-### 0.6.0
+### 0.6.0[Now]
  - Feature: add param required check
  - Feature: support DynamicModel config
+ - Feature: add global block http method
+ - Feature: add check response in test helper 
  - Refactor: core structure
-### 0.5.9[Now]
+### 0.5.9
  - Feature: mock response
  - Feature: test client helper
 ### 0.5.8.2

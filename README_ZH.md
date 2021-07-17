@@ -410,7 +410,7 @@ app = Starlette(
 # 上面是跟1.1的例子一样
 
 from pait.api_doc.open_api import PaitOpenApi
-from pait.app.starlette import load_app 
+from pait.app.starlette import load_app
 
 # 提取路由信息到pait的数据模块
 pair_dict = load_app(app)
@@ -472,15 +472,13 @@ add_doc_route(app, prefix='/doc')
 ## 3.隐式引入和显示引入
 `pait`对多个框架都提供支持, 如果一个项目中只安装了其中的一个框架, 那么可以使用隐式引入:
 ```Python3
-from pait.app import add_doc_route
-from pait.app import load_app
-from pait.app import pait
+from pait.app import add_doc_route, load_app, pait
+
 ```
 但是如果同时安装了多个框架, 那么上面的引入会抛出错误, 建议使用显示引入, 如:
 ```Python3
-from pait.app.starlette import add_doc_route
-from pait.app.starlette import load_app
-from pait.app.starlette import pait
+from pait.app.starlette import add_doc_route, load_app, pait
+
 ```
 ## 4.config, data与load_app
 - data
@@ -489,7 +487,8 @@ from pait.app.starlette import pait
 data里面有很多路由函数的信息, 但是会缺少关键的参数如`url`, `method`等。
 所以还需要使用load_app把相关参数与`pait`装饰器装饰的路由函数数据在data中绑定, 使用方法很简单, 不过要记住, 一定要在注册所有路由后再调用:
   ```Python3
-  from starlette.applications import Starlette 
+  from starlette.applications import Starlette
+
   from pait.app.starlette import load_app
 
   app: Starlette = Starlette()
@@ -505,7 +504,8 @@ data里面有很多路由函数的信息, 但是会缺少关键的参数如`url`
 - config
 config能为`pait`提供一些配置支持, 它需要尽快的初始化, 最佳的初始化位置就是在app初始化之前进行初始化,  同时整个运行时只允许初始化一次
   ```Python
-  from starlette.applications import Starlette 
+  from starlette.applications import Starlette
+
   from pait.app.starlette import load_app
   from pait.g import config
 

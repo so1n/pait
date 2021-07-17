@@ -38,11 +38,10 @@ pip install pait
 A simple starlette route handler example:
 ```Python
 import uvicorn
-
 from starlette.applications import Starlette
-from starlette.routing import Route
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+from starlette.routing import Route
 
 
 async def demo_post(request: Request) -> JSONResponse:
@@ -156,6 +155,7 @@ pait in order to facilitate the use of users, support a variety of writing metho
     BaseModel can only be used with kwargs parameters, and the type hints of the parameters must be a class that inherits from `pydantic.BaseModel`, using the example:
     ````Python
     from pydantic import BaseModel
+
     from pait.app.starlette import pait
     from pait.field import Body
     
@@ -484,15 +484,13 @@ Note: Currently only md documents and openapi documents for json and yaml are su
 ## 3.Implicit and explicit introduction
 `pait` provides support for multiple frameworks. If only one of the frameworks is installed in a project, then you can use implicit import:
 ```Python3
-from pait.app import add_doc_route
-from pait.app import load_app
-from pait.app import pait
+from pait.app import add_doc_route, load_app, pait
+
 ```
 However, if multiple frameworks are installed at the same time, the above introduction will throw an error. It is recommended to use explicit introduction, such as:
 ```Python3
-from pait.app.starlette import add_doc_route
-from pait.app.starlette import load_app
-from pait.app.starlette import pait
+from pait.app.starlette import add_doc_route, load_app, pait
+
 ```
 ## 4.config, data and load_app
 - data
@@ -503,7 +501,8 @@ from pait.app.starlette import pait
   There are a lot of routing function information in meta data, but it lacks key parameters such as `url`, `method`, etc.
 So you also need to use load_app to bind the relevant parameters to the routing function data decorated by the `pait` decorator in the meta data. The method of use is very simple, but remember that you must register all routes before calling: 
 ```Python3
-  from starlette.applications import Starlette 
+  from starlette.applications import Starlette
+
   from pait.app.starlette import load_app
 
   app: Starlette = Starlette()
@@ -519,7 +518,8 @@ So you also need to use load_app to bind the relevant parameters to the routing 
 - config
 config can provide some configuration support for `pait`, it needs to be initialized as soon as possible. The best initialization position is to initialize before app initialization, and only one initialization is allowed during the entire runtime.
   ```Python
-  from starlette.applications import Starlette 
+  from starlette.applications import Starlette
+
   from pait.app.starlette import load_app
   from pait.g import config
 
