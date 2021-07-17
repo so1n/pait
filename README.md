@@ -1,28 +1,38 @@
 # pait
 Pait is an api tool that can be used in any python web framework (currently only `flask`, `starlette`, `sanic`, `tornado` are supported, other frameworks will be supported once Pait is stable).
 
-The core functionality of Pait is to allow you to have FastAPI-like type checking and type conversion functionality (dependent on Pydantic and inspect) in any Python web framework, as well as documentation output
-
-Pait's vision of documentation output is both code and documentation, with a simple configuration, you can get an md document or openapi (json, yaml)
+Pait allows the Python Web framework to have functions such as parameter type checking, type conversion (depending on Pydantic and inspect), and document output.
 
 > Note:
-> 
+>
 > mypy check 100%
-> 
+>
 > test coverage 95%+ (exclude api_doc)
-> 
+>
 > python version >= 3.7 (support postponed annotations)
-> 
+>
 > The function is being expanded... the documentation may not be perfect
- 
+>
+> The following code does not specify, all default to use the `starlette` framework. 
+>
+> There is no test case for the document output function, and the function is still being improved
+
 [中文文档](https://github.com/so1n/pait/blob/master/README_ZH.md)
+# Feature
+ - [x] Parameter checksum automatic conversion (parameter check depends on `Pydantic`)
+ - [x] Parameter dependency verification
+ - [x] Automatically generate openapi files
+ - [x] Support swagger, redoc routing
+ - [x] return mock response
+ - [x] TestClient support, support response result verification  
+ - [ ] Support more types of http requests (currently only supports RESTful api)
+ - [ ] Combine faker to provide better mock response
+ - [ ] Local api document management
 # Installation
 ```Bash
 pip install pait
 ```
 # Usage
-Note: The following code does not specify, all default to use the `starlette` framework. 
-Note: There is no test case for the document output function, and the function is still being improved
 ## 1.type checking and parameter type conversion
 ### 1.1.Use in route handle
 A simple starlette route handler example:
@@ -77,36 +87,20 @@ use pait in starletter route handler:
 
 ```Python
 import uvicorn  # type: ignore
-
 from starlette.applications import Starlette
-from starlette.routing import Route
 from starlette.responses import JSONResponse
+from starlette.routing import Route
 
-from pait.field import Body
 from pait.app.starlette import pait
-from pydantic import (
-    BaseModel,
-    Field
-)
+from pait.field import Body
 
 
-# Create a Model based on Pydantic.BaseModel 
-class UserModel(BaseModel):
-    # Whether the auto-check type is int, and whether it is greater than or equal to 10 and less than or equal to 1000 
-    uid: int = Field(description="user id", gt=10, lt=1000)
-    # Whether the auto-check type is str, and whether the length is greater than or equal to 2, less than or equal to 4
-    user_name: str = Field(description="user name", min_length=2, max_length=4)
-
-
-# Decorating functions with the pait decorator
 @pait()
 async def demo_post(
-    # pait through the Body () to know the current need to get the value of the body from the request, and assign the value to the model, 
-    # and the structure of the model is the above PydanticModel, he will be based on our definition of the field automatically get the value and conversion and judgment
-    model: UserModel = Body.i()
+    uid: int = Body.i(description="user id", gt=10, lt=1000),
+    user_name: str = Body.i(description="user name", min_length=2, max_length=4)
 ) -> JSONResponse:
-    # Get the corresponding value to return
-    return JSONResponse({'result': model.dict()})
+    return JSONResponse({'result': {'uid': uid, 'user_name': user_name}})
 
 
 app = Starlette(
@@ -117,8 +111,22 @@ app = Starlette(
 
 uvicorn.run(app)
 ```
-As you can see, you just need to add a `pait` decorator to the routing function and change the parameters of `demo_post` to `model: PydanticModel = Body()`.
-pait through `Body` to know the need to get the post request body data, and according to `conint(gt=10, lt=1000)` on the data conversion and restrictions, and assigned to `PydanticModel`, the user only need to use `Pydantic` as the call `model` can get the data.
+It can be seen from the above that the code has been refined a lot. All of this is the role of the `pait` decorator. It finds out how to get the value through the function signature, what is the type of the value, and what is the key corresponding to the value. After assembly, it is handed over to `Pydantic` for verification and conversion, and then returned to the corresponding parameters of the routing function according to the function signature.
+
+for example param: uid
+```Python3
+from pait.field import Body
+
+uid: int = Body.i(description="user id", gt=10, lt=1000)
+```
+`pait` will be split into the following parts:
+
+```
+<key>: <type> = <request data> 
+```
+The key is the parameter name, type is the parameter type, and request data is the other description of the parameter. For example, body represents the data of the request body, gt is the minimum parameter, and lt is the maximum parameter.
+
+
 
 Here is just a simple demo, because we write the model can be reused, so you can save a lot of development time, the above parameters are only used to a way to write, the following will introduce pait support for the two ways to write and use.
 
@@ -131,6 +139,7 @@ pait in order to facilitate the use of users, support a variety of writing metho
     from pait.app.starlette import pait
     from pait.field import Body, Header
     from pait.model.base_model import PaitBaseModel
+    ```
 
 
     class TestModel(PaitBaseModel):
@@ -166,6 +175,7 @@ pait in order to facilitate the use of users, support a variety of writing metho
     ```Python
     from pait.app.starlette import pait
     from pait.field import Body
+    ```
 
 
     @pait()
@@ -189,9 +199,13 @@ async def demo_post(
 ) -> None:
     pass
 ```
-The following example will use a parameter called default.
-Since you can't use Content-Type to name the variables in Python, you can only use content_type to name them according to the naming convention of python, so there is no way to get the value directly from the header, so you can set the value of `alias` to Content-Type, and then Pait can get the value of Content-Type in the Header and assign it to the content_type variable.
-Another example uses `raw_return` and sets it to True. At this time, `Pait` will not use the parameter name `header_dict` as the key to get the data, but directly assign the data of the entire header to the header_dict.
+`Pait` also supports other functions when performing parameter verification and conversion, all of which are supported by the parameters of `<request data>`:
+
+- default: the function of providing default values, if the request parameter does not have the value of this parameter , The value is used by default
+
+- alias: Since `Content-Type` cannot be named in Python variables, it can only be named with `content_type` according to the naming convention of `Python`, and `content_type` cannot get the value directly from the header, so it can Set alias to `Content-Type`, so that `Pait` can get the value of `Content-Type` in the Header and assign it to the `content_type` variable.
+
+- raw_return: If the value is True, `Pait` will not use the parameter name to get the data, but directly assign the entire data to the corresponding parameter.
 
 ```Python
 from pait.app.starlette import pait
@@ -201,7 +215,7 @@ from pait.field import Body, Header
 @pait()
 async def demo_post(
     # get uid from request body data
-    uid: int = Body.i(),
+    uid: int = Body.i(default=100),
     # get Content-Type from header
     content_type: str = Header.i(alias='Content-Type'),
     header_dict: str = Header.i(raw_return=True)
@@ -276,6 +290,8 @@ async def api_exception(request: Request, exc: Exception) -> None:
     """
     if isinstance(exc, PaitBaseException):
         pass 
+    elif isinstance(exc, ValidationError):
+        pass
     else:
         pass
 
@@ -284,7 +300,7 @@ APP.add_exception_handler(PaitBaseException, api_exception)
 APP.add_exception_handler(ValidationError, api_exception)
 ```
 #### 1.5.2Error Tip
-When you use pait incorrectly, pait will indicate in the exception the file path and line number of the function.
+When you use `pait` incorrectly, `pait` will indicate in the exception the file path and line number of the function.
 ```Bash
   File "/home/so1n/github/pait/pait/func_param_handle.py", line 101, in set_value_to_kwargs_param
     f'File "{inspect.getfile(func_sig.func)}",'
@@ -324,8 +340,8 @@ def demo() -> None:
 ```
 Param:
 - author: List of authors who wrote the interface 
-- group: The group to which the interface belongs 
-- status: The status of the interface, currently only supports several states of `PaitStatus` 
+- group: The group to which the interface belongs (This option is currently not used for openapi)
+- status: The status of the interface, currently only supports several states of `PaitStatus` (This option will only be used for openapi and marked as deprecated if it is offline)
   - default status:
     - undefined: undefined 
   - in development:  
@@ -343,7 +359,7 @@ Param:
     - archive: archive
     - abandoned: abandoned
 - tag: interface tag 
-- response_model_list: return data, Need to inherit from `pait.model.PaitResponseModel`
+- response_model_list: return data, Need to inherit from `pait.model.PaitResponseModel`, Since `pait` is an extension of the web framework and will not modify the code of the framework, this parameter will not be used for ordinary request judgment (nor should it be used in the production environment). It is currently only used for document generation, mock response generation and TestClient verification.
 
 ### 2.1.openapi
 #### 2.1.1openapi doc output
@@ -401,7 +417,7 @@ app = Starlette(
 uvicorn.run(app)
 # --------------------
 
-from pait.app import load_app
+from pait.app.starlette import load_app
 from pait.api_doc.open_api import PaitOpenApi
 
 
@@ -461,18 +477,92 @@ add_doc_route(app, prefix='/doc')
 
 In addition to parameter verification and conversion, pait also provides the ability to output api documentation, which can be configured with simple parameters to output perfect documentation.
 
-Note: Currently only md, json, yaml type documents and openapi documents for json and yaml are supported for output.For the output of md, json, yaml, see 
+Note: Currently only md documents and openapi documents for json and yaml are supported for output.For the output of md, see 
 [doc example](https://github.com/so1n/pait/blob/master/example/api_doc/example_doc)
 
-## 3.How to used in other web framework?
+
+## 3.Implicit and explicit introduction
+`pait` provides support for multiple frameworks. If only one of the frameworks is installed in a project, then you can use implicit import:
+```Python3
+from pait.app import add_doc_route
+from pait.app import load_app
+from pait.app import pait
+```
+However, if multiple frameworks are installed at the same time, the above introduction will throw an error. It is recommended to use explicit introduction, such as:
+```Python3
+from pait.app.starlette import add_doc_route
+from pait.app.starlette import load_app
+from pait.app.starlette import pait
+```
+## 4.config, data and load_app
+- data
+
+  Since `pait` provides functional support through a decorator, all data is injected into meta data when the compiler is started, providing support for subsequent document generation and other functions.
+- load_app
+
+  There are a lot of routing function information in meta data, but it lacks key parameters such as `url`, `method`, etc.
+So you also need to use load_app to bind the relevant parameters to the routing function data decorated by the `pait` decorator in the meta data. The method of use is very simple, but remember that you must register all routes before calling: 
+```Python3
+  from starlette.applications import Starlette 
+  from pait.app.starlette import load_app
+
+  app: Starlette = Starlette()
+  # error
+  load_app(app)
+  # --------
+  # app.add_route
+  # --------
+
+  # success
+  load_app(app)
+  ```
+- config
+config can provide some configuration support for `pait`, it needs to be initialized as soon as possible. The best initialization position is to initialize before app initialization, and only one initialization is allowed during the entire runtime.
+  ```Python
+  from starlette.applications import Starlette 
+  from pait.app.starlette import load_app
+  from pait.g import config
+
+  config.init_config(author="so1n")
+  app: Starlette = Starlette()
+  # --------
+  # app.add_route
+  # --------
+  load_app(app) 
+  ```  
+
+Parameter introduction:
+- author: The global default API author, if the author parameter in `@pait` is empty, it will call `config.author` by default.
+- status: The global default API status, if the status in `@pait` is empty, it will be called by default to `config.status`
+- enable_mock_response: Decide whether this run will return a normal response or a mock response based on `response_model`
+- enable_mock_response_filter_fn: Multiple `response_model` are supported by default, and the mock response only takes the first `response_model` by default. If you feel that this does not meet the `response_model` you want, you can configure this function to return the results you want
+- block_http_method_set: Some web frameworks will automatically help add some routing functions to request methods such as `HEAD`. `pait` cannot recognize which are added by the framework and which are added by the user. Users can block some `methods` through this parameter
+- default_response_model_list: When designing some API interfaces, there are usually some default exception responses, and repeated configuration is very troublesome. can apply to the global by configuring this parameter
+- json_type_default_value_dict: Configure the default value of the json type
+## 5.TestClientHelper
+`pait` encapsulates a corresponding `TestCLientHelper` class for each framework, through which test cases can be written more conveniently, and the result data structure can be compared with `response_model` for verification.
+[starlette example](https://github.com/so1n/pait/blob/master/tests/test_app/test_starlette.py#L80)
+
+Parameter Description:
+  - client: The test client corresponding to the framework
+  - func: Corresponding to the routing function decorated by `pait`
+  - pait_dict: `pait` meta data, if it is empty, it will be automatically generated internally
+  - body_dict: Requested json data
+  - cookie_dict: Requested cookie data
+  - file_dict: Requested file data
+  - form_dict: Requested form data
+  - header_dict: Requested header data
+  - path_dict: Requested path data
+  - query_dict: Requested query data
+## 6.How to used in other web framework?
 If the web framework is not supported, which you are using.
 Can be modified sync web framework according to [pait.app.flask](https://github.com/so1n/pait/blob/master/pait/app/flask.py)
 
 Can be modified async web framework according to [pait.app.starlette](https://github.com/so1n/pait/blob/master/pait/app/starlette.py)
-## 4.IDE Support
+## 7.IDE Support
 While pydantic will work well with any IDE out of the box.
 - [PyCharm plugin](https://pydantic-docs.helpmanual.io/pycharm_plugin/)
 - [Mypy plugin](https://pydantic-docs.helpmanual.io/mypy_plugin/)
 
-## 5.Full example
+## 8.Full example
 For more complete examples, please refer to [example](https://github.com/so1n/pait/tree/master/example)
