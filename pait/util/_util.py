@@ -62,9 +62,12 @@ def gen_example_json_from_schema(schema_dict: Dict[str, Any], definition_dict: O
             if "default" in value:
                 gen_dict[key] = value["default"]
             else:
-                if value["type"] not in config.json_type_default_value_dict:
-                    raise KeyError(f"Can not found type: {key} in json type")
-                gen_dict[key] = config.json_type_default_value_dict[value["type"]]
+                if "type" in value:
+                    if value["type"] not in config.json_type_default_value_dict:
+                        raise KeyError(f"Can not found type: {key} in json type")
+                    gen_dict[key] = config.json_type_default_value_dict[value["type"]]
+                else:
+                    gen_dict[key] = "object()"
     return gen_dict
 
 
