@@ -1,6 +1,7 @@
+import copy
+import difflib
 import inspect
 import logging
-import sys
 from typing import Any, Callable, Dict, Generic, List, Mapping, Optional, Tuple, Type, TypeVar
 from urllib.parse import urlencode
 
@@ -191,33 +192,34 @@ class BaseTestHelper(Generic[RESP_T]):
     def _get_json(resp: RESP_T) -> dict:
         raise NotImplementedError()
 
-    def _diff_resp_dict(self, raw_resp: Any, default_resp: Any) -> bool:
+    def _diff_resp_dict(
+            self, raw_resp: Any, default_resp: Any, parent_key_list: Optional[List[str]] = None
+    ) -> bool:
         """check resp data structure diff"""
+        raw_parent_key_list: List[str] = parent_key_list or []
         try:
             if isinstance(raw_resp, dict):
                 for key, value in raw_resp.items():
-                    if not self._diff_resp_dict(value, default_resp[key]):
+                    parent_key_list = copy.deepcopy(raw_parent_key_list)
+                    parent_key_list.append(key)
+                    if not self._diff_resp_dict(value, default_resp[key], parent_key_list):
                         return False
                 return True
             elif isinstance(raw_resp, list) or isinstance(raw_resp, tuple):
-                if raw_resp and default_resp and not self._diff_resp_dict(raw_resp[0], default_resp[0]):
+                if raw_resp and default_resp and not self._diff_resp_dict(raw_resp[0], default_resp[0], parent_key_list):
                     return False
                 return True
-            elif raw_resp == default_resp:
-                return True
-            elif type(raw_resp) == type(default_resp):
-                return True
             else:
-                return False
-        except Exception:
-            return False
+                return True
+        except KeyError:
+            raise RuntimeError(f"Can not found key from model, key:{' -> '.join(parent_key_list or '')}")
 
     def _assert_response(self, resp: RESP_T) -> None:
         """Whether the structure of the check response is correct"""
         if not self.pait_core_model.response_model_list:
             return
 
-        json_error_response_dict: Dict[str, ValidationError] = {}
+        json_error_response_dict: Dict[Type[BaseModel], Tuple[Exception, float]] = {}
         for response_model in self.pait_core_model.response_model_list:
             check_list: List[bool] = [
                 self._check_resp_status(resp, response_model),
@@ -228,29 +230,35 @@ class BaseTestHelper(Generic[RESP_T]):
                 if response_data_model:
                     if not (inspect.isclass(response_data_model) and issubclass(response_data_model, BaseModel)):
                         raise TypeError(f"{response_data_model} not issubclass {BaseModel}")
+                    resp_dict: Optional[dict] = self._get_json(resp)
+                    if not resp_dict:
+                        check_list.append(True)
+                        continue
+                    response_data_default_dict: dict = gen_example_json_from_schema(response_data_model.schema())
                     try:
-                        resp_dict: dict = self._get_json(resp)
                         response_data_model(**resp_dict)
-                        response_data_default_dict: dict = gen_example_json_from_schema(response_data_model.schema())
                         check_list.append(self._diff_resp_dict(resp_dict, response_data_default_dict))
-                    except ValidationError as e:
+                    except (ValidationError, RuntimeError) as e:
                         check_list.append(False)
-                        json_error_response_dict[response_data_model.__name__] = e
+                        json_error_response_dict[response_data_model] = (
+                            e, difflib.SequenceMatcher(
+                                None, str(resp_dict), str(response_data_default_dict)
+                            ).quick_ratio()
+                        )
             if all(check_list):
                 return
         if json_error_response_dict:
             exc: Optional[Exception] = None
-            min_error_cnt: int = sys.maxsize
-            for name, response_e in json_error_response_dict.items():
-                if len(response_e.errors()) < min_error_cnt:
-                    min_error_cnt = 0
-                    exc = response_e
+            model: Optional[Type[BaseModel]] = None
+            max_quick_ratio: float = 0.0
+            for _model, response_error in json_error_response_dict.items():
+                if response_error[1] > max_quick_ratio:
+                    max_quick_ratio = response_error[1]
+                    exc = response_error[0]
+                    model = _model
             if exc:
-                raise RuntimeError(
-                    f"response check error by:{self.pait_core_model.response_model_list}. resp:{resp}, "
-                    f"maybe error:{exc}"
-                ) from exc
-        raise RuntimeError(f"response check error by:{self.pait_core_model.response_model_list}. resp:{resp}")
+                raise RuntimeError(f"maybe error:{exc} by response_model: {model}" ) from exc
+        raise RuntimeError(f"response check error by:{self.pait_core_model.response_model_list}.")
 
     def _replace_path(self, path_str: str) -> Optional[str]:
         raise NotImplementedError()
