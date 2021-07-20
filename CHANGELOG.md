@@ -1,4 +1,9 @@
-### 0.6.0[Now]
+### 0.6.1[Now]
+- Fix: can not raise real exc;refactor raise_and_tip -> gen_tip_exc
+- Feature: modify test client helper diff_response logic
+- Feature: example json value support Python TypeHints:Any
+
+### 0.6.0
  - Feature: add param required check
  - Feature: support DynamicModel config
  - Feature: add global block http method
