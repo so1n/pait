@@ -192,9 +192,7 @@ class BaseTestHelper(Generic[RESP_T]):
     def _get_json(resp: RESP_T) -> dict:
         raise NotImplementedError()
 
-    def _diff_resp_dict(
-            self, raw_resp: Any, default_resp: Any, parent_key_list: Optional[List[str]] = None
-    ) -> bool:
+    def _diff_resp_dict(self, raw_resp: Any, default_resp: Any, parent_key_list: Optional[List[str]] = None) -> bool:
         """check resp data structure diff"""
         raw_parent_key_list: List[str] = parent_key_list or []
         try:
@@ -206,7 +204,11 @@ class BaseTestHelper(Generic[RESP_T]):
                         return False
                 return True
             elif isinstance(raw_resp, list) or isinstance(raw_resp, tuple):
-                if raw_resp and default_resp and not self._diff_resp_dict(raw_resp[0], default_resp[0], parent_key_list):
+                if (
+                    raw_resp
+                    and default_resp
+                    and not self._diff_resp_dict(raw_resp[0], default_resp[0], parent_key_list)
+                ):
                     return False
                 return True
             else:
@@ -241,9 +243,10 @@ class BaseTestHelper(Generic[RESP_T]):
                     except (ValidationError, RuntimeError) as e:
                         check_list.append(False)
                         json_error_response_dict[response_data_model] = (
-                            e, difflib.SequenceMatcher(
+                            e,
+                            difflib.SequenceMatcher(
                                 None, str(resp_dict), str(response_data_default_dict)
-                            ).quick_ratio()
+                            ).quick_ratio(),
                         )
             if all(check_list):
                 return
@@ -257,7 +260,7 @@ class BaseTestHelper(Generic[RESP_T]):
                     exc = response_error[0]
                     model = _model
             if exc:
-                raise RuntimeError(f"maybe error:{exc} by response_model: {model}" ) from exc
+                raise RuntimeError(f"maybe error:{exc} by response_model: {model}") from exc
         raise RuntimeError(f"response check error by:{self.pait_core_model.response_model_list}.")
 
     def _replace_path(self, path_str: str) -> Optional[str]:

@@ -72,7 +72,7 @@ class TestTornado(AsyncHTTPTestCase):
             self, CheckParamHandler.get, query_dict={"uid": 123, "sex": "man", "age": 10, "alias_user_name": "appe"}
         )
         assert (
-            "error:birthday requires param alias_user_name, which if not none"
+            "birthday requires param alias_user_name, which if not none"
             in json.loads(test_helper.get().body.decode())["msg"]
         )
 

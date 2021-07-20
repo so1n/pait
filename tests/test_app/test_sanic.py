@@ -58,7 +58,7 @@ class TestSanic:
         sanic_test_helper = SanicTestHelper(
             client, check_param_route, query_dict={"uid": 123, "sex": "man", "age": 10, "alias_user_name": "appe"}
         )
-        assert "error:birthday requires param alias_user_name, which if not none" in sanic_test_helper.get().json["msg"]
+        assert "birthday requires param alias_user_name, which if not none" in sanic_test_helper.get().json["msg"]
 
     def test_check_response(self, client: SanicTestClient) -> None:
         test_helper: SanicTestHelper[TestingResponse] = SanicTestHelper(

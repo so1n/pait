@@ -10,7 +10,7 @@ from pait.app.base import BaseAppHelper
 from pait.exceptions import NotFoundFieldError, PaitBaseException
 from pait.field import BaseField
 from pait.model.base_model import PaitBaseModel
-from pait.util import FuncSig, create_pydantic_model, get_func_sig, get_parameter_list_from_class, raise_and_tip
+from pait.util import FuncSig, create_pydantic_model, gen_tip_exc, get_func_sig, get_parameter_list_from_class
 
 
 def parameter_2_basemodel(parameter_value_dict: Dict["inspect.Parameter", Any]) -> BaseModel:
@@ -169,13 +169,13 @@ def param_handle(
                 # support model: model: ModelType
                 set_parameter_value_to_args(parameter, app_helper, args_param_list)
         except PaitBaseException as e:
-            raise_and_tip(_object, e, parameter)
+            raise e from gen_tip_exc(_object, e, parameter)
     # support field: def demo(demo_param: int = pait.field.BaseField())
     if single_field_dict:
         try:
             kwargs_param_dict.update(parameter_2_basemodel(single_field_dict).dict())
         except Exception as e:
-            raise ValidationError from raise_and_tip(_object, e)
+            raise e from gen_tip_exc(_object, e)
     return args_param_list, kwargs_param_dict
 
 
@@ -210,7 +210,7 @@ async def async_param_handle(
                 # support model: model: ModelType
                 await async_set_value_to_args(parameter, dispatch_web, args_param_list)
         except PaitBaseException as e:
-            raise_and_tip(_object, e, parameter)
+            raise e from gen_tip_exc(_object, e, parameter)
 
     # support field: def demo(demo_param: int = pait.field.BaseField())
     if single_field_dict:
@@ -221,7 +221,7 @@ async def async_param_handle(
                 kwargs_param_dict.update(parameter_2_basemodel(single_field_dict).__dict__)
 
         except Exception as e:
-            raise_and_tip(_object, e)
+            raise e from gen_tip_exc(_object, e)
     return args_param_list, kwargs_param_dict
 
 

@@ -74,7 +74,7 @@ class TestUtil:
             annotation=str,
         )
         with pytest.raises(Exception):
-            util.raise_and_tip(Demo(), Exception(), parameter)
+            raise util.gen_tip_exc(Demo(), Exception(), parameter)
         patch.assert_called_with(AnyStringWith("class: `Demo`  attributes error"))
 
     def test_raise_and_tip_param_value_is_pait_field(self, mocker: MockFixture) -> None:
@@ -83,7 +83,7 @@ class TestUtil:
             "b", inspect.Parameter.POSITIONAL_ONLY, annotation=str, default=FakeField.i()
         )
         with pytest.raises(Exception):
-            util.raise_and_tip(Demo(), Exception(), parameter)
+            raise util.gen_tip_exc(Demo(), Exception(), parameter)
 
         patch.assert_called_with(AnyStringWith("class: `Demo`  attributes error"))
 
@@ -93,7 +93,7 @@ class TestUtil:
             "b", inspect.Parameter.POSITIONAL_ONLY, annotation=str, default=""
         )
         with pytest.raises(Exception):
-            util.raise_and_tip(Demo(), Exception(), parameter)
+            raise util.gen_tip_exc(Demo(), Exception(), parameter)
         patch.assert_called_with(StringNotIn("alias"))
         patch.assert_called_with(AnyStringWith("class: `Demo`  attributes error"))
 

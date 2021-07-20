@@ -9,7 +9,7 @@ from pait.model.core import PaitCoreModel
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
 from pait.param_handle import async_class_param_handle, async_func_param_handle, class_param_handle, func_param_handle
-from pait.util import FuncSig, get_func_sig, raise_and_tip
+from pait.util import FuncSig, gen_tip_exc, get_func_sig
 
 
 def _check_at_most_one_of(at_most_one_of_list: List[List[str]], func_kwargs: Dict[str, Any]) -> None:
@@ -88,7 +88,7 @@ def pait(
                     if required_by:
                         _check_required_by(required_by, func_kwargs)
                 except Exception as e:
-                    raise raise_and_tip(func, e)
+                    raise e from gen_tip_exc(func, e)
                 return await pait_core_model.func(*func_args, **func_kwargs)
 
             return dispatch
@@ -111,7 +111,7 @@ def pait(
                     if required_by:
                         _check_required_by(required_by, func_kwargs)
                 except Exception as e:
-                    raise raise_and_tip(func, e)
+                    raise e from gen_tip_exc(func, e)
                 return pait_core_model.func(*func_args, **func_kwargs)
 
             return dispatch

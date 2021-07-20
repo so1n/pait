@@ -86,8 +86,10 @@ def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:
     return parameter_list
 
 
-def raise_and_tip(_object: Any, exception: "Exception", parameter: Optional[inspect.Parameter] = None) -> NoReturn:
+def gen_tip_exc(_object: Any, exception: "Exception", parameter: Optional[inspect.Parameter] = None) -> Exception:
     """Help users understand which parameter is wrong"""
+    if getattr(exception, "_is_tip_exc", None):
+        return exception
     if parameter:
         param_value: BaseField = parameter.default
         annotation: Type[BaseModel] = parameter.annotation
@@ -132,10 +134,10 @@ def raise_and_tip(_object: Any, exception: "Exception", parameter: Optional[insp
         if "class" in error_object_name:
             error_object_name = str(_object.__class__)
         logging.debug(f"class: `{error_object_name}`  attributes error\n    {param_str}")
-    if isinstance(exception, PaitBaseException):
-        exc_class: Type[Exception] = exception.__class__
-    else:
-        exc_class = PaitBaseException
-    raise exc_class(
-        f'File "{file}",' f" line {line}," f" in {error_object_name}." f" error:{str(exception)}"
-    ) from exception
+    exc_msg: str = f'File "{file}",' f" line {line}," f" in {error_object_name}." f" error:{str(exception)}"
+    try:
+        exc: Exception = exception.__class__(exc_msg)
+    except:
+        exc = PaitBaseException(exc_msg)
+    setattr(exception, "_is_tip_exc", True)
+    return exc
