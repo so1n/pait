@@ -1,3 +1,5 @@
+from datetime import datetime
+from decimal import Decimal
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type
 
 from pait.model.response import PaitResponseModel
@@ -29,6 +31,16 @@ class Config(object):
             "object": {},
             "array": [],
         }
+        self.python_type_default_value_dict: Dict[type, Any] = {
+            bool: True,
+            float: 0.0,
+            int: 0,
+            str: "",
+            list: [],
+            tuple: [],
+            datetime: 0,
+            Decimal: 0,
+        }
 
     def __setattr__(self, key: Any, value: Any) -> None:
         if not self.__initialized:
@@ -43,6 +55,7 @@ class Config(object):
         block_http_method_set: Optional[Set[str]] = None,
         default_response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
         json_type_default_value_dict: Optional[Dict[str, Any]] = None,
+        python_type_default_value_dict: Optional[Dict[type, Any]] = None,
         enable_mock_response: bool = False,
         enable_mock_response_filter_fn: Optional[Callable[[Type[PaitResponseModel]], bool]] = None,
     ) -> None:
@@ -69,6 +82,8 @@ class Config(object):
         self.default_response_model_list = default_response_model_list or []
         if json_type_default_value_dict:
             self.json_type_default_value_dict.update(json_type_default_value_dict)
+        if python_type_default_value_dict:
+            self.python_type_default_value_dict.update(python_type_default_value_dict)
         self.enable_mock_response = enable_mock_response
         self.enable_mock_response_filter_fn = enable_mock_response_filter_fn
 

@@ -1,6 +1,6 @@
 import inspect
 import logging
-from typing import Any, Dict, List, NoReturn, Optional, Tuple, Type, get_type_hints
+from typing import Any, Dict, List, Optional, Tuple, Type, get_type_hints
 
 from pydantic import BaseConfig, BaseModel, create_model
 
@@ -39,6 +39,15 @@ def create_pydantic_model(
         __validators__=pydantic_validators,
         **annotation_dict,
     )
+
+
+def gen_example_json_from_python(obj: Any) -> Any:
+    if isinstance(obj, dict):
+        for key, value in obj.items():
+            obj[key] = gen_example_json_from_python(value)
+        return obj
+    else:
+        return config.python_type_default_value_dict.get(type(obj), obj)
 
 
 def gen_example_json_from_schema(schema_dict: Dict[str, Any], definition_dict: Optional[dict] = None) -> Dict[str, Any]:

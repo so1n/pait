@@ -9,7 +9,7 @@ from pydantic import BaseModel, ValidationError
 
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitResponseModel
-from pait.util import gen_example_json_from_schema
+from pait.util import gen_example_json_from_schema, gen_example_json_from_python
 
 
 class BaseAppHelper(object):
@@ -245,7 +245,9 @@ class BaseTestHelper(Generic[RESP_T]):
                         json_error_response_dict[response_data_model] = (
                             e,
                             difflib.SequenceMatcher(
-                                None, str(resp_dict), str(response_data_default_dict)
+                                None,
+                                str(gen_example_json_from_python(resp_dict.copy())),
+                                str(response_data_default_dict)
                             ).quick_ratio(),
                         )
             if all(check_list):
