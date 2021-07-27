@@ -85,10 +85,13 @@ def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:
     parameter_list: List["inspect.Parameter"] = []
     if hasattr(cbv_class, "__annotations__"):
         for param_name, param_annotation in get_type_hints(cbv_class).items():
+            default: Any = getattr(cbv_class, param_name, Undefined)
+            if not isinstance(default, BaseField):
+                continue
             parameter: "inspect.Parameter" = inspect.Parameter(
                 param_name,
                 inspect.Parameter.POSITIONAL_ONLY,
-                default=getattr(cbv_class, param_name, Undefined),
+                default=default,
                 annotation=param_annotation,
             )
             parameter_list.append(parameter)

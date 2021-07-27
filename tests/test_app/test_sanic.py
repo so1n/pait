@@ -5,8 +5,8 @@ from unittest import mock
 
 import pytest
 from sanic import Sanic
-from sanic_testing import TestManager  # type: ignore
-from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
+from sanic_testing import TestManager as SanicTestManager  # type: ignore
+from sanic_testing.testing import SanicTestClient, TestingResponse as Response  # type: ignore
 
 from example.param_verify.sanic_example import create_app
 from example.param_verify.sanic_example import test_check_param as check_param_route
@@ -22,13 +22,13 @@ from pait.g import config
 @pytest.fixture
 def client() -> Generator[SanicTestClient, None, None]:
     app: Sanic = create_app()
-    TestManager(app)
+    SanicTestManager(app)
     yield app.test_client
 
 
 class TestSanic:
     def test_get(self, client: SanicTestClient) -> None:
-        sanic_test_helper: SanicTestHelper[TestingResponse] = SanicTestHelper(
+        sanic_test_helper: SanicTestHelper[Response] = SanicTestHelper(
             client,
             get_route,
             path_dict={"age": 3},
@@ -49,7 +49,7 @@ class TestSanic:
             }
 
     def test_check_param(self, client: SanicTestClient) -> None:
-        sanic_test_helper: SanicTestHelper[TestingResponse] = SanicTestHelper(
+        sanic_test_helper: SanicTestHelper[Response] = SanicTestHelper(
             client,
             check_param_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
@@ -61,7 +61,7 @@ class TestSanic:
         assert "birthday requires param alias_user_name, which if not none" in sanic_test_helper.get().json["msg"]
 
     def test_check_response(self, client: SanicTestClient) -> None:
-        test_helper: SanicTestHelper[TestingResponse] = SanicTestHelper(
+        test_helper: SanicTestHelper[Response] = SanicTestHelper(
             client,
             check_resp_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10},
@@ -120,7 +120,7 @@ class TestSanic:
         assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
 
     def test_post(self, client: SanicTestClient) -> None:
-        sanic_test_helper: SanicTestHelper[TestingResponse] = SanicTestHelper(
+        sanic_test_helper: SanicTestHelper[Response] = SanicTestHelper(
             client,
             post_route,
             body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
@@ -170,7 +170,7 @@ class TestSanic:
         f2.write(file_content.encode())
         f2.seek(0)
 
-        sanic_test_helper: SanicTestHelper[TestingResponse] = SanicTestHelper(
+        sanic_test_helper: SanicTestHelper[Response] = SanicTestHelper(
             client,
             other_field_route,
             cookie_dict={"cookie": cookie_str},
