@@ -40,7 +40,7 @@ def client(mocker: MockFixture) -> Generator[TestClient, None, None]:
 
 class TestStarlette:
     def test_get(self, client: TestClient) -> None:
-        test_helper: StarletteTestHelper[Response] = StarletteTestHelper(
+        test_helper: StarletteTestHelper = StarletteTestHelper(
             client,
             get_route,
             path_dict={"age": 3},
@@ -61,7 +61,7 @@ class TestStarlette:
             }
 
     def test_check_param(self, client: TestClient) -> None:
-        startlette_test_helper: StarletteTestHelper[Response] = StarletteTestHelper(
+        startlette_test_helper: StarletteTestHelper = StarletteTestHelper(
             client,
             check_param_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
@@ -77,7 +77,7 @@ class TestStarlette:
         )
 
     def test_check_response(self, client: TestClient) -> None:
-        test_helper: StarletteTestHelper[Response] = StarletteTestHelper(
+        test_helper: StarletteTestHelper = StarletteTestHelper(
             client,
             check_resp_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10},
@@ -132,7 +132,7 @@ class TestStarlette:
         assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
 
     def test_post(self, client: TestClient) -> None:
-        test_helper: StarletteTestHelper[Response] = StarletteTestHelper(
+        test_helper: StarletteTestHelper = StarletteTestHelper(
             client,
             post_route,
             body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
@@ -182,7 +182,7 @@ class TestStarlette:
         f2.write(file_content.encode())
         f2.seek(0)
 
-        test_helper: StarletteTestHelper[Response] = StarletteTestHelper(
+        test_helper: StarletteTestHelper = StarletteTestHelper(
             client,
             other_field_route,
             cookie_dict={"cookie": cookie_str},

@@ -1,8 +1,5 @@
-import inspect
-import sys
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
+from typing import Dict, Optional, Type
 
-from pydantic import BaseModel, ValidationError
 from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
 
 from pait.app.base import BaseTestHelper
@@ -11,11 +8,10 @@ from pait.model.response import PaitResponseModel
 
 from ._load_app import load_app
 
-_T = TypeVar("_T", bound=TestingResponse)
 __all__ = ["SanicTestHelper"]
 
 
-class SanicTestHelper(BaseTestHelper, Generic[_T]):
+class SanicTestHelper(BaseTestHelper[TestingResponse]):
     client: SanicTestClient
 
     def _app_init_field(self) -> None:

@@ -28,7 +28,7 @@ def client() -> Generator[SanicTestClient, None, None]:
 
 class TestSanic:
     def test_get(self, client: SanicTestClient) -> None:
-        sanic_test_helper: SanicTestHelper[Response] = SanicTestHelper(
+        sanic_test_helper: SanicTestHelper = SanicTestHelper(
             client,
             get_route,
             path_dict={"age": 3},
@@ -49,7 +49,7 @@ class TestSanic:
             }
 
     def test_check_param(self, client: SanicTestClient) -> None:
-        sanic_test_helper: SanicTestHelper[Response] = SanicTestHelper(
+        sanic_test_helper: SanicTestHelper = SanicTestHelper(
             client,
             check_param_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
@@ -61,7 +61,7 @@ class TestSanic:
         assert "birthday requires param alias_user_name, which if not none" in sanic_test_helper.get().json["msg"]
 
     def test_check_response(self, client: SanicTestClient) -> None:
-        test_helper: SanicTestHelper[Response] = SanicTestHelper(
+        test_helper: SanicTestHelper = SanicTestHelper(
             client,
             check_resp_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10},
@@ -120,7 +120,7 @@ class TestSanic:
         assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
 
     def test_post(self, client: SanicTestClient) -> None:
-        sanic_test_helper: SanicTestHelper[Response] = SanicTestHelper(
+        sanic_test_helper: SanicTestHelper = SanicTestHelper(
             client,
             post_route,
             body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
@@ -170,7 +170,7 @@ class TestSanic:
         f2.write(file_content.encode())
         f2.seek(0)
 
-        sanic_test_helper: SanicTestHelper[Response] = SanicTestHelper(
+        sanic_test_helper: SanicTestHelper = SanicTestHelper(
             client,
             other_field_route,
             cookie_dict={"cookie": cookie_str},

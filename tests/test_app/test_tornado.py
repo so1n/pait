@@ -36,7 +36,7 @@ class TestTornado(AsyncHTTPTestCase):
         return "%s://localhost:%s%s" % (self.get_protocol(), self.get_http_port(), path)
 
     def test_get(self) -> None:
-        test_helper: TornadoTestHelper[HTTPResponse] = TornadoTestHelper(
+        test_helper: TornadoTestHelper = TornadoTestHelper(
             self,
             GetHandler.get,
             path_dict={"age": 3},
@@ -46,10 +46,10 @@ class TestTornado(AsyncHTTPTestCase):
             "/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
         )
         for resp in [test_helper.get(), response]:
-            resp = json.loads(resp.body.decode())
+            resp_dict = json.loads(resp.body.decode())
 
-            assert resp["code"] == 0
-            assert resp["data"] == {
+            assert resp_dict["code"] == 0
+            assert resp_dict["data"] == {
                 "uid": 123,
                 "user_name": "appl",
                 "email": "example@xxx.com",
@@ -59,7 +59,7 @@ class TestTornado(AsyncHTTPTestCase):
             }
 
     def test_check_param(self) -> None:
-        test_helper: TornadoTestHelper[HTTPResponse] = TornadoTestHelper(
+        test_helper: TornadoTestHelper = TornadoTestHelper(
             self,
             CheckParamHandler.get,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
@@ -77,7 +77,7 @@ class TestTornado(AsyncHTTPTestCase):
         )
 
     def test_check_response(self) -> None:
-        test_helper: TornadoTestHelper[HTTPResponse] = TornadoTestHelper(
+        test_helper: TornadoTestHelper = TornadoTestHelper(
             self,
             CheckRespHandler.get,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10},
@@ -143,7 +143,7 @@ class TestTornado(AsyncHTTPTestCase):
         assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
 
     def test_post(self) -> None:
-        test_helper: TornadoTestHelper[HTTPResponse] = TornadoTestHelper(
+        test_helper: TornadoTestHelper = TornadoTestHelper(
             self,
             PostHandler.post,
             body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
@@ -156,9 +156,9 @@ class TestTornado(AsyncHTTPTestCase):
             body='{"uid": 123, "user_name": "appl", "age": 2, "sex": "man"}',
         )
         for resp in [test_helper.post(), response]:
-            resp = json.loads(resp.body.decode())
-            assert resp["code"] == 0
-            assert resp["data"] == {
+            resp_dict = json.loads(resp.body.decode())
+            assert resp_dict["code"] == 0
+            assert resp_dict["data"] == {
                 "uid": 123,
                 "user_name": "appl",
                 "age": 2,
@@ -201,7 +201,7 @@ class TestTornado(AsyncHTTPTestCase):
         f2.write(file_content.encode())
         f2.seek(0)
 
-        test_helper: TornadoTestHelper[HTTPResponse] = TornadoTestHelper(
+        test_helper: TornadoTestHelper = TornadoTestHelper(
             self,
             OtherFieldHandler.post,
             cookie_dict={"cookie": cookie_str},
@@ -218,7 +218,6 @@ class TestTornado(AsyncHTTPTestCase):
             body=body,
         )
         for resp in [test_helper.post(), response]:
-            resp = json.loads(resp.body.decode())
             assert {
                 "filename": file_name,
                 "content": file_content,
@@ -226,7 +225,7 @@ class TestTornado(AsyncHTTPTestCase):
                 "form_b": "2",
                 "form_c": ["3"],
                 "cookie": {"abcd": "abcd"},
-            } == resp["data"]
+            } == json.loads(resp.body.decode())["data"]
 
     @staticmethod
     def choose_boundary() -> str:

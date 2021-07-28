@@ -83,7 +83,7 @@ class PaitBaseParse(object):
                     _type = "enum"
                 else:
                     default = param_dict.get("default", self._undefined)
-                    _type = param_dict["type"]
+                    _type = param_dict.get("type", "object()")
                 field_dict_list.append(
                     {
                         "param_name": all_param_name,

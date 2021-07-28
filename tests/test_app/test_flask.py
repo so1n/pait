@@ -41,7 +41,7 @@ def enable_mock_response() -> Generator[None, None, None]:
 
 class TestFlask:
     def test_get(self, client: FlaskClient) -> None:
-        flask_test_helper: FlaskTestHelper[Response] = FlaskTestHelper(
+        flask_test_helper: FlaskTestHelper = FlaskTestHelper(
             client,
             pait_route,
             path_dict={"age": 3},
@@ -63,7 +63,7 @@ class TestFlask:
             }
 
     def test_check_response(self, client: FlaskClient) -> None:
-        flask_test_helper: FlaskTestHelper[Response] = FlaskTestHelper(
+        flask_test_helper: FlaskTestHelper = FlaskTestHelper(
             client,
             check_resp_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10},
@@ -78,7 +78,7 @@ class TestFlask:
         flask_test_helper.get().get_json()
 
     def test_check_param(self, client: FlaskClient) -> None:
-        flask_test_helper: FlaskTestHelper[Response] = FlaskTestHelper(
+        flask_test_helper: FlaskTestHelper = FlaskTestHelper(
             client,
             check_param_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
@@ -130,7 +130,7 @@ class TestFlask:
         assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
 
     def test_post(self, client: FlaskClient) -> None:
-        flask_test_helper: FlaskTestHelper[Response] = FlaskTestHelper(
+        flask_test_helper: FlaskTestHelper = FlaskTestHelper(
             client,
             post_route,
             body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
@@ -179,7 +179,7 @@ class TestFlask:
         f2.write(file_content.encode())
         f2.seek(0)
 
-        flask_test_helper: FlaskTestHelper[Response] = FlaskTestHelper(
+        flask_test_helper: FlaskTestHelper = FlaskTestHelper(
             client, other_field_route, file_dict={"upload_file": f1}, form_dict={"a": "1", "b": "2", "c": "3"}
         )
 

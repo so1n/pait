@@ -1,4 +1,4 @@
-from typing import Dict, Generic, List, Optional, Type, TypeVar
+from typing import Dict, Generic, Optional, Type, TypeVar
 
 from requests import Response as _Response
 from starlette.testclient import TestClient
@@ -9,11 +9,10 @@ from pait.model.response import PaitResponseModel
 
 from ._load_app import load_app
 
-_T = TypeVar("_T", bound=_Response)
 __all__ = ["StarletteTestHelper"]
 
 
-class StarletteTestHelper(BaseTestHelper, Generic[_T]):
+class StarletteTestHelper(BaseTestHelper[_Response]):
     client: TestClient
 
     def _app_init_field(self) -> None:

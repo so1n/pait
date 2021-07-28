@@ -2,7 +2,7 @@ import binascii
 import json
 import os
 from io import BytesIO
-from typing import Dict, Generic, Optional, Tuple, Type, TypeVar
+from typing import Dict, Optional, Tuple, Type, TypeVar
 
 from tornado.testing import AsyncHTTPTestCase, HTTPResponse
 
@@ -12,11 +12,10 @@ from pait.model.response import PaitResponseModel
 
 from ._load_app import load_app
 
-_T = TypeVar("_T", bound=HTTPResponse)
 __all__ = ["TornadoTestHelper"]
 
 
-class TornadoTestHelper(BaseTestHelper, Generic[_T]):
+class TornadoTestHelper(BaseTestHelper[HTTPResponse]):
     client: AsyncHTTPTestCase
 
     def _app_init_field(self) -> None:

@@ -1,4 +1,4 @@
-from typing import Dict, Generic, List, Optional, Type, TypeVar
+from typing import Dict, Optional, Type
 
 from flask import Response
 from flask.testing import FlaskClient
@@ -9,11 +9,10 @@ from pait.model.response import PaitResponseModel
 
 from ._load_app import load_app
 
-_T = TypeVar("_T", bound=Response)
 __all__ = ["FlaskTestHelper"]
 
 
-class FlaskTestHelper(BaseTestHelper, Generic[_T]):
+class FlaskTestHelper(BaseTestHelper[Response]):
     client: FlaskClient
 
     def _app_init_field(self) -> None:
