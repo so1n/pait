@@ -77,7 +77,7 @@ def pait(
                     # only use in runtime, support cbv
                     class_ = getattr(inspect.getmodule(func), pait_core_model.qualname)
                     # real param handle
-                    app_helper: BaseAsyncAppHelper = app_helper_class(class_, args, kwargs)  # type: ignore
+                    app_helper: BaseAppHelper = app_helper_class(class_, args, kwargs)  # type: ignore
                     # auto gen param from request
                     func_args, func_kwargs = await async_func_param_handle(app_helper, func_sig)
                     # support sbv
@@ -100,7 +100,7 @@ def pait(
                     # only use in runtime
                     class_ = getattr(inspect.getmodule(func), pait_core_model.qualname)
                     # real param handle
-                    app_helper: BaseSyncAppHelper = app_helper_class(class_, args, kwargs)  # type: ignore
+                    app_helper = app_helper_class(class_, args, kwargs)  # type: ignore
                     # auto gen param from request
                     func_args, func_kwargs = func_param_handle(app_helper, func_sig)
                     # support sbv

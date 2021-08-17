@@ -1,7 +1,7 @@
 import inspect
 import json
 from types import CodeType
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Set
 
 from pydantic.fields import Undefined
 
@@ -93,8 +93,8 @@ class PaitMd(PaitBaseParse):
 
                 # func or interface details
                 func_code: CodeType = pait_model.func.__code__
-                markdown_text += f"|Author|Status|func|summary|\n"
-                markdown_text += f"|---|---|---|---|\n"
+                markdown_text += "|Author|Status|func|summary|\n"
+                markdown_text += "|---|---|---|---|\n"
                 markdown_text += (
                     f"|{','.join(pait_model.author)}"
                     f"|{status_text}"
@@ -107,20 +107,20 @@ class PaitMd(PaitBaseParse):
                 # request info
                 markdown_text += f"- Path: {pait_model.path}\n"
                 markdown_text += f"- Method: {','.join(pait_model.method_list)}\n"
-                markdown_text += f"- Request:\n"
+                markdown_text += "- Request:\n"
 
                 field_dict: Dict[str, List[Dict[str, Any]]] = self._parse_func_param_to_field_dict(pait_model.func)
                 # request body info
                 field_key_list: List[str] = sorted(field_dict.keys())
-                for field in field_key_list:
-                    if field.lower() not in self._field_name_set:
+                for _field in field_key_list:
+                    if _field.lower() not in self._field_name_set:
                         continue
-                    field_dict_list = field_dict[field]
-                    markdown_text += f"{' ' * 4}- {field.capitalize()} Param\n\n"
+                    field_dict_list = field_dict[_field]
+                    markdown_text += f"{' ' * 4}- {_field.capitalize()} Param\n\n"
                     markdown_text += self.gen_md_param_table(field_dict_list)
 
                 # response info
-                markdown_text += f"- Response:\n\n"
+                markdown_text += "- Response:\n\n"
                 if pait_model.response_model_list:
                     for resp_model_class in pait_model.response_model_list:
                         resp_model = resp_model_class()
@@ -144,7 +144,7 @@ class PaitMd(PaitBaseParse):
 
                             example_dict = gen_example_json_from_schema(resp_model.response_data.schema())
                             blank_num_str: str = " " * 12
-                            json_str: str = f"\n".join(
+                            json_str: str = "\n".join(
                                 [blank_num_str + i for i in json.dumps(example_dict, indent=2).split("\n")]
                             )
                             markdown_text += f"{blank_num_str}```json\n{json_str}\n{blank_num_str}```\n\n"

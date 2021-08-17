@@ -4,7 +4,7 @@ from typing import Generator, List
 from unittest import mock
 
 import pytest
-from flask import Flask, Response
+from flask import Flask
 from flask.ctx import AppContext
 from flask.testing import FlaskClient
 

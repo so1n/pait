@@ -32,7 +32,6 @@ def main() -> None:
     title: str = args.title
     filename: Optional[str] = args.filename
     use_html_details: bool = args.use_html_details
-    indent: int = args.indent
 
     module = importlib.import_module(module_name)
     app = getattr(module, app_name, None)

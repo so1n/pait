@@ -1,6 +1,5 @@
 import inspect
 import warnings
-from types import CodeType
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, get_type_hints
 
 from pydantic import BaseModel
@@ -9,7 +8,6 @@ from pydantic.fields import Undefined
 from pait.field import BaseField, Depends
 from pait.model.base_model import PaitBaseModel
 from pait.model.core import PaitCoreModel
-from pait.model.response import PaitResponseModel
 from pait.util import FuncSig, create_pydantic_model, get_func_sig, get_parameter_list_from_class
 
 
@@ -136,7 +134,9 @@ class PaitBaseParse(object):
             {
                 'uid': Query(default=Ellipsis, description='user id', gt=10, lt=1000, extra={}),
                 'user_name': Query(default=Ellipsis, description='user name', min_length=2, max_length=4, extra={}),
-                'user_agent': Header(default=Ellipsis, alias='user-agent', alias_priority=2, description='user agent', extra={}),
+                'user_agent': Header(
+                    default=Ellipsis, alias='user-agent', alias_priority=2, description='user agent', extra={}
+                ),
                 'age': Body(default=Ellipsis, description='age', gt=1, lt=100, extra={})
             }
         :return:

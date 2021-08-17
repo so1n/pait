@@ -1,6 +1,6 @@
-from typing import Dict, Generic, Optional, Type, TypeVar
+from typing import Dict, Optional, Type
 
-from requests import Response as _Response
+from requests import Response as _Response  # type: ignore
 from starlette.testclient import TestClient
 
 from pait.app.base import BaseTestHelper

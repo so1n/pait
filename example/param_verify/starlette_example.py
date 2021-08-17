@@ -182,7 +182,7 @@ async def test_check_resp(
             "email": email,
         },
     }
-    if display_age is 1:
+    if display_age == 1:
         return_dict["data"]["age"] = age
     return JSONResponse(return_dict)
 

@@ -2,7 +2,7 @@ import binascii
 import json
 import os
 from io import BytesIO
-from typing import Dict, Optional, Tuple, Type, TypeVar
+from typing import Dict, Optional, Tuple, Type
 
 from tornado.testing import AsyncHTTPTestCase, HTTPResponse
 

@@ -6,29 +6,29 @@ Pait可以让Python Web框架拥有像参数类型检查, 类型转换的功能(
 [Pait成型历史](http://so1n.me/2019/04/15/%E7%BB%99python%E6%8E%A5%E5%8F%A3%E5%8A%A0%E4%B8%8A%E4%B8%80%E5%B1%82%E7%B1%BB%E5%9E%8B%E6%A3%80/)
 
 > NOTE:
-> 
+>
 > mypy check 100%
-> 
+>
 > test coverage 95%+ (排除api_doc)
-> 
+>
 > python version >= 3.7 (支持延迟注释)
-> 
-> 功能正在拓展中...文档可能不太完善 
-> 
+>
+> 功能正在拓展中...文档可能不太完善
+>
 > 以下代码没有特别说明, 都默认以`starlette`框架为例.
-> 文档输出功能没有测试用例, 功能还在完善中 
+> 文档输出功能没有测试用例, 功能还在完善中
 
 # 功能
  - [x] 参数校验和自动转化(参数校验依赖于`Pydantic`)
  - [x] 参数关系依赖校验
  - [x] 自动生成openapi文件
  - [x] 支持swagger,redoc路由
- - [x] 返回mock响应  
- - [x] TestClient支持, 支持响应结果校验  
+ - [x] 返回mock响应
+ - [x] TestClient支持, 支持响应结果校验
  - [ ] 支持更多类型的http请求(目前只支持RESTful api)
  - [ ] 结合faker提供更好的mock响应
  - [ ] 本地api文档管理
- 
+
 # 安装
 ```bash
 pip install pait
@@ -63,13 +63,13 @@ async def demo_post(request: Request) -> JSONResponse:
         raise TypeError('xxxx')
     if 2 <= len(user_name) <= 4:
         raise ValueError('xxx')
-    
+
     return JSONResponse(
         {
             'result': {
                 'uid': body_dict['uid'],
                 'user_name': body_dict['user_name']
-            } 
+            }
         }
     )
 
@@ -122,7 +122,7 @@ uid: int = Body.i(description="user id", gt=10, lt=1000)
 ```
 拆解为:
 ```
-<key>: <type> = <request data> 
+<key>: <type> = <request data>
 ```
 其中key就是参数名, type为参数类型, request data为参数的其他说明, 如body就代表request body的数据, gt就是参数最小值, lt则是参数最大值。
 
@@ -131,7 +131,7 @@ uid: int = Body.i(description="user id", gt=10, lt=1000)
 ### 1.2.pait支持的参数写法
 pait为了方便用户使用,支持多种写法(主要是TypeHints的不同):
 - TypeHints为PaitBaseModel时:
-  
+
     该写法主要用于参数来源于多个`Field`, 并想复用model的情况.
     PaitBaseModel只可用于args参数, 他是最灵活的, PaitBaseModel拥有大部分Pydantic.BaseModel的功能, 他的特点是当属性的值为Field类型时可以被Pait识别, 所以一个PaitBaseModel可以填写多个Field,这是Pydantic.BaseModel没办法做到的,使用示例:
     ```Python
@@ -150,27 +150,27 @@ pait为了方便用户使用,支持多种写法(主要是TypeHints的不同):
         return {'result': model.dict()}
     ```
 - TypeHints 为Pydantic.BaseModel时:
-  
-    主要用于参数都是来源于同一个Field, 并想复用model的情况. 
+
+    主要用于参数都是来源于同一个Field, 并想复用model的情况.
     Pydantic.BaseModel只可用于kwargs参数,且参数的type hints必须是一个继承于`pydantic.BaseModel`的类,使用示例:
     ````Python
     from pydantic import BaseModel
 
     from pait.app.starlette import pait
     from pait.field import Body
-    
-    
+
+
     class TestModel(BaseModel):
         uid: int
         user_name: str
-    
-    
+
+
     @pait()
     async def test(model: BaseModel = Body.i()):
         return {'result': model.dict()}
     ````
 - TypeHints不是上述两种情况时:
-  
+
     只可用于kwargs参数,且type hints并非上述两种情况, 如果该值很少被复用,或者不想创建Model时,可以考虑这种方式
     ```Python
     from pait.app.starlette import pait
@@ -285,7 +285,7 @@ from pait.exceptions import PaitBaseException
 
 async def api_exception(request: Request, exc: Exception) -> None:
     """
-    自己处理异常的逻辑    
+    自己处理异常的逻辑
     """
     if isinstance(exc, PaitBaseException):
         pass  # 执行pait异常的相关逻辑
@@ -340,16 +340,16 @@ def demo() -> None:
 - status: 接口的状态, 目前只支持PaitStatus的几种状态(该选项只有下线相关的才会用于openapi并标注为弃用)
   - 默认状态:
     - undefined: 未定义, 默认状态
-  - 开发中:  
+  - 开发中:
     - design: 设计中
-    - dev: 开发测试中 
-  - 开发完成:  
+    - dev: 开发测试中
+  - 开发完成:
     - integration: 联调
-    - complete: 开发完成 
+    - complete: 开发完成
     - test: 测试中
-  - 上线:  
+  - 上线:
     - release: 上线
-  - 下线:  
+  - 下线:
     - abnormal: 出现异常, 下线
     - maintenance: 维护中
     - archive: 归档
@@ -363,11 +363,11 @@ def demo() -> None:
 目前pait支持openapi的大多数功能,少数未实现的功能将通过迭代逐步完善
 
 pait的openapi模块支持一下参数(下一个版本会提供更多的参数):
-- title: openapi的title 
-- open_api_info: openapi info的参数 
-- open_api_tag_list: open api tag的相关描述 
-- open_api_server_list: open api server 列表 
-- type_: 输出的类型, 可选json和yaml 
+- title: openapi的title
+- open_api_info: openapi info的参数
+- open_api_tag_list: open api tag的相关描述
+- open_api_server_list: open api server 列表
+- type_: 输出的类型, 可选json和yaml
 - filename: 输出文件名, 如果为空则输出到终端
 
 以下是openapi文档输出的示例代码(通过1.1代码改造).具体的见
@@ -393,7 +393,7 @@ class PydanticModel(BaseModel):
 # 使用pait装饰器装饰函数
 @pait()
 async def demo_post(
-    # pait通过Body()知道当前需要从请求中获取body的值,并赋值到model中, 
+    # pait通过Body()知道当前需要从请求中获取body的值,并赋值到model中,
     # 而这个model的结构正是上面的PydanticModel,他会根据我们定义的字段自动获取值并进行转换和判断
     model: PydanticModel = Body.i()
 ):
@@ -444,7 +444,7 @@ class UserModel(BaseModel):
 # 使用pait装饰器装饰函数
 @pait()
 async def demo_post(
-    # pait通过Body()知道当前需要从请求中获取body的值,并赋值到model中, 
+    # pait通过Body()知道当前需要从请求中获取body的值,并赋值到model中,
     # 而这个model的结构正是上面的PydanticModel,他会根据我们定义的字段自动获取值并进行转换和判断
     model: UserModel = Body.i()  # 使用i函数可以解决mypy类型校验的问题
 ) -> JSONResponse:
@@ -457,7 +457,7 @@ app = Starlette(
         Route('/api', demo_post, methods=['POST']),
     ]
 )
-# 把路由注入到app中 
+# 把路由注入到app中
 add_doc_route(app)
 # 把路由注入到app中, 并且以/doc为前缀
 add_doc_route(app, prefix='/doc')
@@ -514,8 +514,8 @@ config能为`pait`提供一些配置支持, 它需要尽快的初始化, 最佳�
   # --------
   # app.add_route
   # --------
-  load_app(app) 
-  ```  
+  load_app(app)
+  ```
 
 参数介绍:
 - author: 全局的默认API作者, 如果`@pait`中没有填写author, 会默认调用到`config.author`
@@ -530,15 +530,15 @@ config能为`pait`提供一些配置支持, 它需要尽快的初始化, 最佳�
 具体用法可以见[starlette例子](https://github.com/so1n/pait/blob/master/tests/test_app/test_starlette.py#L80)
 参数说明:
   - client: 框架对应的test client
-  - func: 对应被`pait`装饰的路由函数 
-  - pait_dict: `pait` meta data, 如果为空则内部会自动生成 
-  - body_dict: 请求的json数据 
-  - cookie_dict: 请求的cookie数据 
-  - file_dict: 请求的文件数据 
-  - form_dict: 请求的form数据 
-  - header_dict: 请求的header数据 
-  - path_dict: 请求的path数据 
-  - query_dict: 请求的query数据 
+  - func: 对应被`pait`装饰的路由函数
+  - pait_dict: `pait` meta data, 如果为空则内部会自动生成
+  - body_dict: 请求的json数据
+  - cookie_dict: 请求的cookie数据
+  - file_dict: 请求的文件数据
+  - form_dict: 请求的form数据
+  - header_dict: 请求的header数据
+  - path_dict: 请求的path数据
+  - query_dict: 请求的query数据
 ## 6.如何在其他web框架使用?
 如果要在其他尚未支持的框架中使用pait, 或者要对功能进行拓展, 可以查照两个框架进行简单的适配即可.
 

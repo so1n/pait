@@ -13,7 +13,7 @@ Pait allows the Python Web framework to have functions such as parameter type ch
 >
 > The function is being expanded... the documentation may not be perfect
 >
-> The following code does not specify, all default to use the `starlette` framework. 
+> The following code does not specify, all default to use the `starlette` framework.
 >
 > There is no test case for the document output function, and the function is still being improved
 
@@ -24,7 +24,7 @@ Pait allows the Python Web framework to have functions such as parameter type ch
  - [x] Automatically generate openapi files
  - [x] Support swagger, redoc routing
  - [x] return mock response
- - [x] TestClient support, support response result verification  
+ - [x] TestClient support, support response result verification
  - [ ] Support more types of http requests (currently only supports RESTful api)
  - [ ] Combine faker to provide better mock response
  - [ ] Local api document management
@@ -48,7 +48,7 @@ async def demo_post(request: Request) -> JSONResponse:
     body_dict: dict = await request.json()
     uid: int = body_dict.get('uid', 0)
     user_name: str = body_dict.get('user_name', "")
-    # The following code is only for demonstration, in general, we do some wrapping 
+    # The following code is only for demonstration, in general, we do some wrapping
     if not uid:
         raise ValueError('xxx')
     if type(uid) != int:
@@ -62,13 +62,13 @@ async def demo_post(request: Request) -> JSONResponse:
         raise TypeError('xxxx')
     if 2 <= len(user_name) <= 4:
         raise ValueError('xxx')
-    
+
     return JSONResponse(
         {
             'result': {
                 'uid': body_dict['uid'],
                 'user_name': body_dict['user_name']
-            } 
+            }
         }
     )
 
@@ -121,7 +121,7 @@ uid: int = Body.i(description="user id", gt=10, lt=1000)
 `pait` will be split into the following parts:
 
 ```
-<key>: <type> = <request data> 
+<key>: <type> = <request data>
 ```
 The key is the parameter name, type is the parameter type, and request data is the other description of the parameter. For example, body represents the data of the request body, gt is the minimum parameter, and lt is the maximum parameter.
 
@@ -132,7 +132,7 @@ Here is just a simple demo, because we write the model can be reused, so you can
 ### 1.2.Parameter expression supported by pait
 pait in order to facilitate the use of users, support a variety of writing methods (mainly the difference between TypeHints)
 - TypeHints is PaitBaseModel, mainly used for parameters from multiple `Field`, and want to reuse model:
-  
+
     PaitBaseModel can be used only for args parameters, it is the most flexible, PaitBaseModel has most of the features of Pydantic. BaseModel, which is not possible with Pydantic.:
     ```Python
     from pait.app.starlette import pait
@@ -150,27 +150,27 @@ pait in order to facilitate the use of users, support a variety of writing metho
     async def test(model: PaitBaseModel):
         return {'result': model.dict()}
     ```
-- TypeHints is Pydantic.BaseModel, mainly used for parameters are derived from the same `Field`, and want to take the model: 
-  
+- TypeHints is Pydantic.BaseModel, mainly used for parameters are derived from the same `Field`, and want to take the model:
+
     BaseModel can only be used with kwargs parameters, and the type hints of the parameters must be a class that inherits from `pydantic.BaseModel`, using the example:
     ````Python
     from pydantic import BaseModel
 
     from pait.app.starlette import pait
     from pait.field import Body
-    
-    
+
+
     class TestModel(BaseModel):
         uid: int
         user_name: str
-    
-    
+
+
     @pait()
     async def test(model: BaseModel = Body.i()):
         return {'result': model.dict()}
     ````
 - When TypeHints is not one of the above two cases:
-  
+
     can only be used for kwargs parameters and type hints are not the above two cases, if the value is rarely reused, or if you do not want to create a Model, you can consider this approach
     ```Python
     from pait.app.starlette import pait
@@ -186,7 +186,7 @@ pait in order to facilitate the use of users, support a variety of writing metho
 Field will help pait know how to get data from request.
 Before introducing the function of Field, let’s take a look at the following example. `pait` will obtain the body data of the request according to Field.Body, and obtain the value with the parameter named key. Finally, the parameter is verified and assigned to the uid.
 
-> Note: Use Field.Body() directly, `mypy` will check that the type does not match, then just change to Field.Body.i() to solve the problem. 
+> Note: Use Field.Body() directly, `mypy` will check that the type does not match, then just change to Field.Body.i() to solve the problem.
 ```Python
 from pait.app.starlette import pait
 from pait.field import Body
@@ -227,12 +227,12 @@ The above only demonstrates the Body and Header of the field, but there are othe
 - Field.Body   Get the json data of the current request
 - Field.Cookie Get the cookie data of the current request
 - Field.File   Get the file data of the current request, depending on the web framework will return different file object types
-- Field.Form   Get the form data of the current request, if there are multiple duplicate keys, only the first one will be returned 
+- Field.Form   Get the form data of the current request, if there are multiple duplicate keys, only the first one will be returned
 - Field.Header Get the header data of the current request
 - Field.Path   Get the path data of the current request (e.g. /api/{version}/test, you can get the version data)
-- Field.Query  Get the url parameters of the current request and the corresponding data, if there are multiple duplicate keys, only the first one will be returned 
+- Field.Query  Get the url parameters of the current request and the corresponding data, if there are multiple duplicate keys, only the first one will be returned
 - Field.MultiQuery Get the url parameter data of the current request, and return the list corresponding to the key
-- Field.MultiForm Get the form data of the current request, return the list corresponding to the key 
+- Field.MultiForm Get the form data of the current request, return the list corresponding to the key
 
 All the fields above are inherited from `pydantic.fields.FieldInfo`, most of the parameters here are for api documentation, see for specific usage[pydantic doc](https://pydantic-docs.helpmanual.io/usage/schema/#field-customisation)
 
@@ -286,10 +286,10 @@ from pydantic import ValidationError
 
 async def api_exception(request: Request, exc: Exception) -> None:
     """
-    Handle exception code    
+    Handle exception code
     """
     if isinstance(exc, PaitBaseException):
-        pass 
+        pass
     elif isinstance(exc, ValidationError):
         pass
     else:
@@ -339,26 +339,26 @@ def demo() -> None:
   pass
 ```
 Param:
-- author: List of authors who wrote the interface 
+- author: List of authors who wrote the interface
 - group: The group to which the interface belongs (This option is currently not used for openapi)
 - status: The status of the interface, currently only supports several states of `PaitStatus` (This option will only be used for openapi and marked as deprecated if it is offline)
   - default status:
-    - undefined: undefined 
-  - in development:  
-    - design: Interface design 
-    - dev: Under development and testing 
-  - Development completed:  
+    - undefined: undefined
+  - in development:
+    - design: Interface design
+    - dev: Under development and testing
+  - Development completed:
     - integration: integration test
-    - complete: development completed 
+    - complete: development completed
     - test: testing
-  - online:  
+  - online:
     - release: online
-  - offline:  
-    - abnormal: The interface is abnormal and needs to be offline 
-    - maintenance: In maintenance 
+  - offline:
+    - abnormal: The interface is abnormal and needs to be offline
+    - maintenance: In maintenance
     - archive: archive
     - abandoned: abandoned
-- tag: interface tag 
+- tag: interface tag
 - response_model_list: return data, Need to inherit from `pait.model.PaitResponseModel`, Since `pait` is an extension of the web framework and will not modify the code of the framework, this parameter will not be used for ordinary request judgment (nor should it be used in the production environment). It is currently only used for document generation, mock response generation and TestClient verification.
 
 ### 2.1.openapi
@@ -366,11 +366,11 @@ Param:
 Currently pait supports most of the functions of openapi, a few unrealized features will be gradually improved through iterations (response-related more complex)
 
 The openapi module of pait supports the following parameters (more parameters will be provided in the next version):
-- title: openapi's title 
-- open_api_info: openapi's info param  
-- open_api_tag_list: related description of openapi tag 
+- title: openapi's title
+- open_api_info: openapi's info param
+- open_api_tag_list: related description of openapi tag
 - open_api_server_list: openapi server list
-- type_: The type of output, optionally json and yaml 
+- type_: The type of output, optionally json and yaml
 - filename: Output file name, or if empty, output to terminal
 
 The following is the sample code output from the openapi documentation (modified by the 1.1 code). See [Example code](https://github.com/so1n/pait/tree/master/example/api_doc) and [doc example](https://github.com/so1n/pait/blob/master/example/api_doc/example_doc)
@@ -390,9 +390,9 @@ from pydantic import (
 )
 
 
-# Create a Model based on Pydantic.BaseModel 
+# Create a Model based on Pydantic.BaseModel
 class PydanticModel(BaseModel):
-    uid: conint(gt=10, lt=1000)  # Whether the auto-check type is int, and whether it is greater than or equal to 10 and less than or equal to 1000 
+    uid: conint(gt=10, lt=1000)  # Whether the auto-check type is int, and whether it is greater than or equal to 10 and less than or equal to 1000
     user_name: constr(min_length=2, max_length=4)  # Whether the auto-check type is str, and whether the length is greater than or equal to 2, less than or equal to 4
 
 
@@ -400,7 +400,7 @@ class PydanticModel(BaseModel):
 # Decorating functions with the pait decorator
 @pait()
 async def demo_post(
-    # pait through the Body () to know the current need to get the value of the body from the request, and assign the value to the model, 
+    # pait through the Body () to know the current need to get the value of the body from the request, and assign the value to the model,
     # and the structure of the model is the above PydanticModel, he will be based on our definition of the field automatically get the value and conversion and judgment
     model: PydanticModel = Body.i()
 ):
@@ -443,9 +443,9 @@ from pait.app.starlette import pait
 from pait.field import Body
 
 
-# Create a Model based on Pydantic.BaseModel 
+# Create a Model based on Pydantic.BaseModel
 class UserModel(BaseModel):
-    # Whether the auto-check type is int, and whether it is greater than or equal to 10 and less than or equal to 1000 
+    # Whether the auto-check type is int, and whether it is greater than or equal to 10 and less than or equal to 1000
     uid: int = Field(description="user id", gt=10, lt=1000)
     # Whether the auto-check type is str, and whether the length is greater than or equal to 2, less than or equal to 4
     user_name: str = Field(description="user name", min_length=2, max_length=4)
@@ -454,7 +454,7 @@ class UserModel(BaseModel):
 # Decorating functions with the pait decorator
 @pait()
 async def demo_post(
-    # pait through the Body () to know the current need to get the value of the body from the request, and assign the value to the model, 
+    # pait through the Body () to know the current need to get the value of the body from the request, and assign the value to the model,
     # and the structure of the model is the above PydanticModel, he will be based on our definition of the field automatically get the value and conversion and judgment
     model: UserModel = Body.i()
 ) -> JSONResponse:
@@ -467,17 +467,17 @@ app = Starlette(
         Route('/api', demo_post, methods=['POST']),
     ]
 )
-# Inject the route into the app 
+# Inject the route into the app
 add_doc_route(app)
-# Inject the route into the app, and prefix it with /doc 
+# Inject the route into the app, and prefix it with /doc
 add_doc_route(app, prefix='/doc')
 ```
 ### 2.2.Other doc output
-> Note: The function is being improved... 
+> Note: The function is being improved...
 
 In addition to parameter verification and conversion, pait also provides the ability to output api documentation, which can be configured with simple parameters to output perfect documentation.
 
-Note: Currently only md documents and openapi documents for json and yaml are supported for output.For the output of md, see 
+Note: Currently only md documents and openapi documents for json and yaml are supported for output.For the output of md, see
 [doc example](https://github.com/so1n/pait/blob/master/example/api_doc/example_doc)
 
 
@@ -499,7 +499,7 @@ from pait.app.starlette import add_doc_route, load_app, pait
 - load_app
 
   There are a lot of routing function information in meta data, but it lacks key parameters such as `url`, `method`, etc.
-So you also need to use load_app to bind the relevant parameters to the routing function data decorated by the `pait` decorator in the meta data. The method of use is very simple, but remember that you must register all routes before calling: 
+So you also need to use load_app to bind the relevant parameters to the routing function data decorated by the `pait` decorator in the meta data. The method of use is very simple, but remember that you must register all routes before calling:
 ```Python3
   from starlette.applications import Starlette
 
@@ -528,8 +528,8 @@ config can provide some configuration support for `pait`, it needs to be initial
   # --------
   # app.add_route
   # --------
-  load_app(app) 
-  ```  
+  load_app(app)
+  ```
 
 Parameter introduction:
 - author: The global default API author, if the author parameter in `@pait` is empty, it will call `config.author` by default.

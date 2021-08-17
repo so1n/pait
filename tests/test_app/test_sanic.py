@@ -6,7 +6,8 @@ from unittest import mock
 import pytest
 from sanic import Sanic
 from sanic_testing import TestManager as SanicTestManager  # type: ignore
-from sanic_testing.testing import SanicTestClient, TestingResponse as Response  # type: ignore
+from sanic_testing.testing import SanicTestClient
+from sanic_testing.testing import TestingResponse as Response  # type: ignore
 
 from example.param_verify.sanic_example import create_app
 from example.param_verify.sanic_example import test_check_param as check_param_route

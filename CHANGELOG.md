@@ -7,14 +7,14 @@
  - Feature: add param required check
  - Feature: support DynamicModel config
  - Feature: add global block http method
- - Feature: add check response in test helper 
+ - Feature: add check response in test helper
  - Refactor: core structure
 ### 0.5.9
  - Feature: mock response
  - Feature: test client helper
 ### 0.5.8.2
  - Feature: global config support not call `setatter` in runtime
- - Feature: support set customer name  
+ - Feature: support set customer name
  - Fix, fix md doc display other filed param
 ### 0.5.8.1
  - Feature: openapi support RequestBody schema
@@ -23,7 +23,7 @@
  - Fix: refactor circular reference
 ### 0.5.7
  - Feature: add global config
- - Fix: fix `param_handle` can not parse single field bug  
+ - Fix: fix `param_handle` can not parse single field bug
  - Fix: support update json type default value
 ### 0.5.6
  - Fix: fix python3.8 annotation
@@ -38,13 +38,13 @@
  - Feature: support summary column
  - Feature: doc module support project name
  - Feature: support redoc ui route
- - Feature: support swagger ui route  
+ - Feature: support swagger ui route
  - Refactor: pait.api_doc & pait.app
 
 ### 0.5.3
  - Test: add param handle test
  - Test: add util test
- - Feature: support postponed annotations 
+ - Feature: support postponed annotations
  - Feature: load_app support return pait data
  - Feature: add multi field and add lazyproperty
  - Feature: support tornado, sanic
@@ -53,9 +53,9 @@
  - Feature: BaseField add raw_return
  - Feature: add create_pydantic_model func
  - Feature: add BaseField inherit limit
- - Refactor: refactor app helper  
+ - Refactor: refactor app helper
  - Fix: fix param_handle bug
- - Example: add example Response 
+ - Example: add example Response
 
 ### 0.5.1
  - Style: add mypy check
@@ -82,7 +82,7 @@
  - Future: support cbv class attribute
 
 ### 0.3.1
- - Feature: add more field     
+ - Feature: add more field
 
 ## 0.2
  - Feature: support cbv
@@ -93,4 +93,3 @@
 ## 0.1
  - description: The first version
  - Feature: support starletter type checking and parameter type conversion
- 

@@ -149,7 +149,7 @@ def gen_tip_exc(_object: Any, exception: "Exception", parameter: Optional[inspec
     exc_msg: str = f'File "{file}",' f" line {line}," f" in {error_object_name}." f" error:{str(exception)}"
     try:
         exc: Exception = exception.__class__(exc_msg)
-    except:
+    except Exception:
         exc = PaitBaseException(exc_msg)
     setattr(exception, "_is_tip_exc", True)
     return exc

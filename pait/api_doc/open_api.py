@@ -2,7 +2,7 @@ import copy
 import json
 from typing import Any, Dict, List, Optional, Tuple, Type
 
-import yaml
+import yaml  # type: ignore
 from pydantic import BaseModel, Field, HttpUrl
 from pydantic.fields import Undefined
 
