@@ -30,6 +30,9 @@ sanic-testing = "^0.3.0"
 tornado = "^6.1"
 pytest-tornado = "^0.8.1"
 pytest-asyncio = "^0.14.0"
+pre-commit = "^2.14.0"
+autoflake = "^1.4"
+flake8 = "^3.9.2"
 
 [tool.black]
 line-length = 120
