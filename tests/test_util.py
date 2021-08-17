@@ -1,9 +1,9 @@
 import inspect
-from typing import Type
+from typing import Any, List, Type
 
 from pydantic import BaseModel
 
-from pait import util
+from pait import field, util
 
 
 class TestUtil:
@@ -34,25 +34,19 @@ class TestUtil:
         assert func_sig.param_list[0].name == "self"
 
     def test_get_parameter_list_from_class(self) -> None:
+        value: Any = field.Body.i()
+
         class Demo1(object):
             pass
 
         class Demo2(object):
             a: int
             b: str = ""
+            c: str = value
 
         assert [] == util.get_parameter_list_from_class(Demo1)
-        assert [
-            inspect.Parameter(
-                "a",
-                inspect.Parameter.POSITIONAL_ONLY,
-                default=util.Undefined,
-                annotation=int,
-            ),
-            inspect.Parameter(
-                "b",
-                inspect.Parameter.POSITIONAL_ONLY,
-                default="",
-                annotation=str,
-            ),
-        ] == util.get_parameter_list_from_class(Demo2)
+        result: List["inspect.Parameter"] = util.get_parameter_list_from_class(Demo2)
+        assert len(result) == 1
+        assert result[0].name == "c"
+        assert result[0].annotation == str
+        assert result[0].default == value

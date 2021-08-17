@@ -10,6 +10,7 @@ class BaseField(FieldInfo):
         default: Any = Undefined,
         *,
         raw_return: bool = False,
+        example: Any = None,
         default_factory: Optional[NoArgAnyCallable] = None,
         alias: str = None,
         title: str = None,
@@ -30,6 +31,7 @@ class BaseField(FieldInfo):
         if self.__class__.__mro__[2] != FieldInfo:
             raise RuntimeError("Only classes that inherit BaseField can be used")
         self.raw_return = raw_return
+        extra["example"] = example
         super().__init__(
             default,
             default_factory=default_factory,

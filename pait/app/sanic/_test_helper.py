@@ -35,7 +35,10 @@ class SanicTestHelper(BaseTestHelper[TestingResponse]):
 
     def _replace_path(self, path_str: str) -> Optional[str]:
         if self.path_dict and path_str[0] == "<" and path_str[-1] == ">":
-            return self.path_dict[path_str[1:-1]]
+            key: str = path_str[1:-1]
+            if ":" in key:
+                key = key.split(":")[0]
+            return self.path_dict[key]
         return None
 
     def _make_response(self, method: str) -> TestingResponse:

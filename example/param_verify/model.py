@@ -72,12 +72,14 @@ class UserSuccessRespModel(PaitResponseModel):
 class UserSuccessRespModel2(PaitResponseModel):
     class UserResponseModel2(ResponseModel):
         class UserResponseData2(BaseModel):
-            uid: int = Field(666, description="user id", gt=10, lt=1000)
-            user_name: str = Field("mock_name", description="user name", min_length=2, max_length=10)
-            multi_user_name: List[str] = Field(("mock_name",), description="user name", min_length=2, max_length=4)
-            sex: SexEnum = Field(SexEnum.man, description="sex")
-            age: int = Field(99, description="age", gt=1, lt=100)
-            email: str = Field("example@so1n.me", description="user email")
+            uid: int = Field(description="user id", gt=10, lt=1000, example=666)
+            user_name: str = Field(example="mock_name", description="user name", min_length=2, max_length=10)
+            multi_user_name: List[str] = Field(
+                example=("mock_name",), description="user name", min_length=2, max_length=4
+            )
+            sex: SexEnum = Field(example=SexEnum.man, description="sex")
+            age: int = Field(example=99, description="age", gt=1, lt=100)
+            email: str = Field(example="example@so1n.me", description="user email")
 
         data: UserResponseData2
 

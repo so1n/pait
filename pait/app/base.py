@@ -9,7 +9,7 @@ from pydantic import BaseModel, ValidationError
 
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitResponseModel
-from pait.util import gen_example_json_from_python, gen_example_json_from_schema
+from pait.util import gen_example_dict_from_schema, gen_example_json_from_python
 
 
 class BaseAppHelper(object):
@@ -236,7 +236,7 @@ class BaseTestHelper(Generic[RESP_T]):
                     if not resp_dict:
                         check_list.append(True)
                         continue
-                    response_data_default_dict: dict = gen_example_json_from_schema(response_data_model.schema())
+                    response_data_default_dict: dict = gen_example_dict_from_schema(response_data_model.schema())
                     try:
                         response_data_model(**resp_dict)
                         check_list.append(self._diff_resp_dict(resp_dict, response_data_default_dict))

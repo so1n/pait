@@ -8,6 +8,7 @@ from pydantic.fields import Undefined
 
 from pait import field as pait_field
 from pait.api_doc.base_parse import PaitBaseParse
+from pait.g import config
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
@@ -105,7 +106,7 @@ class PaitOpenApi(PaitBaseParse):
         }
         self.parse_data_2_openapi()
         if type_ == "json":
-            self.content = json.dumps(self.open_api_dict)
+            self.content = json.dumps(self.open_api_dict, cls=config.json_encoder)
             self._content_type = ".json"
         elif type_ == "yaml":
             self.content = yaml.dump(self.open_api_dict, sort_keys=False)

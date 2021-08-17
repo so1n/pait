@@ -4,6 +4,7 @@ from ._util import (
     Undefined,
     UndefinedType,
     create_pydantic_model,
+    gen_example_dict_from_schema,
     gen_example_json_from_python,
     gen_example_json_from_schema,
     gen_tip_exc,
