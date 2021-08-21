@@ -71,6 +71,8 @@ def gen_example_dict_from_schema(schema_dict: Dict[str, Any], definition_dict: O
         else:
             if "example" in value:
                 gen_dict[key] = value["example"]
+                if inspect.isfunction(gen_dict[key]):
+                    gen_dict[key] = gen_dict[key]()
             elif "default" in value:
                 gen_dict[key] = value["default"]
             else:
