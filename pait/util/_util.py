@@ -95,7 +95,7 @@ def gen_example_dict_from_schema(
 
 def gen_example_json_from_schema(schema_dict: Dict[str, Any], use_example_value: bool) -> str:
     return json.dumps(
-        gen_example_dict_from_schema(schema_dict), use_example_value=use_example_value, cls=config.json_encoder
+        gen_example_dict_from_schema(schema_dict, use_example_value=use_example_value), cls=config.json_encoder
     )
 
 
