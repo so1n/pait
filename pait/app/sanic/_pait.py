@@ -17,7 +17,9 @@ __all__ = ["pait"]
 
 def make_mock_response(pait_response: Type[PaitResponseModel]) -> HTTPResponse:
     if pait_response.media_type == "application/json" and pait_response.response_data:
-        resp: HTTPResponse = resp_json(json.loads(gen_example_json_from_schema(pait_response.response_data.schema())))
+        resp: HTTPResponse = resp_json(
+            json.loads(gen_example_json_from_schema(pait_response.response_data.schema(), use_example_value=True))
+        )
         resp.status = pait_response.status_code[0]
         if pait_response.header:
             resp.headers.update(pait_response.header)

@@ -142,7 +142,7 @@ class PaitMd(PaitBaseParse):
                             markdown_text += self.gen_md_param_table(field_dict_list, blank_num=12)
                             markdown_text += f"{' ' * 8}- Example Response Json Data\n\n"
 
-                            example_dict = gen_example_json_from_schema(resp_model.response_data.schema())
+                            example_dict = gen_example_json_from_schema(resp_model.response_data.schema(), False)
                             blank_num_str: str = " " * 12
                             json_str: str = "\n".join(
                                 [blank_num_str + i for i in json.dumps(example_dict, indent=2).split("\n")]

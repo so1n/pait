@@ -51,7 +51,9 @@ def gen_example_json_from_python(obj: Any) -> Any:
         return config.python_type_default_value_dict.get(type(obj), obj)
 
 
-def gen_example_dict_from_schema(schema_dict: Dict[str, Any], definition_dict: Optional[dict] = None) -> Dict[str, Any]:
+def gen_example_dict_from_schema(
+    schema_dict: Dict[str, Any], use_example_value: bool = False, definition_dict: Optional[dict] = None
+) -> Dict[str, Any]:
     gen_dict: Dict[str, Any] = {}
     property_dict: Dict[str, Any] = schema_dict["properties"]
     if not definition_dict:
@@ -62,12 +64,18 @@ def gen_example_dict_from_schema(schema_dict: Dict[str, Any], definition_dict: O
         if "items" in value and value["type"] == "array":
             if "$ref" in value["items"]:
                 model_key: str = value["items"]["$ref"].split("/")[-1]
-                gen_dict[key] = [gen_example_dict_from_schema(_definition_dict.get(model_key, {}), _definition_dict)]
+                gen_dict[key] = [
+                    gen_example_dict_from_schema(
+                        _definition_dict.get(model_key, {}), use_example_value, _definition_dict
+                    )
+                ]
             else:
                 gen_dict[key] = []
         elif "$ref" in value:
             model_key = value["$ref"].split("/")[-1]
-            gen_dict[key] = gen_example_dict_from_schema(_definition_dict.get(model_key, {}), _definition_dict)
+            gen_dict[key] = gen_example_dict_from_schema(
+                _definition_dict.get(model_key, {}), use_example_value, _definition_dict
+            )
         else:
             if "example" in value:
                 gen_dict[key] = value["example"]
@@ -85,8 +93,10 @@ def gen_example_dict_from_schema(schema_dict: Dict[str, Any], definition_dict: O
     return gen_dict
 
 
-def gen_example_json_from_schema(schema_dict: Dict[str, Any]) -> str:
-    return json.dumps(gen_example_dict_from_schema(schema_dict), cls=config.json_encoder)
+def gen_example_json_from_schema(schema_dict: Dict[str, Any], use_example_value: bool) -> str:
+    return json.dumps(
+        gen_example_dict_from_schema(schema_dict), use_example_value=use_example_value, cls=config.json_encoder
+    )
 
 
 def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:

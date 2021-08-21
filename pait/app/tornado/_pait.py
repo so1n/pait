@@ -20,7 +20,7 @@ def make_mock_response(pait_response: Type[PaitResponseModel]) -> Any:
     for key, value in pait_response.header.items():
         tornado_handle.set_header(key, value)
     if pait_response.media_type == "application/json" and pait_response.response_data:
-        tornado_handle.write(gen_example_json_from_schema(pait_response.response_data.schema()))
+        tornado_handle.write(gen_example_json_from_schema(pait_response.response_data.schema(), use_example_value=True))
         return
     else:
         raise NotImplementedError()
