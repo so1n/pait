@@ -225,21 +225,21 @@ async def async_param_handle(
     return args_param_list, kwargs_param_dict
 
 
-async def async_class_param_handle(dispatch_web: "BaseAppHelper") -> None:
-    cbv_class: Optional[Type] = dispatch_web.cbv_class
+async def async_class_param_handle(dispatch_app: "BaseAppHelper") -> None:
+    cbv_class: Optional[Type] = dispatch_app.cbv_class
     if not cbv_class:
         return
     param_list: list = get_parameter_list_from_class(cbv_class)
-    args, kwargs = await async_param_handle(dispatch_web, cbv_class, param_list)
+    args, kwargs = await async_param_handle(dispatch_app, cbv_class, param_list)
     cbv_class.__dict__.update(kwargs)
 
 
-def class_param_handle(dispatch_web: "BaseAppHelper") -> None:
-    cbv_class: Optional[Type] = dispatch_web.cbv_class
+def class_param_handle(dispatch_app: "BaseAppHelper") -> None:
+    cbv_class: Optional[Type] = dispatch_app.cbv_class
     if not cbv_class:
         return
     param_list: list = get_parameter_list_from_class(cbv_class)
-    args, kwargs = param_handle(dispatch_web, cbv_class, param_list)
+    args, kwargs = param_handle(dispatch_app, cbv_class, param_list)
     cbv_class.__dict__.update(kwargs)
 
 

@@ -540,8 +540,7 @@ Parameter introduction:
 - default_response_model_list: When designing some API interfaces, there are usually some default exception responses, and repeated configuration is very troublesome. can apply to the global by configuring this parameter
 - json_type_default_value_dict: Configure the default value of the json type
 ## 5.TestClientHelper
-`pait` encapsulates a corresponding `TestCLientHelper` class for each framework, through which test cases can be written more conveniently, and the result data structure can be compared with `response_model` for verification.
-[starlette example](https://github.com/so1n/pait/blob/master/tests/test_app/test_starlette.py#L80)
+`pait` encapsulates a corresponding `TestCLientHelper` class for each framework, through which test cases can be written more conveniently, and the result data structure can be compared with `response_model` for verification. [starlette example](https://github.com/so1n/pait/blob/master/tests/test_app/test_starlette.py#L80)
 
 Parameter Description:
   - client: The test client corresponding to the framework
@@ -554,6 +553,10 @@ Parameter Description:
   - header_dict: Requested header data
   - path_dict: Requested path data
   - query_dict: Requested query data
+
+
+Description of response_model generation results:
+If response_model has a `default` value, it will be directly referenced to the `default` value, otherwise the default value of the value type is used (configurable through config)
 ## 6.How to used in other web framework?
 If the web framework is not supported, which you are using.
 Can be modified sync web framework according to [pait.app.flask](https://github.com/so1n/pait/blob/master/pait/app/flask.py)

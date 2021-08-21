@@ -1,4 +1,8 @@
-### 0.6.1[Now]
+### 0.6.2[Now]
+- Feature: Support mock value anc mock fn value by Field.example attr
+- Feature: Support config json encoder
+
+### 0.6.1
 - Fix: can not raise real exc;refactor raise_and_tip -> gen_tip_exc
 - Feature: modify test client helper diff_response logic
 - Feature: example json value support Python TypeHints:Any
