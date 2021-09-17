@@ -125,6 +125,10 @@ def request_value_handle(
 
         if base_model_dict is not None and inspect.isclass(annotation) and issubclass(annotation, BaseModel):
             # parse annotation is pydantic.BaseModel and base_model_dict not None
+            if type(param_value.alias) is str and param_value.alias in request_value:
+                request_value = request_value[param_value.alias]
+            elif param_name in request_value:
+                request_value = request_value[param_name]
             base_model_dict[parameter.name] = annotation(**request_value)
         else:
             # parse annotation is python type and pydantic.field
