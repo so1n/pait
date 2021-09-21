@@ -1,6 +1,7 @@
 import inspect
 import json
 import logging
+from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple, Type, get_type_hints
 
 from pydantic import BaseConfig, BaseModel, create_model
@@ -90,6 +91,8 @@ def gen_example_dict_from_schema(
                     gen_dict[key] = config.json_type_default_value_dict[value["type"]]
                 else:
                     gen_dict[key] = "object()"
+            if isinstance(gen_dict[key], Enum):
+                gen_dict[key] = gen_dict[key].value
     return gen_dict
 
 
