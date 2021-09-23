@@ -1,6 +1,7 @@
 import asyncio
 import inspect
 import logging
+from contextlib import AbstractAsyncContextManager, AbstractContextManager
 from types import TracebackType
 from typing import Any, Callable, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union, get_type_hints
 
@@ -12,6 +13,15 @@ from pait.exceptions import CheckValueError, NotFoundFieldError, PaitBaseExcepti
 from pait.field import BaseField
 from pait.model.base_model import PaitBaseModel
 from pait.util import FuncSig, create_pydantic_model, gen_tip_exc, get_func_sig, get_parameter_list_from_class
+
+
+def raise_multiple_exc(exc_list: List[Exception]) -> None:
+    if not exc_list:
+        return
+    try:
+        raise exc_list.pop()
+    finally:
+        raise_multiple_exc(exc_list)
 
 
 def parameter_2_basemodel(parameter_value_dict: Dict["inspect.Parameter", Any]) -> BaseModel:
@@ -143,6 +153,25 @@ class BaseParamHandler(object):
 
 
 class ParamHandler(BaseParamHandler):
+    def __init__(
+        self,
+        app_helper_class: Type[BaseAppHelper],
+        func: Callable,
+        at_most_one_of_list: Optional[List[List[str]]] = None,
+        required_by: Optional[Dict[str, List[str]]] = None,
+        args: Any = None,
+        kwargs: Any = None,
+    ) -> None:
+        super().__init__(
+            app_helper_class,
+            func,
+            at_most_one_of_list=at_most_one_of_list,
+            required_by=required_by,
+            args=args,
+            kwargs=kwargs,
+        )
+        self._contextmanager_list: List[AbstractContextManager] = []
+
     def param_handle(
         self, _object: Union[FuncSig, Type], param_list: List["inspect.Parameter"]
     ) -> Tuple[List[Any], Dict[str, Any]]:
@@ -160,7 +189,11 @@ class ParamHandler(BaseParamHandler):
                         func_sig: FuncSig = get_func_sig(func)
                         _func_args, _func_kwargs = self.param_handle(func_sig, func_sig.param_list)
                         func_result: Any = func(*_func_args, **_func_kwargs)
-                        kwargs_param_dict[parameter.name] = func_result
+                        if isinstance(func_result, AbstractContextManager):
+                            kwargs_param_dict[parameter.name] = func_result.__enter__()
+                            self._contextmanager_list.append(func_result)
+                        else:
+                            kwargs_param_dict[parameter.name] = func_result
                     else:
                         request_value: Any = self.get_request_value_from_parameter(parameter)
                         self.request_value_handle(parameter, request_value, kwargs_param_dict, single_field_dict)
@@ -221,10 +254,39 @@ class ParamHandler(BaseParamHandler):
     def __exit__(
         self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[TracebackType]
     ) -> Optional[bool]:
-        pass
+        exc_list: List[Exception] = []
+        for contextmanager in self._contextmanager_list:
+            try:
+                contextmanager.__exit__(exc_type, exc_val, exc_tb)
+            except Exception as e:
+                exc_list.append(e)
+        if exc_list:
+            raise_multiple_exc(exc_list)
+            return True
+        else:
+            return False
 
 
 class AsyncParamHandler(BaseParamHandler):
+    def __init__(
+        self,
+        app_helper_class: Type[BaseAppHelper],
+        func: Callable,
+        at_most_one_of_list: Optional[List[List[str]]] = None,
+        required_by: Optional[Dict[str, List[str]]] = None,
+        args: Any = None,
+        kwargs: Any = None,
+    ) -> None:
+        super().__init__(
+            app_helper_class,
+            func,
+            at_most_one_of_list=at_most_one_of_list,
+            required_by=required_by,
+            args=args,
+            kwargs=kwargs,
+        )
+        self._contextmanager_list: List[Union[AbstractAsyncContextManager, AbstractContextManager]] = []
+
     async def param_handle(
         self, _object: Union[FuncSig, Type], param_list: List["inspect.Parameter"]
     ) -> Tuple[List[Any], Dict[str, Any]]:
@@ -244,7 +306,14 @@ class AsyncParamHandler(BaseParamHandler):
                         func_result: Any = func(*_func_args, **_func_kwargs)
                         if asyncio.iscoroutine(func_result):
                             func_result = await func_result
-                        kwargs_param_dict[parameter.name] = func_result
+                        if isinstance(func_result, AbstractAsyncContextManager):
+                            kwargs_param_dict[parameter.name] = await func_result.__aenter__()
+                            self._contextmanager_list.append(func_result)
+                        elif isinstance(func_result, AbstractContextManager):
+                            kwargs_param_dict[parameter.name] = func_result.__enter__()
+                            self._contextmanager_list.append(func_result)
+                        else:
+                            kwargs_param_dict[parameter.name] = func_result
                     else:
                         request_value: Any = self.get_request_value_from_parameter(parameter)
                         if asyncio.iscoroutine(request_value) or asyncio.isfuture(request_value):
@@ -309,7 +378,20 @@ class AsyncParamHandler(BaseParamHandler):
     async def __aexit__(
         self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[TracebackType]
     ) -> Optional[bool]:
-        pass
+        exc_list: List[Exception] = []
+        for contextmanager in self._contextmanager_list:
+            try:
+                if isinstance(contextmanager, AbstractContextManager):
+                    contextmanager.__exit__(exc_type, exc_val, exc_tb)
+                else:
+                    await contextmanager.__aexit__(exc_type, exc_val, exc_tb)
+            except Exception as e:
+                exc_list.append(e)
+        if exc_list:
+            raise_multiple_exc(exc_list)
+            return True
+        else:
+            return False
 
 
 #
