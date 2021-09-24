@@ -12,12 +12,15 @@ from starlette.routing import Route
 from example.param_verify.model import (
     FailRespModel,
     SexEnum,
+    SuccessRespModel,
     TestPaitModel,
     UserModel,
     UserOtherModel,
     UserSuccessRespModel,
     UserSuccessRespModel2,
     UserSuccessRespModel3,
+    async_context_depend,
+    context_depend,
     demo_depend,
 )
 from pait.app.starlette import add_doc_route, pait
@@ -264,6 +267,24 @@ class TestCbv(HTTPEndpoint):
         return JSONResponse({"code": 0, "msg": "", "data": return_dict})
 
 
+@pait(author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[SuccessRespModel])
+async def test_depend_contextmanager(
+    uid: str = Depends.i(context_depend), is_raise: bool = Query.i(default=False)
+) -> JSONResponse:
+    if is_raise:
+        raise RuntimeError()
+    return JSONResponse({"code": 0, "msg": uid})
+
+
+@pait(author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[SuccessRespModel])
+async def test_depend_async_contextmanager(
+    uid: str = Depends.i(async_context_depend), is_raise: bool = Query.i(default=False)
+) -> JSONResponse:
+    if is_raise:
+        raise RuntimeError()
+    return JSONResponse({"code": 0, "msg": uid})
+
+
 def create_app() -> Starlette:
     app: Starlette = Starlette(
         routes=[
@@ -276,11 +297,14 @@ def create_app() -> Starlette:
             Route("/api/raise_tip", test_raise_tip, methods=["POST"]),
             Route("/api/cbv", TestCbv),
             Route("/api/pait_model", test_pait_model, methods=["POST"]),
+            Route("/api/check_depend_contextmanager", test_depend_contextmanager, methods=["GET"]),
+            Route("/api/check_depend_async_contextmanager", test_depend_async_contextmanager, methods=["GET"]),
         ]
     )
     add_doc_route(app)
     app.add_exception_handler(PaitBaseException, api_exception)
     app.add_exception_handler(ValidationError, api_exception)
+    app.add_exception_handler(RuntimeError, api_exception)
     return app
 
 

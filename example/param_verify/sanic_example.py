@@ -11,12 +11,15 @@ from sanic.views import HTTPMethodView
 from example.param_verify.model import (
     FailRespModel,
     SexEnum,
+    SuccessRespModel,
     TestPaitModel,
     UserModel,
     UserOtherModel,
     UserSuccessRespModel,
     UserSuccessRespModel2,
     UserSuccessRespModel3,
+    async_context_depend,
+    context_depend,
     demo_depend,
 )
 from pait.app.sanic import add_doc_route, pait
@@ -261,6 +264,24 @@ class TestCbv(HTTPMethodView):
         return response.json({"code": 0, "msg": "", "data": return_dict})
 
 
+@pait(author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[SuccessRespModel, FailRespModel])
+async def test_depend_contextmanager(
+    uid: str = Depends.i(context_depend), is_raise: bool = Query.i(default=False)
+) -> response.HTTPResponse:
+    if is_raise:
+        raise RuntimeError()
+    return response.json({"code": 0, "msg": uid})
+
+
+@pait(author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[SuccessRespModel, FailRespModel])
+async def test_depend_async_contextmanager(
+    uid: str = Depends.i(async_context_depend), is_raise: bool = Query.i(default=False)
+) -> response.HTTPResponse:
+    if is_raise:
+        raise RuntimeError()
+    return response.json({"code": 0, "msg": uid})
+
+
 def create_app() -> Sanic:
     app: Sanic = Sanic(name="pait")
     add_doc_route(app)
@@ -273,8 +294,11 @@ def create_app() -> Sanic:
     app.add_route(test_raise_tip, "/api/raise_tip", methods={"POST"})
     app.add_route(TestCbv.as_view(), "/api/cbv")
     app.add_route(test_pait_model, "/api/pait_model", methods={"POST"})
+    app.add_route(test_depend_contextmanager, "/api/check_depend_contextmanager", methods={"GET"})
+    app.add_route(test_depend_async_contextmanager, "/api/check_depend_async_contextmanager", methods={"GET"})
     app.exception(PaitBaseException)(api_exception)
     app.exception(ValidationError)(api_exception)
+    app.exception(RuntimeError)(api_exception)
     return app
 
 

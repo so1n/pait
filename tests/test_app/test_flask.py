@@ -7,10 +7,12 @@ import pytest
 from flask import Flask
 from flask.ctx import AppContext
 from flask.testing import FlaskClient
+from pytest_mock import MockFixture
 
 from example.param_verify.flask_example import create_app
 from example.param_verify.flask_example import test_check_param as check_param_route
 from example.param_verify.flask_example import test_check_response as check_resp_route
+from example.param_verify.flask_example import test_depend_contextmanager as depend_contextmanager
 from example.param_verify.flask_example import test_other_field as other_field_route
 from example.param_verify.flask_example import test_pait as pait_route
 from example.param_verify.flask_example import test_post as post_route
@@ -88,6 +90,24 @@ class TestFlask:
             client, check_param_route, query_dict={"uid": 123, "sex": "man", "age": 10, "alias_user_name": "appe"}
         )
         assert "birthday requires param alias_user_name, which if not none" in flask_test_helper.get().get_json()["msg"]
+
+    def test_depend_contextmanager(self, client: FlaskClient, mocker: MockFixture) -> None:
+        error_logger = mocker.patch("example.param_verify.model.logging.error")
+        info_logger = mocker.patch("example.param_verify.model.logging.info")
+        flask_test_helper: FlaskTestHelper = FlaskTestHelper(
+            client,
+            depend_contextmanager,
+            query_dict={"uid": 123},
+        )
+        flask_test_helper.get()
+        info_logger.assert_called_once_with("context_depend exit")
+        flask_test_helper = FlaskTestHelper(
+            client,
+            depend_contextmanager,
+            query_dict={"uid": 123, "is_raise": True},
+        )
+        flask_test_helper.get()
+        error_logger.assert_called_once_with("context_depend error")
 
     def test_mock_get(self, client: FlaskClient) -> None:
         config.enable_mock_response = True

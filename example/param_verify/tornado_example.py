@@ -9,12 +9,15 @@ from tornado.web import Application, RequestHandler
 from example.param_verify.model import (
     FailRespModel,
     SexEnum,
+    SuccessRespModel,
     TestPaitModel,
     UserModel,
     UserOtherModel,
     UserSuccessRespModel,
     UserSuccessRespModel2,
     UserSuccessRespModel3,
+    async_context_depend,
+    context_depend,
     demo_depend,
 )
 from pait.app.tornado import add_doc_route, pait
@@ -240,6 +243,22 @@ class TestPaitModelHanler(MyHandler):
         self.write({"code": 0, "msg": "", "data": test_model.dict()})
 
 
+class TestDependContextmanagerHanler(MyHandler):
+    @pait(author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[SuccessRespModel])
+    async def get(self, uid: str = Depends.i(context_depend), is_raise: bool = Query.i(default=False)) -> None:
+        if is_raise:
+            raise RuntimeError()
+        self.write({"code": 0, "msg": uid})
+
+
+class TestDependAsyncContextmanagerHanler(MyHandler):
+    @pait(author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[SuccessRespModel])
+    async def get(self, uid: str = Depends.i(async_context_depend), is_raise: bool = Query.i(default=False)) -> None:
+        if is_raise:
+            raise RuntimeError()
+        self.write({"code": 0, "msg": uid})
+
+
 class TestCbvHandler(MyHandler):
     user_agent: str = Header.i(alias="user-agent", description="ua")  # remove key will raise error
 
@@ -292,6 +311,8 @@ def create_app() -> Application:
             (r"/api/pait_model", TestPaitModelHanler),
             (r"/api/check_param", TestCheckParamHandler),
             (r"/api/check_resp", TestCheckRespHandler),
+            (r"/api/check_depend_contextmanager", TestDependContextmanagerHanler),
+            (r"/api/check_depend_async_contextmanager", TestDependAsyncContextmanagerHanler),
         ]
     )
     add_doc_route(app)

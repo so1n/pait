@@ -1,11 +1,32 @@
+import logging
+from contextlib import asynccontextmanager, contextmanager
 from enum import Enum
-from typing import List, Optional, Tuple, Type
+from typing import Any, AsyncGenerator, Generator, List, Optional, Tuple, Type
 
 from pydantic import BaseModel, Field
 
 from pait.field import Body, Depends, Header, Query
 from pait.model.base_model import PaitBaseModel
 from pait.model.response import PaitResponseModel
+
+
+class _DemoSession(object):
+    def __init__(self, uid: int) -> None:
+        self._uid: int = uid
+        self._status: bool = False
+
+    @property
+    def uid(self) -> int:
+        if self._status:
+            return self._uid
+        else:
+            raise RuntimeError("Session is close")
+
+    def create(self) -> None:
+        self._status = True
+
+    def close(self) -> None:
+        self._status = False
 
 
 class TestPaitModel(PaitBaseModel):
@@ -38,6 +59,32 @@ def demo_sub_depend(
 
 def demo_depend(depend_tuple: Tuple[str, int] = Depends.i(demo_sub_depend)) -> Tuple[str, int]:
     return depend_tuple
+
+
+@contextmanager
+def context_depend(uid: int = Query.i(description="user id", gt=10, lt=1000)) -> Generator[int, Any, Any]:
+    session: _DemoSession = _DemoSession(uid)
+    try:
+        session.create()
+        yield session.uid
+    except Exception:
+        logging.error("context_depend error")
+    finally:
+        logging.info("context_depend exit")
+        session.close()
+
+
+@asynccontextmanager
+async def async_context_depend(uid: int = Query.i(description="user id", gt=10, lt=1000)) -> AsyncGenerator[int, Any]:
+    session: _DemoSession = _DemoSession(uid)
+    try:
+        session.create()
+        yield session.uid
+    except Exception:
+        logging.error("context_depend error")
+    finally:
+        logging.info("context_depend exit")
+        session.close()
 
 
 # response model

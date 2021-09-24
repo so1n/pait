@@ -9,12 +9,14 @@ from pydantic import ValidationError
 from example.param_verify.model import (
     FailRespModel,
     SexEnum,
+    SuccessRespModel,
     TestPaitModel,
     UserModel,
     UserOtherModel,
     UserSuccessRespModel,
     UserSuccessRespModel2,
     UserSuccessRespModel3,
+    context_depend,
     demo_depend,
 )
 from pait.app.flask import add_doc_route, pait
@@ -214,6 +216,13 @@ def test_model(test_model: TestPaitModel) -> dict:
     return {"code": 0, "msg": "", "data": test_model.dict()}
 
 
+@pait(author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[SuccessRespModel, FailRespModel])
+def test_depend_contextmanager(uid: str = Depends.i(context_depend), is_raise: bool = Query.i(default=False)) -> dict:
+    if is_raise:
+        raise RuntimeError()
+    return {"code": 0, "msg": uid}
+
+
 class TestCbv(MethodView):
     user_agent: str = Header.i(alias="user-agent", description="ua")  # remove key will raise error
 
@@ -266,8 +275,10 @@ def create_app() -> Flask:
     app.add_url_rule("/api/cbv", view_func=TestCbv.as_view("test_cbv"))
     app.add_url_rule("/api/check_param", view_func=test_check_param, methods=["GET"])
     app.add_url_rule("/api/check_resp", view_func=test_check_response, methods=["GET"])
+    app.add_url_rule("/api/check_depend_contextmanager", view_func=test_depend_contextmanager, methods=["GET"])
     app.errorhandler(PaitBaseException)(api_exception)
     app.errorhandler(ValidationError)(api_exception)
+    app.errorhandler(RuntimeError)(api_exception)
     return app
 
 

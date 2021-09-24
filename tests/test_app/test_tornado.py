@@ -13,6 +13,8 @@ from tornado.web import Application
 
 from example.param_verify.tornado_example import TestCheckParamHandler as CheckParamHandler
 from example.param_verify.tornado_example import TestCheckRespHandler as CheckRespHandler
+from example.param_verify.tornado_example import TestDependAsyncContextmanagerHanler as DependAsyncContextmanagerHanler
+from example.param_verify.tornado_example import TestDependContextmanagerHanler as DependContextmanagerHanler
 from example.param_verify.tornado_example import TestGetHandler as GetHandler
 from example.param_verify.tornado_example import TestOtherFieldHandler as OtherFieldHandler
 from example.param_verify.tornado_example import TestPostHandler as PostHandler
@@ -90,6 +92,42 @@ class TestTornado(AsyncHTTPTestCase):
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "display_age": 1},
         )
         test_helper.get()
+
+    @mock.patch("example.param_verify.model.logging.error")
+    @mock.patch("example.param_verify.model.logging.info")
+    def test_depend_contextmanager(self, info_logger, error_logger) -> None:
+        test_helper: TornadoTestHelper = TornadoTestHelper(
+            self,
+            DependContextmanagerHanler.get,
+            query_dict={"uid": 123},
+        )
+        test_helper.get()
+        info_logger.assert_called_once_with("context_depend exit")
+        test_helper = TornadoTestHelper(
+            self,
+            DependContextmanagerHanler.get,
+            query_dict={"uid": 123, "is_raise": True},
+        )
+        test_helper.get()
+        error_logger.assert_called_once_with("context_depend error")
+
+    @mock.patch("example.param_verify.model.logging.error")
+    @mock.patch("example.param_verify.model.logging.info")
+    def test_depend_async_contextmanager(self, info_logger, error_logger) -> None:
+        test_helper: TornadoTestHelper = TornadoTestHelper(
+            self,
+            DependAsyncContextmanagerHanler.get,
+            query_dict={"uid": 123},
+        )
+        test_helper.get()
+        info_logger.assert_called_once_with("context_depend exit")
+        test_helper = TornadoTestHelper(
+            self,
+            DependAsyncContextmanagerHanler.get,
+            query_dict={"uid": 123, "is_raise": True},
+        )
+        test_helper.get()
+        error_logger.assert_called_once_with("context_depend error")
 
     def test_mock_get(self) -> None:
         config.enable_mock_response = True

@@ -56,7 +56,6 @@ class FakeAppHelper(BaseAppHelper):
 
 class AnyStringWith(str):
     def __eq__(self, other: Any) -> bool:
-        print(other)
         return self in other
 
 
