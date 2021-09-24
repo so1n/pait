@@ -4,7 +4,7 @@ import os
 import sys
 from io import BytesIO
 from tempfile import NamedTemporaryFile
-from typing import Generator, Optional, Tuple
+from typing import Any, Generator, Optional, Tuple
 from unittest import mock
 
 import pytest
@@ -95,7 +95,7 @@ class TestTornado(AsyncHTTPTestCase):
 
     @mock.patch("example.param_verify.model.logging.error")
     @mock.patch("example.param_verify.model.logging.info")
-    def test_depend_contextmanager(self, info_logger, error_logger) -> None:
+    def test_depend_contextmanager(self, info_logger: Any, error_logger: Any) -> None:
         test_helper: TornadoTestHelper = TornadoTestHelper(
             self,
             DependContextmanagerHanler.get,
@@ -113,7 +113,7 @@ class TestTornado(AsyncHTTPTestCase):
 
     @mock.patch("example.param_verify.model.logging.error")
     @mock.patch("example.param_verify.model.logging.info")
-    def test_depend_async_contextmanager(self, info_logger, error_logger) -> None:
+    def test_depend_async_contextmanager(self, info_logger: Any, error_logger: Any) -> None:
         test_helper: TornadoTestHelper = TornadoTestHelper(
             self,
             DependAsyncContextmanagerHanler.get,
