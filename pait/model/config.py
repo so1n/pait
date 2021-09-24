@@ -13,7 +13,6 @@ class CustomJSONEncoder(JSONEncoder):
         if type(obj) == date:
             return datetime.strptime(str(obj), "%Y-%m-%d")
         elif isinstance(obj, datetime):
-            # 返回时间戳格式
             return int(obj.timestamp())
         elif isinstance(obj, Decimal):
             return float(obj)
