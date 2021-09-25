@@ -45,7 +45,7 @@ class UserOtherModel(BaseModel):
     age: int = Field(description="age", gt=1, lt=100)
 
 
-class SexEnum(Enum):
+class SexEnum(str, Enum):
     man: str = "man"
     woman: str = "woman"
 

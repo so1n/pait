@@ -21,6 +21,7 @@ def load_app(app: Starlette, project_name: str = "") -> Dict[str, PaitCoreModel]
             # not support
             continue
         path: str = route.path
+        openapi_path: str = path
         method_set: set = route.methods or set()
         route_name: str = route.name
         endpoint: Union[Callable, Type] = route.endpoint
@@ -35,10 +36,12 @@ def load_app(app: Starlette, project_name: str = "") -> Dict[str, PaitCoreModel]
                 if not pait_id:
                     continue
                 pait_data.add_route_info(
-                    AppHelper.app_name, pait_id, path, method_set, f"{route_name}.{method}", project_name
+                    AppHelper.app_name, pait_id, path, openapi_path, method_set, f"{route_name}.{method}", project_name
                 )
                 _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
         elif pait_id:
-            pait_data.add_route_info(AppHelper.app_name, pait_id, path, method_set, route_name, project_name)
+            pait_data.add_route_info(
+                AppHelper.app_name, pait_id, path, openapi_path, method_set, route_name, project_name
+            )
             _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
     return _pait_data

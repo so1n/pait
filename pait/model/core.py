@@ -17,6 +17,7 @@ class PaitCoreModel(object):
         app_helper_class: "Type[BaseAppHelper]",
         make_mock_response_fn: Callable[[Type[PaitResponseModel]], Any],
         path: Optional[str] = None,
+        openapi_path: Optional[str] = None,
         method_set: Optional[Set[str]] = None,
         operation_id: Optional[str] = None,
         func_name: Optional[str] = None,
@@ -35,6 +36,7 @@ class PaitCoreModel(object):
         self.pait_id: str = f"{self.qualname}_{id(func)}"
         setattr(func, "_pait_id", self.pait_id)
         self.path: str = path or ""  # request url path
+        self.openapi_path: str = openapi_path or ""
         self._method_list: List[str] = sorted(list(method_set or set()))  # request method set
         self.func_name: str = func_name or func.__name__
         self.operation_id: str = operation_id or self.func_name  # route name

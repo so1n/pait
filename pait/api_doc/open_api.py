@@ -156,7 +156,7 @@ class PaitOpenApi(PaitBaseParse):
     def parse_data_2_openapi(self) -> None:
         for group, pait_model_list in self._group_pait_dict.items():
             for pait_model in pait_model_list:
-                path: str = pait_model.path
+                path: str = pait_model.openapi_path
                 openapi_path_dict: dict = self.open_api_dict["paths"].setdefault(path, {})
                 for method in pait_model.method_list:
                     openapi_method_dict: dict = openapi_path_dict.setdefault(method.lower(), {})

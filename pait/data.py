@@ -23,12 +23,20 @@ class PaitData(object):
         return self.pait_id_dict[app_name][pait_id]
 
     def add_route_info(
-        self, app_name: str, pait_id: str, path: str, method_set: Set[str], route_name: str, project_name: str
+        self,
+        app_name: str,
+        pait_id: str,
+        path: str,
+        openapi_path: str,
+        method_set: Set[str],
+        route_name: str,
+        project_name: str,
     ) -> None:
         """Route handle information supplemented by load_app"""
         if pait_id in self.pait_id_dict[app_name]:
             model: "PaitCoreModel" = self.pait_id_dict[app_name][pait_id]
             model.path = path
+            model.openapi_path = openapi_path
             model.method_list = sorted(list(method_set or set()), reverse=True)
             model.operation_id = route_name
             if project_name:
