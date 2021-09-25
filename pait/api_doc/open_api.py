@@ -197,14 +197,14 @@ class PaitOpenApi(PaitBaseParse):
                                 param_name: str = field_dict["raw"]["param_name"]
                                 if field == pait_field.Header.__name__.lower():
                                     param_name = self._header_keyword_dict.get(param_name, param_name)
-
                                 # TODO support example
                                 openapi_parameters_list.append(
                                     {
                                         "name": param_name,
                                         "in": field.lower(),
                                         "required": field_dict["default"] is Undefined,
-                                        "description": field_dict["description"],
+                                        # openapi description must not null
+                                        "description": field_dict["description"] or "",
                                         "schema": field_dict["raw"]["schema"],
                                     }
                                 )
