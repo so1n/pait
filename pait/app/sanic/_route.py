@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import Any, Dict, List, Optional
 
@@ -12,6 +13,7 @@ from sanic_testing.testing import SanicTestClient, TestingResponse  # type: igno
 from pait.api_doc.html import get_redoc_html as _get_redoc_html
 from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenApi
+from pait.g import config
 from pait.model.core import PaitCoreModel
 
 from ._load_app import load_app
@@ -58,7 +60,7 @@ def add_doc_route(
             open_api_server_list=[{"url": f"http://{request.host}", "description": ""}],
             open_api_tag_list=open_api_tag_list,
         )
-        return response.json(pait_openapi.open_api_dict)
+        return response.json(pait_openapi.open_api_dict, dumps=json.dumps, cls=config.json_encoder)
 
     blueprint: Blueprint = Blueprint("api doc", prefix)
     blueprint.add_route(get_redoc_html, "/redoc", methods={"GET"})

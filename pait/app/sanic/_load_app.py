@@ -24,6 +24,21 @@ def load_app(app: Sanic, project_name: str = "") -> Dict[str, PaitCoreModel]:
         path: str = route.path
         handler: Callable = route.handler
 
+        # replace path <xxx> to {xxx}
+        if "<" in path and ">" in path:
+            new_path_list: list = []
+            for sub_path in path.split("/"):
+                if sub_path[0] == "<" and sub_path[-1] == ">":
+                    real_sub_path: str = sub_path[1:-1]
+                    if ":" in real_sub_path:
+                        real_sub_path = real_sub_path.split(":")[0]
+                    real_sub_path = "{" + real_sub_path + "}"
+                else:
+                    real_sub_path = sub_path
+                new_path_list.append(real_sub_path)
+            path = "/".join(new_path_list)
+        if not path.startswith("/"):
+            path = "/" + path
         for method in method_set:
             view_class: Optional[Type] = getattr(handler, "view_class", None)
             if view_class:
