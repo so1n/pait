@@ -1,6 +1,10 @@
 ### 0.6.2[Now]
 - Feature: Support mock value anc mock fn value by Field.example attr
 - Feature: Support config json encoder
+- Fix: fix pydantic schema not support default value is None
+- Fix: fix gen_example_dict_from_schema gen enum value bug
+- Fix: fix pydantic schema default desc is null and snaic openapi bug
+- Refactor: refactor param_handler
 
 ### 0.6.1
 - Fix: can not raise real exc;refactor raise_and_tip -> gen_tip_exc

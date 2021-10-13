@@ -1,6 +1,63 @@
 # Pait Doc
 <details><summary>Group: root</summary>
 
+### Name: test_depend_contextmanager
+
+|Author|Status|func|summary|
+|---|---|---|---|
+|so1n|<font color=#00BFFF>test</font>|<abbr title="file:example/param_verify/flask_example.py;line: 219">test_depend_contextmanager</abbr>||
+- Path: /api/check_depend_contextmanager
+- Method: GET
+- Request:
+    - Query Param
+
+        |param name|type|default value|description|other|
+        |---|---|---|---|---|
+        |is_raise|boolean|False|None||
+        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+- Response:
+
+    - SuccessRespModel
+
+        |status code|media type|description|
+        |---|---|---|
+        |200|application/json|success response|
+        - Response Data
+
+            |param name|type|default value|description|other|
+            |---|---|---|---|---|
+            |code|integer|0|api code||
+            |msg|string|success|api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 0,
+              "msg": "success"
+            }
+            ```
+
+    - FailRespModel
+
+        |status code|media type|description|
+        |---|---|---|
+        |200|application/json|fail response|
+        - Response Data
+
+            |param name|type|default value|description|other|
+            |---|---|---|---|---|
+            |code|integer|1|api code||
+            |msg|string|fail|api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 1,
+              "msg": "fail"
+            }
+            ```
+
+
 ### Name: test_model
 
 
@@ -9,7 +66,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#00BFFF>test</font>|<abbr title="file:example/param_verify/flask_example.py;line: 179">test_model</abbr>||
+|so1n|<font color=#00BFFF>test</font>|<abbr title="file:example/param_verify/flask_example.py;line: 211">test_model</abbr>||
 - Path: /api/pait_model
 - Method: POST
 - Request:
@@ -45,8 +102,8 @@
             |code|integer|0|api code||
             |data.age|integer|99|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
             |data.content_type|string|application/json|content-type||
-            |data.uid|integer|6666666666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|mock_name|user name|{'maxLength': 4, 'minLength': 2}|
+            |data.uid|integer|666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+            |data.user_name|string|mock_name|user name|{'maxLength': 10, 'minLength': 2}|
             |msg|string|success|api status msg||
         - Example Response Json Data
 
@@ -55,9 +112,10 @@
               "code": 0,
               "msg": "success",
               "data": {
-                "uid": 6666666666,
+                "uid": 666,
                 "user_name": "mock_name",
                 "age": 99,
+                "sex": "man",
                 "content_type": "application/json"
               }
             }
@@ -92,7 +150,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:example/param_verify/flask_example.py;line: 30">test_raise_tip</abbr>||
+|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:example/param_verify/flask_example.py;line: 33">test_raise_tip</abbr>||
 - Path: /api/raise_tip
 - Method: POST
 - Request:
@@ -124,8 +182,8 @@
             |code|integer|0|api code||
             |data.age|integer|99|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
             |data.content_type|string|application/json|content-type||
-            |data.uid|integer|6666666666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|mock_name|user name|{'maxLength': 4, 'minLength': 2}|
+            |data.uid|integer|666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+            |data.user_name|string|mock_name|user name|{'maxLength': 10, 'minLength': 2}|
             |msg|string|success|api status msg||
         - Example Response Json Data
 
@@ -134,9 +192,10 @@
               "code": 0,
               "msg": "success",
               "data": {
-                "uid": 6666666666,
+                "uid": 666,
                 "user_name": "mock_name",
                 "age": 99,
+                "sex": "man",
                 "content_type": "application/json"
               }
             }
@@ -169,7 +228,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 89">test_other_field</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 92">test_other_field</abbr>||
 - Path: /api/other_field
 - Method: POST
 - Request:
@@ -205,7 +264,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 116">test_check_param</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 119">test_check_param</abbr>||
 - Path: /api/check_param
 - Method: GET
 - Request:
@@ -214,12 +273,12 @@
         |param name|type|default value|description|other|
         |---|---|---|---|---|
         |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |alias_user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
-        |birthday|string|**`Required`**|birthday||
+        |alias_user_name|string|None|user name|{'maxLength': 4, 'minLength': 2}|
+        |birthday|string|None|birthday||
         |email|string|example@xxx.com|user email||
         |sex|enum|Only choose from: `man`,`woman`|sex|{'enum': ['man', 'woman']}|
         |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
+        |user_name|string|None|user name|{'maxLength': 4, 'minLength': 2}|
 - Response:
 
     - UserSuccessRespModel2
@@ -234,10 +293,11 @@
             |param name|type|default value|description|other|
             |---|---|---|---|---|
             |code|integer|0|api code||
-            |data.age|integer|99|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.email|string|example@so1n.me|user email||
-            |data.uid|integer|6666666666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|mock_name|user name|{'maxLength': 4, 'minLength': 2}|
+            |data.age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100, 'example': 99}|
+            |data.email|string|**`Required`**|user email|{'example': 'example@so1n.me'}|
+            |data.multi_user_name|array|**`Required`**|user name|{'maxLength': 4, 'minLength': 2, 'example': ('mock_name',), 'items': {'type': 'string', 'minLength': 2, 'maxLength': 4}}|
+            |data.uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000, 'example': 666}|
+            |data.user_name|string|**`Required`**|user name|{'maxLength': 10, 'minLength': 2, 'example': 'mock_name'}|
             |msg|string|success|api status msg||
         - Example Response Json Data
 
@@ -246,10 +306,88 @@
               "code": 0,
               "msg": "success",
               "data": {
-                "uid": 6666666666,
+                "uid": 666,
                 "user_name": "mock_name",
+                "multi_user_name": [],
+                "sex": "man",
                 "age": 99,
                 "email": "example@so1n.me"
+              }
+            }
+            ```
+
+    - FailRespModel
+
+        |status code|media type|description|
+        |---|---|---|
+        |200|application/json|fail response|
+        - Response Data
+
+            |param name|type|default value|description|other|
+            |---|---|---|---|---|
+            |code|integer|1|api code||
+            |msg|string|fail|api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 1,
+              "msg": "fail"
+            }
+            ```
+
+
+### Name: test_check_response
+
+
+
+**Desc**:Test check param
+
+|Author|Status|func|summary|
+|---|---|---|---|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 152">test_check_response</abbr>||
+- Path: /api/check_resp
+- Method: GET
+- Request:
+    - Query Param
+
+        |param name|type|default value|description|other|
+        |---|---|---|---|---|
+        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |display_age|integer|0|display_age||
+        |email|string|example@xxx.com|user email||
+        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |user_name|string|None|user name|{'maxLength': 4, 'minLength': 2}|
+- Response:
+
+    - UserSuccessRespModel3
+
+        |status code|media type|description|
+        |---|---|---|
+        |200|application/json|success response|
+        - Header
+            {'cookie': 'xxx'}
+        - Response Data
+
+            |param name|type|default value|description|other|
+            |---|---|---|---|---|
+            |code|integer|0|api code||
+            |data.age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+            |data.email|string|**`Required`**|user email||
+            |data.uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+            |data.user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
+            |msg|string|success|api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 0,
+              "msg": "success",
+              "data": {
+                "uid": 0,
+                "user_name": "",
+                "age": 0,
+                "email": ""
               }
             }
             ```
@@ -283,7 +421,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 70">demo_get2test_depend</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 73">demo_get2test_depend</abbr>||
 - Path: /api/depend
 - Method: POST
 - Request:
@@ -319,8 +457,8 @@
             |code|integer|0|api code||
             |data.age|integer|99|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
             |data.content_type|string|application/json|content-type||
-            |data.uid|integer|6666666666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|mock_name|user name|{'maxLength': 4, 'minLength': 2}|
+            |data.uid|integer|666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+            |data.user_name|string|mock_name|user name|{'maxLength': 10, 'minLength': 2}|
             |msg|string|success|api status msg||
         - Example Response Json Data
 
@@ -329,9 +467,10 @@
               "code": 0,
               "msg": "success",
               "data": {
-                "uid": 6666666666,
+                "uid": 666,
                 "user_name": "mock_name",
                 "age": 99,
+                "sex": "man",
                 "content_type": "application/json"
               }
             }
@@ -366,7 +505,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 49">test_post</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 52">test_post</abbr>||
 - Path: /api/post
 - Method: POST
 - Request:
@@ -399,8 +538,8 @@
             |code|integer|0|api code||
             |data.age|integer|99|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
             |data.content_type|string|application/json|content-type||
-            |data.uid|integer|6666666666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|mock_name|user name|{'maxLength': 4, 'minLength': 2}|
+            |data.uid|integer|666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+            |data.user_name|string|mock_name|user name|{'maxLength': 10, 'minLength': 2}|
             |msg|string|success|api status msg||
         - Example Response Json Data
 
@@ -409,9 +548,90 @@
               "code": 0,
               "msg": "success",
               "data": {
-                "uid": 6666666666,
+                "uid": 666,
                 "user_name": "mock_name",
                 "age": 99,
+                "sex": "man",
+                "content_type": "application/json"
+              }
+            }
+            ```
+
+    - FailRespModel
+
+        |status code|media type|description|
+        |---|---|---|
+        |200|application/json|fail response|
+        - Response Data
+
+            |param name|type|default value|description|other|
+            |---|---|---|---|---|
+            |code|integer|1|api code||
+            |msg|string|fail|api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 1,
+              "msg": "fail"
+            }
+            ```
+
+
+### Name: test_cbv.post
+
+
+
+**Desc**:test cbv post method
+
+|Author|Status|func|summary|
+|---|---|---|---|
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 247">TestCbv.post</abbr>||
+- Path: /api/cbv
+- Method: post
+- Request:
+    - Body Param
+
+        |param name|type|default value|description|other|
+        |---|---|---|---|---|
+        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
+    - Header Param
+
+        |param name|type|default value|description|other|
+        |---|---|---|---|---|
+        |user-agent|string|**`Required`**|ua||
+- Response:
+
+    - UserSuccessRespModel
+
+        |status code|media type|description|
+        |---|---|---|
+        |200|application/json|success response|
+        - Header
+            {'cookie': 'xxx'}
+        - Response Data
+
+            |param name|type|default value|description|other|
+            |---|---|---|---|---|
+            |code|integer|0|api code||
+            |data.age|integer|99|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+            |data.content_type|string|application/json|content-type||
+            |data.uid|integer|666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+            |data.user_name|string|mock_name|user name|{'maxLength': 10, 'minLength': 2}|
+            |msg|string|success|api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 0,
+              "msg": "success",
+              "data": {
+                "uid": 666,
+                "user_name": "mock_name",
+                "age": 99,
+                "sex": "man",
                 "content_type": "application/json"
               }
             }
@@ -446,7 +666,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 190">TestCbv.get</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 229">TestCbv.get</abbr>||
 - Path: /api/cbv
 - Method: get
 - Request:
@@ -477,10 +697,11 @@
             |param name|type|default value|description|other|
             |---|---|---|---|---|
             |code|integer|0|api code||
-            |data.age|integer|99|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.email|string|example@so1n.me|user email||
-            |data.uid|integer|6666666666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|mock_name|user name|{'maxLength': 4, 'minLength': 2}|
+            |data.age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100, 'example': 99}|
+            |data.email|string|**`Required`**|user email|{'example': 'example@so1n.me'}|
+            |data.multi_user_name|array|**`Required`**|user name|{'maxLength': 4, 'minLength': 2, 'example': ('mock_name',), 'items': {'type': 'string', 'minLength': 2, 'maxLength': 4}}|
+            |data.uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000, 'example': 666}|
+            |data.user_name|string|**`Required`**|user name|{'maxLength': 10, 'minLength': 2, 'example': 'mock_name'}|
             |msg|string|success|api status msg||
         - Example Response Json Data
 
@@ -489,89 +710,12 @@
               "code": 0,
               "msg": "success",
               "data": {
-                "uid": 6666666666,
+                "uid": 666,
                 "user_name": "mock_name",
+                "multi_user_name": [],
+                "sex": "man",
                 "age": 99,
                 "email": "example@so1n.me"
-              }
-            }
-            ```
-
-    - FailRespModel
-
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|fail response|
-        - Response Data
-
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|1|api code||
-            |msg|string|fail|api status msg||
-        - Example Response Json Data
-
-            ```json
-            {
-              "code": 1,
-              "msg": "fail"
-            }
-            ```
-
-
-### Name: test_cbv.post
-
-
-
-**Desc**:test cbv post method
-
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 208">TestCbv.post</abbr>||
-- Path: /api/cbv
-- Method: post
-- Request:
-    - Body Param
-
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
-    - Header Param
-
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |user-agent|string|**`Required`**|ua||
-- Response:
-
-    - UserSuccessRespModel
-
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|success response|
-        - Header
-            {'cookie': 'xxx'}
-        - Response Data
-
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|0|api code||
-            |data.age|integer|99|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.content_type|string|application/json|content-type||
-            |data.uid|integer|6666666666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|mock_name|user name|{'maxLength': 4, 'minLength': 2}|
-            |msg|string|success|api status msg||
-        - Example Response Json Data
-
-            ```json
-            {
-              "code": 0,
-              "msg": "success",
-              "data": {
-                "uid": 6666666666,
-                "user_name": "mock_name",
-                "age": 99,
-                "content_type": "application/json"
               }
             }
             ```
@@ -605,7 +749,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 149">test_pait</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 181">test_pait</abbr>||
 - Path: /api/get/<age>
 - Method: GET
 - Request:
@@ -641,10 +785,11 @@
             |param name|type|default value|description|other|
             |---|---|---|---|---|
             |code|integer|0|api code||
-            |data.age|integer|99|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.email|string|example@so1n.me|user email||
-            |data.uid|integer|6666666666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|mock_name|user name|{'maxLength': 4, 'minLength': 2}|
+            |data.age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100, 'example': 99}|
+            |data.email|string|**`Required`**|user email|{'example': 'example@so1n.me'}|
+            |data.multi_user_name|array|**`Required`**|user name|{'maxLength': 4, 'minLength': 2, 'example': ('mock_name',), 'items': {'type': 'string', 'minLength': 2, 'maxLength': 4}}|
+            |data.uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000, 'example': 666}|
+            |data.user_name|string|**`Required`**|user name|{'maxLength': 10, 'minLength': 2, 'example': 'mock_name'}|
             |msg|string|success|api status msg||
         - Example Response Json Data
 
@@ -653,8 +798,10 @@
               "code": 0,
               "msg": "success",
               "data": {
-                "uid": 6666666666,
+                "uid": 666,
                 "user_name": "mock_name",
+                "multi_user_name": [],
+                "sex": "man",
                 "age": 99,
                 "email": "example@so1n.me"
               }

@@ -166,7 +166,7 @@ class PaitBaseParse(object):
                 param_dict = _pydantic_model.schema()["definitions"][key]
             if "enum" in param_dict:
                 # enum support
-                default: str = param_dict.get("enum", self._undefined)
+                default: Any = param_dict.get("enum", self._undefined)
                 if default is not self._undefined:
                     default = f'Only choose from: {",".join(["`" + i + "`" for i in default])}'
                 _type: str = "enum"
@@ -175,6 +175,9 @@ class PaitBaseParse(object):
                 default = param_dict.get("default", self._undefined)
                 _type = param_dict.get("type", self._undefined)
                 description = param_dict.get("description")
+            # NOTE: I do not know <pydandic.Filed(default=None)> can not found default value
+            if default is self._undefined and param_name not in _pydantic_model.schema().get("required", []):
+                default = _pait_field_dict[param_python_name].default
             _field_dict = {
                 "param_name": param_name,
                 "description": description,
