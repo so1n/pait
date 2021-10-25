@@ -259,6 +259,34 @@ class TestDependAsyncContextmanagerHanler(MyHandler):
         self.write({"code": 0, "msg": uid})
 
 
+class TestPreDependContextmanagerHanler(MyHandler):
+    @pait(
+        author=("so1n",),
+        status=PaitStatus.test,
+        tag=("test",),
+        pre_depend_list=[context_depend],
+        response_model_list=[SuccessRespModel],
+    )
+    async def get(self, is_raise: bool = Query.i(default=False)) -> None:
+        if is_raise:
+            raise RuntimeError()
+        self.write({"code": 0, "msg": ""})
+
+
+class TestPreDependAsyncContextmanagerHanler(MyHandler):
+    @pait(
+        author=("so1n",),
+        status=PaitStatus.test,
+        tag=("test",),
+        pre_depend_list=[async_context_depend],
+        response_model_list=[SuccessRespModel],
+    )
+    async def get(self, is_raise: bool = Query.i(default=False)) -> None:
+        if is_raise:
+            raise RuntimeError()
+        self.write({"code": 0, "msg": ""})
+
+
 class TestCbvHandler(MyHandler):
     user_agent: str = Header.i(alias="user-agent", description="ua")  # remove key will raise error
 
@@ -313,6 +341,8 @@ def create_app() -> Application:
             (r"/api/check_resp", TestCheckRespHandler),
             (r"/api/check_depend_contextmanager", TestDependContextmanagerHanler),
             (r"/api/check_depend_async_contextmanager", TestDependAsyncContextmanagerHanler),
+            (r"/api/check_pre_depend_contextmanager", TestPreDependContextmanagerHanler),
+            (r"/api/check_pre_depend_async_contextmanager", TestPreDependAsyncContextmanagerHanler),
         ]
     )
     add_doc_route(app)

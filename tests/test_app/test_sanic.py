@@ -18,6 +18,8 @@ from example.param_verify.sanic_example import test_depend_contextmanager as dep
 from example.param_verify.sanic_example import test_get as get_route
 from example.param_verify.sanic_example import test_other_field as other_field_route
 from example.param_verify.sanic_example import test_post as post_route
+from example.param_verify.sanic_example import test_pre_depend_async_contextmanager as pre_depend_async_contextmanager
+from example.param_verify.sanic_example import test_pre_depend_contextmanager as pre_depend_contextmanager
 from pait.app import auto_load_app
 from pait.app.sanic import SanicTestHelper
 from pait.g import config
@@ -110,6 +112,42 @@ class TestSanic:
         test_helper = SanicTestHelper(
             client,
             depend_async_contextmanager,
+            query_dict={"uid": 123, "is_raise": True},
+        )
+        test_helper.get()
+        error_logger.assert_called_once_with("context_depend error")
+
+    def test_pre_depend_contextmanager(self, client: SanicTestClient, mocker: MockFixture) -> None:
+        error_logger = mocker.patch("example.param_verify.model.logging.error")
+        info_logger = mocker.patch("example.param_verify.model.logging.info")
+        test_helper: SanicTestHelper = SanicTestHelper(
+            client,
+            pre_depend_contextmanager,
+            query_dict={"uid": 123},
+        )
+        test_helper.get()
+        info_logger.assert_called_once_with("context_depend exit")
+        test_helper = SanicTestHelper(
+            client,
+            pre_depend_contextmanager,
+            query_dict={"uid": 123, "is_raise": True},
+        )
+        test_helper.get()
+        error_logger.assert_called_once_with("context_depend error")
+
+    def test_pre_depend_async_contextmanager(self, client: SanicTestClient, mocker: MockFixture) -> None:
+        error_logger = mocker.patch("example.param_verify.model.logging.error")
+        info_logger = mocker.patch("example.param_verify.model.logging.info")
+        test_helper: SanicTestHelper = SanicTestHelper(
+            client,
+            pre_depend_async_contextmanager,
+            query_dict={"uid": 123},
+        )
+        test_helper.get()
+        info_logger.assert_called_once_with("context_depend exit")
+        test_helper = SanicTestHelper(
+            client,
+            pre_depend_async_contextmanager,
             query_dict={"uid": 123, "is_raise": True},
         )
         test_helper.get()

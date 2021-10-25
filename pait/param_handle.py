@@ -47,6 +47,7 @@ class BaseParamHandler(object):
         self,
         app_helper_class: Type[BaseAppHelper],
         func: Callable,
+        pre_depend_list: Optional[List[Callable]] = None,
         at_most_one_of_list: Optional[List[List[str]]] = None,
         required_by: Optional[Dict[str, List[str]]] = None,
         args: Any = None,
@@ -59,6 +60,7 @@ class BaseParamHandler(object):
             args or (),
             kwargs or {},
         )  # type: ignore
+        self.pre_depend_list: List[Callable] = pre_depend_list or []
         self.at_most_one_of_list: Optional[List[List[str]]] = at_most_one_of_list
         self.required_by: Optional[Dict[str, List[str]]] = required_by
 
@@ -155,6 +157,7 @@ class ParamHandler(BaseParamHandler):
         self,
         app_helper_class: Type[BaseAppHelper],
         func: Callable,
+        pre_depend_list: Optional[List[Callable]] = None,
         at_most_one_of_list: Optional[List[List[str]]] = None,
         required_by: Optional[Dict[str, List[str]]] = None,
         args: Any = None,
@@ -164,6 +167,7 @@ class ParamHandler(BaseParamHandler):
             app_helper_class,
             func,
             at_most_one_of_list=at_most_one_of_list,
+            pre_depend_list=pre_depend_list,
             required_by=required_by,
             args=args,
             kwargs=kwargs,
@@ -229,7 +233,19 @@ class ParamHandler(BaseParamHandler):
                 self.request_value_handle(parameter, request_value, None, single_field_dict)
             func_args.append(parameter_2_basemodel(single_field_dict))
 
+    def _pre_depend(self, func: Callable) -> Any:
+        func_sig: FuncSig = get_func_sig(func)
+        _func_args, _func_kwargs = self.param_handle(func_sig, func_sig.param_list)
+        func_result: Any = func(*_func_args, **_func_kwargs)
+        if isinstance(func_result, AbstractContextManager):
+            self._contextmanager_list.append(func_result)
+            return func_result.__enter__()
+        else:
+            return func_result
+
     def _gen_param(self) -> None:
+        for pre_depend in self.pre_depend_list:
+            self._pre_depend(pre_depend)
         func_sig: FuncSig = get_func_sig(self._func)
         self.args, self.kwargs = self.param_handle(func_sig, func_sig.param_list)
 
@@ -270,6 +286,7 @@ class AsyncParamHandler(BaseParamHandler):
         self,
         app_helper_class: Type[BaseAppHelper],
         func: Callable,
+        pre_depend_list: Optional[List[Callable]] = None,
         at_most_one_of_list: Optional[List[List[str]]] = None,
         required_by: Optional[Dict[str, List[str]]] = None,
         args: Any = None,
@@ -279,6 +296,7 @@ class AsyncParamHandler(BaseParamHandler):
             app_helper_class,
             func,
             at_most_one_of_list=at_most_one_of_list,
+            pre_depend_list=pre_depend_list,
             required_by=required_by,
             args=args,
             kwargs=kwargs,
@@ -299,19 +317,7 @@ class AsyncParamHandler(BaseParamHandler):
                     # support model: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseField())
                     if isinstance(parameter.default, field.Depends):
                         func: Callable = parameter.default.func
-                        func_sig: FuncSig = get_func_sig(func)
-                        _func_args, _func_kwargs = await self.param_handle(func_sig, func_sig.param_list)
-                        func_result: Any = func(*_func_args, **_func_kwargs)
-                        if asyncio.iscoroutine(func_result):
-                            func_result = await func_result
-                        if isinstance(func_result, AbstractAsyncContextManager):
-                            kwargs_param_dict[parameter.name] = await func_result.__aenter__()
-                            self._contextmanager_list.append(func_result)
-                        elif isinstance(func_result, AbstractContextManager):
-                            kwargs_param_dict[parameter.name] = func_result.__enter__()
-                            self._contextmanager_list.append(func_result)
-                        else:
-                            kwargs_param_dict[parameter.name] = func_result
+                        kwargs_param_dict[parameter.name] = await self._depend_handle(func)
                     else:
                         request_value: Any = self.get_request_value_from_parameter(parameter)
                         if asyncio.iscoroutine(request_value) or asyncio.isfuture(request_value):
@@ -353,7 +359,24 @@ class AsyncParamHandler(BaseParamHandler):
                 self.request_value_handle(parameter, request_value, None, single_field_dict)
             func_args.append(parameter_2_basemodel(single_field_dict))
 
+    async def _depend_handle(self, func: Callable) -> Any:
+        func_sig: FuncSig = get_func_sig(func)
+        _func_args, _func_kwargs = await self.param_handle(func_sig, func_sig.param_list)
+        func_result: Any = func(*_func_args, **_func_kwargs)
+        if asyncio.iscoroutine(func_result):
+            func_result = await func_result
+        if isinstance(func_result, AbstractAsyncContextManager):
+            self._contextmanager_list.append(func_result)
+            return await func_result.__aenter__()
+        elif isinstance(func_result, AbstractContextManager):
+            self._contextmanager_list.append(func_result)
+            return func_result.__enter__()
+        else:
+            return func_result
+
     async def _gen_param(self) -> None:
+        for pre_depend in self.pre_depend_list:
+            await self._depend_handle(pre_depend)
         func_sig: FuncSig = get_func_sig(self._func)
         self.args, self.kwargs = await self.param_handle(func_sig, func_sig.param_list)
 

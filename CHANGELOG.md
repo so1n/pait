@@ -1,3 +1,6 @@
+### 0.6.3[now]
+- Feature: Support Pre Depend
+
 ### 0.6.2[Now]
 - Feature: Support mock value anc mock fn value by Field.example attr
 - Feature: Support config json encoder

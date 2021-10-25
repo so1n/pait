@@ -31,6 +31,7 @@ def pait(
     # param check
     at_most_one_of_list: Optional[List[List[str]]] = None,
     required_by: Optional[Dict[str, List[str]]] = None,
+    pre_depend_list: Optional[List[Callable]] = None,
     # doc
     author: Optional[Tuple[str]] = None,
     desc: Optional[str] = None,
@@ -53,6 +54,7 @@ def pait(
         group=group,
         tag=tag,
         response_model_list=response_model_list,
+        pre_depend_list=pre_depend_list,
         at_most_one_of_list=at_most_one_of_list,
         required_by=required_by,
     )

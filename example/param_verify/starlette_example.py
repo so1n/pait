@@ -276,6 +276,19 @@ async def test_depend_contextmanager(
     return JSONResponse({"code": 0, "msg": uid})
 
 
+@pait(
+    author=("so1n",),
+    status=PaitStatus.test,
+    tag=("test",),
+    pre_depend_list=[context_depend],
+    response_model_list=[SuccessRespModel],
+)
+async def test_pre_depend_contextmanager(is_raise: bool = Query.i(default=False)) -> JSONResponse:
+    if is_raise:
+        raise RuntimeError()
+    return JSONResponse({"code": 0, "msg": ""})
+
+
 @pait(author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[SuccessRespModel])
 async def test_depend_async_contextmanager(
     uid: str = Depends.i(async_context_depend), is_raise: bool = Query.i(default=False)
@@ -283,6 +296,19 @@ async def test_depend_async_contextmanager(
     if is_raise:
         raise RuntimeError()
     return JSONResponse({"code": 0, "msg": uid})
+
+
+@pait(
+    author=("so1n",),
+    status=PaitStatus.test,
+    tag=("test",),
+    pre_depend_list=[async_context_depend],
+    response_model_list=[SuccessRespModel],
+)
+async def test_pre_depend_async_contextmanager(is_raise: bool = Query.i(default=False)) -> JSONResponse:
+    if is_raise:
+        raise RuntimeError()
+    return JSONResponse({"code": 0, "msg": ""})
 
 
 def create_app() -> Starlette:
@@ -299,6 +325,8 @@ def create_app() -> Starlette:
             Route("/api/pait_model", test_pait_model, methods=["POST"]),
             Route("/api/check_depend_contextmanager", test_depend_contextmanager, methods=["GET"]),
             Route("/api/check_depend_async_contextmanager", test_depend_async_contextmanager, methods=["GET"]),
+            Route("/api/check_pre_depend_contextmanager", test_pre_depend_contextmanager, methods=["GET"]),
+            Route("/api/check_pre_depend_async_contextmanager", test_pre_depend_async_contextmanager, methods=["GET"]),
         ]
     )
     add_doc_route(app)

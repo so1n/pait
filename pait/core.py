@@ -14,6 +14,7 @@ def pait(
     app_helper_class: "Type[BaseAppHelper]",
     make_mock_response_fn: Callable[[Type[PaitResponseModel]], Any],
     # param check
+    pre_depend_list: Optional[List[Callable]] = None,
     at_most_one_of_list: Optional[List[List[str]]] = None,
     required_by: Optional[Dict[str, List[str]]] = None,
     # doc
@@ -57,6 +58,7 @@ def pait(
                     app_helper_class,
                     func,
                     at_most_one_of_list=at_most_one_of_list,
+                    pre_depend_list=pre_depend_list,
                     required_by=required_by,
                     args=args,
                     kwargs=kwargs,
@@ -72,6 +74,7 @@ def pait(
                     app_helper_class,
                     func,
                     at_most_one_of_list=at_most_one_of_list,
+                    pre_depend_list=pre_depend_list,
                     required_by=required_by,
                     args=args,
                     kwargs=kwargs,

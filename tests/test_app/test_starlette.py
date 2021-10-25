@@ -16,6 +16,10 @@ from example.param_verify.starlette_example import test_depend_contextmanager as
 from example.param_verify.starlette_example import test_get as get_route
 from example.param_verify.starlette_example import test_other_field as other_field_route
 from example.param_verify.starlette_example import test_post as post_route
+from example.param_verify.starlette_example import (
+    test_pre_depend_async_contextmanager as pre_depend_async_contextmanager,
+)
+from example.param_verify.starlette_example import test_pre_depend_contextmanager as pre_depend_contextmanager
 from pait.app import auto_load_app
 from pait.app.starlette import StarletteTestHelper
 from pait.g import config
@@ -91,6 +95,42 @@ class TestStarlette:
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "display_age": 1},
         )
         test_helper.get().json()
+
+    def test_pre_depend_contextmanager(self, client: TestClient, mocker: MockFixture) -> None:
+        error_logger = mocker.patch("example.param_verify.model.logging.error")
+        info_logger = mocker.patch("example.param_verify.model.logging.info")
+        test_helper: StarletteTestHelper = StarletteTestHelper(
+            client,
+            pre_depend_contextmanager,
+            query_dict={"uid": 123},
+        )
+        test_helper.get()
+        info_logger.assert_called_once_with("context_depend exit")
+        test_helper = StarletteTestHelper(
+            client,
+            pre_depend_contextmanager,
+            query_dict={"uid": 123, "is_raise": True},
+        )
+        test_helper.get()
+        error_logger.assert_called_once_with("context_depend error")
+
+    def test_pre_depend_async_contextmanager(self, client: TestClient, mocker: MockFixture) -> None:
+        error_logger = mocker.patch("example.param_verify.model.logging.error")
+        info_logger = mocker.patch("example.param_verify.model.logging.info")
+        test_helper: StarletteTestHelper = StarletteTestHelper(
+            client,
+            pre_depend_async_contextmanager,
+            query_dict={"uid": 123},
+        )
+        test_helper.get()
+        info_logger.assert_called_once_with("context_depend exit")
+        test_helper = StarletteTestHelper(
+            client,
+            pre_depend_async_contextmanager,
+            query_dict={"uid": 123, "is_raise": True},
+        )
+        test_helper.get()
+        error_logger.assert_called_once_with("context_depend error")
 
     def test_depend_contextmanager(self, client: TestClient, mocker: MockFixture) -> None:
         error_logger = mocker.patch("example.param_verify.model.logging.error")

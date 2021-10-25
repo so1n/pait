@@ -273,6 +273,32 @@ async def test_depend_contextmanager(
     return response.json({"code": 0, "msg": uid})
 
 
+@pait(
+    author=("so1n",),
+    status=PaitStatus.test,
+    tag=("test",),
+    pre_depend_list=[context_depend],
+    response_model_list=[SuccessRespModel, FailRespModel],
+)
+async def test_pre_depend_contextmanager(is_raise: bool = Query.i(default=False)) -> response.HTTPResponse:
+    if is_raise:
+        raise RuntimeError()
+    return response.json({"code": 0, "msg": ""})
+
+
+@pait(
+    author=("so1n",),
+    status=PaitStatus.test,
+    tag=("test",),
+    pre_depend_list=[async_context_depend],
+    response_model_list=[SuccessRespModel, FailRespModel],
+)
+async def test_pre_depend_async_contextmanager(is_raise: bool = Query.i(default=False)) -> response.HTTPResponse:
+    if is_raise:
+        raise RuntimeError()
+    return response.json({"code": 0, "msg": ""})
+
+
 @pait(author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[SuccessRespModel, FailRespModel])
 async def test_depend_async_contextmanager(
     uid: str = Depends.i(async_context_depend), is_raise: bool = Query.i(default=False)
@@ -295,7 +321,9 @@ def create_app() -> Sanic:
     app.add_route(TestCbv.as_view(), "/api/cbv")
     app.add_route(test_pait_model, "/api/pait_model", methods={"POST"})
     app.add_route(test_depend_contextmanager, "/api/check_depend_contextmanager", methods={"GET"})
+    app.add_route(test_pre_depend_contextmanager, "/api/check_pre_depend_contextmanager", methods={"GET"})
     app.add_route(test_depend_async_contextmanager, "/api/check_depend_async_contextmanager", methods={"GET"})
+    app.add_route(test_pre_depend_async_contextmanager, "/api/check_pre_depend_async_contextmanager", methods={"GET"})
     app.exception(PaitBaseException)(api_exception)
     app.exception(ValidationError)(api_exception)
     app.exception(RuntimeError)(api_exception)

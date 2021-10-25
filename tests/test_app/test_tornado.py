@@ -18,6 +18,10 @@ from example.param_verify.tornado_example import TestDependContextmanagerHanler 
 from example.param_verify.tornado_example import TestGetHandler as GetHandler
 from example.param_verify.tornado_example import TestOtherFieldHandler as OtherFieldHandler
 from example.param_verify.tornado_example import TestPostHandler as PostHandler
+from example.param_verify.tornado_example import (
+    TestPreDependAsyncContextmanagerHanler as PreDependAsyncContextmanagerHanler,
+)
+from example.param_verify.tornado_example import TestPreDependContextmanagerHanler as PreDependContextmanagerHanler
 from example.param_verify.tornado_example import create_app
 from pait.app import auto_load_app
 from pait.app.tornado import TornadoTestHelper
@@ -92,6 +96,42 @@ class TestTornado(AsyncHTTPTestCase):
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "display_age": 1},
         )
         test_helper.get()
+
+    @mock.patch("example.param_verify.model.logging.error")
+    @mock.patch("example.param_verify.model.logging.info")
+    def test_pre_depend_contextmanager(self, info_logger: Any, error_logger: Any) -> None:
+        test_helper: TornadoTestHelper = TornadoTestHelper(
+            self,
+            PreDependContextmanagerHanler.get,
+            query_dict={"uid": 123},
+        )
+        test_helper.get()
+        info_logger.assert_called_once_with("context_depend exit")
+        test_helper = TornadoTestHelper(
+            self,
+            PreDependContextmanagerHanler.get,
+            query_dict={"uid": 123, "is_raise": True},
+        )
+        test_helper.get()
+        error_logger.assert_called_once_with("context_depend error")
+
+    @mock.patch("example.param_verify.model.logging.error")
+    @mock.patch("example.param_verify.model.logging.info")
+    def test_pre_depend_async_contextmanager(self, info_logger: Any, error_logger: Any) -> None:
+        test_helper: TornadoTestHelper = TornadoTestHelper(
+            self,
+            PreDependAsyncContextmanagerHanler.get,
+            query_dict={"uid": 123},
+        )
+        test_helper.get()
+        info_logger.assert_called_once_with("context_depend exit")
+        test_helper = TornadoTestHelper(
+            self,
+            PreDependAsyncContextmanagerHanler.get,
+            query_dict={"uid": 123, "is_raise": True},
+        )
+        test_helper.get()
+        error_logger.assert_called_once_with("context_depend error")
 
     @mock.patch("example.param_verify.model.logging.error")
     @mock.patch("example.param_verify.model.logging.info")

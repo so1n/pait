@@ -16,6 +16,7 @@ from example.param_verify.flask_example import test_depend_contextmanager as dep
 from example.param_verify.flask_example import test_other_field as other_field_route
 from example.param_verify.flask_example import test_pait as pait_route
 from example.param_verify.flask_example import test_post as post_route
+from example.param_verify.flask_example import test_pre_depend_contextmanager as pre_depend_contextmanager
 from pait.app import auto_load_app
 from pait.app.flask import FlaskTestHelper
 from pait.g import config
@@ -90,6 +91,24 @@ class TestFlask:
             client, check_param_route, query_dict={"uid": 123, "sex": "man", "age": 10, "alias_user_name": "appe"}
         )
         assert "birthday requires param alias_user_name, which if not none" in flask_test_helper.get().get_json()["msg"]
+
+    def test_pre_depend_contextmanager(self, client: FlaskClient, mocker: MockFixture) -> None:
+        error_logger = mocker.patch("example.param_verify.model.logging.error")
+        info_logger = mocker.patch("example.param_verify.model.logging.info")
+        flask_test_helper: FlaskTestHelper = FlaskTestHelper(
+            client,
+            pre_depend_contextmanager,
+            query_dict={"uid": 123},
+        )
+        flask_test_helper.get()
+        info_logger.assert_called_once_with("context_depend exit")
+        flask_test_helper = FlaskTestHelper(
+            client,
+            pre_depend_contextmanager,
+            query_dict={"uid": 123, "is_raise": True},
+        )
+        flask_test_helper.get()
+        error_logger.assert_called_once_with("context_depend error")
 
     def test_depend_contextmanager(self, client: FlaskClient, mocker: MockFixture) -> None:
         error_logger = mocker.patch("example.param_verify.model.logging.error")
