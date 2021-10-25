@@ -16,6 +16,7 @@ class PaitCoreModel(object):
         func: Callable,
         app_helper_class: "Type[BaseAppHelper]",
         make_mock_response_fn: Callable[[Type[PaitResponseModel]], Any],
+        pre_depend_list: Optional[List[Callable]] = None,
         path: Optional[str] = None,
         openapi_path: Optional[str] = None,
         method_set: Optional[Set[str]] = None,
@@ -32,6 +33,7 @@ class PaitCoreModel(object):
         self.app_helper_class: "Type[BaseAppHelper]" = app_helper_class
         self.make_mock_response_fn: Callable[[Type[PaitResponseModel]], Any] = make_mock_response_fn
         self._func: Callable = func  # route func
+        self.pre_depend_list: List[Callable] = pre_depend_list or []
         self.qualname: str = func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0]
         self.pait_id: str = f"{self.qualname}_{id(func)}"
         setattr(func, "_pait_id", self.pait_id)

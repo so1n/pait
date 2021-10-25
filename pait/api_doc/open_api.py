@@ -153,6 +153,7 @@ class PaitOpenApi(PaitBaseParse):
 
         openapi_request_body_dict["content"].update({media_type: {"schema": schema_dict}})
 
+    # flake8: noqa: C901
     def parse_data_2_openapi(self) -> None:
         for group, pait_model_list in self._group_pait_dict.items():
             for pait_model in pait_model_list:
@@ -185,6 +186,9 @@ class PaitOpenApi(PaitBaseParse):
                     all_field_dict: Dict[str, List[Dict[str, Any]]] = self._parse_func_param_to_field_dict(
                         pait_model.func
                     )
+                    for pre_depend in pait_model.pre_depend_list:
+                        for field, field_dict_list in self._parse_func_param_to_field_dict(pre_depend).items():
+                            all_field_dict[field].extend(field_dict_list)
 
                     for field, field_dict_list in all_field_dict.items():
                         if field in (

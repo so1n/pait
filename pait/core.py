@@ -47,6 +47,7 @@ def pait(
             group=group,
             tag=tag,
             response_model_list=response_model_list,
+            pre_depend_list=pre_depend_list,
         )
         pait_data.register(app_name, pait_core_model)
 
