@@ -188,7 +188,10 @@ class PaitOpenApi(PaitBaseParse):
                     )
                     for pre_depend in pait_model.pre_depend_list:
                         for field, field_dict_list in self._parse_func_param_to_field_dict(pre_depend).items():
-                            all_field_dict[field].extend(field_dict_list)
+                            if field not in all_field_dict:
+                                all_field_dict[field] = field_dict_list
+                            else:
+                                all_field_dict[field].extend(field_dict_list)
 
                     for field, field_dict_list in all_field_dict.items():
                         if field in (
