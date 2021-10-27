@@ -1,4 +1,5 @@
 import asyncio
+import copy
 import inspect
 import logging
 from contextlib import AbstractAsyncContextManager, AbstractContextManager
@@ -38,8 +39,10 @@ def parameter_2_basemodel(parameter_value_dict: Dict["inspect.Parameter", Any]) 
             #  class Demo(BaseModel):
             #      header_token: str = Header(alias="token")
             #      query_token: str = Query(alias="token")
-            key = parameter.default.__class__.__name__ + parameter.default.alias
-            parameter.default.alias = key
+            key = parameter.default.__class__.__name__ + "_" + parameter.default.alias
+            new_field: field.BaseField = copy.deepcopy(parameter.default)
+            new_field.alias = key
+            annotation_dict[parameter.name] = (parameter.annotation, new_field)
         param_value_dict[key] = value
 
     dynamic_model: Type[BaseModel] = create_pydantic_model(annotation_dict)
