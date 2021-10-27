@@ -1,6 +1,6 @@
 import inspect
 import warnings
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, get_type_hints
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, get_type_hints
 
 from pydantic import BaseModel
 from pydantic.fields import Undefined
@@ -272,12 +272,25 @@ class PaitBaseParse(object):
         if single_field_list:
             annotation_dict: Dict[str, Tuple[Type, Any]] = {}
             _pait_field_dict: Dict[str, BaseField] = {}
+            _column_name_set: Set[str] = set()
             for field_name, parameter in single_field_list:
                 field: BaseField = parameter.default
-                annotation_dict[parameter.name] = (parameter.annotation, field)
-                _pait_field_dict[parameter.name] = field
+                key: str = field.alias or parameter.name
+                if key in _column_name_set:
+                    # fix
+                    #  class Demo(BaseModel):
+                    #      header_token: str = Header(alias="token")
+                    #      query_token: str = Query(alias="token")
+                    _pydantic_model: Type[BaseModel] = create_pydantic_model(
+                        {parameter.name: (parameter.annotation, field)}
+                    )
+                    self._parse_base_model_to_field_dict(field_dict, _pydantic_model, {parameter.name: field})
+                else:
+                    _column_name_set.add(key)
+                    annotation_dict[parameter.name] = (parameter.annotation, field)
+                    _pait_field_dict[parameter.name] = field
 
-            _pydantic_model: Type[BaseModel] = create_pydantic_model(annotation_dict)
+            _pydantic_model = create_pydantic_model(annotation_dict)
             self._parse_base_model_to_field_dict(field_dict, _pydantic_model, _pait_field_dict)
         return field_dict
 

@@ -31,8 +31,15 @@ def parameter_2_basemodel(parameter_value_dict: Dict["inspect.Parameter", Any]) 
     for parameter, value in parameter_value_dict.items():
         annotation_dict[parameter.name] = (parameter.annotation, parameter.default)
         key: str = parameter.name
+
         if isinstance(parameter.default, BaseField) and parameter.default.alias:
-            key = parameter.default.alias
+            # fix incompatibility with different fields having the same alias
+            # e.g:
+            #  class Demo(BaseModel):
+            #      header_token: str = Header(alias="token")
+            #      query_token: str = Query(alias="token")
+            key = parameter.default.__class__.__name__ + parameter.default.alias
+            parameter.default.alias = key
         param_value_dict[key] = value
 
     dynamic_model: Type[BaseModel] = create_pydantic_model(annotation_dict)

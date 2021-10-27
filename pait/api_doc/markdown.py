@@ -110,6 +110,12 @@ class PaitMd(PaitBaseParse):
                 markdown_text += "- Request:\n"
 
                 field_dict: Dict[str, List[Dict[str, Any]]] = self._parse_func_param_to_field_dict(pait_model.func)
+                for pre_depend in pait_model.pre_depend_list:
+                    for _field, field_dict_list in self._parse_func_param_to_field_dict(pre_depend).items():
+                        if _field not in field_dict:
+                            field_dict[_field] = field_dict_list
+                        else:
+                            field_dict[_field].extend(field_dict_list)
                 # request body info
                 field_key_list: List[str] = sorted(field_dict.keys())
                 for _field in field_key_list:
