@@ -4,6 +4,8 @@ from enum import Enum
 from json import JSONEncoder
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type
 
+from pydantic import BaseConfig
+
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
 
@@ -48,6 +50,7 @@ class Config(object):
             "object": {},
             "array": [],
         }
+        self.default_pydantic_model_config: Type[BaseConfig] = BaseConfig
         self.python_type_default_value_dict: Dict[type, Any] = {
             bool: True,
             float: 0.0,
@@ -76,6 +79,7 @@ class Config(object):
         json_encoder: Type[JSONEncoder] = CustomJSONEncoder,
         enable_mock_response: bool = False,
         enable_mock_response_filter_fn: Optional[Callable[[Type[PaitResponseModel]], bool]] = None,
+        default_pydantic_model_config: Optional[Type[BaseConfig]] = None,
     ) -> None:
         """
         :param author:  Only @pait(author=None) will be called to change the configuration
@@ -94,6 +98,7 @@ class Config(object):
              the first response body in response_list
         :param enable_mock_response_filter_fn:
             There are multiple response bodies in response_list, you can filter by changing the function
+        :param default_pydantic_model_config: pait route gen pydantic model default config
         :return:
         """
         self.author = author
@@ -107,6 +112,8 @@ class Config(object):
         self.json_encoder = json_encoder
         self.enable_mock_response = enable_mock_response
         self.enable_mock_response_filter_fn = enable_mock_response_filter_fn
+        if default_pydantic_model_config:
+            self.default_pydantic_model_config = default_pydantic_model_config
 
         self.__initialized = True
 

@@ -2,8 +2,10 @@ import inspect
 from functools import wraps
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
+from pydantic import BaseConfig
+
 from pait.app.base import BaseAppHelper
-from pait.g import pait_data
+from pait.g import config, pait_data
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
@@ -26,12 +28,14 @@ def pait(
     group: Optional[str] = None,
     tag: Optional[Tuple[str, ...]] = None,
     response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
+    pydantic_model_config: Optional[Type[BaseConfig]] = None,
 ) -> Callable:
     if not isinstance(app_helper_class, type):
         raise TypeError(f"{app_helper_class} must be class")
     if not issubclass(app_helper_class, BaseAppHelper):
         raise TypeError(f"{app_helper_class} must sub from {BaseAppHelper.__class__.__name__}")
     app_name: str = app_helper_class.app_name
+    _pydantic_model_config: Type[BaseConfig] = pydantic_model_config or config.default_pydantic_model_config
 
     def wrapper(func: Callable) -> Callable:
 
@@ -58,6 +62,7 @@ def pait(
                 async with AsyncParamHandler(
                     app_helper_class,
                     func,
+                    _pydantic_model_config,
                     at_most_one_of_list=at_most_one_of_list,
                     pre_depend_list=pre_depend_list,
                     required_by=required_by,
@@ -74,6 +79,7 @@ def pait(
                 with ParamHandler(
                     app_helper_class,
                     func,
+                    _pydantic_model_config,
                     at_most_one_of_list=at_most_one_of_list,
                     pre_depend_list=pre_depend_list,
                     required_by=required_by,

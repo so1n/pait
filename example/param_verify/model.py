@@ -107,6 +107,9 @@ class ResponseUserModel(ResponseModel):
         sex: SexEnum = Field(SexEnum.man, description="sex")
         content_type: str = Field("application/json", description="content-type")
 
+        class Config:
+            use_enum_values = True
+
     data: ResponseUserDataModel
 
 
@@ -127,6 +130,9 @@ class UserSuccessRespModel2(PaitResponseModel):
             sex: SexEnum = Field(example=SexEnum.man, description="sex")
             age: int = Field(example=99, description="age", gt=1, lt=100)
             email: str = Field(example="example@so1n.me", description="user email")
+
+            class Config:
+                use_enum_values = True
 
         data: UserResponseData2
 

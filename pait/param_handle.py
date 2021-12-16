@@ -6,7 +6,7 @@ from contextlib import AbstractAsyncContextManager, AbstractContextManager
 from types import TracebackType
 from typing import Any, Callable, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union, get_type_hints
 
-from pydantic import BaseModel
+from pydantic import BaseConfig, BaseModel
 
 from pait import field
 from pait.app.base import BaseAppHelper
@@ -25,7 +25,9 @@ def raise_multiple_exc(exc_list: List[Exception]) -> None:
         raise_multiple_exc(exc_list)
 
 
-def parameter_2_basemodel(parameter_value_dict: Dict["inspect.Parameter", Any]) -> BaseModel:
+def parameter_2_basemodel(
+    parameter_value_dict: Dict["inspect.Parameter", Any], pydantic_config: Type[BaseConfig]
+) -> BaseModel:
     """Convert all parameters into pydantic mods"""
     annotation_dict: Dict[str, Tuple[Type, Any]] = {}
     param_value_dict: Dict[str, Any] = {}
@@ -45,7 +47,7 @@ def parameter_2_basemodel(parameter_value_dict: Dict["inspect.Parameter", Any]) 
             annotation_dict[parameter.name] = (parameter.annotation, new_field)
         param_value_dict[key] = value
 
-    dynamic_model: Type[BaseModel] = create_pydantic_model(annotation_dict)
+    dynamic_model: Type[BaseModel] = create_pydantic_model(annotation_dict, pydantic_config=pydantic_config)
     return dynamic_model(**param_value_dict)
 
 
@@ -57,6 +59,7 @@ class BaseParamHandler(object):
         self,
         app_helper_class: Type[BaseAppHelper],
         func: Callable,
+        pydantic_model_config: Type[BaseConfig],
         pre_depend_list: Optional[List[Callable]] = None,
         at_most_one_of_list: Optional[List[List[str]]] = None,
         required_by: Optional[Dict[str, List[str]]] = None,
@@ -73,6 +76,7 @@ class BaseParamHandler(object):
         self.pre_depend_list: List[Callable] = pre_depend_list or []
         self.at_most_one_of_list: Optional[List[List[str]]] = at_most_one_of_list
         self.required_by: Optional[Dict[str, List[str]]] = required_by
+        self.pydantic_model_config: Type[BaseConfig] = pydantic_model_config
 
         self.args: list = []
         self.kwargs: dict = {}
@@ -167,6 +171,7 @@ class ParamHandler(BaseParamHandler):
         self,
         app_helper_class: Type[BaseAppHelper],
         func: Callable,
+        pydantic_model_config: Type[BaseConfig],
         pre_depend_list: Optional[List[Callable]] = None,
         at_most_one_of_list: Optional[List[List[str]]] = None,
         required_by: Optional[Dict[str, List[str]]] = None,
@@ -176,6 +181,7 @@ class ParamHandler(BaseParamHandler):
         super().__init__(
             app_helper_class,
             func,
+            pydantic_model_config,
             at_most_one_of_list=at_most_one_of_list,
             pre_depend_list=pre_depend_list,
             required_by=required_by,
@@ -218,7 +224,7 @@ class ParamHandler(BaseParamHandler):
         # support field: def demo(demo_param: int = pait.field.BaseField())
         if single_field_dict:
             try:
-                kwargs_param_dict.update(parameter_2_basemodel(single_field_dict).dict())
+                kwargs_param_dict.update(parameter_2_basemodel(single_field_dict, self.pydantic_model_config).dict())
             except Exception as e:
                 raise e from gen_tip_exc(_object, e)
         return args_param_list, kwargs_param_dict
@@ -241,7 +247,7 @@ class ParamHandler(BaseParamHandler):
                 request_value: Any = self.get_request_value_from_parameter(parameter)
                 # PaitModel's attributes's annotation support BaseModel
                 self.request_value_handle(parameter, request_value, None, single_field_dict)
-            func_args.append(parameter_2_basemodel(single_field_dict))
+            func_args.append(parameter_2_basemodel(single_field_dict, self.pydantic_model_config))
 
     def _pre_depend(self, func: Callable) -> Any:
         func_sig: FuncSig = get_func_sig(func)
@@ -296,6 +302,7 @@ class AsyncParamHandler(BaseParamHandler):
         self,
         app_helper_class: Type[BaseAppHelper],
         func: Callable,
+        pydantic_model_config: Type[BaseConfig],
         pre_depend_list: Optional[List[Callable]] = None,
         at_most_one_of_list: Optional[List[List[str]]] = None,
         required_by: Optional[Dict[str, List[str]]] = None,
@@ -305,6 +312,7 @@ class AsyncParamHandler(BaseParamHandler):
         super().__init__(
             app_helper_class,
             func,
+            pydantic_model_config,
             at_most_one_of_list=at_most_one_of_list,
             pre_depend_list=pre_depend_list,
             required_by=required_by,
@@ -342,7 +350,7 @@ class AsyncParamHandler(BaseParamHandler):
         # support field: def demo(demo_param: int = pait.field.BaseField())
         if single_field_dict:
             try:
-                kwargs_param_dict.update(parameter_2_basemodel(single_field_dict).dict())
+                kwargs_param_dict.update(parameter_2_basemodel(single_field_dict, self.pydantic_model_config).dict())
             except Exception as e:
                 raise e from gen_tip_exc(_object, e)
         return args_param_list, kwargs_param_dict
@@ -367,7 +375,7 @@ class AsyncParamHandler(BaseParamHandler):
                     request_value = await request_value
                 # PaitModel's attributes's annotation support BaseModel
                 self.request_value_handle(parameter, request_value, None, single_field_dict)
-            func_args.append(parameter_2_basemodel(single_field_dict))
+            func_args.append(parameter_2_basemodel(single_field_dict, self.pydantic_model_config))
 
     async def _depend_handle(self, func: Callable) -> Any:
         func_sig: FuncSig = get_func_sig(func)

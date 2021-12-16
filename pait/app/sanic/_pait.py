@@ -1,6 +1,7 @@
 import json
 from typing import Callable, Dict, List, Optional, Tuple, Type
 
+from pydantic import BaseConfig
 from sanic.response import HTTPResponse
 from sanic.response import json as resp_json
 from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
@@ -42,6 +43,7 @@ def pait(
     group: Optional[str] = None,
     tag: Optional[Tuple[str, ...]] = None,
     response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
+    pydantic_model_config: Optional[Type[BaseConfig]] = None,
 ) -> Callable:
     """Help starlette provide parameter checks and type conversions for each routing function/cbv class"""
     return _pait(
@@ -58,4 +60,5 @@ def pait(
         pre_depend_list=pre_depend_list,
         at_most_one_of_list=at_most_one_of_list,
         required_by=required_by,
+        pydantic_model_config=pydantic_model_config,
     )
