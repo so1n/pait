@@ -46,7 +46,8 @@ def add_doc_route(
         def _get_open_json_url(self) -> str:
             r_pin_code: Optional[str] = self._get_request_pin_code()
             openapi_json_url: str = (
-                f"http://{self.request.host}{'/'.join(self.request.path.split('/')[:-1])}/openapi.json"
+                f"{self.request.protocol}://{self.request.host}{'/'.join(self.request.path.split('/')[:-1])}"
+                f"/openapi.json"
             )
             if r_pin_code:
                 openapi_json_url += f"?pin_code={r_pin_code}"

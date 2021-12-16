@@ -33,7 +33,9 @@ def add_doc_route(
 
     def _get_open_json_url() -> str:
         r_pin_code: Optional[str] = _get_request_pin_code()
-        openapi_json_url: str = f"http://{request.host}{'/'.join(request.path.split('/')[:-1])}/openapi.json"
+        openapi_json_url: str = (
+            f"{request.scheme}://{request.host}{'/'.join(request.path.split('/')[:-1])}/openapi.json"
+        )
         if r_pin_code:
             openapi_json_url += f"?pin_code={r_pin_code}"
         return openapi_json_url
@@ -50,7 +52,7 @@ def add_doc_route(
         pait_openapi: PaitOpenApi = PaitOpenApi(
             pait_dict,
             title=title,
-            open_api_server_list=[{"url": f"http://{request.host}", "description": ""}],
+            open_api_server_list=[{"url": f"{request.scheme}://{request.host}", "description": ""}],
             open_api_tag_list=open_api_tag_list,
         )
         return pait_openapi.open_api_dict
