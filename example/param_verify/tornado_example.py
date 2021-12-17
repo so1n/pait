@@ -350,5 +350,10 @@ def create_app() -> Application:
 
 
 if __name__ == "__main__":
+    import logging
+
+    logging.basicConfig(
+        format="[%(asctime)s %(levelname)s] %(message)s", datefmt="%y-%m-%d %H:%M:%S", level=logging.DEBUG
+    )
     create_app().listen(8000)
     IOLoop.instance().start()

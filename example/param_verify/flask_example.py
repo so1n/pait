@@ -297,5 +297,10 @@ def create_app() -> Flask:
 
 
 if __name__ == "__main__":
+    import logging
+
+    logging.basicConfig(
+        format="[%(asctime)s %(levelname)s] %(message)s", datefmt="%y-%m-%d %H:%M:%S", level=logging.DEBUG
+    )
     config.init_config(block_http_method_set={"HEAD", "OPTIONS"})
     create_app().run(port=8000, debug=True)

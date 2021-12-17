@@ -60,7 +60,7 @@ def pait(
 
             @wraps(func)
             async def dispatch(*args: Any, **kwargs: Any) -> Callable:
-                closure_cbv: Optional[Type] = args[0] if support_closure_cbv and args else None
+                closure_cbv: Optional[Type] = args[0].__class__ if support_closure_cbv and args else None
                 async with AsyncParamHandler(
                     app_helper_class,
                     func,
@@ -79,7 +79,7 @@ def pait(
 
             @wraps(func)
             def dispatch(*args: Any, **kwargs: Any) -> Callable:
-                closure_cbv: Optional[Type] = args[0] if support_closure_cbv and args else None
+                closure_cbv: Optional[Type] = args[0].__class__ if support_closure_cbv and args else None
                 with ParamHandler(
                     app_helper_class,
                     func,

@@ -10,9 +10,11 @@ from starlette.routing import Mount, Route
 from pait.api_doc.html import get_redoc_html as _get_redoc_html
 from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenApi
+from pait.field import Depends, Query
 from pait.model.core import PaitCoreModel
 
 from ._load_app import load_app
+from ._pait import pait
 
 
 def add_doc_route(
@@ -25,8 +27,7 @@ def add_doc_route(
     if pin_code:
         logging.info(f"doc route start pin code:{pin_code}")
 
-    def _get_request_pin_code(request: Request) -> Optional[str]:
-        r_pin_code: Optional[str] = request.query_params.get("pin_code", None)
+    def _get_request_pin_code(r_pin_code: str = Query.i("", alias="pin_code")) -> Optional[str]:
         if pin_code:
             if r_pin_code != pin_code:
                 raise HTTPException(
@@ -38,8 +39,7 @@ def add_doc_route(
                 )
         return r_pin_code
 
-    def _get_open_json_url(request: Request) -> str:
-        r_pin_code: Optional[str] = _get_request_pin_code(request)
+    def _get_open_json_url(request: Request, r_pin_code: str) -> str:
         openapi_json_url: str = (
             f"{request.url.scheme}://{request.url.hostname}:{request.url.port}"
             f"{'/'.join(request.url.path.split('/')[:-1])}/openapi.json"
@@ -48,14 +48,16 @@ def add_doc_route(
             openapi_json_url += f"?pin_code={r_pin_code}"
         return openapi_json_url
 
-    def get_redoc_html(request: Request) -> HTMLResponse:
-        return HTMLResponse(_get_redoc_html(_get_open_json_url(request), title))
+    @pait()
+    def get_redoc_html(request: Request, r_pin_code: str = Depends.i(_get_request_pin_code)) -> HTMLResponse:
+        return HTMLResponse(_get_redoc_html(_get_open_json_url(request, r_pin_code), title))
 
-    def get_swagger_ui_html(request: Request) -> HTMLResponse:
-        return HTMLResponse(_get_swagger_ui_html(_get_open_json_url(request), title))
+    @pait()
+    def get_swagger_ui_html(request: Request, r_pin_code: str = Depends.i(_get_request_pin_code)) -> HTMLResponse:
+        return HTMLResponse(_get_swagger_ui_html(_get_open_json_url(request, r_pin_code), title))
 
+    @pait(pre_depend_list=[_get_request_pin_code])
     def openapi_route(request: Request) -> JSONResponse:
-        _get_request_pin_code(request)
         pait_dict: Dict[str, PaitCoreModel] = load_app(request.app)
         pait_openapi: PaitOpenApi = PaitOpenApi(
             pait_dict,
