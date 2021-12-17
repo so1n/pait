@@ -65,13 +65,17 @@ class BaseParamHandler(object):
         pre_depend_list: Optional[List[Callable]] = None,
         at_most_one_of_list: Optional[List[List[str]]] = None,
         required_by: Optional[Dict[str, List[str]]] = None,
+        closure_cbv: Optional[Type] = None,
         args: Any = None,
         kwargs: Any = None,
     ) -> None:
         self._func: Callable = func
         # real param handle
+        closure_cbv = closure_cbv or getattr(
+            inspect.getmodule(func), func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0]
+        )
         self._app_helper: BaseAppHelper = app_helper_class(
-            getattr(inspect.getmodule(func), func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0]),
+            closure_cbv,
             args or (),
             kwargs or {},
         )  # type: ignore
@@ -177,6 +181,7 @@ class ParamHandler(BaseParamHandler):
         pre_depend_list: Optional[List[Callable]] = None,
         at_most_one_of_list: Optional[List[List[str]]] = None,
         required_by: Optional[Dict[str, List[str]]] = None,
+        closure_cbv: Optional[Type] = None,
         args: Any = None,
         kwargs: Any = None,
     ) -> None:
@@ -187,6 +192,7 @@ class ParamHandler(BaseParamHandler):
             at_most_one_of_list=at_most_one_of_list,
             pre_depend_list=pre_depend_list,
             required_by=required_by,
+            closure_cbv=closure_cbv,
             args=args,
             kwargs=kwargs,
         )
@@ -308,6 +314,7 @@ class AsyncParamHandler(BaseParamHandler):
         pre_depend_list: Optional[List[Callable]] = None,
         at_most_one_of_list: Optional[List[List[str]]] = None,
         required_by: Optional[Dict[str, List[str]]] = None,
+        closure_cbv: Optional[Type] = None,
         args: Any = None,
         kwargs: Any = None,
     ) -> None:
@@ -318,6 +325,7 @@ class AsyncParamHandler(BaseParamHandler):
             at_most_one_of_list=at_most_one_of_list,
             pre_depend_list=pre_depend_list,
             required_by=required_by,
+            closure_cbv=closure_cbv,
             args=args,
             kwargs=kwargs,
         )
