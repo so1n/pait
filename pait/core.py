@@ -29,7 +29,6 @@ def pait(
     tag: Optional[Tuple[str, ...]] = None,
     response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
     pydantic_model_config: Optional[Type[BaseConfig]] = None,
-    support_closure_cbv: bool = False,
 ) -> Callable:
     if not isinstance(app_helper_class, type):
         raise TypeError(f"{app_helper_class} must be class")
@@ -60,7 +59,6 @@ def pait(
 
             @wraps(func)
             async def dispatch(*args: Any, **kwargs: Any) -> Callable:
-                closure_cbv: Optional[Type] = args[0].__class__ if support_closure_cbv and args else None
                 async with AsyncParamHandler(
                     app_helper_class,
                     func,
@@ -68,7 +66,6 @@ def pait(
                     at_most_one_of_list=at_most_one_of_list,
                     pre_depend_list=pre_depend_list,
                     required_by=required_by,
-                    closure_cbv=closure_cbv,
                     args=args,
                     kwargs=kwargs,
                 ) as p:
@@ -79,7 +76,6 @@ def pait(
 
             @wraps(func)
             def dispatch(*args: Any, **kwargs: Any) -> Callable:
-                closure_cbv: Optional[Type] = args[0].__class__ if support_closure_cbv and args else None
                 with ParamHandler(
                     app_helper_class,
                     func,
@@ -87,7 +83,6 @@ def pait(
                     at_most_one_of_list=at_most_one_of_list,
                     pre_depend_list=pre_depend_list,
                     required_by=required_by,
-                    closure_cbv=closure_cbv,
                     args=args,
                     kwargs=kwargs,
                 ) as p:

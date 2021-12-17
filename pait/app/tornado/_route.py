@@ -55,17 +55,17 @@ def add_doc_route(
             return openapi_json_url
 
     class GetRedocHtmlHandle(BaseHandle, ABC):
-        @pait(support_closure_cbv=True)
+        @pait()
         async def get(self, r_pin_code: str = Depends.i(_get_request_pin_code)) -> None:
             self.write(_get_redoc_html(self._get_open_json_url(r_pin_code), title))
 
     class GetSwaggerUiHtmlHandle(BaseHandle, ABC):
-        @pait(support_closure_cbv=True)
+        @pait()
         async def get(self, r_pin_code: str = Depends.i(_get_request_pin_code)) -> None:
             self.write(_get_swagger_ui_html(self._get_open_json_url(r_pin_code), title))
 
     class OpenApiHandle(BaseHandle, ABC):
-        @pait(pre_depend_list=[_get_request_pin_code], support_closure_cbv=True)
+        @pait(pre_depend_list=[_get_request_pin_code])
         async def get(self) -> None:
             pait_dict: Dict[str, PaitCoreModel] = load_app(self.application)
             pait_openapi: PaitOpenApi = PaitOpenApi(
