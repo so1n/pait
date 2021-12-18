@@ -71,7 +71,7 @@ def add_doc_route(
             pait_openapi: PaitOpenApi = PaitOpenApi(
                 pait_dict,
                 title=title,
-                open_api_server_list=[{"url": f"http://{self.request.host}", "description": ""}],
+                open_api_server_list=[{"url": f"{self.request.protocol}://{self.request.host}", "description": ""}],
                 open_api_tag_list=open_api_tag_list,
             )
             self.write(pait_openapi.open_api_dict)

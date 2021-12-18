@@ -13,20 +13,20 @@ _bound_class: _BoundClass = _BoundClass()
 class LazyProperty:
     """Cache field computing resources
     >>> class Demo:
-    ...     @LazyProperty(is_class_func=True)
+    ...     @LazyProperty()
     ...     def value(self, value):
     ...         return value * value
     """
-
-    def __init__(self, is_class_func: bool = False):
-        self._is_class_func: bool = is_class_func
 
     def __call__(self, func: Callable) -> Callable:
         key: str = f"{self.__class__.__name__}_{func.__name__}_future"
         if not asyncio.iscoroutinefunction(func):
 
             def wrapper(*args: Any, **kwargs: Any) -> Any:
-                class_: Any = args[0] if self._is_class_func else _bound_class
+                if args and args[0].__class__.__name__ in func.__qualname__:
+                    class_: Any = args[0]
+                else:
+                    class_ = _bound_class
                 future: Optional[futures.Future] = getattr(class_, key, None)
                 if not future:
                     future = futures.Future()
@@ -40,7 +40,10 @@ class LazyProperty:
         else:
 
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
-                class_: Any = args[0] if self._is_class_func else _bound_class
+                if args and args[0].__class__.__name__ in func.__qualname__:
+                    class_: Any = args[0]
+                else:
+                    class_ = _bound_class
                 future: Optional[asyncio.Future] = getattr(class_, key, None)
                 if not future:
                     future = asyncio.Future()

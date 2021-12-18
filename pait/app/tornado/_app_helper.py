@@ -33,7 +33,7 @@ class AppHelper(BaseAppHelper):
     def file(self) -> dict:
         return {item["filename"]: item for item in self.request.files["file"]}
 
-    @LazyProperty(is_class_func=True)
+    @LazyProperty()
     def form(self) -> dict:
         if self.request.arguments:
             form_dict: dict = {key: value[0].decode() for key, value in self.request.arguments.items()}
@@ -47,17 +47,17 @@ class AppHelper(BaseAppHelper):
     def path(self) -> dict:
         return self.path_kwargs
 
-    @LazyProperty(is_class_func=True)
+    @LazyProperty()
     def query(self) -> dict:
         return {key: value[0].decode() for key, value in self.request.query_arguments.items()}
 
-    @LazyProperty(is_class_func=True)
+    @LazyProperty()
     def multiform(self) -> Dict[str, List[Any]]:
         if self.request.arguments:
             return {key: [i.decode() for i in value] for key, value in self.request.arguments.items()}
         else:
             return {key: [value] for key, value in json.loads(self.request.body.decode()).items()}
 
-    @LazyProperty(is_class_func=True)
+    @LazyProperty()
     def multiquery(self) -> Dict[str, Any]:
         return {key: [i.decode() for i in value] for key, value in self.request.query_arguments.items()}

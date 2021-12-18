@@ -67,6 +67,6 @@ class AppHelper(BaseAppHelper):
 
         return _multiform()
 
-    @LazyProperty(is_class_func=True)
+    @LazyProperty()
     def multiquery(self) -> Dict[str, Any]:
         return {key: self.request.query_params.getlist(key) for key, _ in self.request.query_params.items()}
