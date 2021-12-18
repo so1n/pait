@@ -71,12 +71,15 @@ class BaseParamHandler(object):
     ) -> None:
         self._func: Callable = func
         # real param handle
+        self.cbv_instance: Optional[Any] = None
         if args and args[0].__class__.__name__ in func.__qualname__:
-            closure_cbv: Type = args[0].__class__
+            self.cbv_instance = args[0]
+            cbv_type: Type = self.cbv_instance.__class__
         else:
-            closure_cbv = getattr(inspect.getmodule(func), func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0])
+            cbv_type = getattr(inspect.getmodule(func), func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0])
+
         self._app_helper: BaseAppHelper = app_helper_class(
-            closure_cbv,
+            cbv_type,
             args or (),
             kwargs or {},
         )  # type: ignore
@@ -107,8 +110,8 @@ class BaseParamHandler(object):
 
     def _set_parameter_value_to_args(self, parameter: inspect.Parameter, func_args: list) -> bool:
         """use func_args param faster return and extend func_args"""
-        if parameter.name == "self" and not func_args:
-            # Only support self param name
+        if self.cbv_instance and not func_args:
+            # first parma must self param
             func_args.append(self._app_helper.cbv_class)
         elif self._app_helper.check_request_type(parameter.annotation):
             # support request param(def handle(request: Request))
