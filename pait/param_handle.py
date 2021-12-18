@@ -36,13 +36,14 @@ def parameter_2_basemodel(
         annotation_dict[parameter.name] = (parameter.annotation, parameter.default)
         key: str = parameter.name
 
-        if isinstance(parameter.default, BaseField) and parameter.default.alias and key in model_key_set:
-            # fix incompatibility with different fields having the same alias
-            # e.g:
-            #  class Demo(BaseModel):
-            #      header_token: str = Header(alias="token")
-            #      query_token: str = Query(alias="token")
-            key = parameter.default.__class__.__name__ + "_" + parameter.default.alias
+        if isinstance(parameter.default, BaseField) and parameter.default.alias:
+            if key in model_key_set:
+                # fix incompatibility with different fields having the same alias
+                # e.g:
+                #  class Demo(BaseModel):
+                #      header_token: str = Header(alias="token")
+                #      query_token: str = Query(alias="token")
+                key = parameter.default.__class__.__name__ + "_" + parameter.default.alias
             new_field: field.BaseField = copy.deepcopy(parameter.default)
             new_field.alias = key
             annotation_dict[parameter.name] = (parameter.annotation, new_field)
