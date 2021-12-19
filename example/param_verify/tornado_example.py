@@ -235,6 +235,19 @@ class TestCheckRespHandler(MyHandler):
         self.write(return_dict)
 
 
+class TestSameAliasHandler(MyHandler):
+    @pait(
+        author=("so1n",),
+        group="user",
+        status=PaitStatus.release,
+        tag=("user", "get"),
+    )
+    def get(
+        self, query_token: str = Query.i("", alias="token"), header_token: str = Header.i("", alias="token")
+    ) -> None:
+        self.write({"query_token": query_token, "header_token": header_token})
+
+
 class TestOtherFieldHandler(MyHandler):
     @pait(
         author=("so1n",),
@@ -370,6 +383,7 @@ def create_app() -> Application:
             (r"/api/post", TestPostHandler),
             (r"/api/depend", TestDependHandler),
             (r"/api/other_field", TestOtherFieldHandler),
+            (r"/api/same_alias", TestSameAliasHandler),
             (r"/api/raise_tip", RaiseTipHandler),
             (r"/api/cbv", TestCbvHandler),
             (r"/api/pait_model", TestPaitModelHanler),

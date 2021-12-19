@@ -20,6 +20,7 @@ from example.param_verify.sanic_example import test_other_field as other_field_r
 from example.param_verify.sanic_example import test_post as post_route
 from example.param_verify.sanic_example import test_pre_depend_async_contextmanager as pre_depend_async_contextmanager
 from example.param_verify.sanic_example import test_pre_depend_contextmanager as pre_depend_contextmanager
+from example.param_verify.sanic_example import test_same_alias as same_alias_route
 from pait.app import auto_load_app
 from pait.app.sanic import SanicTestHelper
 
@@ -229,6 +230,22 @@ class TestSanic:
         )
         resp: dict = response.json
         assert "msg" in resp
+
+    def test_same_alias_name(self, client: SanicTestClient) -> None:
+        test_helper: SanicTestHelper = SanicTestHelper(
+            client,
+            same_alias_route,
+            query_dict={"token": "query"},
+            header_dict={"token": "header"},
+        )
+        assert test_helper.get().json == {"query_token": "query", "header_token": "header"}
+        test_helper = SanicTestHelper(
+            client,
+            same_alias_route,
+            query_dict={"token": "query1"},
+            header_dict={"token": "header1"},
+        )
+        assert test_helper.get().json == {"query_token": "query1", "header_token": "header1"}
 
     def test_other_field(self, client: SanicTestClient) -> None:
         cookie_str: str = "abcd=abcd;"

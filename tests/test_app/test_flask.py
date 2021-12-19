@@ -17,6 +17,7 @@ from example.param_verify.flask_example import test_other_field as other_field_r
 from example.param_verify.flask_example import test_pait as pait_route
 from example.param_verify.flask_example import test_post as post_route
 from example.param_verify.flask_example import test_pre_depend_contextmanager as pre_depend_contextmanager
+from example.param_verify.flask_example import test_same_alias as same_alias_route
 from pait.app import auto_load_app
 from pait.app.flask import FlaskTestHelper
 from pait.g import config
@@ -165,6 +166,22 @@ class TestFlask:
         ).get_json()
         assert resp["code"] == 0
         assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
+
+    def test_same_alias_name(self, client: FlaskClient) -> None:
+        test_helper: FlaskTestHelper = FlaskTestHelper(
+            client,
+            same_alias_route,
+            query_dict={"token": "query"},
+            header_dict={"token": "header"},
+        )
+        assert test_helper.get().get_json() == {"query_token": "query", "header_token": "header"}
+        test_helper = FlaskTestHelper(
+            client,
+            same_alias_route,
+            query_dict={"token": "query1"},
+            header_dict={"token": "header1"},
+        )
+        assert test_helper.get().get_json() == {"query_token": "query1", "header_token": "header1"}
 
     def test_post(self, client: FlaskClient) -> None:
         flask_test_helper: FlaskTestHelper = FlaskTestHelper(

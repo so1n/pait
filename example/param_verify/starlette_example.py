@@ -229,6 +229,18 @@ async def test_check_resp(
     status=PaitStatus.release,
     tag=("user", "get"),
 )
+def test_same_alias(
+    query_token: str = Query.i("", alias="token"), header_token: str = Header.i("", alias="token")
+) -> JSONResponse:
+    return JSONResponse({"query_token": query_token, "header_token": header_token})
+
+
+@pait(
+    author=("so1n",),
+    group="user",
+    status=PaitStatus.release,
+    tag=("user", "get"),
+)
 async def test_other_field(
     upload_file: Any = File.i(description="upload file"),
     a: str = Form.i(description="form data"),
@@ -354,6 +366,7 @@ def create_app() -> Starlette:
             Route("/api/post", test_post, methods=["POST"]),
             Route("/api/depend", test_depend, methods=["POST"]),
             Route("/api/other_field", test_other_field, methods=["POST"]),
+            Route("/api/same_alias", test_same_alias, methods=["GET"]),
             Route("/api/raise_tip", test_raise_tip, methods=["POST"]),
             Route("/api/cbv", TestCbv),
             Route("/api/pait_model", test_pait_model, methods=["POST"]),

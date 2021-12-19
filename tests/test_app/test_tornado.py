@@ -22,6 +22,7 @@ from example.param_verify.tornado_example import (
     TestPreDependAsyncContextmanagerHanler as PreDependAsyncContextmanagerHanler,
 )
 from example.param_verify.tornado_example import TestPreDependContextmanagerHanler as PreDependContextmanagerHanler
+from example.param_verify.tornado_example import TestSameAliasHandler as SameAliasHandler
 from example.param_verify.tornado_example import create_app
 from pait.app import auto_load_app
 from pait.app.tornado import TornadoTestHelper
@@ -219,6 +220,22 @@ class TestTornado(AsyncHTTPTestCase):
         resp: dict = json.loads(response.body.decode())
         assert resp["code"] == 0
         assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
+
+    def test_same_alias_name(self) -> None:
+        test_helper: TornadoTestHelper = TornadoTestHelper(
+            self,
+            SameAliasHandler.get,
+            query_dict={"token": "query"},
+            header_dict={"token": "header"},
+        )
+        assert json.loads(test_helper.get().body.decode()) == {"query_token": "query", "header_token": "header"}
+        test_helper = TornadoTestHelper(
+            self,
+            SameAliasHandler.get,
+            query_dict={"token": "query1"},
+            header_dict={"token": "header1"},
+        )
+        assert json.loads(test_helper.get().body.decode()) == {"query_token": "query1", "header_token": "header1"}
 
     def test_post(self) -> None:
         test_helper: TornadoTestHelper = TornadoTestHelper(

@@ -4,7 +4,7 @@ import inspect
 import logging
 from contextlib import AbstractAsyncContextManager, AbstractContextManager
 from types import TracebackType
-from typing import Any, Callable, Coroutine, Dict, List, Mapping, Optional, Set, Tuple, Type, Union, get_type_hints
+from typing import Any, Callable, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union, get_type_hints
 
 from pydantic import BaseConfig, BaseModel
 
@@ -31,24 +31,15 @@ def parameter_2_basemodel(
     """Convert all parameters into pydantic mods"""
     annotation_dict: Dict[str, Tuple[Type, Any]] = {}
     param_value_dict: Dict[str, Any] = {}
-    model_key_set: Set[str] = set()
     for parameter, value in parameter_value_dict.items():
-        annotation_dict[parameter.name] = (parameter.annotation, parameter.default)
-        key: str = parameter.name
-
         if isinstance(parameter.default, BaseField) and parameter.default.alias:
-            if key in model_key_set:
-                # fix incompatibility with different fields having the same alias
-                # e.g:
-                #  class Demo(BaseModel):
-                #      header_token: str = Header(alias="token")
-                #      query_token: str = Query(alias="token")
-                key = parameter.default.__class__.__name__ + "_" + parameter.default.alias
+            # Resolve the key mismatch between Field.alias and request value
             new_field: field.BaseField = copy.deepcopy(parameter.default)
-            new_field.alias = key
+            new_field.default = value
             annotation_dict[parameter.name] = (parameter.annotation, new_field)
-        model_key_set.add(key)
-        param_value_dict[key] = value
+        else:
+            annotation_dict[parameter.name] = (parameter.annotation, parameter.default)
+        param_value_dict[parameter.name] = value
 
     dynamic_model: Type[BaseModel] = create_pydantic_model(annotation_dict, pydantic_config=pydantic_config)
     return dynamic_model(**param_value_dict)

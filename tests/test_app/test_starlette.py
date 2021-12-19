@@ -20,6 +20,7 @@ from example.param_verify.starlette_example import (
     test_pre_depend_async_contextmanager as pre_depend_async_contextmanager,
 )
 from example.param_verify.starlette_example import test_pre_depend_contextmanager as pre_depend_contextmanager
+from example.param_verify.starlette_example import test_same_alias as same_alias_route
 from pait.app import auto_load_app
 from pait.app.starlette import StarletteTestHelper
 from pait.g import config
@@ -207,6 +208,22 @@ class TestStarlette:
         ).json()
         assert resp["code"] == 0
         assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
+
+    def test_same_alias_name(self, client: StarletteTestHelper) -> None:
+        test_helper: StarletteTestHelper = StarletteTestHelper(
+            client,
+            same_alias_route,
+            query_dict={"token": "query"},
+            header_dict={"token": "header"},
+        )
+        assert test_helper.get().json() == {"query_token": "query", "header_token": "header"}
+        test_helper = StarletteTestHelper(
+            client,
+            same_alias_route,
+            query_dict={"token": "query1"},
+            header_dict={"token": "header1"},
+        )
+        assert test_helper.get().json() == {"query_token": "query1", "header_token": "header1"}
 
     def test_post(self, client: TestClient) -> None:
         test_helper: StarletteTestHelper = StarletteTestHelper(

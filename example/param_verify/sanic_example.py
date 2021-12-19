@@ -226,6 +226,18 @@ async def test_check_resp(
     status=PaitStatus.release,
     tag=("user", "get"),
 )
+def test_same_alias(
+    query_token: str = Query.i("", alias="token"), header_token: str = Header.i("", alias="token")
+) -> response.HTTPResponse:
+    return response.json({"query_token": query_token, "header_token": header_token})
+
+
+@pait(
+    author=("so1n",),
+    group="user",
+    status=PaitStatus.release,
+    tag=("user", "get"),
+)
 async def test_other_field(
     upload_file: Any = File.i(description="upload file"),
     a: str = Form.i(description="form data"),
@@ -351,6 +363,7 @@ def create_app() -> Sanic:
     app.add_route(test_post, "/api/post", methods={"POST"})
     app.add_route(test_depend, "/api/depend", methods={"POST"})
     app.add_route(test_other_field, "/api/other_field", methods={"POST"})
+    app.add_route(test_same_alias, "/api/same_alias", methods={"GET"})
     app.add_route(test_raise_tip, "/api/raise_tip", methods={"POST"})
     app.add_route(TestCbv.as_view(), "/api/cbv")
     app.add_route(test_pait_model, "/api/pait_model", methods={"POST"})

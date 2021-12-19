@@ -95,6 +95,18 @@ def demo_get2test_depend(
     status=PaitStatus.release,
     tag=("user", "get"),
 )
+def test_same_alias(
+    query_token: str = Query.i("", alias="token"), header_token: str = Header.i("", alias="token")
+) -> dict:
+    return {"query_token": query_token, "header_token": header_token}
+
+
+@pait(
+    author=("so1n",),
+    group="user",
+    status=PaitStatus.release,
+    tag=("user", "get"),
+)
 def test_other_field(
     upload_file: Any = File.i(description="upload file"),
     a: str = Form.i(description="form data"),
@@ -314,6 +326,7 @@ def create_app() -> Flask:
     app.add_url_rule("/api/post", view_func=test_post, methods=["POST"])
     app.add_url_rule("/api/depend", view_func=demo_get2test_depend, methods=["POST"])
     app.add_url_rule("/api/other_field", view_func=test_other_field, methods=["POST"])
+    app.add_url_rule("/api/same_alias", view_func=test_same_alias, methods=["GET"])
     app.add_url_rule("/api/get/<age>", view_func=test_pait, methods=["GET"])
     app.add_url_rule("/api/mock/<age>", view_func=test_mock, methods=["GET"])
     app.add_url_rule("/api/pait_model", view_func=test_model, methods=["POST"])
