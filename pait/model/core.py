@@ -32,7 +32,7 @@ class PaitCoreModel(object):
     ):
         self.app_helper_class: "Type[BaseAppHelper]" = app_helper_class
         self.make_mock_response_fn: Callable[[Type[PaitResponseModel]], Any] = make_mock_response_fn
-        self._func: Callable = func  # route func
+        self.func: Callable = func  # route func
         self.pre_depend_list: List[Callable] = pre_depend_list or []
         self.qualname: str = func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0]
         self.pait_id: str = f"{self.qualname}_{id(func)}"
@@ -42,28 +42,28 @@ class PaitCoreModel(object):
         self._method_list: List[str] = sorted(list(method_set or set()))  # request method set
         self.func_name: str = func_name or func.__name__
         self.operation_id: str = operation_id or self.func_name  # route name
-        self._author: Optional[Tuple[str, ...]] = author  # The main developer of this func
+        self.author: Optional[Tuple[str, ...]] = author  # The main developer of this func
         self.summary: str = summary or ""
         self.desc: str = desc or func.__doc__ or ""  # desc of this func
-        self._status: Optional[PaitStatus] = status  # Interface development progress (life cycle)
+        self.status: Optional[PaitStatus] = status  # Interface development progress (life cycle)
         self.group: str = group or "root"  # Which group this interface belongs to
         self.tag: Tuple[str, ...] = tag or ("default",)  # Interface tag
-        self._response_model_list: List[Type[PaitResponseModel]] = response_model_list or []
+        self.response_model_list: List[Type[PaitResponseModel]] = response_model_list or []
         self.func_path: str = ""
 
-    @property
-    def author(self) -> Tuple[str, ...]:
-        return self._author or config.author
-
-    @property
-    def status(self) -> PaitStatus:
-        return self._status or config.status
-
-    @property
-    def func(self) -> Callable:
-        if config.enable_mock_response:
-            return self.return_mock_response
-        return self._func
+    # @property
+    # def author(self) -> Tuple[str, ...]:
+    #     return self._author or config.author
+    #
+    # @property
+    # def status(self) -> PaitStatus:
+    #     return self._status or config.status
+    #
+    # @property
+    # def func(self) -> Callable:
+    #     if config.enable_mock_response:
+    #         return self.return_mock_response
+    #     return self._func
 
     @property
     def method_list(self) -> List[str]:
@@ -92,15 +92,15 @@ class PaitCoreModel(object):
             setattr(pait_response, "handle", args[0])
         resp: Any = self.make_mock_response_fn(pait_response)
         # support async def
-        if inspect.iscoroutinefunction(self._func):
+        if inspect.iscoroutinefunction(self.func):
             future: asyncio.Future = asyncio.Future()
             future.set_result(resp)
             resp = future
         return resp
 
-    @property
-    def response_model_list(self) -> List[Type[PaitResponseModel]]:
-        if config.default_response_model_list:
-            return self._response_model_list + config.default_response_model_list
-        else:
-            return self._response_model_list
+    # @property
+    # def response_model_list(self) -> List[Type[PaitResponseModel]]:
+    #     if config.default_response_model_list:
+    #         return self._response_model_list + config.default_response_model_list
+    #     else:
+    #         return self._response_model_list

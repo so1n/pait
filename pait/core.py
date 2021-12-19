@@ -20,7 +20,7 @@ def pait(
     at_most_one_of_list: Optional[List[List[str]]] = None,
     required_by: Optional[Dict[str, List[str]]] = None,
     # doc
-    author: Optional[Tuple[str]] = None,
+    author: Optional[Tuple[str, ...]] = None,
     desc: Optional[str] = None,
     summary: Optional[str] = None,
     name: Optional[str] = None,
@@ -37,10 +37,16 @@ def pait(
     app_name: str = app_helper_class.app_name
     _pydantic_model_config: Type[BaseConfig] = pydantic_model_config or config.default_pydantic_model_config
 
+    _author: Tuple[str, ...] = author or config.author
+    status = status or config.status
+    response_model_list = response_model_list or []
+    if config.default_response_model_list:
+        response_model_list += config.default_response_model_list
+
     def wrapper(func: Callable) -> Callable:
 
         pait_core_model: PaitCoreModel = PaitCoreModel(
-            author=author,
+            author=_author,
             app_helper_class=app_helper_class,
             make_mock_response_fn=make_mock_response_fn,
             desc=desc,
