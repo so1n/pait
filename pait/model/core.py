@@ -2,6 +2,8 @@ import asyncio
 import inspect
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
 
+from pydantic import BaseConfig
+
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
 
@@ -28,6 +30,7 @@ class PaitCoreModel(object):
         group: Optional[str] = None,
         tag: Optional[Tuple[str, ...]] = None,
         response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
+        pydantic_model_config: Optional[Type[BaseConfig]] = None,
     ):
         self.app_helper_class: "Type[BaseAppHelper]" = app_helper_class
         self.make_mock_response_fn: Callable[[Type[PaitResponseModel]], Any] = make_mock_response_fn
@@ -52,6 +55,7 @@ class PaitCoreModel(object):
         self.func_path: str = ""
         self.block_http_method_set: Set[str] = set()
         self.enable_mock_response_filter_fn: Optional[Callable[[Type[PaitResponseModel]], bool]] = None
+        self.pydantic_model_config: Type[BaseConfig] = pydantic_model_config or BaseConfig
 
     # @property
     # def author(self) -> Tuple[str, ...]:

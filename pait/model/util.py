@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Any
 
+from pydantic import BaseConfig
+
 if TYPE_CHECKING:
     from pait.model.config import Config
     from pait.model.core import PaitCoreModel
@@ -15,5 +17,7 @@ def sync_config_data_to_pait_core_model(config: "Config", pait_core_model: "Pait
         pait_core_model.response_model_list.extend(config.default_response_model_list)
     if config.enable_mock_response_filter_fn:
         pait_core_model.enable_mock_response_filter_fn = config.enable_mock_response_filter_fn
+    if config.default_pydantic_model_config and pait_core_model.pydantic_model_config != BaseConfig:
+        pait_core_model.pydantic_model_config = config.default_pydantic_model_config
     if kwargs.get("enable_mock_response", False) or config.enable_mock_response:
         pait_core_model.pait_func = pait_core_model.return_mock_response

@@ -37,7 +37,6 @@ def pait(
     if not issubclass(app_helper_class, BaseAppHelper):
         raise TypeError(f"{app_helper_class} must sub from {BaseAppHelper.__class__.__name__}")
     app_name: str = app_helper_class.app_name
-    _pydantic_model_config: Type[BaseConfig] = pydantic_model_config or config.default_pydantic_model_config
 
     def wrapper(func: Callable) -> Callable:
 
@@ -54,6 +53,7 @@ def pait(
             tag=tag,
             response_model_list=response_model_list,
             pre_depend_list=pre_depend_list,
+            pydantic_model_config=pydantic_model_config,
         )
         sync_config_data_to_pait_core_model(config, pait_core_model, enable_mock_response=enable_mock_response)
         pait_data.register(app_name, pait_core_model)
@@ -65,7 +65,7 @@ def pait(
                 async with AsyncParamHandler(
                     app_helper_class,
                     func,
-                    _pydantic_model_config,
+                    pait_core_model.pydantic_model_config,
                     at_most_one_of_list=at_most_one_of_list,
                     pre_depend_list=pre_depend_list,
                     required_by=required_by,
@@ -82,7 +82,7 @@ def pait(
                 with ParamHandler(
                     app_helper_class,
                     func,
-                    _pydantic_model_config,
+                    pait_core_model.pydantic_model_config,
                     at_most_one_of_list=at_most_one_of_list,
                     pre_depend_list=pre_depend_list,
                     required_by=required_by,
