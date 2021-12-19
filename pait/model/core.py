@@ -2,7 +2,6 @@ import asyncio
 import inspect
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
 
-from pait.g import config
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
 
@@ -51,6 +50,8 @@ class PaitCoreModel(object):
         self.tag: Tuple[str, ...] = tag or ("default",)  # Interface tag
         self.response_model_list: List[Type[PaitResponseModel]] = response_model_list or []
         self.func_path: str = ""
+        self.block_http_method_set: Set[str] = set()
+        self.enable_mock_response_filter_fn: Optional[Callable[[Type[PaitResponseModel]], bool]] = None
 
     # @property
     # def author(self) -> Tuple[str, ...]:
@@ -73,16 +74,16 @@ class PaitCoreModel(object):
     @method_list.setter
     def method_list(self, method_list: List[str]) -> None:
         _temp_set: Set[str] = set(self._method_list) | set(method_list)
-        _temp_set.difference_update(config.block_http_method_set)
+        _temp_set.difference_update(self.block_http_method_set)
         self._method_list = sorted(list(_temp_set))
 
     def return_mock_response(self, *args: Any, **kwargs: Any) -> Any:
         if not self.response_model_list:
             raise RuntimeError(f"{self.func} can not set response model")
         pait_response: Optional[Type[PaitResponseModel]] = None
-        if config.enable_mock_response_filter_fn:
+        if self.enable_mock_response_filter_fn:
             for _pait_response in self.response_model_list:
-                if config.enable_mock_response_filter_fn(_pait_response):
+                if self.enable_mock_response_filter_fn(_pait_response):
                     pait_response = _pait_response
                     break
         if not pait_response:

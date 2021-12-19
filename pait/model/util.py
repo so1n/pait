@@ -13,5 +13,7 @@ def sync_config_data_to_pait_core_model(config: "Config", pait_core_model: "Pait
 
     if config.default_response_model_list:
         pait_core_model.response_model_list.extend(config.default_response_model_list)
+    if config.enable_mock_response_filter_fn:
+        pait_core_model.enable_mock_response_filter_fn = config.enable_mock_response_filter_fn
     if kwargs.get("enable_mock_response", False) or config.enable_mock_response:
         pait_core_model.pait_func = pait_core_model.return_mock_response
