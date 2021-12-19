@@ -129,9 +129,8 @@ class TestFlask:
         error_logger.assert_called_once_with("context_depend error")
 
     def test_mock_get(self, client: FlaskClient) -> None:
-        config.enable_mock_response = True
         resp: dict = client.get(
-            "/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
+            "/api/mock/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
         ).get_json()
         assert resp == {
             "code": 0,
@@ -145,7 +144,6 @@ class TestFlask:
             },
             "msg": "success",
         }
-        config.enable_mock_response = False
 
     def test_depend(self, client: FlaskClient) -> None:
         resp: dict = client.post(

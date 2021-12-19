@@ -41,6 +41,7 @@ def pait(
     status: Optional[PaitStatus] = None,
     group: Optional[str] = None,
     tag: Optional[Tuple[str, ...]] = None,
+    enable_mock_response: bool = False,
     response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
     pydantic_model_config: Optional[Type[BaseConfig]] = None,
 ) -> Callable:
@@ -55,6 +56,7 @@ def pait(
         status=status,
         group=group,
         tag=tag,
+        enable_mock_response=enable_mock_response,
         response_model_list=response_model_list,
         pre_depend_list=pre_depend_list,
         at_most_one_of_list=at_most_one_of_list,

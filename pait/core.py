@@ -9,6 +9,7 @@ from pait.g import config, pait_data
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
+from pait.model.util import sync_config_data_to_pait_core_model
 from pait.param_handle import AsyncParamHandler, ParamHandler
 
 
@@ -27,6 +28,7 @@ def pait(
     status: Optional[PaitStatus] = None,
     group: Optional[str] = None,
     tag: Optional[Tuple[str, ...]] = None,
+    enable_mock_response: bool = False,
     response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
     pydantic_model_config: Optional[Type[BaseConfig]] = None,
 ) -> Callable:
@@ -37,16 +39,10 @@ def pait(
     app_name: str = app_helper_class.app_name
     _pydantic_model_config: Type[BaseConfig] = pydantic_model_config or config.default_pydantic_model_config
 
-    _author: Tuple[str, ...] = author or config.author
-    status = status or config.status
-    response_model_list = response_model_list or []
-    if config.default_response_model_list:
-        response_model_list += config.default_response_model_list
-
     def wrapper(func: Callable) -> Callable:
 
         pait_core_model: PaitCoreModel = PaitCoreModel(
-            author=_author,
+            author=author,
             app_helper_class=app_helper_class,
             make_mock_response_fn=make_mock_response_fn,
             desc=desc,
@@ -59,6 +55,7 @@ def pait(
             response_model_list=response_model_list,
             pre_depend_list=pre_depend_list,
         )
+        sync_config_data_to_pait_core_model(config, pait_core_model, enable_mock_response=enable_mock_response)
         pait_data.register(app_name, pait_core_model)
 
         if inspect.iscoroutinefunction(func):
@@ -75,7 +72,7 @@ def pait(
                     args=args,
                     kwargs=kwargs,
                 ) as p:
-                    return await pait_core_model.func(*p.args, **p.kwargs)
+                    return await pait_core_model.pait_func(*p.args, **p.kwargs)
 
             return dispatch
         else:
@@ -92,7 +89,7 @@ def pait(
                     args=args,
                     kwargs=kwargs,
                 ) as p:
-                    return pait_core_model.func(*p.args, **p.kwargs)
+                    return pait_core_model.pait_func(*p.args, **p.kwargs)
 
             return dispatch
 

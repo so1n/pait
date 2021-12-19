@@ -173,7 +173,7 @@ class TestTornado(AsyncHTTPTestCase):
         config.enable_mock_response = True
         resp: dict = json.loads(
             self.fetch(
-                "/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
+                "/api/mock/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
             ).body.decode()
         )
         assert resp == {

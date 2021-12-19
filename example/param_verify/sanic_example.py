@@ -129,6 +129,39 @@ async def test_get(
     status=PaitStatus.release,
     tag=("user", "get"),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
+    enable_mock_response=True,
+)
+async def test_mock(
+    uid: int = Query.i(description="user id", gt=10, lt=1000),
+    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+    email: str = Query.i(default="example@xxx.com", description="user email"),
+    age: int = Path.i(description="age"),
+    sex: SexEnum = Query.i(description="sex"),
+    multi_user_name: List[str] = MultiQuery.i(description="user name", min_length=2, max_length=4),
+) -> response.HTTPResponse:
+    """Test Field"""
+    return response.json(
+        {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "uid": uid,
+                "user_name": user_name,
+                "email": email,
+                "age": age,
+                "sex": sex.value,
+                "multi_user_name": multi_user_name,
+            },
+        }
+    )
+
+
+@pait(
+    author=("so1n",),
+    group="user",
+    status=PaitStatus.release,
+    tag=("user", "get"),
+    response_model_list=[UserSuccessRespModel2, FailRespModel],
     at_most_one_of_list=[["user_name", "alias_user_name"]],
     required_by={"birthday": ["alias_user_name"]},
 )
@@ -312,6 +345,7 @@ def create_app() -> Sanic:
     app: Sanic = Sanic(name="pait")
     add_doc_route(app)
     app.add_route(test_get, "/api/get/<age>", methods={"GET"})
+    app.add_route(test_mock, "/api/mock/<age>", methods={"GET"})
     app.add_route(test_check_param, "/api/check_param", methods={"GET"})
     app.add_route(test_check_resp, "/api/check_resp", methods={"GET"})
     app.add_route(test_post, "/api/post", methods={"POST"})

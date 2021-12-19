@@ -130,6 +130,39 @@ async def test_get(
     status=PaitStatus.release,
     tag=("user", "get"),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
+    enable_mock_response=True,
+)
+async def test_mock(
+    uid: int = Query.i(description="user id", gt=10, lt=1000),
+    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+    email: str = Query.i(default="example@xxx.com", description="user email"),
+    age: int = Path.i(description="age"),
+    sex: SexEnum = Query.i(description="sex"),
+    multi_user_name: List[str] = MultiQuery.i(description="user name", min_length=2, max_length=4),
+) -> JSONResponse:
+    """Test Field"""
+    return JSONResponse(
+        {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "uid": uid,
+                "user_name": user_name,
+                "email": email,
+                "age": age,
+                "sex": sex.value,
+                "multi_user_name": multi_user_name,
+            },
+        }
+    )
+
+
+@pait(
+    author=("so1n",),
+    group="user",
+    status=PaitStatus.release,
+    tag=("user", "get"),
+    response_model_list=[UserSuccessRespModel2, FailRespModel],
     at_most_one_of_list=[["user_name", "alias_user_name"]],
     required_by={"birthday": ["alias_user_name"]},
 )
@@ -315,6 +348,7 @@ def create_app() -> Starlette:
     app: Starlette = Starlette(
         routes=[
             Route("/api/get/{age}", test_get, methods=["GET"]),
+            Route("/api/mock/{age}", test_mock, methods=["GET"]),
             Route("/api/check_param", test_check_param, methods=["GET"]),
             Route("/api/check_resp", test_check_resp, methods=["GET"]),
             Route("/api/post", test_post, methods=["POST"]),

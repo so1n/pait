@@ -171,7 +171,7 @@ class TestStarlette:
     def test_mock_get(self, client: TestClient) -> None:
         config.enable_mock_response = True
         resp: dict = client.get(
-            "/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
+            "/api/mock/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
         ).json()
         assert resp == {
             "code": 0,

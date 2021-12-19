@@ -130,6 +130,41 @@ class TestGetHandler(MyHandler):
         )
 
 
+class TestMockHandler(MyHandler):
+    @pait(
+        author=("so1n",),
+        group="user",
+        status=PaitStatus.release,
+        tag=("user", "get"),
+        response_model_list=[UserSuccessRespModel2, FailRespModel],
+        enable_mock_response=True,
+    )
+    async def get(
+        self,
+        uid: int = Query.i(description="user id", gt=10, lt=1000),
+        user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+        email: str = Query.i(default="example@xxx.com", description="user email"),
+        age: int = Path.i(description="age"),
+        sex: SexEnum = Query.i(description="sex"),
+        multi_user_name: List[str] = MultiQuery.i(description="user name", min_length=2, max_length=4),
+    ) -> None:
+        """Test Field"""
+        self.write(
+            {
+                "code": 0,
+                "msg": "",
+                "data": {
+                    "uid": uid,
+                    "user_name": user_name,
+                    "email": email,
+                    "age": age,
+                    "sex": sex.value,
+                    "multi_user_name": multi_user_name,
+                },
+            }
+        )
+
+
 class TestCheckParamHandler(MyHandler):
     @pait(
         author=("so1n",),
@@ -331,6 +366,7 @@ def create_app() -> Application:
     app: Application = Application(
         [
             (r"/api/get/(?P<age>\w+)", TestGetHandler),
+            (r"/api/mock/(?P<age>\w+)", TestMockHandler),
             (r"/api/post", TestPostHandler),
             (r"/api/depend", TestDependHandler),
             (r"/api/other_field", TestOtherFieldHandler),

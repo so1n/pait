@@ -22,7 +22,6 @@ from example.param_verify.sanic_example import test_pre_depend_async_contextmana
 from example.param_verify.sanic_example import test_pre_depend_contextmanager as pre_depend_contextmanager
 from pait.app import auto_load_app
 from pait.app.sanic import SanicTestHelper
-from pait.g import config
 
 
 @pytest.fixture
@@ -154,10 +153,8 @@ class TestSanic:
         error_logger.assert_called_once_with("context_depend error")
 
     def test_mock_get(self, client: SanicTestClient) -> None:
-        config.enable_mock_response = True
-
         request, response = client.get(
-            "/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
+            "/api/mock/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
         )
         assert response.json == {
             "code": 0,
@@ -171,7 +168,6 @@ class TestSanic:
             },
             "msg": "success",
         }
-        config.enable_mock_response = False
 
     def test_depend(self, client: SanicTestClient) -> None:
         request, response = client.post(

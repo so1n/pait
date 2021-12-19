@@ -209,6 +209,37 @@ def test_pait(
 
 
 @pait(
+    author=("so1n",),
+    group="user",
+    status=PaitStatus.release,
+    tag=("user", "get"),
+    response_model_list=[UserSuccessRespModel2, FailRespModel],
+    enable_mock_response=True,
+)
+def test_mock(
+    uid: int = Query.i(description="user id", gt=10, lt=1000),
+    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    multi_user_name: List[str] = MultiQuery.i(description="user name", min_length=2, max_length=4),
+    age: int = Path.i(description="age", gt=1, lt=100),
+    sex: SexEnum = Query.i(description="sex"),
+) -> dict:
+    """Test Field"""
+    return {
+        "code": 0,
+        "msg": "",
+        "data": {
+            "uid": uid,
+            "user_name": user_name,
+            "email": email,
+            "age": age,
+            "sex": sex.value,
+            "multi_user_name": multi_user_name,
+        },
+    }
+
+
+@pait(
     author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[UserSuccessRespModel, FailRespModel]
 )
 def test_model(test_model: TestPaitModel) -> dict:
@@ -284,6 +315,7 @@ def create_app() -> Flask:
     app.add_url_rule("/api/depend", view_func=demo_get2test_depend, methods=["POST"])
     app.add_url_rule("/api/other_field", view_func=test_other_field, methods=["POST"])
     app.add_url_rule("/api/get/<age>", view_func=test_pait, methods=["GET"])
+    app.add_url_rule("/api/mock/<age>", view_func=test_mock, methods=["GET"])
     app.add_url_rule("/api/pait_model", view_func=test_model, methods=["POST"])
     app.add_url_rule("/api/cbv", view_func=TestCbv.as_view("test_cbv"))
     app.add_url_rule("/api/check_param", view_func=test_check_param, methods=["GET"])
