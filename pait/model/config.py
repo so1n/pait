@@ -70,15 +70,15 @@ class Config(object):
 
     def init_config(
         self,
-        author: Tuple[str, ...] = ("",),
-        status: PaitStatus = PaitStatus.undefined,
+        author: Optional[Tuple[str, ...]] = None,
+        status: Optional[PaitStatus] = None,
         default_response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
         enable_mock_response: bool = False,
         enable_mock_response_filter_fn: Optional[Callable[[Type[PaitResponseModel]], bool]] = None,
         block_http_method_set: Optional[Set[str]] = None,
         json_type_default_value_dict: Optional[Dict[str, Any]] = None,
         python_type_default_value_dict: Optional[Dict[type, Any]] = None,
-        json_encoder: Type[JSONEncoder] = CustomJSONEncoder,
+        json_encoder: Optional[Type[JSONEncoder]] = None,
         default_pydantic_model_config: Optional[Type[BaseConfig]] = None,
     ) -> None:
         """
@@ -101,18 +101,24 @@ class Config(object):
         :param default_pydantic_model_config: pait route gen pydantic model default config
         :return:
         """
-        self.author = author
-        self.status = status
-        self.default_response_model_list = default_response_model_list or []
         self.enable_mock_response = enable_mock_response
-        self.enable_mock_response_filter_fn = enable_mock_response_filter_fn
 
-        self.block_http_method_set = block_http_method_set or set()
+        if author:
+            self.author = author
+        if status:
+            self.status = status
+        if default_response_model_list:
+            self.default_response_model_list = default_response_model_list
+        if enable_mock_response_filter_fn:
+            self.enable_mock_response_filter_fn = enable_mock_response_filter_fn
+        if block_http_method_set:
+            self.block_http_method_set = block_http_method_set
         if json_type_default_value_dict:
             self.json_type_default_value_dict.update(json_type_default_value_dict)
         if python_type_default_value_dict:
             self.python_type_default_value_dict.update(python_type_default_value_dict)
-        self.json_encoder = json_encoder
+        if json_encoder:
+            self.json_encoder = json_encoder
         if default_pydantic_model_config:
             self.default_pydantic_model_config = default_pydantic_model_config
 
