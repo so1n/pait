@@ -11,11 +11,14 @@ from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
 from pait.model.util import sync_config_data_to_pait_core_model
 from pait.param_handle import AsyncParamHandler, ParamHandler
+from pait.util import get_func_sig
 
 
 def pait(
     app_helper_class: "Type[BaseAppHelper]",
     make_mock_response_fn: Callable[[Type[PaitResponseModel]], Any],
+    enable_mock_response: bool = False,
+    pydantic_model_config: Optional[Type[BaseConfig]] = None,
     # param check
     pre_depend_list: Optional[List[Callable]] = None,
     at_most_one_of_list: Optional[List[List[str]]] = None,
@@ -28,9 +31,7 @@ def pait(
     status: Optional[PaitStatus] = None,
     group: Optional[str] = None,
     tag: Optional[Tuple[str, ...]] = None,
-    enable_mock_response: bool = False,
     response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
-    pydantic_model_config: Optional[Type[BaseConfig]] = None,
 ) -> Callable:
     if not isinstance(app_helper_class, type):
         raise TypeError(f"{app_helper_class} must be class")
@@ -39,7 +40,10 @@ def pait(
     app_name: str = app_helper_class.app_name
 
     def wrapper(func: Callable) -> Callable:
+        # Pre-parsing function signatures
+        get_func_sig(func)
 
+        # gen pait core model and register to pait data
         pait_core_model: PaitCoreModel = PaitCoreModel(
             author=author,
             app_helper_class=app_helper_class,

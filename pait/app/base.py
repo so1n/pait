@@ -26,7 +26,7 @@ class BaseAppHelper(object):
         Extract the required data from the passed parameters,
         such as the self parameter in cvb mode, the request parameter in starletter
         """
-        self.cbv_class: Any = None
+        self.cbv_instance: Any = class_
 
         request = None
         new_args: List[Any] = []
@@ -35,8 +35,8 @@ class BaseAppHelper(object):
                 request = param
                 # In cbv, request parameter will only appear after the self parameter
                 break
-            elif isinstance(param, class_):
-                self.cbv_class = param
+            elif param == self.cbv_instance:
+                pass
             else:
                 # In cbv, parameter like self, request, {other param}
                 # Now, not support other param

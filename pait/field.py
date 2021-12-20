@@ -32,6 +32,7 @@ class BaseField(FieldInfo):
         if self.__class__.__mro__[2] != FieldInfo:
             raise RuntimeError("Only classes that inherit BaseField can be used")
         self.raw_return = raw_return
+        self.lower_name: str = self.__class__.__name__.lower()
         if example is not MISSING:
             extra["example"] = example
         super().__init__(

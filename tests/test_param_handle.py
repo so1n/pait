@@ -114,7 +114,7 @@ class TestUtil:
     #     func_sig_list: list = []
     #     fake_app_helper: FakeAppHelper = FakeAppHelper(None, (), {})
     #     param_handle.set_parameter_value_to_args(parameter, fake_app_helper, func_sig_list)
-    #     assert func_sig_list[0] == fake_app_helper.cbv_class
+    #     assert func_sig_list[0] == fake_app_helper.cbv_instance
     #
     #     parameter = inspect.Parameter(
     #         "request",
@@ -150,7 +150,7 @@ class TestUtil:
     #     func_sig_list: list = []
     #     fake_app_helper: FakeAppHelper = FakeAppHelper(None, (), {})
     #     await param_handle.async_set_value_to_args(parameter, fake_app_helper, func_sig_list)
-    #     assert func_sig_list[0] == fake_app_helper.cbv_class
+    #     assert func_sig_list[0] == fake_app_helper.cbv_instance
     #
     #     parameter = inspect.Parameter(
     #         "request",

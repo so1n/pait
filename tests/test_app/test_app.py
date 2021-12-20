@@ -71,16 +71,16 @@ class TestApp:
 
         demo = Demo()
         # route func param: self, request, other param
-        base_app_helper: BaseAppHelper = BaseAppHelper(Demo, (demo, None, 1), {"a": 1, "b": 2, "c": 3})
+        base_app_helper: BaseAppHelper = BaseAppHelper(demo, (demo, None, 1), {"a": 1, "b": 2, "c": 3})
         assert base_app_helper.request is None
-        assert base_app_helper.cbv_class == demo
+        assert base_app_helper.cbv_instance == demo
         assert base_app_helper.request_args == [demo]
         assert base_app_helper.request_kwargs == {"a": 1, "b": 2, "c": 3}
 
         # route func param: request
-        base_app_helper = BaseAppHelper(Demo, (None,), {"a": 1, "b": 2, "c": 3})
+        base_app_helper = BaseAppHelper(None, (None,), {"a": 1, "b": 2, "c": 3})
         assert base_app_helper.request is None
-        assert base_app_helper.cbv_class is None
+        assert base_app_helper.cbv_instance is None
         assert base_app_helper.request_args == []
         assert base_app_helper.request_kwargs == {"a": 1, "b": 2, "c": 3}
 

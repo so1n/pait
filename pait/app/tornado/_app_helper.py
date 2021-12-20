@@ -18,11 +18,11 @@ class AppHelper(BaseAppHelper):
 
     def __init__(self, class_: Any, args: Tuple[Any, ...], kwargs: Mapping[str, Any]):
         super().__init__(class_, args, kwargs)
-        if not self.cbv_class:
+        if not self.cbv_instance:
             raise RuntimeError("Can not load Tornado handle")
 
-        self.request = self.cbv_class.request
-        self.path_kwargs: Dict[str, Any] = self.cbv_class.path_kwargs
+        self.request = self.cbv_instance.request
+        self.path_kwargs: Dict[str, Any] = self.cbv_instance.path_kwargs
 
     def body(self) -> dict:
         return json.loads(self.request.body.decode())

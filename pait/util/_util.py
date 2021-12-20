@@ -104,7 +104,9 @@ def gen_example_json_from_schema(schema_dict: Dict[str, Any], use_example_value:
 
 def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:
     """get class parameter list by attributes, if attributes not default value, it will be set `Undefined`"""
-    parameter_list: List["inspect.Parameter"] = []
+    parameter_list: List["inspect.Parameter"] = getattr(cbv_class, "_parameter_list", [])
+    if parameter_list:
+        return parameter_list
     if hasattr(cbv_class, "__annotations__"):
         for param_name, param_annotation in get_type_hints(cbv_class).items():
             default: Any = getattr(cbv_class, param_name, Undefined)
@@ -117,6 +119,7 @@ def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:
                 annotation=param_annotation,
             )
             parameter_list.append(parameter)
+    setattr(cbv_class, "_parameter_list", parameter_list)
     return parameter_list
 
 
