@@ -1,7 +1,24 @@
-### 0.6.3[now]
+### 0.7.x[Future]
+1. Automatically distinguish between BaseModel objects with the same name in openapi schema.
+
+2. Add a user-friendly doc ui
+
+### 0.7[Now]
+
+Simplify and optimize code logic and reduce code coupling.
+Support for closure scenarios and the addition of several parameters to @pait()
+
+- Fix: Fix, Resolve the key mismatch between Field.alias and request value
+- Fix: fix incompatibility with different fields having the same alias
+- Feature: Refactor model.config and model.core, @pait() add param `enable_mock_response`
+- Feature: Laze property support auto use class
+- Feature: Support closure cbv
+- Feature: Support for user-defined Pydantic BaseModel Config (for pait dynamically produced Pydantic BaseModel based on function parameters)
+- Feature: Api doc route support https and use @pait()
+### 0.6.3
 - Feature: Support Pre Depend
 
-### 0.6.2[Now]
+### 0.6.2
 - Feature: Support mock value anc mock fn value by Field.example attr
 - Feature: Support config json encoder
 - Fix: fix pydantic schema not support default value is None
