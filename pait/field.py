@@ -56,6 +56,13 @@ class BaseField(FieldInfo):
         )
 
     @classmethod
+    def cls_lower_name(cls) -> str:
+        return cls.__name__.lower()
+
+    def __lt__(self, other: "BaseField") -> bool:
+        return self.lower_name < other.lower_name
+
+    @classmethod
     def i(
         cls,
         default: Any = Undefined,

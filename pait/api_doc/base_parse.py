@@ -4,11 +4,36 @@ from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, get_ty
 
 from pydantic import BaseModel
 from pydantic.fields import Undefined
+from typing_extensions import TypedDict
 
 from pait.field import BaseField, Depends
 from pait.model.base_model import PaitBaseModel
 from pait.model.core import PaitCoreModel
 from pait.util import FuncSig, create_pydantic_model, get_func_sig, get_parameter_list_from_class
+
+
+class _IgnoreField(BaseField):
+    pass
+
+
+class FieldSchemaRawTypeDict(TypedDict):
+    param_name: str
+    schema: dict
+    parent_schema: dict
+    annotation: Type
+    field: BaseField
+
+
+class FieldSchemaTypeDict(TypedDict):
+    param_name: str
+    description: str
+    default: Any
+    type: str
+    other: dict
+    raw: FieldSchemaRawTypeDict
+
+
+FieldDictType = Dict[Type[BaseField], List[FieldSchemaTypeDict]]
 
 
 class PaitBaseParse(object):
@@ -35,9 +60,9 @@ class PaitBaseParse(object):
 
     def _parse_schema(
         self, schema_dict: dict, definition_dict: Optional[dict] = None, parent_key: str = ""
-    ) -> List[dict]:
+    ) -> List[FieldSchemaTypeDict]:
         """gen pait field dict from pydantic basemodel schema"""
-        field_dict_list: List[dict] = []
+        field_dict_list: List[FieldSchemaTypeDict] = []
         # model property openapi dict
         # e.g. : {'code': {'title': 'Code', 'description': 'api code', 'default': 1, 'type': 'integer'}}
         property_dict: dict = schema_dict["properties"]
@@ -68,7 +93,7 @@ class PaitBaseParse(object):
                     if "enum" in definition_dict[key]:
                         if len(param_dict["allOf"]) > 1:
                             raise RuntimeError("Not support")
-                        default: str = definition_dict[key].get("enum", self._undefined)
+                        default: Any = definition_dict[key].get("enum", self._undefined)
                         if default is not self._undefined:
                             default = f'Only choose from: {",".join(["`" + i + "`" for i in default])}'
                         _type: str = "enum"
@@ -82,6 +107,7 @@ class PaitBaseParse(object):
                 else:
                     default = param_dict.get("default", self._undefined)
                     _type = param_dict.get("type", "object()")
+
                 field_dict_list.append(
                     {
                         "param_name": all_param_name,
@@ -97,6 +123,9 @@ class PaitBaseParse(object):
                             "param_name": param_name,
                             "schema": param_dict,
                             "parent_schema": schema_dict,
+                            # can not parse annotation and field
+                            "annotation": str,
+                            "field": _IgnoreField.i(),
                         },
                     }
                 )
@@ -104,16 +133,16 @@ class PaitBaseParse(object):
 
     def _parse_base_model_to_field_dict(
         self,
-        field_dict: Dict[str, List[Dict[str, Any]]],
+        field_dict: FieldDictType,
         _pydantic_model: Type[BaseModel],
-        _pait_field_dict: Dict[str, BaseField],
+        param_field_dict: Dict[str, BaseField],
     ) -> None:
         """
-        write field dict from _pydantic_model or _pait_field_dict
+        write field_dict from _pydantic_model or param_field_dict
         :param field_dict:
           e.g.
             {
-                [
+                "Body": [
                     {
                         "param_name": "",
                         "description": "",
@@ -129,7 +158,7 @@ class PaitBaseParse(object):
                 ]
             }
         :param _pydantic_model: pydantic.basemodel
-        :param _pait_field_dict:
+        :param param_field_dict:
             e.g.
             {
                 'uid': Query(default=Ellipsis, description='user id', gt=10, lt=1000, extra={}),
@@ -143,12 +172,13 @@ class PaitBaseParse(object):
         """
         # TODO design like _parse_schema
         param_name_alias_dict: Dict[str, str] = {
-            value.alias: key for key, value in _pait_field_dict.items() if isinstance(value, BaseField) and value.alias
+            value.alias: key for key, value in param_field_dict.items() if isinstance(value, BaseField) and value.alias
         }
         property_dict: Dict[str, Any] = _pydantic_model.schema()["properties"]
         for param_name, param_dict in property_dict.items():
             param_python_name: str = param_name_alias_dict.get(param_name, param_name)
-            field_name = _pait_field_dict[param_python_name].__class__.__name__.lower()
+            pait_field: BaseField = param_field_dict[param_python_name]
+            pait_field_class: Type[BaseField] = pait_field.__class__
             if "$ref" in param_dict:
                 # ref support
                 key: str = param_dict["$ref"].split("/")[-1]
@@ -170,15 +200,15 @@ class PaitBaseParse(object):
                 if default is not self._undefined:
                     default = f'Only choose from: {",".join(["`" + i + "`" for i in default])}'
                 _type: str = "enum"
-                description: str = _pait_field_dict[param_python_name].description
+                description: str = param_field_dict[param_python_name].description
             else:
                 default = param_dict.get("default", self._undefined)
                 _type = param_dict.get("type", self._undefined)
                 description = param_dict.get("description")
             # NOTE: I do not know <pydandic.Filed(default=None)> can not found default value
             if default is self._undefined and param_name not in _pydantic_model.schema().get("required", []):
-                default = _pait_field_dict[param_python_name].default
-            _field_dict = {
+                default = param_field_dict[param_python_name].default
+            _field_dict: FieldSchemaTypeDict = {
                 "param_name": param_name,
                 "description": description,
                 "default": default,
@@ -193,32 +223,32 @@ class PaitBaseParse(object):
                     "schema": param_dict,
                     "parent_schema": _pydantic_model.schema(),
                     "annotation": _pydantic_model.__annotations__[param_python_name],
-                    "field": _pait_field_dict[param_python_name],
+                    "field": pait_field,
                 },
             }
-            if field_name not in field_dict:
-                field_dict[field_name] = [_field_dict]
+            if pait_field_class not in field_dict:
+                field_dict[pait_field_class] = [_field_dict]
             else:
-                field_dict[field_name].append(_field_dict)
+                field_dict[pait_field_class].append(_field_dict)
 
     def parameter_list_handle(
         self,
         parameter_list: List["inspect.Parameter"],
-        field_dict: Dict[str, List[Dict[str, Any]]],
+        field_dict: FieldDictType,
         single_field_list: List[Tuple[str, "inspect.Parameter"]],
     ) -> None:
-        """write field_dict or single_field_list from parameter_list"""
+        """parse parameter_list to field_dict and single_field_list"""
         for parameter in parameter_list:
             if parameter.default != parameter.empty:
                 annotation: type = parameter.annotation
                 if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
                     # def test(test_model: BaseModel = Body())
-                    _pait_field_dict: Dict[str, BaseField] = {
+                    param_filed_dict: Dict[str, BaseField] = {
                         param_name: parameter.default
-                        for param_name, annotation in get_type_hints(annotation).items()
-                        if not param_name.startswith("_")
+                        for param_name, _ in get_type_hints(annotation).items()
+                        # if not param_name.startswith("_")
                     }
-                    self._parse_base_model_to_field_dict(field_dict, annotation, _pait_field_dict)
+                    self._parse_base_model_to_field_dict(field_dict, annotation, param_filed_dict)
                 else:
                     # def test(test_model: int = Body())
                     if isinstance(parameter.default, Depends):
@@ -229,36 +259,38 @@ class PaitBaseParse(object):
             elif issubclass(parameter.annotation, PaitBaseModel):
                 # def test(test_model: PaitBaseModel)
                 _pait_model: Type[PaitBaseModel] = parameter.annotation
-                _pait_field_dict = {
+                param_filed_dict = {
                     param_name: getattr(_pait_model, param_name)
-                    for param_name, param_annotation in get_type_hints(_pait_model).items()
-                    if not param_name.startswith("_")
+                    for param_name, _ in get_type_hints(_pait_model).items()
+                    # if not param_name.startswith("_")
                 }
                 pait_base_model = _pait_model.to_pydantic_model()
-                self._parse_base_model_to_field_dict(field_dict, pait_base_model, _pait_field_dict)
+                self._parse_base_model_to_field_dict(field_dict, pait_base_model, param_filed_dict)
 
-    def _parse_func_param_to_field_dict(self, func: Callable) -> Dict[str, List[Dict[str, Any]]]:
+    def _parse_func_param_to_field_dict(self, func: Callable) -> FieldDictType:
         """gen filed dict from func
-        [
-            {
-                'field': {
-                    'param_name': str,
-                    'description': str,
-                    'default': str,
-                    'type': type,
-                    'other': dict,
-                    'raw': {
+        {
+            "Body": [
+                {
+                    'field': {
                         'param_name': str,
-                        'schema': dict,
-                        'parent_schema': pydantic base model.schema(),
-                        'annotation': annotation,
-                        'field': basefield,
+                        'description': str,
+                        'default': str,
+                        'type': type,
+                        'other': dict,
+                        'raw': {
+                            'param_name': str,
+                            'schema': dict,
+                            'parent_schema': pydantic base model.schema(),
+                            'annotation': annotation,
+                            'field': basefield,
+                        }
                     }
                 }
-            }
-        ]
+            ]
+        }
         """
-        field_dict: Dict[str, List[Dict[str, Any]]] = {}
+        field_dict: FieldDictType = {}
         func_sig: FuncSig = get_func_sig(func)
         single_field_list: List[Tuple[str, "inspect.Parameter"]] = []
 
@@ -277,6 +309,8 @@ class PaitBaseParse(object):
                 field: BaseField = parameter.default
                 key: str = field.alias or parameter.name
                 if key in _column_name_set:
+                    # Since the same name cannot exist together in a Dict,
+                    #  it will be parsed directly when a Key exists
                     # fix
                     #  class Demo(BaseModel):
                     #      header_token: str = Header(alias="token")

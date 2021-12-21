@@ -9,6 +9,8 @@ tags:
   description: test api
 - name: user
   description: user api
+- name: default
+  description: ''
 - name: get
   description: ''
 - name: depend
@@ -16,6 +18,41 @@ tags:
 - name: post
   description: ''
 paths:
+  /api/check_pre_depend_contextmanager:
+    get:
+      tags:
+      - test
+      summary: ''
+      description: ''
+      operationId: GET.test_pre_depend_contextmanager
+      parameters:
+      - name: is_raise
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Is Raise
+          default: false
+          type: boolean
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      responses:
+        200:
+          description: success response|fail response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ResponseModel'
+                - $ref: '#/components/schemas/ResponseFailModel'
   /api/check_depend_contextmanager:
     get:
       tags:
@@ -157,6 +194,57 @@ paths:
               - uid
               - user_name
               - age
+  /openapi.json:
+    get:
+      tags:
+      - default
+      summary: ''
+      description: ''
+      operationId: GET.api doc.openapi_route
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
+      responses: {}
+  /swagger:
+    get:
+      tags:
+      - default
+      summary: ''
+      description: ''
+      operationId: GET.api doc.get_swagger_ui_html
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
+      responses: {}
+  /redoc:
+    get:
+      tags:
+      - default
+      summary: ''
+      description: ''
+      operationId: GET.api doc.get_redoc_html
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
+      responses: {}
   /api/other_field:
     post:
       tags:
@@ -279,6 +367,32 @@ paths:
                 oneOf:
                 - $ref: '#/components/schemas/UserResponseModel2'
                 - $ref: '#/components/schemas/ResponseFailModel'
+  /api/same_alias:
+    get:
+      tags:
+      - user
+      - get
+      summary: ''
+      description: ''
+      operationId: GET.test_same_alias
+      parameters:
+      - name: token
+        in: header
+        required: false
+        description: ''
+        schema:
+          title: Token
+          default: ''
+          type: string
+      - name: token
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Token
+          default: ''
+          type: string
+      responses: {}
   /api/check_resp:
     get:
       tags:
@@ -567,6 +681,74 @@ paths:
                 oneOf:
                 - $ref: '#/components/schemas/UserResponseModel2'
                 - $ref: '#/components/schemas/ResponseFailModel'
+  /api/mock/{age}:
+    get:
+      tags:
+      - user
+      - get
+      summary: ''
+      description: Test Field
+      operationId: GET.test_mock
+      parameters:
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+      - name: email
+        in: query
+        required: false
+        description: user email
+        schema:
+          title: Email
+          description: user email
+          default: example@xxx.com
+          type: string
+      - name: sex
+        in: query
+        required: false
+        description: sex
+        schema:
+          title: SexEnum
+          description: An enumeration.
+          enum:
+          - man
+          - woman
+          type: string
+      - name: age
+        in: path
+        required: true
+        description: age
+        schema:
+          title: Age
+          description: age
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
+          type: integer
+      responses:
+        200:
+          description: success response|fail response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/UserResponseModel2'
+                - $ref: '#/components/schemas/ResponseFailModel'
   /api/get/{age}:
     get:
       tags:
@@ -692,7 +874,8 @@ components:
           type: integer
         sex:
           description: sex
-          default: man
+          default: !!python/object/apply:example.param_verify.model.SexEnum
+          - man
           allOf:
           - $ref: '#/components/schemas/SexEnum'
         content_type:
@@ -748,7 +931,8 @@ components:
           description: user name
           maxLength: 4
           minLength: 2
-          example: mock_name
+          example: !!python/tuple
+          - mock_name
           type: array
           items:
             type: string
@@ -756,7 +940,8 @@ components:
             maxLength: 4
         sex:
           description: sex
-          example: man
+          example: !!python/object/apply:example.param_verify.model.SexEnum
+          - man
           allOf:
           - $ref: '#/components/schemas/SexEnum'
         age:

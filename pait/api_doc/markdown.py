@@ -1,7 +1,6 @@
-import inspect
 import json
 from types import CodeType
-from typing import Any, Dict, List, Set
+from typing import Dict, List
 
 from pydantic.fields import Undefined
 
@@ -10,32 +9,33 @@ from pait.model.core import PaitCoreModel
 from pait.model.status import PaitStatus
 from pait.util import gen_example_dict_from_schema
 
-from .base_parse import PaitBaseParse  # type: ignore
+from .base_parse import FieldDictType, FieldSchemaTypeDict, PaitBaseParse  # type: ignore
 
 
 class PaitMd(PaitBaseParse):
+    """parse pait dict to md doc"""
+
     def __init__(
         self,
         pait_dict: Dict[str, PaitCoreModel],
         title: str = "Pait Doc",
         use_html_details: bool = True,
     ):
+        """
+        :param pait_dict: pait dict
+        :param title: Md title
+        :param use_html_details: Using HTML syntax-related functions
+        """
         self._use_html_details: bool = use_html_details  # some not support markdown in html
         self._title: str = title
 
         super().__init__(pait_dict)
 
-        self._field_name_set: Set[str] = set()
-        for field_class_name in dir(field):
-            class_: type = getattr(field, field_class_name, None)
-            if inspect.isclass(class_) and issubclass(class_, field.BaseField) and class_ != field.BaseField:
-                self._field_name_set.add(field_class_name.lower())
-
         self.content = self.gen_markdown_text()
         self._content_type = ".md"
 
     @staticmethod
-    def gen_md_param_table(field_dict_list: List[dict], blank_num: int = 8) -> str:
+    def gen_md_param_table(field_dict_list: List[FieldSchemaTypeDict], blank_num: int = 8) -> str:
         """
         gen param md table
         :param field_dict_list:
@@ -92,11 +92,11 @@ class PaitMd(PaitBaseParse):
                     markdown_text += f"\n\n**Desc**:{pait_model.desc}\n\n"
 
                 # func or interface details
-                func_code: CodeType = pait_model.func.__code__
+                func_code: CodeType = pait_model.func.__code__  # type: ignore
                 markdown_text += "|Author|Status|func|summary|\n"
                 markdown_text += "|---|---|---|---|\n"
                 markdown_text += (
-                    f"|{','.join(pait_model.author)}"
+                    f"|{','.join(pait_model.author) if pait_model.author else ''}"
                     f"|{status_text}"
                     f'|<abbr title="file:{pait_model.func_path or func_code.co_filename};'
                     f'line: {func_code.co_firstlineno}">'
@@ -109,20 +109,23 @@ class PaitMd(PaitBaseParse):
                 markdown_text += f"- Method: {','.join(pait_model.method_list)}\n"
                 markdown_text += "- Request:\n"
 
-                field_dict: Dict[str, List[Dict[str, Any]]] = self._parse_func_param_to_field_dict(pait_model.func)
+                field_dict: FieldDictType = self._parse_func_param_to_field_dict(pait_model.func)
                 for pre_depend in pait_model.pre_depend_list:
-                    for _field, field_dict_list in self._parse_func_param_to_field_dict(pre_depend).items():
-                        if _field not in field_dict:
-                            field_dict[_field] = field_dict_list
+                    for field_class, field_dict_list in self._parse_func_param_to_field_dict(pre_depend).items():
+                        if field_class not in field_dict:
+                            field_dict[field_class] = field_dict_list
                         else:
-                            field_dict[_field].extend(field_dict_list)
+                            field_dict[field_class].extend(field_dict_list)
+
+                # gen key, class can not sort, so replace to instance
+                field_key_list: List[field.BaseField] = sorted([i() for i in field_dict.keys()])
                 # request body info
-                field_key_list: List[str] = sorted(field_dict.keys())
-                for _field in field_key_list:
-                    if _field.lower() not in self._field_name_set:
+                for field_instance in field_key_list:
+                    field_class = field_instance.__class__
+                    if not issubclass(field_class, field.BaseField):
                         continue
-                    field_dict_list = field_dict[_field]
-                    markdown_text += f"{' ' * 4}- {_field.capitalize()} Param\n\n"
+                    field_dict_list = field_dict[field_class]
+                    markdown_text += f"{' ' * 4}- {field_class.cls_lower_name().capitalize()} Param\n\n"
                     markdown_text += self.gen_md_param_table(field_dict_list)
 
                 # response info

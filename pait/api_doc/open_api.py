@@ -14,6 +14,8 @@ from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
 from pait.util import create_pydantic_model
 
+from .base_parse import FieldDictType, FieldSchemaTypeDict
+
 __all__ = ["PaitOpenApi"]
 
 
@@ -134,11 +136,15 @@ class PaitOpenApi(PaitBaseParse):
         return "".join([item.upper() for item in name.split("_")])
 
     def _field_list_2_request_body(
-        self, media_type: str, openapi_method_dict: dict, field_dict_list: List[dict], operation_id: str
+        self,
+        media_type: str,
+        openapi_method_dict: dict,
+        field_dict_list: List[FieldSchemaTypeDict],
+        operation_id: str,
     ) -> None:
         """gen request body schema and update request body schemas'definitions to components schemas"""
         openapi_request_body_dict: dict = openapi_method_dict.setdefault("requestBody", {"content": {}})
-        annotation_dict: Dict[str, Tuple[Type, Any]] = {
+        annotation_dict: Dict[str, Tuple[Type, pait_field.BaseField]] = {
             field_dict["raw"]["param_name"]: (field_dict["raw"]["annotation"], field_dict["raw"]["field"])
             for field_dict in field_dict_list
         }
@@ -183,44 +189,42 @@ class PaitOpenApi(PaitBaseParse):
                     openapi_method_dict["operationId"] = f"{method}.{pait_model.operation_id}"
                     openapi_parameters_list: list = openapi_method_dict.setdefault("parameters", [])
                     openapi_response_dict: dict = openapi_method_dict.setdefault("responses", {})
-                    all_field_dict: Dict[str, List[Dict[str, Any]]] = self._parse_func_param_to_field_dict(
-                        pait_model.func
-                    )
+                    all_field_dict: FieldDictType = self._parse_func_param_to_field_dict(pait_model.func)
                     for pre_depend in pait_model.pre_depend_list:
-                        for field, field_dict_list in self._parse_func_param_to_field_dict(pre_depend).items():
-                            if field not in all_field_dict:
-                                all_field_dict[field] = field_dict_list
+                        for field_class, field_dict_list in self._parse_func_param_to_field_dict(pre_depend).items():
+                            if field_class not in all_field_dict:
+                                all_field_dict[field_class] = field_dict_list
                             else:
-                                all_field_dict[field].extend(field_dict_list)
+                                all_field_dict[field_class].extend(field_dict_list)
 
-                    for field, field_dict_list in all_field_dict.items():
-                        if field in (
-                            pait_field.Cookie.__name__.lower(),
-                            pait_field.Header.__name__.lower(),
-                            pait_field.Path.__name__.lower(),
-                            pait_field.Query.__name__.lower(),
+                    for field_class, field_dict_list in all_field_dict.items():
+                        if field_class in (
+                            pait_field.Cookie,
+                            pait_field.Header,
+                            pait_field.Path,
+                            pait_field.Query,
                         ):
                             for field_dict in field_dict_list:
                                 param_name: str = field_dict["raw"]["param_name"]
-                                if field == pait_field.Header.__name__.lower():
+                                if field_class == pait_field.Header:
                                     param_name = self._header_keyword_dict.get(param_name, param_name)
                                 # TODO support example
                                 openapi_parameters_list.append(
                                     {
                                         "name": param_name,
-                                        "in": field.lower(),
+                                        "in": field_class.cls_lower_name(),
                                         "required": field_dict["default"] is Undefined,
                                         # openapi description must not null
                                         "description": field_dict["description"] or "",
                                         "schema": field_dict["raw"]["schema"],
                                     }
                                 )
-                        elif field == pait_field.Body.__name__.lower():
+                        elif field_class == pait_field.Body:
                             # support args BodyField
                             self._field_list_2_request_body(
                                 "application/json", openapi_method_dict, field_dict_list, pait_model.operation_id
                             )
-                        elif field == pait_field.Form.__name__.lower():
+                        elif field_class == pait_field.Form:
                             # support args FormField
                             self._field_list_2_request_body(
                                 "application/x-www-form-urlencoded",

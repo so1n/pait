@@ -21,3 +21,6 @@ def sync_config_data_to_pait_core_model(config: "Config", pait_core_model: "Pait
         pait_core_model.pydantic_model_config = config.default_pydantic_model_config
     if kwargs.get("enable_mock_response", False) or config.enable_mock_response:
         pait_core_model.pait_func = pait_core_model.return_mock_response
+    if config.block_http_method_set:
+        pait_core_model.block_http_method_set = config.block_http_method_set
+        pait_core_model.method_list = pait_core_model.method_list
