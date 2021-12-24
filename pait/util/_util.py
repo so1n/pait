@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, get_type_hints
 from pydantic import BaseConfig, BaseModel, create_model
 
 from pait.exceptions import PaitBaseException
-from pait.field import BaseField
+from pait.field import BaseField, Depends
 from pait.g import config
 
 from ._func_sig import FuncSig
@@ -110,7 +110,7 @@ def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:
     if hasattr(cbv_class, "__annotations__"):
         for param_name, param_annotation in get_type_hints(cbv_class).items():
             default: Any = getattr(cbv_class, param_name, Undefined)
-            if not isinstance(default, BaseField):
+            if not (isinstance(default, BaseField) or isinstance(default, Depends)):
                 continue
             parameter: "inspect.Parameter" = inspect.Parameter(
                 param_name,
