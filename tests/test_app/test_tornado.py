@@ -26,7 +26,6 @@ from example.param_verify.tornado_example import TestSameAliasHandler as SameAli
 from example.param_verify.tornado_example import create_app
 from pait.app import auto_load_app
 from pait.app.tornado import TornadoTestHelper
-from pait.g import config
 
 
 @pytest.fixture
@@ -164,7 +163,6 @@ class TestTornado(AsyncHTTPTestCase):
         error_logger.assert_called_once_with("context_depend error")
 
     def test_mock_get(self) -> None:
-        config.enable_mock_response = True
         resp: dict = json.loads(
             self.fetch(
                 "/api/mock/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
@@ -182,7 +180,6 @@ class TestTornado(AsyncHTTPTestCase):
             },
             "msg": "success",
         }
-        config.enable_mock_response = False
 
     def test_depend(self) -> None:
         response: HTTPResponse = self.fetch(

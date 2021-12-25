@@ -23,7 +23,6 @@ from example.param_verify.starlette_example import test_pre_depend_contextmanage
 from example.param_verify.starlette_example import test_same_alias as same_alias_route
 from pait.app import auto_load_app
 from pait.app.starlette import StarletteTestHelper
-from pait.g import config
 
 
 @pytest.fixture
@@ -166,7 +165,6 @@ class TestStarlette:
         error_logger.assert_called_once_with("context_depend error")
 
     def test_mock_get(self, client: TestClient) -> None:
-        config.enable_mock_response = True
         resp: dict = client.get(
             "/api/mock/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
         ).json()
@@ -182,7 +180,6 @@ class TestStarlette:
             },
             "msg": "success",
         }
-        config.enable_mock_response = False
 
     def test_depend(self, client: TestClient) -> None:
         resp: dict = client.post(

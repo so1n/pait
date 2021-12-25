@@ -165,10 +165,10 @@ class BaseTestHelper(Generic[RESP_T]):
         self.method: Optional[str] = None
         if len(self.pait_core_model.method_list) == 1:
             self.method = self.pait_core_model.method_list[0]
-        elif "GET" in self.pait_core_model.method_list:
-            self.method = "GET"
-        elif "POST" in self.pait_core_model.method_list:
-            self.method = "POST"
+        else:
+            raise RuntimeError(
+                f"Pait Can not auto select method, please choice method in {self.pait_core_model.method_list}"
+            )
 
         self._app_init_field()
 
