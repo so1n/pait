@@ -53,7 +53,7 @@ class TestStarlette:
             query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
         )
         for resp in [
-            test_helper.get().json(),
+            test_helper.json(),
             client.get("/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg").json(),
         ]:
             assert resp["code"] == 0
@@ -72,15 +72,11 @@ class TestStarlette:
             check_param_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
         )
-        assert (
-            "requires at most one of param user_name or alias_user_name" in startlette_test_helper.get().json()["msg"]
-        )
+        assert "requires at most one of param user_name or alias_user_name" in startlette_test_helper.json()["msg"]
         startlette_test_helper = StarletteTestHelper(
             client, check_param_route, query_dict={"uid": 123, "sex": "man", "age": 10, "alias_user_name": "appe"}
         )
-        assert (
-            "birthday requires param alias_user_name, which if not none" in startlette_test_helper.get().json()["msg"]
-        )
+        assert "birthday requires param alias_user_name, which if not none" in startlette_test_helper.json()["msg"]
 
     def test_check_response(self, client: TestClient) -> None:
         test_helper: StarletteTestHelper = StarletteTestHelper(
@@ -89,13 +85,13 @@ class TestStarlette:
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10},
         )
         with pytest.raises(RuntimeError):
-            test_helper.get().json()
+            test_helper.json()
         test_helper = StarletteTestHelper(
             client,
             check_resp_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "display_age": 1},
         )
-        test_helper.get().json()
+        test_helper.json()
 
     def test_pre_depend_contextmanager(self, client: TestClient, mocker: MockFixture) -> None:
         error_logger = mocker.patch("example.param_verify.model.logging.error")
@@ -216,14 +212,14 @@ class TestStarlette:
             query_dict={"token": "query"},
             header_dict={"token": "header"},
         )
-        assert test_helper.get().json() == {"query_token": "query", "header_token": "header"}
+        assert test_helper.json() == {"query_token": "query", "header_token": "header"}
         test_helper = StarletteTestHelper(
             client,
             same_alias_route,
             query_dict={"token": "query1"},
             header_dict={"token": "header1"},
         )
-        assert test_helper.get().json() == {"query_token": "query1", "header_token": "header1"}
+        assert test_helper.json() == {"query_token": "query1", "header_token": "header1"}
 
     def test_post(self, client: TestClient) -> None:
         test_helper: StarletteTestHelper = StarletteTestHelper(
@@ -233,7 +229,7 @@ class TestStarlette:
             header_dict={"user-agent": "customer_agent"},
         )
         for resp in [
-            test_helper.post().json(),
+            test_helper.json(),
             client.post(
                 "/api/post",
                 headers={"user-agent": "customer_agent"},
@@ -284,7 +280,7 @@ class TestStarlette:
             form_dict={"a": "1", "b": "2", "c": ["3"]},
         )
         for resp in [
-            test_helper.post().json(),
+            test_helper.json(),
             client.post(
                 "/api/other_field",
                 data={"a": "1", "b": "2", "c": ["3"]},

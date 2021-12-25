@@ -53,7 +53,7 @@ class TestFlask:
         )
         resp_list: List[dict] = [
             client.get("/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg").get_json(),
-            flask_test_helper.get().get_json(),
+            flask_test_helper.json(),
         ]
         for resp in resp_list:
             assert resp["code"] == 0
@@ -73,13 +73,13 @@ class TestFlask:
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10},
         )
         with pytest.raises(RuntimeError):
-            flask_test_helper.get().get_json()
+            flask_test_helper.json()
         flask_test_helper = FlaskTestHelper(
             client,
             check_resp_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "display_age": 1},
         )
-        flask_test_helper.get().get_json()
+        flask_test_helper.json()
 
     def test_check_param(self, client: FlaskClient) -> None:
         flask_test_helper: FlaskTestHelper = FlaskTestHelper(
@@ -87,11 +87,11 @@ class TestFlask:
             check_param_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
         )
-        assert "requires at most one of param user_name or alias_user_name" in flask_test_helper.get().get_json()["msg"]
+        assert "requires at most one of param user_name or alias_user_name" in flask_test_helper.json()["msg"]
         flask_test_helper = FlaskTestHelper(
             client, check_param_route, query_dict={"uid": 123, "sex": "man", "age": 10, "alias_user_name": "appe"}
         )
-        assert "birthday requires param alias_user_name, which if not none" in flask_test_helper.get().get_json()["msg"]
+        assert "birthday requires param alias_user_name, which if not none" in flask_test_helper.json()["msg"]
 
     def test_pre_depend_contextmanager(self, client: FlaskClient, mocker: MockFixture) -> None:
         error_logger = mocker.patch("example.param_verify.model.logging.error")
@@ -174,14 +174,14 @@ class TestFlask:
             query_dict={"token": "query"},
             header_dict={"token": "header"},
         )
-        assert test_helper.get().get_json() == {"query_token": "query", "header_token": "header"}
+        assert test_helper.json() == {"query_token": "query", "header_token": "header"}
         test_helper = FlaskTestHelper(
             client,
             same_alias_route,
             query_dict={"token": "query1"},
             header_dict={"token": "header1"},
         )
-        assert test_helper.get().get_json() == {"query_token": "query1", "header_token": "header1"}
+        assert test_helper.json() == {"query_token": "query1", "header_token": "header1"}
 
     def test_post(self, client: FlaskClient) -> None:
         flask_test_helper: FlaskTestHelper = FlaskTestHelper(
@@ -191,7 +191,7 @@ class TestFlask:
             header_dict={"user-agent": "customer_agent"},
         )
         for resp in [
-            flask_test_helper.post().get_json(),
+            flask_test_helper.json(),
             client.post(
                 "/api/post",
                 headers={"user-agent": "customer_agent"},
@@ -239,7 +239,7 @@ class TestFlask:
 
         client.set_cookie("localhost", "abcd", "abcd")
         for resp in [
-            flask_test_helper.post().get_json(),
+            flask_test_helper.json(),
             client.post("/api/other_field", data={"a": "1", "b": "2", "upload_file": f2, "c": "3"}).get_json(),
         ]:
             assert {

@@ -283,6 +283,9 @@ class BaseTestHelper(Generic[RESP_T]):
             self._assert_response(resp)
         return resp
 
+    def json(self, method: Optional[str] = None) -> dict:
+        return self._get_json(self.request(method))
+
     def get(self) -> RESP_T:
         return self.request("GET")
 

@@ -52,8 +52,7 @@ class TestTornado(AsyncHTTPTestCase):
         response: HTTPResponse = self.fetch(
             "/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
         )
-        for resp in [test_helper.get(), response]:
-            resp_dict = json.loads(resp.body.decode())
+        for resp_dict in [test_helper.json(), json.loads(response.body.decode())]:
 
             assert resp_dict["code"] == 0
             assert resp_dict["data"] == {
@@ -71,17 +70,11 @@ class TestTornado(AsyncHTTPTestCase):
             CheckParamHandler.get,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
         )
-        assert (
-            "requires at most one of param user_name or alias_user_name"
-            in json.loads(test_helper.get().body.decode())["msg"]
-        )
+        assert "requires at most one of param user_name or alias_user_name" in test_helper.json()["msg"]
         test_helper = TornadoTestHelper(
             self, CheckParamHandler.get, query_dict={"uid": 123, "sex": "man", "age": 10, "alias_user_name": "appe"}
         )
-        assert (
-            "birthday requires param alias_user_name, which if not none"
-            in json.loads(test_helper.get().body.decode())["msg"]
-        )
+        assert "birthday requires param alias_user_name, which if not none" in test_helper.json()["msg"]
 
     def test_check_response(self) -> None:
         test_helper: TornadoTestHelper = TornadoTestHelper(
@@ -228,14 +221,14 @@ class TestTornado(AsyncHTTPTestCase):
             query_dict={"token": "query"},
             header_dict={"token": "header"},
         )
-        assert json.loads(test_helper.get().body.decode()) == {"query_token": "query", "header_token": "header"}
+        assert test_helper.json() == {"query_token": "query", "header_token": "header"}
         test_helper = TornadoTestHelper(
             self,
             SameAliasHandler.get,
             query_dict={"token": "query1"},
             header_dict={"token": "header1"},
         )
-        assert json.loads(test_helper.get().body.decode()) == {"query_token": "query1", "header_token": "header1"}
+        assert test_helper.json() == {"query_token": "query1", "header_token": "header1"}
 
     def test_post(self) -> None:
         test_helper: TornadoTestHelper = TornadoTestHelper(
@@ -250,8 +243,7 @@ class TestTornado(AsyncHTTPTestCase):
             method="POST",
             body='{"uid": 123, "user_name": "appl", "age": 2, "sex": "man"}',
         )
-        for resp in [test_helper.post(), response]:
-            resp_dict = json.loads(resp.body.decode())
+        for resp_dict in [test_helper.json(), json.loads(response.body.decode())]:
             assert resp_dict["code"] == 0
             assert resp_dict["data"] == {
                 "uid": 123,
