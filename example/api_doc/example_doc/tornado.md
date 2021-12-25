@@ -317,7 +317,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-||undefined|<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 58">add_doc_route.<locals>.GetRedocHtmlHandle.get</abbr>||
+||undefined|<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 55">add_doc_route.<locals>.GetRedocHtmlHandle.get</abbr>||
 - Path: /redoc$
 - Method: get
 - Request:
@@ -333,7 +333,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-||undefined|<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 63">add_doc_route.<locals>.GetSwaggerUiHtmlHandle.get</abbr>||
+||undefined|<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 60">add_doc_route.<locals>.GetSwaggerUiHtmlHandle.get</abbr>||
 - Path: /swagger$
 - Method: get
 - Request:
@@ -349,7 +349,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-||undefined|<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 68">add_doc_route.<locals>.OpenApiHandle.get</abbr>||
+||undefined|<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 65">add_doc_route.<locals>.OpenApiHandle.get</abbr>||
 - Path: /openapi.json$
 - Method: get
 - Request:

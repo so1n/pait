@@ -19,6 +19,7 @@ from ._pait import pait
 
 def add_doc_route(
     app: Starlette,
+    scheme: Optional[str] = None,
     prefix: str = "/",
     pin_code: str = "",
     title: str = "Pait Doc",
@@ -40,10 +41,7 @@ def add_doc_route(
         return r_pin_code
 
     def _get_open_json_url(request: Request, r_pin_code: str) -> str:
-        openapi_json_url: str = (
-            f"{request.url.scheme}://{request.url.hostname}:{request.url.port}"
-            f"{'/'.join(request.url.path.split('/')[:-1])}/openapi.json"
-        )
+        openapi_json_url: str = f"{'/'.join(request.url.path.split('/')[:-1])}/openapi.json"
         if r_pin_code:
             openapi_json_url += f"?pin_code={r_pin_code}"
         return openapi_json_url
@@ -59,12 +57,11 @@ def add_doc_route(
     @pait(pre_depend_list=[_get_request_pin_code])
     def openapi_route(request: Request) -> JSONResponse:
         pait_dict: Dict[str, PaitCoreModel] = load_app(request.app)
+        _scheme: str = scheme or request.url.scheme
         pait_openapi: PaitOpenApi = PaitOpenApi(
             pait_dict,
             title=title,
-            open_api_server_list=[
-                {"url": f"{request.url.scheme}://{request.url.hostname}:{request.url.port}", "description": ""}
-            ],
+            open_api_server_list=[{"url": f"{_scheme}://{request.url.hostname}:{request.url.port}", "description": ""}],
             open_api_tag_list=open_api_tag_list,
         )
         return JSONResponse(pait_openapi.open_api_dict)

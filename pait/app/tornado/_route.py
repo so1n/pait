@@ -17,6 +17,7 @@ __all__ = ["add_doc_route"]
 
 def add_doc_route(
     app: Application,
+    scheme: Optional[str] = None,
     prefix: str = "/",
     pin_code: str = "",
     title: str = "Pait Doc",
@@ -33,9 +34,6 @@ def add_doc_route(
 
     class BaseHandle(RequestHandler, ABC):
         def _handle_request_exception(self, exc: BaseException) -> None:
-            from traceback import format_exc
-
-            print(format_exc())
             self.set_status(404)
             self.write(
                 (
@@ -46,10 +44,7 @@ def add_doc_route(
             self.finish()
 
         def _get_open_json_url(self, r_pin_code: str) -> str:
-            openapi_json_url: str = (
-                f"{self.request.protocol}://{self.request.host}{'/'.join(self.request.path.split('/')[:-1])}"
-                f"/openapi.json"
-            )
+            openapi_json_url: str = f"{'/'.join(self.request.path.split('/')[:-1])}/openapi.json"
             if r_pin_code:
                 openapi_json_url += f"?pin_code={r_pin_code}"
             return openapi_json_url
@@ -68,10 +63,11 @@ def add_doc_route(
         @pait(pre_depend_list=[_get_request_pin_code])
         async def get(self) -> None:
             pait_dict: Dict[str, PaitCoreModel] = load_app(self.application)
+            _scheme: str = scheme or self.request.protocol
             pait_openapi: PaitOpenApi = PaitOpenApi(
                 pait_dict,
                 title=title,
-                open_api_server_list=[{"url": f"{self.request.protocol}://{self.request.host}", "description": ""}],
+                open_api_server_list=[{"url": f"{_scheme}://{self.request.host}", "description": ""}],
                 open_api_tag_list=open_api_tag_list,
             )
             self.write(pait_openapi.open_api_dict)
