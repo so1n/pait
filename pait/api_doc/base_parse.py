@@ -106,7 +106,7 @@ class PaitBaseParse(object):
                     _type = "enum"
                 else:
                     default = param_dict.get("default", self._undefined)
-                    _type = param_dict.get("type", "object()")
+                    _type = param_dict.get("type", "object")
 
                 field_dict_list.append(
                     {
@@ -242,9 +242,15 @@ class PaitBaseParse(object):
             if parameter.default != parameter.empty:
                 annotation: type = parameter.annotation
                 if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
-                    # def test(test_model: BaseModel = Body())
+                    # support def test(test_model: BaseModel = Body())
+
+                    # Adapt each property of pydantic.BaseModel to pait.field
+                    # Convert Field classes of pydantic.
+                    # Model properties to Field classes of genuine request types, such as: Body, Query, Header, etc.
                     param_filed_dict: Dict[str, BaseField] = {
-                        param_name: parameter.default
+                        param_name: parameter.default.from_pydantic_field(
+                            annotation.__fields__[param_name].field_info  # type: ignore
+                        )
                         for param_name, _ in get_type_hints(annotation).items()
                         # if not param_name.startswith("_")
                     }

@@ -37,12 +37,12 @@ class TestPaitModel(PaitBaseModel):
 
 
 class UserModel(BaseModel):
-    uid: int = Query.i(description="user id", gt=10, lt=1000)
-    user_name: str = Query.i(description="user name", min_length=2, max_length=4)
+    uid: int = Field(description="user id", gt=10, lt=1000, example="123")
+    user_name: str = Field(description="user name", min_length=2, max_length=4, example="so1n")
 
 
 class UserOtherModel(BaseModel):
-    age: int = Field(description="age", gt=1, lt=100)
+    age: int = Field(description="age", gt=1, lt=100, example=25)
 
 
 class SexEnum(str, Enum):

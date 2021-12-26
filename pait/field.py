@@ -109,6 +109,29 @@ class BaseField(FieldInfo):
             **extra,
         )
 
+    @classmethod
+    def from_pydantic_field(cls, field: FieldInfo) -> "BaseField":
+        """use replace pydantic property field"""
+        return cls(
+            field.default,
+            default_factory=field.default_factory,
+            alias=field.alias,
+            title=field.title,
+            description=field.description,
+            const=field.const,
+            gt=field.gt,
+            ge=field.ge,
+            lt=field.lt,
+            le=field.le,
+            multiple_of=field.multiple_of,
+            min_items=field.min_items,
+            max_items=field.max_items,
+            min_length=field.min_length,
+            max_length=field.max_length,
+            regex=field.regex,
+            **field.extra,
+        )
+
 
 class Body(BaseField):
     pass
