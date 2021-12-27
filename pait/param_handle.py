@@ -167,7 +167,7 @@ class BaseParamHandler(object):
             parameter_value_dict[parameter] = request_value
 
     def get_request_value_from_parameter(self, parameter: inspect.Parameter) -> Union[Any, Coroutine]:
-        field_name: str = parameter.default.lower_name
+        field_name: str = parameter.default.get_field_name()
         # Note: not use hasattr with LazyProperty (
         #   because hasattr will calling getattr(obj, name) and catching AttributeError,
         # )

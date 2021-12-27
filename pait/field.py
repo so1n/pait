@@ -6,10 +6,16 @@ from pydantic.typing import NoArgAnyCallable
 
 
 class BaseField(FieldInfo):
+    field_name: str = ""
+    media_type: str = "*/*"
+    openapi_serialization: Optional[dict] = None
+
     def __init__(
         self,
         default: Any = Undefined,
         *,
+        media_type: str = "",
+        openapi_serialization: Any = None,
         raw_return: bool = False,
         example: Any = MISSING,
         default_factory: Optional[NoArgAnyCallable] = None,
@@ -32,9 +38,10 @@ class BaseField(FieldInfo):
         if self.__class__.__mro__[2] != FieldInfo:
             raise RuntimeError("Only classes that inherit BaseField can be used")
         self.raw_return = raw_return
-        self.lower_name: str = self.__class__.__name__.lower()
         if example is not MISSING:
             extra["example"] = example
+        self.media_type = media_type or self.__class__.media_type
+        self.openapi_serialization = openapi_serialization or self.__class__.openapi_serialization
         super().__init__(
             default,
             default_factory=default_factory,
@@ -56,11 +63,11 @@ class BaseField(FieldInfo):
         )
 
     @classmethod
-    def cls_lower_name(cls) -> str:
-        return cls.__name__.lower()
+    def get_field_name(cls) -> str:
+        return cls.field_name or cls.__name__.lower()
 
     def __lt__(self, other: "BaseField") -> bool:
-        return self.lower_name < other.lower_name
+        return self.get_field_name() < other.get_field_name()
 
     @classmethod
     def i(
@@ -68,6 +75,7 @@ class BaseField(FieldInfo):
         default: Any = Undefined,
         *,
         raw_return: bool = False,
+        media_type: str = "",
         example: Any = MISSING,
         default_factory: Optional[NoArgAnyCallable] = None,
         alias: str = None,
@@ -91,6 +99,7 @@ class BaseField(FieldInfo):
             default,
             raw_return=raw_return,
             example=example,
+            media_type=media_type,
             default_factory=default_factory,
             alias=alias,
             title=title,
@@ -134,7 +143,7 @@ class BaseField(FieldInfo):
 
 
 class Body(BaseField):
-    pass
+    media_type: str = "application/json"
 
 
 class Cookie(BaseField):
@@ -142,15 +151,16 @@ class Cookie(BaseField):
 
 
 class File(BaseField):
-    pass
+    media_type: str = "multipart/form-data"
 
 
 class Form(BaseField):
-    pass
+    media_type: str = "application/x-www-form-urlencoded"
 
 
 class MultiForm(BaseField):
-    pass
+    media_type: str = "application/x-www-form-urlencoded"
+    openapi_serialization: Optional[dict] = {"style": "form", "explode": True}
 
 
 class Header(BaseField):

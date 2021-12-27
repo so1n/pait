@@ -139,9 +139,38 @@ class PaitOpenApi(PaitBaseParse):
     def _snake_name_to_hump_name(name: str) -> str:
         return "".join([item.capitalize() for item in name.split("_")])
 
+    @staticmethod
+    def _field_list_2_file_upload(
+        media_type: str,
+        openapi_method_dict: dict,
+        field_dict_list: List[FieldSchemaTypeDict],
+    ) -> None:
+        openapi_request_body_dict: dict = openapi_method_dict.setdefault("requestBody", {"content": {}})
+        required_column_list: List[str] = [
+            field_dict["raw"]["param_name"] for field_dict in field_dict_list if field_dict["default"] is Undefined
+        ]
+        properties_dict: dict = {
+            field_dict["raw"]["param_name"]: {
+                "title": field_dict["raw"]["param_name"].capitalize(),
+                "type": "string",
+                "format": "binary",
+            }
+            for field_dict in field_dict_list
+        }
+        if not openapi_request_body_dict.get("required", False):
+            if required_column_list:
+                openapi_request_body_dict["required"] = True
+        if media_type not in openapi_request_body_dict["content"]:
+            openapi_request_body_dict["content"][media_type] = {
+                "schema": {"type": "object", "properties": properties_dict, "required": required_column_list}
+            }
+        else:
+            openapi_request_body_dict["content"][media_type]["schema"]["properties"].update(properties_dict)
+            openapi_request_body_dict["content"][media_type]["schema"]["required"].extend(required_column_list)
+
     def _field_list_2_request_body(
         self,
-        media_type: str,
+        field_class: Type[pait_field.BaseField],
         openapi_method_dict: dict,
         field_dict_list: List[FieldSchemaTypeDict],
         operation_id: str,
@@ -165,7 +194,26 @@ class PaitOpenApi(PaitBaseParse):
         self._replace_pydantic_definitions(schema_dict, path)
         if "definitions" in schema_dict:
             del schema_dict["definitions"]
-        openapi_request_body_dict["content"].update({media_type: {"schema": schema_dict}})
+        if field_class.media_type in openapi_request_body_dict["content"]:
+            for key, value in openapi_request_body_dict["content"][field_class.media_type]["schema"].items():
+                if isinstance(value, list):
+                    value.extend(schema_dict[key])
+                elif isinstance(value, dict):
+                    value.update(schema_dict[key])
+        else:
+            openapi_request_body_dict["content"][field_class.media_type] = {"schema": schema_dict}
+
+        if field_class == pait_field.MultiForm:
+            if pait_field.File.media_type in openapi_request_body_dict["content"]:
+                logging.warning(f"Swagger UI could not support {operation_id} MultiForm")
+            form_encoding_dict = openapi_request_body_dict["content"][field_class.media_type].setdefault("encoding", {})
+            for field_dict in field_dict_list:
+                form_encoding_dict[field_dict["raw"]["param_name"]] = field_class.openapi_serialization
+            # TODO support payload?
+            # https://swagger.io/docs/specification/describing-request-body/
+        if field_class == pait_field.File:
+            if pait_field.MultiForm.media_type in openapi_request_body_dict["content"]:
+                logging.warning(f"Swagger UI could not support {operation_id} MultiForm")
 
     # flake8: noqa: C901
     def parse_data_2_openapi(self) -> None:
@@ -218,10 +266,13 @@ class PaitOpenApi(PaitBaseParse):
                             pait_field.Header,
                             pait_field.Path,
                             pait_field.Query,
+                            pait_field.MultiQuery,
                         ):
                             for field_dict in field_dict_list:
                                 param_name: str = field_dict["raw"]["param_name"]
                                 required: bool = field_dict["default"] is Undefined
+                                # openapi description must not null, but Field().description value is None
+                                description: str = field_dict["description"] or ""
                                 if field_class == pait_field.Header:
                                     pass
                                     # I don't know why the swagger doc tells me to do a title name conversion
@@ -235,35 +286,44 @@ class PaitOpenApi(PaitBaseParse):
                                         "That path parameters must have required: true, "
                                         "because they are always required"
                                     )
+                                elif field_class == pait_field.Cookie:
+                                    if field_dict["raw"]["field"].raw_return:
+                                        # fix swagger ui cookie type when pait_field.raw_return is True
+                                        field_dict["raw"]["schema"]["type"] = "string"
+                                    description += (
+                                        " "
+                                        "\n"
+                                        ">Note for Swagger UI and Swagger Editor users: "
+                                        " "
+                                        "\n"
+                                        ">Cookie authentication is"
+                                        'currently not supported for "try it out" requests due to browser security'
+                                        "restrictions. "
+                                        "See [this issue](https://github.com/swagger-api/swagger-js/issues/1163)"
+                                        "for more information. "
+                                        "[SwaggerHub](https://swagger.io/tools/swaggerhub/)"
+                                        "does not have this limitation. "
+                                    )
 
                                 # When the required parameter is False and schema.default is empty,
                                 # openapi will automatically read the value of schema.example
                                 openapi_parameters_list.append(
                                     {
                                         "name": param_name,
-                                        "in": field_class.cls_lower_name(),
+                                        "in": field_class.get_field_name(),
                                         "required": required,
-                                        # openapi description must not null, but Field().description value is None
-                                        "description": field_dict["description"] or "",
+                                        "description": description,
                                         "schema": field_dict["raw"]["schema"],
                                     }
                                 )
-                        elif field_class == pait_field.Body:
-                            # support args BodyField
+                        elif field_class in (pait_field.Body, pait_field.Form, pait_field.MultiForm):
                             self._field_list_2_request_body(
-                                "application/json", openapi_method_dict, field_dict_list, pait_model.operation_id
+                                field_class, openapi_method_dict, field_dict_list, pait_model.operation_id
                             )
-                        elif field_class == pait_field.Form:
-                            # support args FormField
-                            self._field_list_2_request_body(
-                                "application/x-www-form-urlencoded",
-                                openapi_method_dict,
-                                field_dict_list,
-                                pait_model.operation_id,
-                            )
+                        elif field_class in (pait_field.File,):
+                            self._field_list_2_file_upload(field_class.media_type, openapi_method_dict, field_dict_list)
                         else:
-                            # TODO
-                            pass
+                            logging.warning(f"Pait not support field:{field_class}")
 
                     if pait_model.response_model_list:
                         response_schema_dict: Dict[tuple, List[Dict[str, str]]] = {}
@@ -275,6 +335,7 @@ class PaitOpenApi(PaitBaseParse):
 
                             # fix del schema dict
                             schema_dict = copy.deepcopy(schema_dict)
+                            print(schema_dict)
                             path = f"#/components/schemas/{schema_dict['title']}"
                             self._replace_pydantic_definitions(schema_dict, path)
                             if "definitions" in schema_dict:

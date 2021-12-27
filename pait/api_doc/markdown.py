@@ -125,7 +125,7 @@ class PaitMd(PaitBaseParse):
                     if not issubclass(field_class, field.BaseField):
                         continue
                     field_dict_list = field_dict[field_class]
-                    markdown_text += f"{' ' * 4}- {field_class.cls_lower_name().capitalize()} Param\n\n"
+                    markdown_text += f"{' ' * 4}- {field_class.get_field_name().capitalize()} Param\n\n"
                     markdown_text += self.gen_md_param_table(field_dict_list)
 
                 # response info
