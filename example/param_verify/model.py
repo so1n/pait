@@ -97,30 +97,28 @@ class ResponseFailModel(ResponseModel):
     msg: str = Field("fail", description="api status msg")
 
 
-class ResponseUserModel(ResponseModel):
-    class ResponseUserDataModel(BaseModel):
-
-        uid: int = Field(666, description="user id", gt=10, lt=1000)
-        user_name: str = Field("mock_name", description="user name", min_length=2, max_length=10)
-        age: int = Field(99, description="age", gt=1, lt=100)
-        sex: SexEnum = Field(SexEnum.man, description="sex")
-        content_type: str = Field("application/json", description="content-type")
-
-        class Config:
-            use_enum_values = True
-
-    data: ResponseUserDataModel
-
-
 class UserSuccessRespModel(PaitResponseModel):
+    class ResponseModel(ResponseModel):  # type: ignore
+        class DataModel(BaseModel):
+            uid: int = Field(666, description="user id", gt=10, lt=1000)
+            user_name: str = Field("mock_name", description="user name", min_length=2, max_length=10)
+            age: int = Field(99, description="age", gt=1, lt=100)
+            sex: SexEnum = Field(SexEnum.man, description="sex")
+            content_type: str = Field("application/json", description="content-type")
+
+            class Config:
+                use_enum_values = True
+
+        data: DataModel
+
     description: str = "success response"
     header: dict = {"cookie": "xxx"}
-    response_data: Optional[Type[BaseModel]] = ResponseUserModel
+    response_data: Optional[Type[BaseModel]] = ResponseModel
 
 
 class UserSuccessRespModel2(PaitResponseModel):
-    class UserResponseModel2(ResponseModel):
-        class UserResponseData2(BaseModel):
+    class ResponseModel(ResponseModel):  # type: ignore
+        class DataModel(BaseModel):
             uid: int = Field(description="user id", gt=10, lt=1000, example=666)
             user_name: str = Field(example="mock_name", description="user name", min_length=2, max_length=10)
             multi_user_name: List[str] = Field(
@@ -133,26 +131,26 @@ class UserSuccessRespModel2(PaitResponseModel):
             class Config:
                 use_enum_values = True
 
-        data: UserResponseData2
+        data: DataModel
 
     description: str = "success response"
     header: dict = {"cookie": "xxx"}
-    response_data: Optional[Type[BaseModel]] = UserResponseModel2
+    response_data: Optional[Type[BaseModel]] = ResponseModel
 
 
 class UserSuccessRespModel3(PaitResponseModel):
-    class UserResponseModel3(ResponseModel):
-        class UserResponseData3(BaseModel):
+    class ResponseModel(ResponseModel):  # type: ignore
+        class DataModel(BaseModel):
             uid: int = Field(description="user id", gt=10, lt=1000)
             user_name: str = Field(description="user name", min_length=2, max_length=4)
             age: int = Field(description="age", gt=1, lt=100)
             email: str = Field(description="user email")
 
-        data: UserResponseData3
+        data: DataModel
 
     description: str = "success response"
     header: dict = {"cookie": "xxx"}
-    response_data: Optional[Type[BaseModel]] = UserResponseModel3
+    response_data: Optional[Type[BaseModel]] = ResponseModel
 
 
 class FailRespModel(PaitResponseModel):

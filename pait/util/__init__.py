@@ -1,5 +1,6 @@
 from ._func_sig import FuncSig, get_func_sig
 from ._lazy_property import LazyProperty
+from ._pydantic_util import pait_model_schema
 from ._util import (
     Undefined,
     UndefinedType,

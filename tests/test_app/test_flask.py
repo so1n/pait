@@ -234,20 +234,20 @@ class TestFlask:
         f2.seek(0)
 
         flask_test_helper: FlaskTestHelper = FlaskTestHelper(
-            client, other_field_route, file_dict={"upload_file": f1}, form_dict={"a": "1", "b": "2", "c": "3"}
+            client, other_field_route, file_dict={"upload_file": f1}, form_dict={"a": "1", "b": "2", "c": ["3", "4"]}
         )
 
         client.set_cookie("localhost", "abcd", "abcd")
         for resp in [
             flask_test_helper.json(),
-            client.post("/api/other_field", data={"a": "1", "b": "2", "upload_file": f2, "c": "3"}).get_json(),
+            client.post("/api/other_field", data={"a": "1", "b": "2", "upload_file": f2, "c": ["3", "4"]}).get_json(),
         ]:
             assert {
                 "filename": file_name,
                 "content": file_content,
                 "form_a": "1",
                 "form_b": "2",
-                "form_c": ["3"],
+                "form_c": ["3", "4"],
                 "cookie": {"abcd": "abcd"},
             } == resp["data"]
 

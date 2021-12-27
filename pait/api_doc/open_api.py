@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 import yaml  # type: ignore
 from pydantic import BaseModel, Field, HttpUrl
 from pydantic.fields import Undefined
+from pydantic.schema import get_long_model_name
 
 from pait import field as pait_field
 from pait.api_doc.base_parse import PaitBaseParse
@@ -13,7 +14,7 @@ from pait.g import config
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
-from pait.util import create_pydantic_model
+from pait.util import create_pydantic_model, pait_model_schema
 
 from .base_parse import FieldDictType, FieldSchemaTypeDict
 
@@ -118,7 +119,7 @@ class PaitOpenApi(PaitBaseParse):
             self.content = yaml.dump(self.open_api_dict, sort_keys=False)
             self._content_type = ".yaml"
 
-    def _replace_pydantic_definitions(self, schema: dict, path: str, parent_schema: Optional[dict] = None) -> None:
+    def _replace_pydantic_definitions(self, schema: dict, parent_schema: Optional[dict] = None) -> None:
         """update schemas'definitions to components schemas"""
         if not parent_schema:
             parent_schema = schema
@@ -129,11 +130,11 @@ class PaitOpenApi(PaitBaseParse):
                 schema[key] = f"#/components/schemas/{model_key}"
                 self.open_api_dict["components"]["schemas"][model_key] = parent_schema["definitions"][model_key]
             elif isinstance(value, dict):
-                self._replace_pydantic_definitions(value, path, parent_schema)
+                self._replace_pydantic_definitions(value, parent_schema)
             elif isinstance(value, list):
                 for item in value:
                     if isinstance(item, dict):
-                        self._replace_pydantic_definitions(item, path, parent_schema)
+                        self._replace_pydantic_definitions(item, parent_schema)
 
     @staticmethod
     def _snake_name_to_hump_name(name: str) -> str:
@@ -190,8 +191,7 @@ class PaitOpenApi(PaitBaseParse):
             annotation_dict, class_name=f"{self._snake_name_to_hump_name(operation_id)}DynamicModel"
         )
         schema_dict = copy.deepcopy(_pydantic_model.schema())
-        path = f"#/components/schemas/{schema_dict['title']}"
-        self._replace_pydantic_definitions(schema_dict, path)
+        self._replace_pydantic_definitions(schema_dict)
         if "definitions" in schema_dict:
             del schema_dict["definitions"]
         if field_class.media_type in openapi_request_body_dict["content"]:
@@ -330,19 +330,19 @@ class PaitOpenApi(PaitBaseParse):
                         for resp_model_class in pait_model.response_model_list:
                             resp_model: PaitResponseModel = resp_model_class()
                             schema_dict: dict = {}
+                            model_long_name: str = ""
                             if resp_model.response_data:
-                                schema_dict = resp_model.response_data.schema()
+                                schema_dict = pait_model_schema(resp_model.response_data)
+                                model_long_name = get_long_model_name(resp_model.response_data)
 
-                            # fix del schema dict
                             schema_dict = copy.deepcopy(schema_dict)
-                            print(schema_dict)
-                            path = f"#/components/schemas/{schema_dict['title']}"
-                            self._replace_pydantic_definitions(schema_dict, path)
+                            self._replace_pydantic_definitions(schema_dict)
                             if "definitions" in schema_dict:
+                                # fix del schema dict
                                 del schema_dict["definitions"]
                             for _status_code in resp_model.status_code:
                                 key: tuple = (_status_code, resp_model.media_type)
-                                ref_dict: dict = {"$ref": path}
+                                ref_dict: dict = {"$ref": f"#/components/schemas/{model_long_name}"}
                                 if key in response_schema_dict:
                                     response_schema_dict[key].append(ref_dict)
                                 else:
@@ -351,7 +351,7 @@ class PaitOpenApi(PaitBaseParse):
                                     openapi_response_dict[_status_code]["description"] += f"|{resp_model.description}"
                                 else:
                                     openapi_response_dict[_status_code] = {"description": resp_model.description}
-                                self.open_api_dict["components"]["schemas"].update({schema_dict["title"]: schema_dict})
+                                self.open_api_dict["components"]["schemas"].update({model_long_name: schema_dict})
                         # mutli response support
                         # only response example see https://swagger.io/docs/specification/describing-responses/   FAQ
                         for key_tuple, path_list in response_schema_dict.items():
