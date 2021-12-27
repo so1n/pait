@@ -7,7 +7,6 @@ from pydantic.fields import Undefined
 from typing_extensions import TypedDict
 
 from pait.field import BaseField, Depends
-from pait.model.base_model import PaitBaseModel
 from pait.model.core import PaitCoreModel
 from pait.util import FuncSig, create_pydantic_model, get_func_sig, get_parameter_list_from_class
 
@@ -252,7 +251,6 @@ class PaitBaseParse(object):
                             annotation.__fields__[param_name].field_info  # type: ignore
                         )
                         for param_name, _ in get_type_hints(annotation).items()
-                        # if not param_name.startswith("_")
                     }
                     self._parse_base_model_to_field_dict(field_dict, annotation, param_filed_dict)
                 else:
@@ -262,16 +260,15 @@ class PaitBaseParse(object):
                     else:
                         field_name: str = parameter.default.__class__.__name__.lower()
                         single_field_list.append((field_name, parameter))
-            elif issubclass(parameter.annotation, PaitBaseModel):
+            elif issubclass(parameter.annotation, BaseModel):
                 # def test(test_model: PaitBaseModel)
-                _pait_model: Type[PaitBaseModel] = parameter.annotation
+                _pait_model: Type[BaseModel] = parameter.annotation
                 param_filed_dict = {
-                    param_name: getattr(_pait_model, param_name)
-                    for param_name, _ in get_type_hints(_pait_model).items()
-                    # if not param_name.startswith("_")
+                    key: model_field.field_info
+                    for key, model_field in _pait_model.__fields__.items()
+                    if isinstance(model_field.field_info, BaseField)
                 }
-                pait_base_model = _pait_model.to_pydantic_model()
-                self._parse_base_model_to_field_dict(field_dict, pait_base_model, param_filed_dict)
+                self._parse_base_model_to_field_dict(field_dict, _pait_model, param_filed_dict)
 
     def _parse_func_param_to_field_dict(self, func: Callable) -> FieldDictType:
         """gen filed dict from func

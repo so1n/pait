@@ -6,7 +6,6 @@ from typing import Any, AsyncGenerator, Generator, List, Optional, Tuple, Type
 from pydantic import BaseModel, Field
 
 from pait.field import Body, Depends, Header, Query
-from pait.model.base_model import PaitBaseModel
 from pait.model.response import PaitResponseModel
 
 
@@ -29,7 +28,7 @@ class _DemoSession(object):
         self._status = False
 
 
-class TestPaitModel(PaitBaseModel):
+class TestPaitModel(BaseModel):
     uid: int = Query.i(description="user id", gt=10, lt=1000)
     user_name: str = Query.i(description="user name", min_length=2, max_length=4)
     user_agent: str = Header.i(alias="user-agent", description="user agent")

@@ -2,11 +2,11 @@ import inspect
 from typing import Any
 
 import pytest
+from pydantic import BaseModel
 from pytest_mock import MockFixture
 
 from pait import field, util
 from pait.app.base import BaseAppHelper
-from pait.model.base_model import PaitBaseModel
 
 pytestmark = pytest.mark.asyncio
 
@@ -19,7 +19,7 @@ class FakeField(field.BaseField):
     pass
 
 
-class FakePaitBaseModel(PaitBaseModel):
+class FakePaitBaseModel(BaseModel):
     a: int = field.Body.i()
 
 

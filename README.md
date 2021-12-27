@@ -131,23 +131,23 @@ Here is just a simple demo, because we write the model can be reused, so you can
 
 ### 1.2.Parameter expression supported by pait
 pait in order to facilitate the use of users, support a variety of writing methods (mainly the difference between TypeHints)
-- TypeHints is PaitBaseModel, mainly used for parameters from multiple `Field`, and want to reuse model:
+- TypeHints is BaseModel, mainly used for parameters from multiple `Field`, and want to reuse model:
 
-    PaitBaseModel can be used only for args parameters, it is the most flexible, PaitBaseModel has most of the features of Pydantic. BaseModel, which is not possible with Pydantic.:
+    BaseModel can be used only for args parameters:
     ```Python
     from pait.app.starlette import pait
     from pait.field import Body, Header
-    from pait.model.base_model import PaitBaseModel
+    from pydantic import BaseModel
     ```
 
 
-    class TestModel(PaitBaseModel):
+    class TestModel(BaseModel):
         uid: int = Body.i()
         content_type: str = Header.i(default='Content-Type')
 
 
     @pait()
-    async def test(model: PaitBaseModel):
+    async def test(model: BaseModel):
         return {'result': model.dict()}
     ```
 - TypeHints is Pydantic.BaseModel, mainly used for parameters are derived from the same `Field`, and want to take the model:

@@ -215,9 +215,9 @@
 
         |param name|type|default value|description|other|
         |---|---|---|---|---|
-        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
+        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100, 'example': 25}|
+        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000, 'example': '123'}|
+        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2, 'example': 'so1n'}|
     - Header Param
 
         |param name|type|default value|description|other|
@@ -283,7 +283,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-||undefined|<abbr title="file:example;line: 51">add_doc_route.<locals>.openapi_route</abbr>||
+||undefined|<abbr title="file:example;line: 50">add_doc_route.<locals>.openapi_route</abbr>||
 - Path: /openapi.json
 - Method: GET
 - Request:
@@ -299,7 +299,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-||undefined|<abbr title="file:example;line: 47">add_doc_route.<locals>.get_swagger_ui_html</abbr>||
+||undefined|<abbr title="file:example;line: 46">add_doc_route.<locals>.get_swagger_ui_html</abbr>||
 - Path: /swagger
 - Method: GET
 - Request:
@@ -315,7 +315,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-||undefined|<abbr title="file:example;line: 43">add_doc_route.<locals>.get_redoc_html</abbr>||
+||undefined|<abbr title="file:example;line: 42">add_doc_route.<locals>.get_redoc_html</abbr>||
 - Path: /redoc
 - Method: GET
 - Request:
@@ -565,8 +565,8 @@
 
         |param name|type|default value|description|other|
         |---|---|---|---|---|
-        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
+        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000, 'example': '123'}|
+        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2, 'example': 'so1n'}|
 - Response:
 
     - UserSuccessRespModel
@@ -639,10 +639,10 @@
 
         |param name|type|default value|description|other|
         |---|---|---|---|---|
-        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100, 'example': 25}|
         |sex|enum|Only choose from: `man`,`woman`|sex|{'enum': ['man', 'woman']}|
-        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
+        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000, 'example': '123'}|
+        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2, 'example': 'so1n'}|
     - Header Param
 
         |param name|type|default value|description|other|
@@ -720,9 +720,9 @@
 
         |param name|type|default value|description|other|
         |---|---|---|---|---|
-        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
+        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100, 'example': 25}|
+        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000, 'example': '123'}|
+        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2, 'example': 'so1n'}|
     - Header Param
 
         |param name|type|default value|description|other|
@@ -805,7 +805,7 @@
 
         |param name|type|default value|description|other|
         |---|---|---|---|---|
-        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100, 'example': 25}|
         |email|string|example@xxx.com|email||
         |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
         |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|

@@ -4,7 +4,7 @@ import inspect
 import logging
 from contextlib import AbstractAsyncContextManager, AbstractContextManager
 from types import TracebackType
-from typing import Any, Callable, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union, get_type_hints
+from typing import Any, Callable, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union
 
 from pydantic import BaseConfig, BaseModel
 
@@ -12,7 +12,6 @@ from pait import field
 from pait.app.base import BaseAppHelper
 from pait.exceptions import CheckValueError, NotFoundFieldError, PaitBaseException
 from pait.field import BaseField
-from pait.model.base_model import PaitBaseModel
 from pait.util import FuncSig, create_pydantic_model, gen_tip_exc, get_func_sig, get_parameter_list_from_class
 
 
@@ -118,7 +117,7 @@ class BaseParamHandler(object):
         elif self._app_helper.check_request_type(parameter.annotation):
             # support request param(def handle(request: Request))
             func_args.append(self._app_helper.request)
-        elif issubclass(parameter.annotation, PaitBaseModel):
+        elif issubclass(parameter.annotation, BaseModel):
             return True
         else:
             logging.warning(f"Pait not support args: {parameter}")
@@ -238,15 +237,20 @@ class ParamHandler(BaseParamHandler):
         if self._set_parameter_value_to_args(parameter, func_args):
             # support pait_model param(def handle(model: PaitBaseModel))
             single_field_dict: Dict["inspect.Parameter", Any] = {}
-            _pait_model: Type[PaitBaseModel] = parameter.annotation
-            for param_name, param_annotation in get_type_hints(_pait_model).items():
-                if param_name.startswith("_"):
-                    continue
+            _pait_model: Type[BaseModel] = parameter.annotation
+            for key, model_field in _pait_model.__fields__.items():
+                if not isinstance(model_field.field_info, BaseField):
+                    raise TypeError(f"{model_field.field_info} must instance {BaseField}")
+                annotation: Type = _pait_model.__annotations__[key]
+                print(annotation)
+                if getattr(annotation, "real", None):
+                    # support like pydantic.ConstrainedIntValue
+                    annotation = annotation.real.__objclass__  # type: ignore
                 parameter = inspect.Parameter(
-                    param_name,
+                    key,
                     inspect.Parameter.POSITIONAL_ONLY,
-                    default=getattr(_pait_model, param_name),
-                    annotation=param_annotation,
+                    default=model_field.field_info,
+                    annotation=annotation,
                 )
                 request_value: Any = self.get_request_value_from_parameter(parameter)
                 # PaitModel's attributes's annotation support BaseModel
@@ -360,15 +364,19 @@ class AsyncParamHandler(BaseParamHandler):
         if self._set_parameter_value_to_args(parameter, func_args):
             # support pait_model param(def handle(model: PaitBaseModel))
             single_field_dict: Dict["inspect.Parameter", Any] = {}
-            _pait_model: Type[PaitBaseModel] = parameter.annotation
-            for param_name, param_annotation in get_type_hints(_pait_model).items():
-                if param_name.startswith("_"):
-                    continue
+            _pait_model: Type[BaseModel] = parameter.annotation
+            for key, model_field in _pait_model.__fields__.items():
+                if not isinstance(model_field.field_info, BaseField):
+                    raise TypeError(f"{model_field.field_info} must instance {BaseField}")
+                annotation: Type = _pait_model.__annotations__[key]
+                if getattr(annotation, "real", None):
+                    # support like pydantic.ConstrainedIntValue
+                    annotation = annotation.real.__objclass__  # type: ignore
                 parameter = inspect.Parameter(
-                    param_name,
+                    key,
                     inspect.Parameter.POSITIONAL_ONLY,
-                    default=getattr(_pait_model, param_name),
-                    annotation=param_annotation,
+                    default=model_field.field_info,
+                    annotation=annotation,
                 )
                 request_value: Any = self.get_request_value_from_parameter(parameter)
                 if asyncio.iscoroutine(request_value):

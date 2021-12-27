@@ -20,6 +20,7 @@ tags:
 paths:
   /api/check_pre_depend_contextmanager:
     get:
+      group: root
       tags:
       - test
       summary: ''
@@ -55,6 +56,7 @@ paths:
                 - $ref: '#/components/schemas/ResponseFailModel'
   /api/check_depend_contextmanager:
     get:
+      group: root
       tags:
       - test
       summary: ''
@@ -90,6 +92,7 @@ paths:
                 - $ref: '#/components/schemas/ResponseFailModel'
   /api/pait_model:
     post:
+      group: root
       tags:
       - test
       summary: ''
@@ -137,7 +140,7 @@ paths:
         content:
           application/json:
             schema:
-              title: TESTMODELDynamicModel
+              title: TestModelDynamicModel
               type: object
               properties:
                 age:
@@ -150,6 +153,7 @@ paths:
               - age
   /api/raise_tip:
     post:
+      group: root
       tags:
       - test
       deprecated: true
@@ -178,17 +182,29 @@ paths:
         content:
           application/json:
             schema:
-              title: TESTRAISETIPDynamicModel
+              title: TestRaiseTipDynamicModel
               type: object
               properties:
                 uid:
                   title: Uid
+                  description: user id
+                  exclusiveMinimum: 10
+                  exclusiveMaximum: 1000
+                  example: '123'
                   type: integer
                 user_name:
                   title: User Name
+                  description: user name
+                  maxLength: 4
+                  minLength: 2
+                  example: so1n
                   type: string
                 age:
                   title: Age
+                  description: age
+                  exclusiveMinimum: 1
+                  exclusiveMaximum: 100
+                  example: 25
                   type: integer
               required:
               - uid
@@ -196,6 +212,7 @@ paths:
               - age
   /openapi.json:
     get:
+      group: root
       tags:
       - default
       summary: ''
@@ -213,6 +230,7 @@ paths:
       responses: {}
   /swagger:
     get:
+      group: root
       tags:
       - default
       summary: ''
@@ -230,6 +248,7 @@ paths:
       responses: {}
   /redoc:
     get:
+      group: root
       tags:
       - default
       summary: ''
@@ -247,6 +266,7 @@ paths:
       responses: {}
   /api/other_field:
     post:
+      group: user
       tags:
       - user
       - get
@@ -267,7 +287,7 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              title: TESTOTHERFIELDDynamicModel
+              title: TestOtherFieldDynamicModel
               type: object
               properties:
                 a:
@@ -283,6 +303,7 @@ paths:
               - b
   /api/check_param:
     get:
+      group: user
       tags:
       - user
       - get
@@ -369,6 +390,7 @@ paths:
                 - $ref: '#/components/schemas/ResponseFailModel'
   /api/same_alias:
     get:
+      group: user
       tags:
       - user
       - get
@@ -395,6 +417,7 @@ paths:
       responses: {}
   /api/check_resp:
     get:
+      group: user
       tags:
       - user
       - get
@@ -461,6 +484,7 @@ paths:
                 - $ref: '#/components/schemas/ResponseFailModel'
   /api/depend:
     post:
+      group: user
       tags:
       - user
       - depend
@@ -477,6 +501,7 @@ paths:
           description: user id
           exclusiveMinimum: 10
           exclusiveMaximum: 1000
+          example: '123'
           type: integer
       - name: user_name
         in: query
@@ -487,6 +512,7 @@ paths:
           description: user name
           maxLength: 4
           minLength: 2
+          example: so1n
           type: string
       - name: user-agent
         in: header
@@ -509,7 +535,7 @@ paths:
         content:
           application/json:
             schema:
-              title: DEMOGET2TESTDEPENDDynamicModel
+              title: DemoGet2testDependDynamicModel
               type: object
               properties:
                 age:
@@ -522,6 +548,7 @@ paths:
               - age
   /api/post:
     post:
+      group: user
       tags:
       - user
       - post
@@ -529,7 +556,7 @@ paths:
       description: Test Method:Post Pydantic Model
       operationId: POST.test_post
       parameters:
-      - name: requestBody.content.<media-type>
+      - name: Content-Type
         in: header
         required: true
         description: Content-Type
@@ -550,17 +577,29 @@ paths:
         content:
           application/json:
             schema:
-              title: TESTPOSTDynamicModel
+              title: TestPostDynamicModel
               type: object
               properties:
                 uid:
                   title: Uid
+                  description: user id
+                  exclusiveMinimum: 10
+                  exclusiveMaximum: 1000
+                  example: '123'
                   type: integer
                 user_name:
                   title: User Name
+                  description: user name
+                  maxLength: 4
+                  minLength: 2
+                  example: so1n
                   type: string
                 age:
                   title: Age
+                  description: age
+                  exclusiveMinimum: 1
+                  exclusiveMaximum: 100
+                  example: 25
                   type: integer
                 sex:
                   description: sex
@@ -573,6 +612,7 @@ paths:
               - sex
   /api/cbv:
     post:
+      group: user
       tags:
       - user
       - post
@@ -601,23 +641,36 @@ paths:
         content:
           application/json:
             schema:
-              title: TESTCBV.POSTDynamicModel
+              title: TestCbv.postDynamicModel
               type: object
               properties:
                 uid:
                   title: Uid
+                  description: user id
+                  exclusiveMinimum: 10
+                  exclusiveMaximum: 1000
+                  example: '123'
                   type: integer
                 user_name:
                   title: User Name
+                  description: user name
+                  maxLength: 4
+                  minLength: 2
+                  example: so1n
                   type: string
                 age:
                   title: Age
+                  description: age
+                  exclusiveMinimum: 1
+                  exclusiveMaximum: 100
+                  example: 25
                   type: integer
               required:
               - uid
               - user_name
               - age
     get:
+      group: user
       tags:
       - user
       - get
@@ -634,6 +687,7 @@ paths:
           description: age
           exclusiveMinimum: 1
           exclusiveMaximum: 100
+          example: 25
           type: integer
       - name: uid
         in: query
@@ -683,6 +737,7 @@ paths:
                 - $ref: '#/components/schemas/ResponseFailModel'
   /api/mock/{age}:
     get:
+      group: user
       tags:
       - user
       - get
@@ -751,6 +806,7 @@ paths:
                 - $ref: '#/components/schemas/ResponseFailModel'
   /api/get/{age}:
     get:
+      group: user
       tags:
       - user
       - get
