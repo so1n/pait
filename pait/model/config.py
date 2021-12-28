@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type
 
 from pydantic import BaseConfig
 
-from pait.model.response import PaitResponseModel
+from pait.model.response import PaitBaseResponseModel
 from pait.model.status import PaitStatus
 
 
@@ -35,9 +35,9 @@ class Config(object):
         self.author: Tuple[str, ...] = ("",)
         self.status: PaitStatus = PaitStatus.undefined
         self.enable_mock_response: bool = False
-        self.enable_mock_response_filter_fn: Optional[Callable[[Type[PaitResponseModel]], bool]] = None
+        self.enable_mock_response_filter_fn: Optional[Callable[[Type[PaitBaseResponseModel]], bool]] = None
         self.block_http_method_set: Set[str] = set()
-        self.default_response_model_list: List[Type[PaitResponseModel]] = []
+        self.default_response_model_list: List[Type[PaitBaseResponseModel]] = []
         self.json_encoder: Type[JSONEncoder] = CustomJSONEncoder
         self.json_type_default_value_dict: Dict[str, Any] = {
             "null": None,
@@ -72,9 +72,9 @@ class Config(object):
         self,
         author: Optional[Tuple[str, ...]] = None,
         status: Optional[PaitStatus] = None,
-        default_response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
+        default_response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
         enable_mock_response: bool = False,
-        enable_mock_response_filter_fn: Optional[Callable[[Type[PaitResponseModel]], bool]] = None,
+        enable_mock_response_filter_fn: Optional[Callable[[Type[PaitBaseResponseModel]], bool]] = None,
         block_http_method_set: Optional[Set[str]] = None,
         json_type_default_value_dict: Optional[Dict[str, Any]] = None,
         python_type_default_value_dict: Optional[Dict[type, Any]] = None,

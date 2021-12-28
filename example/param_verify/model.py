@@ -1,12 +1,18 @@
 import logging
 from contextlib import asynccontextmanager, contextmanager
 from enum import Enum
-from typing import Any, AsyncGenerator, Generator, List, Optional, Tuple, Type
+from typing import Any, AsyncGenerator, Generator, List, Tuple, Type
 
 from pydantic import BaseModel, Field
 
 from pait.field import Body, Depends, Header, Query
-from pait.model.response import PaitResponseModel
+from pait.model.response import (
+    PaitFileResponseModel,
+    PaitHtmlResponseModel,
+    PaitJsonResponseModel,
+    PaitResponseModel,
+    PaitTextResponseModel,
+)
 
 
 class _DemoSession(object):
@@ -113,10 +119,10 @@ class UserSuccessRespModel(PaitResponseModel):
 
     description: str = "success response"
     header: dict = {"cookie": "xxx"}
-    response_data: Optional[Type[BaseModel]] = ResponseModel
+    response_data: Type[BaseModel] = ResponseModel
 
 
-class UserSuccessRespModel2(PaitResponseModel):
+class UserSuccessRespModel2(PaitJsonResponseModel):
     class ResponseModel(ResponseModel):  # type: ignore
         class DataModel(BaseModel):
             uid: int = Field(description="user id", gt=10, lt=1000, example=666)
@@ -135,10 +141,10 @@ class UserSuccessRespModel2(PaitResponseModel):
 
     description: str = "success response"
     header: dict = {"cookie": "xxx"}
-    response_data: Optional[Type[BaseModel]] = ResponseModel
+    response_data: Type[BaseModel] = ResponseModel
 
 
-class UserSuccessRespModel3(PaitResponseModel):
+class UserSuccessRespModel3(PaitJsonResponseModel):
     class ResponseModel(ResponseModel):  # type: ignore
         class DataModel(BaseModel):
             uid: int = Field(description="user id", gt=10, lt=1000)
@@ -150,14 +156,26 @@ class UserSuccessRespModel3(PaitResponseModel):
 
     description: str = "success response"
     header: dict = {"cookie": "xxx"}
-    response_data: Optional[Type[BaseModel]] = ResponseModel
+    response_data: Type[BaseModel] = ResponseModel
 
 
-class FailRespModel(PaitResponseModel):
+class FailRespModel(PaitJsonResponseModel):
     description: str = "fail response"
-    response_data: Optional[Type[BaseModel]] = ResponseFailModel
+    response_data: Type[BaseModel] = ResponseFailModel
 
 
-class SuccessRespModel(PaitResponseModel):
+class SuccessRespModel(PaitJsonResponseModel):
     description: str = "success response"
-    response_data: Optional[Type[BaseModel]] = ResponseModel
+    response_data: Type[BaseModel] = ResponseModel
+
+
+class TextRespModel(PaitTextResponseModel):
+    description: str = "text response"
+
+
+class HtmlRespModel(PaitHtmlResponseModel):
+    description: str = "html response"
+
+
+class FileRespModel(PaitFileResponseModel):
+    description: str = "file response"

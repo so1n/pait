@@ -1,14 +1,13 @@
 import copy
 import difflib
-import inspect
 import logging
 from typing import Any, Callable, Dict, Generic, List, Mapping, Optional, Tuple, Type, TypeVar
 from urllib.parse import urlencode
 
 from pydantic import BaseModel, ValidationError
 
+from pait.model import response
 from pait.model.core import PaitCoreModel
-from pait.model.response import PaitResponseModel
 from pait.util import gen_example_dict_from_schema, gen_example_json_from_python
 
 
@@ -181,15 +180,23 @@ class BaseTestHelper(Generic[RESP_T]):
         raise NotImplementedError()
 
     @staticmethod
-    def _check_resp_status(resp: RESP_T, response_model: Type[PaitResponseModel]) -> bool:
+    def _get_status_code(resp: RESP_T) -> int:
         raise NotImplementedError()
 
     @staticmethod
-    def _check_resp_media_type(resp: RESP_T, response_model: Type[PaitResponseModel]) -> bool:
+    def _get_content_type(resp: RESP_T) -> str:
         raise NotImplementedError()
 
     @staticmethod
     def _get_json(resp: RESP_T) -> dict:
+        raise NotImplementedError()
+
+    @staticmethod
+    def _get_text(resp: RESP_T) -> str:
+        raise NotImplementedError()
+
+    @staticmethod
+    def _get_bytes(resp: RESP_T) -> bytes:
         raise NotImplementedError()
 
     def _diff_resp_dict(self, raw_resp: Any, default_resp: Any, parent_key_list: Optional[List[str]] = None) -> bool:
@@ -222,36 +229,48 @@ class BaseTestHelper(Generic[RESP_T]):
             return
 
         json_error_response_dict: Dict[Type[BaseModel], Tuple[Exception, float]] = {}
+        model_check_msg_dict: Dict[Type[response.PaitBaseResponseModel], List[str]] = {}
         for response_model in self.pait_core_model.response_model_list:
-            check_list: List[bool] = [
-                self._check_resp_status(resp, response_model),
-                self._check_resp_media_type(resp, response_model),
-            ]
-            if response_model.media_type == "application/json":
-                response_data_model: Any = response_model.response_data
-                if response_data_model:
-                    if not (inspect.isclass(response_data_model) and issubclass(response_data_model, BaseModel)):
-                        raise TypeError(f"{response_data_model} not issubclass {BaseModel}")
-                    resp_dict: Optional[dict] = self._get_json(resp)
-                    if not resp_dict:
-                        check_list.append(True)
-                        continue
-                    response_data_default_dict: dict = gen_example_dict_from_schema(response_data_model.schema())
-                    try:
-                        response_data_model(**resp_dict)
-                        check_list.append(self._diff_resp_dict(resp_dict, response_data_default_dict))
-                    except (ValidationError, RuntimeError) as e:
-                        check_list.append(False)
-                        json_error_response_dict[response_data_model] = (
-                            e,
-                            difflib.SequenceMatcher(
-                                None,
-                                str(gen_example_json_from_python(resp_dict.copy())),
-                                str(response_data_default_dict),
-                            ).quick_ratio(),
-                        )
-            if all(check_list):
+            error_msg_list: List[str] = []
+            if self._get_status_code(resp) not in response_model.status_code:
+                error_msg_list.append("check status code error")
+            if response_model.media_type not in self._get_content_type(resp):
+                error_msg_list.append("check media type error")
+
+            if issubclass(response_model, response.PaitJsonResponseModel):
+                response_data_model: Type[BaseModel] = response_model.response_data
+                resp_dict: Optional[dict] = self._get_json(resp)
+                if not resp_dict:
+                    continue
+                response_data_default_dict: dict = gen_example_dict_from_schema(response_data_model.schema())
+                try:
+                    response_data_model(**resp_dict)
+                    if not self._diff_resp_dict(resp_dict, response_data_default_dict):
+                        error_msg_list.append("check json content error")
+                except (ValidationError, RuntimeError) as e:
+                    error_msg_list.append(f"check json content error, exec: {e}")
+                    json_error_response_dict[response_data_model] = (
+                        e,
+                        difflib.SequenceMatcher(
+                            None,
+                            str(gen_example_json_from_python(resp_dict.copy())),
+                            str(response_data_default_dict),
+                        ).quick_ratio(),
+                    )
+            elif issubclass(response_model, response.PaitHtmlResponseModel) or issubclass(
+                response_model, response.PaitTextResponseModel
+            ):
+                if not isinstance(self._get_text(resp), type(response_model.response_data)):
+                    error_msg_list.append("check json content error")
+            elif issubclass(response_model, response.PaitFileResponseModel):
+                if not isinstance(self._get_bytes(resp), type(response_model.response_data)):
+                    error_msg_list.append("check json content error")
+            else:
+                raise TypeError(f"Pait not support response model:{response_model}")
+            if not error_msg_list:
                 return
+            else:
+                model_check_msg_dict[response_model] = error_msg_list
         if json_error_response_dict:
             exc: Optional[Exception] = None
             model: Optional[Type[BaseModel]] = None
@@ -263,7 +282,17 @@ class BaseTestHelper(Generic[RESP_T]):
                     model = _model
             if exc:
                 raise RuntimeError(f"maybe error:{exc} by response_model: {model}") from exc
-        raise RuntimeError(f"response check error by:{self.pait_core_model.response_model_list}.")
+        response_dict: dict = {
+            "status_code": self._get_status_code(resp),
+            "media_type": self._get_content_type(resp),
+            "obj": resp,
+        }
+        raise RuntimeError(
+            "Check Response Error. "
+            f"response error result:{model_check_msg_dict} "
+            f"total response model:{self.pait_core_model.response_model_list}. "
+            f"response info: {response_dict} "
+        )
 
     def _replace_path(self, path_str: str) -> Optional[str]:
         raise NotImplementedError()
@@ -285,6 +314,9 @@ class BaseTestHelper(Generic[RESP_T]):
 
     def json(self, method: Optional[str] = None) -> dict:
         return self._get_json(self.request(method))
+
+    def text(self, method: Optional[str] = None) -> str:
+        return self._get_text(self.request(method))
 
     def get(self) -> RESP_T:
         return self.request("GET")

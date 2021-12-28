@@ -1,16 +1,21 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple
+import time
+from tempfile import NamedTemporaryFile
+from typing import IO, Any, Dict, List, Optional, Tuple
 
-from flask import Flask, Request
+from flask import Flask, Request, Response, make_response, send_from_directory
 from flask.views import MethodView
 from pydantic import ValidationError
 
 from example.param_verify.model import (
     FailRespModel,
+    FileRespModel,
+    HtmlRespModel,
     SexEnum,
     SuccessRespModel,
     TestPaitModel,
+    TextRespModel,
     UserModel,
     UserOtherModel,
     UserSuccessRespModel,
@@ -27,6 +32,7 @@ from pait.model.status import PaitStatus
 
 
 def api_exception(exc: Exception) -> Dict[str, Any]:
+    print(exc)
     return {"code": -1, "msg": str(exc)}
 
 
@@ -319,6 +325,43 @@ class TestCbv(MethodView):
         return {"code": 0, "msg": "", "data": return_dict}
 
 
+@pait(
+    author=("so1n",),
+    status=PaitStatus.test,
+    tag=("test",),
+    response_model_list=[TextRespModel],
+)
+def test_text_response() -> Response:
+    response: Response = make_response(str(time.time()), 200)
+    response.mimetype = "text/plain"
+    return response
+
+
+@pait(
+    author=("so1n",),
+    status=PaitStatus.test,
+    tag=("test",),
+    response_model_list=[HtmlRespModel],
+)
+def test_html_response() -> str:
+    return "<H1>" + str(time.time()) + "</H1>"
+
+
+@pait(
+    author=("so1n",),
+    status=PaitStatus.test,
+    tag=("test",),
+    response_model_list=[FileRespModel],
+)
+def test_file_response() -> Response:
+    file_content: str = "Hello Word!"
+    f1: IO[bytes] = NamedTemporaryFile(delete=True)
+    f1.write(file_content.encode())
+    f1.seek(0)
+    _, f_path, f_filename = f1.name.split("/")
+    return send_from_directory("/" + f_path, f_filename)
+
+
 def create_app() -> Flask:
     app: Flask = Flask(__name__)
     add_doc_route(app)
@@ -332,6 +375,9 @@ def create_app() -> Flask:
     app.add_url_rule("/api/pait_model", view_func=test_model, methods=["POST"])
     app.add_url_rule("/api/cbv", view_func=TestCbv.as_view("test_cbv"))
     app.add_url_rule("/api/check_param", view_func=test_check_param, methods=["GET"])
+    app.add_url_rule("/api/text_resp", view_func=test_text_response, methods=["GET"])
+    app.add_url_rule("/api/html_resp", view_func=test_html_response, methods=["GET"])
+    app.add_url_rule("/api/file_resp", view_func=test_file_response, methods=["GET"])
     app.add_url_rule("/api/check_resp", view_func=test_check_response, methods=["GET"])
     app.add_url_rule("/api/check_depend_contextmanager", view_func=test_depend_contextmanager, methods=["GET"])
     app.add_url_rule("/api/check_pre_depend_contextmanager", view_func=test_pre_depend_contextmanager, methods=["GET"])

@@ -7,7 +7,7 @@ from pydantic import BaseConfig
 from pait.app.base import BaseAppHelper
 from pait.g import config, pait_data
 from pait.model.core import PaitCoreModel
-from pait.model.response import PaitResponseModel
+from pait.model.response import PaitBaseResponseModel
 from pait.model.status import PaitStatus
 from pait.model.util import sync_config_data_to_pait_core_model
 from pait.param_handle import AsyncParamHandler, ParamHandler
@@ -16,7 +16,7 @@ from pait.util import get_func_sig
 
 def pait(
     app_helper_class: "Type[BaseAppHelper]",
-    make_mock_response_fn: Callable[[Type[PaitResponseModel]], Any],
+    make_mock_response_fn: Callable[[Type[PaitBaseResponseModel]], Any],
     enable_mock_response: bool = False,
     pydantic_model_config: Optional[Type[BaseConfig]] = None,
     # param check
@@ -31,7 +31,7 @@ def pait(
     status: Optional[PaitStatus] = None,
     group: Optional[str] = None,
     tag: Optional[Tuple[str, ...]] = None,
-    response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
+    response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
 ) -> Callable:
     if not isinstance(app_helper_class, type):
         raise TypeError(f"{app_helper_class} must be class")

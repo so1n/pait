@@ -2,13 +2,12 @@ import binascii
 import json
 import os
 from io import BytesIO
-from typing import Dict, Optional, Tuple, Type
+from typing import Dict, Optional, Tuple
 
 from tornado.testing import AsyncHTTPTestCase, HTTPResponse
 
 from pait.app.base import BaseTestHelper
 from pait.model.core import PaitCoreModel
-from pait.model.response import PaitResponseModel
 
 from ._load_app import load_app
 
@@ -30,12 +29,20 @@ class TornadoTestHelper(BaseTestHelper[HTTPResponse]):
         return load_app(self.client.get_app())
 
     @staticmethod
-    def _check_resp_status(resp: HTTPResponse, response_model: Type[PaitResponseModel]) -> bool:
-        return resp.code in response_model.status_code
+    def _get_status_code(resp: HTTPResponse) -> int:
+        return resp.code
 
     @staticmethod
-    def _check_resp_media_type(resp: HTTPResponse, response_model: Type[PaitResponseModel]) -> bool:
-        return response_model.media_type in resp.headers["Content-Type"]
+    def _get_content_type(resp: HTTPResponse) -> str:
+        return resp.headers["Content-Type"]
+
+    @staticmethod
+    def _get_text(resp: HTTPResponse) -> str:
+        return resp.body.decode()
+
+    @staticmethod
+    def _get_bytes(resp: HTTPResponse) -> bytes:
+        return resp.body
 
     @staticmethod
     def _get_json(resp: HTTPResponse) -> dict:

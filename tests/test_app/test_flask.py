@@ -13,11 +13,14 @@ from example.param_verify.flask_example import create_app
 from example.param_verify.flask_example import test_check_param as check_param_route
 from example.param_verify.flask_example import test_check_response as check_resp_route
 from example.param_verify.flask_example import test_depend_contextmanager as depend_contextmanager
+from example.param_verify.flask_example import test_file_response as file_response
+from example.param_verify.flask_example import test_html_response as html_response
 from example.param_verify.flask_example import test_other_field as other_field_route
 from example.param_verify.flask_example import test_pait as pait_route
 from example.param_verify.flask_example import test_post as post_route
 from example.param_verify.flask_example import test_pre_depend_contextmanager as pre_depend_contextmanager
 from example.param_verify.flask_example import test_same_alias as same_alias_route
+from example.param_verify.flask_example import test_text_response as text_response
 from pait.app import auto_load_app
 from pait.app.flask import FlaskTestHelper
 from pait.g import config
@@ -92,6 +95,15 @@ class TestFlask:
             client, check_param_route, query_dict={"uid": 123, "sex": "man", "age": 10, "alias_user_name": "appe"}
         )
         assert "birthday requires param alias_user_name, which if not none" in flask_test_helper.json()["msg"]
+
+    def test_text_response(self, client: FlaskClient) -> None:
+        FlaskTestHelper(client, text_response).get()
+
+    def test_html_response(self, client: FlaskClient) -> None:
+        FlaskTestHelper(client, html_response).get()
+
+    def test_file_response(self, client: FlaskClient) -> None:
+        FlaskTestHelper(client, file_response).get()
 
     def test_pre_depend_contextmanager(self, client: FlaskClient, mocker: MockFixture) -> None:
         error_logger = mocker.patch("example.param_verify.model.logging.error")

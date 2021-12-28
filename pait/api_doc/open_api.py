@@ -11,7 +11,7 @@ from pait import field as pait_field
 from pait.api_doc.base_parse import PaitBaseParse
 from pait.g import config
 from pait.model.core import PaitCoreModel
-from pait.model.response import PaitResponseModel
+from pait.model.response import PaitBaseResponseModel
 from pait.model.status import PaitStatus
 from pait.util import create_pydantic_model, get_model_global_name, pait_model_schema
 
@@ -147,9 +147,9 @@ class PaitOpenApi(PaitBaseParse):
         openapi_response_dict: dict = openapi_method_dict.setdefault("responses", {})
         response_schema_dict: Dict[tuple, List[Dict[str, str]]] = {}
         for resp_model_class in pait_model.response_model_list:
-            resp_model: PaitResponseModel = resp_model_class()
+            resp_model: PaitBaseResponseModel = resp_model_class()
             global_model_name: str = ""
-            if resp_model.response_data:
+            if isinstance(resp_model.response_data, type) and issubclass(resp_model.response_data, BaseModel):
                 global_model_name = get_model_global_name(resp_model.response_data)
 
                 schema_dict: dict = copy.deepcopy(pait_model_schema(resp_model.response_data))
@@ -164,23 +164,47 @@ class PaitOpenApi(PaitBaseParse):
                 if _status_code in openapi_response_dict:
                     if resp_model.description:
                         openapi_response_dict[_status_code]["description"] += f"|{resp_model.description}"
+                    if resp_model.header:
+                        openapi_response_dict[_status_code]["headers"].update(resp_model.header)
                 else:
-                    openapi_response_dict[_status_code] = {"description": resp_model.description or ""}
+                    openapi_response_dict[_status_code] = {
+                        "description": resp_model.description or "",
+                        "headers": resp_model.header,
+                    }
+                if _status_code == 204:
+                    # 204 No Content, have no body.
+                    # To indicate the response body is empty, do not specify a content for the response
+                    continue
+                openapi_response_dict[_status_code]["content"] = {}
+
                 if global_model_name:
-                    ref_dict: dict = {"$ref": f"#/components/schemas/{global_model_name}"}
+                    openapi_schema_dict: dict = {"$ref": f"#/components/schemas/{global_model_name}"}
                     if key in response_schema_dict:
-                        response_schema_dict[key].append(ref_dict)
+                        response_schema_dict[key].append(openapi_schema_dict)
                     else:
-                        response_schema_dict[key] = [ref_dict]
+                        response_schema_dict[key] = [openapi_schema_dict]
+                elif resp_model.openapi_schema:
+                    if resp_model.media_type in openapi_response_dict[_status_code]["content"]:
+                        raise ValueError(
+                            f"{resp_model.media_type} already exists, "
+                            f"Please check {pait_model.operation_id}'s "
+                            f"response model list:{pait_model.response_model_list}"
+                        )
+                    openapi_response_dict[_status_code]["content"][resp_model.media_type] = resp_model.openapi_schema
+                else:
+                    logging.warning(
+                        f"Can not found response schema from {pait_model.operation_id}'s response model:{resp_model}"
+                    )
+
         # mutli response support
         # only response example see https://swagger.io/docs/specification/describing-responses/   FAQ
         for key_tuple, path_list in response_schema_dict.items():
             status_code, media_type = key_tuple
             if len(path_list) == 1:
-                ref_dict = path_list[0]
+                openapi_schema_dict = path_list[0]
             else:
-                ref_dict = {"oneOf": path_list}
-            openapi_response_dict[status_code]["content"] = {media_type: {"schema": ref_dict}}
+                openapi_schema_dict = {"oneOf": path_list}
+            openapi_response_dict[status_code]["content"] = {media_type: {"schema": openapi_schema_dict}}
 
     @staticmethod
     def _field_list_2_request_parameter(

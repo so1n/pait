@@ -1,10 +1,12 @@
 from importlib import import_module
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
+from pydantic import BaseConfig
+
 from pait.model.status import PaitStatus
 
 from ..model.core import PaitCoreModel  # type: ignore
-from ..model.response import PaitResponseModel  # type: ignore
+from ..model.response import PaitBaseResponseModel  # type: ignore
 from .auto_load_app import auto_load_app_class  # type: ignore
 
 
@@ -38,7 +40,10 @@ def add_doc_route(app: Any, prefix: str = "/") -> None:
 
 
 def pait(
+    enable_mock_response: bool = False,
+    pydantic_model_config: Optional[Type[BaseConfig]] = None,
     # param check
+    pre_depend_list: Optional[List[Callable]] = None,
     at_most_one_of_list: Optional[List[List[str]]] = None,
     required_by: Optional[Dict[str, List[str]]] = None,
     # doc
@@ -49,7 +54,7 @@ def pait(
     status: Optional[PaitStatus] = None,
     group: Optional[str] = None,
     tag: Optional[Tuple[str, ...]] = None,
-    response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
+    response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
 ) -> Callable:
     """provide parameter checks and type conversions for each routing function/cbv class
     Note:This is an implicit method
@@ -67,6 +72,9 @@ def pait(
     else:
         raise NotImplementedError(f"Pait not support:{load_class_app}")
     return _pait(
+        enable_mock_response=enable_mock_response,
+        pydantic_model_config=pydantic_model_config,
+        pre_depend_list=pre_depend_list,
         at_most_one_of_list=at_most_one_of_list,
         required_by=required_by,
         author=author,

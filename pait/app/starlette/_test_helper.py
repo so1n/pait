@@ -1,11 +1,10 @@
-from typing import Dict, Optional, Type
+from typing import Dict, Optional
 
 from requests import Response as _Response  # type: ignore
 from starlette.testclient import TestClient
 
 from pait.app.base import BaseTestHelper
 from pait.model.core import PaitCoreModel
-from pait.model.response import PaitResponseModel
 
 from ._load_app import load_app
 
@@ -23,12 +22,20 @@ class StarletteTestHelper(BaseTestHelper[_Response]):
         return load_app(self.client.app)  # type: ignore
 
     @staticmethod
-    def _check_resp_status(resp: _Response, response_model: Type[PaitResponseModel]) -> bool:
-        return resp.status_code in response_model.status_code
+    def _get_status_code(resp: _Response) -> int:
+        return resp.status_code
 
     @staticmethod
-    def _check_resp_media_type(resp: _Response, response_model: Type[PaitResponseModel]) -> bool:
-        return resp.headers["content-type"] == response_model.media_type
+    def _get_content_type(resp: _Response) -> str:
+        return resp.headers["content-type"]
+
+    @staticmethod
+    def _get_text(resp: _Response) -> str:
+        return resp.text
+
+    @staticmethod
+    def _get_bytes(resp: _Response) -> bytes:
+        return resp.content
 
     @staticmethod
     def _get_json(resp: _Response) -> dict:

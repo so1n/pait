@@ -4,7 +4,7 @@ from pydantic import BaseConfig
 from tornado.web import RequestHandler
 
 from pait.core import pait as _pait
-from pait.model.response import PaitResponseModel
+from pait.model import response
 from pait.model.status import PaitStatus
 from pait.util import gen_example_json_from_schema
 
@@ -13,15 +13,16 @@ from ._app_helper import AppHelper
 __all__ = ["pait"]
 
 
-def make_mock_response(pait_response: Type[PaitResponseModel]) -> Any:
+def make_mock_response(pait_response: Type[response.PaitBaseResponseModel]) -> Any:
     tornado_handle: RequestHandler = getattr(pait_response, "handle", None)
     if not tornado_handle:
         raise RuntimeError("Can not load Tornado handle")
     tornado_handle.set_status(pait_response.status_code[0])
     for key, value in pait_response.header.items():
         tornado_handle.set_header(key, value)
-    if pait_response.media_type == "application/json" and pait_response.response_data:
-        tornado_handle.write(gen_example_json_from_schema(pait_response.response_data.schema(), use_example_value=True))
+    if issubclass(pait_response, response.PaitJsonResponseModel):
+        schema_dict: dict = pait_response.response_data.schema()  # type: ignore
+        tornado_handle.write(gen_example_json_from_schema(schema_dict, use_example_value=True))
         return
     else:
         raise NotImplementedError()
@@ -41,7 +42,7 @@ def pait(
     group: Optional[str] = None,
     tag: Optional[Tuple[str, ...]] = None,
     enable_mock_response: bool = False,
-    response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
+    response_model_list: Optional[List[Type[response.PaitBaseResponseModel]]] = None,
     pydantic_model_config: Optional[Type[BaseConfig]] = None,
 ) -> Callable:
     """Help starlette provide parameter checks and type conversions for each routing function/cbv class"""

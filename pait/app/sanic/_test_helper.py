@@ -1,10 +1,9 @@
-from typing import Dict, Optional, Type
+from typing import Dict, Optional
 
 from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
 
 from pait.app.base import BaseTestHelper
 from pait.model.core import PaitCoreModel
-from pait.model.response import PaitResponseModel
 
 from ._load_app import load_app
 
@@ -22,12 +21,20 @@ class SanicTestHelper(BaseTestHelper[TestingResponse]):
         return load_app(self.client.app)
 
     @staticmethod
-    def _check_resp_status(resp: TestingResponse, response_model: Type[PaitResponseModel]) -> bool:
-        return resp.status in response_model.status_code
+    def _get_status_code(resp: TestingResponse) -> int:
+        return resp.status
 
     @staticmethod
-    def _check_resp_media_type(resp: TestingResponse, response_model: Type[PaitResponseModel]) -> bool:
-        return resp.content_type == response_model.media_type
+    def _get_content_type(resp: TestingResponse) -> str:
+        return resp.content_type
+
+    @staticmethod
+    def _get_text(resp: TestingResponse) -> str:
+        return resp.text
+
+    @staticmethod
+    def _get_bytes(resp: TestingResponse) -> bytes:
+        return resp.content
 
     @staticmethod
     def _get_json(resp: TestingResponse) -> dict:

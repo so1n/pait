@@ -6,7 +6,7 @@ from pytest_mock import MockFixture
 from pait import core, g
 from pait.app.base import BaseAppHelper
 from pait.model.core import PaitCoreModel
-from pait.model.response import PaitResponseModel
+from pait.model.response import PaitBaseResponseModel
 
 
 def demo() -> None:
@@ -25,7 +25,7 @@ class FakeAppHelper(BaseAppHelper):
 
 class TestPaitCore:
     def test_pait_core(self) -> None:
-        def make_mock_response(pait_response: Type[PaitResponseModel]) -> Any:
+        def make_mock_response(pait_response: Type[PaitBaseResponseModel]) -> Any:
             pass
 
         with pytest.raises(TypeError) as e:
@@ -50,7 +50,7 @@ class TestPaitCore:
         assert "must sub " in exec_msg
 
     def test_pait_id_not_in_data(self, mocker: MockFixture) -> None:
-        def make_mock_response(pait_response: Type[PaitResponseModel]) -> Any:
+        def make_mock_response(pait_response: Type[PaitBaseResponseModel]) -> Any:
             pass
 
         pait_core_model: PaitCoreModel = PaitCoreModel(demo, FakeAppHelper, make_mock_response)
@@ -61,7 +61,7 @@ class TestPaitCore:
         patch.assert_called_once()
 
     def test_pait_id_in_data(self) -> None:
-        def make_mock_response(pait_response: Type[PaitResponseModel]) -> Any:
+        def make_mock_response(pait_response: Type[PaitBaseResponseModel]) -> Any:
             pass
 
         pait_core_model: PaitCoreModel = PaitCoreModel(demo, FakeAppHelper, make_mock_response)

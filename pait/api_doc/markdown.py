@@ -2,6 +2,7 @@ import json
 from types import CodeType
 from typing import Dict, List, Type
 
+from pydantic import BaseModel
 from pydantic.fields import Undefined
 
 from pait import field
@@ -138,7 +139,10 @@ class PaitMd(PaitBaseParse):
                         if resp_model.header:
                             markdown_text += f"{' ' * 8}- Header\n"
                             markdown_text += f"{' ' * 12}{resp_model.header}\n"
-                        if resp_model.response_data:
+
+                        if isinstance(resp_model.response_data, type) and issubclass(
+                            resp_model.response_data, BaseModel
+                        ):
                             markdown_text += f"{' ' * 8}- Response Data\n\n"
                             field_dict_list = self._parse_schema(resp_model.response_data.schema())
                             markdown_text += self.gen_md_param_table(field_dict_list, blank_num=12)

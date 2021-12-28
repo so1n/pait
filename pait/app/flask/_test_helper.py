@@ -1,11 +1,10 @@
-from typing import Dict, Optional, Type
+from typing import Dict, Optional
 
 from flask import Response
 from flask.testing import FlaskClient
 
 from pait.app.base import BaseTestHelper
 from pait.model.core import PaitCoreModel
-from pait.model.response import PaitResponseModel
 
 from ._load_app import load_app
 
@@ -30,16 +29,24 @@ class FlaskTestHelper(BaseTestHelper[Response]):
         return load_app(self.client.application)
 
     @staticmethod
-    def _check_resp_status(resp: Response, response_model: Type[PaitResponseModel]) -> bool:
-        return resp.status_code in response_model.status_code
+    def _get_status_code(resp: Response) -> int:
+        return resp.status_code
 
     @staticmethod
-    def _check_resp_media_type(resp: Response, response_model: Type[PaitResponseModel]) -> bool:
-        return resp.mimetype == response_model.media_type
+    def _get_content_type(resp: Response) -> str:
+        return resp.mimetype or ""
 
     @staticmethod
     def _get_json(resp: Response) -> dict:
         return resp.get_json()
+
+    @staticmethod
+    def _get_text(resp: Response) -> str:
+        return resp.get_data().decode()
+
+    @staticmethod
+    def _get_bytes(resp: Response) -> bytes:
+        return resp.get_data()
 
     def _replace_path(self, path_str: str) -> Optional[str]:
         if self.path_dict and path_str[0] == "<" and path_str[-1] == ">":

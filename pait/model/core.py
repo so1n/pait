@@ -1,10 +1,11 @@
 import asyncio
 import inspect
+import logging
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
 
 from pydantic import BaseConfig
 
-from pait.model.response import PaitResponseModel
+from pait.model.response import PaitBaseResponseModel, PaitResponseModel
 from pait.model.status import PaitStatus
 
 if TYPE_CHECKING:
@@ -16,7 +17,7 @@ class PaitCoreModel(object):
         self,
         func: Callable,
         app_helper_class: "Type[BaseAppHelper]",
-        make_mock_response_fn: Callable[[Type[PaitResponseModel]], Any],
+        make_mock_response_fn: Callable[[Type[PaitBaseResponseModel]], Any],
         pre_depend_list: Optional[List[Callable]] = None,
         path: Optional[str] = None,
         openapi_path: Optional[str] = None,
@@ -29,11 +30,12 @@ class PaitCoreModel(object):
         status: Optional[PaitStatus] = None,
         group: Optional[str] = None,
         tag: Optional[Tuple[str, ...]] = None,
-        response_model_list: Optional[List[Type[PaitResponseModel]]] = None,
+        response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
     ):
+        self._response_model_list: List[Type[PaitBaseResponseModel]] = []
         self.app_helper_class: "Type[BaseAppHelper]" = app_helper_class
-        self.make_mock_response_fn: Callable[[Type[PaitResponseModel]], Any] = make_mock_response_fn
+        self.make_mock_response_fn: Callable[[Type[PaitBaseResponseModel]], Any] = make_mock_response_fn
         self.func: Callable = func  # route func
         self.pait_func: Callable = func  # route func， If `mock_response` is used, this function will be replaced
         self.pre_depend_list: List[Callable] = pre_depend_list or []
@@ -51,11 +53,13 @@ class PaitCoreModel(object):
         self.status: Optional[PaitStatus] = status  # Interface development progress (life cycle)
         self.group: str = group or "root"  # Which group this interface belongs to
         self.tag: Tuple[str, ...] = tag or ("default",)  # Interface tag
-        self.response_model_list: List[Type[PaitResponseModel]] = response_model_list or []
         self.func_path: str = ""
         self.block_http_method_set: Set[str] = set()
-        self.enable_mock_response_filter_fn: Optional[Callable[[Type[PaitResponseModel]], bool]] = None
+        self.enable_mock_response_filter_fn: Optional[Callable[[Type[PaitBaseResponseModel]], bool]] = None
         self.pydantic_model_config: Type[BaseConfig] = pydantic_model_config or BaseConfig
+
+        if response_model_list:
+            self.add_response_model_list(response_model_list)
 
     # @property
     # def author(self) -> Tuple[str, ...]:
@@ -81,10 +85,25 @@ class PaitCoreModel(object):
         _temp_set.difference_update(self.block_http_method_set)
         self._method_list = sorted(list(_temp_set))
 
+    @property
+    def response_model_list(self) -> List[Type[PaitBaseResponseModel]]:
+        return self._response_model_list
+
+    def add_response_model_list(self, response_model_list: List[Type[PaitBaseResponseModel]]) -> None:
+        for response_model in response_model_list:
+            if response_model in self._response_model_list:
+                continue
+            if issubclass(response_model, PaitResponseModel):
+                logging.warning(
+                    f"Please replace {self.operation_id}'s response model {response_model}"
+                    f" with {PaitBaseResponseModel}"
+                )
+            self._response_model_list.append(response_model)
+
     def return_mock_response(self, *args: Any, **kwargs: Any) -> Any:
         if not self.response_model_list:
             raise RuntimeError(f"{self.func} can not set response model")
-        pait_response: Optional[Type[PaitResponseModel]] = None
+        pait_response: Optional[Type[PaitBaseResponseModel]] = None
         if self.enable_mock_response_filter_fn:
             for _pait_response in self.response_model_list:
                 if self.enable_mock_response_filter_fn(_pait_response):
