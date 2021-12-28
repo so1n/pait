@@ -6,7 +6,6 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 import yaml  # type: ignore
 from pydantic import BaseModel, Field, HttpUrl
 from pydantic.fields import Undefined
-from pydantic.schema import get_long_model_name
 
 from pait import field as pait_field
 from pait.api_doc.base_parse import PaitBaseParse
@@ -14,7 +13,7 @@ from pait.g import config
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitResponseModel
 from pait.model.status import PaitStatus
-from pait.util import create_pydantic_model, pait_model_schema
+from pait.util import create_pydantic_model, get_model_global_name, pait_model_schema
 
 from .base_parse import FieldDictType, FieldSchemaTypeDict
 
@@ -146,6 +145,7 @@ class PaitOpenApi(PaitBaseParse):
         openapi_method_dict: dict,
         field_dict_list: List[FieldSchemaTypeDict],
     ) -> None:
+        """https://swagger.io/docs/specification/describing-request-body/file-upload/"""
         openapi_request_body_dict: dict = openapi_method_dict.setdefault("requestBody", {"content": {}})
         required_column_list: List[str] = [
             field_dict["raw"]["param_name"] for field_dict in field_dict_list if field_dict["default"] is Undefined
@@ -211,7 +211,6 @@ class PaitOpenApi(PaitBaseParse):
                 form_encoding_dict[field_dict["raw"]["param_name"]] = field_class.openapi_serialization
             # TODO support payload?
             # https://swagger.io/docs/specification/describing-request-body/
-        if field_class == pait_field.File:
             if pait_field.MultiForm.media_type in openapi_request_body_dict["content"]:
                 logging.warning(f"Swagger UI could not support {operation_id} MultiForm")
 
@@ -329,29 +328,32 @@ class PaitOpenApi(PaitBaseParse):
                         response_schema_dict: Dict[tuple, List[Dict[str, str]]] = {}
                         for resp_model_class in pait_model.response_model_list:
                             resp_model: PaitResponseModel = resp_model_class()
-                            schema_dict: dict = {}
-                            model_long_name: str = ""
+                            global_model_name: str = ""
                             if resp_model.response_data:
-                                schema_dict = pait_model_schema(resp_model.response_data)
-                                model_long_name = get_long_model_name(resp_model.response_data)
+                                global_model_name = get_model_global_name(resp_model.response_data)
 
-                            schema_dict = copy.deepcopy(schema_dict)
-                            self._replace_pydantic_definitions(schema_dict)
-                            if "definitions" in schema_dict:
-                                # fix del schema dict
-                                del schema_dict["definitions"]
+                                schema_dict: dict = copy.deepcopy(pait_model_schema(resp_model.response_data))
+                                self._replace_pydantic_definitions(schema_dict)
+                                if "definitions" in schema_dict:
+                                    # fix del schema dict
+                                    del schema_dict["definitions"]
+                                self.open_api_dict["components"]["schemas"].update({global_model_name: schema_dict})
+
                             for _status_code in resp_model.status_code:
                                 key: tuple = (_status_code, resp_model.media_type)
-                                ref_dict: dict = {"$ref": f"#/components/schemas/{model_long_name}"}
-                                if key in response_schema_dict:
-                                    response_schema_dict[key].append(ref_dict)
-                                else:
-                                    response_schema_dict[key] = [ref_dict]
                                 if _status_code in openapi_response_dict:
-                                    openapi_response_dict[_status_code]["description"] += f"|{resp_model.description}"
+                                    if resp_model.description:
+                                        openapi_response_dict[_status_code][
+                                            "description"
+                                        ] += f"|{resp_model.description}"
                                 else:
-                                    openapi_response_dict[_status_code] = {"description": resp_model.description}
-                                self.open_api_dict["components"]["schemas"].update({model_long_name: schema_dict})
+                                    openapi_response_dict[_status_code] = {"description": resp_model.description or ""}
+                                if global_model_name:
+                                    ref_dict: dict = {"$ref": f"#/components/schemas/{global_model_name}"}
+                                    if key in response_schema_dict:
+                                        response_schema_dict[key].append(ref_dict)
+                                    else:
+                                        response_schema_dict[key] = [ref_dict]
                         # mutli response support
                         # only response example see https://swagger.io/docs/specification/describing-responses/   FAQ
                         for key_tuple, path_list in response_schema_dict.items():

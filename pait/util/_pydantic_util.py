@@ -1,21 +1,58 @@
-from typing import TYPE_CHECKING, Any, Dict, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, Dict, Optional, Set, Type, Union
 
 from pydantic.schema import (
     default_ref_template,
     get_flat_models_from_model,
+    get_long_model_name,
     get_model,
-    get_model_name_map,
     get_schema_ref,
     model_process_schema,
+    normalize_name,
 )
 
 if TYPE_CHECKING:
     from pydantic import BaseModel
     from pydantic.dataclasses import Dataclass
-    from pydantic.schema import TypeModelSet
+    from pydantic.schema import TypeModelOrEnum, TypeModelSet
 
 
-global_flat_model_set: "TypeModelSet" = set()
+global_name_model_map = {}
+global_conflicting_names: Set[str] = set()
+
+
+def get_model_global_name(model: "TypeModelOrEnum") -> str:
+    return pait_get_model_name_map({model})[model]
+
+
+def pait_get_model_name_map(unique_models: "TypeModelSet") -> Dict["TypeModelOrEnum", str]:
+    """
+    Process a set of models and generate unique names for them to be used as keys in the JSON Schema
+    definitions. By default the names are the same as the class name. But if two models in different Python
+
+
+
+    modules have the same name (e.g. "users.Model" and "items.Model"), the generated names will be
+    based on the Python module path for those conflicting models to prevent name collisions.
+
+    :param unique_models: a Python set of models
+    :return: dict mapping models to names
+    """
+    global global_name_model_map
+    global global_conflicting_names
+
+    for model in unique_models:
+        model_name = normalize_name(model.__name__)
+        if model_name in global_conflicting_names:
+            model_name = get_long_model_name(model)
+            global_name_model_map[model_name] = model
+        elif model_name in global_name_model_map:
+            global_conflicting_names.add(model_name)
+            conflicting_model = global_name_model_map.pop(model_name)
+            global_name_model_map[get_long_model_name(conflicting_model)] = conflicting_model
+            global_name_model_map[get_long_model_name(model)] = model
+        else:
+            global_name_model_map[model_name] = model
+    return {v: k for k, v in global_name_model_map.items()}
 
 
 def pait_model_schema(
@@ -40,11 +77,9 @@ def pait_model_schema(
       sibling json file in a ``/schemas`` directory use ``"/schemas/${model}.json#"``.
     :return: dict with the JSON Schema for the passed ``model``
     """
-    global global_flat_model_set
     model = get_model(model)
     flat_models = get_flat_models_from_model(model)
-    global_flat_model_set = global_flat_model_set | flat_models
-    model_name_map = get_model_name_map(global_flat_model_set)
+    model_name_map = pait_get_model_name_map(flat_models)
     model_name = model_name_map[model]
     m_schema, m_definitions, nested_models = model_process_schema(
         model, by_alias=by_alias, model_name_map=model_name_map, ref_prefix=ref_prefix, ref_template=ref_template
