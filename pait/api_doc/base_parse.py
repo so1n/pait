@@ -331,6 +331,17 @@ class PaitBaseParse(object):
             self._parse_base_model_to_field_dict(field_dict, _pydantic_model, _pait_field_dict)
         return field_dict
 
+    def _parse_pait_model_to_field_dict(self, pait_model: PaitCoreModel) -> FieldDictType:
+        """Extracting request and response information through routing functions"""
+        all_field_dict: FieldDictType = self._parse_func_param_to_field_dict(pait_model.func)
+        for pre_depend in pait_model.pre_depend_list:
+            for field_class, field_dict_list in self._parse_func_param_to_field_dict(pre_depend).items():
+                if field_class not in all_field_dict:
+                    all_field_dict[field_class] = field_dict_list
+                else:
+                    all_field_dict[field_class].extend(field_dict_list)
+        return all_field_dict
+
     def output(self, filename: Optional[str], suffix: str = "") -> None:
         if not suffix:
             suffix = self._content_type

@@ -139,9 +139,105 @@ class PaitOpenApi(PaitBaseParse):
     def _snake_name_to_hump_name(name: str) -> str:
         return "".join([item.capitalize() for item in name.split("_")])
 
+    def _pait_model_2_response(
+        self,
+        pait_model: PaitCoreModel,
+        openapi_method_dict: dict,
+    ) -> None:
+        openapi_response_dict: dict = openapi_method_dict.setdefault("responses", {})
+        response_schema_dict: Dict[tuple, List[Dict[str, str]]] = {}
+        for resp_model_class in pait_model.response_model_list:
+            resp_model: PaitResponseModel = resp_model_class()
+            global_model_name: str = ""
+            if resp_model.response_data:
+                global_model_name = get_model_global_name(resp_model.response_data)
+
+                schema_dict: dict = copy.deepcopy(pait_model_schema(resp_model.response_data))
+                self._replace_pydantic_definitions(schema_dict)
+                if "definitions" in schema_dict:
+                    # fix del schema dict
+                    del schema_dict["definitions"]
+                self.open_api_dict["components"]["schemas"].update({global_model_name: schema_dict})
+
+            for _status_code in resp_model.status_code:
+                key: tuple = (_status_code, resp_model.media_type)
+                if _status_code in openapi_response_dict:
+                    if resp_model.description:
+                        openapi_response_dict[_status_code]["description"] += f"|{resp_model.description}"
+                else:
+                    openapi_response_dict[_status_code] = {"description": resp_model.description or ""}
+                if global_model_name:
+                    ref_dict: dict = {"$ref": f"#/components/schemas/{global_model_name}"}
+                    if key in response_schema_dict:
+                        response_schema_dict[key].append(ref_dict)
+                    else:
+                        response_schema_dict[key] = [ref_dict]
+        # mutli response support
+        # only response example see https://swagger.io/docs/specification/describing-responses/   FAQ
+        for key_tuple, path_list in response_schema_dict.items():
+            status_code, media_type = key_tuple
+            if len(path_list) == 1:
+                ref_dict = path_list[0]
+            else:
+                ref_dict = {"oneOf": path_list}
+            openapi_response_dict[status_code]["content"] = {media_type: {"schema": ref_dict}}
+
+    @staticmethod
+    def _field_list_2_request_parameter(
+        field_class: Type[pait_field.BaseField],
+        openapi_method_dict: dict,
+        field_dict_list: List[FieldSchemaTypeDict],
+    ) -> None:
+        openapi_parameters_list: list = openapi_method_dict.setdefault("parameters", [])
+        for field_dict in field_dict_list:
+            param_name: str = field_dict["raw"]["param_name"]
+            required: bool = field_dict["default"] is Undefined
+            # openapi description must not null, but Field().description value is None
+            description: str = field_dict["description"] or ""
+            if field_class == pait_field.Header:
+                pass
+                # I don't know why the swagger doc tells me to do a title name conversion
+                #  when I don't actually need one
+                # See: Header Parameters in
+                #   https://swagger.io/docs/specification/describing-parameters/
+
+                # param_name = self._header_keyword_dict.get(param_name, param_name)
+            elif field_class == pait_field.Path and not required:
+                raise ValueError("That path parameters must have required: true, " "because they are always required")
+            elif field_class == pait_field.Cookie:
+                if field_dict["raw"]["field"].raw_return:
+                    # fix swagger ui cookie type when pait_field.raw_return is True
+                    field_dict["raw"]["schema"]["type"] = "string"
+                description += (
+                    " "
+                    "\n"
+                    ">Note for Swagger UI and Swagger Editor users: "
+                    " "
+                    "\n"
+                    ">Cookie authentication is"
+                    'currently not supported for "try it out" requests due to browser security'
+                    "restrictions. "
+                    "See [this issue](https://github.com/swagger-api/swagger-js/issues/1163)"
+                    "for more information. "
+                    "[SwaggerHub](https://swagger.io/tools/swaggerhub/)"
+                    "does not have this limitation. "
+                )
+
+            # When the required parameter is False and schema.default is empty,
+            # openapi will automatically read the value of schema.example
+            openapi_parameters_list.append(
+                {
+                    "name": param_name,
+                    "in": field_class.get_field_name(),
+                    "required": required,
+                    "description": description,
+                    "schema": field_dict["raw"]["schema"],
+                }
+            )
+
     @staticmethod
     def _field_list_2_file_upload(
-        media_type: str,
+        field_class: Type[pait_field.BaseField],
         openapi_method_dict: dict,
         field_dict_list: List[FieldSchemaTypeDict],
     ) -> None:
@@ -161,13 +257,15 @@ class PaitOpenApi(PaitBaseParse):
         if not openapi_request_body_dict.get("required", False):
             if required_column_list:
                 openapi_request_body_dict["required"] = True
-        if media_type not in openapi_request_body_dict["content"]:
-            openapi_request_body_dict["content"][media_type] = {
+        if field_class.media_type not in openapi_request_body_dict["content"]:
+            openapi_request_body_dict["content"][field_class.media_type] = {
                 "schema": {"type": "object", "properties": properties_dict, "required": required_column_list}
             }
         else:
-            openapi_request_body_dict["content"][media_type]["schema"]["properties"].update(properties_dict)
-            openapi_request_body_dict["content"][media_type]["schema"]["required"].extend(required_column_list)
+            openapi_request_body_dict["content"][field_class.media_type]["schema"]["properties"].update(properties_dict)
+            openapi_request_body_dict["content"][field_class.media_type]["schema"]["required"].extend(
+                required_column_list
+            )
 
     def _field_list_2_request_body(
         self,
@@ -178,8 +276,6 @@ class PaitOpenApi(PaitBaseParse):
     ) -> None:
         """
         gen request body schema and update request body schemas'definitions to components schemas
-        Ps: Minimize the use of components, because the user may use the same name of the model
-          but the feature is different
         Doc: https://swagger.io/docs/specification/describing-request-body/
         """
         openapi_request_body_dict: dict = openapi_method_dict.setdefault("requestBody", {"content": {}})
@@ -190,8 +286,10 @@ class PaitOpenApi(PaitBaseParse):
         _pydantic_model: Type[BaseModel] = create_pydantic_model(
             annotation_dict, class_name=f"{self._snake_name_to_hump_name(operation_id)}DynamicModel"
         )
-        schema_dict = copy.deepcopy(_pydantic_model.schema())
-        self._replace_pydantic_definitions(schema_dict)
+        schema_dict = copy.deepcopy(pait_model_schema(_pydantic_model))
+        # pait will disassemble and reassemble the BaseModel, so there is no way to reuse the model in openapi.
+        # TODO support model
+        # self._replace_pydantic_definitions(schema_dict)
         if "definitions" in schema_dict:
             del schema_dict["definitions"]
         if field_class.media_type in openapi_request_body_dict["content"]:
@@ -204,15 +302,18 @@ class PaitOpenApi(PaitBaseParse):
             openapi_request_body_dict["content"][field_class.media_type] = {"schema": schema_dict}
 
         if field_class == pait_field.MultiForm:
-            if pait_field.File.media_type in openapi_request_body_dict["content"]:
-                logging.warning(f"Swagger UI could not support {operation_id} MultiForm")
+            # pait_field.File must precede pait_field.MultiForm
             form_encoding_dict = openapi_request_body_dict["content"][field_class.media_type].setdefault("encoding", {})
             for field_dict in field_dict_list:
+                if pait_field.File.media_type in openapi_request_body_dict["content"]:
+                    openapi_request_body_dict["content"][field_class.media_type]["schema"]["properties"][
+                        field_dict["raw"]["param_name"]
+                    ]["description"] += (
+                        " " " " "\n" f">Swagger UI could not support, when media_type is {pait_field.File.media_type}"
+                    )
                 form_encoding_dict[field_dict["raw"]["param_name"]] = field_class.openapi_serialization
             # TODO support payload?
             # https://swagger.io/docs/specification/describing-request-body/
-            if pait_field.MultiForm.media_type in openapi_request_body_dict["content"]:
-                logging.warning(f"Swagger UI could not support {operation_id} MultiForm")
 
     # flake8: noqa: C901
     def parse_data_2_openapi(self) -> None:
@@ -247,19 +348,12 @@ class PaitOpenApi(PaitBaseParse):
                     openapi_method_dict["description"] = pait_model.desc
                     openapi_method_dict["operationId"] = f"{method}.{pait_model.operation_id}"
 
-                    # Initialize variables
-                    openapi_parameters_list: list = openapi_method_dict.setdefault("parameters", [])
-                    openapi_response_dict: dict = openapi_method_dict.setdefault("responses", {})
-                    # Extracting request and response information through routing functions
-                    all_field_dict: FieldDictType = self._parse_func_param_to_field_dict(pait_model.func)
-                    for pre_depend in pait_model.pre_depend_list:
-                        for field_class, field_dict_list in self._parse_func_param_to_field_dict(pre_depend).items():
-                            if field_class not in all_field_dict:
-                                all_field_dict[field_class] = field_dict_list
-                            else:
-                                all_field_dict[field_class].extend(field_dict_list)
-
-                    for field_class, field_dict_list in all_field_dict.items():
+                    all_field_dict: FieldDictType = self._parse_pait_model_to_field_dict(pait_model)
+                    all_field_class_list: List[Type[pait_field.BaseField]] = sorted(
+                        [i for i in all_field_dict.keys()], key=lambda x: x.get_field_name()
+                    )
+                    for field_class in all_field_class_list:
+                        field_dict_list = all_field_dict[field_class]
                         if field_class in (
                             pait_field.Cookie,
                             pait_field.Header,
@@ -267,99 +361,15 @@ class PaitOpenApi(PaitBaseParse):
                             pait_field.Query,
                             pait_field.MultiQuery,
                         ):
-                            for field_dict in field_dict_list:
-                                param_name: str = field_dict["raw"]["param_name"]
-                                required: bool = field_dict["default"] is Undefined
-                                # openapi description must not null, but Field().description value is None
-                                description: str = field_dict["description"] or ""
-                                if field_class == pait_field.Header:
-                                    pass
-                                    # I don't know why the swagger doc tells me to do a title name conversion
-                                    #  when I don't actually need one
-                                    # See: Header Parameters in
-                                    #   https://swagger.io/docs/specification/describing-parameters/
-
-                                    # param_name = self._header_keyword_dict.get(param_name, param_name)
-                                elif field_class == pait_field.Path and not required:
-                                    raise ValueError(
-                                        "That path parameters must have required: true, "
-                                        "because they are always required"
-                                    )
-                                elif field_class == pait_field.Cookie:
-                                    if field_dict["raw"]["field"].raw_return:
-                                        # fix swagger ui cookie type when pait_field.raw_return is True
-                                        field_dict["raw"]["schema"]["type"] = "string"
-                                    description += (
-                                        " "
-                                        "\n"
-                                        ">Note for Swagger UI and Swagger Editor users: "
-                                        " "
-                                        "\n"
-                                        ">Cookie authentication is"
-                                        'currently not supported for "try it out" requests due to browser security'
-                                        "restrictions. "
-                                        "See [this issue](https://github.com/swagger-api/swagger-js/issues/1163)"
-                                        "for more information. "
-                                        "[SwaggerHub](https://swagger.io/tools/swaggerhub/)"
-                                        "does not have this limitation. "
-                                    )
-
-                                # When the required parameter is False and schema.default is empty,
-                                # openapi will automatically read the value of schema.example
-                                openapi_parameters_list.append(
-                                    {
-                                        "name": param_name,
-                                        "in": field_class.get_field_name(),
-                                        "required": required,
-                                        "description": description,
-                                        "schema": field_dict["raw"]["schema"],
-                                    }
-                                )
+                            self._field_list_2_request_parameter(field_class, openapi_method_dict, field_dict_list)
                         elif field_class in (pait_field.Body, pait_field.Form, pait_field.MultiForm):
                             self._field_list_2_request_body(
                                 field_class, openapi_method_dict, field_dict_list, pait_model.operation_id
                             )
                         elif field_class in (pait_field.File,):
-                            self._field_list_2_file_upload(field_class.media_type, openapi_method_dict, field_dict_list)
+                            self._field_list_2_file_upload(field_class, openapi_method_dict, field_dict_list)
                         else:
                             logging.warning(f"Pait not support field:{field_class}")
 
                     if pait_model.response_model_list:
-                        response_schema_dict: Dict[tuple, List[Dict[str, str]]] = {}
-                        for resp_model_class in pait_model.response_model_list:
-                            resp_model: PaitResponseModel = resp_model_class()
-                            global_model_name: str = ""
-                            if resp_model.response_data:
-                                global_model_name = get_model_global_name(resp_model.response_data)
-
-                                schema_dict: dict = copy.deepcopy(pait_model_schema(resp_model.response_data))
-                                self._replace_pydantic_definitions(schema_dict)
-                                if "definitions" in schema_dict:
-                                    # fix del schema dict
-                                    del schema_dict["definitions"]
-                                self.open_api_dict["components"]["schemas"].update({global_model_name: schema_dict})
-
-                            for _status_code in resp_model.status_code:
-                                key: tuple = (_status_code, resp_model.media_type)
-                                if _status_code in openapi_response_dict:
-                                    if resp_model.description:
-                                        openapi_response_dict[_status_code][
-                                            "description"
-                                        ] += f"|{resp_model.description}"
-                                else:
-                                    openapi_response_dict[_status_code] = {"description": resp_model.description or ""}
-                                if global_model_name:
-                                    ref_dict: dict = {"$ref": f"#/components/schemas/{global_model_name}"}
-                                    if key in response_schema_dict:
-                                        response_schema_dict[key].append(ref_dict)
-                                    else:
-                                        response_schema_dict[key] = [ref_dict]
-                        # mutli response support
-                        # only response example see https://swagger.io/docs/specification/describing-responses/   FAQ
-                        for key_tuple, path_list in response_schema_dict.items():
-                            status_code, media_type = key_tuple
-                            if len(path_list) == 1:
-                                ref_dict = path_list[0]
-                            else:
-                                ref_dict = {"oneOf": path_list}
-                            openapi_response_dict[status_code]["content"] = {media_type: {"schema": ref_dict}}
+                        self._pait_model_2_response(pait_model, openapi_method_dict)

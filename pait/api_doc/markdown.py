@@ -1,6 +1,6 @@
 import json
 from types import CodeType
-from typing import Dict, List
+from typing import Dict, List, Type
 
 from pydantic.fields import Undefined
 
@@ -109,22 +109,15 @@ class PaitMd(PaitBaseParse):
                 markdown_text += f"- Method: {','.join(pait_model.method_list)}\n"
                 markdown_text += "- Request:\n"
 
-                field_dict: FieldDictType = self._parse_func_param_to_field_dict(pait_model.func)
-                for pre_depend in pait_model.pre_depend_list:
-                    for field_class, field_dict_list in self._parse_func_param_to_field_dict(pre_depend).items():
-                        if field_class not in field_dict:
-                            field_dict[field_class] = field_dict_list
-                        else:
-                            field_dict[field_class].extend(field_dict_list)
-
-                # gen key, class can not sort, so replace to instance
-                field_key_list: List[field.BaseField] = sorted([i() for i in field_dict.keys()])
+                all_field_dict: FieldDictType = self._parse_pait_model_to_field_dict(pait_model)
+                field_class_list: List[Type[field.BaseField]] = sorted(
+                    [i for i in all_field_dict.keys()], key=lambda x: x.get_field_name()
+                )
                 # request body info
-                for field_instance in field_key_list:
-                    field_class = field_instance.__class__
+                for field_class in field_class_list:
                     if not issubclass(field_class, field.BaseField):
                         continue
-                    field_dict_list = field_dict[field_class]
+                    field_dict_list = all_field_dict[field_class]
                     markdown_text += f"{' ' * 4}- {field_class.get_field_name().capitalize()} Param\n\n"
                     markdown_text += self.gen_md_param_table(field_dict_list)
 
