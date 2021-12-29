@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Mapping, Optional
 
 from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
 
@@ -35,6 +35,10 @@ class SanicTestHelper(BaseTestHelper[TestingResponse]):
     @staticmethod
     def _get_bytes(resp: TestingResponse) -> bytes:
         return resp.content
+
+    @staticmethod
+    def _get_headers(resp: TestingResponse) -> Mapping:
+        return resp.headers
 
     @staticmethod
     def _get_json(resp: TestingResponse) -> dict:

@@ -1,14 +1,16 @@
 import inspect
 import json
 import logging
+from datetime import datetime
+from decimal import Decimal
 from enum import Enum
+from json import JSONEncoder
 from typing import Any, Dict, List, Optional, Tuple, Type, get_type_hints
 
 from pydantic import BaseConfig, BaseModel, create_model
 
 from pait.exceptions import PaitBaseException
 from pait.field import BaseField, Depends
-from pait.g import config
 
 from ._func_sig import FuncSig
 
@@ -20,6 +22,29 @@ class UndefinedType:
 
 # pait undefined flag
 Undefined: UndefinedType = UndefinedType()
+
+json_type_default_value_dict: Dict[str, Any] = {
+    "null": None,
+    "bool": True,
+    "boolean": True,
+    "string": "",
+    "number": 0.0,
+    "float": 0.0,
+    "integer": 0,
+    "object": {},
+    "array": [],
+}
+
+python_type_default_value_dict: Dict[type, Any] = {
+    bool: True,
+    float: 0.0,
+    int: 0,
+    str: "",
+    list: [],
+    tuple: [],
+    datetime: 0,
+    Decimal: 0,
+}
 
 
 def create_pydantic_model(
@@ -45,16 +70,15 @@ def create_pydantic_model(
 
 def gen_example_json_from_python(obj: Any) -> Any:
     if isinstance(obj, dict):
+        new_dict: dict = {}
         for key, value in obj.items():
-            obj[key] = gen_example_json_from_python(value)
-        return obj
+            new_dict[key] = gen_example_json_from_python(value)
+        return new_dict
     else:
-        return config.python_type_default_value_dict.get(type(obj), obj)
+        return python_type_default_value_dict.get(type(obj), obj)
 
 
-def gen_example_dict_from_schema(
-    schema_dict: Dict[str, Any], use_example_value: bool = False, definition_dict: Optional[dict] = None
-) -> Dict[str, Any]:
+def gen_example_dict_from_schema(schema_dict: Dict[str, Any], definition_dict: Optional[dict] = None) -> Dict[str, Any]:
     gen_dict: Dict[str, Any] = {}
     property_dict: Dict[str, Any] = schema_dict["properties"]
     if not definition_dict:
@@ -65,18 +89,12 @@ def gen_example_dict_from_schema(
         if "items" in value and value["type"] == "array":
             if "$ref" in value["items"]:
                 model_key: str = value["items"]["$ref"].split("/")[-1]
-                gen_dict[key] = [
-                    gen_example_dict_from_schema(
-                        _definition_dict.get(model_key, {}), use_example_value, _definition_dict
-                    )
-                ]
+                gen_dict[key] = [gen_example_dict_from_schema(_definition_dict.get(model_key, {}), _definition_dict)]
             else:
                 gen_dict[key] = []
         elif "$ref" in value:
             model_key = value["$ref"].split("/")[-1]
-            gen_dict[key] = gen_example_dict_from_schema(
-                _definition_dict.get(model_key, {}), use_example_value, _definition_dict
-            )
+            gen_dict[key] = gen_example_dict_from_schema(_definition_dict.get(model_key, {}), _definition_dict)
         else:
             if "example" in value:
                 gen_dict[key] = value["example"]
@@ -86,20 +104,18 @@ def gen_example_dict_from_schema(
                 gen_dict[key] = value["default"]
             else:
                 if "type" in value:
-                    if value["type"] not in config.json_type_default_value_dict:
+                    if value["type"] not in json_type_default_value_dict:
                         raise KeyError(f"Can not found type: {key} in json type")
-                    gen_dict[key] = config.json_type_default_value_dict[value["type"]]
+                    gen_dict[key] = json_type_default_value_dict[value["type"]]
                 else:
-                    gen_dict[key] = "object()"
+                    gen_dict[key] = "object"
             if isinstance(gen_dict[key], Enum):
                 gen_dict[key] = gen_dict[key].value
     return gen_dict
 
 
-def gen_example_json_from_schema(schema_dict: Dict[str, Any], use_example_value: bool) -> str:
-    return json.dumps(
-        gen_example_dict_from_schema(schema_dict, use_example_value=use_example_value), cls=config.json_encoder
-    )
+def gen_example_json_from_schema(schema_dict: Dict[str, Any], cls: Optional[Type[JSONEncoder]] = None) -> str:
+    return json.dumps(gen_example_dict_from_schema(schema_dict), cls=cls)
 
 
 def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:

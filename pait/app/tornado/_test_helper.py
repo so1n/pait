@@ -2,7 +2,7 @@ import binascii
 import json
 import os
 from io import BytesIO
-from typing import Dict, Optional, Tuple
+from typing import Dict, Mapping, Optional, Tuple
 
 from tornado.testing import AsyncHTTPTestCase, HTTPResponse
 
@@ -47,6 +47,10 @@ class TornadoTestHelper(BaseTestHelper[HTTPResponse]):
     @staticmethod
     def _get_json(resp: HTTPResponse) -> dict:
         return json.loads(resp.body.decode())
+
+    @staticmethod
+    def _get_headers(resp: HTTPResponse) -> Mapping:
+        return resp.headers
 
     def _replace_path(self, path_str: str) -> Optional[str]:
         if self.path_dict:

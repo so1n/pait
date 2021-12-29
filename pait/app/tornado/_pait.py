@@ -4,9 +4,9 @@ from pydantic import BaseConfig
 from tornado.web import RequestHandler
 
 from pait.core import pait as _pait
+from pait.g import config
 from pait.model import response
 from pait.model.status import PaitStatus
-from pait.util import gen_example_json_from_schema
 
 from ._app_helper import AppHelper
 
@@ -21,8 +21,7 @@ def make_mock_response(pait_response: Type[response.PaitBaseResponseModel]) -> A
     for key, value in pait_response.header.items():
         tornado_handle.set_header(key, value)
     if issubclass(pait_response, response.PaitJsonResponseModel):
-        schema_dict: dict = pait_response.response_data.schema()  # type: ignore
-        tornado_handle.write(gen_example_json_from_schema(schema_dict, use_example_value=True))
+        tornado_handle.write(pait_response.get_example_value(json_encoder_cls=config.json_encoder))
         return
     else:
         raise NotImplementedError()

@@ -5,9 +5,9 @@ from flask import Response, jsonify
 from pydantic import BaseConfig
 
 from pait.core import pait as _pait
+from pait.g import config
 from pait.model import response
 from pait.model.status import PaitStatus
-from pait.util import gen_example_json_from_schema
 
 from ._app_helper import AppHelper
 
@@ -16,14 +16,13 @@ __all__ = ["pait"]
 
 def make_mock_response(pait_response: Type[response.PaitBaseResponseModel]) -> Response:
     if issubclass(pait_response, response.PaitJsonResponseModel):
-        schema_dict: dict = pait_response.response_data.schema()  # type: ignore
-        resp: Response = jsonify(json.loads(gen_example_json_from_schema(schema_dict, use_example_value=True)))
-        resp.status_code = pait_response.status_code[0]
-        if pait_response.header:
-            resp.headers.update(pait_response.header)  # type: ignore
-        return resp
+        resp: Response = jsonify(json.loads(pait_response.get_example_value(json_encoder_cls=config.json_encoder)))
     else:
         raise NotImplementedError()
+    resp.status_code = pait_response.status_code[0]
+    if pait_response.header:
+        resp.headers.update(pait_response.header)  # type: ignore
+    return resp
 
 
 def pait(

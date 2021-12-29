@@ -118,7 +118,6 @@ class UserSuccessRespModel(PaitResponseModel):
         data: DataModel
 
     description: str = "success response"
-    header: dict = {"cookie": "xxx"}
     response_data: Type[BaseModel] = ResponseModel
 
 
@@ -140,7 +139,6 @@ class UserSuccessRespModel2(PaitJsonResponseModel):
         data: DataModel
 
     description: str = "success response"
-    header: dict = {"cookie": "xxx"}
     response_data: Type[BaseModel] = ResponseModel
 
 
@@ -155,7 +153,6 @@ class UserSuccessRespModel3(PaitJsonResponseModel):
         data: DataModel
 
     description: str = "success response"
-    header: dict = {"cookie": "xxx"}
     response_data: Type[BaseModel] = ResponseModel
 
 

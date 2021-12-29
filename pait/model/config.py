@@ -8,6 +8,8 @@ from pydantic import BaseConfig
 
 from pait.model.response import PaitBaseResponseModel
 from pait.model.status import PaitStatus
+from pait.util import json_type_default_value_dict as pait_json_type_default_value_dict
+from pait.util import python_type_default_value_dict as pait_python_type_default_value_dict
 
 
 class CustomJSONEncoder(JSONEncoder):
@@ -39,28 +41,7 @@ class Config(object):
         self.block_http_method_set: Set[str] = set()
         self.default_response_model_list: List[Type[PaitBaseResponseModel]] = []
         self.json_encoder: Type[JSONEncoder] = CustomJSONEncoder
-        self.json_type_default_value_dict: Dict[str, Any] = {
-            "null": None,
-            "bool": True,
-            "boolean": True,
-            "string": "",
-            "number": 0.0,
-            "float": 0.0,
-            "integer": 0,
-            "object": {},
-            "array": [],
-        }
         self.default_pydantic_model_config: Type[BaseConfig] = BaseConfig
-        self.python_type_default_value_dict: Dict[type, Any] = {
-            bool: True,
-            float: 0.0,
-            int: 0,
-            str: "",
-            list: [],
-            tuple: [],
-            datetime: 0,
-            Decimal: 0,
-        }
 
     def __setattr__(self, key: Any, value: Any) -> None:
         if not self.__initialized:
@@ -114,9 +95,9 @@ class Config(object):
         if block_http_method_set:
             self.block_http_method_set = block_http_method_set
         if json_type_default_value_dict:
-            self.json_type_default_value_dict.update(json_type_default_value_dict)
+            pait_json_type_default_value_dict.update(json_type_default_value_dict)
         if python_type_default_value_dict:
-            self.python_type_default_value_dict.update(python_type_default_value_dict)
+            pait_python_type_default_value_dict.update(python_type_default_value_dict)
         if json_encoder:
             self.json_encoder = json_encoder
         if default_pydantic_model_config:

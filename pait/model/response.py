@@ -1,6 +1,8 @@
-from typing import Optional, Tuple, Type, Union
+from typing import Any, Optional, Tuple, Type, Union
 
 from pydantic import BaseModel
+
+from pait.util import gen_example_json_from_schema
 
 
 class PaitBaseResponseModel(object):
@@ -28,10 +30,18 @@ class PaitBaseResponseModel(object):
     def is_base_model_response_data(cls) -> bool:
         return isinstance(cls.response_data, type) and issubclass(cls.response_data, BaseModel)
 
+    @classmethod
+    def get_example_value(cls, **extra: Any) -> Any:
+        return cls.response_data
+
 
 class PaitJsonResponseModel(PaitBaseResponseModel):
     response_data: Type[BaseModel]
     media_type: str = "application/json"
+
+    @classmethod
+    def get_example_value(cls, **extra: Any) -> str:
+        return gen_example_json_from_schema(cls.response_data.schema(), cls=extra.get("json_encoder_cls", None))
 
 
 class PaitResponseModel(PaitJsonResponseModel):
@@ -42,21 +52,21 @@ class PaitResponseModel(PaitJsonResponseModel):
 
 
 class PaitTextResponseModel(PaitBaseResponseModel):
-    response_data: str = ""
+    response_data: str = "pait example data"
     media_type: str = "text/plain"
 
-    openapi_schema: dict = {"type": "string", "example": "pong"}
+    openapi_schema: dict = {"type": "string", "example": response_data}
 
 
 class PaitHtmlResponseModel(PaitBaseResponseModel):
-    response_data: str = ""
+    response_data: str = "<H1>Pait example html</H1>"
     media_type: str = "text/html"
 
-    openapi_schema: dict = {"type": "string", "example": "<H1>pong</H1>"}
+    openapi_schema: dict = {"type": "string", "example": response_data}
 
 
 class PaitFileResponseModel(PaitBaseResponseModel):
-    response_data: bytes = b""
+    response_data: bytes = b"pait example bytes"
     media_type: str = "application/octet-stream"
 
     openapi_schema: dict = {"type": "string", "format": "binary"}

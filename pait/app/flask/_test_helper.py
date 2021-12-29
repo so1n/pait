@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Mapping, Optional
 
 from flask import Response
 from flask.testing import FlaskClient
@@ -35,6 +35,10 @@ class FlaskTestHelper(BaseTestHelper[Response]):
     @staticmethod
     def _get_content_type(resp: Response) -> str:
         return resp.mimetype or ""
+
+    @staticmethod
+    def _get_headers(resp: Response) -> Mapping:
+        return resp.headers
 
     @staticmethod
     def _get_json(resp: Response) -> dict:

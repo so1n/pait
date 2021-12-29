@@ -192,6 +192,10 @@ class BaseTestHelper(Generic[RESP_T]):
         raise NotImplementedError()
 
     @staticmethod
+    def _get_headers(resp: RESP_T) -> Mapping:
+        raise NotImplementedError()
+
+    @staticmethod
     def _get_text(resp: RESP_T) -> str:
         raise NotImplementedError()
 
@@ -228,41 +232,52 @@ class BaseTestHelper(Generic[RESP_T]):
         if not self.pait_core_model.response_model_list:
             return
 
-        json_error_response_dict: Dict[Type[BaseModel], Tuple[Exception, float]] = {}
+        real_response_model: Optional[Type[response.PaitBaseResponseModel]] = None
+        max_quick_ratio: float = 0.0
         model_check_msg_dict: Dict[Type[response.PaitBaseResponseModel], List[str]] = {}
+
         for response_model in self.pait_core_model.response_model_list:
             error_msg_list: List[str] = []
             if self._get_status_code(resp) not in response_model.status_code:
-                error_msg_list.append("check status code error")
+                error_msg_list.append("check status code error.")
             if response_model.media_type not in self._get_content_type(resp):
-                error_msg_list.append("check media type error")
+                error_msg_list.append("check media type error.")
 
+            resp_header: Mapping = self._get_headers(resp)
+            for key, _ in response_model.header.items():
+                if key not in resp_header:
+                    error_msg_list.append(f"check header error. Can not found header:{key} in {resp_header}")
+
+            # check content
             if issubclass(response_model, response.PaitJsonResponseModel):
                 response_data_model: Type[BaseModel] = response_model.response_data
                 resp_dict: Optional[dict] = self._get_json(resp)
                 if not resp_dict:
                     continue
                 response_data_default_dict: dict = gen_example_dict_from_schema(response_data_model.schema())
+                ratio: float = difflib.SequenceMatcher(
+                    None,
+                    str(gen_example_json_from_python(resp_dict)),
+                    str(response_data_default_dict),
+                ).quick_ratio()
+                if ratio > max_quick_ratio:
+                    max_quick_ratio = ratio
+                    real_response_model = response_model
                 try:
                     response_data_model(**resp_dict)
                     if not self._diff_resp_dict(resp_dict, response_data_default_dict):
                         error_msg_list.append("check json content error")
                 except (ValidationError, RuntimeError) as e:
                     error_msg_list.append(f"check json content error, exec: {e}")
-                    json_error_response_dict[response_data_model] = (
-                        e,
-                        difflib.SequenceMatcher(
-                            None,
-                            str(gen_example_json_from_python(resp_dict.copy())),
-                            str(response_data_default_dict),
-                        ).quick_ratio(),
-                    )
+
             elif issubclass(response_model, response.PaitHtmlResponseModel) or issubclass(
                 response_model, response.PaitTextResponseModel
             ):
+                real_response_model = response_model
                 if not isinstance(self._get_text(resp), type(response_model.response_data)):
                     error_msg_list.append("check json content error")
             elif issubclass(response_model, response.PaitFileResponseModel):
+                real_response_model = response_model
                 if not isinstance(self._get_bytes(resp), type(response_model.response_data)):
                     error_msg_list.append("check json content error")
             else:
@@ -271,22 +286,20 @@ class BaseTestHelper(Generic[RESP_T]):
                 return
             else:
                 model_check_msg_dict[response_model] = error_msg_list
-        if json_error_response_dict:
-            exc: Optional[Exception] = None
-            model: Optional[Type[BaseModel]] = None
-            max_quick_ratio: float = 0.0
-            for _model, response_error in json_error_response_dict.items():
-                if response_error[1] > max_quick_ratio:
-                    max_quick_ratio = response_error[1]
-                    exc = response_error[0]
-                    model = _model
-            if exc:
-                raise RuntimeError(f"maybe error:{exc} by response_model: {model}") from exc
         response_dict: dict = {
             "status_code": self._get_status_code(resp),
             "media_type": self._get_content_type(resp),
+            "headers": self._get_headers(resp),
             "obj": resp,
         }
+        if real_response_model in model_check_msg_dict:
+            raise RuntimeError(
+                f"Check Response Error."
+                f" maybe error result: {model_check_msg_dict[real_response_model]}"
+                f" by response model:{real_response_model}"
+                f" response info: {response_dict}"
+            )
+
         raise RuntimeError(
             "Check Response Error. "
             f"response error result:{model_check_msg_dict} "

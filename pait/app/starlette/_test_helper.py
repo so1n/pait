@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Mapping, Optional
 
 from requests import Response as _Response  # type: ignore
 from starlette.testclient import TestClient
@@ -40,6 +40,10 @@ class StarletteTestHelper(BaseTestHelper[_Response]):
     @staticmethod
     def _get_json(resp: _Response) -> dict:
         return resp.json()
+
+    @staticmethod
+    def _get_headers(resp: _Response) -> Mapping:
+        return resp.headers
 
     def _replace_path(self, path_str: str) -> Optional[str]:
         if self.path_dict and path_str[0] == "{" and path_str[-1] == "}":
