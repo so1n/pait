@@ -42,6 +42,7 @@ def add_doc_route(app: Any, prefix: str = "/") -> None:
 def pait(
     enable_mock_response: bool = False,
     pydantic_model_config: Optional[Type[BaseConfig]] = None,
+    make_mock_response_fn: Optional[Callable[[Type[PaitBaseResponseModel]], Any]] = None,
     # param check
     pre_depend_list: Optional[List[Callable]] = None,
     at_most_one_of_list: Optional[List[List[str]]] = None,
@@ -61,19 +62,13 @@ def pait(
     """
     load_class_app = auto_load_app_class()
     app_name: str = load_class_app.__name__.lower()
-    if app_name == "flask":
-        from .flask import pait as _pait  # type: ignore
-    elif app_name == "starlette":
-        from .starlette import pait as _pait  # type: ignore
-    elif app_name == "sanic":
-        from .sanic import pait as _pait  # type: ignore
-    elif app_name == "tornado":
-        from .tornado import pait as _pait  # type: ignore
-    else:
+    _pait: Optional[Callable] = getattr(import_module("pait.app." + app_name), "pait")
+    if not _pait:
         raise NotImplementedError(f"Pait not support:{load_class_app}")
     return _pait(
         enable_mock_response=enable_mock_response,
         pydantic_model_config=pydantic_model_config,
+        make_mock_response_fn=make_mock_response_fn,
         pre_depend_list=pre_depend_list,
         at_most_one_of_list=at_most_one_of_list,
         required_by=required_by,

@@ -276,40 +276,40 @@ class TestTornado(AsyncHTTPTestCase):
 
         file_content: str = "Hello Word!"
 
-        f1 = NamedTemporaryFile(delete=True)
-        file_name: str = f1.name
-        f1.write(file_content.encode())
-        f1.seek(0)
-        f2 = NamedTemporaryFile(delete=True)
-        f2.name = file_name  # type: ignore
-        f2.write(file_content.encode())
-        f2.seek(0)
+        with NamedTemporaryFile(delete=True) as f1:
+            file_name: str = f1.name
+            f1.write(file_content.encode())
+            f1.seek(0)
+            with NamedTemporaryFile(delete=True) as f2:
+                f2.name = file_name  # type: ignore
+                f2.write(file_content.encode())
+                f2.seek(0)
 
-        test_helper: TornadoTestHelper = TornadoTestHelper(
-            self,
-            OtherFieldHandler.post,
-            cookie_dict={"cookie": cookie_str},
-            file_dict={f1.name: f1.read()},
-            form_dict={"a": "1", "b": "2", "c": "3"},
-        )
-        content_type, body = self.encode_multipart_formdata(
-            data={"a": "1", "b": "2", "c": "3"}, files={file_name: f2.read()}
-        )
-        response: HTTPResponse = self.fetch(
-            "/api/other_field",
-            headers={"cookie": cookie_str, "Content-Type": content_type, "content-length": str(len(body))},
-            method="POST",
-            body=body,
-        )
-        for resp in [test_helper.post(), response]:
-            assert {
-                "filename": file_name,
-                "content": file_content,
-                "form_a": "1",
-                "form_b": "2",
-                "form_c": ["3"],
-                "cookie": {"abcd": "abcd"},
-            } == json.loads(resp.body.decode())["data"]
+                test_helper: TornadoTestHelper = TornadoTestHelper(
+                    self,
+                    OtherFieldHandler.post,
+                    cookie_dict={"cookie": cookie_str},
+                    file_dict={f1.name: f1.read()},
+                    form_dict={"a": "1", "b": "2", "c": "3"},
+                )
+                content_type, body = self.encode_multipart_formdata(
+                    data={"a": "1", "b": "2", "c": "3"}, files={file_name: f2.read()}
+                )
+                response: HTTPResponse = self.fetch(
+                    "/api/other_field",
+                    headers={"cookie": cookie_str, "Content-Type": content_type, "content-length": str(len(body))},
+                    method="POST",
+                    body=body,
+                )
+                for resp in [test_helper.post(), response]:
+                    assert {
+                        "filename": file_name,
+                        "content": file_content,
+                        "form_a": "1",
+                        "form_b": "2",
+                        "form_c": ["3"],
+                        "cookie": {"abcd": "abcd"},
+                    } == json.loads(resp.body.decode())["data"]
 
     @staticmethod
     def choose_boundary() -> str:

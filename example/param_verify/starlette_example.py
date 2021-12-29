@@ -1,19 +1,25 @@
 from __future__ import annotations
 
-from typing import Any, List, Optional, Tuple
+import time
+from typing import Any, AsyncContextManager, List, Optional, Tuple
 
+import aiofiles  # type: ignore
 from pydantic import ValidationError
 from starlette.applications import Starlette
+from starlette.background import BackgroundTask
 from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request
-from starlette.responses import JSONResponse
+from starlette.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse
 from starlette.routing import Route
 
 from example.param_verify.model import (
     FailRespModel,
+    FileRespModel,
+    HtmlRespModel,
     SexEnum,
     SuccessRespModel,
     TestPaitModel,
+    TextRespModel,
     UserModel,
     UserOtherModel,
     UserSuccessRespModel,
@@ -356,7 +362,56 @@ async def test_pre_depend_async_contextmanager(is_raise: bool = Query.i(default=
     return JSONResponse({"code": 0, "msg": ""})
 
 
+@pait(
+    author=("so1n",),
+    status=PaitStatus.test,
+    tag=("test",),
+    response_model_list=[TextRespModel],
+)
+async def test_text_response() -> PlainTextResponse:
+    response: PlainTextResponse = PlainTextResponse(str(time.time()))
+    response.mimetype = "text/plain"
+    response.headers.append("X-Example-Type", "text")
+    return response
+
+
+@pait(
+    author=("so1n",),
+    status=PaitStatus.test,
+    tag=("test",),
+    response_model_list=[HtmlRespModel],
+)
+async def test_html_response() -> HTMLResponse:
+    response: HTMLResponse = HTMLResponse("<H1>" + str(time.time()) + "</H1>")
+    response.mimetype = "text/html"
+    response.headers.append("X-Example-Type", "html")
+    return response
+
+
+@pait(
+    author=("so1n",),
+    status=PaitStatus.test,
+    tag=("test",),
+    response_model_list=[FileRespModel],
+)
+async def test_file_response() -> FileResponse:
+    named_temporary_file: AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()
+    f: Any = await named_temporary_file.__aenter__()
+    await f.write("Hello Word!".encode())
+    await f.seek(0)
+
+    async def close_file() -> None:
+        await named_temporary_file.__aexit__(None, None, None)
+
+    response: FileResponse = FileResponse(
+        f.name, media_type="application/octet-stream", background=BackgroundTask(close_file)
+    )
+    response.headers.append("X-Example-Type", "file")
+    return response
+
+
 def create_app() -> Starlette:
+
     app: Starlette = Starlette(
         routes=[
             Route("/api/get/{age}", test_get, methods=["GET"]),
@@ -369,6 +424,9 @@ def create_app() -> Starlette:
             Route("/api/same_alias", test_same_alias, methods=["GET"]),
             Route("/api/raise_tip", test_raise_tip, methods=["POST"]),
             Route("/api/cbv", TestCbv),
+            Route("/api/text_resp", test_text_response, methods=["GET"]),
+            Route("/api/html_resp", test_html_response, methods=["GET"]),
+            Route("/api/file_resp", test_file_response, methods=["GET"]),
             Route("/api/pait_model", test_pait_model, methods=["POST"]),
             Route("/api/check_depend_contextmanager", test_depend_contextmanager, methods=["GET"]),
             Route("/api/check_depend_async_contextmanager", test_depend_async_contextmanager, methods=["GET"]),

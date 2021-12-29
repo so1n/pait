@@ -1,11 +1,12 @@
 import asyncio
 import sys
 from tempfile import NamedTemporaryFile
-from typing import Generator
+from typing import Callable, Generator, Type
 from unittest import mock
 
 import pytest
 from pytest_mock import MockFixture
+from requests import Response  # type: ignore
 from starlette.testclient import TestClient
 
 from example.param_verify.starlette_example import create_app
@@ -13,7 +14,9 @@ from example.param_verify.starlette_example import test_check_param as check_par
 from example.param_verify.starlette_example import test_check_resp as check_resp_route
 from example.param_verify.starlette_example import test_depend_async_contextmanager as depend_async_contextmanager
 from example.param_verify.starlette_example import test_depend_contextmanager as depend_contextmanager
+from example.param_verify.starlette_example import test_file_response as file_response
 from example.param_verify.starlette_example import test_get as get_route
+from example.param_verify.starlette_example import test_html_response as html_response
 from example.param_verify.starlette_example import test_other_field as other_field_route
 from example.param_verify.starlette_example import test_post as post_route
 from example.param_verify.starlette_example import (
@@ -21,8 +24,11 @@ from example.param_verify.starlette_example import (
 )
 from example.param_verify.starlette_example import test_pre_depend_contextmanager as pre_depend_contextmanager
 from example.param_verify.starlette_example import test_same_alias as same_alias_route
+from example.param_verify.starlette_example import test_text_response as text_response
 from pait.app import auto_load_app
 from pait.app.starlette import StarletteTestHelper
+from pait.model import response
+from tests.conftest import enable_mock
 
 
 @pytest.fixture
@@ -41,6 +47,24 @@ def client(mocker: MockFixture) -> Generator[TestClient, None, None]:
     mocker.patch("asyncio.get_event_loop").return_value = get_event_loop()
     client: TestClient = TestClient(create_app())
     yield client
+
+
+def response_test_helper(
+    client: TestClient, route_handler: Callable, pait_response: Type[response.PaitBaseResponseModel]
+) -> None:
+    test_helper: StarletteTestHelper = StarletteTestHelper(client, route_handler)
+    test_helper.get()
+
+    with enable_mock(test_helper):
+        resp: Response = test_helper.get()
+        for key, value in pait_response.header.items():
+            assert resp.headers[key] == value
+        if issubclass(pait_response, response.PaitHtmlResponseModel) or issubclass(
+            pait_response, response.PaitTextResponseModel
+        ):
+            assert resp.text == pait_response.get_example_value()
+        else:
+            assert resp.content == pait_response.get_example_value()
 
 
 class TestStarlette:
@@ -64,6 +88,15 @@ class TestStarlette:
                 "sex": "man",
                 "multi_user_name": ["abc", "efg"],
             }
+
+    def test_text_response(self, client: TestClient) -> None:
+        response_test_helper(client, text_response, response.PaitTextResponseModel)
+
+    def test_html_response(self, client: TestClient) -> None:
+        response_test_helper(client, html_response, response.PaitHtmlResponseModel)
+
+    def test_file_response(self, client: TestClient) -> None:
+        response_test_helper(client, file_response, response.PaitFileResponseModel)
 
     def test_check_param(self, client: TestClient) -> None:
         startlette_test_helper: StarletteTestHelper = StarletteTestHelper(
@@ -260,39 +293,39 @@ class TestStarlette:
 
         file_content: str = "Hello Word!"
 
-        f1 = NamedTemporaryFile(delete=True)
-        file_name: str = f1.name
-        f1.write(file_content.encode())
-        f1.seek(0)
-        f2 = NamedTemporaryFile(delete=True)
-        f2.name = file_name  # type: ignore
-        f2.write(file_content.encode())
-        f2.seek(0)
+        with NamedTemporaryFile(delete=True) as f1:
+            file_name: str = f1.name
+            f1.write(file_content.encode())
+            f1.seek(0)
+            with NamedTemporaryFile(delete=True) as f2:
+                f2.name = file_name  # type: ignore
+                f2.write(file_content.encode())
+                f2.seek(0)
 
-        test_helper: StarletteTestHelper = StarletteTestHelper(
-            client,
-            other_field_route,
-            cookie_dict={"cookie": cookie_str},
-            file_dict={"upload_file": f1},
-            form_dict={"a": "1", "b": "2", "c": ["3"]},
-        )
-        for resp in [
-            test_helper.json(),
-            client.post(
-                "/api/other_field",
-                data={"a": "1", "b": "2", "c": ["3"]},
-                headers={"cookie": cookie_str},
-                files={"upload_file": f2},
-            ).json(),
-        ]:
-            assert {
-                "filename": file_name.split("/")[-1],
-                "content": file_content,
-                "form_a": "1",
-                "form_b": "2",
-                "form_c": ["3"],
-                "cookie": {"abcd": "abcd"},
-            } == resp["data"]
+                test_helper: StarletteTestHelper = StarletteTestHelper(
+                    client,
+                    other_field_route,
+                    cookie_dict={"cookie": cookie_str},
+                    file_dict={"upload_file": f1},
+                    form_dict={"a": "1", "b": "2", "c": ["3"]},
+                )
+                for resp in [
+                    test_helper.json(),
+                    client.post(
+                        "/api/other_field",
+                        data={"a": "1", "b": "2", "c": ["3"]},
+                        headers={"cookie": cookie_str},
+                        files={"upload_file": f2},
+                    ).json(),
+                ]:
+                    assert {
+                        "filename": file_name.split("/")[-1],
+                        "content": file_content,
+                        "form_a": "1",
+                        "form_b": "2",
+                        "form_c": ["3"],
+                        "cookie": {"abcd": "abcd"},
+                    } == resp["data"]
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:

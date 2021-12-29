@@ -1,8 +1,10 @@
 import json
-from typing import Callable, Dict, List, Optional, Tuple, Type
+from typing import Any, AsyncContextManager, Callable, Dict, List, Optional, Tuple, Type
 
+import aiofiles  # type: ignore
 from pydantic import BaseConfig
-from starlette.responses import JSONResponse, Response
+from starlette.background import BackgroundTask
+from starlette.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse, Response
 
 from pait.core import pait as _pait
 from pait.g import config
@@ -14,15 +16,29 @@ from ._app_helper import AppHelper
 __all__ = ["pait"]
 
 
-def make_mock_response(pait_response: Type[response.PaitBaseResponseModel]) -> Response:
+async def make_mock_response(pait_response: Type[response.PaitBaseResponseModel]) -> Response:
     if issubclass(pait_response, response.PaitJsonResponseModel):
         resp: Response = JSONResponse(json.loads(pait_response.get_example_value(json_encoder_cls=config.json_encoder)))
-        resp.status_code = pait_response.status_code[0]
-        if pait_response.header:
-            resp.headers.update(pait_response.header)
-        return resp
+    elif issubclass(pait_response, response.PaitTextResponseModel):
+        resp = PlainTextResponse(pait_response.get_example_value(), media_type=pait_response.media_type)
+    elif issubclass(pait_response, response.PaitHtmlResponseModel):
+        resp = HTMLResponse(pait_response.get_example_value(), media_type=pait_response.media_type)
+    elif issubclass(pait_response, response.PaitFileResponseModel):
+        named_temporary_file: AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()
+        f: Any = await named_temporary_file.__aenter__()
+        await f.write(pait_response.get_example_value())
+        await f.seek(0)
+
+        async def close_file() -> None:
+            await named_temporary_file.__aexit__(None, None, None)
+
+        resp = FileResponse(f.name, media_type=pait_response.media_type, background=BackgroundTask(close_file))
     else:
-        raise NotImplementedError()
+        raise NotImplementedError(f"make_mock_response not support {pait_response}")
+    resp.status = pait_response.status_code[0]
+    if pait_response.header:
+        resp.headers.update(pait_response.header)
+    return resp
 
 
 def pait(
@@ -30,6 +46,7 @@ def pait(
     at_most_one_of_list: Optional[List[List[str]]] = None,
     required_by: Optional[Dict[str, List[str]]] = None,
     pre_depend_list: Optional[List[Callable]] = None,
+    make_mock_response_fn: Optional[Callable[[Type[response.PaitBaseResponseModel]], Any]] = None,
     # doc
     author: Optional[Tuple[str]] = None,
     desc: Optional[str] = None,
@@ -45,7 +62,7 @@ def pait(
     """Help starlette provide parameter checks and type conversions for each routing function/cbv class"""
     return _pait(
         AppHelper,
-        make_mock_response_fn=make_mock_response,
+        make_mock_response_fn=make_mock_response_fn or make_mock_response,
         author=author,
         desc=desc,
         summary=summary,

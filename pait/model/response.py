@@ -59,7 +59,7 @@ class PaitTextResponseModel(PaitBaseResponseModel):
 
 
 class PaitHtmlResponseModel(PaitBaseResponseModel):
-    response_data: str = "<H1>Pait example html</H1>"
+    response_data: str = "<h1>Pait example html</h1>"
     media_type: str = "text/html"
 
     openapi_schema: dict = {"type": "string", "example": response_data}

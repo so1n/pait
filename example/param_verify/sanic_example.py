@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, List, Optional, Tuple
+import time
+from typing import Any, AsyncContextManager, List, Optional, Tuple
 
+import aiofiles  # type: ignore
 from pydantic import ValidationError
 from sanic import response
 from sanic.app import Sanic
@@ -10,9 +12,12 @@ from sanic.views import HTTPMethodView
 
 from example.param_verify.model import (
     FailRespModel,
+    FileRespModel,
+    HtmlRespModel,
     SexEnum,
     SuccessRespModel,
     TestPaitModel,
+    TextRespModel,
     UserModel,
     UserOtherModel,
     UserSuccessRespModel,
@@ -26,6 +31,8 @@ from pait.app.sanic import add_doc_route, pait
 from pait.exceptions import PaitBaseException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model.status import PaitStatus
+
+test_filename: str = ""
 
 
 async def api_exception(request: Request, exc: Exception) -> response.HTTPResponse:
@@ -353,6 +360,54 @@ async def test_depend_async_contextmanager(
     return response.json({"code": 0, "msg": uid})
 
 
+@pait(
+    author=("so1n",),
+    status=PaitStatus.test,
+    tag=("test",),
+    response_model_list=[TextRespModel],
+)
+async def test_text_response(request: Request) -> response.HTTPResponse:
+    return response.text(str(time.time()), headers={"X-Example-Type": "text"})
+
+
+@pait(
+    author=("so1n",),
+    status=PaitStatus.test,
+    tag=("test",),
+    response_model_list=[HtmlRespModel],
+)
+async def test_html_response(request: Request) -> response.HTTPResponse:
+    return response.text(
+        "<H1>" + str(time.time()) + "</H1>", headers={"X-Example-Type": "html"}, content_type="text/html"
+    )
+
+
+@pait(
+    author=("so1n",),
+    status=PaitStatus.test,
+    tag=("test",),
+    response_model_list=[FileRespModel],
+)
+async def test_file_response(request: Request) -> response.StreamingHTTPResponse:
+    # sanic file response will return read file when `return resp`
+
+    named_temporary_file: AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()
+    f: Any = await named_temporary_file.__aenter__()
+    await f.write("Hello Word!".encode())
+    await f.seek(0)
+    resp: response.StreamingHTTPResponse = await response.file_stream(f.name, mime_type="application/octet-stream")
+    resp.headers.add("X-Example-Type", "file")
+
+    raw_streaming_fn = resp.streaming_fn
+
+    async def _streaming_fn(_response: response.BaseHTTPResponse) -> None:
+        await raw_streaming_fn(_response)
+        await named_temporary_file.__aexit__(None, None, None)
+
+    resp.streaming_fn = _streaming_fn
+    return resp
+
+
 def create_app() -> Sanic:
     app: Sanic = Sanic(name="pait")
     add_doc_route(app)
@@ -367,6 +422,9 @@ def create_app() -> Sanic:
     app.add_route(test_raise_tip, "/api/raise_tip", methods={"POST"})
     app.add_route(TestCbv.as_view(), "/api/cbv")
     app.add_route(test_pait_model, "/api/pait_model", methods={"POST"})
+    app.add_route(test_text_response, "/api/text_resp", methods={"GET"})
+    app.add_route(test_html_response, "/api/html_resp", methods={"GET"})
+    app.add_route(test_file_response, "/api/file_resp", methods={"GET"})
     app.add_route(test_depend_contextmanager, "/api/check_depend_contextmanager", methods={"GET"})
     app.add_route(test_pre_depend_contextmanager, "/api/check_pre_depend_contextmanager", methods={"GET"})
     app.add_route(test_depend_async_contextmanager, "/api/check_depend_async_contextmanager", methods={"GET"})

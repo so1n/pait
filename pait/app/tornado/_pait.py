@@ -32,6 +32,7 @@ def pait(
     at_most_one_of_list: Optional[List[List[str]]] = None,
     required_by: Optional[Dict[str, List[str]]] = None,
     pre_depend_list: Optional[List[Callable]] = None,
+    make_mock_response_fn: Optional[Callable[[Type[response.PaitBaseResponseModel]], Any]] = None,
     # doc
     author: Optional[Tuple[str]] = None,
     desc: Optional[str] = None,
@@ -47,7 +48,7 @@ def pait(
     """Help starlette provide parameter checks and type conversions for each routing function/cbv class"""
     return _pait(
         AppHelper,
-        make_mock_response_fn=make_mock_response,
+        make_mock_response_fn=make_mock_response_fn or make_mock_response,
         author=author,
         desc=desc,
         summary=summary,

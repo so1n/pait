@@ -117,7 +117,7 @@ class PaitCoreModel(object):
             setattr(pait_response, "handle", args[0])
         resp: Any = self.make_mock_response_fn(pait_response)
         # support async def
-        if inspect.iscoroutinefunction(self.func):
+        if inspect.iscoroutinefunction(self.func) and not inspect.iscoroutine(resp):
             future: asyncio.Future = asyncio.Future()
             future.set_result(resp)
             resp = future

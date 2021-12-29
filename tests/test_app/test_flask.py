@@ -1,10 +1,10 @@
 import sys
 from tempfile import NamedTemporaryFile
-from typing import Generator, List
+from typing import Callable, Generator, List, Type
 from unittest import mock
 
 import pytest
-from flask import Flask
+from flask import Flask, Response
 from flask.ctx import AppContext
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
@@ -24,6 +24,8 @@ from example.param_verify.flask_example import test_text_response as text_respon
 from pait.app import auto_load_app
 from pait.app.flask import FlaskTestHelper
 from pait.g import config
+from pait.model import response
+from tests.conftest import enable_mock
 
 
 @pytest.fixture
@@ -44,6 +46,24 @@ def enable_mock_response() -> Generator[None, None, None]:
     config.enable_mock_response = True
     yield None
     config.enable_mock_response = False
+
+
+def response_test_helper(
+    client: FlaskClient, route_handler: Callable, pait_response: Type[response.PaitBaseResponseModel]
+) -> None:
+    test_helper: FlaskTestHelper = FlaskTestHelper(client, route_handler)
+    test_helper.get()
+
+    with enable_mock(test_helper):
+        resp: Response = test_helper.get()
+        for key, value in pait_response.header.items():
+            assert resp.headers[key] == value
+        if issubclass(pait_response, response.PaitHtmlResponseModel) or issubclass(
+            pait_response, response.PaitTextResponseModel
+        ):
+            assert resp.get_data().decode() == pait_response.get_example_value()
+        else:
+            assert resp.get_data() == pait_response.get_example_value()
 
 
 class TestFlask:
@@ -97,13 +117,13 @@ class TestFlask:
         assert "birthday requires param alias_user_name, which if not none" in flask_test_helper.json()["msg"]
 
     def test_text_response(self, client: FlaskClient) -> None:
-        FlaskTestHelper(client, text_response).get()
+        response_test_helper(client, text_response, response.PaitTextResponseModel)
 
     def test_html_response(self, client: FlaskClient) -> None:
-        FlaskTestHelper(client, html_response).get()
+        response_test_helper(client, html_response, response.PaitHtmlResponseModel)
 
     def test_file_response(self, client: FlaskClient) -> None:
-        FlaskTestHelper(client, file_response).get()
+        response_test_helper(client, file_response, response.PaitFileResponseModel)
 
     def test_pre_depend_contextmanager(self, client: FlaskClient, mocker: MockFixture) -> None:
         error_logger = mocker.patch("example.param_verify.model.logging.error")
@@ -233,35 +253,39 @@ class TestFlask:
         assert "msg" in resp
 
     def test_other_field(self, client: FlaskClient) -> None:
-
         file_content: str = "Hello Word!"
 
-        f1 = NamedTemporaryFile(delete=True)
-        file_name: str = f1.name
-        f1.write(file_content.encode())
-        f1.seek(0)
-        f2 = NamedTemporaryFile(delete=True)
-        f2.name = file_name  # type: ignore
-        f2.write(file_content.encode())
-        f2.seek(0)
+        with NamedTemporaryFile(delete=True) as f1:
+            file_name: str = f1.name
+            f1.write(file_content.encode())
+            f1.seek(0)
+            with NamedTemporaryFile(delete=True) as f2:
+                f2.name = file_name  # type: ignore
+                f2.write(file_content.encode())
+                f2.seek(0)
 
-        flask_test_helper: FlaskTestHelper = FlaskTestHelper(
-            client, other_field_route, file_dict={"upload_file": f1}, form_dict={"a": "1", "b": "2", "c": ["3", "4"]}
-        )
+                flask_test_helper: FlaskTestHelper = FlaskTestHelper(
+                    client,
+                    other_field_route,
+                    file_dict={"upload_file": f1},
+                    form_dict={"a": "1", "b": "2", "c": ["3", "4"]},
+                )
 
-        client.set_cookie("localhost", "abcd", "abcd")
-        for resp in [
-            flask_test_helper.json(),
-            client.post("/api/other_field", data={"a": "1", "b": "2", "upload_file": f2, "c": ["3", "4"]}).get_json(),
-        ]:
-            assert {
-                "filename": file_name,
-                "content": file_content,
-                "form_a": "1",
-                "form_b": "2",
-                "form_c": ["3", "4"],
-                "cookie": {"abcd": "abcd"},
-            } == resp["data"]
+                client.set_cookie("localhost", "abcd", "abcd")
+                for resp in [
+                    flask_test_helper.json(),
+                    client.post(
+                        "/api/other_field", data={"a": "1", "b": "2", "upload_file": f2, "c": ["3", "4"]}
+                    ).get_json(),
+                ]:
+                    assert {
+                        "filename": file_name,
+                        "content": file_content,
+                        "form_a": "1",
+                        "form_b": "2",
+                        "form_c": ["3", "4"],
+                        "cookie": {"abcd": "abcd"},
+                    } == resp["data"]
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:

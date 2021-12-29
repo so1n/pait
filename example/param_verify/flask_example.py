@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import time
 from tempfile import NamedTemporaryFile
-from typing import IO, Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from flask import Flask, Request, Response, make_response, send_from_directory
 from flask.views import MethodView
@@ -32,7 +32,6 @@ from pait.model.status import PaitStatus
 
 
 def api_exception(exc: Exception) -> Dict[str, Any]:
-    print(exc)
     return {"code": -1, "msg": str(exc)}
 
 
@@ -334,6 +333,7 @@ class TestCbv(MethodView):
 def test_text_response() -> Response:
     response: Response = make_response(str(time.time()), 200)
     response.mimetype = "text/plain"
+    response.headers.add_header("X-Example-Type", "text")
     return response
 
 
@@ -344,7 +344,10 @@ def test_text_response() -> Response:
     response_model_list=[HtmlRespModel],
 )
 def test_html_response() -> str:
-    return "<H1>" + str(time.time()) + "</H1>"
+    response: Response = make_response("<H1>" + str(time.time()) + "</H1>", 200)
+    response.mimetype = "text/html"
+    response.headers.add_header("X-Example-Type", "html")
+    return response
 
 
 @pait(
@@ -355,11 +358,13 @@ def test_html_response() -> str:
 )
 def test_file_response() -> Response:
     file_content: str = "Hello Word!"
-    f1: IO[bytes] = NamedTemporaryFile(delete=True)
-    f1.write(file_content.encode())
-    f1.seek(0)
-    _, f_path, f_filename = f1.name.split("/")
-    return send_from_directory("/" + f_path, f_filename)
+    with NamedTemporaryFile(delete=True) as f:
+        f.write(file_content.encode())
+        f.seek(0)
+        _, f_path, f_filename = f.name.split("/")
+        response: Response = send_from_directory("/" + f_path, f_filename)
+        response.headers.add_header("X-Example-Type", "file")
+        return response
 
 
 def create_app() -> Flask:

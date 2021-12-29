@@ -167,12 +167,15 @@ class SuccessRespModel(PaitJsonResponseModel):
 
 
 class TextRespModel(PaitTextResponseModel):
+    header: dict = {"X-Example-Type": "text"}
     description: str = "text response"
 
 
 class HtmlRespModel(PaitHtmlResponseModel):
+    header: dict = {"X-Example-Type": "html"}
     description: str = "html response"
 
 
 class FileRespModel(PaitFileResponseModel):
+    header: dict = {"X-Example-Type": "file"}
     description: str = "file response"
