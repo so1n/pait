@@ -1,4 +1,4 @@
-aiofiles==0.7.0; python_version >= "3.7" and python_version < "4.0"
+aiofiles==0.8.0; python_version >= "3.6" and python_version < "4.0"
 appdirs==1.4.4; python_version >= "3.6"
 atomicwrites==1.4.0; python_version >= "3.6" and python_full_version < "3.0.0" and sys_platform == "win32" or sys_platform == "win32" and python_version >= "3.6" and python_full_version >= "3.4.0"
 attrs==21.2.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"

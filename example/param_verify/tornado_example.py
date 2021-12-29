@@ -1,16 +1,21 @@
 from __future__ import annotations
 
+import time
 from typing import Dict, List, Optional, Tuple
 
+import aiofiles  # type: ignore
 from tornado.httputil import RequestStartLine
 from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
 
 from example.param_verify.model import (
     FailRespModel,
+    FileRespModel,
+    HtmlRespModel,
     SexEnum,
     SuccessRespModel,
     TestPaitModel,
+    TextRespModel,
     UserModel,
     UserOtherModel,
     UserSuccessRespModel,
@@ -375,6 +380,50 @@ class TestCbvHandler(MyHandler):
         self.write({"code": 0, "msg": "", "data": return_dict})
 
 
+class TestTextResponseHanler(MyHandler):
+    @pait(
+        author=("so1n",),
+        status=PaitStatus.test,
+        tag=("test",),
+        response_model_list=[TextRespModel],
+    )
+    async def get(self) -> None:
+        self.write(str(time.time()))
+        self.set_header("X-Example-Type", "text")
+        self.set_header("Content-Type", "text/plain")
+
+
+class TestHtmlResponseHanler(MyHandler):
+    @pait(
+        author=("so1n",),
+        status=PaitStatus.test,
+        tag=("test",),
+        response_model_list=[HtmlRespModel],
+    )
+    async def get(self) -> None:
+        self.write("<H1>" + str(time.time()) + "</H1>")
+        self.set_header("X-Example-Type", "html")
+        self.set_header("Content-Type", "text/html")
+
+
+class TestFileResponseHanler(MyHandler):
+    @pait(
+        author=("so1n",),
+        status=PaitStatus.test,
+        tag=("test",),
+        response_model_list=[FileRespModel],
+    )
+    async def get(self) -> None:
+        async with aiofiles.tempfile.NamedTemporaryFile() as f:
+            await f.write("Hello Word!".encode())
+            await f.seek(0)
+            async for line in f:
+                self.write(line)
+
+        self.set_header("X-Example-Type", "file")
+        self.set_header("Content-Type", "application/octet-stream")
+
+
 def create_app() -> Application:
     app: Application = Application(
         [
@@ -389,6 +438,9 @@ def create_app() -> Application:
             (r"/api/pait_model", TestPaitModelHanler),
             (r"/api/check_param", TestCheckParamHandler),
             (r"/api/check_resp", TestCheckRespHandler),
+            (r"/api/text_resp", TestTextResponseHanler),
+            (r"/api/html_resp", TestHtmlResponseHanler),
+            (r"/api/file_resp", TestFileResponseHanler),
             (r"/api/check_depend_contextmanager", TestDependContextmanagerHanler),
             (r"/api/check_depend_async_contextmanager", TestDependAsyncContextmanagerHanler),
             (r"/api/check_pre_depend_contextmanager", TestPreDependContextmanagerHanler),

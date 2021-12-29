@@ -4,7 +4,7 @@ import os
 import sys
 from io import BytesIO
 from tempfile import NamedTemporaryFile
-from typing import Any, Generator, Optional, Tuple
+from typing import Any, Callable, Generator, Optional, Tuple, Type
 from unittest import mock
 
 import pytest
@@ -15,7 +15,9 @@ from example.param_verify.tornado_example import TestCheckParamHandler as CheckP
 from example.param_verify.tornado_example import TestCheckRespHandler as CheckRespHandler
 from example.param_verify.tornado_example import TestDependAsyncContextmanagerHanler as DependAsyncContextmanagerHanler
 from example.param_verify.tornado_example import TestDependContextmanagerHanler as DependContextmanagerHanler
+from example.param_verify.tornado_example import TestFileResponseHanler as FileResponseHanler
 from example.param_verify.tornado_example import TestGetHandler as GetHandler
+from example.param_verify.tornado_example import TestHtmlResponseHanler as HtmlResponseHanler
 from example.param_verify.tornado_example import TestOtherFieldHandler as OtherFieldHandler
 from example.param_verify.tornado_example import TestPostHandler as PostHandler
 from example.param_verify.tornado_example import (
@@ -23,9 +25,12 @@ from example.param_verify.tornado_example import (
 )
 from example.param_verify.tornado_example import TestPreDependContextmanagerHanler as PreDependContextmanagerHanler
 from example.param_verify.tornado_example import TestSameAliasHandler as SameAliasHandler
+from example.param_verify.tornado_example import TestTextResponseHanler as TextResponseHanler
 from example.param_verify.tornado_example import create_app
 from pait.app import auto_load_app
 from pait.app.tornado import TornadoTestHelper
+from pait.model import response
+from tests.conftest import enable_mock
 
 
 @pytest.fixture
@@ -40,6 +45,23 @@ class TestTornado(AsyncHTTPTestCase):
     def get_url(self, path: str) -> str:
         """Returns an absolute url for the given path on the test server."""
         return "%s://localhost:%s%s" % (self.get_protocol(), self.get_http_port(), path)
+
+    def response_test_helper(
+        self, route_handler: Callable, pait_response: Type[response.PaitBaseResponseModel]
+    ) -> None:
+        test_helper: TornadoTestHelper = TornadoTestHelper(self, route_handler)
+        test_helper.get()
+
+        with enable_mock(test_helper):
+            resp: HTTPResponse = test_helper.get()
+            for key, value in pait_response.header.items():
+                assert resp.headers[key] == value
+            if issubclass(pait_response, response.PaitHtmlResponseModel) or issubclass(
+                pait_response, response.PaitTextResponseModel
+            ):
+                assert resp.body.decode() == pait_response.get_example_value()
+            else:
+                assert resp.body == pait_response.get_example_value()
 
     def test_get(self) -> None:
         test_helper: TornadoTestHelper = TornadoTestHelper(
@@ -62,6 +84,15 @@ class TestTornado(AsyncHTTPTestCase):
                 "sex": "man",
                 "multi_user_name": ["abc", "efg"],
             }
+
+    def test_text_response(self) -> None:
+        self.response_test_helper(TextResponseHanler.get, response.PaitTextResponseModel)
+
+    def test_html_response(self) -> None:
+        self.response_test_helper(HtmlResponseHanler.get, response.PaitHtmlResponseModel)
+
+    def test_file_response(self) -> None:
+        self.response_test_helper(FileResponseHanler.get, response.PaitFileResponseModel)
 
     def test_check_param(self) -> None:
         test_helper: TornadoTestHelper = TornadoTestHelper(
