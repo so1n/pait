@@ -1,8 +1,11 @@
 from dataclasses import MISSING
-from typing import Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from pydantic.fields import FieldInfo, Undefined
 from pydantic.typing import NoArgAnyCallable
+
+if TYPE_CHECKING:
+    from pait.model.links import LinksModel
 
 
 class BaseField(FieldInfo):
@@ -14,6 +17,7 @@ class BaseField(FieldInfo):
         self,
         default: Any = Undefined,
         *,
+        link: "Optional[LinksModel]" = None,
         media_type: str = "",
         openapi_serialization: Any = None,
         raw_return: bool = False,
@@ -40,6 +44,11 @@ class BaseField(FieldInfo):
         self.raw_return = raw_return
         if example is not MISSING:
             extra["example"] = example
+
+        if not link:
+            link = extra.pop("link", None)
+        self.link: "Optional[LinksModel]" = link
+
         self.media_type = media_type or self.__class__.media_type
         self.openapi_serialization = openapi_serialization or self.__class__.openapi_serialization
         super().__init__(
@@ -74,6 +83,7 @@ class BaseField(FieldInfo):
         cls,
         default: Any = Undefined,
         *,
+        link: "Optional[LinksModel]" = None,
         raw_return: bool = False,
         media_type: str = "",
         example: Any = MISSING,
@@ -98,6 +108,7 @@ class BaseField(FieldInfo):
         return cls(
             default,
             raw_return=raw_return,
+            link=link,
             example=example,
             media_type=media_type,
             default_factory=default_factory,

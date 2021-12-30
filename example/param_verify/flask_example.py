@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import time
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict, List, Optional, Tuple
@@ -12,6 +13,7 @@ from example.param_verify.model import (
     FailRespModel,
     FileRespModel,
     HtmlRespModel,
+    LoginRespModel,
     SexEnum,
     SuccessRespModel,
     TestPaitModel,
@@ -28,6 +30,7 @@ from pait.app.flask import add_doc_route, pait
 from pait.exceptions import PaitBaseException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.g import config
+from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
 
 
@@ -367,9 +370,38 @@ def test_file_response() -> Response:
         return response
 
 
+@pait(
+    author=("so1n",),
+    status=PaitStatus.release,
+    tag=("links",),
+    response_model_list=[LoginRespModel],
+)
+def test_login(uid: str = Body.i(description="user id"), password: str = Body.i(description="password")) -> dict:
+    # only use test
+    return {"code": 0, "msg": "", "data": {"token": hashlib.sha256((uid + password).encode("utf-8")).hexdigest()}}
+
+
+token_links_Model = LinksModel(LoginRespModel, "$response.body#/data/token", desc="test links model")
+
+
+@pait(
+    author=("so1n",),
+    status=PaitStatus.release,
+    tag=("links",),
+    response_model_list=[SuccessRespModel],
+)
+def test_get_user(token: str = Header.i("", description="token", link=token_links_Model)) -> dict:
+    if token:
+        return {"code": 0, "msg": ""}
+    else:
+        return {"code": 1, "msg": ""}
+
+
 def create_app() -> Flask:
     app: Flask = Flask(__name__)
     add_doc_route(app)
+    app.add_url_rule("/api/token", view_func=test_login, methods=["POST"])
+    app.add_url_rule("/api/user", view_func=test_get_user, methods=["GET"])
     app.add_url_rule("/api/raise_tip", view_func=test_raise_tip, methods=["POST"])
     app.add_url_rule("/api/post", view_func=test_post, methods=["POST"])
     app.add_url_rule("/api/depend", view_func=demo_get2test_depend, methods=["POST"])

@@ -179,3 +179,16 @@ class HtmlRespModel(PaitHtmlResponseModel):
 class FileRespModel(PaitFileResponseModel):
     header: dict = {"X-Example-Type": "file"}
     description: str = "file response"
+
+
+class LoginRespModel(PaitJsonResponseModel):
+    class ResponseModel(BaseModel):  # type: ignore
+        class DataModel(BaseModel):
+            token: str
+
+        code: int = Field(0, description="api code")
+        msg: str = Field("success", description="api status msg")
+        data: DataModel
+
+    description: str = "login response"
+    response_data: Type[BaseModel] = ResponseModel

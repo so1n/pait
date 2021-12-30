@@ -175,7 +175,10 @@ class PaitOpenApi(PaitBaseParse):
                     # 204 No Content, have no body.
                     # To indicate the response body is empty, do not specify a content for the response
                     continue
+
                 openapi_response_dict[_status_code]["content"] = {}
+                if resp_model.links_schema_dict:
+                    openapi_response_dict[_status_code]["links"] = resp_model.links_schema_dict
 
                 if global_model_name:
                     openapi_schema_dict: dict = {"$ref": f"#/components/schemas/{global_model_name}"}

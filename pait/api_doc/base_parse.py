@@ -1,6 +1,6 @@
 import inspect
 import warnings
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, get_type_hints
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union, get_type_hints
 
 from pydantic import BaseModel
 from pydantic.fields import Undefined
@@ -235,31 +235,43 @@ class PaitBaseParse(object):
         parameter_list: List["inspect.Parameter"],
         field_dict: FieldDictType,
         single_field_list: List[Tuple[str, "inspect.Parameter"]],
+        pait_model: PaitCoreModel,
     ) -> None:
         """parse parameter_list to field_dict and single_field_list"""
         for parameter in parameter_list:
             if parameter.default != parameter.empty:
                 annotation: type = parameter.annotation
-                if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
+                pait_field: Union[BaseField, Depends] = parameter.default
+                if (
+                    inspect.isclass(annotation)
+                    and issubclass(annotation, BaseModel)
+                    and not isinstance(pait_field, Depends)
+                ):
                     # support def test(test_model: BaseModel = Body())
 
                     # Adapt each property of pydantic.BaseModel to pait.field
                     # Convert Field classes of pydantic.
                     # Model properties to Field classes of genuine request types, such as: Body, Query, Header, etc.
                     param_filed_dict: Dict[str, BaseField] = {
-                        param_name: parameter.default.from_pydantic_field(
-                            annotation.__fields__[param_name].field_info  # type: ignore
+                        _param_name: pait_field.from_pydantic_field(
+                            annotation.__fields__[_param_name].field_info  # type: ignore
                         )
-                        for param_name, _ in get_type_hints(annotation).items()
+                        for _param_name, _ in get_type_hints(annotation).items()
                     }
                     self._parse_base_model_to_field_dict(field_dict, annotation, param_filed_dict)
                 else:
                     # def test(test_model: int = Body())
-                    if isinstance(parameter.default, Depends):
-                        field_dict.update(self._parse_func_param_to_field_dict(parameter.default.func))
+                    if isinstance(pait_field, Depends):
+                        field_dict.update(self._parse_func_param_to_field_dict(pait_field.func, pait_model))
                     else:
-                        field_name: str = parameter.default.__class__.__name__.lower()
+                        field_name: str = pait_field.__class__.__name__.lower()
                         single_field_list.append((field_name, parameter))
+
+                # parse link
+                # TODO mv to gen tree
+                if not isinstance(pait_field, Depends) and pait_field.link:
+                    pait_field.link.register(pait_model, parameter.name, pait_field)
+
             elif issubclass(parameter.annotation, BaseModel):
                 # def test(test_model: PaitBaseModel)
                 _pait_model: Type[BaseModel] = parameter.annotation
@@ -270,7 +282,7 @@ class PaitBaseParse(object):
                 }
                 self._parse_base_model_to_field_dict(field_dict, _pait_model, param_filed_dict)
 
-    def _parse_func_param_to_field_dict(self, func: Callable) -> FieldDictType:
+    def _parse_func_param_to_field_dict(self, func: Callable, pait_model: PaitCoreModel) -> FieldDictType:
         """gen filed dict from func
         {
             "Body": [
@@ -301,8 +313,8 @@ class PaitBaseParse(object):
         class_ = getattr(inspect.getmodule(func), qualname)
         if inspect.isclass(class_):
             parameter_list: List["inspect.Parameter"] = get_parameter_list_from_class(class_)
-            self.parameter_list_handle(parameter_list, field_dict, single_field_list)
-        self.parameter_list_handle(func_sig.param_list, field_dict, single_field_list)
+            self.parameter_list_handle(parameter_list, field_dict, single_field_list, pait_model)
+        self.parameter_list_handle(func_sig.param_list, field_dict, single_field_list, pait_model)
 
         if single_field_list:
             annotation_dict: Dict[str, Tuple[Type, Any]] = {}
@@ -333,9 +345,9 @@ class PaitBaseParse(object):
 
     def _parse_pait_model_to_field_dict(self, pait_model: PaitCoreModel) -> FieldDictType:
         """Extracting request and response information through routing functions"""
-        all_field_dict: FieldDictType = self._parse_func_param_to_field_dict(pait_model.func)
+        all_field_dict: FieldDictType = self._parse_func_param_to_field_dict(pait_model.func, pait_model)
         for pre_depend in pait_model.pre_depend_list:
-            for field_class, field_dict_list in self._parse_func_param_to_field_dict(pre_depend).items():
+            for field_class, field_dict_list in self._parse_func_param_to_field_dict(pre_depend, pait_model).items():
                 if field_class not in all_field_dict:
                     all_field_dict[field_class] = field_dict_list
                 else:

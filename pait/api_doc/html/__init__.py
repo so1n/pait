@@ -33,7 +33,7 @@ def get_redoc_html(
 
 def get_swagger_ui_html(
     open_api_json_url: str,
-    title: str = "ReDoc",
+    title: str = "Swagger",
 ) -> str:
 
     return f"""

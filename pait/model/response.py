@@ -1,4 +1,4 @@
-from typing import Any, Optional, Tuple, Type, Union
+from typing import Any, Dict, Optional, Tuple, Type, Union
 
 from pydantic import BaseModel
 
@@ -26,6 +26,9 @@ class PaitBaseResponseModel(object):
     # if value is empty, pait will auto gen response model and set to openapi.schema
     openapi_schema: Optional[dict] = None
 
+    # links model
+    links_schema_dict: Dict[str, dict] = {}
+
     @classmethod
     def is_base_model_response_data(cls) -> bool:
         return isinstance(cls.response_data, type) and issubclass(cls.response_data, BaseModel)
@@ -33,6 +36,10 @@ class PaitBaseResponseModel(object):
     @classmethod
     def get_example_value(cls, **extra: Any) -> Any:
         return cls.response_data
+
+    @classmethod
+    def register_link_schema(cls, link_schema: dict) -> None:
+        cls.links_schema_dict.update(link_schema)
 
 
 class PaitJsonResponseModel(PaitBaseResponseModel):
