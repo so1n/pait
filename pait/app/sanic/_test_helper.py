@@ -52,7 +52,7 @@ class SanicTestHelper(BaseTestHelper[TestingResponse]):
             return self.path_dict[key]
         return None
 
-    def _make_response(self, method: str) -> TestingResponse:
+    def _real_request(self, method: str) -> TestingResponse:
         method = method.lower()
         if method == "get":
             request, resp = self.client._sanic_endpoint_test(method, uri=self.path, headers=self.header_dict)

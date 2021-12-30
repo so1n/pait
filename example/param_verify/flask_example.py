@@ -343,7 +343,7 @@ def test_text_response() -> Response:
     tag=("test",),
     response_model_list=[HtmlRespModel],
 )
-def test_html_response() -> str:
+def test_html_response() -> Response:
     response: Response = make_response("<H1>" + str(time.time()) + "</H1>", 200)
     response.mimetype = "text/html"
     response.headers.add_header("X-Example-Type", "html")

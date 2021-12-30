@@ -50,7 +50,7 @@ class StarletteTestHelper(BaseTestHelper[_Response]):
             return self.path_dict[path_str[1:-1]]
         return None
 
-    def _make_response(self, method: str) -> _Response:
+    def _real_request(self, method: str) -> _Response:
         method = method.upper()
         resp: _Response = self.client.request(
             method,

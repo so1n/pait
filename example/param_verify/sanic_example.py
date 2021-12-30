@@ -391,7 +391,7 @@ async def test_html_response(request: Request) -> response.HTTPResponse:
 async def test_file_response(request: Request) -> response.StreamingHTTPResponse:
     # sanic file response will return read file when `return resp`
 
-    named_temporary_file: AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()
+    named_temporary_file: AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()  # type: ignore
     f: Any = await named_temporary_file.__aenter__()
     await f.write("Hello Word!".encode())
     await f.seek(0)

@@ -64,7 +64,7 @@ class TornadoTestHelper(BaseTestHelper[HTTPResponse]):
                 return self.path_dict[path_str[head_index + 1 : tail_index]]
         return None
 
-    def _make_response(self, method: str) -> HTTPResponse:
+    def _real_request(self, method: str) -> HTTPResponse:
         method = method.upper()
         if self.file_dict or self.form_dict:
             if method != "POST":

@@ -370,7 +370,7 @@ async def test_pre_depend_async_contextmanager(is_raise: bool = Query.i(default=
 )
 async def test_text_response() -> PlainTextResponse:
     response: PlainTextResponse = PlainTextResponse(str(time.time()))
-    response.mimetype = "text/plain"
+    response.media_type = "text/plain"
     response.headers.append("X-Example-Type", "text")
     return response
 
@@ -383,7 +383,7 @@ async def test_text_response() -> PlainTextResponse:
 )
 async def test_html_response() -> HTMLResponse:
     response: HTMLResponse = HTMLResponse("<H1>" + str(time.time()) + "</H1>")
-    response.mimetype = "text/html"
+    response.media_type = "text/html"
     response.headers.append("X-Example-Type", "html")
     return response
 
@@ -395,7 +395,7 @@ async def test_html_response() -> HTMLResponse:
     response_model_list=[FileRespModel],
 )
 async def test_file_response() -> FileResponse:
-    named_temporary_file: AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()
+    named_temporary_file: AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()  # type: ignore
     f: Any = await named_temporary_file.__aenter__()
     await f.write("Hello Word!".encode())
     await f.seek(0)

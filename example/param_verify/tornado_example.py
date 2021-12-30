@@ -414,7 +414,7 @@ class TestFileResponseHanler(MyHandler):
         response_model_list=[FileRespModel],
     )
     async def get(self) -> None:
-        async with aiofiles.tempfile.NamedTemporaryFile() as f:
+        async with aiofiles.tempfile.NamedTemporaryFile() as f:  # type: ignore
             await f.write("Hello Word!".encode())
             await f.seek(0)
             async for line in f:

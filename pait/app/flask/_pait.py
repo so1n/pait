@@ -22,7 +22,7 @@ def make_mock_response(pait_response: Type[response.PaitBaseResponseModel]) -> R
         pait_response, response.PaitHtmlResponseModel
     ):
         resp = make_response(pait_response.get_example_value())
-        resp.headers = {"content-type": pait_response.media_type}
+        resp.mimetype = pait_response.media_type
     elif issubclass(pait_response, response.PaitFileResponseModel):
         with NamedTemporaryFile(delete=True) as temporary_file:
             temporary_file.write(pait_response.get_example_value())

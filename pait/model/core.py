@@ -61,20 +61,6 @@ class PaitCoreModel(object):
         if response_model_list:
             self.add_response_model_list(response_model_list)
 
-    # @property
-    # def author(self) -> Tuple[str, ...]:
-    #     return self._author or config.author
-    #
-    # @property
-    # def status(self) -> PaitStatus:
-    #     return self._status or config.status
-    #
-    # @property
-    # def func(self) -> Callable:
-    #     if config.enable_mock_response:
-    #         return self.return_mock_response
-    #     return self._func
-
     @property
     def method_list(self) -> List[str]:
         return self._method_list
@@ -102,7 +88,7 @@ class PaitCoreModel(object):
 
     def return_mock_response(self, *args: Any, **kwargs: Any) -> Any:
         if not self.response_model_list:
-            raise RuntimeError(f"{self.func} can not set response model")
+            raise RuntimeError(f"{self.func} can not found response model")
         pait_response: Optional[Type[PaitBaseResponseModel]] = None
         if self.enable_mock_response_filter_fn:
             for _pait_response in self.response_model_list:
@@ -122,10 +108,3 @@ class PaitCoreModel(object):
             future.set_result(resp)
             resp = future
         return resp
-
-    # @property
-    # def response_model_list(self) -> List[Type[PaitResponseModel]]:
-    #     if config.default_response_model_list:
-    #         return self._response_model_list + config.default_response_model_list
-    #     else:
-    #         return self._response_model_list

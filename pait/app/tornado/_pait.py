@@ -29,7 +29,7 @@ async def make_mock_response(pait_response: Type[response.PaitBaseResponseModel]
     ):
         tornado_handle.write(pait_response.get_example_value())
     elif issubclass(pait_response, response.PaitFileResponseModel):
-        async with aiofiles.tempfile.NamedTemporaryFile() as f:
+        async with aiofiles.tempfile.NamedTemporaryFile() as f:  # type: ignore
             await f.write(pait_response.get_example_value())
             await f.seek(0)
             async for line in f:

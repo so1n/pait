@@ -24,7 +24,7 @@ async def make_mock_response(pait_response: Type[response.PaitBaseResponseModel]
     elif issubclass(pait_response, response.PaitHtmlResponseModel):
         resp = HTMLResponse(pait_response.get_example_value(), media_type=pait_response.media_type)
     elif issubclass(pait_response, response.PaitFileResponseModel):
-        named_temporary_file: AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()
+        named_temporary_file: AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()  # type: ignore
         f: Any = await named_temporary_file.__aenter__()
         await f.write(pait_response.get_example_value())
         await f.seek(0)
@@ -35,7 +35,7 @@ async def make_mock_response(pait_response: Type[response.PaitBaseResponseModel]
         resp = FileResponse(f.name, media_type=pait_response.media_type, background=BackgroundTask(close_file))
     else:
         raise NotImplementedError(f"make_mock_response not support {pait_response}")
-    resp.status = pait_response.status_code[0]
+    resp.status_code = pait_response.status_code[0]
     if pait_response.header:
         resp.headers.update(pait_response.header)
     return resp

@@ -1,4 +1,5 @@
 import logging
+from types import CodeType
 from typing import TYPE_CHECKING, Dict, Set
 
 if TYPE_CHECKING:
@@ -37,12 +38,11 @@ class PaitData(object):
             model.openapi_path = openapi_path
             model.method_list = sorted(list(method_set or set()), reverse=True)
             model.operation_id = route_name
+            func_code: CodeType = model.func.__code__  # type: ignore
             if project_name:
-                model.func_path = project_name + f"{project_name}".join(
-                    model.func.__code__.co_filename.split(project_name)[1:]
-                )
+                model.func_path = project_name + f"{project_name}".join(func_code.co_filename.split(project_name)[1:])
             else:
-                model.func_path = model.func.__code__.co_filename
+                model.func_path = func_code.co_filename
         else:
             logging.warning(f"load path:{path} fail, pait id:{pait_id}")
 

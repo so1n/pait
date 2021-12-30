@@ -27,7 +27,7 @@ async def make_mock_response(pait_response: Type[response.PaitBaseResponseModel]
     ):
         resp = sanic_response.text(pait_response.get_example_value(), content_type=pait_response.media_type)
     elif issubclass(pait_response, response.PaitFileResponseModel):
-        named_temporary_file: AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()
+        named_temporary_file: AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()  # type: ignore
         f: Any = await named_temporary_file.__aenter__()
         await f.write(pait_response.get_example_value())
         await f.seek(0)

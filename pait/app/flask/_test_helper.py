@@ -38,7 +38,7 @@ class FlaskTestHelper(BaseTestHelper[Response]):
 
     @staticmethod
     def _get_headers(resp: Response) -> Mapping:
-        return resp.headers
+        return resp.headers  # type: ignore
 
     @staticmethod
     def _get_json(resp: Response) -> dict:
@@ -57,7 +57,7 @@ class FlaskTestHelper(BaseTestHelper[Response]):
             return self.path_dict[path_str[1:-1]]
         return None
 
-    def _make_response(self, method: str) -> Response:
+    def _real_request(self, method: str) -> Response:
         return self.client.open(
             self.path, data=self.form_dict, json=self.body_dict, headers=self.header_dict, method=method
         )
