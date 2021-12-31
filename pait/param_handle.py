@@ -242,7 +242,6 @@ class ParamHandler(BaseParamHandler):
                 if not isinstance(model_field.field_info, BaseField):
                     raise TypeError(f"{model_field.field_info} must instance {BaseField}")
                 annotation: Type = _pait_model.__annotations__[key]
-                print(annotation)
                 if getattr(annotation, "real", None):
                     # support like pydantic.ConstrainedIntValue
                     annotation = annotation.real.__objclass__  # type: ignore

@@ -1,14 +1,13 @@
 import json
 from tempfile import NamedTemporaryFile
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type
+from typing import Type
 
 from flask import Response, jsonify, make_response, send_from_directory
-from pydantic import BaseConfig
 
-from pait.core import pait as _pait
+from pait.app.base.app_helper import BaseAppHelper
+from pait.core import Pait as _Pait
 from pait.g import config
 from pait.model import response
-from pait.model.status import PaitStatus
 
 from ._app_helper import AppHelper
 
@@ -37,39 +36,11 @@ def make_mock_response(pait_response: Type[response.PaitBaseResponseModel]) -> R
     return resp
 
 
-def pait(
-    # param check
-    at_most_one_of_list: Optional[List[List[str]]] = None,
-    required_by: Optional[Dict[str, List[str]]] = None,
-    pre_depend_list: Optional[List[Callable]] = None,
-    make_mock_response_fn: Optional[Callable[[Type[response.PaitBaseResponseModel]], Any]] = None,
-    # doc
-    author: Optional[Tuple[str]] = None,
-    desc: Optional[str] = None,
-    summary: Optional[str] = None,
-    name: Optional[str] = None,
-    status: Optional[PaitStatus] = None,
-    group: Optional[str] = None,
-    tag: Optional[Tuple[str, ...]] = None,
-    enable_mock_response: bool = False,
-    response_model_list: Optional[List[Type[response.PaitBaseResponseModel]]] = None,
-    pydantic_model_config: Optional[Type[BaseConfig]] = None,
-) -> Callable:
-    """Help flask provide parameter checks and type conversions for each routing function/cbv class"""
-    return _pait(
-        AppHelper,
-        make_mock_response_fn=make_mock_response_fn or make_mock_response,
-        author=author,
-        desc=desc,
-        name=name,
-        summary=summary,
-        status=status,
-        group=group,
-        tag=tag,
-        enable_mock_response=enable_mock_response,
-        response_model_list=response_model_list,
-        pre_depend_list=pre_depend_list,
-        at_most_one_of_list=at_most_one_of_list,
-        required_by=required_by,
-        pydantic_model_config=pydantic_model_config,
-    )
+class Pait(_Pait):
+    app_helper_class: "Type[BaseAppHelper]" = AppHelper
+    # If you assign a value directly, it will become a bound function
+    make_mock_response_fn: staticmethod = staticmethod(make_mock_response)
+    # make_mock_response_fn: Callable[[Type[response.PaitBaseResponseModel]], Any] = staticmethod(make_mock_response)
+
+
+pait = Pait()

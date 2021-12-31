@@ -23,36 +23,72 @@ class FakeAppHelper(BaseAppHelper):
     HeaderType = type(None)
 
 
+def make_mock_response(pait_response: Type[PaitBaseResponseModel]) -> Any:
+    pass
+
+
 class TestPaitCore:
-    def test_pait_core(self) -> None:
-        def make_mock_response(pait_response: Type[PaitBaseResponseModel]) -> Any:
+    def test_pait_not_set_app_helper_class(self) -> None:
+
+        with pytest.raises(ValueError) as e:
+            core.Pait()
+
+        exec_msg: str = e.value.args[0]
+        assert exec_msg == (
+            "Please specify the value of the app_helper_class parameter, you can refer to `pait.app.xxx`"
+        )
+
+    def test_pait_not_set_mock_response(self) -> None:
+        class TestPait(core.Pait):
+            app_helper_class = FakeAppHelper
+
+        with pytest.raises(ValueError) as e:
+            TestPait()
+
+        exec_msg: str = e.value.args[0]
+        assert exec_msg == (
+            "Please specify the value of the make_mock_response_fn parameter, you can refer to `pait.app.xxx`"
+        )
+
+    def test_pait_set_error_app_helper_class(self) -> None:
+        class Demo:
             pass
 
-        with pytest.raises(TypeError) as e:
+        class TestPait1(core.Pait):
+            app_helper_class = make_mock_response  # type: ignore
+            make_mock_response_fn = staticmethod(make_mock_response)  # type: ignore
 
-            @core.pait("a", make_mock_response)  # type: ignore
-            def demo_() -> None:
-                pass
+        with pytest.raises(TypeError) as e:
+            TestPait1()
 
         exec_msg: str = e.value.args[0]
         assert exec_msg.endswith("must be class")
 
-        class Demo:
-            pass
+        class TestPait2(core.Pait):
+            app_helper_class = Demo  # type: ignore
+            make_mock_response_fn = staticmethod(make_mock_response)  # type: ignore
 
         with pytest.raises(TypeError) as e:
-
-            @core.pait(Demo, make_mock_response)  # type: ignore
-            def demo() -> None:
-                pass
+            TestPait2()
 
         exec_msg = e.value.args[0]
         assert "must sub " in exec_msg
 
-    def test_pait_id_not_in_data(self, mocker: MockFixture) -> None:
-        def make_mock_response(pait_response: Type[PaitBaseResponseModel]) -> Any:
-            pass
+    def test_pait_set_make_mock_response_is_bound_func(self) -> None:
+        class TestPait(core.Pait):
+            app_helper_class = FakeAppHelper
+            make_mock_response_fn = make_mock_response  # type: ignore
 
+        with pytest.raises(TypeError) as e:
+            TestPait()
+
+        exec_msg = e.value.args[0]
+        assert (
+            "Set error make_mock_response_fn, should use `staticmethod` func. "
+            "like `make_mock_response_fn = staticmethod(make_mock_response)`"
+        ) == exec_msg
+
+    def test_pait_id_not_in_data(self, mocker: MockFixture) -> None:
         pait_core_model: PaitCoreModel = PaitCoreModel(demo, FakeAppHelper, make_mock_response)
         pait_id: str = pait_core_model.pait_id
         g.pait_data.register(app_name, pait_core_model)
@@ -61,9 +97,6 @@ class TestPaitCore:
         patch.assert_called_once()
 
     def test_pait_id_in_data(self) -> None:
-        def make_mock_response(pait_response: Type[PaitBaseResponseModel]) -> Any:
-            pass
-
         pait_core_model: PaitCoreModel = PaitCoreModel(demo, FakeAppHelper, make_mock_response)
         pait_id: str = pait_core_model.pait_id
         g.pait_data.register(app_name, pait_core_model)
