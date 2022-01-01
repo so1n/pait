@@ -197,3 +197,7 @@ class Depends(object):
     @classmethod
     def i(cls, func: Callable) -> Any:
         return cls(func)
+
+
+def is_pait_field(pait_field: Any) -> bool:
+    return isinstance(pait_field, (BaseField, Depends))

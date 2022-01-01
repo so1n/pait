@@ -277,10 +277,16 @@ class TestStarlette:
 
     def test_pait_model(self, client: TestClient) -> None:
         resp: dict = client.post(
-            "/api/pait_model?uid=123&user_name=appl", headers={"user-agent": "customer_agent"}, json={"age": 2}
+            "/api/pait_model?uid=123&user_name=appl",
+            headers={"user-agent": "customer_agent"},
+            json={"user_info": {"age": 2, "user_name": "appl"}},
         ).json()
         assert resp["code"] == 0
-        assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
+        assert resp["data"] == {
+            "uid": 123,
+            "user_agent": "customer_agent",
+            "user_info": {"age": 2, "user_name": "appl"},
+        }
 
     def test_raise_tip(self, client: TestClient) -> None:
         resp: dict = client.post(

@@ -35,10 +35,13 @@ class _DemoSession(object):
 
 
 class TestPaitModel(BaseModel):
+    class UserInfo(BaseModel):
+        user_name: str = Field(description="user name", min_length=2, max_length=4)
+        age: int = Field(description="age", gt=1, lt=100)
+
     uid: int = Query.i(description="user id", gt=10, lt=1000)
-    user_name: str = Query.i(description="user name", min_length=2, max_length=4)
     user_agent: str = Header.i(alias="user-agent", description="user agent")
-    age: int = Body.i(description="age", gt=1, lt=100)
+    user_info: UserInfo = Body.i()
 
 
 class UserModel(BaseModel):

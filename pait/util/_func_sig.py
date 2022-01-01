@@ -29,6 +29,7 @@ def get_func_sig(func: Callable) -> FuncSig:
             continue
         parameter: inspect.Parameter = sig.parameters[key]
         if isinstance(parameter.annotation, str):
+            # get real type
             value: ForwardRef = ForwardRef(parameter.annotation, is_argument=False)
             setattr(
                 parameter, "_annotation", value._evaluate(sys.modules[func.__module__].__dict__, None)  # type: ignore

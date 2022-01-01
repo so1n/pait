@@ -47,8 +47,8 @@ async def api_exception(request: Request, exc: Exception) -> response.HTTPRespon
     response_model_list=[UserSuccessRespModel, FailRespModel],
 )
 async def test_raise_tip(
-    model: UserModel = Body.i(),
-    other_model: UserOtherModel = Body.i(),
+    model: UserModel = Body.i(raw_return=True),
+    other_model: UserOtherModel = Body.i(raw_return=True),
     content_type: str = Header.i(description="content-type"),
 ) -> response.HTTPResponse:
     """Test Method: error tip"""
@@ -66,8 +66,8 @@ async def test_raise_tip(
     response_model_list=[UserSuccessRespModel, FailRespModel],
 )
 async def test_post(
-    model: UserModel = Body.i(),
-    other_model: UserOtherModel = Body.i(),
+    model: UserModel = Body.i(raw_return=True),
+    other_model: UserOtherModel = Body.i(raw_return=True),
     sex: SexEnum = Body.i(description="sex"),
     content_type: str = Header.i(alias="Content-Type", description="content-type"),
 ) -> response.HTTPResponse:
@@ -88,7 +88,7 @@ async def test_post(
 )
 async def test_depend(
     request: Request,
-    model: UserModel = Query.i(),
+    model: UserModel = Query.i(raw_return=True),
     depend_tuple: Tuple[str, int] = Depends.i(demo_depend),
 ) -> response.HTTPResponse:
     """Test Method:Post request, Pydantic Model"""
@@ -291,7 +291,7 @@ class TestCbv(HTTPMethodView):
         uid: int = Query.i(description="user id", gt=10, lt=1000),
         user_name: str = Query.i(description="user name", min_length=2, max_length=4),
         email: str = Query.i(default="example@xxx.com", description="user email"),
-        model: UserOtherModel = Query.i(),
+        model: UserOtherModel = Query.i(raw_return=True),
     ) -> response.HTTPResponse:
         """Text Pydantic Model and Field"""
         return_dict = {"uid": uid, "user_name": user_name, "email": email, "age": model.age}
@@ -307,8 +307,8 @@ class TestCbv(HTTPMethodView):
     )
     async def post(
         self,
-        model: UserModel = Body.i(),
-        other_model: UserOtherModel = Body.i(),
+        model: UserModel = Body.i(raw_return=True),
+        other_model: UserOtherModel = Body.i(raw_return=True),
     ) -> response.HTTPResponse:
         return_dict = model.dict()
         return_dict.update(other_model.dict())

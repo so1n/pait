@@ -7,15 +7,26 @@ from types import TracebackType
 from typing import Any, Callable, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union
 
 from pydantic import BaseConfig, BaseModel
+from pydantic.fields import UndefinedType
 
 from pait import field
 from pait.app.base import BaseAppHelper
 from pait.exceptions import CheckValueError, NotFoundFieldError, PaitBaseException
 from pait.field import BaseField
-from pait.util import FuncSig, create_pydantic_model, gen_tip_exc, get_func_sig, get_parameter_list_from_class
+from pait.util import (
+    FuncSig,
+    create_pydantic_model,
+    gen_tip_exc,
+    get_func_sig,
+    get_parameter_list_from_class,
+    get_parameter_list_from_pydantic_basemodel,
+)
 
 
 def raise_multiple_exc(exc_list: List[Exception]) -> None:
+    """
+    Multiple exceptions may be thrown during the parsing process, and these will be thrown one by one like a stack
+    """
     if not exc_list:
         return
     try:
@@ -25,7 +36,9 @@ def raise_multiple_exc(exc_list: List[Exception]) -> None:
 
 
 def parameter_2_basemodel(
-    parameter_value_dict: Dict["inspect.Parameter", Any], pydantic_config: Type[BaseConfig]
+    parameter_value_dict: Dict["inspect.Parameter", Any],
+    pydantic_config: Type[BaseConfig],
+    use_pydantic_base_model_alias: bool = False,
 ) -> BaseModel:
     """Convert all parameters into pydantic mods"""
     annotation_dict: Dict[str, Tuple[Type, Any]] = {}
@@ -35,19 +48,17 @@ def parameter_2_basemodel(
             # Resolve the key mismatch between Field.alias and request value
             param_field: field.BaseField = copy.deepcopy(parameter.default)
             param_field.default = value
+            base_model_key: str = parameter.default.alias if use_pydantic_base_model_alias else parameter.name
         else:
             param_field = parameter.default
-        annotation_dict[parameter.name] = (parameter.annotation, param_field)
-        param_value_dict[parameter.name] = value
+            base_model_key = parameter.name
+        annotation_dict[base_model_key] = (parameter.annotation, param_field)
+        param_value_dict[base_model_key] = value
 
-    dynamic_model: Type[BaseModel] = create_pydantic_model(annotation_dict, pydantic_config=pydantic_config)
-    return dynamic_model(**param_value_dict)
+    return create_pydantic_model(annotation_dict, pydantic_config=pydantic_config)(**param_value_dict)
 
 
 class BaseParamHandler(object):
-    args: list = []
-    kwargs: dict = {}
-
     def __init__(
         self,
         app_helper_class: Type[BaseAppHelper],
@@ -60,29 +71,24 @@ class BaseParamHandler(object):
         kwargs: Any = None,
     ) -> None:
         self._func: Callable = func
+        self.args: list = args or []
+        self.kwargs: dict = kwargs or {}
 
         # cbv handle
         self.cbv_instance: Optional[Any] = None
         self.cbv_type: Optional[Type] = None
-        if args and args[0].__class__.__name__ in func.__qualname__:
-            self.cbv_instance = args[0]
+        if self.args and self.args[0].__class__.__name__ in func.__qualname__:
+            self.cbv_instance = self.args[0]
             self.cbv_type = self.cbv_instance.__class__
         # else:
         #     cbv_type = getattr(inspect.getmodule(func), func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0])
 
-        self._app_helper: BaseAppHelper = app_helper_class(
-            self.cbv_instance,
-            args or (),
-            kwargs or {},
-        )  # type: ignore
+        self._app_helper: BaseAppHelper = app_helper_class(self.cbv_instance, self.args, self.kwargs)  # type: ignore
 
         self.pre_depend_list: List[Callable] = pre_depend_list or []
         self.at_most_one_of_list: Optional[List[List[str]]] = at_most_one_of_list
         self.required_by: Optional[Dict[str, List[str]]] = required_by
         self.pydantic_model_config: Type[BaseConfig] = pydantic_model_config
-
-        self.args: list = []
-        self.kwargs: dict = {}
 
         if self.cbv_type:
             self.cbv_param_list: List["inspect.Parameter"] = get_parameter_list_from_class(self.cbv_type)
@@ -139,34 +145,35 @@ class BaseParamHandler(object):
             # not support
             # raise PaitBaseException(f"must use {BaseField.__class__.__name__}, no {param_value}")
             return
-        if param_value.raw_return:
-            parameter_value_dict[parameter] = request_value
         elif (
             isinstance(request_value, Mapping)
             # some type like dict, but not isinstance Mapping, e.g: werkzeug.datastructures.EnvironHeaders
             or self._app_helper.check_header_type(type(request_value))
             or self._app_helper.check_form_type(type(request_value))
         ):
-            # The code execution effect should be consistent with the generated documentation, no diversity
-            # so remove code:
-            #   > if type(param_value.alias) is str and param_value.alias in request_value:
-            if type(param_value.alias) is str and param_value.alias:
-                request_value_key: str = param_value.alias
-            else:
-                request_value_key = param_name
+            if not param_value.raw_return:
+                # The code execution effect should be consistent with the generated documentation, no diversity
+                # so remove code:
+                #   > if type(param_value.alias) is str and param_value.alias in request_value:
+                if type(param_value.alias) is str and param_value.alias:
+                    request_value_key: str = param_value.alias
+                else:
+                    request_value_key = param_name
+                request_value = request_value.get(request_value_key, param_value.default)
+                if isinstance(request_value, UndefinedType):
+                    raise NotFoundFieldError(f"{parameter.name} value is {str(UndefinedType)}")
 
             if base_model_dict is not None and inspect.isclass(annotation) and issubclass(annotation, BaseModel):
                 # parse annotation is pydantic.BaseModel and base_model_dict not None
-                if request_value_key in request_value:
-                    request_value = request_value[request_value_key]
                 base_model_dict[parameter.name] = annotation(**request_value)
             else:
                 # parse annotation is python type and pydantic.field
-                parameter_value_dict[parameter] = request_value.get(request_value_key, param_value.default)
+                parameter_value_dict[parameter] = request_value
         else:
             parameter_value_dict[parameter] = request_value
 
     def get_request_value_from_parameter(self, parameter: inspect.Parameter) -> Union[Any, Coroutine]:
+        assert isinstance(parameter.default, BaseField), f"{parameter.name}'s value must pait field"
         field_name: str = parameter.default.get_field_name()
         # Note: not use hasattr with LazyProperty (
         #   because hasattr will calling getattr(obj, name) and catching AttributeError,
@@ -202,10 +209,14 @@ class ParamHandler(BaseParamHandler):
         self._contextmanager_list: List[AbstractContextManager] = []
 
     def param_handle(
-        self, _object: Union[FuncSig, Type], param_list: List["inspect.Parameter"]
+        self,
+        _object: Union[FuncSig, Type],
+        param_list: List["inspect.Parameter"],
+        use_pydantic_base_model_alias: bool = False,
     ) -> Tuple[List[Any], Dict[str, Any]]:
         args_param_list: List[Any] = []
         kwargs_param_dict: Dict[str, Any] = {}
+
         single_field_dict: Dict["inspect.Parameter", Any] = {}
 
         for parameter in param_list:
@@ -217,44 +228,44 @@ class ParamHandler(BaseParamHandler):
                         kwargs_param_dict[parameter.name] = self._depend_handle(parameter.default.func)
                     else:
                         request_value: Any = self.get_request_value_from_parameter(parameter)
-                        self.request_value_handle(parameter, request_value, kwargs_param_dict, single_field_dict)
+                        self.request_value_handle(
+                            parameter,
+                            request_value,
+                            kwargs_param_dict,
+                            single_field_dict,
+                        )
                 else:
                     # args param
                     # support model: model: ModelType
-                    self.set_parameter_value_to_args(parameter, args_param_list)
+                    self.set_parameter_value_to_args(_object, parameter, args_param_list)
             except PaitBaseException as e:
-                raise e from gen_tip_exc(_object, e, parameter)
+                raise gen_tip_exc(_object, e, parameter)
         # support field: def demo(demo_param: int = pait.field.BaseField())
         if single_field_dict:
             try:
-                kwargs_param_dict.update(parameter_2_basemodel(single_field_dict, self.pydantic_model_config).dict())
+                kwargs_param_dict.update(
+                    parameter_2_basemodel(
+                        single_field_dict,
+                        self.pydantic_model_config,
+                        use_pydantic_base_model_alias=use_pydantic_base_model_alias,
+                    ).dict(),
+                )
             except Exception as e:
-                raise e from gen_tip_exc(_object, e)
+                raise gen_tip_exc(_object, e)
         return args_param_list, kwargs_param_dict
 
-    def set_parameter_value_to_args(self, parameter: inspect.Parameter, func_args: list) -> None:
+    def set_parameter_value_to_args(
+        self, _object: Union[FuncSig, Type], parameter: inspect.Parameter, func_args: list
+    ) -> None:
         """use func_args param faster return and extend func_args"""
-        if self._set_parameter_value_to_args(parameter, func_args):
-            # support pait_model param(def handle(model: PaitBaseModel))
-            single_field_dict: Dict["inspect.Parameter", Any] = {}
-            _pait_model: Type[BaseModel] = parameter.annotation
-            for key, model_field in _pait_model.__fields__.items():
-                if not isinstance(model_field.field_info, BaseField):
-                    raise TypeError(f"{model_field.field_info} must instance {BaseField}")
-                annotation: Type = _pait_model.__annotations__[key]
-                if getattr(annotation, "real", None):
-                    # support like pydantic.ConstrainedIntValue
-                    annotation = annotation.real.__objclass__  # type: ignore
-                parameter = inspect.Parameter(
-                    key,
-                    inspect.Parameter.POSITIONAL_ONLY,
-                    default=model_field.field_info,
-                    annotation=annotation,
-                )
-                request_value: Any = self.get_request_value_from_parameter(parameter)
-                # PaitModel's attributes's annotation support BaseModel
-                self.request_value_handle(parameter, request_value, None, single_field_dict)
-            func_args.append(parameter_2_basemodel(single_field_dict, self.pydantic_model_config))
+        if not self._set_parameter_value_to_args(parameter, func_args):
+            return
+        # support pait_model param(def handle(model: PaitBaseModel))
+        _pait_model: Type[BaseModel] = parameter.annotation
+        _, kwargs = self.param_handle(
+            _object, get_parameter_list_from_pydantic_basemodel(_pait_model), use_pydantic_base_model_alias=True
+        )
+        func_args.append(_pait_model(**kwargs))
 
     def _depend_handle(self, func: Callable) -> Any:
         func_sig: FuncSig = get_func_sig(func)
@@ -267,13 +278,17 @@ class ParamHandler(BaseParamHandler):
             return func_result
 
     def _gen_param(self) -> None:
+        # check param from pre depend
         for pre_depend in self.pre_depend_list:
             self._depend_handle(pre_depend)
+
+        # gen and check param from func
         func_sig: FuncSig = get_func_sig(self._func)
         self.args, self.kwargs = self.param_handle(func_sig, func_sig.param_list)
 
+        # gen and check param from class
         if self.cbv_param_list and self.cbv_type:
-            args, kwargs = self.param_handle(self.cbv_type, self.cbv_param_list)
+            _, kwargs = self.param_handle(self.cbv_type, self.cbv_param_list)
             self.cbv_instance.__dict__.update(kwargs)
         return None
 
@@ -326,7 +341,10 @@ class AsyncParamHandler(BaseParamHandler):
         self._contextmanager_list: List[Union[AbstractAsyncContextManager, AbstractContextManager]] = []
 
     async def param_handle(
-        self, _object: Union[FuncSig, Type], param_list: List["inspect.Parameter"]
+        self,
+        _object: Union[FuncSig, Type],
+        param_list: List["inspect.Parameter"],
+        use_pydantic_base_model_alias: bool = False,
     ) -> Tuple[List[Any], Dict[str, Any]]:
         args_param_list: List[Any] = []
         kwargs_param_dict: Dict[str, Any] = {}
@@ -336,7 +354,7 @@ class AsyncParamHandler(BaseParamHandler):
             try:
                 if parameter.default != parameter.empty:
                     # kwargs param
-                    # support model: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseField())
+                    # support like: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseField())
                     if isinstance(parameter.default, field.Depends):
                         kwargs_param_dict[parameter.name] = await self._depend_handle(parameter.default.func)
                     else:
@@ -347,42 +365,34 @@ class AsyncParamHandler(BaseParamHandler):
                 else:
                     # args param
                     # support model: model: ModelType
-                    await self.set_parameter_value_to_args(parameter, args_param_list)
+                    await self.set_parameter_value_to_args(_object, parameter, args_param_list)
             except PaitBaseException as e:
-                raise e from gen_tip_exc(_object, e, parameter)
+                raise gen_tip_exc(_object, e, parameter)
         # support field: def demo(demo_param: int = pait.field.BaseField())
         if single_field_dict:
             try:
-                kwargs_param_dict.update(parameter_2_basemodel(single_field_dict, self.pydantic_model_config).dict())
+                kwargs_param_dict.update(
+                    parameter_2_basemodel(
+                        single_field_dict,
+                        self.pydantic_model_config,
+                        use_pydantic_base_model_alias=use_pydantic_base_model_alias,
+                    ).dict()
+                )
             except Exception as e:
-                raise e from gen_tip_exc(_object, e)
+                raise gen_tip_exc(_object, e)
         return args_param_list, kwargs_param_dict
 
-    async def set_parameter_value_to_args(self, parameter: inspect.Parameter, func_args: list) -> None:
+    async def set_parameter_value_to_args(
+        self, _object: Union[FuncSig, Type], parameter: inspect.Parameter, func_args: list
+    ) -> None:
         """use func_args param faster return and extend func_args"""
-        if self._set_parameter_value_to_args(parameter, func_args):
-            # support pait_model param(def handle(model: PaitBaseModel))
-            single_field_dict: Dict["inspect.Parameter", Any] = {}
-            _pait_model: Type[BaseModel] = parameter.annotation
-            for key, model_field in _pait_model.__fields__.items():
-                if not isinstance(model_field.field_info, BaseField):
-                    raise TypeError(f"{model_field.field_info} must instance {BaseField}")
-                annotation: Type = _pait_model.__annotations__[key]
-                if getattr(annotation, "real", None):
-                    # support like pydantic.ConstrainedIntValue
-                    annotation = annotation.real.__objclass__  # type: ignore
-                parameter = inspect.Parameter(
-                    key,
-                    inspect.Parameter.POSITIONAL_ONLY,
-                    default=model_field.field_info,
-                    annotation=annotation,
-                )
-                request_value: Any = self.get_request_value_from_parameter(parameter)
-                if asyncio.iscoroutine(request_value):
-                    request_value = await request_value
-                # PaitModel's attributes's annotation support BaseModel
-                self.request_value_handle(parameter, request_value, None, single_field_dict)
-            func_args.append(parameter_2_basemodel(single_field_dict, self.pydantic_model_config))
+        if not self._set_parameter_value_to_args(parameter, func_args):
+            return
+        _pait_model: Type[BaseModel] = parameter.annotation
+        _, kwargs = await self.param_handle(
+            _object, get_parameter_list_from_pydantic_basemodel(_pait_model), use_pydantic_base_model_alias=True
+        )
+        func_args.append(_pait_model(**kwargs))
 
     async def _depend_handle(self, func: Callable) -> Any:
         func_sig: FuncSig = get_func_sig(func)
@@ -400,13 +410,17 @@ class AsyncParamHandler(BaseParamHandler):
             return func_result
 
     async def _gen_param(self) -> None:
+        # check param from pre depend
         for pre_depend in self.pre_depend_list:
             await self._depend_handle(pre_depend)
+
+        # gen and check param from func
         func_sig: FuncSig = get_func_sig(self._func)
         self.args, self.kwargs = await self.param_handle(func_sig, func_sig.param_list)
 
+        # gen and check param from class
         if self.cbv_param_list and self.cbv_type:
-            args, kwargs = await self.param_handle(self.cbv_type, self.cbv_param_list)
+            _, kwargs = await self.param_handle(self.cbv_type, self.cbv_param_list)
             self.cbv_instance.__dict__.update(kwargs)
         return None
 

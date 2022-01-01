@@ -46,8 +46,8 @@ class RaiseTipHandler(MyHandler):
     )
     async def post(
         self,
-        model: UserModel = Body.i(),
-        other_model: UserOtherModel = Body.i(),
+        model: UserModel = Body.i(raw_return=True),
+        other_model: UserOtherModel = Body.i(raw_return=True),
         content_type: str = Header.i(description="content-type"),
     ) -> None:
         """Test Method: error tip"""
@@ -67,8 +67,8 @@ class TestPostHandler(MyHandler):
     )
     async def post(
         self,
-        model: UserModel = Body.i(),
-        other_model: UserOtherModel = Body.i(),
+        model: UserModel = Body.i(raw_return=True),
+        other_model: UserOtherModel = Body.i(raw_return=True),
         sex: SexEnum = Body.i(description="sex"),
         content_type: str = Header.i(alias="Content-Type", description="content-type"),
     ) -> None:
@@ -91,7 +91,7 @@ class TestDependHandler(MyHandler):
     async def post(
         self,
         request: RequestStartLine,
-        model: UserModel = Query.i(),
+        model: UserModel = Query.i(raw_return=True),
         depend_tuple: Tuple[str, int] = Depends.i(demo_depend),
     ) -> None:
         """Test Method:Post request, Pydantic Model"""
@@ -355,7 +355,7 @@ class TestCbvHandler(MyHandler):
         uid: int = Query.i(description="user id", gt=10, lt=1000),
         user_name: str = Query.i(description="user name", min_length=2, max_length=4),
         email: str = Query.i(default="example@xxx.com", description="user email"),
-        model: UserOtherModel = Query.i(),
+        model: UserOtherModel = Query.i(raw_return=True),
     ) -> None:
         """Text Pydantic Model and Field"""
         return_dict = {"uid": uid, "user_name": user_name, "email": email, "age": model.age}
@@ -371,8 +371,8 @@ class TestCbvHandler(MyHandler):
     )
     async def post(
         self,
-        model: UserModel = Body.i(),
-        other_model: UserOtherModel = Body.i(),
+        model: UserModel = Body.i(raw_return=True),
+        other_model: UserOtherModel = Body.i(raw_return=True),
     ) -> None:
         return_dict = model.dict()
         return_dict.update(other_model.dict())

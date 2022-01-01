@@ -250,11 +250,17 @@ class TestSanic:
 
     def test_pait_model(self, client: SanicTestClient) -> None:
         request, response = client.post(
-            "/api/pait_model?uid=123&user_name=appl", headers={"user-agent": "customer_agent"}, json={"age": 2}
+            "/api/pait_model?uid=123&user_name=appl",
+            headers={"user-agent": "customer_agent"},
+            json={"user_info": {"age": 2, "user_name": "appl"}},
         )
         resp: dict = response.json
         assert resp["code"] == 0
-        assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
+        assert resp["data"] == {
+            "uid": 123,
+            "user_agent": "customer_agent",
+            "user_info": {"age": 2, "user_name": "appl"},
+        }
 
     def test_raise_tip(self, client: SanicTestClient) -> None:
         request, response = client.post(

@@ -46,8 +46,8 @@ def api_exception(exc: Exception) -> Dict[str, Any]:
     response_model_list=[UserSuccessRespModel, FailRespModel],
 )
 def test_raise_tip(
-    model: UserModel = Body.i(),
-    other_model: UserOtherModel = Body.i(),
+    model: UserModel = Body.i(raw_return=True),
+    other_model: UserOtherModel = Body.i(raw_return=True),
     content__type: str = Header.i(description="Content-Type"),  # in flask, Content-Type's key is content_type
 ) -> dict:
     """Test Method: error tip"""
@@ -65,8 +65,8 @@ def test_raise_tip(
     response_model_list=[UserSuccessRespModel, FailRespModel],
 )
 def test_post(
-    model: UserModel = Body.i(),
-    other_model: UserOtherModel = Body.i(),
+    model: UserModel = Body.i(raw_return=True),
+    other_model: UserOtherModel = Body.i(raw_return=True),
     sex: SexEnum = Body.i(description="sex"),
     content_type: str = Header.i(alias="Content-Type", description="Content-Type"),
 ) -> dict:
@@ -87,7 +87,7 @@ def test_post(
 )
 def demo_get2test_depend(
     request: Request,
-    model: UserModel = Query.i(),
+    model: UserModel = Query.i(raw_return=True),
     depend_tuple: Tuple[str, int] = Depends.i(demo_depend),
 ) -> dict:
     """Test Method:Post request, Pydantic Model"""
@@ -262,9 +262,9 @@ def test_mock(
 @pait(
     author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[UserSuccessRespModel, FailRespModel]
 )
-def test_model(test_model: TestPaitModel) -> dict:
+def test_model(test_pait_model: TestPaitModel) -> dict:
     """Test Field"""
-    return {"code": 0, "msg": "", "data": test_model.dict()}
+    return {"code": 0, "msg": "", "data": test_pait_model.dict()}
 
 
 @pait(author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[SuccessRespModel, FailRespModel])
@@ -302,7 +302,7 @@ class TestCbv(MethodView):
         uid: int = Query.i(description="user id", gt=10, lt=1000),
         user_name: str = Query.i(description="user name", min_length=2, max_length=4),
         email: Optional[str] = Query.i(default="example@xxx.com", description="email"),
-        model: UserOtherModel = Query.i(),
+        model: UserOtherModel = Query.i(raw_return=True),
     ) -> dict:
         """Text Pydantic Model and Field"""
         return_dict = {"uid": uid, "user_name": user_name, "email": email, "age": model.age}
@@ -318,8 +318,8 @@ class TestCbv(MethodView):
     )
     def post(
         self,
-        model: UserModel = Body.i(),
-        other_model: UserOtherModel = Body.i(),
+        model: UserModel = Body.i(raw_return=True),
+        other_model: UserOtherModel = Body.i(raw_return=True),
     ) -> dict:
         return_dict = model.dict()
         return_dict.update(other_model.dict())

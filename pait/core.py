@@ -16,11 +16,7 @@ from pait.util import get_func_sig
 
 class Pait(object):
     app_helper_class: "Type[BaseAppHelper]"
-
-    # If you set the function directly, the function will become the bound function of the class,
-    # you need to use `staticmethod` syntax, but Type Hints does not support staticmethod nested subtypes,
-    # so the form of Tuple[Typehints] is used
-    make_mock_response_fn: staticmethod  # real type hints Callable[[Type[PaitBaseResponseModel]], Any]]
+    make_mock_response_fn: staticmethod  # real type hints: Callable[[Type[PaitBaseResponseModel]], Any]]
 
     def __init__(
         self,

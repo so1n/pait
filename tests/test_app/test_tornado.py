@@ -286,11 +286,15 @@ class TestTornado(AsyncHTTPTestCase):
             "/api/pait_model?uid=123&user_name=appl",
             headers={"user-agent": "customer_agent"},
             method="POST",
-            body='{"age": 2}',
+            body='{"user_info": {"age": 2, "user_name": "appl"}}',
         )
         resp: dict = json.loads(response.body.decode())
         assert resp["code"] == 0
-        assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
+        assert resp["data"] == {
+            "uid": 123,
+            "user_agent": "customer_agent",
+            "user_info": {"age": 2, "user_name": "appl"},
+        }
 
     def test_raise_tip(self) -> None:
         response: HTTPResponse = self.fetch(

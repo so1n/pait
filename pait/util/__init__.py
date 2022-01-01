@@ -10,6 +10,7 @@ from ._util import (
     gen_example_json_from_schema,
     gen_tip_exc,
     get_parameter_list_from_class,
+    get_parameter_list_from_pydantic_basemodel,
     json_type_default_value_dict,
     python_type_default_value_dict,
 )

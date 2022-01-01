@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type, get_type_hints
 from pydantic import BaseConfig, BaseModel, create_model
 
 from pait.exceptions import PaitBaseException
-from pait.field import BaseField, Depends
+from pait.field import BaseField, Depends, is_pait_field
 
 from ._func_sig import FuncSig
 
@@ -118,15 +118,41 @@ def gen_example_json_from_schema(schema_dict: Dict[str, Any], cls: Optional[Type
     return json.dumps(gen_example_dict_from_schema(schema_dict), cls=cls)
 
 
+def get_parameter_list_from_pydantic_basemodel(pait_model: Type[BaseModel]) -> List["inspect.Parameter"]:
+    """get class parameter list by attributes, if attributes not default value, it will be set `Undefined`"""
+    parameter_list: Optional[List["inspect.Parameter"]] = getattr(pait_model, "_parameter_list", None)
+    if parameter_list is not None:
+        return parameter_list
+    parameter_list = []
+    for key, model_field in pait_model.__fields__.items():
+        if not is_pait_field(model_field.field_info):
+            raise TypeError(f"{model_field.field_info} must instance {BaseField} or {Depends}")
+        annotation: Type = pait_model.__annotations__[key]
+        if getattr(annotation, "real", None):
+            # support like pydantic.ConstrainedIntValue
+            annotation = annotation.real.__objclass__  # type: ignore
+        parameter = inspect.Parameter(
+            key,
+            inspect.Parameter.POSITIONAL_ONLY,
+            default=model_field.field_info,
+            annotation=annotation,
+        )
+        parameter_list.append(parameter)
+
+    setattr(pait_model, "_parameter_list", parameter_list)
+    return parameter_list
+
+
 def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:
     """get class parameter list by attributes, if attributes not default value, it will be set `Undefined`"""
-    parameter_list: List["inspect.Parameter"] = getattr(cbv_class, "_parameter_list", [])
-    if parameter_list:
+    parameter_list: Optional[List["inspect.Parameter"]] = getattr(cbv_class, "_parameter_list", None)
+    if parameter_list is not None:
         return parameter_list
+    parameter_list = []
     if hasattr(cbv_class, "__annotations__"):
         for param_name, param_annotation in get_type_hints(cbv_class).items():
             default: Any = getattr(cbv_class, param_name, Undefined)
-            if not (isinstance(default, BaseField) or isinstance(default, Depends)):
+            if not is_pait_field(default):
                 continue
             parameter: "inspect.Parameter" = inspect.Parameter(
                 param_name,
@@ -141,7 +167,7 @@ def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:
 
 def gen_tip_exc(_object: Any, exception: "Exception", parameter: Optional[inspect.Parameter] = None) -> Exception:
     """Help users understand which parameter is wrong"""
-    if getattr(exception, "_is_tip_exc", None):
+    if not parameter and getattr(exception, "_is_tip_exc", None):
         return exception
     if parameter:
         param_value: BaseField = parameter.default
