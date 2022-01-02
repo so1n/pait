@@ -15,6 +15,7 @@ from example.param_verify.model import (
     HtmlRespModel,
     LoginRespModel,
     SexEnum,
+    SimpleRespModel,
     SuccessRespModel,
     TestPaitModel,
     TextRespModel,
@@ -42,19 +43,14 @@ def api_exception(exc: Exception) -> Dict[str, Any]:
     author=("so1n",),
     desc="test pait raise tip",
     status=PaitStatus.abandoned,
-    tag=("test",),
-    response_model_list=[UserSuccessRespModel, FailRespModel],
+    tag=("raise",),
+    response_model_list=[SimpleRespModel, FailRespModel],
 )
-def test_raise_tip(
-    model: UserModel = Body.i(raw_return=True),
-    other_model: UserOtherModel = Body.i(raw_return=True),
+def raise_tip_route(
     content__type: str = Header.i(description="Content-Type"),  # in flask, Content-Type's key is content_type
 ) -> dict:
-    """Test Method: error tip"""
-    return_dict = model.dict()
-    return_dict.update(other_model.dict())
-    return_dict.update({"content_type": content__type})
-    return {"code": 0, "msg": "", "data": return_dict}
+    """Prompted error from pait when test does not find value"""
+    return {"code": 0, "msg": "", "data": {"content_type": content__type}}
 
 
 @pait(
@@ -64,7 +60,7 @@ def test_raise_tip(
     tag=("user", "post"),
     response_model_list=[UserSuccessRespModel, FailRespModel],
 )
-def test_post(
+def post_route(
     model: UserModel = Body.i(raw_return=True),
     other_model: UserOtherModel = Body.i(raw_return=True),
     sex: SexEnum = Body.i(description="sex"),
@@ -83,45 +79,52 @@ def test_post(
     group="user",
     status=PaitStatus.release,
     tag=("user", "depend"),
-    response_model_list=[UserSuccessRespModel, FailRespModel],
+    response_model_list=[SimpleRespModel, FailRespModel],
 )
-def demo_get2test_depend(
+def depend_route(
     request: Request,
-    model: UserModel = Query.i(raw_return=True),
     depend_tuple: Tuple[str, int] = Depends.i(demo_depend),
 ) -> dict:
-    """Test Method:Post request, Pydantic Model"""
+    """Testing depend and using request parameters"""
     assert request is not None, "Not found request"
-    return_dict = model.dict()
-    return_dict.update({"user_agent": depend_tuple[0], "age": depend_tuple[1]})
-    return {"code": 0, "msg": "", "data": return_dict}
+    return {"code": 0, "msg": "", "data": {"user_agent": depend_tuple[0], "age": depend_tuple[1]}}
 
 
 @pait(
     author=("so1n",),
     group="user",
     status=PaitStatus.release,
-    tag=("user", "get"),
+    tag=("same alias",),
+    response_model_list=[SimpleRespModel, FailRespModel],
 )
-def test_same_alias(
+def same_alias_route(
     query_token: str = Query.i("", alias="token"), header_token: str = Header.i("", alias="token")
 ) -> dict:
-    return {"query_token": query_token, "header_token": header_token}
+    """Test different request types, but they have the same alias and different parameter names"""
+    return {"code": 0, "msg": "", "data": {"query_token": query_token, "header_token": header_token}}
 
 
 @pait(
     author=("so1n",),
     group="user",
     status=PaitStatus.release,
-    tag=("user", "get"),
+    tag=("field",),
+    response_model_list=[SimpleRespModel, FailRespModel],
 )
-def test_other_field(
+def pait_base_field_route(
     upload_file: Any = File.i(description="upload file"),
     a: str = Form.i(description="form data"),
     b: str = Form.i(description="form data"),
     c: List[str] = MultiForm.i(description="form data"),
     cookie: dict = Cookie.i(raw_return=True, description="cookie"),
+    multi_user_name: List[str] = MultiQuery.i(description="user name", min_length=2, max_length=4),
+    age: int = Path.i(description="age", gt=1, lt=100),
+    uid: int = Query.i(description="user id", gt=10, lt=1000),
+    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    sex: SexEnum = Query.i(description="sex"),
 ) -> dict:
+    """Test the use of all BaseField-based"""
     return {
         "code": 0,
         "msg": "",
@@ -132,6 +135,12 @@ def test_other_field(
             "form_b": b,
             "form_c": c,
             "cookie": cookie,
+            "multi_user_name": multi_user_name,
+            "age": age,
+            "uid": uid,
+            "user_name": user_name,
+            "email": email,
+            "sex": sex,
         },
     }
 
@@ -140,12 +149,12 @@ def test_other_field(
     author=("so1n",),
     group="user",
     status=PaitStatus.release,
-    tag=("user", "get"),
+    tag=("check param",),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
     at_most_one_of_list=[["user_name", "alias_user_name"]],
     required_by={"birthday": ["alias_user_name"]},
 )
-def test_check_param(
+def check_param_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
     user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
@@ -173,17 +182,17 @@ def test_check_param(
     author=("so1n",),
     group="user",
     status=PaitStatus.release,
-    tag=("user", "get"),
+    tag=("check response",),
     response_model_list=[UserSuccessRespModel3, FailRespModel],
 )
-def test_check_response(
+def check_response_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
     user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
     age: int = Query.i(description="age", gt=1, lt=100),
     display_age: int = Query.i(0, description="display_age"),
 ) -> dict:
-    """Test check param"""
+    """Test test-helper check response"""
     return_dict: dict = {
         "code": 0,
         "msg": "",
@@ -202,41 +211,11 @@ def test_check_response(
     author=("so1n",),
     group="user",
     status=PaitStatus.release,
-    tag=("user", "get"),
-    response_model_list=[UserSuccessRespModel2, FailRespModel],
-)
-def test_pait(
-    uid: int = Query.i(description="user id", gt=10, lt=1000),
-    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
-    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
-    multi_user_name: List[str] = MultiQuery.i(description="user name", min_length=2, max_length=4),
-    age: int = Path.i(description="age", gt=1, lt=100),
-    sex: SexEnum = Query.i(description="sex"),
-) -> dict:
-    """Test Field"""
-    return {
-        "code": 0,
-        "msg": "",
-        "data": {
-            "uid": uid,
-            "user_name": user_name,
-            "email": email,
-            "age": age,
-            "sex": sex.value,
-            "multi_user_name": multi_user_name,
-        },
-    }
-
-
-@pait(
-    author=("so1n",),
-    group="user",
-    status=PaitStatus.release,
-    tag=("user", "get"),
+    tag=("mock",),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
     enable_mock_response=True,
 )
-def test_mock(
+def mock_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
@@ -244,7 +223,7 @@ def test_mock(
     age: int = Path.i(description="age", gt=1, lt=100),
     sex: SexEnum = Query.i(description="sex"),
 ) -> dict:
-    """Test Field"""
+    """Test gen mock response"""
     return {
         "code": 0,
         "msg": "",
@@ -259,16 +238,14 @@ def test_mock(
     }
 
 
-@pait(
-    author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[UserSuccessRespModel, FailRespModel]
-)
-def test_model(test_pait_model: TestPaitModel) -> dict:
-    """Test Field"""
+@pait(author=("so1n",), status=PaitStatus.test, tag=("field",), response_model_list=[SimpleRespModel, FailRespModel])
+def pait_model_route(test_pait_model: TestPaitModel) -> dict:
+    """Test pait model"""
     return {"code": 0, "msg": "", "data": test_pait_model.dict()}
 
 
-@pait(author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[SuccessRespModel, FailRespModel])
-def test_depend_contextmanager(uid: str = Depends.i(context_depend), is_raise: bool = Query.i(default=False)) -> dict:
+@pait(author=("so1n",), status=PaitStatus.test, tag=("depend",), response_model_list=[SuccessRespModel, FailRespModel])
+def depend_contextmanager_route(uid: str = Depends.i(context_depend), is_raise: bool = Query.i(default=False)) -> dict:
     if is_raise:
         raise RuntimeError()
     return {"code": 0, "msg": uid}
@@ -277,63 +254,83 @@ def test_depend_contextmanager(uid: str = Depends.i(context_depend), is_raise: b
 @pait(
     author=("so1n",),
     status=PaitStatus.test,
-    tag=("test",),
+    tag=("depend",),
     pre_depend_list=[context_depend],
     response_model_list=[SuccessRespModel, FailRespModel],
 )
-def test_pre_depend_contextmanager(is_raise: bool = Query.i(default=False)) -> dict:
+def pre_depend_contextmanager_route(is_raise: bool = Query.i(default=False)) -> dict:
     if is_raise:
         raise RuntimeError()
     return {"code": 0, "msg": ""}
 
 
-class TestCbv(MethodView):
-    user_agent: str = Header.i(alias="user-agent", description="ua")  # remove key will raise error
+class CbvRoute(MethodView):
+    content_type: str = Header.i(alias="Content-Type")
 
     @pait(
         author=("so1n",),
         group="user",
         status=PaitStatus.release,
-        tag=("user", "get"),
-        response_model_list=[UserSuccessRespModel2, FailRespModel],
+        tag=("cbv",),
+        response_model_list=[UserSuccessRespModel, FailRespModel],
     )
     def get(
         self,
         uid: int = Query.i(description="user id", gt=10, lt=1000),
         user_name: str = Query.i(description="user name", min_length=2, max_length=4),
-        email: Optional[str] = Query.i(default="example@xxx.com", description="email"),
+        sex: SexEnum = Query.i(description="sex"),
         model: UserOtherModel = Query.i(raw_return=True),
     ) -> dict:
-        """Text Pydantic Model and Field"""
-        return_dict = {"uid": uid, "user_name": user_name, "email": email, "age": model.age}
-        return {"code": 0, "msg": "", "data": return_dict}
+        """Text cbv route get"""
+        return {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "uid": uid,
+                "user_name": user_name,
+                "sex": sex.value,
+                "age": model.age,
+                "content_type": self.content_type,
+            },
+        }
 
     @pait(
         author=("so1n",),
         desc="test cbv post method",
         group="user",
-        tag=("user", "post"),
+        tag=("cbv",),
         status=PaitStatus.release,
         response_model_list=[UserSuccessRespModel, FailRespModel],
     )
     def post(
         self,
-        model: UserModel = Body.i(raw_return=True),
-        other_model: UserOtherModel = Body.i(raw_return=True),
+        uid: int = Body.i(description="user id", gt=10, lt=1000),
+        user_name: str = Body.i(description="user name", min_length=2, max_length=4),
+        sex: SexEnum = Body.i(description="sex"),
+        model: UserOtherModel = Body.i(raw_return=True),
     ) -> dict:
-        return_dict = model.dict()
-        return_dict.update(other_model.dict())
-        return_dict.update({"user_agent": self.user_agent})
-        return {"code": 0, "msg": "", "data": return_dict}
+        """Text cbv route post"""
+        return {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "uid": uid,
+                "user_name": user_name,
+                "sex": sex.value,
+                "age": model.age,
+                "content_type": self.content_type,
+            },
+        }
 
 
 @pait(
     author=("so1n",),
     status=PaitStatus.test,
-    tag=("test",),
+    tag=("check response",),
     response_model_list=[TextRespModel],
 )
-def test_text_response() -> Response:
+def text_response_route() -> Response:
+    """test return test response"""
     response: Response = make_response(str(time.time()), 200)
     response.mimetype = "text/plain"
     response.headers.add_header("X-Example-Type", "text")
@@ -343,10 +340,11 @@ def test_text_response() -> Response:
 @pait(
     author=("so1n",),
     status=PaitStatus.test,
-    tag=("test",),
+    tag=("check response",),
     response_model_list=[HtmlRespModel],
 )
-def test_html_response() -> Response:
+def html_response_route() -> Response:
+    """test return html response"""
     response: Response = make_response("<H1>" + str(time.time()) + "</H1>", 200)
     response.mimetype = "text/html"
     response.headers.add_header("X-Example-Type", "html")
@@ -356,10 +354,11 @@ def test_html_response() -> Response:
 @pait(
     author=("so1n",),
     status=PaitStatus.test,
-    tag=("test",),
+    tag=("check response",),
     response_model_list=[FileRespModel],
 )
-def test_file_response() -> Response:
+def file_response_route() -> Response:
+    """test return file response"""
     file_content: str = "Hello Word!"
     with NamedTemporaryFile(delete=True) as f:
         f.write(file_content.encode())
@@ -376,7 +375,7 @@ def test_file_response() -> Response:
     tag=("links",),
     response_model_list=[LoginRespModel],
 )
-def test_login(uid: str = Body.i(description="user id"), password: str = Body.i(description="password")) -> dict:
+def login_route(uid: str = Body.i(description="user id"), password: str = Body.i(description="password")) -> dict:
     # only use test
     return {"code": 0, "msg": "", "data": {"token": hashlib.sha256((uid + password).encode("utf-8")).hexdigest()}}
 
@@ -390,7 +389,7 @@ token_links_Model = LinksModel(LoginRespModel, "$response.body#/data/token", des
     tag=("links",),
     response_model_list=[SuccessRespModel],
 )
-def test_get_user(token: str = Header.i("", description="token", link=token_links_Model)) -> dict:
+def get_user_route(token: str = Header.i("", description="token", link=token_links_Model)) -> dict:
     if token:
         return {"code": 0, "msg": ""}
     else:
@@ -400,24 +399,23 @@ def test_get_user(token: str = Header.i("", description="token", link=token_link
 def create_app() -> Flask:
     app: Flask = Flask(__name__)
     add_doc_route(app)
-    app.add_url_rule("/api/token", view_func=test_login, methods=["POST"])
-    app.add_url_rule("/api/user", view_func=test_get_user, methods=["GET"])
-    app.add_url_rule("/api/raise_tip", view_func=test_raise_tip, methods=["POST"])
-    app.add_url_rule("/api/post", view_func=test_post, methods=["POST"])
-    app.add_url_rule("/api/depend", view_func=demo_get2test_depend, methods=["POST"])
-    app.add_url_rule("/api/other_field", view_func=test_other_field, methods=["POST"])
-    app.add_url_rule("/api/same_alias", view_func=test_same_alias, methods=["GET"])
-    app.add_url_rule("/api/get/<age>", view_func=test_pait, methods=["GET"])
-    app.add_url_rule("/api/mock/<age>", view_func=test_mock, methods=["GET"])
-    app.add_url_rule("/api/pait_model", view_func=test_model, methods=["POST"])
-    app.add_url_rule("/api/cbv", view_func=TestCbv.as_view("test_cbv"))
-    app.add_url_rule("/api/check_param", view_func=test_check_param, methods=["GET"])
-    app.add_url_rule("/api/text_resp", view_func=test_text_response, methods=["GET"])
-    app.add_url_rule("/api/html_resp", view_func=test_html_response, methods=["GET"])
-    app.add_url_rule("/api/file_resp", view_func=test_file_response, methods=["GET"])
-    app.add_url_rule("/api/check_resp", view_func=test_check_response, methods=["GET"])
-    app.add_url_rule("/api/check_depend_contextmanager", view_func=test_depend_contextmanager, methods=["GET"])
-    app.add_url_rule("/api/check_pre_depend_contextmanager", view_func=test_pre_depend_contextmanager, methods=["GET"])
+    app.add_url_rule("/api/login", view_func=login_route, methods=["POST"])
+    app.add_url_rule("/api/get-user", view_func=get_user_route, methods=["GET"])
+    app.add_url_rule("/api/raise-tip", view_func=raise_tip_route, methods=["POST"])
+    app.add_url_rule("/api/post", view_func=post_route, methods=["POST"])
+    app.add_url_rule("/api/depend", view_func=depend_route, methods=["POST"])
+    app.add_url_rule("/api/pait-base-field/<age>", view_func=pait_base_field_route, methods=["POST"])
+    app.add_url_rule("/api/same-alias", view_func=same_alias_route, methods=["GET"])
+    app.add_url_rule("/api/mock/<age>", view_func=mock_route, methods=["GET"])
+    app.add_url_rule("/api/pait-model", view_func=pait_model_route, methods=["POST"])
+    app.add_url_rule("/api/cbv", view_func=CbvRoute.as_view("test_cbv"))
+    app.add_url_rule("/api/check-param", view_func=check_param_route, methods=["GET"])
+    app.add_url_rule("/api/text-resp", view_func=text_response_route, methods=["GET"])
+    app.add_url_rule("/api/html-resp", view_func=html_response_route, methods=["GET"])
+    app.add_url_rule("/api/file-resp", view_func=file_response_route, methods=["GET"])
+    app.add_url_rule("/api/check-resp", view_func=check_response_route, methods=["GET"])
+    app.add_url_rule("/api/depend-contextmanager", view_func=depend_contextmanager_route, methods=["GET"])
+    app.add_url_rule("/api/pre-depend-contextmanager", view_func=pre_depend_contextmanager_route, methods=["GET"])
     app.errorhandler(PaitBaseException)(api_exception)
     app.errorhandler(ValidationError)(api_exception)
     app.errorhandler(RuntimeError)(api_exception)

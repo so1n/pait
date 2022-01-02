@@ -247,7 +247,7 @@ class PaitBaseParse(object):
                     and issubclass(annotation, BaseModel)
                     and not isinstance(pait_field, Depends)
                 ):
-                    # support def test(test_model: BaseModel = Body())
+                    # support def test(pait_model_route: BaseModel = Body())
 
                     # Adapt each property of pydantic.BaseModel to pait.field
                     # Convert Field classes of pydantic.
@@ -260,7 +260,7 @@ class PaitBaseParse(object):
                     }
                     self._parse_base_model_to_field_dict(field_dict, annotation, param_filed_dict)
                 else:
-                    # def test(test_model: int = Body())
+                    # def test(pait_model_route: int = Body())
                     if isinstance(pait_field, Depends):
                         field_dict.update(self._parse_func_param_to_field_dict(pait_field.func, pait_model))
                     else:
@@ -273,7 +273,7 @@ class PaitBaseParse(object):
                     pait_field.link.register(pait_model, parameter.name, pait_field)
 
             elif issubclass(parameter.annotation, BaseModel):
-                # def test(test_model: PaitBaseModel)
+                # def test(pait_model_route: PaitBaseModel)
                 _pait_model: Type[BaseModel] = parameter.annotation
                 param_filed_dict = {
                     key: model_field.field_info

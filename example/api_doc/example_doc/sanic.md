@@ -49,7 +49,7 @@
 - Response:
 
 
-### Name: pait.test_raise_tip
+### Name: pait.raise_tip_route
 
 
 
@@ -57,7 +57,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 35">test_raise_tip</abbr>||
+|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 35">raise_tip_route</abbr>||
 - Path: api/raise_tip
 - Method: POST
 - Request:
@@ -213,11 +213,11 @@
             ```
 
 
-### Name: pait.test_depend_contextmanager
+### Name: pait.depend_contextmanager_route
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 312">test_depend_contextmanager</abbr>||
+|so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 312">depend_contextmanager_route</abbr>||
 - Path: api/check_depend_contextmanager
 - Method: GET
 - Request:
@@ -270,11 +270,11 @@
             ```
 
 
-### Name: pait.test_pre_depend_contextmanager
+### Name: pait.pre_depend_contextmanager_route
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 321">test_pre_depend_contextmanager</abbr>||
+|so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 321">pre_depend_contextmanager_route</abbr>||
 - Path: api/check_pre_depend_contextmanager
 - Method: GET
 - Request:
@@ -443,7 +443,7 @@
 
 </details><details><summary>Group: user</summary>
 
-### Name: pait.test_check_param
+### Name: pait.check_param_route
 
 
 
@@ -451,7 +451,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 159">test_check_param</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 159">check_param_route</abbr>||
 - Path: api/check_param
 - Method: GET
 - Request:
@@ -600,7 +600,7 @@
             ```
 
 
-### Name: pait.test_post
+### Name: pait.post_route
 
 
 
@@ -608,7 +608,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 54">test_post</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 54">post_route</abbr>||
 - Path: api/post
 - Method: POST
 - Request:
@@ -765,11 +765,11 @@
             ```
 
 
-### Name: pait.test_other_field
+### Name: pait.pait_base_field_route
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 235">test_other_field</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 235">pait_base_field_route</abbr>||
 - Path: api/other_field
 - Method: POST
 - Request:
@@ -797,11 +797,11 @@
 - Response:
 
 
-### Name: pait.test_same_alias
+### Name: pait.same_alias_route
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 223">test_same_alias</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 223">same_alias_route</abbr>||
 - Path: api/same_alias
 - Method: GET
 - Request:
@@ -989,7 +989,7 @@
             ```
 
 
-### Name: pait.test_mock
+### Name: pait.mock_route
 
 
 
@@ -997,7 +997,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 126">test_mock</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 126">mock_route</abbr>||
 - Path: api/mock/<age:str>
 - Method: GET
 - Request:

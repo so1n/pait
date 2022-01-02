@@ -5,10 +5,10 @@ group:
       func:
         file: /home/so1n/github/pait/example/param_verify/starlette_example.py
         lineno: 32
-        name: test_raise_tip
+        name: raise_tip_route
       method:
       - POST
-      name: test_raise_tip
+      name: raise_tip_route
       path: /api/raise_tip
       request:
         default: Required
@@ -449,10 +449,10 @@ group:
       func:
         file: /home/so1n/github/pait/example/param_verify/starlette_example.py
         lineno: 51
-        name: test_post
+        name: post_route
       method:
       - POST
-      name: test_post
+      name: post_route
       path: /api/post
       request:
         default: Required
@@ -663,10 +663,10 @@ group:
       func:
         file: /home/so1n/github/pait/example/param_verify/starlette_example.py
         lineno: 121
-        name: test_other_field
+        name: pait_base_field_route
       method:
       - POST
-      name: test_other_field
+      name: pait_base_field_route
       path: /api/other_field
       request:
         default: Required
@@ -680,10 +680,10 @@ group:
       func:
         file: /home/so1n/github/pait/example/param_verify/starlette_example.py
         lineno: 161
-        name: TestCbv.get
+        name: CbvRoute.get
       method:
       - get
-      name: TestCbv.get
+      name: CbvRoute.get
       path: /api/cbv
       request:
         default: Required
@@ -786,10 +786,10 @@ group:
       func:
         file: /home/so1n/github/pait/example/param_verify/starlette_example.py
         lineno: 179
-        name: TestCbv.post
+        name: CbvRoute.post
       method:
       - post
-      name: TestCbv.post
+      name: CbvRoute.post
       path: /api/cbv
       request:
         default: Required

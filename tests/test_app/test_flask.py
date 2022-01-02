@@ -1,6 +1,7 @@
+import json
 import sys
 from tempfile import NamedTemporaryFile
-from typing import Callable, Generator, List, Type
+from typing import Callable, Generator, Type
 from unittest import mock
 
 import pytest
@@ -9,18 +10,7 @@ from flask.ctx import AppContext
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 
-from example.param_verify.flask_example import create_app
-from example.param_verify.flask_example import test_check_param as check_param_route
-from example.param_verify.flask_example import test_check_response as check_resp_route
-from example.param_verify.flask_example import test_depend_contextmanager as depend_contextmanager
-from example.param_verify.flask_example import test_file_response as file_response
-from example.param_verify.flask_example import test_html_response as html_response
-from example.param_verify.flask_example import test_other_field as other_field_route
-from example.param_verify.flask_example import test_pait as pait_route
-from example.param_verify.flask_example import test_post as post_route
-from example.param_verify.flask_example import test_pre_depend_contextmanager as pre_depend_contextmanager
-from example.param_verify.flask_example import test_same_alias as same_alias_route
-from example.param_verify.flask_example import test_text_response as text_response
+from example.param_verify import flask_example
 from pait.app import auto_load_app
 from pait.app.flask import FlaskTestHelper
 from pait.g import config
@@ -32,7 +22,7 @@ from tests.conftest import enable_mock
 def client() -> Generator[FlaskClient, None, None]:
     # Flask provides a way to test your application by exposing the Werkzeug test Client
     # and handling the context locals for you.
-    app: Flask = create_app()
+    app: Flask = flask_example.create_app()
     client: FlaskClient = app.test_client()
     # Establish an application context before running the tests.
     ctx: AppContext = app.app_context()
@@ -67,158 +57,20 @@ def response_test_helper(
 
 
 class TestFlask:
-    def test_get(self, client: FlaskClient) -> None:
-        flask_test_helper: FlaskTestHelper = FlaskTestHelper(
-            client,
-            pait_route,
-            path_dict={"age": 3},
-            query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
-        )
-        resp_list: List[dict] = [
-            client.get("/api/get/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg").get_json(),
-            flask_test_helper.json(),
-        ]
-        for resp in resp_list:
-            assert resp["code"] == 0
-            assert resp["data"] == {
-                "uid": 123,
-                "user_name": "appl",
-                "email": "example@xxx.com",
-                "age": 3,
-                "sex": "man",
-                "multi_user_name": ["abc", "efg"],
-            }
-
-    def test_check_response(self, client: FlaskClient) -> None:
-        flask_test_helper: FlaskTestHelper = FlaskTestHelper(
-            client,
-            check_resp_route,
-            query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10},
-        )
-        with pytest.raises(RuntimeError):
-            flask_test_helper.json()
-        flask_test_helper = FlaskTestHelper(
-            client,
-            check_resp_route,
-            query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "display_age": 1},
-        )
-        flask_test_helper.json()
-
-    def test_check_param(self, client: FlaskClient) -> None:
-        flask_test_helper: FlaskTestHelper = FlaskTestHelper(
-            client,
-            check_param_route,
-            query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
-        )
-        assert "requires at most one of param user_name or alias_user_name" in flask_test_helper.json()["msg"]
-        flask_test_helper = FlaskTestHelper(
-            client, check_param_route, query_dict={"uid": 123, "sex": "man", "age": 10, "alias_user_name": "appe"}
-        )
-        assert "birthday requires param alias_user_name, which if not none" in flask_test_helper.json()["msg"]
-
-    def test_text_response(self, client: FlaskClient) -> None:
-        response_test_helper(client, text_response, response.PaitTextResponseModel)
-
-    def test_html_response(self, client: FlaskClient) -> None:
-        response_test_helper(client, html_response, response.PaitHtmlResponseModel)
-
-    def test_file_response(self, client: FlaskClient) -> None:
-        response_test_helper(client, file_response, response.PaitFileResponseModel)
-
-    def test_pre_depend_contextmanager(self, client: FlaskClient, mocker: MockFixture) -> None:
-        error_logger = mocker.patch("example.param_verify.model.logging.error")
-        info_logger = mocker.patch("example.param_verify.model.logging.info")
-        flask_test_helper: FlaskTestHelper = FlaskTestHelper(
-            client,
-            pre_depend_contextmanager,
-            query_dict={"uid": 123},
-        )
-        flask_test_helper.get()
-        info_logger.assert_called_once_with("context_depend exit")
-        flask_test_helper = FlaskTestHelper(
-            client,
-            pre_depend_contextmanager,
-            query_dict={"uid": 123, "is_raise": True},
-        )
-        flask_test_helper.get()
-        error_logger.assert_called_once_with("context_depend error")
-
-    def test_depend_contextmanager(self, client: FlaskClient, mocker: MockFixture) -> None:
-        error_logger = mocker.patch("example.param_verify.model.logging.error")
-        info_logger = mocker.patch("example.param_verify.model.logging.info")
-        flask_test_helper: FlaskTestHelper = FlaskTestHelper(
-            client,
-            depend_contextmanager,
-            query_dict={"uid": 123},
-        )
-        flask_test_helper.get()
-        info_logger.assert_called_once_with("context_depend exit")
-        flask_test_helper = FlaskTestHelper(
-            client,
-            depend_contextmanager,
-            query_dict={"uid": 123, "is_raise": True},
-        )
-        flask_test_helper.get()
-        error_logger.assert_called_once_with("context_depend error")
-
-    def test_mock_get(self, client: FlaskClient) -> None:
-        resp: dict = client.get(
-            "/api/mock/3?uid=123&user_name=appl&sex=man&multi_user_name=abc&multi_user_name=efg"
-        ).get_json()
-        assert resp == {
-            "code": 0,
-            "data": {
-                "age": 99,
-                "email": "example@so1n.me",
-                "uid": 666,
-                "user_name": "mock_name",
-                "multi_user_name": [],
-                "sex": "man",
-            },
-            "msg": "success",
-        }
-
-    def test_depend(self, client: FlaskClient) -> None:
-        resp: dict = client.post(
-            "/api/depend?uid=123&user_name=appl", headers={"user-agent": "customer_agent"}, json={"age": 2}
-        ).get_json()
-        assert resp["code"] == 0
-        assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
-
-    def test_get_cbv(self, client: FlaskClient) -> None:
-        resp: dict = client.get(
-            "/api/cbv?uid=123&user_name=appl&age=2", headers={"user-agent": "customer_agent"}
-        ).get_json()
-        assert resp["code"] == 0
-        assert resp["data"] == {"uid": 123, "user_name": "appl", "email": "example@xxx.com", "age": 2}
-
-    def test_post_cbv(self, client: FlaskClient) -> None:
-        resp: dict = client.post(
-            "/api/cbv", headers={"user-agent": "customer_agent"}, json={"uid": 123, "user_name": "appl", "age": 2}
-        ).get_json()
-        assert resp["code"] == 0
-        assert resp["data"] == {"uid": 123, "user_name": "appl", "age": 2, "user_agent": "customer_agent"}
-
-    def test_same_alias_name(self, client: FlaskClient) -> None:
-        test_helper: FlaskTestHelper = FlaskTestHelper(
-            client,
-            same_alias_route,
-            query_dict={"token": "query"},
-            header_dict={"token": "header"},
-        )
-        assert test_helper.json() == {"query_token": "query", "header_token": "header"}
-        test_helper = FlaskTestHelper(
-            client,
-            same_alias_route,
-            query_dict={"token": "query1"},
-            header_dict={"token": "header1"},
-        )
-        assert test_helper.json() == {"query_token": "query1", "header_token": "header1"}
+    def test_raise_tip_route(self, client: FlaskClient) -> None:
+        assert {
+            "code": -1,
+            "msg": (
+                'File "/home/so1n/github/pait/example/param_verify/flask_example.py", '
+                "line 44, "
+                "in raise_tip_route. error:content__type value is <class 'pydantic.fields.UndefinedType'>"
+            ),
+        } == FlaskTestHelper(client, flask_example.raise_tip_route, header_dict={"Content-Type": "test"}).json()
 
     def test_post(self, client: FlaskClient) -> None:
         flask_test_helper: FlaskTestHelper = FlaskTestHelper(
             client,
-            post_route,
+            flask_example.post_route,
             body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
             header_dict={"user-agent": "customer_agent"},
         )
@@ -239,59 +91,206 @@ class TestFlask:
                 "sex": "man",
             }
 
-    def test_pait_model(self, client: FlaskClient) -> None:
-        resp: dict = client.post(
-            "/api/pait_model?uid=123&user_name=appl",
-            headers={"user-agent": "customer_agent"},
-            json={"user_info": {"age": 2, "user_name": "appl"}},
-        ).get_json()
-        assert resp["code"] == 0
-        assert resp["data"] == {
-            "uid": 123,
-            "user_agent": "customer_agent",
-            "user_info": {"age": 2, "user_name": "appl"},
-        }
+    def test_depend_route(self, client: FlaskClient) -> None:
+        assert {"code": 0, "msg": "", "data": {"age": 2, "user_agent": "customer_agent"}} == FlaskTestHelper(
+            client,
+            flask_example.depend_route,
+            header_dict={"user-agent": "customer_agent"},
+            body_dict={"age": 2},
+            strict_inspection_check_json_content=False,
+        ).json()
 
-    def test_raise_tip(self, client: FlaskClient) -> None:
-        resp: dict = client.post(
-            "/api/raise_tip", headers={"user-agent": "customer_agent"}, json={"uid": 123, "user_name": "appl", "age": 2}
-        ).get_json()
-        assert "msg" in resp
+    def test_same_alias_name(self, client: FlaskClient) -> None:
+        assert (
+            FlaskTestHelper(
+                client,
+                flask_example.same_alias_route,
+                query_dict={"token": "query"},
+                header_dict={"token": "header"},
+                strict_inspection_check_json_content=False,
+            ).json()
+            == {"code": 0, "msg": "", "data": {"query_token": "query", "header_token": "header"}}
+        )
+        assert (
+            FlaskTestHelper(
+                client,
+                flask_example.same_alias_route,
+                query_dict={"token": "query1"},
+                header_dict={"token": "header1"},
+                strict_inspection_check_json_content=False,
+            ).json()
+            == {"code": 0, "msg": "", "data": {"query_token": "query1", "header_token": "header1"}}
+        )
 
-    def test_other_field(self, client: FlaskClient) -> None:
+    def test_pait_base_field_route(self, client: FlaskClient) -> None:
         file_content: str = "Hello Word!"
+        client.set_cookie("localhost", "abcd", "abcd")
 
         with NamedTemporaryFile(delete=True) as f1:
-            file_name: str = f1.name
             f1.write(file_content.encode())
             f1.seek(0)
-            with NamedTemporaryFile(delete=True) as f2:
-                f2.name = file_name  # type: ignore
-                f2.write(file_content.encode())
-                f2.seek(0)
+            assert {
+                "code": 0,
+                "data": {
+                    "age": 2,
+                    "content": "Hello Word!",
+                    "cookie": {"abcd": "abcd"},
+                    "email": "example@xxx.com",
+                    "filename": f1.name,
+                    "form_a": "1",
+                    "form_b": "2",
+                    "form_c": ["3", "4"],
+                    "multi_user_name": ["abc", "efg"],
+                    "sex": "man",
+                    "uid": 123,
+                    "user_name": "appl",
+                },
+                "msg": "",
+            } == FlaskTestHelper(
+                client,
+                flask_example.pait_base_field_route,
+                file_dict={"upload_file": f1},
+                form_dict={"a": "1", "b": "2", "c": ["3", "4"]},
+                query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
+                path_dict={"age": 2},
+                strict_inspection_check_json_content=False,
+            ).json()
 
-                flask_test_helper: FlaskTestHelper = FlaskTestHelper(
-                    client,
-                    other_field_route,
-                    file_dict={"upload_file": f1},
-                    form_dict={"a": "1", "b": "2", "c": ["3", "4"]},
-                )
+    def test_check_param(self, client: FlaskClient) -> None:
+        flask_test_helper: FlaskTestHelper = FlaskTestHelper(
+            client,
+            flask_example.check_param_route,
+            query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
+        )
+        assert "requires at most one of param user_name or alias_user_name" in flask_test_helper.json()["msg"]
+        flask_test_helper = FlaskTestHelper(
+            client,
+            flask_example.check_param_route,
+            query_dict={"uid": 123, "sex": "man", "age": 10, "alias_user_name": "appe"},
+        )
+        assert "birthday requires param alias_user_name, which if not none" in flask_test_helper.json()["msg"]
 
-                client.set_cookie("localhost", "abcd", "abcd")
-                for resp in [
-                    flask_test_helper.json(),
-                    client.post(
-                        "/api/other_field", data={"a": "1", "b": "2", "upload_file": f2, "c": ["3", "4"]}
-                    ).get_json(),
-                ]:
-                    assert {
-                        "filename": file_name,
-                        "content": file_content,
-                        "form_a": "1",
-                        "form_b": "2",
-                        "form_c": ["3", "4"],
-                        "cookie": {"abcd": "abcd"},
-                    } == resp["data"]
+    def test_check_response(self, client: FlaskClient) -> None:
+        flask_test_helper: FlaskTestHelper = FlaskTestHelper(
+            client,
+            flask_example.check_response_route,
+            query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10},
+        )
+        with pytest.raises(RuntimeError):
+            flask_test_helper.json()
+        flask_test_helper = FlaskTestHelper(
+            client,
+            flask_example.check_response_route,
+            query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "display_age": 1},
+        )
+        flask_test_helper.json()
+
+    def test_mock_route(self, client: FlaskClient) -> None:
+        assert (
+            FlaskTestHelper(
+                client,
+                flask_example.mock_route,
+                path_dict={"age": 3},
+                query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
+            ).json()
+            == json.loads(flask_example.UserSuccessRespModel2.get_example_value())
+        )
+
+    def test_pait_model(self, client: FlaskClient) -> None:
+        assert {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "uid": 123,
+                "user_agent": "customer_agent",
+                "user_info": {"age": 2, "user_name": "appl"},
+            },
+        } == FlaskTestHelper(
+            client,
+            flask_example.pait_model_route,
+            header_dict={"user-agent": "customer_agent"},
+            query_dict={"uid": 123, "user_name": "appl"},
+            body_dict={"user_info": {"age": 2, "user_name": "appl"}},
+            strict_inspection_check_json_content=False,
+        ).json()
+
+    def test_depend_contextmanager(self, client: FlaskClient, mocker: MockFixture) -> None:
+        error_logger = mocker.patch("example.param_verify.model.logging.error")
+        info_logger = mocker.patch("example.param_verify.model.logging.info")
+        flask_test_helper: FlaskTestHelper = FlaskTestHelper(
+            client,
+            flask_example.depend_contextmanager_route,
+            query_dict={"uid": 123},
+        )
+        flask_test_helper.get()
+        info_logger.assert_called_once_with("context_depend exit")
+        flask_test_helper = FlaskTestHelper(
+            client,
+            flask_example.depend_contextmanager_route,
+            query_dict={"uid": 123, "is_raise": True},
+        )
+        flask_test_helper.get()
+        error_logger.assert_called_once_with("context_depend error")
+
+    def test_pre_depend_contextmanager(self, client: FlaskClient, mocker: MockFixture) -> None:
+        error_logger = mocker.patch("example.param_verify.model.logging.error")
+        info_logger = mocker.patch("example.param_verify.model.logging.info")
+        flask_test_helper: FlaskTestHelper = FlaskTestHelper(
+            client,
+            flask_example.pre_depend_contextmanager_route,
+            query_dict={"uid": 123},
+        )
+        flask_test_helper.get()
+        info_logger.assert_called_once_with("context_depend exit")
+        flask_test_helper = FlaskTestHelper(
+            client,
+            flask_example.pre_depend_contextmanager_route,
+            query_dict={"uid": 123, "is_raise": True},
+        )
+        flask_test_helper.get()
+        error_logger.assert_called_once_with("context_depend error")
+
+    def test_get_cbv(self, client: FlaskClient) -> None:
+        assert {
+            "code": 0,
+            "msg": "",
+            "data": {"uid": 123, "user_name": "appl", "sex": "man", "age": 2, "content_type": "application/json"},
+        } == FlaskTestHelper(
+            client,
+            flask_example.CbvRoute.get,
+            query_dict={"uid": "123", "user_name": "appl", "age": 2, "sex": "man"},
+            header_dict={"Content-Type": "application/json"},
+        ).json()
+
+    def test_post_cbv(self, client: FlaskClient) -> None:
+        assert {
+            "code": 0,
+            "msg": "",
+            "data": {"uid": 123, "user_name": "appl", "sex": "man", "age": 2, "content_type": "application/json"},
+        } == FlaskTestHelper(
+            client,
+            flask_example.CbvRoute.post,
+            body_dict={"uid": "123", "user_name": "appl", "age": 2, "sex": "man"},
+            header_dict={"Content-Type": "application/json"},
+        ).json()
+
+    def test_text_response(self, client: FlaskClient) -> None:
+        response_test_helper(client, flask_example.text_response_route, response.PaitTextResponseModel)
+
+    def test_html_response(self, client: FlaskClient) -> None:
+        response_test_helper(client, flask_example.html_response_route, response.PaitHtmlResponseModel)
+
+    def test_file_response(self, client: FlaskClient) -> None:
+        response_test_helper(client, flask_example.file_response_route, response.PaitFileResponseModel)
+
+    def test_test_helper_not_support_mutil_method(self, client: FlaskClient) -> None:
+        client.application.add_url_rule(
+            "/api/text-resp", view_func=flask_example.text_response_route, methods=["GET", "POST"]
+        )
+        with pytest.raises(RuntimeError) as e:
+            FlaskTestHelper(client, flask_example.text_response_route).request()
+        exec_msg: str = e.value.args[0]
+        assert exec_msg == "Pait Can not auto select method, please choice method in ['GET', 'POST']"
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:

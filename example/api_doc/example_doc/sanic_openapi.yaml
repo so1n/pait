@@ -76,7 +76,7 @@ paths:
       deprecated: true
       summary: ''
       description: test pait raise tip
-      operationId: POST.pait.test_raise_tip
+      operationId: POST.pait.raise_tip_route
       parameters:
       - name: content_type
         in: header
@@ -181,7 +181,7 @@ paths:
       - test
       summary: ''
       description: ''
-      operationId: GET.pait.test_depend_contextmanager
+      operationId: GET.pait.depend_contextmanager_route
       parameters:
       - name: uid
         in: query
@@ -216,7 +216,7 @@ paths:
       - test
       summary: ''
       description: ''
-      operationId: GET.pait.test_pre_depend_contextmanager
+      operationId: GET.pait.pre_depend_contextmanager_route
       parameters:
       - name: is_raise
         in: query
@@ -322,7 +322,7 @@ paths:
       - get
       summary: ''
       description: Test check param
-      operationId: GET.pait.test_check_param
+      operationId: GET.pait.check_param_route
       parameters:
       - name: uid
         in: query
@@ -474,7 +474,7 @@ paths:
       - post
       summary: ''
       description: Test Method:Post Pydantic Model
-      operationId: POST.pait.test_post
+      operationId: POST.pait.post_route
       parameters:
       - name: requestBody.content.<media-type>
         in: header
@@ -586,7 +586,7 @@ paths:
       - get
       summary: ''
       description: ''
-      operationId: POST.pait.test_other_field
+      operationId: POST.pait.pait_base_field_route
       parameters:
       - name: cookie
         in: cookie
@@ -622,7 +622,7 @@ paths:
       - get
       summary: ''
       description: ''
-      operationId: GET.pait.test_same_alias
+      operationId: GET.pait.same_alias_route
       parameters:
       - name: token
         in: header
@@ -648,7 +648,7 @@ paths:
       - get
       summary: ''
       description: Text Pydantic Model and Field
-      operationId: GET.pait.TestCbv
+      operationId: GET.pait.CbvRoute
       parameters:
       - name: age
         in: query
@@ -712,7 +712,7 @@ paths:
       - get
       summary: ''
       description: Text Pydantic Model and Field
-      operationId: POST.pait.TestCbv
+      operationId: POST.pait.CbvRoute
       parameters:
       - name: age
         in: query
@@ -838,7 +838,7 @@ paths:
       - get
       summary: ''
       description: Test Field
-      operationId: GET.pait.test_mock
+      operationId: GET.pait.mock_route
       parameters:
       - name: uid
         in: query

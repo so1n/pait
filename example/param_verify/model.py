@@ -113,7 +113,7 @@ class UserSuccessRespModel(PaitResponseModel):
             user_name: str = Field("mock_name", description="user name", min_length=2, max_length=10)
             age: int = Field(99, description="age", gt=1, lt=100)
             sex: SexEnum = Field(SexEnum.man, description="sex")
-            content_type: str = Field("application/json", description="content-type")
+            content_type: str = Field(description="content-type")
 
             class Config:
                 use_enum_values = True
@@ -165,6 +165,16 @@ class FailRespModel(PaitJsonResponseModel):
 
 
 class SuccessRespModel(PaitJsonResponseModel):
+    description: str = "success response"
+    response_data: Type[BaseModel] = ResponseModel
+
+
+class SimpleRespModel(PaitJsonResponseModel):
+    class ResponseModel(BaseModel):
+        code: int = Field(0, description="api code")
+        msg: str = Field("success", description="api status msg")
+        data: dict = Field(description="success result")
+
     description: str = "success response"
     response_data: Type[BaseModel] = ResponseModel
 

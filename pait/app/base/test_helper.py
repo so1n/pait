@@ -27,6 +27,7 @@ class BaseTestHelper(Generic[RESP_T]):
         header_dict: Optional[dict] = None,
         path_dict: Optional[dict] = None,
         query_dict: Optional[dict] = None,
+        strict_inspection_check_json_content: bool = True,
     ):
         """
         :param client:  test client
@@ -60,6 +61,7 @@ class BaseTestHelper(Generic[RESP_T]):
         self.header_dict: dict = header_dict or {}
         self.path_dict: Optional[dict] = path_dict
         self.query_dict: Optional[dict] = query_dict
+        self.strict_inspection_check_json_content: bool = strict_inspection_check_json_content
 
         # path handle
         self.path: str = self.pait_core_model.path
@@ -186,7 +188,9 @@ class BaseTestHelper(Generic[RESP_T]):
                     real_response_model = response_model
                 try:
                     response_data_model(**resp_dict)
-                    if not self._check_diff_resp_dict(resp_dict, response_data_default_dict):
+                    if self.strict_inspection_check_json_content and not self._check_diff_resp_dict(
+                        resp_dict, response_data_default_dict
+                    ):
                         error_msg_list.append("check json structure error")
                 except (ValidationError, RuntimeError) as e:
                     error_msg_list.append(f"check json content error, exec: {e}")

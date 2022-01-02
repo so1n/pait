@@ -25,7 +25,7 @@ paths:
       - test
       summary: ''
       description: ''
-      operationId: GET.test_pre_depend_contextmanager
+      operationId: GET.pre_depend_contextmanager_route
       parameters:
       - name: is_raise
         in: query
@@ -61,7 +61,7 @@ paths:
       - test
       summary: ''
       description: ''
-      operationId: GET.test_depend_contextmanager
+      operationId: GET.depend_contextmanager_route
       parameters:
       - name: uid
         in: query
@@ -97,7 +97,7 @@ paths:
       - test
       summary: ''
       description: Test Field
-      operationId: POST.test_model
+      operationId: POST.pait_model_route
       parameters:
       - name: uid
         in: query
@@ -159,7 +159,7 @@ paths:
       deprecated: true
       summary: ''
       description: test pait raise tip
-      operationId: POST.test_raise_tip
+      operationId: POST.raise_tip_route
       parameters:
       - name: content__type
         in: header
@@ -272,7 +272,7 @@ paths:
       - get
       summary: ''
       description: ''
-      operationId: POST.test_other_field
+      operationId: POST.pait_base_field_route
       parameters:
       - name: cookie
         in: cookie
@@ -309,7 +309,7 @@ paths:
       - get
       summary: ''
       description: Test check param
-      operationId: GET.test_check_param
+      operationId: GET.check_param_route
       parameters:
       - name: uid
         in: query
@@ -396,7 +396,7 @@ paths:
       - get
       summary: ''
       description: ''
-      operationId: GET.test_same_alias
+      operationId: GET.same_alias_route
       parameters:
       - name: token
         in: header
@@ -423,7 +423,7 @@ paths:
       - get
       summary: ''
       description: Test check param
-      operationId: GET.test_check_response
+      operationId: GET.check_response_route
       parameters:
       - name: uid
         in: query
@@ -490,7 +490,7 @@ paths:
       - depend
       summary: ''
       description: Test Method:Post request, Pydantic Model
-      operationId: POST.demo_get2test_depend
+      operationId: POST.depend_route
       parameters:
       - name: uid
         in: query
@@ -554,7 +554,7 @@ paths:
       - post
       summary: ''
       description: Test Method:Post Pydantic Model
-      operationId: POST.test_post
+      operationId: POST.post_route
       parameters:
       - name: Content-Type
         in: header
@@ -641,7 +641,7 @@ paths:
         content:
           application/json:
             schema:
-              title: TestCbv.postDynamicModel
+              title: CbvRoute.postDynamicModel
               type: object
               properties:
                 uid:
@@ -743,7 +743,7 @@ paths:
       - get
       summary: ''
       description: Test Field
-      operationId: GET.test_mock
+      operationId: GET.mock_route
       parameters:
       - name: uid
         in: query

@@ -1,11 +1,11 @@
 # Pait Doc
 <details><summary>Group: root</summary>
 
-### Name: test_pre_depend_contextmanager
+### Name: pre_depend_contextmanager_route
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#00BFFF>test</font>|<abbr title="file:example/param_verify/flask_example.py;line: 269">test_pre_depend_contextmanager</abbr>||
+|so1n|<font color=#00BFFF>test</font>|<abbr title="file:example/param_verify/flask_example.py;line: 269">pre_depend_contextmanager_route</abbr>||
 - Path: /api/check_pre_depend_contextmanager
 - Method: GET
 - Request:
@@ -58,11 +58,11 @@
             ```
 
 
-### Name: test_depend_contextmanager
+### Name: depend_contextmanager_route
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#00BFFF>test</font>|<abbr title="file:example/param_verify/flask_example.py;line: 262">test_depend_contextmanager</abbr>||
+|so1n|<font color=#00BFFF>test</font>|<abbr title="file:example/param_verify/flask_example.py;line: 262">depend_contextmanager_route</abbr>||
 - Path: /api/check_depend_contextmanager
 - Method: GET
 - Request:
@@ -115,7 +115,7 @@
             ```
 
 
-### Name: test_model
+### Name: pait_model_route
 
 
 
@@ -123,7 +123,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#00BFFF>test</font>|<abbr title="file:example/param_verify/flask_example.py;line: 254">test_model</abbr>||
+|so1n|<font color=#00BFFF>test</font>|<abbr title="file:example/param_verify/flask_example.py;line: 254">pait_model_route</abbr>||
 - Path: /api/pait_model
 - Method: POST
 - Request:
@@ -199,7 +199,7 @@
             ```
 
 
-### Name: test_raise_tip
+### Name: raise_tip_route
 
 
 
@@ -207,7 +207,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:example/param_verify/flask_example.py;line: 33">test_raise_tip</abbr>||
+|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:example/param_verify/flask_example.py;line: 33">raise_tip_route</abbr>||
 - Path: /api/raise_tip
 - Method: POST
 - Request:
@@ -329,11 +329,11 @@
 
 </details><details><summary>Group: user</summary>
 
-### Name: test_other_field
+### Name: pait_base_field_route
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 104">test_other_field</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 104">pait_base_field_route</abbr>||
 - Path: /api/other_field
 - Method: POST
 - Request:
@@ -361,7 +361,7 @@
 - Response:
 
 
-### Name: test_check_param
+### Name: check_param_route
 
 
 
@@ -369,7 +369,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 131">test_check_param</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 131">check_param_route</abbr>||
 - Path: /api/check_param
 - Method: GET
 - Request:
@@ -442,11 +442,11 @@
             ```
 
 
-### Name: test_same_alias
+### Name: same_alias_route
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 92">test_same_alias</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 92">same_alias_route</abbr>||
 - Path: /api/same_alias
 - Method: GET
 - Request:
@@ -463,7 +463,7 @@
 - Response:
 
 
-### Name: test_check_response
+### Name: check_response_route
 
 
 
@@ -471,7 +471,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 164">test_check_response</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 164">check_response_route</abbr>||
 - Path: /api/check_resp
 - Method: GET
 - Request:
@@ -539,7 +539,7 @@
             ```
 
 
-### Name: demo_get2test_depend
+### Name: depend_route
 
 
 
@@ -547,7 +547,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 73">demo_get2test_depend</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 73">depend_route</abbr>||
 - Path: /api/depend
 - Method: POST
 - Request:
@@ -623,7 +623,7 @@
             ```
 
 
-### Name: test_post
+### Name: post_route
 
 
 
@@ -631,7 +631,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 52">test_post</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 52">post_route</abbr>||
 - Path: /api/post
 - Method: POST
 - Request:
@@ -867,7 +867,7 @@
             ```
 
 
-### Name: test_mock
+### Name: mock_route
 
 
 
@@ -875,7 +875,7 @@
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 223">test_mock</abbr>||
+|so1n|<font color=#32CD32>release</font>|<abbr title="file:example/param_verify/flask_example.py;line: 223">mock_route</abbr>||
 - Path: /api/mock/<age>
 - Method: GET
 - Request:

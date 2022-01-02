@@ -154,7 +154,7 @@ paths:
       - get
       summary: ''
       description: Test Field
-      operationId: GET.test_mock
+      operationId: GET.mock_route
       parameters:
       - name: uid
         in: query
@@ -219,7 +219,7 @@ paths:
       - get
       summary: ''
       description: Test Field
-      operationId: HEAD.test_mock
+      operationId: HEAD.mock_route
       parameters:
       - name: uid
         in: query
@@ -285,7 +285,7 @@ paths:
       - get
       summary: ''
       description: Test check param
-      operationId: GET.test_check_param
+      operationId: GET.check_param_route
       parameters:
       - name: uid
         in: query
@@ -370,7 +370,7 @@ paths:
       - get
       summary: ''
       description: Test check param
-      operationId: HEAD.test_check_param
+      operationId: HEAD.check_param_route
       parameters:
       - name: uid
         in: query
@@ -587,7 +587,7 @@ paths:
       - post
       summary: ''
       description: Test Method:Post Pydantic Model
-      operationId: POST.test_post
+      operationId: POST.post_route
       parameters:
       - name: requestBody.content.<media-type>
         in: header
@@ -699,7 +699,7 @@ paths:
       - get
       summary: ''
       description: ''
-      operationId: POST.test_other_field
+      operationId: POST.pait_base_field_route
       parameters:
       - name: cookie
         in: cookie
@@ -735,7 +735,7 @@ paths:
       - get
       summary: ''
       description: ''
-      operationId: GET.test_same_alias
+      operationId: GET.same_alias_route
       parameters:
       - name: token
         in: header
@@ -760,7 +760,7 @@ paths:
       - get
       summary: ''
       description: ''
-      operationId: HEAD.test_same_alias
+      operationId: HEAD.same_alias_route
       parameters:
       - name: token
         in: header
@@ -786,7 +786,7 @@ paths:
       - get
       summary: ''
       description: Text Pydantic Model and Field
-      operationId: get.TestCbv.get
+      operationId: get.CbvRoute.get
       parameters:
       - name: age
         in: query
@@ -850,7 +850,7 @@ paths:
       - post
       summary: ''
       description: test cbv post method
-      operationId: post.TestCbv.post
+      operationId: post.CbvRoute.post
       parameters:
       - name: user-agent
         in: header
@@ -896,7 +896,7 @@ paths:
       deprecated: true
       summary: ''
       description: test pait raise tip
-      operationId: POST.test_raise_tip
+      operationId: POST.raise_tip_route
       parameters:
       - name: content_type
         in: header
@@ -1001,7 +1001,7 @@ paths:
       - test
       summary: ''
       description: ''
-      operationId: GET.test_depend_contextmanager
+      operationId: GET.depend_contextmanager_route
       parameters:
       - name: uid
         in: query
@@ -1033,7 +1033,7 @@ paths:
       - test
       summary: ''
       description: ''
-      operationId: HEAD.test_depend_contextmanager
+      operationId: HEAD.depend_contextmanager_route
       parameters:
       - name: uid
         in: query
@@ -1131,7 +1131,7 @@ paths:
       - test
       summary: ''
       description: ''
-      operationId: GET.test_pre_depend_contextmanager
+      operationId: GET.pre_depend_contextmanager_route
       parameters:
       - name: is_raise
         in: query
@@ -1163,7 +1163,7 @@ paths:
       - test
       summary: ''
       description: ''
-      operationId: HEAD.test_pre_depend_contextmanager
+      operationId: HEAD.pre_depend_contextmanager_route
       parameters:
       - name: is_raise
         in: query

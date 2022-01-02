@@ -210,7 +210,7 @@ class ParamHandler(BaseParamHandler):
 
     def param_handle(
         self,
-        _object: Union[FuncSig, Type],
+        _object: Union[FuncSig, Type, None],
         param_list: List["inspect.Parameter"],
         use_pydantic_base_model_alias: bool = False,
     ) -> Tuple[List[Any], Dict[str, Any]]:
@@ -237,7 +237,7 @@ class ParamHandler(BaseParamHandler):
                 else:
                     # args param
                     # support model: model: ModelType
-                    self.set_parameter_value_to_args(_object, parameter, args_param_list)
+                    self.set_parameter_value_to_args(parameter, args_param_list)
             except PaitBaseException as e:
                 raise gen_tip_exc(_object, e, parameter)
         # support field: def demo(demo_param: int = pait.field.BaseField())
@@ -251,19 +251,17 @@ class ParamHandler(BaseParamHandler):
                     ).dict(),
                 )
             except Exception as e:
-                raise gen_tip_exc(_object, e)
+                raise e from gen_tip_exc(_object, e)
         return args_param_list, kwargs_param_dict
 
-    def set_parameter_value_to_args(
-        self, _object: Union[FuncSig, Type], parameter: inspect.Parameter, func_args: list
-    ) -> None:
+    def set_parameter_value_to_args(self, parameter: inspect.Parameter, func_args: list) -> None:
         """use func_args param faster return and extend func_args"""
         if not self._set_parameter_value_to_args(parameter, func_args):
             return
         # support pait_model param(def handle(model: PaitBaseModel))
         _pait_model: Type[BaseModel] = parameter.annotation
         _, kwargs = self.param_handle(
-            _object, get_parameter_list_from_pydantic_basemodel(_pait_model), use_pydantic_base_model_alias=True
+            None, get_parameter_list_from_pydantic_basemodel(_pait_model), use_pydantic_base_model_alias=True
         )
         func_args.append(_pait_model(**kwargs))
 
@@ -367,7 +365,7 @@ class AsyncParamHandler(BaseParamHandler):
                     # support model: model: ModelType
                     await self.set_parameter_value_to_args(_object, parameter, args_param_list)
             except PaitBaseException as e:
-                raise gen_tip_exc(_object, e, parameter)
+                raise e from gen_tip_exc(_object, e, parameter)
         # support field: def demo(demo_param: int = pait.field.BaseField())
         if single_field_dict:
             try:
