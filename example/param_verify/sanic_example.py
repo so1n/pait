@@ -445,7 +445,7 @@ def create_app() -> Sanic:
     app.add_route(pait_base_field_route, "/api/pait-base-field/<age>", methods={"POST"})
     app.add_route(same_alias_route, "/api/same-alias", methods={"GET"})
     app.add_route(mock_route, "/api/mock/<age>", methods={"GET"})
-    app.add_route(pait_model_route, "/api/pait_model", methods={"POST"})
+    app.add_route(pait_model_route, "/api/pait-model", methods={"POST"})
     app.add_route(CbvRoute.as_view(), "/api/cbv")
     app.add_route(check_param_route, "/api/check-param", methods={"GET"})
     app.add_route(check_response_route, "/api/check-resp", methods={"GET"})
