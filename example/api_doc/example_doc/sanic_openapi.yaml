@@ -251,7 +251,7 @@ paths:
       - test
       summary: ''
       description: ''
-      operationId: GET.pait.test_depend_async_contextmanager
+      operationId: GET.pait.depend_async_contextmanager_route
       parameters:
       - name: uid
         in: query
@@ -286,7 +286,7 @@ paths:
       - test
       summary: ''
       description: ''
-      operationId: GET.pait.test_pre_depend_async_contextmanager
+      operationId: GET.pait.pre_depend_async_contextmanager_route
       parameters:
       - name: is_raise
         in: query

@@ -365,7 +365,7 @@ class AsyncParamHandler(BaseParamHandler):
                     # support model: model: ModelType
                     await self.set_parameter_value_to_args(_object, parameter, args_param_list)
             except PaitBaseException as e:
-                raise e from gen_tip_exc(_object, e, parameter)
+                raise gen_tip_exc(_object, e, parameter)
         # support field: def demo(demo_param: int = pait.field.BaseField())
         if single_field_dict:
             try:
@@ -377,7 +377,7 @@ class AsyncParamHandler(BaseParamHandler):
                     ).dict()
                 )
             except Exception as e:
-                raise gen_tip_exc(_object, e)
+                raise e from gen_tip_exc(_object, e)
         return args_param_list, kwargs_param_dict
 
     async def set_parameter_value_to_args(

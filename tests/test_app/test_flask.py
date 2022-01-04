@@ -13,7 +13,6 @@ from pytest_mock import MockFixture
 from example.param_verify import flask_example
 from pait.app import auto_load_app
 from pait.app.flask import FlaskTestHelper
-from pait.g import config
 from pait.model import response
 from tests.conftest import enable_mock
 
@@ -29,13 +28,6 @@ def client() -> Generator[FlaskClient, None, None]:
     ctx.push()
     yield client  # this is where the testing happens!
     ctx.pop()
-
-
-@pytest.fixture
-def enable_mock_response() -> Generator[None, None, None]:
-    config.enable_mock_response = True
-    yield None
-    config.enable_mock_response = False
 
 
 def response_test_helper(

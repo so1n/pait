@@ -43,11 +43,13 @@ def load_app(app: Sanic, project_name: str = "") -> Dict[str, PaitCoreModel]:
         for method in method_set:
             view_class: Optional[Type] = getattr(handler, "view_class", None)
             if view_class:
-                handler = getattr(view_class, method.lower(), None)
-            if not handler:
+                real_handler: Callable = getattr(view_class, method.lower(), None)
+            else:
+                real_handler = handler
+            if not real_handler:
                 logging.warning(f"{route_name} can not found handle")
                 continue
-            pait_id: Optional[str] = getattr(handler, "_pait_id", None)
+            pait_id: Optional[str] = getattr(real_handler, "_pait_id", None)
             if not pait_id:
                 logging.warning(f"{route_name} can not found pait id")
                 continue

@@ -202,11 +202,11 @@
             ```
 
 
-### Name: test_depend_async_contextmanager
+### Name: depend_async_contextmanager_route
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 337">test_depend_async_contextmanager</abbr>||
+|so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 337">depend_async_contextmanager_route</abbr>||
 - Path: /api/check_depend_async_contextmanager
 - Method: GET,HEAD
 - Request:
@@ -276,11 +276,11 @@
             ```
 
 
-### Name: test_pre_depend_async_contextmanager
+### Name: pre_depend_async_contextmanager_route
 
 |Author|Status|func|summary|
 |---|---|---|---|
-|so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 346">test_pre_depend_async_contextmanager</abbr>||
+|so1n|<font color=#00BFFF>test</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 346">pre_depend_async_contextmanager_route</abbr>||
 - Path: /api/check_pre_depend_async_contextmanager
 - Method: GET,HEAD
 - Request:

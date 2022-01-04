@@ -1066,7 +1066,7 @@ paths:
       - test
       summary: ''
       description: ''
-      operationId: GET.test_depend_async_contextmanager
+      operationId: GET.depend_async_contextmanager_route
       parameters:
       - name: uid
         in: query
@@ -1098,7 +1098,7 @@ paths:
       - test
       summary: ''
       description: ''
-      operationId: HEAD.test_depend_async_contextmanager
+      operationId: HEAD.depend_async_contextmanager_route
       parameters:
       - name: uid
         in: query
@@ -1196,7 +1196,7 @@ paths:
       - test
       summary: ''
       description: ''
-      operationId: GET.test_pre_depend_async_contextmanager
+      operationId: GET.pre_depend_async_contextmanager_route
       parameters:
       - name: is_raise
         in: query
@@ -1228,7 +1228,7 @@ paths:
       - test
       summary: ''
       description: ''
-      operationId: HEAD.test_pre_depend_async_contextmanager
+      operationId: HEAD.pre_depend_async_contextmanager_route
       parameters:
       - name: is_raise
         in: query
