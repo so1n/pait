@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import time
 from typing import Dict, List, Optional, Tuple
 
@@ -12,7 +13,9 @@ from example.param_verify.model import (
     FailRespModel,
     FileRespModel,
     HtmlRespModel,
+    LoginRespModel,
     SexEnum,
+    SimpleRespModel,
     SuccessRespModel,
     TestPaitModel,
     TextRespModel,
@@ -27,6 +30,7 @@ from example.param_verify.model import (
 )
 from pait.app.tornado import add_doc_route, pait
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
+from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
 
 
@@ -41,23 +45,18 @@ class RaiseTipHandler(MyHandler):
         author=("so1n",),
         desc="test pait raise tip",
         status=PaitStatus.abandoned,
-        tag=("test",),
-        response_model_list=[UserSuccessRespModel, FailRespModel],
+        tag=("raise",),
+        response_model_list=[SimpleRespModel, FailRespModel],
     )
     async def post(
         self,
-        model: UserModel = Body.i(raw_return=True),
-        other_model: UserOtherModel = Body.i(raw_return=True),
         content_type: str = Header.i(description="content-type"),
     ) -> None:
         """Test Method: error tip"""
-        return_dict = model.dict()
-        return_dict.update(other_model.dict())
-        return_dict.update({"content_type": content_type})
-        self.write({"code": 0, "msg": "", "data": return_dict})
+        self.write({"code": 0, "msg": "", "data": {"content_type": content_type}})
 
 
-class TestPostHandler(MyHandler):
+class PostHandler(MyHandler):
     @pait(
         author=("so1n",),
         group="user",
@@ -80,102 +79,87 @@ class TestPostHandler(MyHandler):
         self.write({"code": 0, "msg": "", "data": return_dict})
 
 
-class TestDependHandler(MyHandler):
+class DependHandler(MyHandler):
     @pait(
         author=("so1n",),
         group="user",
         status=PaitStatus.release,
         tag=("user", "depend"),
-        response_model_list=[UserSuccessRespModel, FailRespModel],
+        response_model_list=[SimpleRespModel, FailRespModel],
     )
     async def post(
         self,
         request: RequestStartLine,
-        model: UserModel = Query.i(raw_return=True),
         depend_tuple: Tuple[str, int] = Depends.i(demo_depend),
     ) -> None:
         """Test Method:Post request, Pydantic Model"""
         assert request is not None, "Not found request"
-        return_dict = model.dict()
-        return_dict.update({"user_agent": depend_tuple[0], "age": depend_tuple[1]})
-        self.write({"code": 0, "msg": "", "data": return_dict})
+        self.write({"code": 0, "msg": "", "data": {"user_agent": depend_tuple[0], "age": depend_tuple[1]}})
 
 
-class TestGetHandler(MyHandler):
+class SameAliasHandler(MyHandler):
     @pait(
         author=("so1n",),
         group="user",
         status=PaitStatus.release,
-        tag=("user", "get"),
-        response_model_list=[UserSuccessRespModel2, FailRespModel],
+        tag=("same alias",),
     )
-    async def get(
+    def get(
+        self, query_token: str = Query.i("", alias="token"), header_token: str = Header.i("", alias="token")
+    ) -> None:
+        self.write({"code": 0, "msg": "", "data": {"query_token": query_token, "header_token": header_token}})
+
+
+class PaitBaseFieldHandler(MyHandler):
+    @pait(
+        author=("so1n",),
+        group="user",
+        status=PaitStatus.release,
+        tag=("field",),
+        response_model_list=[SimpleRespModel, FailRespModel],
+    )
+    async def post(
         self,
+        upload_file: Dict = File.i(raw_return=True, description="upload file"),
+        a: str = Form.i(description="form data"),
+        b: str = Form.i(description="form data"),
+        c: List[str] = MultiForm.i(description="form data"),
+        cookie: dict = Cookie.i(raw_return=True, description="cookie"),
+        multi_user_name: List[str] = MultiQuery.i(description="user name", min_length=2, max_length=4),
+        age: int = Path.i(description="age", gt=1, lt=100),
         uid: int = Query.i(description="user id", gt=10, lt=1000),
         user_name: str = Query.i(description="user name", min_length=2, max_length=4),
-        email: str = Query.i(default="example@xxx.com", description="user email"),
-        age: int = Path.i(description="age"),
+        email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
         sex: SexEnum = Query.i(description="sex"),
-        multi_user_name: List[str] = MultiQuery.i(description="user name", min_length=2, max_length=4),
     ) -> None:
-        """Test Field"""
         self.write(
             {
                 "code": 0,
                 "msg": "",
                 "data": {
+                    "filename": list(upload_file.values())[0]["filename"],
+                    "content": list(upload_file.values())[0]["body"].decode(),
+                    "form_a": a,
+                    "form_b": b,
+                    "form_c": c,
+                    "cookie": {key: key for key, _ in cookie.items()},
+                    "multi_user_name": multi_user_name,
+                    "age": age,
                     "uid": uid,
                     "user_name": user_name,
                     "email": email,
-                    "age": age,
-                    "sex": sex.value,
-                    "multi_user_name": multi_user_name,
+                    "sex": sex,
                 },
             }
         )
 
 
-class TestMockHandler(MyHandler):
+class CheckParamHandler(MyHandler):
     @pait(
         author=("so1n",),
         group="user",
         status=PaitStatus.release,
-        tag=("user", "get"),
-        response_model_list=[UserSuccessRespModel2, FailRespModel],
-        enable_mock_response=True,
-    )
-    async def get(
-        self,
-        uid: int = Query.i(description="user id", gt=10, lt=1000),
-        user_name: str = Query.i(description="user name", min_length=2, max_length=4),
-        email: str = Query.i(default="example@xxx.com", description="user email"),
-        age: int = Path.i(description="age"),
-        sex: SexEnum = Query.i(description="sex"),
-        multi_user_name: List[str] = MultiQuery.i(description="user name", min_length=2, max_length=4),
-    ) -> None:
-        """Test Field"""
-        self.write(
-            {
-                "code": 0,
-                "msg": "",
-                "data": {
-                    "uid": uid,
-                    "user_name": user_name,
-                    "email": email,
-                    "age": age,
-                    "sex": sex.value,
-                    "multi_user_name": multi_user_name,
-                },
-            }
-        )
-
-
-class TestCheckParamHandler(MyHandler):
-    @pait(
-        author=("so1n",),
-        group="user",
-        status=PaitStatus.release,
-        tag=("user", "get"),
+        tag=("check param",),
         response_model_list=[UserSuccessRespModel2, FailRespModel],
         at_most_one_of_list=[["user_name", "alias_user_name"]],
         required_by={"birthday": ["alias_user_name"]},
@@ -207,15 +191,13 @@ class TestCheckParamHandler(MyHandler):
         )
 
 
-class TestCheckRespHandler(MyHandler):
+class CheckRespHandler(MyHandler):
     @pait(
         author=("so1n",),
         group="user",
         status=PaitStatus.release,
-        tag=("user", "get"),
+        tag=("check response",),
         response_model_list=[UserSuccessRespModel3, FailRespModel],
-        at_most_one_of_list=[["user_name", "alias_user_name"]],
-        required_by={"birthday": ["alias_user_name"]},
     )
     async def get(
         self,
@@ -240,151 +222,165 @@ class TestCheckRespHandler(MyHandler):
         self.write(return_dict)
 
 
-class TestSameAliasHandler(MyHandler):
+class MockHandler(MyHandler):
     @pait(
         author=("so1n",),
         group="user",
         status=PaitStatus.release,
-        tag=("user", "get"),
-    )
-    def get(
-        self, query_token: str = Query.i("", alias="token"), header_token: str = Header.i("", alias="token")
-    ) -> None:
-        self.write({"query_token": query_token, "header_token": header_token})
-
-
-class TestOtherFieldHandler(MyHandler):
-    @pait(
-        author=("so1n",),
-        group="user",
-        status=PaitStatus.release,
-        tag=("user", "get"),
-    )
-    async def post(
-        self,
-        upload_file: Dict = File.i(raw_return=True, description="upload file"),
-        a: str = Form.i(description="form data"),
-        b: str = Form.i(description="form data"),
-        c: List[str] = MultiForm.i(description="form data"),
-        cookie: dict = Cookie.i(raw_return=True, description="cookie"),
-    ) -> None:
-        self.write(
-            {
-                "code": 0,
-                "msg": "",
-                "data": {
-                    "filename": list(upload_file.values())[0]["filename"],
-                    "content": list(upload_file.values())[0]["body"].decode(),
-                    "form_a": a,
-                    "form_b": b,
-                    "form_c": c,
-                    "cookie": {key: key for key, _ in cookie.items()},
-                },
-            }
-        )
-
-
-class TestPaitModelHanler(MyHandler):
-    @pait(
-        author=("so1n",),
-        status=PaitStatus.test,
-        tag=("test",),
-        response_model_list=[UserSuccessRespModel, FailRespModel],
-    )
-    async def post(self, test_model: TestPaitModel) -> None:
-        """Test Field"""
-        self.write({"code": 0, "msg": "", "data": test_model.dict()})
-
-
-class TestDependContextmanagerHanler(MyHandler):
-    @pait(author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[SuccessRespModel])
-    async def get(self, uid: str = Depends.i(context_depend), is_raise: bool = Query.i(default=False)) -> None:
-        if is_raise:
-            raise RuntimeError()
-        self.write({"code": 0, "msg": uid})
-
-
-class TestDependAsyncContextmanagerHanler(MyHandler):
-    @pait(author=("so1n",), status=PaitStatus.test, tag=("test",), response_model_list=[SuccessRespModel])
-    async def get(self, uid: str = Depends.i(async_context_depend), is_raise: bool = Query.i(default=False)) -> None:
-        if is_raise:
-            raise RuntimeError()
-        self.write({"code": 0, "msg": uid})
-
-
-class TestPreDependContextmanagerHanler(MyHandler):
-    @pait(
-        author=("so1n",),
-        status=PaitStatus.test,
-        tag=("test",),
-        pre_depend_list=[context_depend],
-        response_model_list=[SuccessRespModel],
-    )
-    async def get(self, is_raise: bool = Query.i(default=False)) -> None:
-        if is_raise:
-            raise RuntimeError()
-        self.write({"code": 0, "msg": ""})
-
-
-class TestPreDependAsyncContextmanagerHanler(MyHandler):
-    @pait(
-        author=("so1n",),
-        status=PaitStatus.test,
-        tag=("test",),
-        pre_depend_list=[async_context_depend],
-        response_model_list=[SuccessRespModel],
-    )
-    async def get(self, is_raise: bool = Query.i(default=False)) -> None:
-        if is_raise:
-            raise RuntimeError()
-        self.write({"code": 0, "msg": ""})
-
-
-class TestCbvHandler(MyHandler):
-    user_agent: str = Header.i(alias="user-agent", description="ua")  # remove key will raise error
-
-    @pait(
-        author=("so1n",),
-        group="user",
-        status=PaitStatus.release,
-        tag=("user", "get"),
+        tag=("mock",),
         response_model_list=[UserSuccessRespModel2, FailRespModel],
+        enable_mock_response=True,
     )
     async def get(
         self,
         uid: int = Query.i(description="user id", gt=10, lt=1000),
         user_name: str = Query.i(description="user name", min_length=2, max_length=4),
         email: str = Query.i(default="example@xxx.com", description="user email"),
+        age: int = Path.i(description="age"),
+        sex: SexEnum = Query.i(description="sex"),
+        multi_user_name: List[str] = MultiQuery.i(description="user name", min_length=2, max_length=4),
+    ) -> None:
+        """Test Field"""
+        self.write(
+            {
+                "code": 0,
+                "msg": "",
+                "data": {
+                    "uid": uid,
+                    "user_name": user_name,
+                    "email": email,
+                    "age": age,
+                    "sex": sex.value,
+                    "multi_user_name": multi_user_name,
+                },
+            }
+        )
+
+
+class PaitModelHanler(MyHandler):
+    @pait(
+        author=("so1n",), status=PaitStatus.test, tag=("field",), response_model_list=[SimpleRespModel, FailRespModel]
+    )
+    async def post(self, test_model: TestPaitModel) -> None:
+        """Test pait model"""
+        self.write({"code": 0, "msg": "", "data": test_model.dict()})
+
+
+class DependContextmanagerHanler(MyHandler):
+    @pait(
+        author=("so1n",), status=PaitStatus.test, tag=("depend",), response_model_list=[SuccessRespModel, FailRespModel]
+    )
+    async def get(self, uid: str = Depends.i(context_depend), is_raise: bool = Query.i(default=False)) -> None:
+        if is_raise:
+            raise RuntimeError()
+        self.write({"code": 0, "msg": uid})
+
+
+class DependAsyncContextmanagerHanler(MyHandler):
+    @pait(
+        author=("so1n",), status=PaitStatus.test, tag=("depend",), response_model_list=[SuccessRespModel, FailRespModel]
+    )
+    async def get(self, uid: str = Depends.i(async_context_depend), is_raise: bool = Query.i(default=False)) -> None:
+        if is_raise:
+            raise RuntimeError()
+        self.write({"code": 0, "msg": uid})
+
+
+class PreDependContextmanagerHanler(MyHandler):
+    @pait(
+        author=("so1n",),
+        status=PaitStatus.test,
+        tag=("depend",),
+        pre_depend_list=[context_depend],
+        response_model_list=[SuccessRespModel, FailRespModel],
+    )
+    async def get(self, is_raise: bool = Query.i(default=False)) -> None:
+        if is_raise:
+            raise RuntimeError()
+        self.write({"code": 0, "msg": ""})
+
+
+class PreDependAsyncContextmanagerHanler(MyHandler):
+    @pait(
+        author=("so1n",),
+        status=PaitStatus.test,
+        tag=("depend",),
+        pre_depend_list=[context_depend],
+        response_model_list=[SuccessRespModel, FailRespModel],
+    )
+    async def get(self, is_raise: bool = Query.i(default=False)) -> None:
+        if is_raise:
+            raise RuntimeError()
+        self.write({"code": 0, "msg": ""})
+
+
+class CbvHandler(MyHandler):
+    content_type: str = Header.i(alias="Content-Type")
+
+    @pait(
+        author=("so1n",),
+        group="user",
+        status=PaitStatus.release,
+        tag=("cbv",),
+        response_model_list=[UserSuccessRespModel, FailRespModel],
+    )
+    async def get(
+        self,
+        uid: int = Query.i(description="user id", gt=10, lt=1000),
+        user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+        sex: SexEnum = Query.i(description="sex"),
         model: UserOtherModel = Query.i(raw_return=True),
     ) -> None:
         """Text Pydantic Model and Field"""
-        return_dict = {"uid": uid, "user_name": user_name, "email": email, "age": model.age}
-        self.write({"code": 0, "msg": "", "data": return_dict})
+        self.write(
+            {
+                "code": 0,
+                "msg": "",
+                "data": {
+                    "uid": uid,
+                    "user_name": user_name,
+                    "sex": sex.value,
+                    "age": model.age,
+                    "content_type": self.content_type,
+                },
+            }
+        )
 
     @pait(
         author=("so1n",),
         desc="test cbv post method",
         group="user",
-        tag=("user", "post"),
+        tag=("cbv",),
         status=PaitStatus.release,
         response_model_list=[UserSuccessRespModel, FailRespModel],
     )
     async def post(
         self,
-        model: UserModel = Body.i(raw_return=True),
-        other_model: UserOtherModel = Body.i(raw_return=True),
+        uid: int = Body.i(description="user id", gt=10, lt=1000),
+        user_name: str = Body.i(description="user name", min_length=2, max_length=4),
+        sex: SexEnum = Body.i(description="sex"),
+        model: UserOtherModel = Body.i(raw_return=True),
     ) -> None:
-        return_dict = model.dict()
-        return_dict.update(other_model.dict())
-        return_dict.update({"user_agent": self.user_agent})
-        self.write({"code": 0, "msg": "", "data": return_dict})
+        self.write(
+            {
+                "code": 0,
+                "msg": "",
+                "data": {
+                    "uid": uid,
+                    "user_name": user_name,
+                    "sex": sex.value,
+                    "age": model.age,
+                    "content_type": self.content_type,
+                },
+            }
+        )
 
 
-class TestTextResponseHanler(MyHandler):
+class TextResponseHanler(MyHandler):
     @pait(
         author=("so1n",),
         status=PaitStatus.test,
-        tag=("test",),
+        tag=("check response",),
         response_model_list=[TextRespModel],
     )
     async def get(self) -> None:
@@ -393,11 +389,11 @@ class TestTextResponseHanler(MyHandler):
         self.set_header("Content-Type", "text/plain")
 
 
-class TestHtmlResponseHanler(MyHandler):
+class HtmlResponseHanler(MyHandler):
     @pait(
         author=("so1n",),
         status=PaitStatus.test,
-        tag=("test",),
+        tag=("check response",),
         response_model_list=[HtmlRespModel],
     )
     async def get(self) -> None:
@@ -406,11 +402,11 @@ class TestHtmlResponseHanler(MyHandler):
         self.set_header("Content-Type", "text/html")
 
 
-class TestFileResponseHanler(MyHandler):
+class FileResponseHanler(MyHandler):
     @pait(
         author=("so1n",),
         status=PaitStatus.test,
-        tag=("test",),
+        tag=("check response",),
         response_model_list=[FileRespModel],
     )
     async def get(self) -> None:
@@ -424,27 +420,60 @@ class TestFileResponseHanler(MyHandler):
         self.set_header("Content-Type", "application/octet-stream")
 
 
+class LoginHanlder(MyHandler):
+    @pait(
+        author=("so1n",),
+        status=PaitStatus.release,
+        tag=("links",),
+        response_model_list=[LoginRespModel],
+    )
+    async def post(
+        self, uid: str = Body.i(description="user id"), password: str = Body.i(description="password")
+    ) -> None:
+        self.write(
+            {"code": 0, "msg": "", "data": {"token": hashlib.sha256((uid + password).encode("utf-8")).hexdigest()}}
+        )
+
+
+token_links_Model = LinksModel(LoginRespModel, "$response.body#/data/token", desc="test links model")
+
+
+class GetUserHandler(MyHandler):
+    @pait(
+        author=("so1n",),
+        status=PaitStatus.release,
+        tag=("links",),
+        response_model_list=[SuccessRespModel],
+    )
+    def get(self, token: str = Header.i("", description="token", link=token_links_Model)) -> None:
+        if token:
+            self.write({"code": 0, "msg": ""})
+        else:
+            self.write({"code": 1, "msg": ""})
+
+
 def create_app() -> Application:
     app: Application = Application(
         [
-            (r"/api/get/(?P<age>\w+)", TestGetHandler),
-            (r"/api/mock/(?P<age>\w+)", TestMockHandler),
-            (r"/api/post", TestPostHandler),
-            (r"/api/depend", TestDependHandler),
-            (r"/api/other_field", TestOtherFieldHandler),
-            (r"/api/same_alias", TestSameAliasHandler),
-            (r"/api/raise_tip", RaiseTipHandler),
-            (r"/api/cbv", TestCbvHandler),
-            (r"/api/pait_model", TestPaitModelHanler),
-            (r"/api/check_param", TestCheckParamHandler),
-            (r"/api/check_resp", TestCheckRespHandler),
-            (r"/api/text_resp", TestTextResponseHanler),
-            (r"/api/html_resp", TestHtmlResponseHanler),
-            (r"/api/file_resp", TestFileResponseHanler),
-            (r"/api/check_depend_contextmanager", TestDependContextmanagerHanler),
-            (r"/api/check_depend_async_contextmanager", TestDependAsyncContextmanagerHanler),
-            (r"/api/check_pre_depend_contextmanager", TestPreDependContextmanagerHanler),
-            (r"/api/check_pre_depend_async_contextmanager", TestPreDependAsyncContextmanagerHanler),
+            (r"/api/login", LoginHanlder),
+            (r"/api/user", GetUserHandler),
+            (r"/api/raise-tip", RaiseTipHandler),
+            (r"/api/post", PostHandler),
+            (r"/api/depend", DependHandler),
+            (r"/api/pait-base-field/(?P<age>\w+)", PaitBaseFieldHandler),
+            (r"/api/same-alias", SameAliasHandler),
+            (r"/api/mock/(?P<age>\w+)", MockHandler),
+            (r"/api/pait-model", PaitModelHanler),
+            (r"/api/cbv", CbvHandler),
+            (r"/api/check-param", CheckParamHandler),
+            (r"/api/check-resp", CheckRespHandler),
+            (r"/api/text-resp", TextResponseHanler),
+            (r"/api/html-resp", HtmlResponseHanler),
+            (r"/api/file-resp", FileResponseHanler),
+            (r"/api/check-depend-contextmanager", DependContextmanagerHanler),
+            (r"/api/check-depend-async-contextmanager", DependAsyncContextmanagerHanler),
+            (r"/api/check-pre-depend-contextmanager", PreDependContextmanagerHanler),
+            (r"/api/check-pre-depend-async-contextmanager", PreDependAsyncContextmanagerHanler),
         ]
     )
     add_doc_route(app)

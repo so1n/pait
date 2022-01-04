@@ -54,7 +54,7 @@ class TestFlask:
             "code": -1,
             "msg": (
                 'File "/home/so1n/github/pait/example/param_verify/flask_example.py", '
-                "line 44, "
+                "line 42, "
                 "in raise_tip_route. error:content__type value is <class 'pydantic.fields.UndefinedType'>"
             ),
         } == FlaskTestHelper(client, flask_example.raise_tip_route, header_dict={"Content-Type": "test"}).json()

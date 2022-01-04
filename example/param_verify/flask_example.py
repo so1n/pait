@@ -400,7 +400,7 @@ def create_app() -> Flask:
     app: Flask = Flask(__name__)
     add_doc_route(app)
     app.add_url_rule("/api/login", view_func=login_route, methods=["POST"])
-    app.add_url_rule("/api/get-user", view_func=get_user_route, methods=["GET"])
+    app.add_url_rule("/api/user", view_func=get_user_route, methods=["GET"])
     app.add_url_rule("/api/raise-tip", view_func=raise_tip_route, methods=["POST"])
     app.add_url_rule("/api/post", view_func=post_route, methods=["POST"])
     app.add_url_rule("/api/depend", view_func=depend_route, methods=["POST"])

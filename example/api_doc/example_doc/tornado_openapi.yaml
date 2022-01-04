@@ -25,7 +25,7 @@ paths:
       - get
       summary: ''
       description: Test Field
-      operationId: get.TestGetHandler.get
+      operationId: get.GetHandler.get
       parameters:
       - name: uid
         in: query
@@ -91,7 +91,7 @@ paths:
       - get
       summary: ''
       description: Test Field
-      operationId: get.TestMockHandler.get
+      operationId: get.MockHandler.get
       parameters:
       - name: uid
         in: query
@@ -208,7 +208,7 @@ paths:
       - depend
       summary: ''
       description: Test Method:Post request, Pydantic Model
-      operationId: post.TestDependHandler.post
+      operationId: post.DependHandler.post
       parameters:
       - name: uid
         in: query
@@ -269,7 +269,7 @@ paths:
       - get
       summary: ''
       description: ''
-      operationId: post.TestOtherFieldHandler.post
+      operationId: post.PaitBaseFieldHandler.post
       parameters:
       - name: cookie
         in: cookie
@@ -305,7 +305,7 @@ paths:
       - get
       summary: ''
       description: ''
-      operationId: get.TestSameAliasHandler.get
+      operationId: get.SameAliasHandler.get
       parameters:
       - name: token
         in: header

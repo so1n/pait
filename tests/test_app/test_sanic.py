@@ -49,7 +49,7 @@ class TestSanic:
             "code": -1,
             "msg": (
                 'File "/home/so1n/github/pait/example/param_verify/sanic_example.py", '
-                "line 47, "
+                "line 46, "
                 "in raise_tip_route. error:content__type value is <class 'pydantic.fields.UndefinedType'>"
             ),
         } == SanicTestHelper(client, sanic_example.raise_tip_route, header_dict={"Content-Type": "test"}).json()
@@ -144,33 +144,33 @@ class TestSanic:
             ).json()
 
     def test_check_param(self, client: SanicTestClient) -> None:
-        flask_test_helper: SanicTestHelper = SanicTestHelper(
+        test_helper: SanicTestHelper = SanicTestHelper(
             client,
             sanic_example.check_param_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
         )
-        assert "requires at most one of param user_name or alias_user_name" in flask_test_helper.json()["msg"]
-        flask_test_helper = SanicTestHelper(
+        assert "requires at most one of param user_name or alias_user_name" in test_helper.json()["msg"]
+        test_helper = SanicTestHelper(
             client,
             sanic_example.check_param_route,
             query_dict={"uid": 123, "sex": "man", "age": 10, "alias_user_name": "appe"},
         )
-        assert "birthday requires param alias_user_name, which if not none" in flask_test_helper.json()["msg"]
+        assert "birthday requires param alias_user_name, which if not none" in test_helper.json()["msg"]
 
     def test_check_response(self, client: SanicTestClient) -> None:
-        flask_test_helper: SanicTestHelper = SanicTestHelper(
+        test_helper: SanicTestHelper = SanicTestHelper(
             client,
             sanic_example.check_response_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10},
         )
         with pytest.raises(RuntimeError):
-            flask_test_helper.json()
-        flask_test_helper = SanicTestHelper(
+            test_helper.json()
+        test_helper = SanicTestHelper(
             client,
             sanic_example.check_response_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "display_age": 1},
         )
-        flask_test_helper.json()
+        test_helper.json()
 
     def test_mock_route(self, client: SanicTestClient) -> None:
         assert (
@@ -204,37 +204,37 @@ class TestSanic:
     def test_depend_contextmanager(self, client: SanicTestClient, mocker: MockFixture) -> None:
         error_logger = mocker.patch("example.param_verify.model.logging.error")
         info_logger = mocker.patch("example.param_verify.model.logging.info")
-        flask_test_helper: SanicTestHelper = SanicTestHelper(
+        test_helper: SanicTestHelper = SanicTestHelper(
             client,
             sanic_example.depend_contextmanager_route,
             query_dict={"uid": 123},
         )
-        flask_test_helper.get()
+        test_helper.get()
         info_logger.assert_called_once_with("context_depend exit")
-        flask_test_helper = SanicTestHelper(
+        test_helper = SanicTestHelper(
             client,
             sanic_example.depend_contextmanager_route,
             query_dict={"uid": 123, "is_raise": True},
         )
-        flask_test_helper.get()
+        test_helper.get()
         error_logger.assert_called_once_with("context_depend error")
 
     def test_pre_depend_contextmanager(self, client: SanicTestClient, mocker: MockFixture) -> None:
         error_logger = mocker.patch("example.param_verify.model.logging.error")
         info_logger = mocker.patch("example.param_verify.model.logging.info")
-        flask_test_helper: SanicTestHelper = SanicTestHelper(
+        test_helper: SanicTestHelper = SanicTestHelper(
             client,
             sanic_example.pre_depend_contextmanager_route,
             query_dict={"uid": 123},
         )
-        flask_test_helper.get()
+        test_helper.get()
         info_logger.assert_called_once_with("context_depend exit")
-        flask_test_helper = SanicTestHelper(
+        test_helper = SanicTestHelper(
             client,
             sanic_example.pre_depend_contextmanager_route,
             query_dict={"uid": 123, "is_raise": True},
         )
-        flask_test_helper.get()
+        test_helper.get()
         error_logger.assert_called_once_with("context_depend error")
 
     def test_get_cbv(self, client: SanicTestClient) -> None:

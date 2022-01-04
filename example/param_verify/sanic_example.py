@@ -438,7 +438,7 @@ def create_app() -> Sanic:
     app: Sanic = Sanic(name="pait")
     add_doc_route(app)
     app.add_route(login_route, "/api/login", methods={"POST"})
-    app.add_route(get_user_route, "/api/get-user", methods={"GET"})
+    app.add_route(get_user_route, "/api/user", methods={"GET"})
     app.add_route(raise_tip_route, "/api/raise_tip", methods={"POST"})
     app.add_route(post_route, "/api/post", methods={"POST"})
     app.add_route(depend_route, "/api/depend", methods={"POST"})

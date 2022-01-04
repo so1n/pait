@@ -393,10 +393,10 @@ group:
       func:
         file: /home/so1n/github/pait/example/param_verify/tornado_example.py
         lineno: 76
-        name: TestDependHandler.post
+        name: DependHandler.post
       method:
       - post
-      name: TestDependHandler.post
+      name: DependHandler.post
       path: /api/depend$
       request:
         default: Required
@@ -501,10 +501,10 @@ group:
       func:
         file: /home/so1n/github/pait/example/param_verify/tornado_example.py
         lineno: 97
-        name: TestGetHandler.get
+        name: GetHandler.get
       method:
       - get
-      name: TestGetHandler.get
+      name: GetHandler.get
       path: /api/get/(?P<age>\w+)$
       request:
         default: Required
@@ -656,10 +656,10 @@ group:
       func:
         file: /home/so1n/github/pait/example/param_verify/tornado_example.py
         lineno: 118
-        name: TestOtherFieldHandler.post
+        name: PaitBaseFieldHandler.post
       method:
       - post
-      name: TestOtherFieldHandler.post
+      name: PaitBaseFieldHandler.post
       path: /api/other_field$
       request:
         default: Required

@@ -443,7 +443,7 @@ def create_app() -> Starlette:
     app: Starlette = Starlette(
         routes=[
             Route("/api/login", login_route, methods=["POST"]),
-            Route("/api/get-user", get_user_route, methods=["GET"]),
+            Route("/api/user", get_user_route, methods=["GET"]),
             Route("/api/raise-tip", raise_tip_route, methods=["POST"]),
             Route("/api/post", post_route, methods=["POST"]),
             Route("/api/depend", depend_route, methods=["POST"]),
