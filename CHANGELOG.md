@@ -3,7 +3,31 @@
 
 2. Add a user-friendly doc ui
 
-### 0.7[Now]
+### 0.7.2[Now]
+Improve openapi support (except for the security part);
+Improve Response type;
+Improve TestHelper;
+Improve parsing speed
+
+- Fix: fix openapi init check and fix can not found real field property in basemodel
+- Fix: fix sanic load app bug
+- Feature: Api Doc support schema param
+- Feature: TestHelper add json method and limit auto select http method
+- Feature: remove PaitBaseModel and support parse BaseModel pait.field
+- Feature: openapi support all pait.field
+- Feature: openapi schema support same model name(auto gen long name)
+- Feature: add more response model and mock support mutil response model
+- Feature: support openapi links
+- Feature: Change param handler and improve parsing speed
+- Refactor: TestHelper access_response
+- Refactor: pait.app.base
+- Refactor: pait func to pait obj
+- Refactor: example and test
+### 0.7.1
+Emergency fix version
+
+- Fix: fix ignore field.Depends parse in get_parameter_list_from_class
+### 0.7
 
 Simplify and optimize code logic and reduce code coupling.
 Support for closure scenarios and the addition of several parameters to @pait()
