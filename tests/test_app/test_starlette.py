@@ -59,7 +59,7 @@ class TestStarlette:
             "code": -1,
             "msg": (
                 'File "/home/so1n/github/pait/example/param_verify/starlette_example.py", '
-                "line 46, "
+                "line 58, "
                 "in raise_tip_route. error:content__type value is <class 'pydantic.fields.UndefinedType'>"
             ),
         } == StarletteTestHelper(client, starlette_example.raise_tip_route, header_dict={"Content-Type": "test"}).json()

@@ -9,20 +9,36 @@ tags:
   description: test api
 - name: user
   description: user api
-- name: default
-  description: ''
-- name: get
-  description: ''
 - name: depend
+  description: ''
+- name: same alias
+  description: ''
+- name: field
+  description: ''
+- name: raise
+  description: ''
+- name: check param
+  description: ''
+- name: check response
   description: ''
 - name: post
   description: ''
+- name: cbv
+  description: ''
+- name: mock
+  description: ''
+- name: check_resp
+  description: ''
+- name: links
+  description: ''
+- name: pait_doc
+  description: ''
 paths:
-  /api/check_pre_depend_contextmanager:
+  /api/pre-depend-contextmanager:
     get:
-      group: root
+      group: other
       tags:
-      - test
+      - depend
       summary: ''
       description: ''
       operationId: GET.pre_depend_contextmanager_route
@@ -48,17 +64,24 @@ paths:
       responses:
         200:
           description: success response|fail response
+          headers: &id001 {}
           content:
             application/json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/ResponseModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-  /api/check_depend_contextmanager:
+                - $ref: '#/components/schemas/example__param_verify__model__ResponseModel'
+                - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
+          links: &id002
+            GET.get_user_route/header/token:
+              description: test links model
+              operationId: GET.get_user_route
+              parameters:
+                token: $response.body#/data/token
+  /api/depend-contextmanager:
     get:
-      group: root
+      group: other
       tags:
-      - test
+      - depend
       summary: ''
       description: ''
       operationId: GET.depend_contextmanager_route
@@ -84,21 +107,79 @@ paths:
       responses:
         200:
           description: success response|fail response
+          headers: *id001
           content:
             application/json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/ResponseModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-  /api/pait_model:
-    post:
-      group: root
+                - $ref: '#/components/schemas/example__param_verify__model__ResponseModel'
+                - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
+          links: *id002
+  /api/same-alias:
+    get:
+      group: other
       tags:
-      - test
+      - same alias
       summary: ''
-      description: Test Field
-      operationId: POST.pait_model_route
+      description: Test different request types, but they have the same alias and
+        different parameter names
+      operationId: GET.same_alias_route
       parameters:
+      - name: token
+        in: header
+        required: false
+        description: ''
+        schema:
+          title: Token
+          default: ''
+          type: string
+      - name: token
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Token
+          default: ''
+          type: string
+      responses:
+        200:
+          description: success response|fail response
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
+                - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
+          links: *id002
+  /api/pait-model:
+    post:
+      group: other
+      tags:
+      - field
+      summary: ''
+      description: Test pait model
+      operationId: POST.pait_model_route
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: PaitModelRouteDynamicModel
+              type: object
+              properties:
+                user_info:
+                  $ref: '#/definitions/example__param_verify__model__TestPaitModel__UserInfo'
+              required:
+              - user_info
+      parameters:
+      - name: user-agent
+        in: header
+        required: true
+        description: user agent
+        schema:
+          title: User-Agent
+          description: user agent
+          type: string
       - name: uid
         in: query
         required: true
@@ -109,53 +190,22 @@ paths:
           exclusiveMinimum: 10
           exclusiveMaximum: 1000
           type: integer
-      - name: user_name
-        in: query
-        required: true
-        description: user name
-        schema:
-          title: User Name
-          description: user name
-          maxLength: 4
-          minLength: 2
-          type: string
-      - name: user-agent
-        in: header
-        required: true
-        description: user agent
-        schema:
-          title: User-Agent
-          description: user agent
-          type: string
       responses:
         200:
           description: success response|fail response
+          headers: *id001
           content:
             application/json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              title: TestModelDynamicModel
-              type: object
-              properties:
-                age:
-                  title: Age
-                  description: age
-                  exclusiveMinimum: 1
-                  exclusiveMaximum: 100
-                  type: integer
-              required:
-              - age
-  /api/raise_tip:
+                - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
+                - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
+          links: *id002
+  /api/raise-tip:
     post:
-      group: root
+      group: other
       tags:
-      - test
+      - raise
       deprecated: true
       summary: ''
       description: test pait raise tip
@@ -172,141 +222,63 @@ paths:
       responses:
         200:
           description: success response|fail response
+          headers: *id001
           content:
             application/json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
+                - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
+                - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
+          links: *id002
+  /api/depend:
+    post:
+      group: other
+      tags:
+      - user
+      - depend
+      summary: ''
+      description: Testing depend and using request parameters
+      operationId: POST.depend_route
       requestBody:
         content:
           application/json:
             schema:
-              title: TestRaiseTipDynamicModel
+              title: DependRouteDynamicModel
               type: object
               properties:
-                uid:
-                  title: Uid
-                  description: user id
-                  exclusiveMinimum: 10
-                  exclusiveMaximum: 1000
-                  example: '123'
-                  type: integer
-                user_name:
-                  title: User Name
-                  description: user name
-                  maxLength: 4
-                  minLength: 2
-                  example: so1n
-                  type: string
                 age:
                   title: Age
                   description: age
                   exclusiveMinimum: 1
                   exclusiveMaximum: 100
-                  example: 25
                   type: integer
               required:
-              - uid
-              - user_name
               - age
-  /openapi.json:
-    get:
-      group: root
-      tags:
-      - default
-      summary: ''
-      description: ''
-      operationId: GET.api doc.openapi_route
       parameters:
-      - name: pin_code
-        in: query
-        required: false
-        description: ''
-        schema:
-          title: Pin Code
-          default: ''
-          type: string
-      responses: {}
-  /swagger:
-    get:
-      group: root
-      tags:
-      - default
-      summary: ''
-      description: ''
-      operationId: GET.api doc.get_swagger_ui_html
-      parameters:
-      - name: pin_code
-        in: query
-        required: false
-        description: ''
-        schema:
-          title: Pin Code
-          default: ''
-          type: string
-      responses: {}
-  /redoc:
-    get:
-      group: root
-      tags:
-      - default
-      summary: ''
-      description: ''
-      operationId: GET.api doc.get_redoc_html
-      parameters:
-      - name: pin_code
-        in: query
-        required: false
-        description: ''
-        schema:
-          title: Pin Code
-          default: ''
-          type: string
-      responses: {}
-  /api/other_field:
-    post:
-      group: user
-      tags:
-      - user
-      - get
-      summary: ''
-      description: ''
-      operationId: POST.pait_base_field_route
-      parameters:
-      - name: cookie
-        in: cookie
+      - name: user-agent
+        in: header
         required: true
-        description: cookie
+        description: user agent
         schema:
-          title: Cookie
-          description: cookie
-          type: object
-      responses: {}
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              title: TestOtherFieldDynamicModel
-              type: object
-              properties:
-                a:
-                  title: A
-                  description: form data
-                  type: string
-                b:
-                  title: B
-                  description: form data
-                  type: string
-              required:
-              - a
-              - b
-  /api/check_param:
+          title: User-Agent
+          description: user agent
+          type: string
+      responses:
+        200:
+          description: success response|fail response
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
+                - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
+          links: *id002
+  /api/check-param:
     get:
       group: user
       tags:
-      - user
-      - get
+      - check param
       summary: ''
       description: Test check param
       operationId: GET.check_param_route
@@ -382,47 +354,21 @@ paths:
       responses:
         200:
           description: success response|fail response
+          headers: *id001
           content:
             application/json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/UserResponseModel2'
-                - $ref: '#/components/schemas/ResponseFailModel'
-  /api/same_alias:
+                - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel2__ResponseModel'
+                - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
+          links: *id002
+  /api/check-resp:
     get:
       group: user
       tags:
-      - user
-      - get
+      - check response
       summary: ''
-      description: ''
-      operationId: GET.same_alias_route
-      parameters:
-      - name: token
-        in: header
-        required: false
-        description: ''
-        schema:
-          title: Token
-          default: ''
-          type: string
-      - name: token
-        in: query
-        required: false
-        description: ''
-        schema:
-          title: Token
-          default: ''
-          type: string
-      responses: {}
-  /api/check_resp:
-    get:
-      group: user
-      tags:
-      - user
-      - get
-      summary: ''
-      description: Test check param
+      description: Test test-helper check response
       operationId: GET.check_response_route
       parameters:
       - name: uid
@@ -476,76 +422,14 @@ paths:
       responses:
         200:
           description: success response|fail response
+          headers: *id001
           content:
             application/json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/UserResponseModel3'
-                - $ref: '#/components/schemas/ResponseFailModel'
-  /api/depend:
-    post:
-      group: user
-      tags:
-      - user
-      - depend
-      summary: ''
-      description: Test Method:Post request, Pydantic Model
-      operationId: POST.depend_route
-      parameters:
-      - name: uid
-        in: query
-        required: true
-        description: user id
-        schema:
-          title: Uid
-          description: user id
-          exclusiveMinimum: 10
-          exclusiveMaximum: 1000
-          example: '123'
-          type: integer
-      - name: user_name
-        in: query
-        required: true
-        description: user name
-        schema:
-          title: User Name
-          description: user name
-          maxLength: 4
-          minLength: 2
-          example: so1n
-          type: string
-      - name: user-agent
-        in: header
-        required: true
-        description: user agent
-        schema:
-          title: User-Agent
-          description: user agent
-          type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              title: DemoGet2testDependDynamicModel
-              type: object
-              properties:
-                age:
-                  title: Age
-                  description: age
-                  exclusiveMinimum: 1
-                  exclusiveMaximum: 100
-                  type: integer
-              required:
-              - age
+                - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel3__ResponseModel'
+                - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
+          links: *id002
   /api/post:
     post:
       group: user
@@ -555,29 +439,11 @@ paths:
       summary: ''
       description: Test Method:Post Pydantic Model
       operationId: POST.post_route
-      parameters:
-      - name: Content-Type
-        in: header
-        required: true
-        description: Content-Type
-        schema:
-          title: Content-Type
-          description: Content-Type
-          type: string
-      responses:
-        200:
-          description: success response|fail response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
       requestBody:
         content:
           application/json:
             schema:
-              title: TestPostDynamicModel
+              title: PostRouteDynamicModel
               type: object
               properties:
                 uid:
@@ -604,60 +470,47 @@ paths:
                 sex:
                   description: sex
                   allOf:
-                  - $ref: '#/components/schemas/SexEnum'
+                  - $ref: '#/definitions/example__param_verify__model__SexEnum'
               required:
               - uid
               - user_name
               - age
               - sex
-  /api/cbv:
-    post:
-      group: user
-      tags:
-      - user
-      - post
-      summary: ''
-      description: test cbv post method
-      operationId: post.test_cbv.post
       parameters:
-      - name: user-agent
+      - name: Content-Type
         in: header
         required: true
-        description: ua
+        description: Content-Type
         schema:
-          title: User-Agent
-          description: ua
+          title: Content-Type
+          description: Content-Type
           type: string
       responses:
         200:
           description: success response|fail response
+          headers: *id001
           content:
             application/json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/ResponseUserModel'
-                - $ref: '#/components/schemas/ResponseFailModel'
+                - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel__ResponseModel'
+                - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
+          links: *id002
+  /api/cbv:
+    post:
+      group: user
+      tags:
+      - cbv
+      summary: ''
+      description: test cbv post method
+      operationId: post.test_cbv.post
       requestBody:
         content:
           application/json:
             schema:
-              title: CbvRoute.postDynamicModel
+              title: TestCbv.postDynamicModel
               type: object
               properties:
-                uid:
-                  title: Uid
-                  description: user id
-                  exclusiveMinimum: 10
-                  exclusiveMaximum: 1000
-                  example: '123'
-                  type: integer
-                user_name:
-                  title: User Name
-                  description: user name
-                  maxLength: 4
-                  minLength: 2
-                  example: so1n
-                  type: string
                 age:
                   title: Age
                   description: age
@@ -665,19 +518,61 @@ paths:
                   exclusiveMaximum: 100
                   example: 25
                   type: integer
+                uid:
+                  title: Uid
+                  description: user id
+                  exclusiveMinimum: 10
+                  exclusiveMaximum: 1000
+                  type: integer
+                user_name:
+                  title: User Name
+                  description: user name
+                  maxLength: 4
+                  minLength: 2
+                  type: string
+                sex:
+                  description: sex
+                  allOf:
+                  - $ref: '#/definitions/example__param_verify__model__SexEnum'
               required:
+              - age
               - uid
               - user_name
-              - age
+              - sex
+      parameters:
+      - name: Content-Type
+        in: header
+        required: true
+        description: ''
+        schema:
+          title: Content-Type
+          type: string
+      responses:
+        200:
+          description: success response|fail response
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel__ResponseModel'
+                - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
+          links: *id002
     get:
       group: user
       tags:
-      - user
-      - get
+      - cbv
       summary: ''
-      description: Text Pydantic Model and Field
+      description: Text cbv route get
       operationId: get.test_cbv.get
       parameters:
+      - name: Content-Type
+        in: header
+        required: true
+        description: ''
+        schema:
+          title: Content-Type
+          type: string
       - name: age
         in: query
         required: true
@@ -709,42 +604,198 @@ paths:
           maxLength: 4
           minLength: 2
           type: string
-      - name: email
+      - name: sex
         in: query
         required: false
-        description: email
+        description: sex
         schema:
-          title: Email
-          description: email
-          default: example@xxx.com
-          type: string
-      - name: user-agent
-        in: header
-        required: true
-        description: ua
-        schema:
-          title: User-Agent
-          description: ua
+          title: SexEnum
+          description: An enumeration.
+          enum:
+          - man
+          - woman
           type: string
       responses:
         200:
           description: success response|fail response
+          headers: *id001
           content:
             application/json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/UserResponseModel2'
-                - $ref: '#/components/schemas/ResponseFailModel'
+                - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel__ResponseModel'
+                - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
+          links: *id002
+  /api/pait-base-field/{age}:
+    post:
+      group: user
+      tags:
+      - field
+      summary: ''
+      description: Test the use of all BaseField-based
+      operationId: POST.pait_base_field_route
+      parameters:
+      - name: cookie
+        in: cookie
+        required: true
+        description: "cookie \n>Note for Swagger UI and Swagger Editor users:  \n\
+          >Cookie authentication iscurrently not supported for \"try it out\" requests\
+          \ due to browser securityrestrictions. See [this issue](https://github.com/swagger-api/swagger-js/issues/1163)for\
+          \ more information. [SwaggerHub](https://swagger.io/tools/swaggerhub/)does\
+          \ not have this limitation. "
+        schema:
+          title: Cookie
+          description: cookie
+          type: string
+      - name: multi_user_name
+        in: multiquery
+        required: true
+        description: user name
+        schema:
+          title: Multi User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: array
+          items:
+            type: string
+            minLength: 2
+            maxLength: 4
+      - name: age
+        in: path
+        required: true
+        description: age
+        schema:
+          title: Age
+          description: age
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
+          type: integer
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+      - name: email
+        in: query
+        required: false
+        description: user email
+        schema:
+          title: Email
+          description: user email
+          default: example@xxx.com
+          type: string
+      - name: sex
+        in: query
+        required: false
+        description: sex
+        schema:
+          title: SexEnum
+          description: An enumeration.
+          enum:
+          - man
+          - woman
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                upload_file:
+                  title: Upload_file
+                  type: string
+                  format: binary
+              required:
+              - upload_file
+          application/x-www-form-urlencoded:
+            schema:
+              title: PaitBaseFieldRouteDynamicModel
+              type: object
+              properties:
+                a:
+                  title: A
+                  description: form data
+                  type: string
+                b:
+                  title: B
+                  description: form data
+                  type: string
+                c:
+                  title: C
+                  description: "form data  \n>Swagger UI could not support, when media_type\
+                    \ is multipart/form-data"
+                  type: array
+                  items:
+                    type: string
+              required:
+              - a
+              - b
+              - c
+            encoding:
+              c:
+                style: form
+                explode: true
+        required: true
+      responses:
+        200:
+          description: success response|fail response
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
+                - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
+          links: *id002
   /api/mock/{age}:
     get:
       group: user
       tags:
-      - user
-      - get
+      - mock
       summary: ''
-      description: Test Field
+      description: Test gen mock response
       operationId: GET.mock_route
       parameters:
+      - name: multi_user_name
+        in: multiquery
+        required: true
+        description: user name
+        schema:
+          title: Multi User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: array
+          items:
+            type: string
+            minLength: 2
+            maxLength: 4
+      - name: age
+        in: path
+        required: true
+        description: age
+        schema:
+          title: Age
+          description: age
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
+          type: integer
       - name: uid
         in: query
         required: true
@@ -785,97 +836,187 @@ paths:
           - man
           - woman
           type: string
-      - name: age
-        in: path
-        required: true
-        description: age
-        schema:
-          title: Age
-          description: age
-          exclusiveMinimum: 1
-          exclusiveMaximum: 100
-          type: integer
       responses:
         200:
           description: success response|fail response
+          headers: *id001
           content:
             application/json:
               schema:
                 oneOf:
-                - $ref: '#/components/schemas/UserResponseModel2'
-                - $ref: '#/components/schemas/ResponseFailModel'
-  /api/get/{age}:
+                - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel2__ResponseModel'
+                - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
+          links: *id002
+  /api/text-resp:
     get:
-      group: user
+      group: check_resp
       tags:
-      - user
-      - get
+      - check_resp
       summary: ''
-      description: Test Field
-      operationId: GET.test_pait
-      parameters:
-      - name: uid
-        in: query
-        required: true
-        description: user id
-        schema:
-          title: Uid
-          description: user id
-          exclusiveMinimum: 10
-          exclusiveMaximum: 1000
-          type: integer
-      - name: user_name
-        in: query
-        required: true
-        description: user name
-        schema:
-          title: User Name
-          description: user name
-          maxLength: 4
-          minLength: 2
-          type: string
-      - name: email
-        in: query
-        required: false
-        description: user email
-        schema:
-          title: Email
-          description: user email
-          default: example@xxx.com
-          type: string
-      - name: sex
-        in: query
-        required: false
-        description: sex
-        schema:
-          title: SexEnum
-          description: An enumeration.
-          enum:
-          - man
-          - woman
-          type: string
-      - name: age
-        in: path
-        required: true
-        description: age
-        schema:
-          title: Age
-          description: age
-          exclusiveMinimum: 1
-          exclusiveMaximum: 100
-          type: integer
+      description: test return test response
+      operationId: GET.text_response_route
       responses:
         200:
-          description: success response|fail response
+          description: text response
+          headers:
+            X-Example-Type: text
+          content:
+            text/plain:
+              type: string
+              example: pait example data
+          links: *id002
+  /api/html-resp:
+    get:
+      group: check_resp
+      tags:
+      - check_resp
+      summary: ''
+      description: test return html response
+      operationId: GET.html_response_route
+      responses:
+        200:
+          description: html response
+          headers:
+            X-Example-Type: html
+          content:
+            text/html:
+              type: string
+              example: <h1>Pait example html</h1>
+          links: *id002
+  /api/file-resp:
+    get:
+      group: check_resp
+      tags:
+      - check_resp
+      summary: ''
+      description: test return file response
+      operationId: GET.file_response_route
+      responses:
+        200:
+          description: file response
+          headers:
+            X-Example-Type: file
+          content:
+            application/octet-stream:
+              type: string
+              format: binary
+          links: *id002
+  /api/login:
+    post:
+      group: links
+      tags:
+      - links
+      summary: ''
+      description: ''
+      operationId: POST.login_route
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: LoginRouteDynamicModel
+              type: object
+              properties:
+                uid:
+                  title: Uid
+                  description: user id
+                  type: string
+                password:
+                  title: Password
+                  description: password
+                  type: string
+              required:
+              - uid
+              - password
+      responses:
+        200:
+          description: login response
+          headers: *id001
           content:
             application/json:
               schema:
-                oneOf:
-                - $ref: '#/components/schemas/UserResponseModel2'
-                - $ref: '#/components/schemas/ResponseFailModel'
+                $ref: '#/components/schemas/example__param_verify__model__LoginRespModel__ResponseModel'
+          links: *id002
+  /api/user:
+    get:
+      group: links
+      tags:
+      - links
+      summary: ''
+      description: ''
+      operationId: GET.get_user_route
+      parameters:
+      - name: token
+        in: header
+        required: false
+        description: token
+        schema:
+          title: Token
+          description: token
+          default: ''
+          type: string
+      responses:
+        200:
+          description: success response
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/example__param_verify__model__ResponseModel'
+          links: *id002
+  /openapi.json:
+    get:
+      group: pait_doc
+      tags:
+      - pait_doc
+      summary: ''
+      description: ''
+      operationId: GET.api doc.openapi_route
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
+  /swagger:
+    get:
+      group: pait_doc
+      tags:
+      - pait_doc
+      summary: ''
+      description: ''
+      operationId: GET.api doc.get_swagger_ui_html
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
+  /redoc:
+    get:
+      group: pait_doc
+      tags:
+      - pait_doc
+      summary: ''
+      description: ''
+      operationId: GET.api doc.get_redoc_html
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
 components:
   schemas:
-    ResponseModel:
+    example__param_verify__model__ResponseModel:
       title: ResponseModel
       type: object
       properties:
@@ -889,7 +1030,7 @@ components:
           description: api status msg
           default: success
           type: string
-    ResponseFailModel:
+    example__param_verify__model__ResponseFailModel:
       title: ResponseFailModel
       type: object
       properties:
@@ -903,51 +1044,8 @@ components:
           description: api status msg
           default: fail
           type: string
-    ResponseUserDataModel:
-      title: ResponseUserDataModel
-      type: object
-      properties:
-        uid:
-          title: Uid
-          description: user id
-          default: 666
-          exclusiveMinimum: 10
-          exclusiveMaximum: 1000
-          type: integer
-        user_name:
-          title: User Name
-          description: user name
-          default: mock_name
-          maxLength: 10
-          minLength: 2
-          type: string
-        age:
-          title: Age
-          description: age
-          default: 99
-          exclusiveMinimum: 1
-          exclusiveMaximum: 100
-          type: integer
-        sex:
-          description: sex
-          default: !!python/object/apply:example.param_verify.model.SexEnum
-          - man
-          allOf:
-          - $ref: '#/components/schemas/SexEnum'
-        content_type:
-          title: Content Type
-          description: content-type
-          default: application/json
-          type: string
-    SexEnum:
-      title: SexEnum
-      description: An enumeration.
-      enum:
-      - man
-      - woman
-      type: string
-    ResponseUserModel:
-      title: ResponseUserModel
+    example__param_verify__model__SimpleRespModel__ResponseModel:
+      title: ResponseModel
       type: object
       properties:
         code:
@@ -961,11 +1059,13 @@ components:
           default: success
           type: string
         data:
-          $ref: '#/components/schemas/ResponseUserDataModel'
+          title: Data
+          description: success result
+          type: object
       required:
       - data
-    UserResponseData2:
-      title: UserResponseData2
+    example__param_verify__model__UserSuccessRespModel2__ResponseModel__DataModel:
+      title: DataModel
       type: object
       properties:
         uid:
@@ -999,7 +1099,7 @@ components:
           example: !!python/object/apply:example.param_verify.model.SexEnum
           - man
           allOf:
-          - $ref: '#/components/schemas/SexEnum'
+          - $ref: '#/components/schemas/example__param_verify__model__SexEnum'
         age:
           title: Age
           description: age
@@ -1019,8 +1119,15 @@ components:
       - sex
       - age
       - email
-    UserResponseModel2:
-      title: UserResponseModel2
+    example__param_verify__model__SexEnum:
+      title: SexEnum
+      description: An enumeration.
+      enum:
+      - man
+      - woman
+      type: string
+    example__param_verify__model__UserSuccessRespModel2__ResponseModel:
+      title: ResponseModel
       type: object
       properties:
         code:
@@ -1034,11 +1141,11 @@ components:
           default: success
           type: string
         data:
-          $ref: '#/components/schemas/UserResponseData2'
+          $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel2__ResponseModel__DataModel'
       required:
       - data
-    UserResponseData3:
-      title: UserResponseData3
+    example__param_verify__model__UserSuccessRespModel3__ResponseModel__DataModel:
+      title: DataModel
       type: object
       properties:
         uid:
@@ -1068,8 +1175,8 @@ components:
       - user_name
       - age
       - email
-    UserResponseModel3:
-      title: UserResponseModel3
+    example__param_verify__model__UserSuccessRespModel3__ResponseModel:
+      title: ResponseModel
       type: object
       properties:
         code:
@@ -1083,6 +1190,88 @@ components:
           default: success
           type: string
         data:
-          $ref: '#/components/schemas/UserResponseData3'
+          $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel3__ResponseModel__DataModel'
+      required:
+      - data
+    example__param_verify__model__UserSuccessRespModel__ResponseModel__DataModel:
+      title: DataModel
+      type: object
+      properties:
+        uid:
+          title: Uid
+          description: user id
+          default: 666
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+        user_name:
+          title: User Name
+          description: user name
+          default: mock_name
+          maxLength: 10
+          minLength: 2
+          type: string
+        age:
+          title: Age
+          description: age
+          default: 99
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
+          type: integer
+        sex:
+          description: sex
+          default: !!python/object/apply:example.param_verify.model.SexEnum
+          - man
+          allOf:
+          - $ref: '#/components/schemas/example__param_verify__model__SexEnum'
+        content_type:
+          title: Content Type
+          description: content-type
+          type: string
+      required:
+      - content_type
+    example__param_verify__model__UserSuccessRespModel__ResponseModel:
+      title: ResponseModel
+      type: object
+      properties:
+        code:
+          title: Code
+          description: api code
+          default: 0
+          type: integer
+        msg:
+          title: Msg
+          description: api status msg
+          default: success
+          type: string
+        data:
+          $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel__ResponseModel__DataModel'
+      required:
+      - data
+    example__param_verify__model__LoginRespModel__ResponseModel__DataModel:
+      title: DataModel
+      type: object
+      properties:
+        token:
+          title: Token
+          type: string
+      required:
+      - token
+    example__param_verify__model__LoginRespModel__ResponseModel:
+      title: ResponseModel
+      type: object
+      properties:
+        code:
+          title: Code
+          description: api code
+          default: 0
+          type: integer
+        msg:
+          title: Msg
+          description: api status msg
+          default: success
+          type: string
+        data:
+          $ref: '#/components/schemas/example__param_verify__model__LoginRespModel__ResponseModel__DataModel'
       required:
       - data

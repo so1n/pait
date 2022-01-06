@@ -12,7 +12,7 @@ from pait.model import response
 
 from ._app_helper import AppHelper
 
-__all__ = ["pait"]
+__all__ = ["pait", "Pait"]
 
 
 async def make_mock_response(pait_response: Type[response.PaitBaseResponseModel]) -> Response:

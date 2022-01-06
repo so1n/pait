@@ -28,10 +28,21 @@ from example.param_verify.model import (
     context_depend,
     demo_depend,
 )
-from pait.app.tornado import add_doc_route, pait
+from pait.app.tornado import Pait, add_doc_route, pait
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
+
+global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
+
+user_pait: Pait = global_pait.create_sub_pait(group="user")
+check_resp_pait: Pait = global_pait.create_sub_pait(group="check_resp", tag=("check_resp",))
+link_pait: Pait = global_pait.create_sub_pait(
+    group="links",
+    status=PaitStatus.release,
+    tag=("links",),
+)
+other_pait: Pait = pait.create_sub_pait(author=("so1n",), status=PaitStatus.test, group="other")
 
 
 class MyHandler(RequestHandler):
@@ -41,8 +52,7 @@ class MyHandler(RequestHandler):
 
 
 class RaiseTipHandler(MyHandler):
-    @pait(
-        author=("so1n",),
+    @other_pait(
         desc="test pait raise tip",
         status=PaitStatus.abandoned,
         tag=("raise",),
@@ -57,9 +67,7 @@ class RaiseTipHandler(MyHandler):
 
 
 class PostHandler(MyHandler):
-    @pait(
-        author=("so1n",),
-        group="user",
+    @user_pait(
         status=PaitStatus.release,
         tag=("user", "post"),
         response_model_list=[UserSuccessRespModel, FailRespModel],
@@ -80,9 +88,7 @@ class PostHandler(MyHandler):
 
 
 class DependHandler(MyHandler):
-    @pait(
-        author=("so1n",),
-        group="user",
+    @other_pait(
         status=PaitStatus.release,
         tag=("user", "depend"),
         response_model_list=[SimpleRespModel, FailRespModel],
@@ -98,11 +104,10 @@ class DependHandler(MyHandler):
 
 
 class SameAliasHandler(MyHandler):
-    @pait(
-        author=("so1n",),
-        group="user",
+    @other_pait(
         status=PaitStatus.release,
         tag=("same alias",),
+        response_model_list=[SimpleRespModel, FailRespModel],
     )
     def get(
         self, query_token: str = Query.i("", alias="token"), header_token: str = Header.i("", alias="token")
@@ -111,9 +116,7 @@ class SameAliasHandler(MyHandler):
 
 
 class PaitBaseFieldHandler(MyHandler):
-    @pait(
-        author=("so1n",),
-        group="user",
+    @user_pait(
         status=PaitStatus.release,
         tag=("field",),
         response_model_list=[SimpleRespModel, FailRespModel],
@@ -155,9 +158,7 @@ class PaitBaseFieldHandler(MyHandler):
 
 
 class CheckParamHandler(MyHandler):
-    @pait(
-        author=("so1n",),
-        group="user",
+    @user_pait(
         status=PaitStatus.release,
         tag=("check param",),
         response_model_list=[UserSuccessRespModel2, FailRespModel],
@@ -192,9 +193,7 @@ class CheckParamHandler(MyHandler):
 
 
 class CheckRespHandler(MyHandler):
-    @pait(
-        author=("so1n",),
-        group="user",
+    @user_pait(
         status=PaitStatus.release,
         tag=("check response",),
         response_model_list=[UserSuccessRespModel3, FailRespModel],
@@ -223,8 +222,7 @@ class CheckRespHandler(MyHandler):
 
 
 class MockHandler(MyHandler):
-    @pait(
-        author=("so1n",),
+    @user_pait(
         group="user",
         status=PaitStatus.release,
         tag=("mock",),
@@ -258,18 +256,14 @@ class MockHandler(MyHandler):
 
 
 class PaitModelHanler(MyHandler):
-    @pait(
-        author=("so1n",), status=PaitStatus.test, tag=("field",), response_model_list=[SimpleRespModel, FailRespModel]
-    )
+    @other_pait(status=PaitStatus.release, tag=("field",), response_model_list=[SimpleRespModel, FailRespModel])
     async def post(self, test_model: TestPaitModel) -> None:
         """Test pait model"""
         self.write({"code": 0, "msg": "", "data": test_model.dict()})
 
 
 class DependContextmanagerHanler(MyHandler):
-    @pait(
-        author=("so1n",), status=PaitStatus.test, tag=("depend",), response_model_list=[SuccessRespModel, FailRespModel]
-    )
+    @other_pait(tag=("depend",), response_model_list=[SuccessRespModel, FailRespModel])
     async def get(self, uid: str = Depends.i(context_depend), is_raise: bool = Query.i(default=False)) -> None:
         if is_raise:
             raise RuntimeError()
@@ -277,9 +271,7 @@ class DependContextmanagerHanler(MyHandler):
 
 
 class DependAsyncContextmanagerHanler(MyHandler):
-    @pait(
-        author=("so1n",), status=PaitStatus.test, tag=("depend",), response_model_list=[SuccessRespModel, FailRespModel]
-    )
+    @other_pait(tag=("depend",), response_model_list=[SuccessRespModel, FailRespModel])
     async def get(self, uid: str = Depends.i(async_context_depend), is_raise: bool = Query.i(default=False)) -> None:
         if is_raise:
             raise RuntimeError()
@@ -287,12 +279,8 @@ class DependAsyncContextmanagerHanler(MyHandler):
 
 
 class PreDependContextmanagerHanler(MyHandler):
-    @pait(
-        author=("so1n",),
-        status=PaitStatus.test,
-        tag=("depend",),
-        pre_depend_list=[context_depend],
-        response_model_list=[SuccessRespModel, FailRespModel],
+    @other_pait(
+        tag=("depend",), pre_depend_list=[context_depend], response_model_list=[SuccessRespModel, FailRespModel]
     )
     async def get(self, is_raise: bool = Query.i(default=False)) -> None:
         if is_raise:
@@ -301,12 +289,8 @@ class PreDependContextmanagerHanler(MyHandler):
 
 
 class PreDependAsyncContextmanagerHanler(MyHandler):
-    @pait(
-        author=("so1n",),
-        status=PaitStatus.test,
-        tag=("depend",),
-        pre_depend_list=[context_depend],
-        response_model_list=[SuccessRespModel, FailRespModel],
+    @other_pait(
+        tag=("depend",), pre_depend_list=[async_context_depend], response_model_list=[SuccessRespModel, FailRespModel]
     )
     async def get(self, is_raise: bool = Query.i(default=False)) -> None:
         if is_raise:
@@ -317,9 +301,7 @@ class PreDependAsyncContextmanagerHanler(MyHandler):
 class CbvHandler(MyHandler):
     content_type: str = Header.i(alias="Content-Type")
 
-    @pait(
-        author=("so1n",),
-        group="user",
+    @user_pait(
         status=PaitStatus.release,
         tag=("cbv",),
         response_model_list=[UserSuccessRespModel, FailRespModel],
@@ -346,10 +328,8 @@ class CbvHandler(MyHandler):
             }
         )
 
-    @pait(
-        author=("so1n",),
+    @user_pait(
         desc="test cbv post method",
-        group="user",
         tag=("cbv",),
         status=PaitStatus.release,
         response_model_list=[UserSuccessRespModel, FailRespModel],
@@ -377,12 +357,7 @@ class CbvHandler(MyHandler):
 
 
 class TextResponseHanler(MyHandler):
-    @pait(
-        author=("so1n",),
-        status=PaitStatus.test,
-        tag=("check response",),
-        response_model_list=[TextRespModel],
-    )
+    @check_resp_pait(response_model_list=[TextRespModel])
     async def get(self) -> None:
         self.write(str(time.time()))
         self.set_header("X-Example-Type", "text")
@@ -390,12 +365,7 @@ class TextResponseHanler(MyHandler):
 
 
 class HtmlResponseHanler(MyHandler):
-    @pait(
-        author=("so1n",),
-        status=PaitStatus.test,
-        tag=("check response",),
-        response_model_list=[HtmlRespModel],
-    )
+    @check_resp_pait(response_model_list=[HtmlRespModel])
     async def get(self) -> None:
         self.write("<H1>" + str(time.time()) + "</H1>")
         self.set_header("X-Example-Type", "html")
@@ -403,12 +373,7 @@ class HtmlResponseHanler(MyHandler):
 
 
 class FileResponseHanler(MyHandler):
-    @pait(
-        author=("so1n",),
-        status=PaitStatus.test,
-        tag=("check response",),
-        response_model_list=[FileRespModel],
-    )
+    @check_resp_pait(response_model_list=[FileRespModel])
     async def get(self) -> None:
         async with aiofiles.tempfile.NamedTemporaryFile() as f:  # type: ignore
             await f.write("Hello Word!".encode())
@@ -421,12 +386,7 @@ class FileResponseHanler(MyHandler):
 
 
 class LoginHanlder(MyHandler):
-    @pait(
-        author=("so1n",),
-        status=PaitStatus.release,
-        tag=("links",),
-        response_model_list=[LoginRespModel],
-    )
+    @link_pait(response_model_list=[LoginRespModel])
     async def post(
         self, uid: str = Body.i(description="user id"), password: str = Body.i(description="password")
     ) -> None:
@@ -439,12 +399,7 @@ token_links_Model = LinksModel(LoginRespModel, "$response.body#/data/token", des
 
 
 class GetUserHandler(MyHandler):
-    @pait(
-        author=("so1n",),
-        status=PaitStatus.release,
-        tag=("links",),
-        response_model_list=[SuccessRespModel],
-    )
+    @link_pait(response_model_list=[SuccessRespModel])
     def get(self, token: str = Header.i("", description="token", link=token_links_Model)) -> None:
         if token:
             self.write({"code": 0, "msg": ""})

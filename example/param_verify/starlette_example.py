@@ -32,19 +32,29 @@ from example.param_verify.model import (
     context_depend,
     demo_depend,
 )
-from pait.app.starlette import add_doc_route, pait
+from pait.app.starlette import Pait, add_doc_route, pait
 from pait.exceptions import PaitBaseException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
+
+global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
+
+user_pait: Pait = global_pait.create_sub_pait(group="user")
+check_resp_pait: Pait = global_pait.create_sub_pait(group="check_resp", tag=("check_resp",))
+link_pait: Pait = global_pait.create_sub_pait(
+    group="links",
+    status=PaitStatus.release,
+    tag=("links",),
+)
+other_pait: Pait = pait.create_sub_pait(author=("so1n",), status=PaitStatus.test, group="other")
 
 
 async def api_exception(request: Request, exc: Exception) -> JSONResponse:
     return JSONResponse({"code": -1, "msg": str(exc)})
 
 
-@pait(
-    author=("so1n",),
+@other_pait(
     desc="test pait raise tip",
     status=PaitStatus.abandoned,
     tag=("raise",),
@@ -57,9 +67,7 @@ async def raise_tip_route(
     return JSONResponse({"code": 0, "msg": "", "data": {"content_type": content__type}})
 
 
-@pait(
-    author=("so1n",),
-    group="user",
+@other_pait(
     status=PaitStatus.release,
     tag=("user", "post"),
     response_model_list=[UserSuccessRespModel, FailRespModel],
@@ -78,9 +86,7 @@ async def post_route(
     return JSONResponse({"code": 0, "msg": "", "data": return_dict})
 
 
-@pait(
-    author=("so1n",),
-    group="user",
+@user_pait(
     status=PaitStatus.release,
     tag=("user", "depend"),
     response_model_list=[SimpleRespModel, FailRespModel],
@@ -94,11 +100,10 @@ async def depend_route(
     return JSONResponse({"code": 0, "msg": "", "data": {"user_agent": depend_tuple[0], "age": depend_tuple[1]}})
 
 
-@pait(
-    author=("so1n",),
-    group="user",
+@user_pait(
     status=PaitStatus.release,
     tag=("same alias",),
+    response_model_list=[SimpleRespModel, FailRespModel],
 )
 def same_alias_route(
     query_token: str = Query.i("", alias="token"), header_token: str = Header.i("", alias="token")
@@ -106,9 +111,7 @@ def same_alias_route(
     return JSONResponse({"code": 0, "msg": "", "data": {"query_token": query_token, "header_token": header_token}})
 
 
-@pait(
-    author=("so1n",),
-    group="user",
+@user_pait(
     status=PaitStatus.release,
     tag=("field",),
     response_model_list=[SimpleRespModel, FailRespModel],
@@ -149,9 +152,7 @@ async def pait_base_field_route(
     )
 
 
-@pait(
-    author=("so1n",),
-    group="user",
+@user_pait(
     status=PaitStatus.release,
     tag=("check param",),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
@@ -184,8 +185,7 @@ async def check_param_route(
     )
 
 
-@pait(
-    author=("so1n",),
+@user_pait(
     group="user",
     status=PaitStatus.release,
     tag=("check response",),
@@ -213,9 +213,7 @@ async def check_response_route(
     return JSONResponse(return_dict)
 
 
-@pait(
-    author=("so1n",),
-    group="user",
+@user_pait(
     status=PaitStatus.release,
     tag=("mock",),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
@@ -246,13 +244,13 @@ async def mock_route(
     )
 
 
-@pait(author=("so1n",), status=PaitStatus.test, tag=("field",), response_model_list=[SimpleRespModel, FailRespModel])
+@other_pait(status=PaitStatus.test, tag=("field",), response_model_list=[SimpleRespModel, FailRespModel])
 async def pait_model_route(test_pait_model: TestPaitModel) -> JSONResponse:
     """Test pait model"""
     return JSONResponse({"code": 0, "msg": "", "data": test_pait_model.dict()})
 
 
-@pait(author=("so1n",), status=PaitStatus.test, tag=("depend",), response_model_list=[SuccessRespModel, FailRespModel])
+@other_pait(status=PaitStatus.test, tag=("depend",), response_model_list=[SuccessRespModel, FailRespModel])
 async def depend_contextmanager_route(
     uid: str = Depends.i(context_depend), is_raise: bool = Query.i(default=False)
 ) -> JSONResponse:
@@ -261,8 +259,7 @@ async def depend_contextmanager_route(
     return JSONResponse({"code": 0, "msg": uid})
 
 
-@pait(
-    author=("so1n",),
+@other_pait(
     status=PaitStatus.test,
     tag=("depend",),
     pre_depend_list=[context_depend],
@@ -274,8 +271,7 @@ async def pre_depend_contextmanager_route(is_raise: bool = Query.i(default=False
     return JSONResponse({"code": 0, "msg": ""})
 
 
-@pait(
-    author=("so1n",),
+@other_pait(
     status=PaitStatus.test,
     tag=("depend",),
     pre_depend_list=[async_context_depend],
@@ -287,7 +283,7 @@ async def pre_depend_async_contextmanager_route(is_raise: bool = Query.i(default
     return JSONResponse({"code": 0, "msg": ""})
 
 
-@pait(author=("so1n",), status=PaitStatus.test, tag=("depend",), response_model_list=[SuccessRespModel, FailRespModel])
+@other_pait(tag=("depend",), response_model_list=[SuccessRespModel, FailRespModel])
 async def depend_async_contextmanager_route(
     uid: str = Depends.i(async_context_depend), is_raise: bool = Query.i(default=False)
 ) -> JSONResponse:
@@ -299,9 +295,7 @@ async def depend_async_contextmanager_route(
 class CbvRoute(HTTPEndpoint):
     content_type: str = Header.i(alias="Content-Type")
 
-    @pait(
-        author=("so1n",),
-        group="user",
+    @user_pait(
         status=PaitStatus.release,
         tag=("cbv",),
         response_model_list=[UserSuccessRespModel, FailRespModel],
@@ -328,10 +322,8 @@ class CbvRoute(HTTPEndpoint):
             }
         )
 
-    @pait(
-        author=("so1n",),
+    @user_pait(
         desc="test cbv post method",
-        group="user",
         tag=("cbv",),
         status=PaitStatus.release,
         response_model_list=[UserSuccessRespModel, FailRespModel],
@@ -359,12 +351,7 @@ class CbvRoute(HTTPEndpoint):
         )
 
 
-@pait(
-    author=("so1n",),
-    status=PaitStatus.test,
-    tag=("check response",),
-    response_model_list=[TextRespModel],
-)
+@check_resp_pait(response_model_list=[TextRespModel])
 async def text_response_route() -> PlainTextResponse:
     response: PlainTextResponse = PlainTextResponse(str(time.time()))
     response.media_type = "text/plain"
@@ -372,12 +359,7 @@ async def text_response_route() -> PlainTextResponse:
     return response
 
 
-@pait(
-    author=("so1n",),
-    status=PaitStatus.test,
-    tag=("check response",),
-    response_model_list=[HtmlRespModel],
-)
+@check_resp_pait(response_model_list=[HtmlRespModel])
 async def html_response_route() -> HTMLResponse:
     response: HTMLResponse = HTMLResponse("<H1>" + str(time.time()) + "</H1>")
     response.media_type = "text/html"
@@ -385,12 +367,7 @@ async def html_response_route() -> HTMLResponse:
     return response
 
 
-@pait(
-    author=("so1n",),
-    status=PaitStatus.test,
-    tag=("check response",),
-    response_model_list=[FileRespModel],
-)
+@check_resp_pait(response_model_list=[FileRespModel])
 async def file_response_route() -> FileResponse:
     named_temporary_file: AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()  # type: ignore
     f: Any = await named_temporary_file.__aenter__()
@@ -407,12 +384,7 @@ async def file_response_route() -> FileResponse:
     return response
 
 
-@pait(
-    author=("so1n",),
-    status=PaitStatus.release,
-    tag=("links",),
-    response_model_list=[LoginRespModel],
-)
+@link_pait(response_model_list=[LoginRespModel])
 def login_route(
     uid: str = Body.i(description="user id"), password: str = Body.i(description="password")
 ) -> JSONResponse:
@@ -425,12 +397,7 @@ def login_route(
 token_links_Model = LinksModel(LoginRespModel, "$response.body#/data/token", desc="test links model")
 
 
-@pait(
-    author=("so1n",),
-    status=PaitStatus.release,
-    tag=("links",),
-    response_model_list=[SuccessRespModel],
-)
+@link_pait(response_model_list=[SuccessRespModel])
 def get_user_route(token: str = Header.i("", description="token", link=token_links_Model)) -> JSONResponse:
     if token:
         return JSONResponse({"code": 0, "msg": ""})

@@ -7,10 +7,12 @@ from pait.api_doc.html import get_redoc_html as _get_redoc_html
 from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenApi
 from pait.field import Depends, Query
+from pait.g import config
 from pait.model.core import PaitCoreModel
+from pait.model.status import PaitStatus
 
 from ._load_app import load_app
-from ._pait import pait
+from ._pait import Pait
 
 __all__ = ["add_doc_route"]
 
@@ -23,6 +25,14 @@ def add_doc_route(
     title: str = "Pait Doc",
     open_api_tag_list: Optional[List[Dict[str, Any]]] = None,
 ) -> None:
+
+    doc_pait: Pait = Pait(
+        author=config.author or ("so1n",),
+        status=config.status or PaitStatus.release,
+        tag=("pait_doc",),
+        group="pait_doc",
+    )
+
     class NotFound(Exception):
         pass
 
@@ -50,17 +60,17 @@ def add_doc_route(
             return openapi_json_url
 
     class GetRedocHtmlHandle(BaseHandle, ABC):
-        @pait()
+        @doc_pait()
         async def get(self, r_pin_code: str = Depends.i(_get_request_pin_code)) -> None:
             self.write(_get_redoc_html(self._get_open_json_url(r_pin_code), title))
 
     class GetSwaggerUiHtmlHandle(BaseHandle, ABC):
-        @pait()
+        @doc_pait()
         async def get(self, r_pin_code: str = Depends.i(_get_request_pin_code)) -> None:
             self.write(_get_swagger_ui_html(self._get_open_json_url(r_pin_code), title))
 
     class OpenApiHandle(BaseHandle, ABC):
-        @pait(pre_depend_list=[_get_request_pin_code])
+        @doc_pait(pre_depend_list=[_get_request_pin_code])
         async def get(self) -> None:
             pait_dict: Dict[str, PaitCoreModel] = load_app(self.application)
             _scheme: str = scheme or self.request.protocol

@@ -27,20 +27,30 @@ from example.param_verify.model import (
     context_depend,
     demo_depend,
 )
-from pait.app.flask import add_doc_route, pait
+from pait.app.flask import Pait, add_doc_route, pait
 from pait.exceptions import PaitBaseException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.g import config
 from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
 
+global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
+
+user_pait: Pait = global_pait.create_sub_pait(group="user")
+check_resp_pait: Pait = global_pait.create_sub_pait(group="check_resp", tag=("check_resp",))
+link_pait: Pait = global_pait.create_sub_pait(
+    group="links",
+    status=PaitStatus.release,
+    tag=("links",),
+)
+other_pait: Pait = pait.create_sub_pait(author=("so1n",), status=PaitStatus.test, group="other")
+
 
 def api_exception(exc: Exception) -> Dict[str, Any]:
     return {"code": -1, "msg": str(exc)}
 
 
-@pait(
-    author=("so1n",),
+@other_pait(
     desc="test pait raise tip",
     status=PaitStatus.abandoned,
     tag=("raise",),
@@ -53,9 +63,7 @@ def raise_tip_route(
     return {"code": 0, "msg": "", "data": {"content_type": content__type}}
 
 
-@pait(
-    author=("so1n",),
-    group="user",
+@user_pait(
     status=PaitStatus.release,
     tag=("user", "post"),
     response_model_list=[UserSuccessRespModel, FailRespModel],
@@ -74,9 +82,7 @@ def post_route(
     return {"code": 0, "msg": "", "data": return_dict}
 
 
-@pait(
-    author=("so1n",),
-    group="user",
+@other_pait(
     status=PaitStatus.release,
     tag=("user", "depend"),
     response_model_list=[SimpleRespModel, FailRespModel],
@@ -90,9 +96,7 @@ def depend_route(
     return {"code": 0, "msg": "", "data": {"user_agent": depend_tuple[0], "age": depend_tuple[1]}}
 
 
-@pait(
-    author=("so1n",),
-    group="user",
+@other_pait(
     status=PaitStatus.release,
     tag=("same alias",),
     response_model_list=[SimpleRespModel, FailRespModel],
@@ -104,9 +108,7 @@ def same_alias_route(
     return {"code": 0, "msg": "", "data": {"query_token": query_token, "header_token": header_token}}
 
 
-@pait(
-    author=("so1n",),
-    group="user",
+@user_pait(
     status=PaitStatus.release,
     tag=("field",),
     response_model_list=[SimpleRespModel, FailRespModel],
@@ -145,9 +147,7 @@ def pait_base_field_route(
     }
 
 
-@pait(
-    author=("so1n",),
-    group="user",
+@user_pait(
     status=PaitStatus.release,
     tag=("check param",),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
@@ -178,9 +178,7 @@ def check_param_route(
     }
 
 
-@pait(
-    author=("so1n",),
-    group="user",
+@user_pait(
     status=PaitStatus.release,
     tag=("check response",),
     response_model_list=[UserSuccessRespModel3, FailRespModel],
@@ -207,9 +205,7 @@ def check_response_route(
     return return_dict
 
 
-@pait(
-    author=("so1n",),
-    group="user",
+@user_pait(
     status=PaitStatus.release,
     tag=("mock",),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
@@ -238,21 +234,20 @@ def mock_route(
     }
 
 
-@pait(author=("so1n",), status=PaitStatus.test, tag=("field",), response_model_list=[SimpleRespModel, FailRespModel])
+@other_pait(status=PaitStatus.test, tag=("field",), response_model_list=[SimpleRespModel, FailRespModel])
 def pait_model_route(test_pait_model: TestPaitModel) -> dict:
     """Test pait model"""
     return {"code": 0, "msg": "", "data": test_pait_model.dict()}
 
 
-@pait(author=("so1n",), status=PaitStatus.test, tag=("depend",), response_model_list=[SuccessRespModel, FailRespModel])
+@other_pait(status=PaitStatus.test, tag=("depend",), response_model_list=[SuccessRespModel, FailRespModel])
 def depend_contextmanager_route(uid: str = Depends.i(context_depend), is_raise: bool = Query.i(default=False)) -> dict:
     if is_raise:
         raise RuntimeError()
     return {"code": 0, "msg": uid}
 
 
-@pait(
-    author=("so1n",),
+@other_pait(
     status=PaitStatus.test,
     tag=("depend",),
     pre_depend_list=[context_depend],
@@ -267,9 +262,7 @@ def pre_depend_contextmanager_route(is_raise: bool = Query.i(default=False)) -> 
 class CbvRoute(MethodView):
     content_type: str = Header.i(alias="Content-Type")
 
-    @pait(
-        author=("so1n",),
-        group="user",
+    @user_pait(
         status=PaitStatus.release,
         tag=("cbv",),
         response_model_list=[UserSuccessRespModel, FailRespModel],
@@ -294,10 +287,8 @@ class CbvRoute(MethodView):
             },
         }
 
-    @pait(
-        author=("so1n",),
+    @user_pait(
         desc="test cbv post method",
-        group="user",
         tag=("cbv",),
         status=PaitStatus.release,
         response_model_list=[UserSuccessRespModel, FailRespModel],
@@ -323,12 +314,7 @@ class CbvRoute(MethodView):
         }
 
 
-@pait(
-    author=("so1n",),
-    status=PaitStatus.test,
-    tag=("check response",),
-    response_model_list=[TextRespModel],
-)
+@check_resp_pait(response_model_list=[TextRespModel])
 def text_response_route() -> Response:
     """test return test response"""
     response: Response = make_response(str(time.time()), 200)
@@ -337,12 +323,7 @@ def text_response_route() -> Response:
     return response
 
 
-@pait(
-    author=("so1n",),
-    status=PaitStatus.test,
-    tag=("check response",),
-    response_model_list=[HtmlRespModel],
-)
+@check_resp_pait(response_model_list=[HtmlRespModel])
 def html_response_route() -> Response:
     """test return html response"""
     response: Response = make_response("<H1>" + str(time.time()) + "</H1>", 200)
@@ -351,12 +332,7 @@ def html_response_route() -> Response:
     return response
 
 
-@pait(
-    author=("so1n",),
-    status=PaitStatus.test,
-    tag=("check response",),
-    response_model_list=[FileRespModel],
-)
+@check_resp_pait(response_model_list=[FileRespModel])
 def file_response_route() -> Response:
     """test return file response"""
     file_content: str = "Hello Word!"
@@ -369,12 +345,7 @@ def file_response_route() -> Response:
         return response
 
 
-@pait(
-    author=("so1n",),
-    status=PaitStatus.release,
-    tag=("links",),
-    response_model_list=[LoginRespModel],
-)
+@link_pait(response_model_list=[LoginRespModel])
 def login_route(uid: str = Body.i(description="user id"), password: str = Body.i(description="password")) -> dict:
     # only use test
     return {"code": 0, "msg": "", "data": {"token": hashlib.sha256((uid + password).encode("utf-8")).hexdigest()}}
@@ -383,12 +354,7 @@ def login_route(uid: str = Body.i(description="user id"), password: str = Body.i
 token_links_Model = LinksModel(LoginRespModel, "$response.body#/data/token", desc="test links model")
 
 
-@pait(
-    author=("so1n",),
-    status=PaitStatus.release,
-    tag=("links",),
-    response_model_list=[SuccessRespModel],
-)
+@link_pait(response_model_list=[SuccessRespModel])
 def get_user_route(token: str = Header.i("", description="token", link=token_links_Model)) -> dict:
     if token:
         return {"code": 0, "msg": ""}

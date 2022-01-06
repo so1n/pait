@@ -50,7 +50,7 @@ class TestTornado(AsyncHTTPTestCase):
             "code": -1,
             "msg": (
                 'File "/home/so1n/github/pait/example/param_verify/tornado_example.py", '
-                "line 44, "
+                "line 56, "
                 "in post. error:content_type value is <class 'pydantic.fields.UndefinedType'>"
             ),
         } == TornadoTestHelper(
