@@ -9,6 +9,7 @@ from tornado.httputil import RequestStartLine
 from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
 
+from example.param_verify import tag
 from example.param_verify.model import (
     FailRespModel,
     FileRespModel,
@@ -36,11 +37,11 @@ from pait.model.status import PaitStatus
 global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
 
 user_pait: Pait = global_pait.create_sub_pait(group="user")
-check_resp_pait: Pait = global_pait.create_sub_pait(group="check_resp", tag=("check_resp",))
+check_resp_pait: Pait = global_pait.create_sub_pait(group="check_resp", tag=(tag.check_resp_tag,))
 link_pait: Pait = global_pait.create_sub_pait(
     group="links",
     status=PaitStatus.release,
-    tag=("links",),
+    tag=(tag.links_tag,),
 )
 other_pait: Pait = pait.create_sub_pait(author=("so1n",), status=PaitStatus.test, group="other")
 
@@ -55,7 +56,7 @@ class RaiseTipHandler(MyHandler):
     @other_pait(
         desc="test pait raise tip",
         status=PaitStatus.abandoned,
-        tag=("raise",),
+        tag=(tag.raise_tag,),
         response_model_list=[SimpleRespModel, FailRespModel],
     )
     async def post(
@@ -69,7 +70,7 @@ class RaiseTipHandler(MyHandler):
 class PostHandler(MyHandler):
     @user_pait(
         status=PaitStatus.release,
-        tag=("user", "post"),
+        tag=(tag.user_tag, tag.post_tag),
         response_model_list=[UserSuccessRespModel, FailRespModel],
     )
     async def post(
@@ -90,7 +91,7 @@ class PostHandler(MyHandler):
 class DependHandler(MyHandler):
     @other_pait(
         status=PaitStatus.release,
-        tag=("user", "depend"),
+        tag=(tag.user_tag, tag.depend_tag),
         response_model_list=[SimpleRespModel, FailRespModel],
     )
     async def post(
@@ -106,7 +107,7 @@ class DependHandler(MyHandler):
 class SameAliasHandler(MyHandler):
     @other_pait(
         status=PaitStatus.release,
-        tag=("same alias",),
+        tag=(tag.same_alias_tag,),
         response_model_list=[SimpleRespModel, FailRespModel],
     )
     def get(
@@ -118,7 +119,7 @@ class SameAliasHandler(MyHandler):
 class PaitBaseFieldHandler(MyHandler):
     @user_pait(
         status=PaitStatus.release,
-        tag=("field",),
+        tag=(tag.field_tag,),
         response_model_list=[SimpleRespModel, FailRespModel],
     )
     async def post(
@@ -160,7 +161,7 @@ class PaitBaseFieldHandler(MyHandler):
 class CheckParamHandler(MyHandler):
     @user_pait(
         status=PaitStatus.release,
-        tag=("check param",),
+        tag=(tag.check_param_tag,),
         response_model_list=[UserSuccessRespModel2, FailRespModel],
         at_most_one_of_list=[["user_name", "alias_user_name"]],
         required_by={"birthday": ["alias_user_name"]},
@@ -195,7 +196,7 @@ class CheckParamHandler(MyHandler):
 class CheckRespHandler(MyHandler):
     @user_pait(
         status=PaitStatus.release,
-        tag=("check response",),
+        tag=(tag.check_resp_tag,),
         response_model_list=[UserSuccessRespModel3, FailRespModel],
     )
     async def get(
@@ -225,7 +226,7 @@ class MockHandler(MyHandler):
     @user_pait(
         group="user",
         status=PaitStatus.release,
-        tag=("mock",),
+        tag=(tag.mock_tag,),
         response_model_list=[UserSuccessRespModel2, FailRespModel],
         enable_mock_response=True,
     )
@@ -256,14 +257,14 @@ class MockHandler(MyHandler):
 
 
 class PaitModelHanler(MyHandler):
-    @other_pait(status=PaitStatus.release, tag=("field",), response_model_list=[SimpleRespModel, FailRespModel])
+    @other_pait(status=PaitStatus.release, tag=(tag.field_tag,), response_model_list=[SimpleRespModel, FailRespModel])
     async def post(self, test_model: TestPaitModel) -> None:
         """Test pait model"""
         self.write({"code": 0, "msg": "", "data": test_model.dict()})
 
 
 class DependContextmanagerHanler(MyHandler):
-    @other_pait(tag=("depend",), response_model_list=[SuccessRespModel, FailRespModel])
+    @other_pait(tag=(tag.depend_tag,), response_model_list=[SuccessRespModel, FailRespModel])
     async def get(self, uid: str = Depends.i(context_depend), is_raise: bool = Query.i(default=False)) -> None:
         if is_raise:
             raise RuntimeError()
@@ -271,7 +272,7 @@ class DependContextmanagerHanler(MyHandler):
 
 
 class DependAsyncContextmanagerHanler(MyHandler):
-    @other_pait(tag=("depend",), response_model_list=[SuccessRespModel, FailRespModel])
+    @other_pait(tag=(tag.depend_tag,), response_model_list=[SuccessRespModel, FailRespModel])
     async def get(self, uid: str = Depends.i(async_context_depend), is_raise: bool = Query.i(default=False)) -> None:
         if is_raise:
             raise RuntimeError()
@@ -280,7 +281,7 @@ class DependAsyncContextmanagerHanler(MyHandler):
 
 class PreDependContextmanagerHanler(MyHandler):
     @other_pait(
-        tag=("depend",), pre_depend_list=[context_depend], response_model_list=[SuccessRespModel, FailRespModel]
+        tag=(tag.depend_tag,), pre_depend_list=[context_depend], response_model_list=[SuccessRespModel, FailRespModel]
     )
     async def get(self, is_raise: bool = Query.i(default=False)) -> None:
         if is_raise:
@@ -290,7 +291,9 @@ class PreDependContextmanagerHanler(MyHandler):
 
 class PreDependAsyncContextmanagerHanler(MyHandler):
     @other_pait(
-        tag=("depend",), pre_depend_list=[async_context_depend], response_model_list=[SuccessRespModel, FailRespModel]
+        tag=(tag.depend_tag,),
+        pre_depend_list=[async_context_depend],
+        response_model_list=[SuccessRespModel, FailRespModel],
     )
     async def get(self, is_raise: bool = Query.i(default=False)) -> None:
         if is_raise:
@@ -303,7 +306,7 @@ class CbvHandler(MyHandler):
 
     @user_pait(
         status=PaitStatus.release,
-        tag=("cbv",),
+        tag=(tag.cbv_tag,),
         response_model_list=[UserSuccessRespModel, FailRespModel],
     )
     async def get(
@@ -330,7 +333,7 @@ class CbvHandler(MyHandler):
 
     @user_pait(
         desc="test cbv post method",
-        tag=("cbv",),
+        tag=(tag.cbv_tag,),
         status=PaitStatus.release,
         response_model_list=[UserSuccessRespModel, FailRespModel],
     )

@@ -1,6 +1,7 @@
 import inspect
+import logging
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, TypeVar
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 from pydantic import BaseConfig
 
@@ -9,12 +10,14 @@ from pait.g import config, pait_data
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitBaseResponseModel
 from pait.model.status import PaitStatus
+from pait.model.tag import Tag
 from pait.model.util import sync_config_data_to_pait_core_model
 from pait.param_handle import AsyncParamHandler, ParamHandler
 from pait.util import get_func_sig
 
-_append_t = TypeVar("_append_t", list, tuple)
+_AppendT = TypeVar("_AppendT", list, tuple)
 _PaitT = TypeVar("_PaitT", bound="Pait")
+_TagT = Union[str, Tag]
 
 
 class Pait(object):
@@ -37,7 +40,7 @@ class Pait(object):
         name: Optional[str] = None,
         status: Optional[PaitStatus] = None,
         group: Optional[str] = None,
-        tag: Optional[Tuple[str, ...]] = None,
+        tag: Optional[Tuple[_TagT, ...]] = None,
         response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
     ):
 
@@ -73,15 +76,15 @@ class Pait(object):
         self._name: Optional[str] = name
         self._status: Optional[PaitStatus] = status
         self._group: Optional[str] = group
-        self._tag: Optional[Tuple[str, ...]] = tag
+        self._tag: Optional[Tuple[_TagT, ...]] = tag
         self._response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = response_model_list
 
     @staticmethod
     def _append_data(
-        target_container: Optional[_append_t],
-        append_container: Optional[_append_t],
-        self_container: Optional[_append_t],
-    ) -> Optional[_append_t]:
+        target_container: Optional[_AppendT],
+        append_container: Optional[_AppendT],
+        self_container: Optional[_AppendT],
+    ) -> Optional[_AppendT]:
         if append_container:
             return append_container + (self_container or append_container.__class__())
         else:
@@ -107,7 +110,7 @@ class Pait(object):
         name: Optional[str] = None,
         status: Optional[PaitStatus] = None,
         group: Optional[str] = None,
-        tag: Optional[Tuple[str, ...]] = None,
+        tag: Optional[Tuple[_TagT, ...]] = None,
         append_tag: Optional[Tuple[str, ...]] = None,
         response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
         append_response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
@@ -164,7 +167,7 @@ class Pait(object):
         name: Optional[str] = None,
         status: Optional[PaitStatus] = None,
         group: Optional[str] = None,
-        tag: Optional[Tuple[str, ...]] = None,
+        tag: Optional[Tuple[_TagT, ...]] = None,
         append_tag: Optional[Tuple[str, ...]] = None,
         response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
         append_response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
@@ -191,6 +194,15 @@ class Pait(object):
         else:
             required_by = required_by or self._required_by
 
+        new_tag: List[str] = []
+        if tag:
+            for _tag in tag:
+                if isinstance(_tag, Tag):
+                    _tag = _tag.name
+                else:
+                    logging.warning("In later versions tag only supports Tag class, and does not support str type")
+                new_tag.append(_tag)
+
         def wrapper(func: Callable) -> Callable:
             # Pre-parsing function signatures
             get_func_sig(func)
@@ -206,7 +218,7 @@ class Pait(object):
                 func_name=name,
                 status=status,
                 group=group,
-                tag=tag,
+                tag=tuple(new_tag),
                 response_model_list=response_model_list,
                 pre_depend_list=pre_depend_list,
                 pydantic_model_config=pydantic_model_config,

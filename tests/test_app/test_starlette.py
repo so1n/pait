@@ -8,6 +8,7 @@ from unittest import mock
 import pytest
 from pytest_mock import MockFixture
 from requests import Response  # type: ignore
+from starlette.applications import Starlette
 from starlette.testclient import TestClient
 
 from example.param_verify import starlette_example
@@ -281,7 +282,8 @@ class TestStarlette:
         response_test_helper(client, starlette_example.file_response_route, response.PaitFileResponseModel)
 
     def test_test_helper_not_support_mutil_method(self, client: TestClient) -> None:
-        client.app.add_route("/api/new-text-resp", starlette_example.text_response_route, methods={"GET", "POST"})
+        app: Starlette = client.app  # type: ignore
+        app.add_route("/api/new-text-resp", starlette_example.text_response_route, methods=["GET", "POST"])
         with pytest.raises(RuntimeError) as e:
             StarletteTestHelper(client, starlette_example.text_response_route).request()
         exec_msg: str = e.value.args[0]

@@ -42,6 +42,7 @@ class Config(object):
         self.default_response_model_list: List[Type[PaitBaseResponseModel]] = []
         self.json_encoder: Type[JSONEncoder] = CustomJSONEncoder
         self.default_pydantic_model_config: Type[BaseConfig] = BaseConfig
+        self.tag_dict: Dict[str, str] = {}
 
     def __setattr__(self, key: Any, value: Any) -> None:
         if not self.__initialized:

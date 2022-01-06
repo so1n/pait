@@ -9,6 +9,7 @@ from flask import Flask, Request, Response, make_response, send_from_directory
 from flask.views import MethodView
 from pydantic import ValidationError
 
+from example.param_verify import tag
 from example.param_verify.model import (
     FailRespModel,
     FileRespModel,
@@ -37,11 +38,11 @@ from pait.model.status import PaitStatus
 global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
 
 user_pait: Pait = global_pait.create_sub_pait(group="user")
-check_resp_pait: Pait = global_pait.create_sub_pait(group="check_resp", tag=("check_resp",))
+check_resp_pait: Pait = global_pait.create_sub_pait(group="check_resp", tag=(tag.check_resp_tag,))
 link_pait: Pait = global_pait.create_sub_pait(
     group="links",
     status=PaitStatus.release,
-    tag=("links",),
+    tag=(tag.links_tag,),
 )
 other_pait: Pait = pait.create_sub_pait(author=("so1n",), status=PaitStatus.test, group="other")
 
@@ -53,7 +54,7 @@ def api_exception(exc: Exception) -> Dict[str, Any]:
 @other_pait(
     desc="test pait raise tip",
     status=PaitStatus.abandoned,
-    tag=("raise",),
+    tag=(tag.raise_tag,),
     response_model_list=[SimpleRespModel, FailRespModel],
 )
 def raise_tip_route(
@@ -65,7 +66,7 @@ def raise_tip_route(
 
 @user_pait(
     status=PaitStatus.release,
-    tag=("user", "post"),
+    tag=(tag.user_tag, tag.post_tag),
     response_model_list=[UserSuccessRespModel, FailRespModel],
 )
 def post_route(
@@ -84,7 +85,7 @@ def post_route(
 
 @other_pait(
     status=PaitStatus.release,
-    tag=("user", "depend"),
+    tag=(tag.user_tag, tag.depend_tag),
     response_model_list=[SimpleRespModel, FailRespModel],
 )
 def depend_route(
@@ -98,7 +99,7 @@ def depend_route(
 
 @other_pait(
     status=PaitStatus.release,
-    tag=("same alias",),
+    tag=(tag.same_alias_tag,),
     response_model_list=[SimpleRespModel, FailRespModel],
 )
 def same_alias_route(
@@ -110,7 +111,7 @@ def same_alias_route(
 
 @user_pait(
     status=PaitStatus.release,
-    tag=("field",),
+    tag=(tag.field_tag,),
     response_model_list=[SimpleRespModel, FailRespModel],
 )
 def pait_base_field_route(
@@ -149,7 +150,7 @@ def pait_base_field_route(
 
 @user_pait(
     status=PaitStatus.release,
-    tag=("check param",),
+    tag=(tag.check_param_tag,),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
     at_most_one_of_list=[["user_name", "alias_user_name"]],
     required_by={"birthday": ["alias_user_name"]},
@@ -180,7 +181,7 @@ def check_param_route(
 
 @user_pait(
     status=PaitStatus.release,
-    tag=("check response",),
+    tag=(tag.check_resp_tag,),
     response_model_list=[UserSuccessRespModel3, FailRespModel],
 )
 def check_response_route(
@@ -207,7 +208,7 @@ def check_response_route(
 
 @user_pait(
     status=PaitStatus.release,
-    tag=("mock",),
+    tag=(tag.mock_tag,),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
     enable_mock_response=True,
 )
@@ -234,13 +235,13 @@ def mock_route(
     }
 
 
-@other_pait(status=PaitStatus.test, tag=("field",), response_model_list=[SimpleRespModel, FailRespModel])
+@other_pait(status=PaitStatus.test, tag=(tag.field_tag,), response_model_list=[SimpleRespModel, FailRespModel])
 def pait_model_route(test_pait_model: TestPaitModel) -> dict:
     """Test pait model"""
     return {"code": 0, "msg": "", "data": test_pait_model.dict()}
 
 
-@other_pait(status=PaitStatus.test, tag=("depend",), response_model_list=[SuccessRespModel, FailRespModel])
+@other_pait(status=PaitStatus.test, tag=(tag.depend_tag,), response_model_list=[SuccessRespModel, FailRespModel])
 def depend_contextmanager_route(uid: str = Depends.i(context_depend), is_raise: bool = Query.i(default=False)) -> dict:
     if is_raise:
         raise RuntimeError()
@@ -249,7 +250,7 @@ def depend_contextmanager_route(uid: str = Depends.i(context_depend), is_raise: 
 
 @other_pait(
     status=PaitStatus.test,
-    tag=("depend",),
+    tag=(tag.depend_tag,),
     pre_depend_list=[context_depend],
     response_model_list=[SuccessRespModel, FailRespModel],
 )
@@ -264,7 +265,7 @@ class CbvRoute(MethodView):
 
     @user_pait(
         status=PaitStatus.release,
-        tag=("cbv",),
+        tag=(tag.cbv_tag,),
         response_model_list=[UserSuccessRespModel, FailRespModel],
     )
     def get(
@@ -289,7 +290,7 @@ class CbvRoute(MethodView):
 
     @user_pait(
         desc="test cbv post method",
-        tag=("cbv",),
+        tag=(tag.cbv_tag,),
         status=PaitStatus.release,
         response_model_list=[UserSuccessRespModel, FailRespModel],
     )

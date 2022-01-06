@@ -1,6 +1,7 @@
 from typing import Any
 
 from pait.data import PaitData
+from pait.model import tag
 from pait.model.config import Config
 from pait.model.util import sync_config_data_to_pait_core_model
 
@@ -24,3 +25,4 @@ def _after_config_init(*args: Any, **kwargs: Any) -> None:
 
 
 setattr(config, config.init_config.__name__, _after_config_init)
+config.tag_dict = getattr(tag, "_tag_dict", {})

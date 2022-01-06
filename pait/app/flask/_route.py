@@ -11,6 +11,7 @@ from pait.field import Depends, Query
 from pait.g import config
 from pait.model.core import PaitCoreModel
 from pait.model.status import PaitStatus
+from pait.model.tag import Tag
 
 from ._load_app import load_app
 from ._pait import Pait
@@ -32,7 +33,7 @@ def add_doc_route(
     doc_pait: Pait = Pait(
         author=config.author or ("so1n",),
         status=config.status or PaitStatus.release,
-        tag=("pait_doc",),
+        tag=(Tag("pait_doc", desc="pait default doc route"),),
         group="pait_doc",
     )
 

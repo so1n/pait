@@ -98,6 +98,8 @@ class PaitOpenApi(PaitBaseParse):
                 _OpenApiTagModel(**open_api_tag)
                 temp_open_api_tag_list.append(open_api_tag)
             open_api_tag_list = temp_open_api_tag_list
+        for tag, desc in config.tag_dict.items():
+            open_api_tag_list.append({"name": tag, "description": desc})
 
         self.open_api_dict: Dict[str, Any] = {
             "openapi": "3.0.0",
@@ -357,7 +359,10 @@ class PaitOpenApi(PaitBaseParse):
                         # Additional labeling instructions
                         for tag in pait_model.tag:
                             if tag not in {tag_dict["name"] for tag_dict in self.open_api_dict["tags"]}:
-                                logging.warning(f"Can not found tag:{tag} description, set default description")
+                                logging.warning(
+                                    f"Can not found tag:{tag} description, set default description, "
+                                    f"you can use pait.model.tag.Tag({tag}, desc='')"
+                                )
                                 self.open_api_dict["tags"].append(
                                     {
                                         "name": tag,
