@@ -3,6 +3,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
 from pydantic import BaseConfig
 
+from pait.core import PluginParamType, TagT
 from pait.model.status import PaitStatus
 
 from ..model.core import PaitCoreModel  # type: ignore
@@ -40,22 +41,30 @@ def add_doc_route(app: Any, prefix: str = "/") -> None:
 
 
 def pait(
+    make_mock_response_fn: Callable[[Type[PaitBaseResponseModel]], Any] = None,
     enable_mock_response: bool = False,
     pydantic_model_config: Optional[Type[BaseConfig]] = None,
-    make_mock_response_fn: Optional[Callable[[Type[PaitBaseResponseModel]], Any]] = None,
     # param check
     pre_depend_list: Optional[List[Callable]] = None,
+    append_pre_depend_list: Optional[List[Callable]] = None,
     at_most_one_of_list: Optional[List[List[str]]] = None,
+    append_at_most_one_of_list: Optional[List[List[str]]] = None,
     required_by: Optional[Dict[str, List[str]]] = None,
+    append_required_by: Optional[Dict[str, List[str]]] = None,
     # doc
-    author: Optional[Tuple[str]] = None,
+    author: Optional[Tuple[str, ...]] = None,
+    append_author: Optional[Tuple[str, ...]] = None,
     desc: Optional[str] = None,
     summary: Optional[str] = None,
     name: Optional[str] = None,
     status: Optional[PaitStatus] = None,
     group: Optional[str] = None,
-    tag: Optional[Tuple[str, ...]] = None,
+    tag: Optional[Tuple[TagT, ...]] = None,
+    append_tag: Optional[Tuple[str, ...]] = None,
     response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
+    append_response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
+    plugin_list: Optional[List[PluginParamType]] = None,
+    append_plugin_list: Optional[List[PluginParamType]] = None,
 ) -> Callable:
     """provide parameter checks and type conversions for each routing function/cbv class
     Note:This is an implicit method
@@ -70,14 +79,22 @@ def pait(
         pydantic_model_config=pydantic_model_config,
         make_mock_response_fn=make_mock_response_fn,
         pre_depend_list=pre_depend_list,
+        append_pre_depend_list=append_pre_depend_list,
         at_most_one_of_list=at_most_one_of_list,
+        append_at_most_one_of_list=append_at_most_one_of_list,
         required_by=required_by,
+        append_required_by=append_required_by,
         author=author,
+        append_author=append_author,
         desc=desc,
         summary=summary,
         name=name,
         status=status,
         group=group,
         tag=tag,
+        append_tag=append_tag,
         response_model_list=response_model_list,
+        append_response_model_list=append_response_model_list,
+        plugin_list=plugin_list,
+        append_plugin_list=append_plugin_list,
     )

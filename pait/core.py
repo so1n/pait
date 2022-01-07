@@ -13,11 +13,14 @@ from pait.model.status import PaitStatus
 from pait.model.tag import Tag
 from pait.model.util import sync_config_data_to_pait_core_model
 from pait.param_handle import AsyncParamHandler, ParamHandler
+from pait.plugin.base import BaseAsyncPlugin, BasePlugin
 from pait.util import get_func_sig
 
 _AppendT = TypeVar("_AppendT", list, tuple)
 _PaitT = TypeVar("_PaitT", bound="Pait")
-_TagT = Union[str, Tag]
+_PluginT = Union[BasePlugin, BaseAsyncPlugin]
+TagT = Union[str, Tag]
+PluginParamType = Tuple[Union[Type[BasePlugin], Type[BaseAsyncPlugin]], tuple, dict]
 
 
 class Pait(object):
@@ -40,8 +43,9 @@ class Pait(object):
         name: Optional[str] = None,
         status: Optional[PaitStatus] = None,
         group: Optional[str] = None,
-        tag: Optional[Tuple[_TagT, ...]] = None,
+        tag: Optional[Tuple[TagT, ...]] = None,
         response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
+        plugin_list: Optional[List[PluginParamType]] = None,
     ):
 
         check_cls_param_list: List[str] = ["app_helper_class", "make_mock_response_fn"]
@@ -76,8 +80,9 @@ class Pait(object):
         self._name: Optional[str] = name
         self._status: Optional[PaitStatus] = status
         self._group: Optional[str] = group
-        self._tag: Optional[Tuple[_TagT, ...]] = tag
+        self._tag: Optional[Tuple[TagT, ...]] = tag
         self._response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = response_model_list
+        self._plugin_list: Optional[List[PluginParamType]] = plugin_list
 
     @staticmethod
     def _append_data(
@@ -110,10 +115,12 @@ class Pait(object):
         name: Optional[str] = None,
         status: Optional[PaitStatus] = None,
         group: Optional[str] = None,
-        tag: Optional[Tuple[_TagT, ...]] = None,
+        tag: Optional[Tuple[TagT, ...]] = None,
         append_tag: Optional[Tuple[str, ...]] = None,
         response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
         append_response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
+        plugin_list: Optional[List[PluginParamType]] = None,
+        append_plugin_list: Optional[List[PluginParamType]] = None,
     ) -> _PaitT:
         pre_depend_list = self._append_data(pre_depend_list, append_pre_depend_list, self._pre_depend_list)
         at_most_one_of_list = self._append_data(
@@ -124,6 +131,7 @@ class Pait(object):
         response_model_list = self._append_data(
             response_model_list, append_response_model_list, self._response_model_list
         )
+        plugin_list = self._append_data(plugin_list, append_plugin_list, self._plugin_list)
 
         if append_required_by:
             required_by = (self._required_by or {}).update(append_required_by)
@@ -134,18 +142,40 @@ class Pait(object):
             make_mock_response_fn=make_mock_response_fn or self.make_mock_response_fn,
             enable_mock_response=enable_mock_response or self._enable_mock_response,
             pydantic_model_config=pydantic_model_config or self._pydantic_model_config,
-            pre_depend_list=pre_depend_list,
-            at_most_one_of_list=at_most_one_of_list,
-            required_by=required_by,
-            author=author,
             desc=desc or self._desc,
             summary=summary or self._summary,
             name=name or self._name,
             status=status or self._status,
+            pre_depend_list=pre_depend_list,
+            at_most_one_of_list=at_most_one_of_list,
+            required_by=required_by,
+            author=author,
             group=group,
             tag=tag,
             response_model_list=response_model_list,
+            plugin_list=plugin_list,
         )
+
+    @staticmethod
+    def _plugin_handler(
+        plugin_list: List[Tuple[Type[_PluginT], tuple, dict]],
+        pait_core_model: PaitCoreModel,
+        args: Any,
+        kwargs: Any,
+        func: Callable,
+    ) -> List[_PluginT]:
+        plugin_instance_list: List[_PluginT] = []
+        for plugin_class, plugin_args, plugin_kwargs in plugin_list:
+            plugin_instance: _PluginT = plugin_class(*plugin_args, **plugin_kwargs)
+            plugin_instance.__post_init__(pait_core_model, args, kwargs)
+            plugin_instance_list.append(plugin_instance)
+
+        for index, plugin_instance in enumerate(plugin_instance_list):
+            if plugin_instance == plugin_instance_list[-1]:
+                setattr(plugin_instance, plugin_instance.call_next.__name__, func)
+            else:
+                setattr(plugin_instance, plugin_instance.call_next.__name__, plugin_instance_list[index + 1].__call__)
+        return plugin_instance_list
 
     def __call__(
         self,
@@ -167,10 +197,12 @@ class Pait(object):
         name: Optional[str] = None,
         status: Optional[PaitStatus] = None,
         group: Optional[str] = None,
-        tag: Optional[Tuple[_TagT, ...]] = None,
+        tag: Optional[Tuple[TagT, ...]] = None,
         append_tag: Optional[Tuple[str, ...]] = None,
         response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
         append_response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
+        plugin_list: Optional[List[PluginParamType]] = None,
+        append_plugin_list: Optional[List[PluginParamType]] = None,
     ) -> Callable:
         app_name: str = self.app_helper_class.app_name
         enable_mock_response = enable_mock_response or self._enable_mock_response
@@ -189,11 +221,17 @@ class Pait(object):
         response_model_list = self._append_data(
             response_model_list, append_response_model_list, self._response_model_list
         )
+        _plugin_list: List[PluginParamType] = (
+            self._append_data(plugin_list, append_plugin_list, self._plugin_list) or []
+        )
         if append_required_by:
             required_by = (self._required_by or {}).update(append_required_by)
         else:
             required_by = required_by or self._required_by
 
+        ###############
+        # tag handler #
+        ###############
         new_tag: List[str] = []
         if tag:
             for _tag in tag:
@@ -229,43 +267,31 @@ class Pait(object):
             pait_data.register(app_name, pait_core_model)
 
             if inspect.iscoroutinefunction(func):
+                for plugin, _, _ in _plugin_list:
+                    if not issubclass(plugin, BaseAsyncPlugin):
+                        raise TypeError("Plugin must BaseAsyncPlugin subclass")
+                _plugin_list.append((AsyncParamHandler, (), {}))
 
                 @wraps(func)
                 async def dispatch(*args: Any, **kwargs: Any) -> Callable:
-                    param_handler: AsyncParamHandler = AsyncParamHandler()
-                    param_handler.__post_init__(pait_core_model, args, kwargs)
-                    return await param_handler(*args, **kwargs)
-                    # async with AsyncParamHandler(
-                    #     self.app_helper_class,
-                    #     func,
-                    #     pait_core_model.pydantic_model_config,
-                    #     at_most_one_of_list=at_most_one_of_list,
-                    #     pre_depend_list=pre_depend_list,
-                    #     required_by=required_by,
-                    #     args=args,
-                    #     kwargs=kwargs,
-                    # ) as p:
-                    #     return await pait_core_model.pait_func(*p.args, **p.kwargs)
+                    first_plugin: BaseAsyncPlugin = self._plugin_handler(  # type: ignore
+                        _plugin_list, pait_core_model, args, kwargs, func
+                    )[0]
+                    return await first_plugin(*args, **kwargs)
 
                 return dispatch
             else:
+                for plugin, args, kwargs in _plugin_list:
+                    if not issubclass(plugin, BasePlugin):
+                        raise TypeError("Plugin must BasePlugin subclass")
+                _plugin_list.append((ParamHandler, (), {}))
 
                 @wraps(func)
                 def dispatch(*args: Any, **kwargs: Any) -> Callable:
-                    param_handler: ParamHandler = ParamHandler()
-                    param_handler.__post_init__(pait_core_model, args, kwargs)
-                    return param_handler(*args, **kwargs)
-                    # with ParamHandler(
-                    #     self.app_helper_class,
-                    #     func,
-                    #     pait_core_model.pydantic_model_config,
-                    #     at_most_one_of_list=at_most_one_of_list,
-                    #     pre_depend_list=pre_depend_list,
-                    #     required_by=required_by,
-                    #     args=args,
-                    #     kwargs=kwargs,
-                    # ) as p:
-                    #     return pait_core_model.pait_func(*p.args, **p.kwargs)
+                    first_plugin: BasePlugin = self._plugin_handler(  # type: ignore
+                        _plugin_list, pait_core_model, args, kwargs, func
+                    )[0]
+                    return first_plugin(*args, **kwargs)
 
                 return dispatch
 

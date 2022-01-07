@@ -8,6 +8,9 @@ class PluginInitProtocol(object):
     args: list
     kwargs: dict
 
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        pass
+
     def __post_init__(self, pait_core_model: PaitCoreModel, args: tuple, kwargs: dict) -> None:
         self.pait_core_model = pait_core_model
         self.args = list(args) or []
@@ -16,7 +19,7 @@ class PluginInitProtocol(object):
 
 class BasePlugin(PluginInitProtocol):
     def call_next(self, *args: Any, **kwargs: Any) -> Any:
-        pass
+        raise NotImplementedError()
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         return self.call_next(*args, **kwargs)
@@ -24,7 +27,7 @@ class BasePlugin(PluginInitProtocol):
 
 class BaseAsyncPlugin(PluginInitProtocol):
     async def call_next(self, *args: Any, **kwargs: Any) -> Any:
-        pass
+        raise NotImplementedError()
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
         return await self.call_next(*args, **kwargs)
