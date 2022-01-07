@@ -204,11 +204,11 @@ class CheckRespHandler(MyHandler):
         self,
         uid: int = Query.i(description="user id", gt=10, lt=1000),
         email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
-        user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
+        user_name: str = Query.i(description="user name", min_length=2, max_length=4),
         age: int = Query.i(description="age", gt=1, lt=100),
         display_age: int = Query.i(0, description="display_age"),
     ) -> None:
-        """Test check param"""
+        """Test test-helper check response"""
         return_dict: dict = {
             "code": 0,
             "msg": "",

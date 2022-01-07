@@ -12,8 +12,7 @@ __all__ = ["MockPlugin"]
 
 
 class MockPlugin(BaseMockPlugin):
-    @staticmethod
-    def mock_response(pait_response: Type[response.PaitBaseResponseModel]) -> Response:
+    def mock_response(self, pait_response: Type[response.PaitBaseResponseModel]) -> Response:
         if issubclass(pait_response, response.PaitJsonResponseModel):
             resp: Response = jsonify(json.loads(pait_response.get_example_value(json_encoder_cls=config.json_encoder)))
         elif issubclass(pait_response, response.PaitTextResponseModel) or issubclass(

@@ -53,17 +53,20 @@ python_type_default_value_dict: Dict[type, Any] = {
 def get_pait_response_model(
     response_model_list: List[Type["PaitBaseResponseModel"]],
     target_pait_response_class: Optional[Type["PaitBaseResponseModel"]] = None,
+    find_core_response_model: bool = False,
 ) -> Type["PaitBaseResponseModel"]:
     if target_pait_response_class:
         core_response_list: List[Type["PaitBaseResponseModel"]] = [
             i for i in response_model_list if i.is_core and issubclass(i, target_pait_response_class)
         ]
+    else:
+        core_response_list = [i for i in response_model_list if i.is_core]
+    if find_core_response_model:
         if len(core_response_list) != 1:
             raise RuntimeError("Multiple pait response models were found")
         return core_response_list[0]
     else:
-        core_response_list = [i for i in response_model_list if i.is_core] or response_model_list
-        return core_response_list[0]
+        return (core_response_list or response_model_list)[0]
 
 
 def create_pydantic_model(

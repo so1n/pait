@@ -11,8 +11,7 @@ from pait.plugin.base_mock_response import BaseAsyncMockPlugin
 
 
 class MockPlugin(BaseAsyncMockPlugin):
-    @staticmethod
-    def mock_response(pait_response: Type[response.PaitBaseResponseModel]) -> Any:
+    def mock_response(self, pait_response: Type[response.PaitBaseResponseModel]) -> Any:
         async def make_mock_response() -> Response:
             if issubclass(pait_response, response.PaitJsonResponseModel):
                 resp: Response = JSONResponse(

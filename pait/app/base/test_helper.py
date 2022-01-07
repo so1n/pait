@@ -7,7 +7,7 @@ from pydantic import BaseModel, ValidationError
 
 from pait.model import response
 from pait.model.core import PaitCoreModel
-from pait.util import gen_example_dict_from_schema, gen_example_json_from_python
+from pait.util import gen_example_dict_from_schema, gen_example_json_from_python, get_pait_response_model
 
 RESP_T = TypeVar("RESP_T")
 
@@ -28,6 +28,8 @@ class BaseTestHelper(Generic[RESP_T]):
         path_dict: Optional[dict] = None,
         query_dict: Optional[dict] = None,
         strict_inspection_check_json_content: bool = True,
+        find_coro_response_model: bool = False,
+        target_pait_response_class: Optional[Type["response.PaitBaseResponseModel"]] = None,
     ):
         """
         :param client:  test client
@@ -84,6 +86,8 @@ class BaseTestHelper(Generic[RESP_T]):
         if not self.path.startswith("/"):
             self.path = "/" + self.path
 
+        self.find_coro_response_model: bool = find_coro_response_model
+        self.target_pait_response_class: Optional[Type["response.PaitBaseResponseModel"]] = target_pait_response_class
         self._app_init_field()
 
     def _app_init_field(self) -> None:
@@ -158,8 +162,18 @@ class BaseTestHelper(Generic[RESP_T]):
         real_response_model: Optional[Type[response.PaitBaseResponseModel]] = None
         max_quick_ratio: float = 0.0
         model_check_msg_dict: Dict[Type[response.PaitBaseResponseModel], List[str]] = {}
-
-        for response_model in self.pait_core_model.response_model_list:
+        response_model_list: List[Type[response.PaitBaseResponseModel]] = (
+            self.pait_core_model.response_model_list
+            if not self.find_coro_response_model
+            else [
+                get_pait_response_model(
+                    self.pait_core_model.response_model_list,
+                    target_pait_response_class=self.target_pait_response_class,
+                    find_core_response_model=self.find_coro_response_model,
+                )
+            ]
+        )
+        for response_model in response_model_list:
             error_msg_list: List[str] = []
             if self._get_status_code(resp) not in response_model.status_code:
                 error_msg_list.append("check status code error.")

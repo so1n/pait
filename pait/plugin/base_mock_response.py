@@ -9,8 +9,18 @@ from pait.util import get_pait_response_model
 
 
 class MockPluginInitProtocolMixin(PluginInitProtocol):
-    @staticmethod
-    def mock_response(pait_response: Type[PaitBaseResponseModel]) -> Any:
+    def __init__(
+        self,
+        *args: Any,
+        find_coro_response_model: bool = False,
+        target_pait_response_class: Optional[Type["PaitBaseResponseModel"]] = None,
+        **kwargs: Any,
+    ):
+        self.find_coro_response_model: bool = find_coro_response_model
+        self.target_pait_response_class: Optional[Type["PaitBaseResponseModel"]] = target_pait_response_class
+        super().__init__(*args, **kwargs)
+
+    def mock_response(self, pait_response: Type[PaitBaseResponseModel]) -> Any:
         raise NotImplementedError()
 
     def get_mock_response(self, *args: Any, **kwargs: Any) -> Any:
@@ -24,11 +34,12 @@ class MockPluginInitProtocolMixin(PluginInitProtocol):
                     break
 
         if not pait_response:
-            pait_response = get_pait_response_model(self.pait_core_model.response_model_list)
+            pait_response = get_pait_response_model(
+                self.pait_core_model.response_model_list,
+                target_pait_response_class=self.target_pait_response_class,
+                find_core_response_model=self.find_coro_response_model,
+            )
 
-        # fix tornado
-        if self.pait_core_model.app_helper_class.app_name == "tornado":
-            setattr(pait_response, "handle", args[0])
         resp: Any = self.mock_response(pait_response)
         # support async def
         if inspect.iscoroutinefunction(self.pait_core_model.func) and not inspect.iscoroutine(resp):

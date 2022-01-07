@@ -194,7 +194,7 @@ async def check_param_route(
 async def check_response_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
-    user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
+    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
     age: int = Query.i(description="age", gt=1, lt=100),
     display_age: int = Query.i(0, description="display_age"),
 ) -> response.HTTPResponse:
@@ -385,20 +385,24 @@ async def file_response_route(request: Request) -> response.StreamingHTTPRespons
 
 
 @link_pait(response_model_list=[LoginRespModel])
-def login_route(uid: str = Body.i(description="user id"), password: str = Body.i(description="password")) -> dict:
+def login_route(
+    uid: str = Body.i(description="user id"), password: str = Body.i(description="password")
+) -> response.HTTPResponse:
     # only use test
-    return {"code": 0, "msg": "", "data": {"token": hashlib.sha256((uid + password).encode("utf-8")).hexdigest()}}
+    return response.json(
+        {"code": 0, "msg": "", "data": {"token": hashlib.sha256((uid + password).encode("utf-8")).hexdigest()}}
+    )
 
 
 token_links_Model = LinksModel(LoginRespModel, "$response.body#/data/token", desc="test links model")
 
 
 @link_pait(response_model_list=[SuccessRespModel])
-def get_user_route(token: str = Header.i("", description="token", link=token_links_Model)) -> dict:
+def get_user_route(token: str = Header.i("", description="token", link=token_links_Model)) -> response.HTTPResponse:
     if token:
-        return {"code": 0, "msg": ""}
+        return response.json({"code": 0, "msg": ""})
     else:
-        return {"code": 1, "msg": ""}
+        return response.json({"code": 1, "msg": ""})
 
 
 def create_app() -> Sanic:

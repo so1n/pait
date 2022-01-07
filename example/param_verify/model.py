@@ -146,6 +146,8 @@ class UserSuccessRespModel2(PaitJsonResponseModel):
 
 
 class UserSuccessRespModel3(PaitJsonResponseModel):
+    is_core: bool = True
+
     class ResponseModel(ResponseModel):  # type: ignore
         class DataModel(BaseModel):
             uid: int = Field(description="user id", gt=10, lt=1000)
