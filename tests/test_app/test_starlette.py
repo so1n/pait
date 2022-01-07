@@ -39,10 +39,12 @@ def client(mocker: MockFixture) -> Generator[TestClient, None, None]:
 def response_test_helper(
     client: TestClient, route_handler: Callable, pait_response: Type[response.PaitBaseResponseModel]
 ) -> None:
+    from pait.app.starlette.plugin.mock_response import MockPlugin
+
     test_helper: StarletteTestHelper = StarletteTestHelper(client, route_handler)
     test_helper.get()
 
-    with enable_mock(test_helper):
+    with enable_mock(route_handler, MockPlugin):
         resp: Response = test_helper.get()
         for key, value in pait_response.header.items():
             assert resp.headers[key] == value
@@ -56,14 +58,11 @@ def response_test_helper(
 
 class TestStarlette:
     def test_raise_tip_route(self, client: TestClient) -> None:
-        assert {
-            "code": -1,
-            "msg": (
-                'File "/home/so1n/github/pait/example/param_verify/starlette_example.py", '
-                "line 58, "
-                "in raise_tip_route. error:content__type value is <class 'pydantic.fields.UndefinedType'>"
-            ),
-        } == StarletteTestHelper(client, starlette_example.raise_tip_route, header_dict={"Content-Type": "test"}).json()
+        msg: str = StarletteTestHelper(
+            client, starlette_example.raise_tip_route, header_dict={"Content-Type": "test"}
+        ).json()["msg"]
+        assert 'File "/home/so1n/github/pait/example/param_verify/starlette_example.py", ' in msg
+        assert "in raise_tip_route. error:content__type value is <class 'pydantic.fields.UndefinedType'>"
 
     def test_post(self, client: TestClient) -> None:
         test_helper: StarletteTestHelper = StarletteTestHelper(

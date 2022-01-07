@@ -1,7 +1,5 @@
-import asyncio
-import inspect
 import logging
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, Tuple, Type
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Set, Tuple, Type
 
 from pydantic import BaseConfig
 
@@ -17,7 +15,6 @@ class PaitCoreModel(object):
         self,
         func: Callable,
         app_helper_class: "Type[BaseAppHelper]",
-        make_mock_response_fn: Callable[[Type[PaitBaseResponseModel]], Any],
         pre_depend_list: Optional[List[Callable]] = None,
         path: Optional[str] = None,
         openapi_path: Optional[str] = None,
@@ -39,7 +36,6 @@ class PaitCoreModel(object):
         self.at_most_one_of_list: List[List[str]] = at_most_one_of_list or []
         self.required_by: Dict[str, List[str]] = required_by or {}
         self.app_helper_class: "Type[BaseAppHelper]" = app_helper_class
-        self.make_mock_response_fn: Callable[[Type[PaitBaseResponseModel]], Any] = make_mock_response_fn
         self.func: Callable = func  # route func
         self.pait_func: Callable = func  # route func， If `mock_response` is used, this function will be replaced
         self.pre_depend_list: List[Callable] = pre_depend_list or []
@@ -89,26 +85,3 @@ class PaitCoreModel(object):
                     f" with {PaitBaseResponseModel}"
                 )
             self._response_model_list.append(response_model)
-
-    def return_mock_response(self, *args: Any, **kwargs: Any) -> Any:
-        if not self.response_model_list:
-            raise RuntimeError(f"{self.func} can not found response model")
-        pait_response: Optional[Type[PaitBaseResponseModel]] = None
-        if self.enable_mock_response_filter_fn:
-            for _pait_response in self.response_model_list:
-                if self.enable_mock_response_filter_fn(_pait_response):
-                    pait_response = _pait_response
-                    break
-        if not pait_response:
-            pait_response = self.response_model_list[0]
-
-        # fix tornado
-        if self.app_helper_class.app_name == "tornado":
-            setattr(pait_response, "handle", args[0])
-        resp: Any = self.make_mock_response_fn(pait_response)
-        # support async def
-        if inspect.iscoroutinefunction(self.func) and not inspect.iscoroutine(resp):
-            future: asyncio.Future = asyncio.Future()
-            future.set_result(resp)
-            resp = future
-        return resp

@@ -30,6 +30,7 @@ from example.param_verify.model import (
     demo_depend,
 )
 from pait.app.tornado import Pait, add_doc_route, pait
+from pait.app.tornado.plugin.mock_response import MockPlugin
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
@@ -228,7 +229,7 @@ class MockHandler(MyHandler):
         status=PaitStatus.release,
         tag=(tag.mock_tag,),
         response_model_list=[UserSuccessRespModel2, FailRespModel],
-        enable_mock_response=True,
+        plugin_list=[(MockPlugin, (), {})],
     )
     async def get(
         self,

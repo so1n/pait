@@ -33,10 +33,12 @@ def client() -> Generator[FlaskClient, None, None]:
 def response_test_helper(
     client: FlaskClient, route_handler: Callable, pait_response: Type[response.PaitBaseResponseModel]
 ) -> None:
+    from pait.app.flask.plugin.mock_response import MockPlugin
+
     test_helper: FlaskTestHelper = FlaskTestHelper(client, route_handler)
     test_helper.get()
 
-    with enable_mock(test_helper):
+    with enable_mock(route_handler, MockPlugin):
         resp: Response = test_helper.get()
         for key, value in pait_response.header.items():
             assert resp.headers[key] == value
@@ -50,14 +52,11 @@ def response_test_helper(
 
 class TestFlask:
     def test_raise_tip_route(self, client: FlaskClient) -> None:
-        assert {
-            "code": -1,
-            "msg": (
-                'File "/home/so1n/github/pait/example/param_verify/flask_example.py", '
-                "line 54, "
-                "in raise_tip_route. error:content__type value is <class 'pydantic.fields.UndefinedType'>"
-            ),
-        } == FlaskTestHelper(client, flask_example.raise_tip_route, header_dict={"Content-Type": "test"}).json()
+        msg: str = FlaskTestHelper(client, flask_example.raise_tip_route, header_dict={"Content-Type": "test"}).json()[
+            "msg"
+        ]
+        assert 'File "/home/so1n/github/pait/example/param_verify/flask_example.py", ' in msg
+        assert "in raise_tip_route. error:content__type value is <class 'pydantic.fields.UndefinedType'>" in msg
 
     def test_post(self, client: FlaskClient) -> None:
         flask_test_helper: FlaskTestHelper = FlaskTestHelper(

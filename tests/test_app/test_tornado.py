@@ -31,10 +31,12 @@ class TestTornado(AsyncHTTPTestCase):
     def response_test_helper(
         self, route_handler: Callable, pait_response: Type[response.PaitBaseResponseModel]
     ) -> None:
+        from pait.app.tornado.plugin.mock_response import MockPlugin
+
         test_helper: TornadoTestHelper = TornadoTestHelper(self, route_handler)
         test_helper.get()
 
-        with enable_mock(test_helper):
+        with enable_mock(route_handler, MockPlugin):
             resp: HTTPResponse = test_helper.get()
             for key, value in pait_response.header.items():
                 assert resp.headers[key] == value
@@ -46,16 +48,11 @@ class TestTornado(AsyncHTTPTestCase):
                 assert resp.body == pait_response.get_example_value()
 
     def test_raise_tip_route(self) -> None:
-        assert {
-            "code": -1,
-            "msg": (
-                'File "/home/so1n/github/pait/example/param_verify/tornado_example.py", '
-                "line 56, "
-                "in post. error:content_type value is <class 'pydantic.fields.UndefinedType'>"
-            ),
-        } == TornadoTestHelper(
+        msg: str = TornadoTestHelper(
             self, tornado_example.RaiseTipHandler.post, header_dict={"Content-Type": "test"}, body_dict={"temp": None}
-        ).json()
+        ).json()["msg"]
+        assert 'File "/home/so1n/github/pait/example/param_verify/tornado_example.py", ' in msg
+        assert "in post. error:content_type value is <class 'pydantic.fields.UndefinedType'>" in msg
 
     def test_post(self) -> None:
         test_helper: TornadoTestHelper = TornadoTestHelper(

@@ -25,12 +25,10 @@ PluginParamType = Tuple[Union[Type[BasePlugin], Type[BaseAsyncPlugin]], tuple, d
 
 class Pait(object):
     app_helper_class: "Type[BaseAppHelper]"
-    make_mock_response_fn: staticmethod  # real type hints: Callable[[Type[PaitBaseResponseModel]], Any]]
 
     def __init__(
         self,
         make_mock_response_fn: Optional[Callable[[Type[PaitBaseResponseModel]], Any]] = None,
-        enable_mock_response: bool = False,
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
         # param check
         pre_depend_list: Optional[List[Callable]] = None,
@@ -48,7 +46,7 @@ class Pait(object):
         plugin_list: Optional[List[PluginParamType]] = None,
     ):
 
-        check_cls_param_list: List[str] = ["app_helper_class", "make_mock_response_fn"]
+        check_cls_param_list: List[str] = ["app_helper_class"]
         for cls_param in check_cls_param_list:
             if not getattr(self, cls_param, None):
                 raise ValueError(
@@ -58,16 +56,7 @@ class Pait(object):
             raise TypeError(f"{self.app_helper_class} must be class")
         if not issubclass(self.app_helper_class, BaseAppHelper):
             raise TypeError(f"{self.app_helper_class} must sub from {BaseAppHelper.__class__.__name__}")
-        if getattr(self.make_mock_response_fn, "__self__", None):
-            raise TypeError(
-                "Set error make_mock_response_fn, should use `staticmethod` func. "
-                "like `make_mock_response_fn = staticmethod(make_mock_response)`"
-            )
 
-        self._make_mock_response_fn: Callable[[Type[PaitBaseResponseModel]], Any] = (
-            make_mock_response_fn or self.make_mock_response_fn
-        )
-        self._enable_mock_response: bool = enable_mock_response
         self._pydantic_model_config: Optional[Type[BaseConfig]] = pydantic_model_config
         # param check
         self._pre_depend_list: Optional[List[Callable]] = pre_depend_list
@@ -98,7 +87,6 @@ class Pait(object):
     def create_sub_pait(
         self: _PaitT,
         make_mock_response_fn: Callable[[Type[PaitBaseResponseModel]], Any] = None,
-        enable_mock_response: bool = False,
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
         # param check
         pre_depend_list: Optional[List[Callable]] = None,
@@ -139,8 +127,6 @@ class Pait(object):
             required_by = required_by or self._required_by
 
         return self.__class__(
-            make_mock_response_fn=make_mock_response_fn or self.make_mock_response_fn,
-            enable_mock_response=enable_mock_response or self._enable_mock_response,
             pydantic_model_config=pydantic_model_config or self._pydantic_model_config,
             desc=desc or self._desc,
             summary=summary or self._summary,
@@ -180,7 +166,6 @@ class Pait(object):
     def __call__(
         self,
         make_mock_response_fn: Callable[[Type[PaitBaseResponseModel]], Any] = None,
-        enable_mock_response: bool = False,
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
         # param check
         pre_depend_list: Optional[List[Callable]] = None,
@@ -205,7 +190,6 @@ class Pait(object):
         append_plugin_list: Optional[List[PluginParamType]] = None,
     ) -> Callable:
         app_name: str = self.app_helper_class.app_name
-        enable_mock_response = enable_mock_response or self._enable_mock_response
         pydantic_model_config = pydantic_model_config or self._pydantic_model_config
         desc = desc or self._desc
         summary = summary or self._summary
@@ -221,9 +205,7 @@ class Pait(object):
         response_model_list = self._append_data(
             response_model_list, append_response_model_list, self._response_model_list
         )
-        _plugin_list: List[PluginParamType] = (
-            self._append_data(plugin_list, append_plugin_list, self._plugin_list) or []
-        )
+        plugin_list = self._append_data(plugin_list, append_plugin_list, self._plugin_list)
         if append_required_by:
             required_by = (self._required_by or {}).update(append_required_by)
         else:
@@ -249,7 +231,6 @@ class Pait(object):
             pait_core_model: PaitCoreModel = PaitCoreModel(
                 author=author,
                 app_helper_class=self.app_helper_class,
-                make_mock_response_fn=make_mock_response_fn or self._make_mock_response_fn,
                 desc=desc,
                 summary=summary,
                 func=func,
@@ -263,33 +244,34 @@ class Pait(object):
                 at_most_one_of_list=at_most_one_of_list,
                 required_by=required_by,
             )
-            sync_config_data_to_pait_core_model(config, pait_core_model, enable_mock_response=enable_mock_response)
+            sync_config_data_to_pait_core_model(config, pait_core_model)
             pait_data.register(app_name, pait_core_model)
+            runtime_plugin_list: List[PluginParamType] = plugin_list or []
 
             if inspect.iscoroutinefunction(func):
-                for plugin, _, _ in _plugin_list:
+                for plugin, _, _ in runtime_plugin_list:
                     if not issubclass(plugin, BaseAsyncPlugin):
                         raise TypeError("Plugin must BaseAsyncPlugin subclass")
-                _plugin_list.append((AsyncParamHandler, (), {}))
+                runtime_plugin_list.append((AsyncParamHandler, (), {}))
 
                 @wraps(func)
                 async def dispatch(*args: Any, **kwargs: Any) -> Callable:
                     first_plugin: BaseAsyncPlugin = self._plugin_handler(  # type: ignore
-                        _plugin_list, pait_core_model, args, kwargs, func
+                        runtime_plugin_list, pait_core_model, args, kwargs, func
                     )[0]
                     return await first_plugin(*args, **kwargs)
 
                 return dispatch
             else:
-                for plugin, args, kwargs in _plugin_list:
+                for plugin, args, kwargs in runtime_plugin_list:
                     if not issubclass(plugin, BasePlugin):
                         raise TypeError("Plugin must BasePlugin subclass")
-                _plugin_list.append((ParamHandler, (), {}))
+                runtime_plugin_list.append((ParamHandler, (), {}))
 
                 @wraps(func)
                 def dispatch(*args: Any, **kwargs: Any) -> Callable:
                     first_plugin: BasePlugin = self._plugin_handler(  # type: ignore
-                        _plugin_list, pait_core_model, args, kwargs, func
+                        runtime_plugin_list, pait_core_model, args, kwargs, func
                     )[0]
                     return first_plugin(*args, **kwargs)
 

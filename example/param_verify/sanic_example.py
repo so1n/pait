@@ -32,6 +32,7 @@ from example.param_verify.model import (
     demo_depend,
 )
 from pait.app.sanic import Pait, add_doc_route, pait
+from pait.app.sanic.plugin.mock_response import MockPlugin
 from pait.exceptions import PaitBaseException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model.links import LinksModel
@@ -216,7 +217,7 @@ async def check_response_route(
     status=PaitStatus.release,
     tag=(tag.mock_tag,),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
-    enable_mock_response=True,
+    plugin_list=[(MockPlugin, (), {})],
 )
 async def mock_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),

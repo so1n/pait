@@ -19,7 +19,7 @@ class PluginInitProtocol(object):
 
 class BasePlugin(PluginInitProtocol):
     def call_next(self, *args: Any, **kwargs: Any) -> Any:
-        raise NotImplementedError()
+        raise RuntimeError("Failed to load Plugin, please check the list of plugins")
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         return self.call_next(*args, **kwargs)
@@ -27,7 +27,7 @@ class BasePlugin(PluginInitProtocol):
 
 class BaseAsyncPlugin(PluginInitProtocol):
     async def call_next(self, *args: Any, **kwargs: Any) -> Any:
-        raise NotImplementedError()
+        raise RuntimeError("Failed to load Plugin, please check the list of plugins")
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
         return await self.call_next(*args, **kwargs)
