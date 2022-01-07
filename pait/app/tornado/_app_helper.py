@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, List, Mapping, Tuple
+from typing import Any, Dict, List, Mapping
 
 from tornado.httputil import RequestStartLine
 
@@ -16,7 +16,7 @@ class AppHelper(BaseAppHelper):
     HeaderType = dict
     app_name = "tornado"
 
-    def __init__(self, class_: Any, args: Tuple[Any, ...], kwargs: Mapping[str, Any]):
+    def __init__(self, class_: Any, args: List[Any], kwargs: Mapping[str, Any]):
         super().__init__(class_, args, kwargs)
         if not self.cbv_instance:
             raise RuntimeError("Can not load Tornado handle")

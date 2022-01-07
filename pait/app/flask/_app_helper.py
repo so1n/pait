@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Mapping, Tuple
+from typing import Any, Dict, List, Mapping
 
 from flask import Request, request
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
@@ -16,7 +16,7 @@ class AppHelper(BaseAppHelper):
     HeaderType = EnvironHeaders
     app_name = "flask"
 
-    def __init__(self, class_: Any, args: Tuple[Any, ...], kwargs: Mapping[str, Any]):
+    def __init__(self, class_: Any, args: List[Any], kwargs: Mapping[str, Any]):
         super().__init__(class_, args, kwargs)
 
         self.request = request

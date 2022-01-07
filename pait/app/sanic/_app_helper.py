@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Mapping, Tuple
+from typing import Any, Dict, List, Mapping
 
 from sanic.headers import HeaderIterable
 from sanic.request import File, Request, RequestParameters
@@ -16,9 +16,6 @@ class AppHelper(BaseAppHelper):
     FileType = File
     HeaderType = HeaderIterable
     app_name = "sanic"
-
-    def __init__(self, class_: Any, args: Tuple[Any, ...], kwargs: Mapping[str, Any]):
-        super().__init__(class_, args, kwargs)
 
     def body(self) -> dict:
         return self.request.json

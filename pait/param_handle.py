@@ -13,6 +13,8 @@ from pait import field
 from pait.app.base import BaseAppHelper
 from pait.exceptions import CheckValueError, NotFoundFieldError, PaitBaseException
 from pait.field import BaseField
+from pait.model.core import PaitCoreModel
+from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginInitProtocol
 from pait.util import (
     FuncSig,
     create_pydantic_model,
@@ -58,37 +60,25 @@ def parameter_2_basemodel(
     return create_pydantic_model(annotation_dict, pydantic_config=pydantic_config)(**param_value_dict)
 
 
-class BaseParamHandler(object):
-    def __init__(
-        self,
-        app_helper_class: Type[BaseAppHelper],
-        func: Callable,
-        pydantic_model_config: Type[BaseConfig],
-        pre_depend_list: Optional[List[Callable]] = None,
-        at_most_one_of_list: Optional[List[List[str]]] = None,
-        required_by: Optional[Dict[str, List[str]]] = None,
-        args: Any = None,
-        kwargs: Any = None,
-    ) -> None:
-        self._func: Callable = func
-        self.args: list = args or []
-        self.kwargs: dict = kwargs or {}
+class ParamHandlerMixin(PluginInitProtocol):
+    def __post_init__(self, pait_core_model: PaitCoreModel, args: tuple, kwargs: dict) -> None:
+        super(ParamHandlerMixin, self).__post_init__(pait_core_model, args, kwargs)
 
         # cbv handle
         self.cbv_instance: Optional[Any] = None
         self.cbv_type: Optional[Type] = None
-        if self.args and self.args[0].__class__.__name__ in func.__qualname__:
+        if self.args and self.args[0].__class__.__name__ in self.pait_core_model.func.__qualname__:
             self.cbv_instance = self.args[0]
             self.cbv_type = self.cbv_instance.__class__
         # else:
         #     cbv_type = getattr(inspect.getmodule(func), func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0])
 
-        self._app_helper: BaseAppHelper = app_helper_class(self.cbv_instance, self.args, self.kwargs)  # type: ignore
+        self._app_helper: BaseAppHelper = pait_core_model.app_helper_class(self.cbv_instance, self.args, self.kwargs)
 
-        self.pre_depend_list: List[Callable] = pre_depend_list or []
-        self.at_most_one_of_list: Optional[List[List[str]]] = at_most_one_of_list
-        self.required_by: Optional[Dict[str, List[str]]] = required_by
-        self.pydantic_model_config: Type[BaseConfig] = pydantic_model_config
+        self.pre_depend_list: List[Callable] = pait_core_model.pre_depend_list
+        self.at_most_one_of_list: List[List[str]] = pait_core_model.at_most_one_of_list
+        self.required_by: Dict[str, List[str]] = pait_core_model.required_by
+        self.pydantic_model_config: Type[BaseConfig] = pait_core_model.pydantic_model_config
 
         if self.cbv_type:
             self.cbv_param_list: List["inspect.Parameter"] = get_parameter_list_from_class(self.cbv_type)
@@ -184,28 +174,8 @@ class BaseParamHandler(object):
         return app_field_func()
 
 
-class ParamHandler(BaseParamHandler):
-    def __init__(
-        self,
-        app_helper_class: Type[BaseAppHelper],
-        func: Callable,
-        pydantic_model_config: Type[BaseConfig],
-        pre_depend_list: Optional[List[Callable]] = None,
-        at_most_one_of_list: Optional[List[List[str]]] = None,
-        required_by: Optional[Dict[str, List[str]]] = None,
-        args: Any = None,
-        kwargs: Any = None,
-    ) -> None:
-        super().__init__(
-            app_helper_class,
-            func,
-            pydantic_model_config,
-            at_most_one_of_list=at_most_one_of_list,
-            pre_depend_list=pre_depend_list,
-            required_by=required_by,
-            args=args,
-            kwargs=kwargs,
-        )
+class ParamHandler(BasePlugin, ParamHandlerMixin):
+    def __init__(self) -> None:
         self._contextmanager_list: List[AbstractContextManager] = []
 
     def param_handle(
@@ -281,7 +251,7 @@ class ParamHandler(BaseParamHandler):
             self._depend_handle(pre_depend)
 
         # gen and check param from func
-        func_sig: FuncSig = get_func_sig(self._func)
+        func_sig: FuncSig = get_func_sig(self.pait_core_model.func)
         self.args, self.kwargs = self.param_handle(func_sig, func_sig.param_list)
 
         # gen and check param from class
@@ -290,13 +260,17 @@ class ParamHandler(BaseParamHandler):
             self.cbv_instance.__dict__.update(kwargs)
         return None
 
-    def __enter__(self) -> "BaseParamHandler":
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        with self:
+            return self.pait_core_model.pait_func(*self.args, **self.kwargs)
+
+    def __enter__(self) -> "ParamHandler":
         try:
             self._gen_param()
             self._check_param()
             return self
         except Exception as e:
-            raise e from gen_tip_exc(self._func, e)
+            raise e from gen_tip_exc(self.pait_core_model.func, e)
 
     def __exit__(
         self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[TracebackType]
@@ -314,28 +288,8 @@ class ParamHandler(BaseParamHandler):
             return False
 
 
-class AsyncParamHandler(BaseParamHandler):
-    def __init__(
-        self,
-        app_helper_class: Type[BaseAppHelper],
-        func: Callable,
-        pydantic_model_config: Type[BaseConfig],
-        pre_depend_list: Optional[List[Callable]] = None,
-        at_most_one_of_list: Optional[List[List[str]]] = None,
-        required_by: Optional[Dict[str, List[str]]] = None,
-        args: Any = None,
-        kwargs: Any = None,
-    ) -> None:
-        super().__init__(
-            app_helper_class,
-            func,
-            pydantic_model_config,
-            at_most_one_of_list=at_most_one_of_list,
-            pre_depend_list=pre_depend_list,
-            required_by=required_by,
-            args=args,
-            kwargs=kwargs,
-        )
+class AsyncParamHandler(BaseAsyncPlugin, ParamHandlerMixin):
+    def __init__(self) -> None:
         self._contextmanager_list: List[Union[AbstractAsyncContextManager, AbstractContextManager]] = []
 
     async def param_handle(
@@ -413,7 +367,7 @@ class AsyncParamHandler(BaseParamHandler):
             await self._depend_handle(pre_depend)
 
         # gen and check param from func
-        func_sig: FuncSig = get_func_sig(self._func)
+        func_sig: FuncSig = get_func_sig(self.pait_core_model.func)
         self.args, self.kwargs = await self.param_handle(func_sig, func_sig.param_list)
 
         # gen and check param from class
@@ -422,13 +376,17 @@ class AsyncParamHandler(BaseParamHandler):
             self.cbv_instance.__dict__.update(kwargs)
         return None
 
+    async def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        async with self:
+            return await self.pait_core_model.pait_func(*self.args, **self.kwargs)
+
     async def __aenter__(self) -> "AsyncParamHandler":
         try:
             await self._gen_param()
             self._check_param()
             return self
         except Exception as e:
-            raise e from gen_tip_exc(self._func, e)
+            raise e from gen_tip_exc(self.pait_core_model.func, e)
 
     async def __aexit__(
         self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[TracebackType]

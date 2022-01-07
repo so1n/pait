@@ -8,7 +8,7 @@ class Tag(object):
     def __init__(self, name: str, desc: str = ""):
         self._name: str = name
         self._desc: str = desc
-        if self._name in _tag_dict:
+        if self._name in _tag_dict and _tag_dict[self._name] != self._desc:
             raise KeyError(f"{self._name} tag already exists")
 
         _tag_dict[self._name] = self._desc

@@ -222,6 +222,8 @@ class Pait(object):
                 response_model_list=response_model_list,
                 pre_depend_list=pre_depend_list,
                 pydantic_model_config=pydantic_model_config,
+                at_most_one_of_list=at_most_one_of_list,
+                required_by=required_by,
             )
             sync_config_data_to_pait_core_model(config, pait_core_model, enable_mock_response=enable_mock_response)
             pait_data.register(app_name, pait_core_model)
@@ -230,34 +232,40 @@ class Pait(object):
 
                 @wraps(func)
                 async def dispatch(*args: Any, **kwargs: Any) -> Callable:
-                    async with AsyncParamHandler(
-                        self.app_helper_class,
-                        func,
-                        pait_core_model.pydantic_model_config,
-                        at_most_one_of_list=at_most_one_of_list,
-                        pre_depend_list=pre_depend_list,
-                        required_by=required_by,
-                        args=args,
-                        kwargs=kwargs,
-                    ) as p:
-                        return await pait_core_model.pait_func(*p.args, **p.kwargs)
+                    param_handler: AsyncParamHandler = AsyncParamHandler()
+                    param_handler.__post_init__(pait_core_model, args, kwargs)
+                    return await param_handler(*args, **kwargs)
+                    # async with AsyncParamHandler(
+                    #     self.app_helper_class,
+                    #     func,
+                    #     pait_core_model.pydantic_model_config,
+                    #     at_most_one_of_list=at_most_one_of_list,
+                    #     pre_depend_list=pre_depend_list,
+                    #     required_by=required_by,
+                    #     args=args,
+                    #     kwargs=kwargs,
+                    # ) as p:
+                    #     return await pait_core_model.pait_func(*p.args, **p.kwargs)
 
                 return dispatch
             else:
 
                 @wraps(func)
                 def dispatch(*args: Any, **kwargs: Any) -> Callable:
-                    with ParamHandler(
-                        self.app_helper_class,
-                        func,
-                        pait_core_model.pydantic_model_config,
-                        at_most_one_of_list=at_most_one_of_list,
-                        pre_depend_list=pre_depend_list,
-                        required_by=required_by,
-                        args=args,
-                        kwargs=kwargs,
-                    ) as p:
-                        return pait_core_model.pait_func(*p.args, **p.kwargs)
+                    param_handler: ParamHandler = ParamHandler()
+                    param_handler.__post_init__(pait_core_model, args, kwargs)
+                    return param_handler(*args, **kwargs)
+                    # with ParamHandler(
+                    #     self.app_helper_class,
+                    #     func,
+                    #     pait_core_model.pydantic_model_config,
+                    #     at_most_one_of_list=at_most_one_of_list,
+                    #     pre_depend_list=pre_depend_list,
+                    #     required_by=required_by,
+                    #     args=args,
+                    #     kwargs=kwargs,
+                    # ) as p:
+                    #     return pait_core_model.pait_func(*p.args, **p.kwargs)
 
                 return dispatch
 

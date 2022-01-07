@@ -1,7 +1,7 @@
 import asyncio
 import inspect
 import logging
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, Tuple, Type
 
 from pydantic import BaseConfig
 
@@ -32,8 +32,12 @@ class PaitCoreModel(object):
         tag: Optional[Tuple[str, ...]] = None,
         response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
+        at_most_one_of_list: Optional[List[List[str]]] = None,
+        required_by: Optional[Dict[str, List[str]]] = None,
     ):
         self._response_model_list: List[Type[PaitBaseResponseModel]] = []
+        self.at_most_one_of_list: List[List[str]] = at_most_one_of_list or []
+        self.required_by: Dict[str, List[str]] = required_by or {}
         self.app_helper_class: "Type[BaseAppHelper]" = app_helper_class
         self.make_mock_response_fn: Callable[[Type[PaitBaseResponseModel]], Any] = make_mock_response_fn
         self.func: Callable = func  # route func

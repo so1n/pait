@@ -49,7 +49,7 @@ class TestSanic:
             "code": -1,
             "msg": (
                 'File "/home/so1n/github/pait/example/param_verify/sanic_example.py", '
-                "line 57, "
+                "line 58, "
                 "in raise_tip_route. error:content__type value is <class 'pydantic.fields.UndefinedType'>"
             ),
         } == SanicTestHelper(client, sanic_example.raise_tip_route, header_dict={"Content-Type": "test"}).json()

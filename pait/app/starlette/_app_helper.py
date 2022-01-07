@@ -1,4 +1,4 @@
-from typing import Any, Coroutine, Dict, List, Mapping, Optional, Tuple
+from typing import Any, Coroutine, Dict, List, Mapping, Optional
 
 from starlette.datastructures import FormData, Headers, UploadFile
 from starlette.requests import Request
@@ -16,7 +16,7 @@ class AppHelper(BaseAppHelper):
     HeaderType = Headers
     app_name = "starlette"
 
-    def __init__(self, class_: Any, args: Tuple[Any, ...], kwargs: Mapping[str, Any]):
+    def __init__(self, class_: Any, args: List[Any], kwargs: Mapping[str, Any]):
         super().__init__(class_, args, kwargs)
         self._form: Optional[FormData] = None
 

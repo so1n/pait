@@ -71,14 +71,14 @@ class TestApp:
 
         demo = Demo()
         # route func param: self, request, other param
-        base_app_helper: BaseAppHelper = BaseAppHelper(demo, (demo, None, 1), {"a": 1, "b": 2, "c": 3})
+        base_app_helper: BaseAppHelper = BaseAppHelper(demo, [demo, None, 1], {"a": 1, "b": 2, "c": 3})
         assert base_app_helper.request is None
         assert base_app_helper.cbv_instance == demo
         assert base_app_helper.request_args == [demo]
         assert base_app_helper.request_kwargs == {"a": 1, "b": 2, "c": 3}
 
         # route func param: request
-        base_app_helper = BaseAppHelper(None, (None,), {"a": 1, "b": 2, "c": 3})
+        base_app_helper = BaseAppHelper(None, [None], {"a": 1, "b": 2, "c": 3})
         assert base_app_helper.request is None
         assert base_app_helper.cbv_instance is None
         assert base_app_helper.request_args == []
@@ -86,7 +86,7 @@ class TestApp:
 
         patch = mocker.patch("pait.data.logging.warning")
         # route func param: other param, self, request
-        BaseAppHelper(Demo, (1, demo, None), {"a": 1, "b": 2, "c": 3})
+        BaseAppHelper(Demo, [1, demo, None], {"a": 1, "b": 2, "c": 3})
         patch.assert_called_once()
 
     def test_base_app_helper_check_type(self) -> None:
@@ -96,7 +96,7 @@ class TestApp:
             FileType = float
             HeaderType = type(None)
 
-        fake_app_helper: FakeAppHelper = FakeAppHelper(None, (), {})
+        fake_app_helper: FakeAppHelper = FakeAppHelper(None, [], {})
         assert fake_app_helper.check_request_type(type(""))
         assert fake_app_helper.check_form_type(type(0))
         assert fake_app_helper.check_file_type(type(0.0))

@@ -1,5 +1,5 @@
 import logging
-from typing import Any, List, Mapping, Tuple
+from typing import Any, List, Mapping
 
 
 class BaseAppHelper(object):
@@ -11,7 +11,7 @@ class BaseAppHelper(object):
     HeaderType = type(None)
     app_name: str = "BaseAppHelper"
 
-    def __init__(self, class_: Any, args: Tuple[Any, ...], kwargs: Mapping[str, Any]):
+    def __init__(self, class_: Any, args: List[Any], kwargs: Mapping[str, Any]):
         """
         Extract the required data from the passed parameters,
         such as the self parameter in cvb mode, the request parameter in starletter
