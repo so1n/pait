@@ -5,7 +5,7 @@ from datetime import datetime
 from decimal import Decimal
 from enum import Enum
 from json import JSONEncoder
-from typing import Any, Dict, List, Optional, Tuple, Type, get_type_hints
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, get_type_hints
 
 from pydantic import BaseConfig, BaseModel, create_model
 
@@ -13,6 +13,9 @@ from pait.exceptions import PaitBaseException
 from pait.field import BaseField, Depends, is_pait_field
 
 from ._func_sig import FuncSig
+
+if TYPE_CHECKING:
+    from pait.model.response import PaitBaseResponseModel
 
 
 class UndefinedType:
@@ -45,6 +48,22 @@ python_type_default_value_dict: Dict[type, Any] = {
     datetime: 0,
     Decimal: 0,
 }
+
+
+def get_pait_response_model(
+    response_model_list: List[Type["PaitBaseResponseModel"]],
+    target_pait_response_class: Optional[Type["PaitBaseResponseModel"]] = None,
+) -> Type["PaitBaseResponseModel"]:
+    if target_pait_response_class:
+        core_response_list: List[Type["PaitBaseResponseModel"]] = [
+            i for i in response_model_list if i.is_core and issubclass(i, target_pait_response_class)
+        ]
+        if len(core_response_list) != 1:
+            raise RuntimeError("Multiple pait response models were found")
+        return core_response_list[0]
+    else:
+        core_response_list = [i for i in response_model_list if i.is_core] or response_model_list
+        return core_response_list[0]
 
 
 def create_pydantic_model(

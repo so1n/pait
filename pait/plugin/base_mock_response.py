@@ -5,6 +5,7 @@ from typing import Any, Optional, Type
 
 from pait.model.response import PaitBaseResponseModel
 from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginInitProtocol
+from pait.util import get_pait_response_model
 
 
 class MockPluginInitProtocolMixin(PluginInitProtocol):
@@ -23,7 +24,7 @@ class MockPluginInitProtocolMixin(PluginInitProtocol):
                     break
 
         if not pait_response:
-            pait_response = self.pait_core_model.response_model_list[0]
+            pait_response = get_pait_response_model(self.pait_core_model.response_model_list)
 
         # fix tornado
         if self.pait_core_model.app_helper_class.app_name == "tornado":

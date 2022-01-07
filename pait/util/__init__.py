@@ -9,6 +9,7 @@ from ._util import (
     gen_example_json_from_python,
     gen_example_json_from_schema,
     gen_tip_exc,
+    get_pait_response_model,
     get_parameter_list_from_class,
     get_parameter_list_from_pydantic_basemodel,
     json_type_default_value_dict,
