@@ -14,7 +14,7 @@ from pait.app.base import BaseAppHelper
 from pait.exceptions import CheckValueError, NotFoundFieldError, PaitBaseException
 from pait.field import BaseField
 from pait.model.core import PaitCoreModel
-from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginInitProtocol
+from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginProtocol
 from pait.util import (
     FuncSig,
     create_pydantic_model,
@@ -60,7 +60,7 @@ def parameter_2_basemodel(
     return create_pydantic_model(annotation_dict, pydantic_config=pydantic_config)(**param_value_dict)
 
 
-class ParamHandlerMixin(PluginInitProtocol):
+class ParamHandlerMixin(PluginProtocol):
     def __post_init__(self, pait_core_model: PaitCoreModel, args: tuple, kwargs: dict) -> None:
         super(ParamHandlerMixin, self).__post_init__(pait_core_model, args, kwargs)
 
@@ -175,7 +175,8 @@ class ParamHandlerMixin(PluginInitProtocol):
 
 
 class ParamHandler(BasePlugin, ParamHandlerMixin):
-    def __init__(self) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
         self._contextmanager_list: List[AbstractContextManager] = []
 
     def param_handle(
@@ -262,7 +263,7 @@ class ParamHandler(BasePlugin, ParamHandlerMixin):
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         with self:
-            return self.pait_core_model.pait_func(*self.args, **self.kwargs)
+            return self.pait_core_model.func(*self.args, **self.kwargs)
 
     def __enter__(self) -> "ParamHandler":
         try:
@@ -289,7 +290,8 @@ class ParamHandler(BasePlugin, ParamHandlerMixin):
 
 
 class AsyncParamHandler(BaseAsyncPlugin, ParamHandlerMixin):
-    def __init__(self) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
         self._contextmanager_list: List[Union[AbstractAsyncContextManager, AbstractContextManager]] = []
 
     async def param_handle(
@@ -378,7 +380,7 @@ class AsyncParamHandler(BaseAsyncPlugin, ParamHandlerMixin):
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
         async with self:
-            return await self.pait_core_model.pait_func(*self.args, **self.kwargs)
+            return await self.pait_core_model.func(*self.args, **self.kwargs)
 
     async def __aenter__(self) -> "AsyncParamHandler":
         try:

@@ -3,7 +3,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
 from pydantic import BaseConfig
 
-from pait.core import PluginParamType, TagT
+from pait.core import PluginManager, TagT
 from pait.model.status import PaitStatus
 
 from ..model.core import PaitCoreModel  # type: ignore
@@ -41,7 +41,6 @@ def add_doc_route(app: Any, prefix: str = "/") -> None:
 
 
 def pait(
-    make_mock_response_fn: Callable[[Type[PaitBaseResponseModel]], Any] = None,
     enable_mock_response: bool = False,
     pydantic_model_config: Optional[Type[BaseConfig]] = None,
     # param check
@@ -63,8 +62,8 @@ def pait(
     append_tag: Optional[Tuple[str, ...]] = None,
     response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
     append_response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
-    plugin_list: Optional[List[PluginParamType]] = None,
-    append_plugin_list: Optional[List[PluginParamType]] = None,
+    plugin_list: Optional[List[PluginManager]] = None,
+    append_plugin_list: Optional[List[PluginManager]] = None,
 ) -> Callable:
     """provide parameter checks and type conversions for each routing function/cbv class
     Note:This is an implicit method
@@ -77,7 +76,6 @@ def pait(
     return _pait(
         enable_mock_response=enable_mock_response,
         pydantic_model_config=pydantic_model_config,
-        make_mock_response_fn=make_mock_response_fn,
         pre_depend_list=pre_depend_list,
         append_pre_depend_list=append_pre_depend_list,
         at_most_one_of_list=at_most_one_of_list,

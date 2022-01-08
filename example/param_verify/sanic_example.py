@@ -37,6 +37,7 @@ from pait.exceptions import PaitBaseException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
+from pait.plugin.base import PluginManager
 
 test_filename: str = ""
 
@@ -217,7 +218,7 @@ async def check_response_route(
     status=PaitStatus.release,
     tag=(tag.mock_tag,),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
-    plugin_list=[(MockPlugin, (), {})],
+    plugin_list=[PluginManager(MockPlugin)],
 )
 async def mock_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),

@@ -34,6 +34,7 @@ from pait.app.tornado.plugin.mock_response import MockPlugin
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
+from pait.plugin.base import PluginManager
 
 global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
 
@@ -229,7 +230,7 @@ class MockHandler(MyHandler):
         status=PaitStatus.release,
         tag=(tag.mock_tag,),
         response_model_list=[UserSuccessRespModel2, FailRespModel],
-        plugin_list=[(MockPlugin, (), {})],
+        plugin_list=[PluginManager(MockPlugin)],
     )
     async def get(
         self,

@@ -4,11 +4,11 @@ from abc import ABC
 from typing import Any, Optional, Type
 
 from pait.model.response import PaitBaseResponseModel
-from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginInitProtocol
+from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginProtocol
 from pait.util import get_pait_response_model
 
 
-class MockPluginInitProtocolMixin(PluginInitProtocol):
+class MockPluginInitProtocolMixin(PluginProtocol):
     def __init__(
         self,
         *args: Any,

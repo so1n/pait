@@ -37,7 +37,6 @@ class PaitCoreModel(object):
         self.required_by: Dict[str, List[str]] = required_by or {}
         self.app_helper_class: "Type[BaseAppHelper]" = app_helper_class
         self.func: Callable = func  # route func
-        self.pait_func: Callable = func  # route func， If `mock_response` is used, this function will be replaced
         self.pre_depend_list: List[Callable] = pre_depend_list or []
         self.qualname: str = func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0]
         self.pait_id: str = f"{self.qualname}_{id(func)}"
