@@ -5,7 +5,7 @@ from starlette.responses import JSONResponse
 from pait.plugin.check_json_resp import AsyncCheckJsonRespPlugin as _AsyncCheckJsonRespPlugin
 from pait.plugin.check_json_resp import CheckJsonRespPlugin as _CheckJsonRespPlugin
 
-__all__ = ["AsyncCheckJsonRespPlugin"]
+__all__ = ["AsyncCheckJsonRespPlugin", "CheckJsonRespPlugin"]
 
 
 class AsyncCheckJsonRespPlugin(_AsyncCheckJsonRespPlugin):
@@ -16,7 +16,7 @@ class AsyncCheckJsonRespPlugin(_AsyncCheckJsonRespPlugin):
         headers: Optional[dict] = None,
         media_type: Optional[str] = None,
     ) -> None:
-        super(AsyncCheckJsonRespPlugin, self).__init__(check_resp_fn)
+        super(AsyncCheckJsonRespPlugin, self).__init__(check_resp_fn=check_resp_fn)
         self.status_code: int = status_code
         self.headers: Optional[dict] = headers
         self.media_type: Optional[str] = media_type
@@ -35,7 +35,7 @@ class CheckJsonRespPlugin(_CheckJsonRespPlugin):
         headers: Optional[dict] = None,
         media_type: Optional[str] = None,
     ) -> None:
-        super(CheckJsonRespPlugin, self).__init__(check_resp_fn)
+        super(CheckJsonRespPlugin, self).__init__(check_resp_fn=check_resp_fn)
         self.status_code: int = status_code
         self.headers: Optional[dict] = headers
         self.media_type: Optional[str] = media_type

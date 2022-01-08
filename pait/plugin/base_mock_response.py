@@ -11,14 +11,13 @@ from pait.util import get_pait_response_model
 class MockPluginInitProtocolMixin(PluginProtocol):
     def __init__(
         self,
-        *args: Any,
         find_coro_response_model: bool = False,
         target_pait_response_class: Optional[Type["PaitBaseResponseModel"]] = None,
         **kwargs: Any,
     ):
         self.find_coro_response_model: bool = find_coro_response_model
         self.target_pait_response_class: Optional[Type["PaitBaseResponseModel"]] = target_pait_response_class
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
 
     def mock_response(self, pait_response: Type[PaitBaseResponseModel]) -> Any:
         raise NotImplementedError()

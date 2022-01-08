@@ -4,6 +4,8 @@ from pait.exceptions import CheckValueError
 from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginProtocol
 from pait.util import gen_tip_exc
 
+__all__ = ["AsyncAtMostOneOfPlugin", "AtMostOneOfPlugin"]
+
 
 class AtMostOneOfPluginProtocol(PluginProtocol):
     """

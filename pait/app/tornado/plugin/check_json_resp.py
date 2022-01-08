@@ -17,7 +17,7 @@ class AsyncCheckJsonRespPlugin(_AsyncCheckJsonRespPlugin):
         dumps: Optional[Callable[..., str]] = None,
         **json_kwargs: Any,
     ) -> None:
-        super(AsyncCheckJsonRespPlugin, self).__init__(check_resp_fn)
+        super(AsyncCheckJsonRespPlugin, self).__init__(check_resp_fn=check_resp_fn)
         self.status: int = status
         self.headers: Optional[Dict[str, str]] = headers
         self.content_type = content_type

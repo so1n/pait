@@ -1,5 +1,5 @@
 import inspect
-from typing import Any, Tuple, Type, TypeVar, Union
+from typing import Any, Dict, Type, TypeVar, Union
 
 from pait.model.core import PaitCoreModel
 
@@ -12,11 +12,11 @@ class PluginProtocol(object):
     args: list
     kwargs: dict
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         pass
 
     @classmethod
-    def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, *args: Any, **kwargs: Any) -> Tuple[Any, Any]:
+    def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
         pass
 
     def __post_init__(self, pait_core_model: PaitCoreModel, args: tuple, kwargs: dict) -> None:
@@ -30,10 +30,10 @@ class BasePlugin(PluginProtocol):
         raise RuntimeError("Failed to load PluginManager, please check the list of plugins")
 
     @classmethod
-    def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, *args: Any, **kwargs: Any) -> Tuple[Any, Any]:
+    def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
         if inspect.iscoroutinefunction(pait_core_model.func):
             raise TypeError("PluginManager not support async func")
-        return args, kwargs
+        return kwargs
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         return self.call_next(*args, **kwargs)
@@ -44,10 +44,10 @@ class BaseAsyncPlugin(PluginProtocol):
         raise RuntimeError("Failed to load PluginManager, please check the list of plugins")
 
     @classmethod
-    def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, *args: Any, **kwargs: Any) -> Tuple[Any, Any]:
+    def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
         if not inspect.iscoroutinefunction(pait_core_model.func):
             raise TypeError("PluginManager only support async func")
-        return args, kwargs
+        return kwargs
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
         return await self.call_next(*args, **kwargs)
@@ -57,15 +57,12 @@ _T = Union[BasePlugin, BaseAsyncPlugin]
 
 
 class PluginManager(object):
-    def __init__(self, plugin_class: Type[_T], *args: Any, **kwargs: Any):
+    def __init__(self, plugin_class: Type[_T], **kwargs: Any):
         self.plugin_class: Type[_T] = plugin_class
-        self._args: Any = args
         self._kwargs: Any = kwargs
 
     def cls_hook_by_core_model(self, pait_core_model: PaitCoreModel) -> None:
-        self._args, self._kwargs = self.plugin_class.cls_hook_by_core_model(
-            pait_core_model, *self._args, **self._kwargs
-        )
+        self._kwargs = self.plugin_class.cls_hook_by_core_model(pait_core_model, self._kwargs)
 
     def get_plugin(self) -> _T:
-        return self.plugin_class(*self._args, **self._kwargs)
+        return self.plugin_class(**self._kwargs)

@@ -1,5 +1,5 @@
 import sys
-from typing import Any, Callable, ForwardRef, Optional, Tuple, Type
+from typing import Any, Callable, Dict, ForwardRef, Optional, Type
 
 import pydantic
 
@@ -10,13 +10,13 @@ from pait.util import get_pait_response_model
 
 
 class JsonRespPluginProtocolMixin(PluginProtocol):
-    def __init__(self, check_resp_fn: Callable) -> None:
+    def __init__(self, *, check_resp_fn: Callable) -> None:
         super(JsonRespPluginProtocolMixin, self).__init__()
         self.check_resp_fn: Callable = check_resp_fn
 
     @classmethod
-    def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, *args: Any, **kwargs: Any) -> Tuple[Any, Any]:
-        super().cls_hook_by_core_model(pait_core_model, *args, **kwargs)
+    def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
+        super().cls_hook_by_core_model(pait_core_model, kwargs)
         return_type: Optional[Type] = pait_core_model.func.__annotations__.get("return", None)  # type: ignore
         if not return_type:
             raise ValueError(f"Can not found return type by func:{pait_core_model.func}")
@@ -48,7 +48,7 @@ class JsonRespPluginProtocolMixin(PluginProtocol):
                 kwargs["check_resp_fn"] = check_resp_by_typed_dict
             else:
                 raise e
-        return args, kwargs
+        return kwargs
 
 
 class CheckJsonRespPlugin(JsonRespPluginProtocolMixin, BasePlugin):
