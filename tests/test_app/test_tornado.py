@@ -77,6 +77,18 @@ class TestTornado(AsyncHTTPTestCase):
                 "sex": "man",
             }
 
+    def test_check_json_route(self) -> None:
+        for url, api_code in [
+            (
+                "/api/check-json-plugin?uid=123&user_name=appl&sex=man&age=10",
+                -1,
+            ),
+            ("/api/check-json-plugin?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
+            ("/api/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10", -1),
+            ("/api/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
+        ]:
+            assert json.loads(self.fetch(url).body.decode())["code"] == api_code
+
     def test_same_alias_name(self) -> None:
         assert (
             TornadoTestHelper(

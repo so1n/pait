@@ -77,6 +77,18 @@ class TestSanic:
                 "sex": "man",
             }
 
+    def test_check_json_route(self, client: SanicTestClient) -> None:
+        for url, api_code in [
+            (
+                "/api/check-json-plugin?uid=123&user_name=appl&sex=man&age=10",
+                -1,
+            ),
+            ("/api/check-json-plugin?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
+            ("/api/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10", -1),
+            ("/api/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
+        ]:
+            assert client.get(url)[1].json["code"] == api_code
+
     def test_depend_route(self, client: SanicTestClient) -> None:
         assert {"code": 0, "msg": "", "data": {"age": 2, "user_agent": "customer_agent"}} == SanicTestHelper(
             client,

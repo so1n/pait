@@ -1,28 +1,32 @@
-import json
-from typing import Any, Type
+from typing import Any, Callable, Dict, Optional
 
 from tornado.web import RequestHandler
 
-from pait.model.response import PaitBaseResponseModel
-from pait.plugin.base import BaseAsyncPlugin
-from pait.util import get_pait_response_model
+from pait.plugin.check_json_resp import AsyncCheckJsonRespPlugin as _AsyncCheckJsonRespPlugin
+
+__all__ = ["AsyncCheckJsonRespPlugin"]
 
 
-class CheckJsonRespPlugin(BaseAsyncPlugin):
-    def get_dict_by_resp(self, resp: Any) -> dict:
-        raise NotImplementedError()
+class AsyncCheckJsonRespPlugin(_AsyncCheckJsonRespPlugin):
+    def __init__(
+        self,
+        check_resp_fn: Callable,
+        status: int = 200,
+        headers: Optional[Dict[str, str]] = None,
+        content_type: str = "application/json",
+        dumps: Optional[Callable[..., str]] = None,
+        **json_kwargs: Any,
+    ) -> None:
+        super(AsyncCheckJsonRespPlugin, self).__init__(check_resp_fn)
+        self.status: int = status
+        self.headers: Optional[Dict[str, str]] = headers
+        self.content_type = content_type
+        self.dumps: Optional[Callable[..., str]] = dumps
+        self.json_kwargs: dict = json_kwargs
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        handler: RequestHandler = args[0]
-        pait_response_model: Type[PaitBaseResponseModel] = get_pait_response_model(
-            self.pait_core_model.response_model_list, find_core_response_model=True
-        )
         response: Any = await self.call_next(*args, **kwargs)
-        if not handler._headers["Content-Type"] == "application/json; charset=UTF-8":
-            raise TypeError(
-                f"{self.__class__.__name__} not support. Content type must `application/json; charset=UTF-8`"
-            )
-        if len(handler._write_buffer) != 1:
-            raise ValueError(f"{self.__class__.__name__} not support, check write buffer length != 1")
-        pait_response_model.response_data(**json.loads(handler._write_buffer[0]))  # type: ignore
+        self.check_resp_fn(response)
+        tornado_handle: RequestHandler = args[0]
+        tornado_handle.write(response)
         return response

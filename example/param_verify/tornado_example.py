@@ -8,6 +8,7 @@ import aiofiles  # type: ignore
 from tornado.httputil import RequestStartLine
 from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
+from typing_extensions import TypedDict
 
 from example.param_verify import tag
 from example.param_verify.model import (
@@ -30,6 +31,7 @@ from example.param_verify.model import (
     demo_depend,
 )
 from pait.app.tornado import Pait, add_doc_route, pait
+from pait.app.tornado.plugin.check_json_resp import AsyncCheckJsonRespPlugin
 from pait.app.tornado.plugin.mock_response import MockPlugin
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model.links import LinksModel
@@ -44,6 +46,11 @@ link_pait: Pait = global_pait.create_sub_pait(
     group="links",
     status=PaitStatus.release,
     tag=(tag.links_tag,),
+)
+plugin_pait: Pait = global_pait.create_sub_pait(
+    group="plugin",
+    status=PaitStatus.release,
+    tag=(tag.plugin_tag,),
 )
 other_pait: Pait = pait.create_sub_pait(author=("so1n",), status=PaitStatus.test, group="other")
 
@@ -412,6 +419,74 @@ class GetUserHandler(MyHandler):
             self.write({"code": 1, "msg": ""})
 
 
+class CheckJsonPluginHandler(MyHandler):
+    @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[PluginManager(AsyncCheckJsonRespPlugin)])
+    async def get(
+        self,
+        uid: int = Query.i(description="user id", gt=10, lt=1000),
+        email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+        user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+        age: int = Query.i(description="age", gt=1, lt=100),
+        display_age: int = Query.i(0, description="display_age"),
+    ) -> dict:
+        """Test json plugin by resp type is dict"""
+        return_dict: dict = {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "uid": uid,
+                "user_name": user_name,
+                "email": email,
+            },
+        }
+        if display_age == 1:
+            return_dict["data"]["age"] = age
+        return return_dict
+
+
+_sub_typed_dict = TypedDict(
+    "_sub_typed_dict",
+    {
+        "uid": int,
+        "user_name": str,
+        "email": str,
+    },
+)
+_typed_dict = TypedDict(
+    "_typed_dict",
+    {
+        "code": int,
+        "msg": str,
+        "data": _sub_typed_dict,
+    },
+)
+
+
+class CheckJsonPlugin1Handler(MyHandler):
+    @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[PluginManager(AsyncCheckJsonRespPlugin)])
+    async def get(
+        self,
+        uid: int = Query.i(description="user id", gt=10, lt=1000),
+        email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+        user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+        age: int = Query.i(description="age", gt=1, lt=100),
+        display_age: int = Query.i(0, description="display_age"),
+    ) -> _typed_dict:
+        """Test json plugin by resp type is typed dict"""
+        return_dict: dict = {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "uid": uid,
+                "user_name": user_name,
+                "email": email,
+            },
+        }
+        if display_age == 1:
+            return_dict["data"]["age"] = age
+        return return_dict  # type: ignore
+
+
 def create_app() -> Application:
     app: Application = Application(
         [
@@ -430,6 +505,8 @@ def create_app() -> Application:
             (r"/api/text-resp", TextResponseHanler),
             (r"/api/html-resp", HtmlResponseHanler),
             (r"/api/file-resp", FileResponseHanler),
+            (r"/api/check-json-plugin", CheckJsonPluginHandler),
+            (r"/api/check-json-plugin-1", CheckJsonPlugin1Handler),
             (r"/api/check-depend-contextmanager", DependContextmanagerHanler),
             (r"/api/check-depend-async-contextmanager", DependAsyncContextmanagerHanler),
             (r"/api/check-pre-depend-contextmanager", PreDependContextmanagerHanler),
