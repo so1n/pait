@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from flask import Flask, Request, Response, make_response, send_from_directory
 from flask.views import MethodView
 from pydantic import ValidationError
+from typing_extensions import TypedDict
 
 from example.param_verify import tag
 from example.param_verify.model import (
@@ -29,6 +30,7 @@ from example.param_verify.model import (
     demo_depend,
 )
 from pait.app.flask import Pait, add_doc_route, pait
+from pait.app.flask.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.flask.plugin.mock_response import MockPlugin
 from pait.exceptions import PaitBaseException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
@@ -45,6 +47,11 @@ link_pait: Pait = global_pait.create_sub_pait(
     group="links",
     status=PaitStatus.release,
     tag=(tag.links_tag,),
+)
+plugin_pait: Pait = global_pait.create_sub_pait(
+    group="plugin",
+    status=PaitStatus.release,
+    tag=(tag.plugin_tag,),
 )
 other_pait: Pait = pait.create_sub_pait(author=("so1n",), status=PaitStatus.test, group="other")
 
@@ -365,6 +372,70 @@ def get_user_route(token: str = Header.i("", description="token", link=token_lin
         return {"code": 1, "msg": ""}
 
 
+@plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[PluginManager(CheckJsonRespPlugin)])
+def check_json_plugin_route(
+    uid: int = Query.i(description="user id", gt=10, lt=1000),
+    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+    age: int = Query.i(description="age", gt=1, lt=100),
+    display_age: int = Query.i(0, description="display_age"),
+) -> dict:
+    """Test json plugin by resp type is dict"""
+    return_dict: dict = {
+        "code": 0,
+        "msg": "",
+        "data": {
+            "uid": uid,
+            "user_name": user_name,
+            "email": email,
+        },
+    }
+    if display_age == 1:
+        return_dict["data"]["age"] = age
+    return return_dict
+
+
+_sub_typed_dict = TypedDict(
+    "_sub_typed_dict",
+    {
+        "uid": int,
+        "user_name": str,
+        "email": str,
+    },
+)
+_typed_dict = TypedDict(
+    "_typed_dict",
+    {
+        "code": int,
+        "msg": str,
+        "data": _sub_typed_dict,
+    },
+)
+
+
+@plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[PluginManager(CheckJsonRespPlugin)])
+def check_json_plugin_route1(
+    uid: int = Query.i(description="user id", gt=10, lt=1000),
+    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+    age: int = Query.i(description="age", gt=1, lt=100),
+    display_age: int = Query.i(0, description="display_age"),
+) -> _typed_dict:
+    """Test json plugin by resp type is typed dict"""
+    return_dict: dict = {
+        "code": 0,
+        "msg": "",
+        "data": {
+            "uid": uid,
+            "user_name": user_name,
+            "email": email,
+        },
+    }
+    if display_age == 1:
+        return_dict["data"]["age"] = age
+    return return_dict  # type: ignore
+
+
 def create_app() -> Flask:
     app: Flask = Flask(__name__)
     add_doc_route(app)
@@ -383,6 +454,8 @@ def create_app() -> Flask:
     app.add_url_rule("/api/html-resp", view_func=html_response_route, methods=["GET"])
     app.add_url_rule("/api/file-resp", view_func=file_response_route, methods=["GET"])
     app.add_url_rule("/api/check-resp", view_func=check_response_route, methods=["GET"])
+    app.add_url_rule("/api/check-json-plugin", view_func=check_json_plugin_route, methods=["GET"])
+    app.add_url_rule("/api/check-json-plugin-1", view_func=check_json_plugin_route1, methods=["GET"])
     app.add_url_rule("/api/depend-contextmanager", view_func=depend_contextmanager_route, methods=["GET"])
     app.add_url_rule("/api/pre-depend-contextmanager", view_func=pre_depend_contextmanager_route, methods=["GET"])
     app.errorhandler(PaitBaseException)(api_exception)

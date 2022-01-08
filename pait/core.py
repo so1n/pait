@@ -154,16 +154,15 @@ class Pait(object):
         func: Callable,
     ) -> List[_PluginT]:
         plugin_instance_list: List[_PluginT] = []
-        for plugin_manager in plugin_manager_list:
+
+        pre_plugin: Callable = func
+        for plugin_manager in reversed(plugin_manager_list):
             plugin_instance: _PluginT = plugin_manager.get_plugin()
             plugin_instance.__post_init__(pait_core_model, args, kwargs)
+            plugin_instance.call_next = pre_plugin  # type: ignore
+            pre_plugin = plugin_instance
             plugin_instance_list.append(plugin_instance)
-
-        for index, plugin_instance in enumerate(plugin_instance_list):
-            if plugin_instance == plugin_instance_list[-1]:
-                setattr(plugin_instance, plugin_instance.call_next.__name__, func)
-            else:
-                setattr(plugin_instance, plugin_instance.call_next.__name__, plugin_instance_list[index + 1].__call__)
+        plugin_instance_list.reverse()
         return plugin_instance_list
 
     def __call__(
@@ -253,7 +252,7 @@ class Pait(object):
             pait_data.register(app_name, pait_core_model)
             plugin_manager_list: List[PluginManager] = []
             for plugin_manager in plugin_list or []:
-                plugin_manager.check_plugin_cls_by_core_model(pait_core_model)
+                plugin_manager.cls_hook_by_core_model(pait_core_model)
                 if not plugin_manager.plugin_class.is_pre_core:
                     raise ValueError(f"{plugin_manager.plugin_class} is post plugin")
                 plugin_manager_list.append(plugin_manager)
@@ -261,7 +260,7 @@ class Pait(object):
             if inspect.iscoroutinefunction(func):
                 plugin_manager_list.append(PluginManager(AsyncParamHandler))
                 for plugin_manager in post_plugin_list or []:
-                    plugin_manager.check_plugin_cls_by_core_model(pait_core_model)
+                    plugin_manager.cls_hook_by_core_model(pait_core_model)
                     if plugin_manager.plugin_class.is_pre_core:
                         raise ValueError(f"{plugin_manager.plugin_class} is pre plugin")
                     plugin_manager_list.append(plugin_manager)
@@ -277,7 +276,7 @@ class Pait(object):
             else:
                 plugin_manager_list.append(PluginManager(ParamHandler))
                 for plugin_manager in post_plugin_list or []:
-                    plugin_manager.check_plugin_cls_by_core_model(pait_core_model)
+                    plugin_manager.cls_hook_by_core_model(pait_core_model)
                     if plugin_manager.plugin_class.is_pre_core:
                         raise ValueError(f"{plugin_manager.plugin_class} is pre plugin")
                     plugin_manager_list.append(plugin_manager)

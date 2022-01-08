@@ -263,7 +263,7 @@ class ParamHandler(BasePlugin, ParamHandlerMixin):
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         with self:
-            return self.pait_core_model.func(*self.args, **self.kwargs)
+            return self.call_next(*self.args, **self.kwargs)
 
     def __enter__(self) -> "ParamHandler":
         try:
@@ -271,7 +271,7 @@ class ParamHandler(BasePlugin, ParamHandlerMixin):
             self._check_param()
             return self
         except Exception as e:
-            raise e from gen_tip_exc(self.pait_core_model.func, e)
+            raise e from gen_tip_exc(self.call_next, e)
 
     def __exit__(
         self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[TracebackType]
@@ -380,7 +380,7 @@ class AsyncParamHandler(BaseAsyncPlugin, ParamHandlerMixin):
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
         async with self:
-            return await self.pait_core_model.func(*self.args, **self.kwargs)
+            return await self.call_next(*self.args, **self.kwargs)
 
     async def __aenter__(self) -> "AsyncParamHandler":
         try:
@@ -388,7 +388,7 @@ class AsyncParamHandler(BaseAsyncPlugin, ParamHandlerMixin):
             self._check_param()
             return self
         except Exception as e:
-            raise e from gen_tip_exc(self.pait_core_model.func, e)
+            raise e from gen_tip_exc(self.call_next, e)
 
     async def __aexit__(
         self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[TracebackType]
