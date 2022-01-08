@@ -36,7 +36,9 @@ from pait.app.tornado.plugin.mock_response import MockPlugin
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
-from pait.plugin.base import PluginManager
+from pait.plugin import PluginManager
+from pait.plugin.at_most_one_of import AsyncAtMostOneOfPlugin
+from pait.plugin.required import AsyncRequiredPlugin
 
 global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
 
@@ -172,8 +174,10 @@ class CheckParamHandler(MyHandler):
         status=PaitStatus.release,
         tag=(tag.check_param_tag,),
         response_model_list=[UserSuccessRespModel2, FailRespModel],
-        at_most_one_of_list=[["user_name", "alias_user_name"]],
-        required_by={"birthday": ["alias_user_name"]},
+        post_plugin_list=[
+            PluginManager(AsyncRequiredPlugin, required_dict={"birthday": ["alias_user_name"]}),
+            PluginManager(AsyncAtMostOneOfPlugin, at_most_one_of_list=[["user_name", "alias_user_name"]]),
+        ],
     )
     async def get(
         self,

@@ -33,7 +33,7 @@ class BasePlugin(PluginProtocol):
     def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, *args: Any, **kwargs: Any) -> Tuple[Any, Any]:
         if inspect.iscoroutinefunction(pait_core_model.func):
             raise TypeError("PluginManager not support async func")
-        return (), {}
+        return args, kwargs
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         return self.call_next(*args, **kwargs)
@@ -47,7 +47,7 @@ class BaseAsyncPlugin(PluginProtocol):
     def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, *args: Any, **kwargs: Any) -> Tuple[Any, Any]:
         if not inspect.iscoroutinefunction(pait_core_model.func):
             raise TypeError("PluginManager only support async func")
-        return (), {}
+        return args, kwargs
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
         return await self.call_next(*args, **kwargs)

@@ -175,7 +175,7 @@ class TestStarlette:
         test_helper = StarletteTestHelper(
             client,
             starlette_example.check_param_route,
-            query_dict={"uid": 123, "sex": "man", "age": 10, "alias_user_name": "appe"},
+            query_dict={"uid": 123, "sex": "man", "age": 10, "birthday": "2000-01-01"},
         )
         assert "birthday requires param alias_user_name, which if not none" in test_helper.json()["msg"]
 

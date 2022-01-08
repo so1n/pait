@@ -37,7 +37,9 @@ from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, Mul
 from pait.g import config
 from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
-from pait.plugin.base import PluginManager
+from pait.plugin import PluginManager
+from pait.plugin.at_most_one_of import AtMostOneOfPlugin
+from pait.plugin.required import RequiredPlugin
 
 global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
 
@@ -161,8 +163,10 @@ def pait_base_field_route(
     status=PaitStatus.release,
     tag=(tag.check_param_tag,),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
-    at_most_one_of_list=[["user_name", "alias_user_name"]],
-    required_by={"birthday": ["alias_user_name"]},
+    post_plugin_list=[
+        PluginManager(RequiredPlugin, required_dict={"birthday": ["alias_user_name"]}),
+        PluginManager(AtMostOneOfPlugin, at_most_one_of_list=[["user_name", "alias_user_name"]]),
+    ],
 )
 def check_param_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),

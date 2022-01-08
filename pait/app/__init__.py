@@ -46,10 +46,6 @@ def pait(
     # param check
     pre_depend_list: Optional[List[Callable]] = None,
     append_pre_depend_list: Optional[List[Callable]] = None,
-    at_most_one_of_list: Optional[List[List[str]]] = None,
-    append_at_most_one_of_list: Optional[List[List[str]]] = None,
-    required_by: Optional[Dict[str, List[str]]] = None,
-    append_required_by: Optional[Dict[str, List[str]]] = None,
     # doc
     author: Optional[Tuple[str, ...]] = None,
     append_author: Optional[Tuple[str, ...]] = None,
@@ -78,10 +74,6 @@ def pait(
         pydantic_model_config=pydantic_model_config,
         pre_depend_list=pre_depend_list,
         append_pre_depend_list=append_pre_depend_list,
-        at_most_one_of_list=at_most_one_of_list,
-        append_at_most_one_of_list=append_at_most_one_of_list,
-        required_by=required_by,
-        append_required_by=append_required_by,
         author=author,
         append_author=append_author,
         desc=desc,

@@ -11,7 +11,7 @@ from pydantic.fields import UndefinedType
 
 from pait import field
 from pait.app.base import BaseAppHelper
-from pait.exceptions import CheckValueError, NotFoundFieldError, PaitBaseException
+from pait.exceptions import NotFoundFieldError, PaitBaseException
 from pait.field import BaseField
 from pait.model.core import PaitCoreModel
 from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginProtocol
@@ -76,31 +76,12 @@ class ParamHandlerMixin(PluginProtocol):
         self._app_helper: BaseAppHelper = pait_core_model.app_helper_class(self.cbv_instance, self.args, self.kwargs)
 
         self.pre_depend_list: List[Callable] = pait_core_model.pre_depend_list
-        self.at_most_one_of_list: List[List[str]] = pait_core_model.at_most_one_of_list
-        self.required_by: Dict[str, List[str]] = pait_core_model.required_by
         self.pydantic_model_config: Type[BaseConfig] = pait_core_model.pydantic_model_config
 
         if self.cbv_type:
             self.cbv_param_list: List["inspect.Parameter"] = get_parameter_list_from_class(self.cbv_type)
         else:
             self.cbv_param_list = []
-
-    def _check_param(self) -> None:
-        if self.at_most_one_of_list:
-            # Check whether each group of parameters appear at the same time
-            for at_most_one_of in self.at_most_one_of_list:
-                if len([i for i in at_most_one_of if self.kwargs.get(i, None) is not None]) > 1:
-                    raise CheckValueError(f"requires at most one of param {' or '.join(at_most_one_of)}")
-        if self.required_by:
-            # Check dependencies between parameters
-            for pre_param, param_list in self.required_by.items():
-                if pre_param not in self.kwargs:
-                    continue
-                for param in param_list:
-                    if self.kwargs.get(param, None) is not None and self.kwargs[pre_param] is None:
-                        raise CheckValueError(
-                            f"{pre_param} requires param {' and '.join(param_list)}, which if not none"
-                        )
 
     def _set_parameter_value_to_args(self, parameter: inspect.Parameter, func_args: list) -> bool:
         """Extract the self parameter of the cbv handler,
@@ -268,7 +249,6 @@ class ParamHandler(BasePlugin, ParamHandlerMixin):
     def __enter__(self) -> "ParamHandler":
         try:
             self._gen_param()
-            self._check_param()
             return self
         except Exception as e:
             raise e from gen_tip_exc(self.call_next, e)
@@ -385,7 +365,6 @@ class AsyncParamHandler(BaseAsyncPlugin, ParamHandlerMixin):
     async def __aenter__(self) -> "AsyncParamHandler":
         try:
             await self._gen_param()
-            self._check_param()
             return self
         except Exception as e:
             raise e from gen_tip_exc(self.call_next, e)

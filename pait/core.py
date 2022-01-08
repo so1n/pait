@@ -1,7 +1,7 @@
 import inspect
 import logging
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, Callable, List, Optional, Tuple, Type, TypeVar, Union
 
 from pydantic import BaseConfig
 
@@ -30,8 +30,6 @@ class Pait(object):
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
         # param check
         pre_depend_list: Optional[List[Callable]] = None,
-        at_most_one_of_list: Optional[List[List[str]]] = None,
-        required_by: Optional[Dict[str, List[str]]] = None,
         # doc
         author: Optional[Tuple[str, ...]] = None,
         desc: Optional[str] = None,
@@ -59,8 +57,6 @@ class Pait(object):
         self._pydantic_model_config: Optional[Type[BaseConfig]] = pydantic_model_config
         # param check
         self._pre_depend_list: Optional[List[Callable]] = pre_depend_list
-        self._at_most_one_of_list: Optional[List[List[str]]] = at_most_one_of_list
-        self._required_by: Optional[Dict[str, List[str]]] = required_by
         # doc
         self._author: Optional[Tuple[str, ...]] = author
         self._desc: Optional[str] = desc
@@ -90,10 +86,6 @@ class Pait(object):
         # param check
         pre_depend_list: Optional[List[Callable]] = None,
         append_pre_depend_list: Optional[List[Callable]] = None,
-        at_most_one_of_list: Optional[List[List[str]]] = None,
-        append_at_most_one_of_list: Optional[List[List[str]]] = None,
-        required_by: Optional[Dict[str, List[str]]] = None,
-        append_required_by: Optional[Dict[str, List[str]]] = None,
         # doc
         author: Optional[Tuple[str, ...]] = None,
         append_author: Optional[Tuple[str, ...]] = None,
@@ -112,9 +104,6 @@ class Pait(object):
         append_post_plugin_list: Optional[List[PluginManager]] = None,
     ) -> _PaitT:
         pre_depend_list = self._append_data(pre_depend_list, append_pre_depend_list, self._pre_depend_list)
-        at_most_one_of_list = self._append_data(
-            at_most_one_of_list, append_at_most_one_of_list, self._at_most_one_of_list
-        )
         author = self._append_data(author, append_author, self._author)
         tag = self._append_data(tag, append_tag, self._tag)
         response_model_list = self._append_data(
@@ -123,11 +112,6 @@ class Pait(object):
         plugin_list = self._append_data(plugin_list, append_plugin_list, self._plugin_list)
         post_plugin_list = self._append_data(post_plugin_list, append_post_plugin_list, self._post_plugin_list)
 
-        if append_required_by:
-            required_by = (self._required_by or {}).update(append_required_by)
-        else:
-            required_by = required_by or self._required_by
-
         return self.__class__(
             pydantic_model_config=pydantic_model_config or self._pydantic_model_config,
             desc=desc or self._desc,
@@ -135,8 +119,6 @@ class Pait(object):
             name=name or self._name,
             status=status or self._status,
             pre_depend_list=pre_depend_list,
-            at_most_one_of_list=at_most_one_of_list,
-            required_by=required_by,
             author=author,
             group=group,
             tag=tag,
@@ -156,7 +138,7 @@ class Pait(object):
         plugin_instance_list: List[_PluginT] = []
 
         pre_plugin: Callable = func
-        for plugin_manager in reversed(plugin_manager_list):
+        for plugin_manager in plugin_manager_list:
             plugin_instance: _PluginT = plugin_manager.get_plugin()
             plugin_instance.__post_init__(pait_core_model, args, kwargs)
             plugin_instance.call_next = pre_plugin  # type: ignore
@@ -171,10 +153,6 @@ class Pait(object):
         # param check
         pre_depend_list: Optional[List[Callable]] = None,
         append_pre_depend_list: Optional[List[Callable]] = None,
-        at_most_one_of_list: Optional[List[List[str]]] = None,
-        append_at_most_one_of_list: Optional[List[List[str]]] = None,
-        required_by: Optional[Dict[str, List[str]]] = None,
-        append_required_by: Optional[Dict[str, List[str]]] = None,
         # doc
         author: Optional[Tuple[str, ...]] = None,
         append_author: Optional[Tuple[str, ...]] = None,
@@ -200,9 +178,6 @@ class Pait(object):
         group = group or self._group
 
         pre_depend_list = self._append_data(pre_depend_list, append_pre_depend_list, self._pre_depend_list)
-        at_most_one_of_list = self._append_data(
-            at_most_one_of_list, append_at_most_one_of_list, self._at_most_one_of_list
-        )
         author = self._append_data(author, append_author, self._author)
         tag = self._append_data(tag, append_tag, self._tag)
         response_model_list = self._append_data(
@@ -210,10 +185,6 @@ class Pait(object):
         )
         plugin_list = self._append_data(plugin_list, append_plugin_list, self._plugin_list)
         post_plugin_list = self._append_data(post_plugin_list, append_post_plugin_list, self._post_plugin_list)
-        if append_required_by:
-            required_by = (self._required_by or {}).update(append_required_by)
-        else:
-            required_by = required_by or self._required_by
 
         ###############
         # tag handler #
@@ -245,8 +216,6 @@ class Pait(object):
                 response_model_list=response_model_list,
                 pre_depend_list=pre_depend_list,
                 pydantic_model_config=pydantic_model_config,
-                at_most_one_of_list=at_most_one_of_list,
-                required_by=required_by,
             )
             sync_config_data_to_pait_core_model(config, pait_core_model)
             pait_data.register(app_name, pait_core_model)
@@ -264,6 +233,7 @@ class Pait(object):
                     if plugin_manager.plugin_class.is_pre_core:
                         raise ValueError(f"{plugin_manager.plugin_class} is pre plugin")
                     plugin_manager_list.append(plugin_manager)
+                plugin_manager_list.reverse()
 
                 @wraps(func)
                 async def dispatch(*args: Any, **kwargs: Any) -> Callable:
@@ -280,6 +250,7 @@ class Pait(object):
                     if plugin_manager.plugin_class.is_pre_core:
                         raise ValueError(f"{plugin_manager.plugin_class} is pre plugin")
                     plugin_manager_list.append(plugin_manager)
+                plugin_manager_list.reverse()
 
                 @wraps(func)
                 def dispatch(*args: Any, **kwargs: Any) -> Callable:
