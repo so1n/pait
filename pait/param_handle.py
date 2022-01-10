@@ -132,7 +132,10 @@ class ParamHandlerMixin(PluginProtocol):
                     request_value_key = param_name
                 request_value = request_value.get(request_value_key, param_value.default)
                 if isinstance(request_value, UndefinedType):
-                    raise NotFoundFieldError(f"{parameter.name} value is {str(UndefinedType)}")
+                    if param_value.default_factory:
+                        request_value = param_value.default_factory()
+                    else:
+                        raise NotFoundFieldError(f"{parameter.name} value is {str(UndefinedType)}")
 
             if base_model_dict is not None and inspect.isclass(annotation) and issubclass(annotation, BaseModel):
                 # parse annotation is pydantic.BaseModel and base_model_dict not None
@@ -156,8 +159,8 @@ class ParamHandlerMixin(PluginProtocol):
 
 
 class ParamHandler(BasePlugin, ParamHandlerMixin):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
         self._contextmanager_list: List[AbstractContextManager] = []
 
     def param_handle(
@@ -270,8 +273,8 @@ class ParamHandler(BasePlugin, ParamHandlerMixin):
 
 
 class AsyncParamHandler(BaseAsyncPlugin, ParamHandlerMixin):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
         self._contextmanager_list: List[Union[AbstractAsyncContextManager, AbstractContextManager]] = []
 
     async def param_handle(

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import time
-from typing import Any, AsyncContextManager, List, Optional, Tuple
+from typing import Any, AsyncContextManager, Dict, List, Optional, Tuple
 
 import aiofiles  # type: ignore
 from pydantic import ValidationError
@@ -120,6 +120,21 @@ def same_alias_route(
     query_token: str = Query.i("", alias="token"), header_token: str = Header.i("", alias="token")
 ) -> response.HTTPResponse:
     return response.json({"code": 0, "msg": "", "data": {"query_token": query_token, "header_token": header_token}})
+
+
+@user_pait(
+    status=PaitStatus.test,
+    tag=(tag.field_tag,),
+    response_model_list=[SimpleRespModel, FailRespModel],
+)
+async def field_default_factory_route(
+    demo_value: int = Body.i(description="Json body value not empty"),
+    data_list: List[str] = Body.i(default_factory=list, description="test default factory"),
+    data_dict: Dict[str, Any] = Body.i(default_factory=dict, description="test default factory"),
+) -> response.HTTPResponse:
+    return response.json(
+        {"code": 0, "msg": "", "data": {"demo_value": demo_value, "data_list": data_list, "data_dict": data_dict}}
+    )
 
 
 @user_pait(
@@ -489,6 +504,7 @@ def create_app() -> Sanic:
     app.add_route(raise_tip_route, "/api/raise_tip", methods={"POST"})
     app.add_route(post_route, "/api/post", methods={"POST"})
     app.add_route(depend_route, "/api/depend", methods={"POST"})
+    app.add_route(field_default_factory_route, "/api/field-default-factory", methods={"POST"})
     app.add_route(pait_base_field_route, "/api/pait-base-field/<age>", methods={"POST"})
     app.add_route(same_alias_route, "/api/same-alias", methods={"GET"})
     app.add_route(mock_route, "/api/mock/<age>", methods={"GET"})

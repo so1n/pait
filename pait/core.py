@@ -228,12 +228,17 @@ class Pait(object):
 
             if inspect.iscoroutinefunction(func):
                 plugin_manager_list.append(PluginManager(AsyncParamHandler))
-                for plugin_manager in post_plugin_list or []:
-                    plugin_manager.cls_hook_by_core_model(pait_core_model)
-                    if plugin_manager.plugin_class.is_pre_core:
-                        raise ValueError(f"{plugin_manager.plugin_class} is pre plugin")
-                    plugin_manager_list.append(plugin_manager)
-                plugin_manager_list.reverse()
+            else:
+                plugin_manager_list.append(PluginManager(ParamHandler))
+
+            for plugin_manager in post_plugin_list or []:
+                plugin_manager.cls_hook_by_core_model(pait_core_model)
+                if plugin_manager.plugin_class.is_pre_core:
+                    raise ValueError(f"{plugin_manager.plugin_class} is pre plugin")
+                plugin_manager_list.append(plugin_manager)
+            plugin_manager_list.reverse()
+
+            if inspect.iscoroutinefunction(func):
 
                 @wraps(func)
                 async def dispatch(*args: Any, **kwargs: Any) -> Callable:
@@ -244,13 +249,6 @@ class Pait(object):
 
                 return dispatch
             else:
-                plugin_manager_list.append(PluginManager(ParamHandler))
-                for plugin_manager in post_plugin_list or []:
-                    plugin_manager.cls_hook_by_core_model(pait_core_model)
-                    if plugin_manager.plugin_class.is_pre_core:
-                        raise ValueError(f"{plugin_manager.plugin_class} is pre plugin")
-                    plugin_manager_list.append(plugin_manager)
-                plugin_manager_list.reverse()
 
                 @wraps(func)
                 def dispatch(*args: Any, **kwargs: Any) -> Callable:

@@ -111,6 +111,17 @@ class TestTornado(AsyncHTTPTestCase):
             == {"code": 0, "msg": "", "data": {"query_token": "query1", "header_token": "header1"}}
         )
 
+    def test_field_default_factory_route(self) -> None:
+        assert (
+            TornadoTestHelper(
+                self,
+                tornado_example.FieldDefaultFactoryHandler.post,
+                body_dict={"demo_value": 0},
+                strict_inspection_check_json_content=False,
+            ).json()
+            == {"code": 0, "msg": "", "data": {"demo_value": 0, "data_list": [], "data_dict": {}}}
+        )
+
     def test_pait_base_field_route(self) -> None:
         file_content: str = "Hello Word!"
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import time
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import aiofiles  # type: ignore
 from tornado.httputil import RequestStartLine
@@ -125,6 +125,23 @@ class SameAliasHandler(MyHandler):
         self, query_token: str = Query.i("", alias="token"), header_token: str = Header.i("", alias="token")
     ) -> None:
         self.write({"code": 0, "msg": "", "data": {"query_token": query_token, "header_token": header_token}})
+
+
+class FieldDefaultFactoryHandler(MyHandler):
+    @user_pait(
+        status=PaitStatus.test,
+        tag=(tag.field_tag,),
+        response_model_list=[SimpleRespModel, FailRespModel],
+    )
+    async def post(
+        self,
+        demo_value: int = Body.i(description="Json body value not empty"),
+        data_list: List[str] = Body.i(default_factory=list, description="test default factory"),
+        data_dict: Dict[str, Any] = Body.i(default_factory=dict, description="test default factory"),
+    ) -> None:
+        self.write(
+            {"code": 0, "msg": "", "data": {"demo_value": demo_value, "data_list": data_list, "data_dict": data_dict}}
+        )
 
 
 class PaitBaseFieldHandler(MyHandler):
@@ -499,6 +516,7 @@ def create_app() -> Application:
             (r"/api/raise-tip", RaiseTipHandler),
             (r"/api/post", PostHandler),
             (r"/api/depend", DependHandler),
+            (r"/api/field-default-factory", FieldDefaultFactoryHandler),
             (r"/api/pait-base-field/(?P<age>\w+)", PaitBaseFieldHandler),
             (r"/api/same-alias", SameAliasHandler),
             (r"/api/mock/(?P<age>\w+)", MockHandler),

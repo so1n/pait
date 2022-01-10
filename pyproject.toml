@@ -55,6 +55,9 @@ testpaths = "tests"
 [tool.coverage.run]
 branch = true
 source = ["pait"]
+omit = [
+    "pait/api_doc/*",
+]
 
 [tool.coverage.report]
 exclude_lines = [

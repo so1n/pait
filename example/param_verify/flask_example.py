@@ -121,6 +121,19 @@ def same_alias_route(
 
 
 @user_pait(
+    status=PaitStatus.test,
+    tag=(tag.field_tag,),
+    response_model_list=[SimpleRespModel, FailRespModel],
+)
+def field_default_factory_route(
+    demo_value: int = Body.i(description="Json body value not empty"),
+    data_list: List[str] = Body.i(default_factory=list, description="test default factory"),
+    data_dict: Dict[str, Any] = Body.i(default_factory=dict, description="test default factory"),
+) -> dict:
+    return {"code": 0, "msg": "", "data": {"demo_value": demo_value, "data_list": data_list, "data_dict": data_dict}}
+
+
+@user_pait(
     status=PaitStatus.release,
     tag=(tag.field_tag,),
     response_model_list=[SimpleRespModel, FailRespModel],
@@ -449,6 +462,7 @@ def create_app() -> Flask:
     app.add_url_rule("/api/post", view_func=post_route, methods=["POST"])
     app.add_url_rule("/api/depend", view_func=depend_route, methods=["POST"])
     app.add_url_rule("/api/pait-base-field/<age>", view_func=pait_base_field_route, methods=["POST"])
+    app.add_url_rule("/api/field-default-factory", view_func=field_default_factory_route, methods=["POST"])
     app.add_url_rule("/api/same-alias", view_func=same_alias_route, methods=["GET"])
     app.add_url_rule("/api/mock/<age>", view_func=mock_route, methods=["GET"])
     app.add_url_rule("/api/pait-model", view_func=pait_model_route, methods=["POST"])

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import time
-from typing import Any, AsyncContextManager, List, Optional, Tuple
+from typing import Any, AsyncContextManager, Dict, List, Optional, Tuple
 
 import aiofiles  # type: ignore
 from pydantic import ValidationError
@@ -121,6 +121,21 @@ def same_alias_route(
     query_token: str = Query.i("", alias="token"), header_token: str = Header.i("", alias="token")
 ) -> JSONResponse:
     return JSONResponse({"code": 0, "msg": "", "data": {"query_token": query_token, "header_token": header_token}})
+
+
+@user_pait(
+    status=PaitStatus.test,
+    tag=(tag.field_tag,),
+    response_model_list=[SimpleRespModel, FailRespModel],
+)
+async def field_default_factory_route(
+    demo_value: int = Body.i(description="Json body value not empty"),
+    data_list: List[str] = Body.i(default_factory=list, description="test default factory"),
+    data_dict: Dict[str, Any] = Body.i(default_factory=dict, description="test default factory"),
+) -> JSONResponse:
+    return JSONResponse(
+        {"code": 0, "msg": "", "data": {"demo_value": demo_value, "data_list": data_list, "data_dict": data_dict}}
+    )
 
 
 @user_pait(
@@ -492,6 +507,7 @@ def create_app() -> Starlette:
             Route("/api/raise-tip", raise_tip_route, methods=["POST"]),
             Route("/api/post", post_route, methods=["POST"]),
             Route("/api/depend", depend_route, methods=["POST"]),
+            Route("/api/field-default-factory", field_default_factory_route, methods=["POST"]),
             Route("/api/pait-base-field/{age}", pait_base_field_route, methods=["GET"]),
             Route("/api/same-alias", same_alias_route, methods=["GET"]),
             Route("/api/mock/{age}", mock_route, methods=["GET"]),
