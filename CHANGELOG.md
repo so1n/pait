@@ -3,7 +3,18 @@
 
 2. Add a user-friendly doc ui
 
-### 0.7.2[Now]
+### 0.7.3[Now]
+Core architecture modification, support for plug-in mechanism
+
+- Feature: Support create sub pait
+- Feature: Support tag model
+- Feature: Core support plugin and change param_handle to plugin
+- Feature: mock response plugin and response model add is_core flag
+- Feature: check json response plugin
+- Feature: `required`&`at most one of` plugin
+- Fix: fix not support default_factory
+
+### 0.7.2
 Improve openapi support (except for the security part);
 Improve Response type;
 Improve TestHelper;
