@@ -21,6 +21,7 @@ __all__ = ["add_doc_route"]
 def add_doc_route(
     app: Application,
     scheme: Optional[str] = None,
+    open_json_url_only_path: bool = False,
     prefix: str = "/",
     pin_code: str = "",
     title: str = "Pait Doc",
@@ -55,7 +56,13 @@ def add_doc_route(
             self.finish()
 
         def _get_open_json_url(self, r_pin_code: str) -> str:
-            openapi_json_url: str = f"{'/'.join(self.request.path.split('/')[:-1])}/openapi.json"
+            _scheme: str = scheme or self.request.protocol
+            if open_json_url_only_path:
+                openapi_json_url: str = f"{'/'.join(self.request.path.split('/')[:-1])}/openapi.json"
+            else:
+                openapi_json_url = (
+                    f"{_scheme}://{self.request.host}{'/'.join(self.request.path.split('/')[:-1])}/openapi.json"
+                )
             if r_pin_code:
                 openapi_json_url += f"?pin_code={r_pin_code}"
             return openapi_json_url
@@ -94,6 +101,7 @@ def add_doc_route(
     #         (r"{}openapi.json".format(prefix), OpenApiHandle),
     #     ]
     # )
+    #
     # Method 2
     # app.add_handlers(
     # app.default_router.add_rules(
@@ -103,7 +111,7 @@ def add_doc_route(
     #         (r"{}openapi.json".format(prefix), OpenApiHandle),
     #     ]
     # )
-
+    #
     # Method 3
     app.wildcard_router.add_rules(
         [

@@ -22,6 +22,7 @@ __all__ = ["add_doc_route"]
 def add_doc_route(
     app: Flask,
     scheme: Optional[str] = None,
+    open_json_url_only_path: bool = False,
     prefix: str = "/",
     pin_code: str = "",
     title: str = "Pait Doc",
@@ -44,7 +45,11 @@ def add_doc_route(
         return r_pin_code
 
     def _get_open_json_url(r_pin_code: str) -> str:
-        openapi_json_url: str = f"{'/'.join(request.path.split('/')[:-1])}/openapi.json"
+        _scheme: str = scheme or request.scheme
+        if open_json_url_only_path:
+            openapi_json_url: str = f"{'/'.join(request.path.split('/')[:-1])}/openapi.json"
+        else:
+            openapi_json_url = f"{_scheme}://{request.host}{'/'.join(request.path.split('/')[:-1])}/openapi.json"
         if r_pin_code:
             openapi_json_url += f"?pin_code={r_pin_code}"
         return openapi_json_url
@@ -59,8 +64,8 @@ def add_doc_route(
 
     @doc_pait(pre_depend_list=[_get_request_pin_code])
     def openapi_route() -> dict:
-        pait_dict: Dict[str, PaitCoreModel] = load_app(current_app)
         _scheme: str = scheme or request.scheme
+        pait_dict: Dict[str, PaitCoreModel] = load_app(current_app)
         pait_openapi: PaitOpenApi = PaitOpenApi(
             pait_dict,
             title=title,
