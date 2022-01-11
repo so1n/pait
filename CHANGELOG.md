@@ -1,7 +1,7 @@
-### 0.7.x[Future]
-1. Automatically distinguish between BaseModel objects with the same name in openapi schema.
+### 0.8.x[Future]
+- 1 Add a user-friendly doc ui
+- 2 Plugin Panel
 
-2. Add a user-friendly doc ui
 
 ### 0.7.3[Now]
 Core architecture modification, support for plug-in mechanism

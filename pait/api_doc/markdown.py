@@ -42,13 +42,13 @@ class PaitMd(PaitBaseParse):
         :param field_dict_list:
         :param blank_num: table str indent
         :return:
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |age|string|10|user age||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |age|string|10|user age|example value||
         """
         blank_num_str: str = " " * blank_num
-        markdown_text: str = f"{blank_num_str}|param name|type|default value|description|other|\n"
-        markdown_text += f"{blank_num_str}|---|---|---|---|---|\n"
+        markdown_text: str = f"{blank_num_str}|param name|type|default value|example|description|other|\n"
+        markdown_text += f"{blank_num_str}|---|---|---|---|---|---|\n"
         field_dict_list = sorted(field_dict_list, key=lambda x: x["param_name"])
         for field_info_dict in field_dict_list:
             default = field_info_dict["default"]
@@ -57,13 +57,17 @@ class PaitMd(PaitBaseParse):
             type_ = field_info_dict["type"]
             if default is Undefined:
                 type_ = "**`Required`**"
+            example_value = ""
+            if "other" in field_info_dict:
+                example_value = field_info_dict["other"].pop("example", "")
             markdown_text += (
                 f"{blank_num_str}"
-                f"|{field_info_dict['param_name']}"
-                f"|{type_}"
-                f"|{default}"
-                f"|{field_info_dict['description']}"
-                f"|{field_info_dict['other'] or ''}"
+                f"|{field_info_dict['param_name'] or ' '}"
+                f"|{type_ or ' '}"
+                f"|{default or ' '}"
+                f"|{example_value or ' '}"
+                f"|{field_info_dict['description'] or ' '}"
+                f"|{field_info_dict['other'] or ' '}"
                 f"|\n"
             )
         return markdown_text
@@ -79,6 +83,11 @@ class PaitMd(PaitBaseParse):
             for pait_model in self._group_pait_dict[group]:
                 # func info
                 markdown_text += f"### Name: {pait_model.operation_id}\n\n"
+                if pait_model.desc:
+                    markdown_text += f"\n\n**Desc**:{pait_model.desc}\n\n"
+
+                # func or interface details
+                func_code: CodeType = pait_model.func.__code__  # type: ignore
                 status_text: str = ""
                 if pait_model.status in (PaitStatus.test, PaitStatus.design, PaitStatus.dev, PaitStatus.integration):
                     status_text = f"<font color=#00BFFF>{pait_model.status.value}</font>"
@@ -88,21 +97,16 @@ class PaitMd(PaitBaseParse):
                     status_text = f"<font color=#DC143C>{pait_model.status.value}</font>"
                 elif pait_model.status:
                     status_text = f"{pait_model.status.value}"
-
-                if pait_model.desc:
-                    markdown_text += f"\n\n**Desc**:{pait_model.desc}\n\n"
-
-                # func or interface details
-                func_code: CodeType = pait_model.func.__code__  # type: ignore
-                markdown_text += "|Author|Status|func|summary|\n"
-                markdown_text += "|---|---|---|---|\n"
+                markdown_text += "- API Info\n\n"
+                markdown_text += f"{' ' * 4}|Author|Status|func|summary|\n"
+                markdown_text += f"{' ' * 4}|---|---|---|---|\n"
                 markdown_text += (
-                    f"|{','.join(pait_model.author) if pait_model.author else ''}"
-                    f"|{status_text}"
-                    f'|<abbr title="file:{pait_model.func_path or func_code.co_filename};'
+                    f"{' ' * 4}|{','.join(pait_model.author) if pait_model.author else ''}"
+                    f"{' ' * 4}|{status_text}"
+                    f'{" " * 4}|<abbr title="file:{pait_model.func_path or func_code.co_filename};'
                     f'line: {func_code.co_firstlineno}">'
                     f"{pait_model.func.__qualname__}</abbr>"
-                    f"|{pait_model.summary}|\n"
+                    f"|{' ' * 4}{pait_model.summary}|\n"
                 )
 
                 # request info
@@ -128,10 +132,11 @@ class PaitMd(PaitBaseParse):
                     for resp_model_class in pait_model.response_model_list:
                         resp_model = resp_model_class()
                         markdown_text += f"{' ' * 4}- {resp_model.name or resp_model.__class__.__name__}\n\n"
-                        markdown_text += f"{' ' * 8}|status code|media type|description|\n"
-                        markdown_text += f"{' ' * 8}|---|---|---|\n"
+                        markdown_text += f"{' ' * 8}- Response Info\n\n"
+                        markdown_text += f"{' ' * 12}|status code|media type|description|\n"
+                        markdown_text += f"{' ' * 12}|---|---|---|\n"
                         markdown_text += (
-                            f"{' ' * 8}|{','.join([str(i) for i in resp_model.status_code])}"
+                            f"{' ' * 12}|{','.join([str(i) for i in resp_model.status_code])}"
                             f"|{resp_model.media_type}"
                             f"|{resp_model.description}"
                             f"|\n"
