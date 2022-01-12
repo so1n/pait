@@ -5,7 +5,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 381">text_response_route</abbr>|    |
 - Path: api/text-resp
@@ -17,7 +17,7 @@
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|text/plain|text response|
         - Header
@@ -27,7 +27,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 386">html_response_route</abbr>|    |
 - Path: api/html-resp
@@ -39,7 +39,7 @@
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|text/html|html response|
         - Header
@@ -49,7 +49,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 393">file_response_route</abbr>|    |
 - Path: api/file-resp
@@ -61,7 +61,7 @@
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/octet-stream|file response|
         - Header
@@ -73,7 +73,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 414">login_route</abbr>|    |
 - Path: api/login
@@ -81,26 +81,26 @@
 - Request:
     - Body Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |password|string|**`Required`**| |password| |
-        |uid|string|**`Required`**| |user id| |
+        |password|string|**`Required`**| |password||
+        |uid|string|**`Required`**| |user id||
 - Response:
 
     - LoginRespModel
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|login response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data.token|string|**`Required`**| | | |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data.token|string|**`Required`**| | ||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -118,7 +118,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 427">get_user_route</abbr>|    |
 - Path: api/user
@@ -126,24 +126,24 @@
 - Request:
     - Header Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |token|string| | |token| |
+        |token|string| | |token||
 - Response:
 
     - SuccessRespModel
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -164,7 +164,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |<font color=#DC143C>abandoned</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 69">raise_tip_route</abbr>|    |
 - Path: api/raise_tip
@@ -172,25 +172,25 @@
 - Request:
     - Header Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |content__type|string|**`Required`**| |Content-Type| |
+        |content__type|string|**`Required`**| |Content-Type||
 - Response:
 
     - SimpleRespModel
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data|object|**`Required`**| |success result| |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data|object|**`Required`**| |success result||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -205,15 +205,15 @@
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -232,7 +232,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 101">depend_route</abbr>|    |
 - Path: api/depend
@@ -240,30 +240,30 @@
 - Request:
     - Body Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
     - Header Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |user-agent|string|**`Required`**| |user agent| |
+        |user-agent|string|**`Required`**| |user agent||
 - Response:
 
     - SimpleRespModel
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data|object|**`Required`**| |success result| |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data|object|**`Required`**| |success result||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -278,15 +278,15 @@
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -301,7 +301,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 115">same_alias_route</abbr>|    |
 - Path: api/same-alias
@@ -309,14 +309,14 @@
 - Request:
     - Header Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |token|string| | | | |
+        |token|string| | | ||
     - Query Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |token|string| | | | |
+        |token|string| | | ||
 - Response:
 
 
@@ -328,7 +328,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 274">pait_model_route</abbr>|    |
 - Path: api/pait-model
@@ -336,35 +336,35 @@
 - Request:
     - Body Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |user_info|object|**`Required`**| | |{'properties': {'user_name': {'title': 'User Name', 'description': 'user name', 'maxLength': 4, 'minLength': 2, 'type': 'string'}, 'age': {'title': 'Age', 'description': 'age', 'exclusiveMinimum': 1, 'exclusiveMaximum': 100, 'type': 'integer'}}, 'required': ['user_name', 'age']}|
+        |user_info|object|**`Required`**| | |[`properties:{'user_name': {'title': 'User Name', 'description': 'user name', 'maxLength': 4, 'minLength': 2, 'type': 'string'}, 'age': {'title': 'Age', 'description': 'age', 'exclusiveMinimum': 1, 'exclusiveMaximum': 100, 'type': 'integer'}}`], [`required:['user_name', 'age']`]|
     - Header Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |user-agent|string|**`Required`**| |user agent| |
+        |user-agent|string|**`Required`**| |user agent||
     - Query Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
 - Response:
 
     - SimpleRespModel
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data|object|**`Required`**| |success result| |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data|object|**`Required`**| |success result||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -379,15 +379,15 @@
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -402,7 +402,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 280">depend_contextmanager_route</abbr>|    |
 - Path: api/check-depend-contextmanager
@@ -410,25 +410,25 @@
 - Request:
     - Query Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |is_raise|boolean| | | | |
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |is_raise|boolean| | | ||
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
 - Response:
 
     - SuccessRespModel
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -442,15 +442,15 @@
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -465,7 +465,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 289">pre_depend_contextmanager_route</abbr>|    |
 - Path: api/check-pre-depend-contextmanager
@@ -473,25 +473,25 @@
 - Request:
     - Query Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |is_raise|boolean| | | | |
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |is_raise|boolean| | | ||
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
 - Response:
 
     - SuccessRespModel
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -505,15 +505,15 @@
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -528,7 +528,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 313">depend_async_contextmanager_route</abbr>|    |
 - Path: api/check-depend-async-contextmanager
@@ -536,25 +536,25 @@
 - Request:
     - Query Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |is_raise|boolean| | | | |
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |is_raise|boolean| | | ||
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
 - Response:
 
     - SuccessRespModel
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -568,15 +568,15 @@
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -591,7 +591,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 301">pre_depend_async_contextmanager_route</abbr>|    |
 - Path: api/check-pre-depend-async-contextmanager
@@ -599,25 +599,25 @@
 - Request:
     - Query Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |is_raise|boolean| | | | |
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |is_raise|boolean| | | ||
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
 - Response:
 
     - SuccessRespModel
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -631,15 +631,15 @@
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -652,47 +652,11 @@
 
 </details><details><summary>Group: pait_doc</summary>
 
-### Name: pait.api doc.get_swagger_ui_html
-
-- API Info
-
-    |Author|Status|func|summary|
-    |---|---|---|---|
-    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/sanic/_route.py;line: 67">add_doc_route.<locals>.get_swagger_ui_html</abbr>|    |
-- Path: swagger
-- Method: GET
-- Request:
-    - Query Param
-
-        |param name|type|default value|example|description|other|
-        |---|---|---|---|---|---|
-        |pin_code|string| | | | |
-- Response:
-
-
-### Name: pait.api doc.openapi_route
-
-- API Info
-
-    |Author|Status|func|summary|
-    |---|---|---|---|
-    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/sanic/_route.py;line: 71">add_doc_route.<locals>.openapi_route</abbr>|    |
-- Path: openapi.json
-- Method: GET
-- Request:
-    - Query Param
-
-        |param name|type|default value|example|description|other|
-        |---|---|---|---|---|---|
-        |pin_code|string| | | | |
-- Response:
-
-
 ### Name: pait.api doc.get_redoc_html
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/sanic/_route.py;line: 63">add_doc_route.<locals>.get_redoc_html</abbr>|    |
 - Path: redoc
@@ -700,9 +664,45 @@
 - Request:
     - Query Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |pin_code|string| | | | |
+        |pin_code|string| | | ||
+- Response:
+
+
+### Name: pait.api doc.openapi_route
+
+- API Info
+
+    |Author|Status|Func|Summary|
+    |---|---|---|---|
+    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/sanic/_route.py;line: 71">add_doc_route.<locals>.openapi_route</abbr>|    |
+- Path: openapi.json
+- Method: GET
+- Request:
+    - Query Param
+
+        |Param Name|Type|Default|Example|Desc|Other|
+        |---|---|---|---|---|---|
+        |pin_code|string| | | ||
+- Response:
+
+
+### Name: pait.api doc.get_swagger_ui_html
+
+- API Info
+
+    |Author|Status|Func|Summary|
+    |---|---|---|---|
+    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/sanic/_route.py;line: 67">add_doc_route.<locals>.get_swagger_ui_html</abbr>|    |
+- Path: swagger
+- Method: GET
+- Request:
+    - Query Param
+
+        |Param Name|Type|Default|Example|Desc|Other|
+        |---|---|---|---|---|---|
+        |pin_code|string| | | ||
 - Response:
 
 
@@ -716,7 +716,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 435">check_json_plugin_route</abbr>|    |
 - Path: api/check-json-plugin
@@ -724,32 +724,32 @@
 - Request:
     - Query Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |display_age|integer| | |display_age| |
-        |email|string|example@xxx.com| |user email| |
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
+        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+        |display_age|integer| | |display_age||
+        |email|string|example@xxx.com| |user email||
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
 - Response:
 
     - UserSuccessRespModel3
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data.age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.email|string|**`Required`**| |user email| |
-            |data.uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data.age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+            |data.email|string|**`Required`**| |user email||
+            |data.uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+            |data.user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -774,7 +774,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 476">check_json_plugin_route1</abbr>|    |
 - Path: api/check-json-plugin-1
@@ -782,32 +782,32 @@
 - Request:
     - Query Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |display_age|integer| | |display_age| |
-        |email|string|example@xxx.com| |user email| |
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
+        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+        |display_age|integer| | |display_age||
+        |email|string|example@xxx.com| |user email||
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
 - Response:
 
     - UserSuccessRespModel3
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data.age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.email|string|**`Required`**| |user email| |
-            |data.uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data.age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+            |data.email|string|**`Required`**| |user email||
+            |data.uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+            |data.user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -834,7 +834,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 82">post_route</abbr>|    |
 - Path: api/post
@@ -842,36 +842,36 @@
 - Request:
     - Body Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**|25|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |sex|enum|Only choose from: `man`,`woman`| |sex|{'enum': ['man', 'woman']}|
-        |uid|integer|**`Required`**|123|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|so1n|user name|{'maxLength': 4, 'minLength': 2}|
+        |age|integer|**`Required`**|25|age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+        |sex|enum|Only choose from: `man`,`woman`| |sex|[`enum:['man', 'woman']`]|
+        |uid|integer|**`Required`**|123|user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string|**`Required`**|so1n|user name|[`maxLength:4`], [`minLength:2`]|
     - Header Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |Content-Type|string|**`Required`**| |Content-Type| |
+        |Content-Type|string|**`Required`**| |Content-Type||
 - Response:
 
     - UserSuccessRespModel
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data.age|integer|99| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.content_type|string|**`Required`**| |content-type| |
-            |data.uid|integer|666| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|mock_name| |user name|{'maxLength': 10, 'minLength': 2}|
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data.age|integer|99| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+            |data.content_type|string|**`Required`**| |content-type||
+            |data.uid|integer|666| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+            |data.user_name|string|mock_name| |user name|[`maxLength:10`], [`minLength:2`]|
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -892,15 +892,15 @@
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -915,7 +915,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 125">field_default_factory_route</abbr>|    |
 - Path: api/field-default-factory
@@ -923,27 +923,27 @@
 - Request:
     - Body Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |data_dict|object|**`Required`**| |test default factory| |
-        |data_list|array|**`Required`**| |test default factory|{'items': {'type': 'string'}}|
-        |demo_value|integer|**`Required`**| |Json body value not empty| |
+        |data_dict|object|**`Required`**| |test default factory||
+        |data_list|array|**`Required`**| |test default factory|[`items:{'type': 'string'}`]|
+        |demo_value|integer|**`Required`**| |Json body value not empty||
 - Response:
 
     - SimpleRespModel
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data|object|**`Required`**| |success result| |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data|object|**`Required`**| |success result||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -958,15 +958,15 @@
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -985,7 +985,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 325">CbvRoute.get</abbr>|    |
 - Path: api/cbv
@@ -993,36 +993,36 @@
 - Request:
     - Header Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |Content-Type|string|**`Required`**| | | |
+        |Content-Type|string|**`Required`**| | ||
     - Query Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**|25|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |sex|enum|Only choose from: `man`,`woman`| |sex|{'enum': ['man', 'woman']}|
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
+        |age|integer|**`Required`**|25|age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+        |sex|enum|Only choose from: `man`,`woman`| |sex|[`enum:['man', 'woman']`]|
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
 - Response:
 
     - UserSuccessRespModel
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data.age|integer|99| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.content_type|string|**`Required`**| |content-type| |
-            |data.uid|integer|666| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|mock_name| |user name|{'maxLength': 10, 'minLength': 2}|
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data.age|integer|99| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+            |data.content_type|string|**`Required`**| |content-type||
+            |data.uid|integer|666| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+            |data.user_name|string|mock_name| |user name|[`maxLength:10`], [`minLength:2`]|
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -1043,15 +1043,15 @@
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -1070,7 +1070,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 352">CbvRoute.post</abbr>|    |
 - Path: api/cbv
@@ -1078,36 +1078,36 @@
 - Request:
     - Body Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**|25|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |sex|enum|Only choose from: `man`,`woman`| |sex|{'enum': ['man', 'woman']}|
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
+        |age|integer|**`Required`**|25|age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+        |sex|enum|Only choose from: `man`,`woman`| |sex|[`enum:['man', 'woman']`]|
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
     - Header Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |Content-Type|string|**`Required`**| | | |
+        |Content-Type|string|**`Required`**| | ||
 - Response:
 
     - UserSuccessRespModel
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data.age|integer|99| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.content_type|string|**`Required`**| |content-type| |
-            |data.uid|integer|666| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|mock_name| |user name|{'maxLength': 10, 'minLength': 2}|
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data.age|integer|99| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+            |data.content_type|string|**`Required`**| |content-type||
+            |data.uid|integer|666| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+            |data.user_name|string|mock_name| |user name|[`maxLength:10`], [`minLength:2`]|
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -1128,15 +1128,15 @@
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -1155,7 +1155,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 181">check_param_route</abbr>|    |
 - Path: api/check-param
@@ -1163,35 +1163,35 @@
 - Request:
     - Query Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |alias_user_name|string| | |user name|{'maxLength': 4, 'minLength': 2}|
-        |birthday|string| | |birthday| |
-        |email|string|example@xxx.com| |user email| |
-        |sex|enum|Only choose from: `man`,`woman`| |sex|{'enum': ['man', 'woman']}|
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string| | |user name|{'maxLength': 4, 'minLength': 2}|
+        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+        |alias_user_name|string| | |user name|[`maxLength:4`], [`minLength:2`]|
+        |birthday|string| | |birthday||
+        |email|string|example@xxx.com| |user email||
+        |sex|enum|Only choose from: `man`,`woman`| |sex|[`enum:['man', 'woman']`]|
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string| | |user name|[`maxLength:4`], [`minLength:2`]|
 - Response:
 
     - UserSuccessRespModel2
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data.age|integer|**`Required`**|99|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.email|string|**`Required`**|example@so1n.me|user email| |
-            |data.multi_user_name|array|**`Required`**|('mock_name',)|user name|{'maxLength': 4, 'minLength': 2, 'items': {'type': 'string', 'minLength': 2, 'maxLength': 4}}|
-            |data.uid|integer|**`Required`**|666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|**`Required`**|mock_name|user name|{'maxLength': 10, 'minLength': 2}|
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data.age|integer|**`Required`**|99|age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+            |data.email|string|**`Required`**|example@so1n.me|user email||
+            |data.multi_user_name|array|**`Required`**|('mock_name',)|user name|[`maxLength:4`], [`minLength:2`], [`items:{'type': 'string', 'minLength': 2, 'maxLength': 4}`]|
+            |data.uid|integer|**`Required`**|666|user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+            |data.user_name|string|**`Required`**|mock_name|user name|[`maxLength:10`], [`minLength:2`]|
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -1213,15 +1213,15 @@
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -1240,7 +1240,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 216">check_response_route</abbr>|    |
 - Path: api/check-resp
@@ -1248,32 +1248,32 @@
 - Request:
     - Query Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |display_age|integer| | |display_age| |
-        |email|string|example@xxx.com| |user email| |
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
+        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+        |display_age|integer| | |display_age||
+        |email|string|example@xxx.com| |user email||
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
 - Response:
 
     - UserSuccessRespModel3
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data.age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.email|string|**`Required`**| |user email| |
-            |data.uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data.age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+            |data.email|string|**`Required`**| |user email||
+            |data.uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+            |data.user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -1293,15 +1293,15 @@
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -1320,7 +1320,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 140">pait_base_field_route</abbr>|    |
 - Path: api/pait-base-field/<age:str>
@@ -1328,59 +1328,59 @@
 - Request:
     - Cookie Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |cookie|object|**`Required`**| |cookie| |
+        |cookie|object|**`Required`**| |cookie||
     - File Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |upload_file|PydanticUndefined|**`Required`**| |upload file| |
+        |upload_file|PydanticUndefined|**`Required`**| |upload file||
     - Form Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |a|string|**`Required`**| |form data| |
-        |b|string|**`Required`**| |form data| |
+        |a|string|**`Required`**| |form data||
+        |b|string|**`Required`**| |form data||
     - Multiform Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |c|array|**`Required`**| |form data|{'items': {'type': 'string'}}|
+        |c|array|**`Required`**| |form data|[`items:{'type': 'string'}`]|
     - Multiquery Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |multi_user_name|array|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2, 'items': {'type': 'string', 'minLength': 2, 'maxLength': 4}}|
+        |multi_user_name|array|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`], [`items:{'type': 'string', 'minLength': 2, 'maxLength': 4}`]|
     - Path Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
     - Query Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |email|string|example@xxx.com| |user email| |
-        |sex|enum|Only choose from: `man`,`woman`| |sex|{'enum': ['man', 'woman']}|
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
+        |email|string|example@xxx.com| |user email||
+        |sex|enum|Only choose from: `man`,`woman`| |sex|[`enum:['man', 'woman']`]|
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
 - Response:
 
     - SimpleRespModel
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data|object|**`Required`**| |success result| |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data|object|**`Required`**| |success result||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -1395,15 +1395,15 @@
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -1422,7 +1422,7 @@
 
 - API Info
 
-    |Author|Status|func|summary|
+    |Author|Status|Func|Summary|
     |---|---|---|---|
     |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 243">mock_route</abbr>|    |
 - Path: api/mock/<age:str>
@@ -1430,42 +1430,42 @@
 - Request:
     - Multiquery Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |multi_user_name|array|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2, 'items': {'type': 'string', 'minLength': 2, 'maxLength': 4}}|
+        |multi_user_name|array|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`], [`items:{'type': 'string', 'minLength': 2, 'maxLength': 4}`]|
     - Path Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
     - Query Param
 
-        |param name|type|default value|example|description|other|
+        |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |email|string|example@xxx.com| |user email| |
-        |sex|enum|Only choose from: `man`,`woman`| |sex|{'enum': ['man', 'woman']}|
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
+        |email|string|example@xxx.com| |user email||
+        |sex|enum|Only choose from: `man`,`woman`| |sex|[`enum:['man', 'woman']`]|
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
 - Response:
 
     - UserSuccessRespModel2
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data.age|integer|**`Required`**|99|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.email|string|**`Required`**|example@so1n.me|user email| |
-            |data.multi_user_name|array|**`Required`**|('mock_name',)|user name|{'maxLength': 4, 'minLength': 2, 'items': {'type': 'string', 'minLength': 2, 'maxLength': 4}}|
-            |data.uid|integer|**`Required`**|666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|**`Required`**|mock_name|user name|{'maxLength': 10, 'minLength': 2}|
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data.age|integer|**`Required`**|99|age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+            |data.email|string|**`Required`**|example@so1n.me|user email||
+            |data.multi_user_name|array|**`Required`**|('mock_name',)|user name|[`maxLength:4`], [`minLength:2`], [`items:{'type': 'string', 'minLength': 2, 'maxLength': 4}`]|
+            |data.uid|integer|**`Required`**|666|user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+            |data.user_name|string|**`Required`**|mock_name|user name|[`maxLength:10`], [`minLength:2`]|
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -1487,15 +1487,15 @@
 
         - Response Info
 
-            |status code|media type|description|
+            |Status Code|Media Type|Desc|
             |---|---|---|
             |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|example|description|other|
+            |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json

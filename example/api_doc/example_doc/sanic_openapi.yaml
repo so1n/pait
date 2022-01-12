@@ -36,14 +36,14 @@ tags:
 - name: pait_doc
   description: pait default doc route
 paths:
-  /swagger:
+  /redoc:
     get:
       group: pait_doc
       tags:
       - pait_doc
       summary: ''
       description: ''
-      operationId: GET.pait.api doc.get_swagger_ui_html
+      operationId: GET.pait.api doc.get_redoc_html
       parameters:
       - name: pin_code
         in: query
@@ -70,14 +70,14 @@ paths:
           title: Pin Code
           default: ''
           type: string
-  /redoc:
+  /swagger:
     get:
       group: pait_doc
       tags:
       - pait_doc
       summary: ''
       description: ''
-      operationId: GET.pait.api doc.get_redoc_html
+      operationId: GET.pait.api doc.get_swagger_ui_html
       parameters:
       - name: pin_code
         in: query

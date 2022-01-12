@@ -8,6 +8,9 @@ from pydantic import BaseConfig
 
 from pait.model.response import PaitBaseResponseModel
 from pait.model.status import PaitStatus
+from pait.util import I18nTypedDict, change_local
+from pait.util import i18n_config_dict as pait_i18n_config_dict
+from pait.util import i18n_local
 from pait.util import json_type_default_value_dict as pait_json_type_default_value_dict
 from pait.util import python_type_default_value_dict as pait_python_type_default_value_dict
 
@@ -42,6 +45,7 @@ class Config(object):
         self.json_encoder: Type[JSONEncoder] = CustomJSONEncoder
         self.default_pydantic_model_config: Type[BaseConfig] = BaseConfig
         self.tag_dict: Dict[str, str] = {}
+        self.i18n_local: str = i18n_local
 
     def __setattr__(self, key: Any, value: Any) -> None:
         if not self.__initialized:
@@ -60,6 +64,8 @@ class Config(object):
         python_type_default_value_dict: Optional[Dict[type, Any]] = None,
         json_encoder: Optional[Type[JSONEncoder]] = None,
         default_pydantic_model_config: Optional[Type[BaseConfig]] = None,
+        i18n_local: str = i18n_local,
+        i18n_config_dict: Optional[Dict[str, I18nTypedDict]] = None,
     ) -> None:
         """
         :param author:  Only @pait(author=None) will be called to change the configuration
@@ -96,6 +102,10 @@ class Config(object):
             self.json_encoder = json_encoder
         if default_pydantic_model_config:
             self.default_pydantic_model_config = default_pydantic_model_config
+
+        change_local(i18n_local)
+        if i18n_config_dict:
+            pait_i18n_config_dict.update(i18n_config_dict)
 
         self.__initialized = True
 
