@@ -9,28 +9,32 @@ tags:
   description: test api
 - name: user
   description: user api
-- name: links
-  description: ''
-- name: raise
-  description: ''
-- name: post
-  description: ''
-- name: field
-  description: ''
-- name: depend
-  description: ''
-- name: same alias
-  description: ''
-- name: mock
-  description: ''
-- name: cbv
-  description: ''
+- name: check resp
+  description: check route response
 - name: check param
-  description: ''
-- name: check response
-  description: ''
-- name: check_resp
-  description: ''
+  description: check route request param
+- name: links
+  description: openapi links route
+- name: plugin
+  description: test pait plugin route
+- name: raise
+  description: raise route
+- name: user
+  description: user data route
+- name: post
+  description: post method route
+- name: depend
+  description: depend route
+- name: same alias
+  description: have same alias field route
+- name: field
+  description: field route
+- name: mock
+  description: mock response route
+- name: cbv
+  description: cbv route
+- name: pait_doc
+  description: pait default doc route
 paths:
   /api/login:
     post:
@@ -607,6 +611,48 @@ paths:
           title: User-Agent
           description: user agent
           type: string
+      responses:
+        200:
+          description: success response|fail response
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
+                - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
+          links: *id002
+  /api/field-default-factory:
+    post:
+      group: user
+      tags:
+      - field
+      summary: ''
+      description: ''
+      operationId: POST.field_default_factory_route
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: FieldDefaultFactoryRouteDynamicModel
+              type: object
+              properties:
+                demo_value:
+                  title: Demo Value
+                  description: Json body value not empty
+                  type: integer
+                data_list:
+                  title: Data List
+                  description: test default factory
+                  type: array
+                  items:
+                    type: string
+                data_dict:
+                  title: Data Dict
+                  description: test default factory
+                  type: object
+              required:
+              - demo_value
       responses:
         200:
           description: success response|fail response
@@ -1436,7 +1482,7 @@ paths:
     get:
       group: user
       tags:
-      - check response
+      - check resp
       summary: ''
       description: Test test-helper check response
       operationId: GET.check_response_route
@@ -1462,7 +1508,7 @@ paths:
           type: string
       - name: user_name
         in: query
-        required: false
+        required: true
         description: user name
         schema:
           title: User Name
@@ -1503,7 +1549,7 @@ paths:
     head:
       group: user
       tags:
-      - check response
+      - check resp
       summary: ''
       description: Test test-helper check response
       operationId: HEAD.check_response_route
@@ -1529,7 +1575,7 @@ paths:
           type: string
       - name: user_name
         in: query
-        required: false
+        required: true
         description: user name
         schema:
           title: User Name
@@ -1571,7 +1617,7 @@ paths:
     get:
       group: check_resp
       tags:
-      - check_resp
+      - check resp
       summary: ''
       description: ''
       operationId: GET.text_response_route
@@ -1588,7 +1634,7 @@ paths:
     head:
       group: check_resp
       tags:
-      - check_resp
+      - check resp
       summary: ''
       description: ''
       operationId: HEAD.text_response_route
@@ -1603,7 +1649,7 @@ paths:
     get:
       group: check_resp
       tags:
-      - check_resp
+      - check resp
       summary: ''
       description: ''
       operationId: GET.html_response_route
@@ -1620,7 +1666,7 @@ paths:
     head:
       group: check_resp
       tags:
-      - check_resp
+      - check resp
       summary: ''
       description: ''
       operationId: HEAD.html_response_route
@@ -1635,7 +1681,7 @@ paths:
     get:
       group: check_resp
       tags:
-      - check_resp
+      - check resp
       summary: ''
       description: ''
       operationId: GET.file_response_route
@@ -1652,7 +1698,7 @@ paths:
     head:
       group: check_resp
       tags:
-      - check_resp
+      - check resp
       summary: ''
       description: ''
       operationId: HEAD.file_response_route
@@ -1662,6 +1708,268 @@ paths:
           headers: *id008
           content:
             application/octet-stream: *id009
+          links: *id002
+  /api/check-json-plugin:
+    get:
+      group: plugin
+      tags:
+      - plugin
+      summary: ''
+      description: Test json plugin by resp type is dict
+      operationId: GET.check_json_plugin_route
+      parameters:
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      - name: email
+        in: query
+        required: false
+        description: user email
+        schema:
+          title: Email
+          description: user email
+          default: example@xxx.com
+          type: string
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+      - name: age
+        in: query
+        required: true
+        description: age
+        schema:
+          title: Age
+          description: age
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
+          type: integer
+      - name: display_age
+        in: query
+        required: false
+        description: display_age
+        schema:
+          title: Display Age
+          description: display_age
+          default: 0
+          type: integer
+      responses:
+        200:
+          description: success response
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel3__ResponseModel'
+          links: *id002
+    head:
+      group: plugin
+      tags:
+      - plugin
+      summary: ''
+      description: Test json plugin by resp type is dict
+      operationId: HEAD.check_json_plugin_route
+      parameters:
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      - name: email
+        in: query
+        required: false
+        description: user email
+        schema:
+          title: Email
+          description: user email
+          default: example@xxx.com
+          type: string
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+      - name: age
+        in: query
+        required: true
+        description: age
+        schema:
+          title: Age
+          description: age
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
+          type: integer
+      - name: display_age
+        in: query
+        required: false
+        description: display_age
+        schema:
+          title: Display Age
+          description: display_age
+          default: 0
+          type: integer
+      responses:
+        200:
+          description: success response
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel3__ResponseModel'
+          links: *id002
+  /api/check-json-plugin-1:
+    get:
+      group: plugin
+      tags:
+      - plugin
+      summary: ''
+      description: Test json plugin by resp type is typed dict
+      operationId: GET.check_json_plugin_route1
+      parameters:
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      - name: email
+        in: query
+        required: false
+        description: user email
+        schema:
+          title: Email
+          description: user email
+          default: example@xxx.com
+          type: string
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+      - name: age
+        in: query
+        required: true
+        description: age
+        schema:
+          title: Age
+          description: age
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
+          type: integer
+      - name: display_age
+        in: query
+        required: false
+        description: display_age
+        schema:
+          title: Display Age
+          description: display_age
+          default: 0
+          type: integer
+      responses:
+        200:
+          description: success response
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel3__ResponseModel'
+          links: *id002
+    head:
+      group: plugin
+      tags:
+      - plugin
+      summary: ''
+      description: Test json plugin by resp type is typed dict
+      operationId: HEAD.check_json_plugin_route1
+      parameters:
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      - name: email
+        in: query
+        required: false
+        description: user email
+        schema:
+          title: Email
+          description: user email
+          default: example@xxx.com
+          type: string
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+      - name: age
+        in: query
+        required: true
+        description: age
+        schema:
+          title: Age
+          description: age
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
+          type: integer
+      - name: display_age
+        in: query
+        required: false
+        description: display_age
+        schema:
+          title: Display Age
+          description: display_age
+          default: 0
+          type: integer
+      responses:
+        200:
+          description: success response
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel3__ResponseModel'
           links: *id002
 components:
   schemas:

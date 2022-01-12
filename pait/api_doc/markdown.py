@@ -60,6 +60,9 @@ class PaitMd(PaitBaseParse):
             example_value = ""
             if "other" in field_info_dict:
                 example_value = field_info_dict["other"].pop("example", "")
+            other_value = ", ".join(
+                [f"[`{key}:{value}`]" for key, value in (field_info_dict["other"] or dict()).items()]
+            )
             markdown_text += (
                 f"{blank_num_str}"
                 f"|{field_info_dict['param_name'] or ' '}"
@@ -67,7 +70,7 @@ class PaitMd(PaitBaseParse):
                 f"|{default or ' '}"
                 f"|{example_value or ' '}"
                 f"|{field_info_dict['description'] or ' '}"
-                f"|{field_info_dict['other'] or ' '}"
+                f"|{other_value}"
                 f"|\n"
             )
         return markdown_text
@@ -82,7 +85,16 @@ class PaitMd(PaitBaseParse):
                 markdown_text += f"## Group: {group}\n\n"
             for pait_model in self._group_pait_dict[group]:
                 # func info
-                markdown_text += f"### Name: {pait_model.operation_id}\n\n"
+                if pait_model.status in (
+                    PaitStatus.abnormal,
+                    PaitStatus.maintenance,
+                    PaitStatus.archive,
+                    PaitStatus.abandoned,
+                ):
+                    markdown_text += f"### Name: ~~{pait_model.operation_id}~~\n\n"
+                else:
+                    markdown_text += f"### Name: {pait_model.operation_id}\n\n"
+
                 if pait_model.desc:
                     markdown_text += f"\n\n**Desc**:{pait_model.desc}\n\n"
 
@@ -93,7 +105,12 @@ class PaitMd(PaitBaseParse):
                     status_text = f"<font color=#00BFFF>{pait_model.status.value}</font>"
                 elif pait_model.status in (PaitStatus.release, PaitStatus.complete):
                     status_text = f"<font color=#32CD32>{pait_model.status.value}</font>"
-                elif pait_model.status in (PaitStatus.abandoned, PaitStatus.abnormal):
+                elif pait_model.status in (
+                    PaitStatus.abnormal,
+                    PaitStatus.maintenance,
+                    PaitStatus.archive,
+                    PaitStatus.abandoned,
+                ):
                     status_text = f"<font color=#DC143C>{pait_model.status.value}</font>"
                 elif pait_model.status:
                     status_text = f"{pait_model.status.value}"

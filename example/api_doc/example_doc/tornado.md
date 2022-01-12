@@ -3,9 +3,11 @@
 
 ### Name: TextResponseHanler.get
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|undefined|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 362">TextResponseHanler.get</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 393">TextResponseHanler.get</abbr>|    |
 - Path: /api/text-resp$
 - Method: get
 - Request:
@@ -13,17 +15,21 @@
 
     - TextRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|text/plain|text response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|text/plain|text response|
         - Header
             {'X-Example-Type': 'text'}
 
 ### Name: HtmlResponseHanler.get
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|undefined|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 370">HtmlResponseHanler.get</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 401">HtmlResponseHanler.get</abbr>|    |
 - Path: /api/html-resp$
 - Method: get
 - Request:
@@ -31,17 +37,21 @@
 
     - HtmlRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|text/html|html response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|text/html|html response|
         - Header
             {'X-Example-Type': 'html'}
 
 ### Name: FileResponseHanler.get
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|undefined|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 379">FileResponseHanler.get</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 409">FileResponseHanler.get</abbr>|    |
 - Path: /api/file-resp$
 - Method: get
 - Request:
@@ -49,9 +59,11 @@
 
     - FileRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/octet-stream|file response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/octet-stream|file response|
         - Header
             {'X-Example-Type': 'file'}
 
@@ -59,32 +71,36 @@
 
 ### Name: LoginHanlder.post
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|undefined|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 392">LoginHanlder.post</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 422">LoginHanlder.post</abbr>|    |
 - Path: /api/login$
 - Method: post
 - Request:
     - Body Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |password|string|**`Required`**|password||
-        |uid|string|**`Required`**|user id||
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |password|string|**`Required`**| |password| |
+        |uid|string|**`Required`**| |user id| |
 - Response:
 
     - LoginRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|login response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|login response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|0|api code||
-            |data.token|string|**`Required`**|||
-            |msg|string|success|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |data.token|string|**`Required`**| | | |
+            |msg|string|success| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -100,30 +116,34 @@
 
 ### Name: GetUserHandler.get
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|undefined|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 405">GetUserHandler.get</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 435">GetUserHandler.get</abbr>|    |
 - Path: /api/user$
 - Method: get
 - Request:
     - Header Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |token|string||token||
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |token|string| | |token| |
 - Response:
 
     - SuccessRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|success response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|0|api code||
-            |msg|string|success|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |msg|string|success| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -136,37 +156,41 @@
 
 </details><details><summary>Group: other</summary>
 
-### Name: RaiseTipHandler.post
+### Name: ~~RaiseTipHandler.post~~
 
 
 
 **Desc**:test pait raise tip
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|<font color=#DC143C>abandoned</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 56">RaiseTipHandler.post</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |<font color=#DC143C>abandoned</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 67">RaiseTipHandler.post</abbr>|    |
 - Path: /api/raise-tip$
 - Method: post
 - Request:
     - Header Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |content_type|string|**`Required`**|content-type||
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |content_type|string|**`Required`**| |content-type| |
 - Response:
 
     - SimpleRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|success response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|0|api code||
-            |data|object|**`Required`**|success result||
-            |msg|string|success|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |data|object|**`Required`**| |success result| |
+            |msg|string|success| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -179,15 +203,17 @@
 
     - FailRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|fail response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|1|api code||
-            |msg|string|fail|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code| |
+            |msg|string|fail| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -204,36 +230,40 @@
 
 **Desc**:Test Method:Post request, Pydantic Model
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 92">DependHandler.post</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 103">DependHandler.post</abbr>|    |
 - Path: /api/depend$
 - Method: post
 - Request:
     - Body Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
     - Header Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |user-agent|string|**`Required`**|user agent||
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |user-agent|string|**`Required`**| |user agent| |
 - Response:
 
     - SimpleRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|success response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|0|api code||
-            |data|object|**`Required`**|success result||
-            |msg|string|success|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |data|object|**`Required`**| |success result| |
+            |msg|string|success| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -246,15 +276,17 @@
 
     - FailRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|fail response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|1|api code||
-            |msg|string|fail|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code| |
+            |msg|string|fail| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -267,36 +299,40 @@
 
 ### Name: SameAliasHandler.get
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 108">SameAliasHandler.get</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 119">SameAliasHandler.get</abbr>|    |
 - Path: /api/same-alias$
 - Method: get
 - Request:
     - Header Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |token|string||None||
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |token|string| | | | |
     - Query Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |token|string||None||
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |token|string| | | | |
 - Response:
 
     - SimpleRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|success response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|0|api code||
-            |data|object|**`Required`**|success result||
-            |msg|string|success|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |data|object|**`Required`**| |success result| |
+            |msg|string|success| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -309,15 +345,17 @@
 
     - FailRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|fail response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|1|api code||
-            |msg|string|fail|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code| |
+            |msg|string|fail| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -334,41 +372,45 @@
 
 **Desc**:Test pait model
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 260">PaitModelHanler.post</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 290">PaitModelHanler.post</abbr>|    |
 - Path: /api/pait-model$
 - Method: post
 - Request:
     - Body Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |user_info|object|**`Required`**|None|{'properties': {'user_name': {'title': 'User Name', 'description': 'user name', 'maxLength': 4, 'minLength': 2, 'type': 'string'}, 'age': {'title': 'Age', 'description': 'age', 'exclusiveMinimum': 1, 'exclusiveMaximum': 100, 'type': 'integer'}}, 'required': ['user_name', 'age']}|
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |user_info|object|**`Required`**| | |{'properties': {'user_name': {'title': 'User Name', 'description': 'user name', 'maxLength': 4, 'minLength': 2, 'type': 'string'}, 'age': {'title': 'Age', 'description': 'age', 'exclusiveMinimum': 1, 'exclusiveMaximum': 100, 'type': 'integer'}}, 'required': ['user_name', 'age']}|
     - Header Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |user-agent|string|**`Required`**|user agent||
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |user-agent|string|**`Required`**| |user agent| |
     - Query Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
 - Response:
 
     - SimpleRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|success response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|0|api code||
-            |data|object|**`Required`**|success result||
-            |msg|string|success|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |data|object|**`Required`**| |success result| |
+            |msg|string|success| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -381,15 +423,17 @@
 
     - FailRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|fail response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|1|api code||
-            |msg|string|fail|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code| |
+            |msg|string|fail| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -402,31 +446,35 @@
 
 ### Name: DependContextmanagerHanler.get
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|undefined|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 267">DependContextmanagerHanler.get</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 297">DependContextmanagerHanler.get</abbr>|    |
 - Path: /api/check-depend-contextmanager$
 - Method: get
 - Request:
     - Query Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |is_raise|boolean|False|None||
-        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |is_raise|boolean| | | | |
+        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
 - Response:
 
     - SuccessRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|success response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|0|api code||
-            |msg|string|success|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |msg|string|success| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -438,15 +486,17 @@
 
     - FailRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|fail response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|1|api code||
-            |msg|string|fail|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code| |
+            |msg|string|fail| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -459,31 +509,35 @@
 
 ### Name: DependAsyncContextmanagerHanler.get
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|undefined|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 276">DependAsyncContextmanagerHanler.get</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 305">DependAsyncContextmanagerHanler.get</abbr>|    |
 - Path: /api/check-depend-async-contextmanager$
 - Method: get
 - Request:
     - Query Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |is_raise|boolean|False|None||
-        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |is_raise|boolean| | | | |
+        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
 - Response:
 
     - SuccessRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|success response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|0|api code||
-            |msg|string|success|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |msg|string|success| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -495,15 +549,17 @@
 
     - FailRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|fail response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|1|api code||
-            |msg|string|fail|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code| |
+            |msg|string|fail| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -516,31 +572,35 @@
 
 ### Name: PreDependContextmanagerHanler.get
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|undefined|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 285">PreDependContextmanagerHanler.get</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 313">PreDependContextmanagerHanler.get</abbr>|    |
 - Path: /api/check-pre-depend-contextmanager$
 - Method: get
 - Request:
     - Query Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |is_raise|boolean|False|None||
-        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |is_raise|boolean| | | | |
+        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
 - Response:
 
     - SuccessRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|success response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|0|api code||
-            |msg|string|success|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |msg|string|success| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -552,15 +612,17 @@
 
     - FailRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|fail response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|1|api code||
-            |msg|string|fail|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code| |
+            |msg|string|fail| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -573,31 +635,35 @@
 
 ### Name: PreDependAsyncContextmanagerHanler.get
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|undefined|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 294">PreDependAsyncContextmanagerHanler.get</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 323">PreDependAsyncContextmanagerHanler.get</abbr>|    |
 - Path: /api/check-pre-depend-async-contextmanager$
 - Method: get
 - Request:
     - Query Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |is_raise|boolean|False|None||
-        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |is_raise|boolean| | | | |
+        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
 - Response:
 
     - SuccessRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|success response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|0|api code||
-            |msg|string|success|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |msg|string|success| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -609,15 +675,17 @@
 
     - FailRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|fail response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|1|api code||
-            |msg|string|fail|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code| |
+            |msg|string|fail| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -628,54 +696,178 @@
             ```
 
 
-</details><details><summary>Group: root</summary>
+</details><details><summary>Group: pait_doc</summary>
 
 ### Name: GetRedocHtmlHandle.get
 
-|Author|Status|func|summary|
-|---|---|---|---|
-||undefined|<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 63">add_doc_route.<locals>.GetRedocHtmlHandle.get</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 71">add_doc_route.<locals>.GetRedocHtmlHandle.get</abbr>|    |
 - Path: /redoc$
 - Method: get
 - Request:
     - Query Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |pin_code|string||None||
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |pin_code|string| | | | |
 - Response:
 
 
 ### Name: GetSwaggerUiHtmlHandle.get
 
-|Author|Status|func|summary|
-|---|---|---|---|
-||undefined|<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 68">add_doc_route.<locals>.GetSwaggerUiHtmlHandle.get</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 76">add_doc_route.<locals>.GetSwaggerUiHtmlHandle.get</abbr>|    |
 - Path: /swagger$
 - Method: get
 - Request:
     - Query Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |pin_code|string||None||
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |pin_code|string| | | | |
 - Response:
 
 
 ### Name: OpenApiHandle.get
 
-|Author|Status|func|summary|
-|---|---|---|---|
-||undefined|<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 73">add_doc_route.<locals>.OpenApiHandle.get</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 81">add_doc_route.<locals>.OpenApiHandle.get</abbr>|    |
 - Path: /openapi.json$
 - Method: get
 - Request:
     - Query Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |pin_code|string||None||
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |pin_code|string| | | | |
 - Response:
+
+
+</details><details><summary>Group: plugin</summary>
+
+### Name: CheckJsonPluginHandler.get
+
+
+
+**Desc**:Test json plugin by resp type is dict
+
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 444">CheckJsonPluginHandler.get</abbr>|    |
+- Path: /api/check-json-plugin$
+- Method: get
+- Request:
+    - Query Param
+
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |display_age|integer| | |display_age| |
+        |email|string|example@xxx.com| |user email| |
+        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
+- Response:
+
+    - UserSuccessRespModel3
+
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
+        - Response Data
+
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |data.age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+            |data.email|string|**`Required`**| |user email| |
+            |data.uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+            |data.user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
+            |msg|string|success| |api status msg| |
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 0,
+              "msg": "success",
+              "data": {
+                "uid": 0,
+                "user_name": "",
+                "age": 0,
+                "email": ""
+              }
+            }
+            ```
+
+
+### Name: CheckJsonPlugin1Handler.get
+
+
+
+**Desc**:Test json plugin by resp type is typed dict
+
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 487">CheckJsonPlugin1Handler.get</abbr>|    |
+- Path: /api/check-json-plugin-1$
+- Method: get
+- Request:
+    - Query Param
+
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |display_age|integer| | |display_age| |
+        |email|string|example@xxx.com| |user email| |
+        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
+- Response:
+
+    - UserSuccessRespModel3
+
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
+        - Response Data
+
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |data.age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+            |data.email|string|**`Required`**| |user email| |
+            |data.uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+            |data.user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
+            |msg|string|success| |api status msg| |
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 0,
+              "msg": "success",
+              "data": {
+                "uid": 0,
+                "user_name": "",
+                "age": 0,
+                "email": ""
+              }
+            }
+            ```
 
 
 </details><details><summary>Group: user</summary>
@@ -686,42 +878,46 @@
 
 **Desc**:Test Method:Post Pydantic Model
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 71">PostHandler.post</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 82">PostHandler.post</abbr>|    |
 - Path: /api/post$
 - Method: post
 - Request:
     - Body Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100, 'example': 25}|
-        |sex|enum|Only choose from: `man`,`woman`|sex|{'enum': ['man', 'woman']}|
-        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000, 'example': '123'}|
-        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2, 'example': 'so1n'}|
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |age|integer|**`Required`**|25|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |sex|enum|Only choose from: `man`,`woman`| |sex|{'enum': ['man', 'woman']}|
+        |uid|integer|**`Required`**|123|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |user_name|string|**`Required`**|so1n|user name|{'maxLength': 4, 'minLength': 2}|
     - Header Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |Content-Type|string|**`Required`**|content-type||
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |Content-Type|string|**`Required`**| |content-type| |
 - Response:
 
     - UserSuccessRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|success response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|0|api code||
-            |data.age|integer|99|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.content_type|string|**`Required`**|content-type||
-            |data.uid|integer|666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|mock_name|user name|{'maxLength': 10, 'minLength': 2}|
-            |msg|string|success|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |data.age|integer|99| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+            |data.content_type|string|**`Required`**| |content-type| |
+            |data.uid|integer|666| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+            |data.user_name|string|mock_name| |user name|{'maxLength': 10, 'minLength': 2}|
+            |msg|string|success| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -740,15 +936,17 @@
 
     - FailRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|fail response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|1|api code||
-            |msg|string|fail|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code| |
+            |msg|string|fail| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -759,67 +957,39 @@
             ```
 
 
-### Name: PaitBaseFieldHandler.post
+### Name: FieldDefaultFactoryHandler.post
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 120">PaitBaseFieldHandler.post</abbr>||
-- Path: /api/pait-base-field/(?P<age>\w+)$
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 131">FieldDefaultFactoryHandler.post</abbr>|    |
+- Path: /api/field-default-factory$
 - Method: post
 - Request:
-    - Cookie Param
+    - Body Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |cookie|object|**`Required`**|cookie||
-    - File Param
-
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |upload_file|object|**`Required`**|upload file||
-    - Form Param
-
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |a|string|**`Required`**|form data||
-        |b|string|**`Required`**|form data||
-    - Multiform Param
-
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |c|array|**`Required`**|form data|{'items': {'type': 'string'}}|
-    - Multiquery Param
-
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |multi_user_name|array|**`Required`**|user name|{'maxLength': 4, 'minLength': 2, 'items': {'type': 'string', 'minLength': 2, 'maxLength': 4}}|
-    - Path Param
-
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-    - Query Param
-
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |email|string|example@xxx.com|user email||
-        |sex|enum|Only choose from: `man`,`woman`|sex|{'enum': ['man', 'woman']}|
-        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |data_dict|object|**`Required`**| |test default factory| |
+        |data_list|array|**`Required`**| |test default factory|{'items': {'type': 'string'}}|
+        |demo_value|integer|**`Required`**| |Json body value not empty| |
 - Response:
 
     - SimpleRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|success response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|0|api code||
-            |data|object|**`Required`**|success result||
-            |msg|string|success|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |data|object|**`Required`**| |success result| |
+            |msg|string|success| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -832,15 +1002,115 @@
 
     - FailRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|fail response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|1|api code||
-            |msg|string|fail|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code| |
+            |msg|string|fail| |api status msg| |
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 1,
+              "msg": "fail"
+            }
+            ```
+
+
+### Name: PaitBaseFieldHandler.post
+
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 148">PaitBaseFieldHandler.post</abbr>|    |
+- Path: /api/pait-base-field/(?P<age>\w+)$
+- Method: post
+- Request:
+    - Cookie Param
+
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |cookie|object|**`Required`**| |cookie| |
+    - File Param
+
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |upload_file|object|**`Required`**| |upload file| |
+    - Form Param
+
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |a|string|**`Required`**| |form data| |
+        |b|string|**`Required`**| |form data| |
+    - Multiform Param
+
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |c|array|**`Required`**| |form data|{'items': {'type': 'string'}}|
+    - Multiquery Param
+
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |multi_user_name|array|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2, 'items': {'type': 'string', 'minLength': 2, 'maxLength': 4}}|
+    - Path Param
+
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+    - Query Param
+
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |email|string|example@xxx.com| |user email| |
+        |sex|enum|Only choose from: `man`,`woman`| |sex|{'enum': ['man', 'woman']}|
+        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
+- Response:
+
+    - SimpleRespModel
+
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
+        - Response Data
+
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |data|object|**`Required`**| |success result| |
+            |msg|string|success| |api status msg| |
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 0,
+              "msg": "success",
+              "data": {}
+            }
+            ```
+
+    - FailRespModel
+
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|fail response|
+        - Response Data
+
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code| |
+            |msg|string|fail| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -857,48 +1127,52 @@
 
 **Desc**:Test Field
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 226">MockHandler.get</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 256">MockHandler.get</abbr>|    |
 - Path: /api/mock/(?P<age>\w+)$
 - Method: get
 - Request:
     - Multiquery Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |multi_user_name|array|**`Required`**|user name|{'maxLength': 4, 'minLength': 2, 'items': {'type': 'string', 'minLength': 2, 'maxLength': 4}}|
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |multi_user_name|array|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2, 'items': {'type': 'string', 'minLength': 2, 'maxLength': 4}}|
     - Path Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |age|integer|**`Required`**|age||
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |age|integer|**`Required`**| |age| |
     - Query Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |email|string|example@xxx.com|user email||
-        |sex|enum|Only choose from: `man`,`woman`|sex|{'enum': ['man', 'woman']}|
-        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |email|string|example@xxx.com| |user email| |
+        |sex|enum|Only choose from: `man`,`woman`| |sex|{'enum': ['man', 'woman']}|
+        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
 - Response:
 
     - UserSuccessRespModel2
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|success response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|0|api code||
-            |data.age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100, 'example': 99}|
-            |data.email|string|**`Required`**|user email|{'example': 'example@so1n.me'}|
-            |data.multi_user_name|array|**`Required`**|user name|{'maxLength': 4, 'minLength': 2, 'example': ('mock_name',), 'items': {'type': 'string', 'minLength': 2, 'maxLength': 4}}|
-            |data.uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000, 'example': 666}|
-            |data.user_name|string|**`Required`**|user name|{'maxLength': 10, 'minLength': 2, 'example': 'mock_name'}|
-            |msg|string|success|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |data.age|integer|**`Required`**|99|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+            |data.email|string|**`Required`**|example@so1n.me|user email| |
+            |data.multi_user_name|array|**`Required`**|('mock_name',)|user name|{'maxLength': 4, 'minLength': 2, 'items': {'type': 'string', 'minLength': 2, 'maxLength': 4}}|
+            |data.uid|integer|**`Required`**|666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+            |data.user_name|string|**`Required`**|mock_name|user name|{'maxLength': 10, 'minLength': 2}|
+            |msg|string|success| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -918,15 +1192,17 @@
 
     - FailRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|fail response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|1|api code||
-            |msg|string|fail|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code| |
+            |msg|string|fail| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -943,42 +1219,46 @@
 
 **Desc**:Text Pydantic Model and Field
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 306">CbvHandler.get</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 337">CbvHandler.get</abbr>|    |
 - Path: /api/cbv$
 - Method: get
 - Request:
     - Header Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |Content-Type|string|**`Required`**|None||
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |Content-Type|string|**`Required`**| | | |
     - Query Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100, 'example': 25}|
-        |sex|enum|Only choose from: `man`,`woman`|sex|{'enum': ['man', 'woman']}|
-        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |age|integer|**`Required`**|25|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |sex|enum|Only choose from: `man`,`woman`| |sex|{'enum': ['man', 'woman']}|
+        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
 - Response:
 
     - UserSuccessRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|success response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|0|api code||
-            |data.age|integer|99|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.content_type|string|**`Required`**|content-type||
-            |data.uid|integer|666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|mock_name|user name|{'maxLength': 10, 'minLength': 2}|
-            |msg|string|success|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |data.age|integer|99| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+            |data.content_type|string|**`Required`**| |content-type| |
+            |data.uid|integer|666| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+            |data.user_name|string|mock_name| |user name|{'maxLength': 10, 'minLength': 2}|
+            |msg|string|success| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -997,15 +1277,17 @@
 
     - FailRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|fail response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|1|api code||
-            |msg|string|fail|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code| |
+            |msg|string|fail| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -1022,42 +1304,46 @@
 
 **Desc**:test cbv post method
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 333">CbvHandler.post</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 364">CbvHandler.post</abbr>|    |
 - Path: /api/cbv$
 - Method: post
 - Request:
     - Body Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100, 'example': 25}|
-        |sex|enum|Only choose from: `man`,`woman`|sex|{'enum': ['man', 'woman']}|
-        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |age|integer|**`Required`**|25|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |sex|enum|Only choose from: `man`,`woman`| |sex|{'enum': ['man', 'woman']}|
+        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
     - Header Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |Content-Type|string|**`Required`**|None||
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |Content-Type|string|**`Required`**| | | |
 - Response:
 
     - UserSuccessRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|success response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|0|api code||
-            |data.age|integer|99|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.content_type|string|**`Required`**|content-type||
-            |data.uid|integer|666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|mock_name|user name|{'maxLength': 10, 'minLength': 2}|
-            |msg|string|success|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |data.age|integer|99| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+            |data.content_type|string|**`Required`**| |content-type| |
+            |data.uid|integer|666| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+            |data.user_name|string|mock_name| |user name|{'maxLength': 10, 'minLength': 2}|
+            |msg|string|success| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -1076,15 +1362,17 @@
 
     - FailRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|fail response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|1|api code||
-            |msg|string|fail|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code| |
+            |msg|string|fail| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -1101,41 +1389,45 @@
 
 **Desc**:Test check param
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 162">CheckParamHandler.get</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 190">CheckParamHandler.get</abbr>|    |
 - Path: /api/check-param$
 - Method: get
 - Request:
     - Query Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |alias_user_name|string|None|user name|{'maxLength': 4, 'minLength': 2}|
-        |birthday|string|None|birthday||
-        |email|string|example@xxx.com|user email||
-        |sex|enum|Only choose from: `man`,`woman`|sex|{'enum': ['man', 'woman']}|
-        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|None|user name|{'maxLength': 4, 'minLength': 2}|
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |alias_user_name|string| | |user name|{'maxLength': 4, 'minLength': 2}|
+        |birthday|string| | |birthday| |
+        |email|string|example@xxx.com| |user email| |
+        |sex|enum|Only choose from: `man`,`woman`| |sex|{'enum': ['man', 'woman']}|
+        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |user_name|string| | |user name|{'maxLength': 4, 'minLength': 2}|
 - Response:
 
     - UserSuccessRespModel2
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|success response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|0|api code||
-            |data.age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100, 'example': 99}|
-            |data.email|string|**`Required`**|user email|{'example': 'example@so1n.me'}|
-            |data.multi_user_name|array|**`Required`**|user name|{'maxLength': 4, 'minLength': 2, 'example': ('mock_name',), 'items': {'type': 'string', 'minLength': 2, 'maxLength': 4}}|
-            |data.uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000, 'example': 666}|
-            |data.user_name|string|**`Required`**|user name|{'maxLength': 10, 'minLength': 2, 'example': 'mock_name'}|
-            |msg|string|success|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |data.age|integer|**`Required`**|99|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+            |data.email|string|**`Required`**|example@so1n.me|user email| |
+            |data.multi_user_name|array|**`Required`**|('mock_name',)|user name|{'maxLength': 4, 'minLength': 2, 'items': {'type': 'string', 'minLength': 2, 'maxLength': 4}}|
+            |data.uid|integer|**`Required`**|666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+            |data.user_name|string|**`Required`**|mock_name|user name|{'maxLength': 10, 'minLength': 2}|
+            |msg|string|success| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -1155,15 +1447,17 @@
 
     - FailRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|fail response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|1|api code||
-            |msg|string|fail|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code| |
+            |msg|string|fail| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -1178,40 +1472,44 @@
 
 
 
-**Desc**:Test check param
+**Desc**:Test test-helper check response
 
-|Author|Status|func|summary|
-|---|---|---|---|
-|so1n|<font color=#32CD32>release</font>|<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 197">CheckRespHandler.get</abbr>||
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 227">CheckRespHandler.get</abbr>|    |
 - Path: /api/check-resp$
 - Method: get
 - Request:
     - Query Param
 
-        |param name|type|default value|description|other|
-        |---|---|---|---|---|
-        |age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |display_age|integer|0|display_age||
-        |email|string|example@xxx.com|user email||
-        |uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|None|user name|{'maxLength': 4, 'minLength': 2}|
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |display_age|integer| | |display_age| |
+        |email|string|example@xxx.com| |user email| |
+        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
 - Response:
 
     - UserSuccessRespModel3
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|success response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|0|api code||
-            |data.age|integer|**`Required`**|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.email|string|**`Required`**|user email||
-            |data.uid|integer|**`Required`**|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|**`Required`**|user name|{'maxLength': 4, 'minLength': 2}|
-            |msg|string|success|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code| |
+            |data.age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+            |data.email|string|**`Required`**| |user email| |
+            |data.uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+            |data.user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
+            |msg|string|success| |api status msg| |
         - Example Response Json Data
 
             ```json
@@ -1229,15 +1527,17 @@
 
     - FailRespModel
 
-        |status code|media type|description|
-        |---|---|---|
-        |200|application/json|fail response|
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|fail response|
         - Response Data
 
-            |param name|type|default value|description|other|
-            |---|---|---|---|---|
-            |code|integer|1|api code||
-            |msg|string|fail|api status msg||
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code| |
+            |msg|string|fail| |api status msg| |
         - Example Response Json Data
 
             ```json

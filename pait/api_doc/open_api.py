@@ -3,7 +3,6 @@ import json
 import logging
 from typing import Any, Dict, List, Optional, Tuple, Type
 
-import yaml  # type: ignore
 from pydantic import BaseModel, Field, HttpUrl
 from pydantic.fields import Undefined
 
@@ -117,6 +116,8 @@ class PaitOpenApi(PaitBaseParse):
             self.content = json.dumps(self.open_api_dict, cls=config.json_encoder)
             self._content_type = ".json"
         elif type_ == "yaml":
+            import yaml  # type: ignore
+
             self.content = yaml.dump(self.open_api_dict, sort_keys=False)
             self._content_type = ".yaml"
 

@@ -541,67 +541,6 @@ paths:
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
           links: *id002
   /api/cbv:
-    post:
-      group: user
-      tags:
-      - cbv
-      summary: ''
-      description: test cbv post method
-      operationId: post.test_cbv.post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              title: TestCbv.postDynamicModel
-              type: object
-              properties:
-                age:
-                  title: Age
-                  description: age
-                  exclusiveMinimum: 1
-                  exclusiveMaximum: 100
-                  example: 25
-                  type: integer
-                uid:
-                  title: Uid
-                  description: user id
-                  exclusiveMinimum: 10
-                  exclusiveMaximum: 1000
-                  type: integer
-                user_name:
-                  title: User Name
-                  description: user name
-                  maxLength: 4
-                  minLength: 2
-                  type: string
-                sex:
-                  description: sex
-                  allOf:
-                  - $ref: '#/definitions/example__param_verify__model__SexEnum'
-              required:
-              - age
-              - uid
-              - user_name
-              - sex
-      parameters:
-      - name: Content-Type
-        in: header
-        required: true
-        description: ''
-        schema:
-          title: Content-Type
-          type: string
-      responses:
-        200:
-          description: success response|fail response
-          headers: *id001
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel__ResponseModel'
-                - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
     get:
       group: user
       tags:
@@ -658,6 +597,67 @@ paths:
           enum:
           - man
           - woman
+          type: string
+      responses:
+        200:
+          description: success response|fail response
+          headers: *id001
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel__ResponseModel'
+                - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
+          links: *id002
+    post:
+      group: user
+      tags:
+      - cbv
+      summary: ''
+      description: test cbv post method
+      operationId: post.test_cbv.post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: TestCbv.postDynamicModel
+              type: object
+              properties:
+                age:
+                  title: Age
+                  description: age
+                  exclusiveMinimum: 1
+                  exclusiveMaximum: 100
+                  example: 25
+                  type: integer
+                uid:
+                  title: Uid
+                  description: user id
+                  exclusiveMinimum: 10
+                  exclusiveMaximum: 1000
+                  type: integer
+                user_name:
+                  title: User Name
+                  description: user name
+                  maxLength: 4
+                  minLength: 2
+                  type: string
+                sex:
+                  description: sex
+                  allOf:
+                  - $ref: '#/definitions/example__param_verify__model__SexEnum'
+              required:
+              - age
+              - uid
+              - user_name
+              - sex
+      parameters:
+      - name: Content-Type
+        in: header
+        required: true
+        description: ''
+        schema:
+          title: Content-Type
           type: string
       responses:
         200:

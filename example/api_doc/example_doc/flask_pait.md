@@ -95,8 +95,8 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |password|string|**`Required`**| |password| |
-        |uid|string|**`Required`**| |user id| |
+        |password|string|**`Required`**| |password||
+        |uid|string|**`Required`**| |user id||
 - Response:
 
     - LoginRespModel
@@ -110,9 +110,9 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data.token|string|**`Required`**| | | |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data.token|string|**`Required`**| | ||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -140,7 +140,7 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |token|string| | |token| |
+        |token|string| | |token||
 - Response:
 
     - SuccessRespModel
@@ -154,8 +154,8 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -182,8 +182,8 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |is_raise|boolean| | | | |
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |is_raise|boolean| | | ||
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
 - Response:
 
     - SuccessRespModel
@@ -197,8 +197,8 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -219,8 +219,8 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -245,8 +245,8 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |is_raise|boolean| | | | |
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |is_raise|boolean| | | ||
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
 - Response:
 
     - SuccessRespModel
@@ -260,8 +260,8 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -282,8 +282,8 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -312,12 +312,12 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |token|string| | | | |
+        |token|string| | | ||
     - Query Param
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |token|string| | | | |
+        |token|string| | | ||
 - Response:
 
     - SimpleRespModel
@@ -331,9 +331,9 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data|object|**`Required`**| |success result| |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data|object|**`Required`**| |success result||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -355,8 +355,8 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -385,17 +385,17 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |user_info|object|**`Required`**| | |{'properties': {'user_name': {'title': 'User Name', 'description': 'user name', 'maxLength': 4, 'minLength': 2, 'type': 'string'}, 'age': {'title': 'Age', 'description': 'age', 'exclusiveMinimum': 1, 'exclusiveMaximum': 100, 'type': 'integer'}}, 'required': ['user_name', 'age']}|
+        |user_info|object|**`Required`**| | |[`properties:{'user_name': {'title': 'User Name', 'description': 'user name', 'maxLength': 4, 'minLength': 2, 'type': 'string'}, 'age': {'title': 'Age', 'description': 'age', 'exclusiveMinimum': 1, 'exclusiveMaximum': 100, 'type': 'integer'}}`], [`required:['user_name', 'age']`]|
     - Header Param
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |user-agent|string|**`Required`**| |user agent| |
+        |user-agent|string|**`Required`**| |user agent||
     - Query Param
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
 - Response:
 
     - SimpleRespModel
@@ -409,9 +409,9 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data|object|**`Required`**| |success result| |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data|object|**`Required`**| |success result||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -433,8 +433,8 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -445,7 +445,7 @@
             ```
 
 
-### Name: raise_tip_route
+### Name: ~~raise_tip_route~~
 
 
 
@@ -463,7 +463,7 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |content__type|string|**`Required`**| |Content-Type| |
+        |content__type|string|**`Required`**| |Content-Type||
 - Response:
 
     - SimpleRespModel
@@ -477,9 +477,9 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data|object|**`Required`**| |success result| |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data|object|**`Required`**| |success result||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -501,8 +501,8 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -531,12 +531,12 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
     - Header Param
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |user-agent|string|**`Required`**| |user agent| |
+        |user-agent|string|**`Required`**| |user agent||
 - Response:
 
     - SimpleRespModel
@@ -550,9 +550,9 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data|object|**`Required`**| |success result| |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data|object|**`Required`**| |success result||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -574,8 +574,8 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -602,7 +602,7 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |pin_code|string| | | | |
+        |pin_code|string| | | ||
 - Response:
 
 
@@ -620,7 +620,7 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |pin_code|string| | | | |
+        |pin_code|string| | | ||
 - Response:
 
 
@@ -638,7 +638,7 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |pin_code|string| | | | |
+        |pin_code|string| | | ||
 - Response:
 
 
@@ -662,11 +662,11 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |display_age|integer| | |display_age| |
-        |email|string|example@xxx.com| |user email| |
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
+        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+        |display_age|integer| | |display_age||
+        |email|string|example@xxx.com| |user email||
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
 - Response:
 
     - UserSuccessRespModel3
@@ -680,12 +680,12 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data.age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.email|string|**`Required`**| |user email| |
-            |data.uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data.age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+            |data.email|string|**`Required`**| |user email||
+            |data.uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+            |data.user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -720,11 +720,11 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |display_age|integer| | |display_age| |
-        |email|string|example@xxx.com| |user email| |
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
+        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+        |display_age|integer| | |display_age||
+        |email|string|example@xxx.com| |user email||
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
 - Response:
 
     - UserSuccessRespModel3
@@ -738,12 +738,12 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data.age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.email|string|**`Required`**| |user email| |
-            |data.uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data.age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+            |data.email|string|**`Required`**| |user email||
+            |data.uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+            |data.user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -776,9 +776,9 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |data_dict|object|**`Required`**| |test default factory| |
-        |data_list|array|**`Required`**| |test default factory|{'items': {'type': 'string'}}|
-        |demo_value|integer|**`Required`**| |Json body value not empty| |
+        |data_dict|object|**`Required`**| |test default factory||
+        |data_list|array|**`Required`**| |test default factory|[`items:{'type': 'string'}`]|
+        |demo_value|integer|**`Required`**| |Json body value not empty||
 - Response:
 
     - SimpleRespModel
@@ -792,9 +792,9 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data|object|**`Required`**| |success result| |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data|object|**`Required`**| |success result||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -816,8 +816,8 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -846,13 +846,13 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |alias_user_name|string| | |user name|{'maxLength': 4, 'minLength': 2}|
-        |birthday|string| | |birthday| |
-        |email|string|example@xxx.com| |user email| |
-        |sex|enum|Only choose from: `man`,`woman`| |sex|{'enum': ['man', 'woman']}|
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string| | |user name|{'maxLength': 4, 'minLength': 2}|
+        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+        |alias_user_name|string| | |user name|[`maxLength:4`], [`minLength:2`]|
+        |birthday|string| | |birthday||
+        |email|string|example@xxx.com| |user email||
+        |sex|enum|Only choose from: `man`,`woman`| |sex|[`enum:['man', 'woman']`]|
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string| | |user name|[`maxLength:4`], [`minLength:2`]|
 - Response:
 
     - UserSuccessRespModel2
@@ -866,13 +866,13 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data.age|integer|**`Required`**|99|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.email|string|**`Required`**|example@so1n.me|user email| |
-            |data.multi_user_name|array|**`Required`**|('mock_name',)|user name|{'maxLength': 4, 'minLength': 2, 'items': {'type': 'string', 'minLength': 2, 'maxLength': 4}}|
-            |data.uid|integer|**`Required`**|666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|**`Required`**|mock_name|user name|{'maxLength': 10, 'minLength': 2}|
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data.age|integer|**`Required`**|99|age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+            |data.email|string|**`Required`**|example@so1n.me|user email||
+            |data.multi_user_name|array|**`Required`**|('mock_name',)|user name|[`maxLength:4`], [`minLength:2`], [`items:{'type': 'string', 'minLength': 2, 'maxLength': 4}`]|
+            |data.uid|integer|**`Required`**|666|user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+            |data.user_name|string|**`Required`**|mock_name|user name|[`maxLength:10`], [`minLength:2`]|
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -901,8 +901,8 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -931,11 +931,11 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |display_age|integer| | |display_age| |
-        |email|string|example@xxx.com| |user email| |
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
+        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+        |display_age|integer| | |display_age||
+        |email|string|example@xxx.com| |user email||
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
 - Response:
 
     - UserSuccessRespModel3
@@ -949,12 +949,12 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data.age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.email|string|**`Required`**| |user email| |
-            |data.uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data.age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+            |data.email|string|**`Required`**| |user email||
+            |data.uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+            |data.user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -981,8 +981,8 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -1011,15 +1011,15 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**|25|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |sex|enum|Only choose from: `man`,`woman`| |sex|{'enum': ['man', 'woman']}|
-        |uid|integer|**`Required`**|123|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**|so1n|user name|{'maxLength': 4, 'minLength': 2}|
+        |age|integer|**`Required`**|25|age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+        |sex|enum|Only choose from: `man`,`woman`| |sex|[`enum:['man', 'woman']`]|
+        |uid|integer|**`Required`**|123|user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string|**`Required`**|so1n|user name|[`maxLength:4`], [`minLength:2`]|
     - Header Param
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |Content-Type|string|**`Required`**| |Content-Type| |
+        |Content-Type|string|**`Required`**| |Content-Type||
 - Response:
 
     - UserSuccessRespModel
@@ -1033,12 +1033,12 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data.age|integer|99| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.content_type|string|**`Required`**| |content-type| |
-            |data.uid|integer|666| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|mock_name| |user name|{'maxLength': 10, 'minLength': 2}|
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data.age|integer|99| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+            |data.content_type|string|**`Required`**| |content-type||
+            |data.uid|integer|666| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+            |data.user_name|string|mock_name| |user name|[`maxLength:10`], [`minLength:2`]|
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -1066,93 +1066,8 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
-        - Example Response Json Data
-
-            ```json
-            {
-              "code": 1,
-              "msg": "fail"
-            }
-            ```
-
-
-### Name: test_cbv.post
-
-
-
-**Desc**:test cbv post method
-
-- API Info
-
-    |Author|Status|func|summary|
-    |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 317">CbvRoute.post</abbr>|    |
-- Path: /api/cbv
-- Method: post
-- Request:
-    - Body Param
-
-        |param name|type|default value|example|description|other|
-        |---|---|---|---|---|---|
-        |age|integer|**`Required`**|25|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |sex|enum|Only choose from: `man`,`woman`| |sex|{'enum': ['man', 'woman']}|
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
-    - Header Param
-
-        |param name|type|default value|example|description|other|
-        |---|---|---|---|---|---|
-        |Content-Type|string|**`Required`**| | | |
-- Response:
-
-    - UserSuccessRespModel
-
-        - Response Info
-
-            |status code|media type|description|
-            |---|---|---|
-            |200|application/json|success response|
-        - Response Data
-
-            |param name|type|default value|example|description|other|
-            |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data.age|integer|99| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.content_type|string|**`Required`**| |content-type| |
-            |data.uid|integer|666| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|mock_name| |user name|{'maxLength': 10, 'minLength': 2}|
-            |msg|string|success| |api status msg| |
-        - Example Response Json Data
-
-            ```json
-            {
-              "code": 0,
-              "msg": "success",
-              "data": {
-                "uid": 666,
-                "user_name": "mock_name",
-                "age": 99,
-                "sex": "man",
-                "content_type": ""
-              }
-            }
-            ```
-
-    - FailRespModel
-
-        - Response Info
-
-            |status code|media type|description|
-            |---|---|---|
-            |200|application/json|fail response|
-        - Response Data
-
-            |param name|type|default value|example|description|other|
-            |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -1181,15 +1096,15 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |Content-Type|string|**`Required`**| | | |
+        |Content-Type|string|**`Required`**| | ||
     - Query Param
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**|25|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-        |sex|enum|Only choose from: `man`,`woman`| |sex|{'enum': ['man', 'woman']}|
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
+        |age|integer|**`Required`**|25|age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+        |sex|enum|Only choose from: `man`,`woman`| |sex|[`enum:['man', 'woman']`]|
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
 - Response:
 
     - UserSuccessRespModel
@@ -1203,12 +1118,12 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data.age|integer|99| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.content_type|string|**`Required`**| |content-type| |
-            |data.uid|integer|666| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|mock_name| |user name|{'maxLength': 10, 'minLength': 2}|
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data.age|integer|99| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+            |data.content_type|string|**`Required`**| |content-type||
+            |data.uid|integer|666| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+            |data.user_name|string|mock_name| |user name|[`maxLength:10`], [`minLength:2`]|
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -1236,8 +1151,93 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 1,
+              "msg": "fail"
+            }
+            ```
+
+
+### Name: test_cbv.post
+
+
+
+**Desc**:test cbv post method
+
+- API Info
+
+    |Author|Status|func|summary|
+    |---|---|---|---|
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 317">CbvRoute.post</abbr>|    |
+- Path: /api/cbv
+- Method: post
+- Request:
+    - Body Param
+
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |age|integer|**`Required`**|25|age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+        |sex|enum|Only choose from: `man`,`woman`| |sex|[`enum:['man', 'woman']`]|
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
+    - Header Param
+
+        |param name|type|default value|example|description|other|
+        |---|---|---|---|---|---|
+        |Content-Type|string|**`Required`**| | ||
+- Response:
+
+    - UserSuccessRespModel
+
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|success response|
+        - Response Data
+
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code||
+            |data.age|integer|99| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+            |data.content_type|string|**`Required`**| |content-type||
+            |data.uid|integer|666| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+            |data.user_name|string|mock_name| |user name|[`maxLength:10`], [`minLength:2`]|
+            |msg|string|success| |api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 0,
+              "msg": "success",
+              "data": {
+                "uid": 666,
+                "user_name": "mock_name",
+                "age": 99,
+                "sex": "man",
+                "content_type": ""
+              }
+            }
+            ```
+
+    - FailRespModel
+
+        - Response Info
+
+            |status code|media type|description|
+            |---|---|---|
+            |200|application/json|fail response|
+        - Response Data
+
+            |param name|type|default value|example|description|other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -1266,41 +1266,41 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |cookie|object|**`Required`**| |cookie| |
+        |cookie|object|**`Required`**| |cookie||
     - File Param
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |upload_file|PydanticUndefined|**`Required`**| |upload file| |
+        |upload_file|PydanticUndefined|**`Required`**| |upload file||
     - Form Param
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |a|string|**`Required`**| |form data| |
-        |b|string|**`Required`**| |form data| |
+        |a|string|**`Required`**| |form data||
+        |b|string|**`Required`**| |form data||
     - Multiform Param
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |c|array|**`Required`**| |form data|{'items': {'type': 'string'}}|
+        |c|array|**`Required`**| |form data|[`items:{'type': 'string'}`]|
     - Multiquery Param
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |multi_user_name|array|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2, 'items': {'type': 'string', 'minLength': 2, 'maxLength': 4}}|
+        |multi_user_name|array|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`], [`items:{'type': 'string', 'minLength': 2, 'maxLength': 4}`]|
     - Path Param
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
     - Query Param
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |email|string|example@xxx.com| |user email| |
-        |sex|enum|Only choose from: `man`,`woman`| |sex|{'enum': ['man', 'woman']}|
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
+        |email|string|example@xxx.com| |user email||
+        |sex|enum|Only choose from: `man`,`woman`| |sex|[`enum:['man', 'woman']`]|
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
 - Response:
 
     - SimpleRespModel
@@ -1314,9 +1314,9 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data|object|**`Required`**| |success result| |
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data|object|**`Required`**| |success result||
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -1338,8 +1338,8 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -1368,20 +1368,20 @@
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |multi_user_name|array|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2, 'items': {'type': 'string', 'minLength': 2, 'maxLength': 4}}|
+        |multi_user_name|array|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`], [`items:{'type': 'string', 'minLength': 2, 'maxLength': 4}`]|
     - Path Param
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**| |age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
+        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
     - Query Param
 
         |param name|type|default value|example|description|other|
         |---|---|---|---|---|---|
-        |email|string|example@xxx.com| |user email| |
-        |sex|enum|Only choose from: `man`,`woman`| |sex|{'enum': ['man', 'woman']}|
-        |uid|integer|**`Required`**| |user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-        |user_name|string|**`Required`**| |user name|{'maxLength': 4, 'minLength': 2}|
+        |email|string|example@xxx.com| |user email||
+        |sex|enum|Only choose from: `man`,`woman`| |sex|[`enum:['man', 'woman']`]|
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
 - Response:
 
     - UserSuccessRespModel2
@@ -1395,13 +1395,13 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer| | |api code| |
-            |data.age|integer|**`Required`**|99|age|{'exclusiveMinimum': 1, 'exclusiveMaximum': 100}|
-            |data.email|string|**`Required`**|example@so1n.me|user email| |
-            |data.multi_user_name|array|**`Required`**|('mock_name',)|user name|{'maxLength': 4, 'minLength': 2, 'items': {'type': 'string', 'minLength': 2, 'maxLength': 4}}|
-            |data.uid|integer|**`Required`**|666|user id|{'exclusiveMinimum': 10, 'exclusiveMaximum': 1000}|
-            |data.user_name|string|**`Required`**|mock_name|user name|{'maxLength': 10, 'minLength': 2}|
-            |msg|string|success| |api status msg| |
+            |code|integer| | |api code||
+            |data.age|integer|**`Required`**|99|age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+            |data.email|string|**`Required`**|example@so1n.me|user email||
+            |data.multi_user_name|array|**`Required`**|('mock_name',)|user name|[`maxLength:4`], [`minLength:2`], [`items:{'type': 'string', 'minLength': 2, 'maxLength': 4}`]|
+            |data.uid|integer|**`Required`**|666|user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+            |data.user_name|string|**`Required`**|mock_name|user name|[`maxLength:10`], [`minLength:2`]|
+            |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
@@ -1430,8 +1430,8 @@
 
             |param name|type|default value|example|description|other|
             |---|---|---|---|---|---|
-            |code|integer|1| |api code| |
-            |msg|string|fail| |api status msg| |
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
         - Example Response Json Data
 
             ```json
