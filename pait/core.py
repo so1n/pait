@@ -227,9 +227,11 @@ class Pait(object):
                 plugin_manager_list.append(plugin_manager)
 
             if inspect.iscoroutinefunction(func):
-                plugin_manager_list.append(PluginManager(AsyncParamHandler))
+                param_handler_plugin: PluginManager = PluginManager(AsyncParamHandler)
             else:
-                plugin_manager_list.append(PluginManager(ParamHandler))
+                param_handler_plugin = PluginManager(ParamHandler)
+            param_handler_plugin.cls_hook_by_core_model(pait_core_model)
+            plugin_manager_list.append(param_handler_plugin)
 
             for plugin_manager in post_plugin_list or []:
                 plugin_manager.cls_hook_by_core_model(pait_core_model)

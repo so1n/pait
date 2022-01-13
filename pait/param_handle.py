@@ -11,7 +11,7 @@ from pydantic.fields import UndefinedType
 
 from pait import field
 from pait.app.base import BaseAppHelper
-from pait.exceptions import NotFoundFieldError, PaitBaseException
+from pait.exceptions import FieldValueTypeError, NotFoundFieldError, PaitBaseException, ParseTypeError
 from pait.field import BaseField
 from pait.model.core import PaitCoreModel
 from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginProtocol
@@ -22,6 +22,7 @@ from pait.util import (
     get_func_sig,
     get_parameter_list_from_class,
     get_parameter_list_from_pydantic_basemodel,
+    is_type,
 )
 
 
@@ -83,6 +84,77 @@ class ParamHandlerMixin(PluginProtocol):
         else:
             self.cbv_param_list = []
 
+    @classmethod
+    def check_depend_handle(cls, func: Callable) -> Any:
+        func_sig: FuncSig = get_func_sig(func)
+        cls.check_param_field_handle(func_sig, func_sig.param_list)
+
+    @staticmethod
+    def check_field_type(value: Any, target_type: Union[Type, object], error_msg: str) -> None:
+        if isinstance(value, UndefinedType) or (inspect.isclass(value) and issubclass(value, UndefinedType)):
+            return
+        if inspect.isfunction(value):
+            value = value()
+        if not is_type(type(value), target_type):
+            raise ParseTypeError(error_msg)
+
+    @classmethod
+    def check_param_field_handle(
+        cls,
+        _object: Union[FuncSig, Type, None],
+        param_list: List["inspect.Parameter"],
+    ) -> None:
+
+        for parameter in param_list:
+            try:
+                if parameter.default != parameter.empty:
+                    # kwargs param
+                    # support model: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseField())
+                    if isinstance(parameter.default, field.Depends):
+                        cls.check_depend_handle(parameter.default.func)
+                    elif isinstance(parameter.default, field.BaseField):
+                        try:
+                            cls.check_field_type(
+                                parameter.default.default,
+                                parameter.annotation,
+                                f"{parameter.default}'s default value must {parameter.annotation}",
+                            )
+                            if parameter.default.default_factory:
+                                cls.check_field_type(
+                                    parameter.default.default_factory(),
+                                    parameter.annotation,
+                                    f"{parameter.default}'s default_factory  value must {parameter.annotation}",
+                                )
+                            cls.check_field_type(
+                                parameter.default.extra.get("example", UndefinedType),
+                                parameter.annotation,
+                                f"{parameter.default}'s example value must {parameter.annotation}",
+                            )
+                        except ParseTypeError as e:
+                            raise FieldValueTypeError(parameter.name, str(e))
+                else:
+                    # args param
+                    # support model: model: ModelType
+                    if issubclass(parameter.annotation, BaseModel):
+                        get_parameter_list_from_pydantic_basemodel(parameter.annotation)
+            except PaitBaseException as e:
+                raise gen_tip_exc(_object, e, parameter)
+
+    @classmethod
+    def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
+        # check param from pre depend
+        for pre_depend in pait_core_model.pre_depend_list:
+            cls.check_depend_handle(pre_depend)
+
+        # check param from func
+        func_sig: FuncSig = get_func_sig(pait_core_model.func)
+        cls.check_param_field_handle(func_sig, func_sig.param_list)
+
+        # TODO support cbv class Attribute
+        # I don't know how to get the class of the decorated function at the initialization of the decorator,
+        # which may be an unattainable requirement
+        return kwargs
+
     def _set_parameter_value_to_args(self, parameter: inspect.Parameter, func_args: list) -> bool:
         """Extract the self parameter of the cbv handler,
         the request parameter of the route and the parameter of type PaitBaseModel,
@@ -135,7 +207,7 @@ class ParamHandlerMixin(PluginProtocol):
                     if param_value.default_factory:
                         request_value = param_value.default_factory()
                     else:
-                        raise NotFoundFieldError(f"{parameter.name} value is {str(UndefinedType)}")
+                        raise NotFoundFieldError(parameter.name, f"{parameter.name} value is {str(UndefinedType)}")
 
             if base_model_dict is not None and inspect.isclass(annotation) and issubclass(annotation, BaseModel):
                 # parse annotation is pydantic.BaseModel and base_model_dict not None
@@ -154,11 +226,11 @@ class ParamHandlerMixin(PluginProtocol):
         # )
         app_field_func: Optional[Callable] = getattr(self._app_helper, field_name, None)
         if app_field_func is None:
-            raise NotFoundFieldError(f"field: {field_name} not found in {self._app_helper}")
+            raise NotFoundFieldError(parameter.name, f"field: {field_name} not found in {self._app_helper}")
         return app_field_func()
 
 
-class ParamHandler(BasePlugin, ParamHandlerMixin):
+class ParamHandler(ParamHandlerMixin, BasePlugin):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._contextmanager_list: List[AbstractContextManager] = []
@@ -272,7 +344,7 @@ class ParamHandler(BasePlugin, ParamHandlerMixin):
             return False
 
 
-class AsyncParamHandler(BaseAsyncPlugin, ParamHandlerMixin):
+class AsyncParamHandler(ParamHandlerMixin, BaseAsyncPlugin):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._contextmanager_list: List[Union[AbstractAsyncContextManager, AbstractContextManager]] = []

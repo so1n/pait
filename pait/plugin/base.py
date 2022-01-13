@@ -17,7 +17,7 @@ class PluginProtocol(object):
 
     @classmethod
     def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
-        pass
+        return kwargs
 
     def __post_init__(self, pait_core_model: PaitCoreModel, args: tuple, kwargs: dict) -> None:
         self.pait_core_model = pait_core_model

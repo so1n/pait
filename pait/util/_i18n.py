@@ -100,8 +100,10 @@ class I18n(object):
 
 def change_local(lang: str) -> None:
     global i18n_local
+
     if lang not in ("en", "zh-cn"):
-        raise ValueError(f"Not support {lang}")
+        if not lang.startswith("customer_"):
+            raise ValueError(f"Not support {lang}")
     i18n_local = lang
 
 
