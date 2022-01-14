@@ -12,7 +12,6 @@ from pait.model.response import PaitBaseResponseModel
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
 from pait.model.util import sync_config_data_to_pait_core_model
-from pait.param_handle import AsyncParamHandler, ParamHandler
 from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginManager
 from pait.util import get_func_sig
 
@@ -129,7 +128,6 @@ class Pait(object):
 
     @staticmethod
     def _plugin_manager_handler(
-        plugin_manager_list: List[PluginManager],
         pait_core_model: PaitCoreModel,
         args: Any,
         kwargs: Any,
@@ -138,7 +136,7 @@ class Pait(object):
         plugin_instance_list: List[_PluginT] = []
 
         pre_plugin: Callable = func
-        for plugin_manager in plugin_manager_list:
+        for plugin_manager in pait_core_model.plugin_list:
             plugin_instance: _PluginT = plugin_manager.get_plugin()
             plugin_instance.__post_init__(pait_core_model, args, kwargs)
             plugin_instance.call_next = pre_plugin  # type: ignore
@@ -216,36 +214,17 @@ class Pait(object):
                 response_model_list=response_model_list,
                 pre_depend_list=pre_depend_list,
                 pydantic_model_config=pydantic_model_config,
+                plugin_list=plugin_list,
+                post_plugin_list=post_plugin_list,
             )
             sync_config_data_to_pait_core_model(config, pait_core_model)
             pait_data.register(app_name, pait_core_model)
-            plugin_manager_list: List[PluginManager] = []
-            for plugin_manager in plugin_list or []:
-                plugin_manager.cls_hook_by_core_model(pait_core_model)
-                if not plugin_manager.plugin_class.is_pre_core:
-                    raise ValueError(f"{plugin_manager.plugin_class} is post plugin")
-                plugin_manager_list.append(plugin_manager)
-
-            if inspect.iscoroutinefunction(func):
-                param_handler_plugin: PluginManager = PluginManager(AsyncParamHandler)
-            else:
-                param_handler_plugin = PluginManager(ParamHandler)
-            param_handler_plugin.cls_hook_by_core_model(pait_core_model)
-            plugin_manager_list.append(param_handler_plugin)
-
-            for plugin_manager in post_plugin_list or []:
-                plugin_manager.cls_hook_by_core_model(pait_core_model)
-                if plugin_manager.plugin_class.is_pre_core:
-                    raise ValueError(f"{plugin_manager.plugin_class} is pre plugin")
-                plugin_manager_list.append(plugin_manager)
-            plugin_manager_list.reverse()
-
             if inspect.iscoroutinefunction(func):
 
                 @wraps(func)
                 async def dispatch(*args: Any, **kwargs: Any) -> Callable:
                     first_plugin: BaseAsyncPlugin = self._plugin_manager_handler(  # type: ignore
-                        plugin_manager_list, pait_core_model, args, kwargs, func
+                        pait_core_model, args, kwargs, func
                     )[0]
                     return await first_plugin(*args, **kwargs)
 
@@ -255,7 +234,7 @@ class Pait(object):
                 @wraps(func)
                 def dispatch(*args: Any, **kwargs: Any) -> Callable:
                     first_plugin: BasePlugin = self._plugin_manager_handler(  # type: ignore
-                        plugin_manager_list, pait_core_model, args, kwargs, func
+                        pait_core_model, args, kwargs, func
                     )[0]
                     return first_plugin(*args, **kwargs)
 

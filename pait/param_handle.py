@@ -4,7 +4,7 @@ import inspect
 import logging
 from contextlib import AbstractAsyncContextManager, AbstractContextManager
 from types import TracebackType
-from typing import Any, Callable, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union
 
 from pydantic import BaseConfig, BaseModel
 from pydantic.fields import UndefinedType
@@ -13,7 +13,6 @@ from pait import field
 from pait.app.base import BaseAppHelper
 from pait.exceptions import FieldValueTypeError, NotFoundFieldError, PaitBaseException, ParseTypeError
 from pait.field import BaseField
-from pait.model.core import PaitCoreModel
 from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginProtocol
 from pait.util import (
     FuncSig,
@@ -24,6 +23,9 @@ from pait.util import (
     get_parameter_list_from_pydantic_basemodel,
     is_type,
 )
+
+if TYPE_CHECKING:
+    from pait.model.core import PaitCoreModel
 
 
 def raise_multiple_exc(exc_list: List[Exception]) -> None:
@@ -62,7 +64,7 @@ def parameter_2_basemodel(
 
 
 class ParamHandlerMixin(PluginProtocol):
-    def __post_init__(self, pait_core_model: PaitCoreModel, args: tuple, kwargs: dict) -> None:
+    def __post_init__(self, pait_core_model: "PaitCoreModel", args: tuple, kwargs: dict) -> None:
         super(ParamHandlerMixin, self).__post_init__(pait_core_model, args, kwargs)
 
         # cbv handle
@@ -141,7 +143,7 @@ class ParamHandlerMixin(PluginProtocol):
                 raise gen_tip_exc(_object, e, parameter)
 
     @classmethod
-    def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
+    def cls_hook_by_core_model(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         # check param from pre depend
         for pre_depend in pait_core_model.pre_depend_list:
             cls.check_depend_handle(pre_depend)

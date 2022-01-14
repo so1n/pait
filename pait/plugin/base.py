@@ -1,14 +1,15 @@
 import inspect
-from typing import Any, Dict, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Dict, Type, TypeVar, Union
 
-from pait.model.core import PaitCoreModel
+if TYPE_CHECKING:
+    from pait.model.core import PaitCoreModel
 
 _PluginT = TypeVar("_PluginT", bound="PluginProtocol")
 
 
 class PluginProtocol(object):
     is_pre_core: bool = True
-    pait_core_model: PaitCoreModel
+    pait_core_model: "PaitCoreModel"
     args: list
     kwargs: dict
 
@@ -16,10 +17,10 @@ class PluginProtocol(object):
         pass
 
     @classmethod
-    def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
+    def cls_hook_by_core_model(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         return kwargs
 
-    def __post_init__(self, pait_core_model: PaitCoreModel, args: tuple, kwargs: dict) -> None:
+    def __post_init__(self, pait_core_model: "PaitCoreModel", args: tuple, kwargs: dict) -> None:
         self.pait_core_model = pait_core_model
         self.args = list(args) or []
         self.kwargs = kwargs or {}
@@ -30,7 +31,7 @@ class BasePlugin(PluginProtocol):
         raise RuntimeError("Failed to load PluginManager, please check the list of plugins")
 
     @classmethod
-    def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
+    def cls_hook_by_core_model(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         if inspect.iscoroutinefunction(pait_core_model.func):
             raise TypeError("PluginManager not support async func")
         return kwargs
@@ -44,7 +45,7 @@ class BaseAsyncPlugin(PluginProtocol):
         raise RuntimeError("Failed to load PluginManager, please check the list of plugins")
 
     @classmethod
-    def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
+    def cls_hook_by_core_model(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         if not inspect.iscoroutinefunction(pait_core_model.func):
             raise TypeError("PluginManager only support async func")
         return kwargs
@@ -61,7 +62,7 @@ class PluginManager(object):
         self.plugin_class: Type[_T] = plugin_class
         self._kwargs: Any = kwargs
 
-    def cls_hook_by_core_model(self, pait_core_model: PaitCoreModel) -> None:
+    def cls_hook_by_core_model(self, pait_core_model: "PaitCoreModel") -> None:
         self._kwargs = self.plugin_class.cls_hook_by_core_model(pait_core_model, self._kwargs)
 
     def get_plugin(self) -> _T:
