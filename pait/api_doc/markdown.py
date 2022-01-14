@@ -20,13 +20,18 @@ class PaitMd(PaitBaseParse):
         pait_dict: Dict[str, PaitCoreModel],
         title: str = "Pait Doc",
         use_html_details: bool = True,
+        enable_inductive_model: bool = True,
     ):
         """
         :param pait_dict: pait dict
         :param title: Md title
         :param use_html_details: Using HTML syntax-related functions
+        :param enable_inductive_model: Whether to enable inductive mode (variable use_html_details must be True)
         """
+        if enable_inductive_model and not use_html_details:
+            raise ValueError("Not support inductive model when `use_html_details` is False")
         self._use_html_details: bool = use_html_details  # some not support markdown in html
+        self._enable_inductive_model: bool = enable_inductive_model
         self._title: str = title
 
         super().__init__(pait_dict)
@@ -81,7 +86,7 @@ class PaitMd(PaitBaseParse):
         markdown_text: str = f"# {self._title}\n"
         for group in self._group_list:
             # group
-            if self._use_html_details:
+            if self._use_html_details and self._enable_inductive_model:
                 markdown_text += f"<details><summary>{I18n.Group}: {group}</summary>\n\n"
             else:
                 markdown_text += f"## {I18n.Group}: {group}\n\n"
