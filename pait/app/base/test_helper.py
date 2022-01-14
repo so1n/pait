@@ -238,7 +238,6 @@ class BaseTestHelper(Generic[RESP_T]):
                 f" by response model:{real_response_model}"
                 f" response info: {response_dict}"
             )
-
         raise RuntimeError(
             "Check Response Error. "
             f"response error result:{model_check_msg_dict} "

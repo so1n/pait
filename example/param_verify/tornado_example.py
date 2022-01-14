@@ -258,7 +258,7 @@ class MockHandler(MyHandler):
         status=PaitStatus.release,
         tag=(tag.mock_tag,),
         response_model_list=[UserSuccessRespModel2, FailRespModel],
-        plugin_list=[PluginManager(MockPlugin)],
+        post_plugin_list=[PluginManager(MockPlugin)],
     )
     async def get(
         self,

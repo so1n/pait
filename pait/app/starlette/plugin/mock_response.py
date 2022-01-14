@@ -1,5 +1,6 @@
 import json
-from typing import Any, AsyncContextManager, Type
+from tempfile import NamedTemporaryFile
+from typing import IO, Any, AsyncContextManager
 
 import aiofiles  # type: ignore
 from starlette.background import BackgroundTask
@@ -7,35 +8,67 @@ from starlette.responses import FileResponse, HTMLResponse, JSONResponse, PlainT
 
 from pait.g import config
 from pait.model import response
-from pait.plugin.base_mock_response import BaseAsyncMockPlugin
+from pait.plugin.base_mock_response import BaseAsyncMockPlugin, BaseMockPlugin
 
 
-class MockPlugin(BaseAsyncMockPlugin):
-    def mock_response(self, pait_response: Type[response.PaitBaseResponseModel]) -> Any:
+class MockAsyncPlugin(BaseAsyncMockPlugin):
+    def mock_response(self) -> Any:
         async def make_mock_response() -> Response:
-            if issubclass(pait_response, response.PaitJsonResponseModel):
+            if issubclass(self.pait_response, response.PaitJsonResponseModel):
                 resp: Response = JSONResponse(
-                    json.loads(pait_response.get_example_value(json_encoder_cls=config.json_encoder))
+                    json.loads(self.pait_response.get_example_value(json_encoder_cls=config.json_encoder))
                 )
-            elif issubclass(pait_response, response.PaitTextResponseModel):
-                resp = PlainTextResponse(pait_response.get_example_value(), media_type=pait_response.media_type)
-            elif issubclass(pait_response, response.PaitHtmlResponseModel):
-                resp = HTMLResponse(pait_response.get_example_value(), media_type=pait_response.media_type)
-            elif issubclass(pait_response, response.PaitFileResponseModel):
+            elif issubclass(self.pait_response, response.PaitTextResponseModel):
+                resp = PlainTextResponse(
+                    self.pait_response.get_example_value(), media_type=self.pait_response.media_type
+                )
+            elif issubclass(self.pait_response, response.PaitHtmlResponseModel):
+                resp = HTMLResponse(self.pait_response.get_example_value(), media_type=self.pait_response.media_type)
+            elif issubclass(self.pait_response, response.PaitFileResponseModel):
                 named_temporary_file: AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()  # type: ignore
                 f: Any = await named_temporary_file.__aenter__()
-                await f.write(pait_response.get_example_value())
+                await f.write(self.pait_response.get_example_value())
                 await f.seek(0)
 
                 async def close_file() -> None:
                     await named_temporary_file.__aexit__(None, None, None)
 
-                resp = FileResponse(f.name, media_type=pait_response.media_type, background=BackgroundTask(close_file))
+                resp = FileResponse(
+                    f.name, media_type=self.pait_response.media_type, background=BackgroundTask(close_file)
+                )
             else:
-                raise NotImplementedError(f"make_mock_response not support {pait_response}")
-            resp.status_code = pait_response.status_code[0]
-            if pait_response.header:
-                resp.headers.update(pait_response.header)
+                raise NotImplementedError(f"make_mock_response not support {self.pait_response}")
+            resp.status_code = self.pait_response.status_code[0]
+            if self.pait_response.header:
+                resp.headers.update(self.pait_response.header)
             return resp
 
         return make_mock_response()
+
+
+class MockPlugin(BaseMockPlugin):
+    def mock_response(self) -> Any:
+        if issubclass(self.pait_response, response.PaitJsonResponseModel):
+            resp: Response = JSONResponse(
+                json.loads(self.pait_response.get_example_value(json_encoder_cls=config.json_encoder))
+            )
+        elif issubclass(self.pait_response, response.PaitTextResponseModel):
+            resp = PlainTextResponse(self.pait_response.get_example_value(), media_type=self.pait_response.media_type)
+        elif issubclass(self.pait_response, response.PaitHtmlResponseModel):
+            resp = HTMLResponse(self.pait_response.get_example_value(), media_type=self.pait_response.media_type)
+        elif issubclass(self.pait_response, response.PaitFileResponseModel):
+            named_temporary_file: IO = NamedTemporaryFile(delete=True)
+            f: Any = named_temporary_file.__enter__()
+            f.write(self.pait_response.get_example_value())
+            f.seek(0)
+
+            def close_file() -> None:
+                named_temporary_file.__exit__(None, None, None)
+
+            resp = FileResponse(f.name, media_type=self.pait_response.media_type, background=BackgroundTask(close_file))
+        else:
+            raise NotImplementedError(f"make_mock_response not support {self.pait_response}")
+        resp.status_code = self.pait_response.status_code[0]
+        if self.pait_response.header:
+            resp.headers.update(self.pait_response.header)
+        return resp

@@ -36,7 +36,7 @@ from example.param_verify.model import (
 )
 from pait.app.starlette import Pait, add_doc_route, pait
 from pait.app.starlette.plugin.check_json_resp import AsyncCheckJsonRespPlugin
-from pait.app.starlette.plugin.mock_response import MockPlugin
+from pait.app.starlette.plugin.mock_response import MockAsyncPlugin, MockPlugin
 from pait.exceptions import PaitBaseException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model.links import LinksModel
@@ -246,9 +246,40 @@ async def check_response_route(
     status=PaitStatus.release,
     tag=(tag.mock_tag,),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
-    plugin_list=[PluginManager(MockPlugin)],
+    post_plugin_list=[PluginManager(MockAsyncPlugin)],
 )
-async def mock_route(
+async def async_mock_route(
+    uid: int = Query.i(description="user id", gt=10, lt=1000),
+    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    multi_user_name: List[str] = MultiQuery.i(description="user name", min_length=2, max_length=4),
+    age: int = Path.i(description="age", gt=1, lt=100),
+    sex: SexEnum = Query.i(description="sex"),
+) -> JSONResponse:
+    """Test gen mock response"""
+    return JSONResponse(
+        {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "uid": uid,
+                "user_name": user_name,
+                "email": email,
+                "age": age,
+                "sex": sex.value,
+                "multi_user_name": multi_user_name,
+            },
+        }
+    )
+
+
+@user_pait(
+    status=PaitStatus.release,
+    tag=(tag.mock_tag,),
+    response_model_list=[UserSuccessRespModel2, FailRespModel],
+    post_plugin_list=[PluginManager(MockPlugin)],
+)
+def mock_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
@@ -511,6 +542,7 @@ def create_app() -> Starlette:
             Route("/api/pait-base-field/{age}", pait_base_field_route, methods=["GET"]),
             Route("/api/same-alias", same_alias_route, methods=["GET"]),
             Route("/api/mock/{age}", mock_route, methods=["GET"]),
+            Route("/api/async-mock/{age}", async_mock_route, methods=["GET"]),
             Route("/api/pait-model", pait_model_route, methods=["POST"]),
             Route("/api/cbv", CbvRoute),
             Route("/api/check-param", check_param_route, methods=["GET"]),

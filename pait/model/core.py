@@ -110,7 +110,7 @@ class PaitCoreModel(object):
         self, plugin_list: Optional[List[PluginManager]], post_plugin_list: Optional[List[PluginManager]]
     ) -> None:
         raw_plugin_list: List[PluginManager] = self._plugin_list
-        raw_post_plugin_list: List[PluginManager] = self._plugin_list
+        raw_post_plugin_list: List[PluginManager] = self._post_plugin_list
         try:
             for plugin_manager in plugin_list or []:
                 plugin_manager.cls_hook_by_core_model(self)
@@ -123,7 +123,6 @@ class PaitCoreModel(object):
                 if plugin_manager.plugin_class.is_pre_core:
                     raise ValueError(f"{plugin_manager.plugin_class} is pre plugin")
                 self._post_plugin_list.append(plugin_manager)
-            self._post_plugin_list.reverse()
         except Exception as e:
             self._plugin_list = raw_plugin_list
             self._post_plugin_list = raw_post_plugin_list

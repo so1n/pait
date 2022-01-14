@@ -236,7 +236,7 @@ def check_response_route(
     status=PaitStatus.release,
     tag=(tag.mock_tag,),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
-    plugin_list=[PluginManager(MockPlugin)],
+    post_plugin_list=[PluginManager(MockPlugin)],
 )
 def mock_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),

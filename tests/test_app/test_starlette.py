@@ -39,12 +39,12 @@ def client(mocker: MockFixture) -> Generator[TestClient, None, None]:
 def response_test_helper(
     client: TestClient, route_handler: Callable, pait_response: Type[response.PaitBaseResponseModel]
 ) -> None:
-    from pait.app.starlette.plugin.mock_response import MockPlugin
+    from pait.app.starlette.plugin.mock_response import MockAsyncPlugin
 
     test_helper: StarletteTestHelper = StarletteTestHelper(client, route_handler)
     test_helper.get()
 
-    with enable_mock(route_handler, MockPlugin):
+    with enable_mock(route_handler, MockAsyncPlugin):
         resp: Response = test_helper.get()
         for key, value in pait_response.header.items():
             assert resp.headers[key] == value
@@ -210,6 +210,17 @@ class TestStarlette:
             StarletteTestHelper(
                 client,
                 starlette_example.mock_route,
+                path_dict={"age": 3},
+                query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
+            ).json()
+            == json.loads(starlette_example.UserSuccessRespModel2.get_example_value())
+        )
+
+    def test_async_mock_route(self, client: TestClient) -> None:
+        assert (
+            StarletteTestHelper(
+                client,
+                starlette_example.async_mock_route,
                 path_dict={"age": 3},
                 query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
             ).json()

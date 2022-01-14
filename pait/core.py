@@ -199,7 +199,6 @@ class Pait(object):
         def wrapper(func: Callable) -> Callable:
             # Pre-parsing function signatures
             get_func_sig(func)
-
             # gen pait core model and register to pait data
             pait_core_model: PaitCoreModel = PaitCoreModel(
                 author=author,
