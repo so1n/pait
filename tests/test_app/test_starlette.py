@@ -100,6 +100,29 @@ class TestStarlette:
         ]:
             assert client.get(url).json()["code"] == api_code
 
+    def test_auto_complete_json_route(self, client: TestClient) -> None:
+        def check_dict(source_dict: dict, target_dict: dict) -> None:
+            for key, value in source_dict.items():
+                if isinstance(value, dict) and key in target_dict:
+                    return check_dict(value, target_dict[key])
+                else:
+                    if key not in target_dict or not isinstance(value, type(target_dict[key])):
+                        raise RuntimeError("check error")
+
+        for auto_complete_url, real_url in [
+            (
+                "/api/auto-complete-json-plugin?uid=123&user_name=appl&sex=man&age=10",
+                "/api/auto-complete-json-plugin?uid=123&user_name=appl&sex=man&age=10&display_age=1",
+            ),
+            (
+                "/api/async-auto-complete-json-plugin?uid=123&user_name=appl&sex=man&age=10",
+                "/api/async-auto-complete-json-plugin?uid=123&user_name=appl&sex=man&age=10&display_age=1",
+            ),
+        ]:
+            auto_complete_dict: dict = client.get(auto_complete_url).json()
+            real_dict: dict = client.get(real_url).json()
+            check_dict(auto_complete_dict, real_dict)
+
     def test_depend_route(self, client: TestClient) -> None:
         assert {"code": 0, "msg": "", "data": {"age": 2, "user_agent": "customer_agent"}} == StarletteTestHelper(
             client,

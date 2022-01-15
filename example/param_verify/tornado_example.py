@@ -31,6 +31,7 @@ from example.param_verify.model import (
     demo_depend,
 )
 from pait.app.tornado import Pait, add_doc_route, pait
+from pait.app.tornado.plugin.auto_complete_json_resp import AsyncAutoCompleteJsonRespPlugin
 from pait.app.tornado.plugin.check_json_resp import AsyncCheckJsonRespPlugin
 from pait.app.tornado.plugin.mock_response import MockPlugin
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
@@ -440,6 +441,33 @@ class GetUserHandler(MyHandler):
             self.write({"code": 1, "msg": ""})
 
 
+class AutoCompleteJsonHandler(MyHandler):
+    @plugin_pait(
+        response_model_list=[UserSuccessRespModel3], post_plugin_list=[PluginManager(AsyncAutoCompleteJsonRespPlugin)]
+    )
+    async def get(
+        self,
+        uid: int = Query.i(description="user id", gt=10, lt=1000),
+        email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+        user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+        age: int = Query.i(description="age", gt=1, lt=100),
+        display_age: int = Query.i(0, description="display_age"),
+    ) -> dict:
+        """Test json plugin by resp type is dict"""
+        return_dict: dict = {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "uid": uid,
+                "user_name": user_name,
+                "email": email,
+            },
+        }
+        if display_age == 1:
+            return_dict["data"]["age"] = age
+        return return_dict
+
+
 class CheckJsonPluginHandler(MyHandler):
     @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[PluginManager(AsyncCheckJsonRespPlugin)])
     async def get(
@@ -527,6 +555,7 @@ def create_app() -> Application:
             (r"/api/text-resp", TextResponseHanler),
             (r"/api/html-resp", HtmlResponseHanler),
             (r"/api/file-resp", FileResponseHanler),
+            (r"/api/auto-complete-json-plugin", AutoCompleteJsonHandler),
             (r"/api/check-json-plugin", CheckJsonPluginHandler),
             (r"/api/check-json-plugin-1", CheckJsonPlugin1Handler),
             (r"/api/check-depend-contextmanager", DependContextmanagerHanler),

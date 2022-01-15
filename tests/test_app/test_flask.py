@@ -94,6 +94,23 @@ class TestFlask:
         ]:
             assert client.get(url).get_json()["code"] == api_code
 
+    def test_auto_complete_json_route(self, client: FlaskClient) -> None:
+        def check_dict(source_dict: dict, target_dict: dict) -> None:
+            for key, value in source_dict.items():
+                if isinstance(value, dict) and key in target_dict:
+                    return check_dict(value, target_dict[key])
+                else:
+                    if key not in target_dict or not isinstance(value, type(target_dict[key])):
+                        raise RuntimeError("check error")
+
+        auto_complete_dict: dict = client.get(
+            "/api/auto-complete-json-plugin?uid=123&user_name=appl&sex=man&age=10"
+        ).get_json()
+        real_dict: dict = client.get(
+            "/api/auto-complete-json-plugin?uid=123&user_name=appl&sex=man&age=10&display_age=1"
+        ).get_json()
+        check_dict(auto_complete_dict, real_dict)
+
     def test_depend_route(self, client: FlaskClient) -> None:
         assert {"code": 0, "msg": "", "data": {"age": 2, "user_agent": "customer_agent"}} == FlaskTestHelper(
             client,

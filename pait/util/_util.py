@@ -100,7 +100,11 @@ def gen_example_json_from_python(obj: Any) -> Any:
         return python_type_default_value_dict.get(type(obj), obj)
 
 
-def gen_example_dict_from_schema(schema_dict: Dict[str, Any], definition_dict: Optional[dict] = None) -> Dict[str, Any]:
+def gen_example_dict_from_schema(
+    schema_dict: Dict[str, Any],
+    definition_dict: Optional[dict] = None,
+    use_example_value: bool = True,
+) -> Dict[str, Any]:
     gen_dict: Dict[str, Any] = {}
     property_dict: Dict[str, Any] = schema_dict["properties"]
     if not definition_dict:
@@ -111,12 +115,18 @@ def gen_example_dict_from_schema(schema_dict: Dict[str, Any], definition_dict: O
         if "items" in value and value["type"] == "array":
             if "$ref" in value["items"]:
                 model_key: str = value["items"]["$ref"].split("/")[-1]
-                gen_dict[key] = [gen_example_dict_from_schema(_definition_dict.get(model_key, {}), _definition_dict)]
+                gen_dict[key] = [
+                    gen_example_dict_from_schema(
+                        _definition_dict.get(model_key, {}), _definition_dict, use_example_value=use_example_value
+                    )
+                ]
             else:
                 gen_dict[key] = []
         elif "$ref" in value:
             model_key = value["$ref"].split("/")[-1]
-            gen_dict[key] = gen_example_dict_from_schema(_definition_dict.get(model_key, {}), _definition_dict)
+            gen_dict[key] = gen_example_dict_from_schema(
+                _definition_dict.get(model_key, {}), _definition_dict, use_example_value=use_example_value
+            )
         else:
             if "example" in value:
                 gen_dict[key] = value["example"]

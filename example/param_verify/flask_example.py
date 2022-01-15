@@ -30,6 +30,7 @@ from example.param_verify.model import (
     demo_depend,
 )
 from pait.app.flask import Pait, add_doc_route, pait
+from pait.app.flask.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.app.flask.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.flask.plugin.mock_response import MockPlugin
 from pait.exceptions import PaitBaseException
@@ -389,6 +390,29 @@ def get_user_route(token: str = Header.i("", description="token", link=token_lin
         return {"code": 1, "msg": ""}
 
 
+@plugin_pait(response_model_list=[UserSuccessRespModel3], post_plugin_list=[PluginManager(AutoCompleteJsonRespPlugin)])
+def auto_complete_json_route(
+    uid: int = Query.i(description="user id", gt=10, lt=1000),
+    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+    age: int = Query.i(description="age", gt=1, lt=100),
+    display_age: int = Query.i(0, description="display_age"),
+) -> dict:
+    """Test json plugin by resp type is dict"""
+    return_dict: dict = {
+        "code": 0,
+        "msg": "",
+        "data": {
+            "uid": uid,
+            "user_name": user_name,
+            "email": email,
+        },
+    }
+    if display_age == 1:
+        return_dict["data"]["age"] = age
+    return return_dict
+
+
 @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[PluginManager(CheckJsonRespPlugin)])
 def check_json_plugin_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
@@ -474,6 +498,7 @@ def create_app() -> Flask:
     app.add_url_rule("/api/check-resp", view_func=check_response_route, methods=["GET"])
     app.add_url_rule("/api/check-json-plugin", view_func=check_json_plugin_route, methods=["GET"])
     app.add_url_rule("/api/check-json-plugin-1", view_func=check_json_plugin_route1, methods=["GET"])
+    app.add_url_rule("/api/auto-complete-json-plugin", view_func=auto_complete_json_route, methods=["GET"])
     app.add_url_rule("/api/depend-contextmanager", view_func=depend_contextmanager_route, methods=["GET"])
     app.add_url_rule("/api/pre-depend-contextmanager", view_func=pre_depend_contextmanager_route, methods=["GET"])
     app.errorhandler(PaitBaseException)(api_exception)

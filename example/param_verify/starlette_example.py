@@ -35,6 +35,10 @@ from example.param_verify.model import (
     demo_depend,
 )
 from pait.app.starlette import Pait, add_doc_route, pait
+from pait.app.starlette.plugin.auto_complete_json_resp import (
+    AsyncAutoCompleteJsonRespPlugin,
+    AutoCompleteJsonRespPlugin,
+)
 from pait.app.starlette.plugin.check_json_resp import AsyncCheckJsonRespPlugin
 from pait.app.starlette.plugin.mock_response import MockAsyncPlugin, MockPlugin
 from pait.exceptions import PaitBaseException
@@ -465,6 +469,54 @@ def get_user_route(token: str = Header.i("", description="token", link=token_lin
         return JSONResponse({"code": 1, "msg": ""})
 
 
+@plugin_pait(
+    response_model_list=[UserSuccessRespModel3], post_plugin_list=[PluginManager(AsyncAutoCompleteJsonRespPlugin)]
+)
+async def async_auto_complete_json_route(
+    uid: int = Query.i(description="user id", gt=10, lt=1000),
+    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+    age: int = Query.i(description="age", gt=1, lt=100),
+    display_age: int = Query.i(0, description="display_age"),
+) -> dict:
+    """Test json plugin by resp type is dict"""
+    return_dict: dict = {
+        "code": 0,
+        "msg": "",
+        "data": {
+            "uid": uid,
+            "user_name": user_name,
+            "email": email,
+        },
+    }
+    if display_age == 1:
+        return_dict["data"]["age"] = age
+    return return_dict
+
+
+@plugin_pait(response_model_list=[UserSuccessRespModel3], post_plugin_list=[PluginManager(AutoCompleteJsonRespPlugin)])
+def auto_complete_json_route(
+    uid: int = Query.i(description="user id", gt=10, lt=1000),
+    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+    age: int = Query.i(description="age", gt=1, lt=100),
+    display_age: int = Query.i(0, description="display_age"),
+) -> dict:
+    """Test json plugin by resp type is dict"""
+    return_dict: dict = {
+        "code": 0,
+        "msg": "",
+        "data": {
+            "uid": uid,
+            "user_name": user_name,
+            "email": email,
+        },
+    }
+    if display_age == 1:
+        return_dict["data"]["age"] = age
+    return return_dict
+
+
 @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[PluginManager(AsyncCheckJsonRespPlugin)])
 async def check_json_plugin_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
@@ -550,6 +602,8 @@ def create_app() -> Starlette:
             Route("/api/text-resp", text_response_route, methods=["GET"]),
             Route("/api/html-resp", html_response_route, methods=["GET"]),
             Route("/api/file-resp", file_response_route, methods=["GET"]),
+            Route("/api/auto-complete-json-plugin", auto_complete_json_route, methods=["GET"]),
+            Route("/api/async-auto-complete-json-plugin", async_auto_complete_json_route, methods=["GET"]),
             Route("/api/check-json-plugin", check_json_plugin_route, methods=["GET"]),
             Route("/api/check-json-plugin-1", check_json_plugin_route1, methods=["GET"]),
             Route("/api/check_depend_contextmanager", depend_contextmanager_route, methods=["GET"]),

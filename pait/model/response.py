@@ -2,7 +2,7 @@ from typing import Any, Dict, Optional, Tuple, Type, Union
 
 from pydantic import BaseModel
 
-from pait.util import gen_example_json_from_schema
+from pait.util import gen_example_dict_from_schema, gen_example_json_from_schema
 
 
 class PaitBaseResponseModel(object):
@@ -52,6 +52,14 @@ class PaitJsonResponseModel(PaitBaseResponseModel):
     @classmethod
     def get_example_value(cls, **extra: Any) -> str:
         return gen_example_json_from_schema(cls.response_data.schema(), cls=extra.get("json_encoder_cls", None))
+
+    @classmethod
+    def get_example_dict(cls, **extra: Any) -> dict:
+        return gen_example_dict_from_schema(cls.response_data.schema())
+
+    @classmethod
+    def get_default_dict(cls, **extra: Any) -> dict:
+        return gen_example_dict_from_schema(cls.response_data.schema(), use_example_value=False)
 
 
 class PaitResponseModel(PaitJsonResponseModel):

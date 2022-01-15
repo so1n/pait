@@ -33,6 +33,7 @@ from example.param_verify.model import (
     demo_depend,
 )
 from pait.app.sanic import Pait, add_doc_route, pait
+from pait.app.sanic.plugin.auto_complete_json_resp import AsyncAutoCompleteJsonRespPlugin
 from pait.app.sanic.plugin.check_json_resp import AsyncCheckJsonRespPlugin
 from pait.app.sanic.plugin.mock_response import MockPlugin
 from pait.exceptions import PaitBaseException
@@ -432,6 +433,31 @@ def get_user_route(token: str = Header.i("", description="token", link=token_lin
         return response.json({"code": 1, "msg": ""})
 
 
+@plugin_pait(
+    response_model_list=[UserSuccessRespModel3], post_plugin_list=[PluginManager(AsyncAutoCompleteJsonRespPlugin)]
+)
+async def auto_complete_json_route(
+    uid: int = Query.i(description="user id", gt=10, lt=1000),
+    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+    age: int = Query.i(description="age", gt=1, lt=100),
+    display_age: int = Query.i(0, description="display_age"),
+) -> dict:
+    """Test json plugin by resp type is dict"""
+    return_dict: dict = {
+        "code": 0,
+        "msg": "",
+        "data": {
+            "uid": uid,
+            "user_name": user_name,
+            "email": email,
+        },
+    }
+    if display_age == 1:
+        return_dict["data"]["age"] = age
+    return return_dict
+
+
 @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[PluginManager(AsyncCheckJsonRespPlugin)])
 async def check_json_plugin_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
@@ -516,6 +542,7 @@ def create_app() -> Sanic:
     app.add_route(html_response_route, "/api/html-resp", methods={"GET"})
     app.add_route(file_response_route, "/api/file-resp", methods={"GET"})
     app.add_route(check_json_plugin_route, "/api/check-json-plugin", methods={"GET"})
+    app.add_route(auto_complete_json_route, "/api/auto-complete-json-plugin", methods={"GET"})
     app.add_route(check_json_plugin_route1, "/api/check-json-plugin-1", methods={"GET"})
     app.add_route(depend_contextmanager_route, "/api/check-depend-contextmanager", methods={"GET"})
     app.add_route(pre_depend_contextmanager_route, "/api/check-pre-depend-contextmanager", methods={"GET"})
