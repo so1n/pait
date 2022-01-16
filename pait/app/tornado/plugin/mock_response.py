@@ -3,7 +3,6 @@ from typing import Any
 import aiofiles  # type: ignore
 from tornado.web import RequestHandler
 
-from pait.g import config
 from pait.model import response
 from pait.plugin.base_mock_response import BaseAsyncMockPlugin
 
@@ -18,7 +17,7 @@ class MockPlugin(BaseAsyncMockPlugin):
                 self.tornado_handle.set_header(key, value)
             self.tornado_handle.set_header("Content-Type", self.pait_response.media_type)
             if issubclass(self.pait_response, response.PaitJsonResponseModel):
-                self.tornado_handle.write(self.pait_response.get_example_value(json_encoder_cls=config.json_encoder))
+                self.tornado_handle.write(self.pait_response.get_example_value())
             elif issubclass(self.pait_response, response.PaitTextResponseModel) or issubclass(
                 self.pait_response, response.PaitHtmlResponseModel
             ):

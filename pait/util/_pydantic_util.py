@@ -1,5 +1,6 @@
-from typing import TYPE_CHECKING, Any, Dict, Optional, Set, Type, Union
+from typing import TYPE_CHECKING, Any, Dict, Optional, Set, Tuple, Type, Union
 
+from pydantic import create_model
 from pydantic.schema import (
     default_ref_template,
     get_flat_models_from_model,
@@ -11,7 +12,7 @@ from pydantic.schema import (
 )
 
 if TYPE_CHECKING:
-    from pydantic import BaseModel
+    from pydantic import BaseConfig, BaseModel
     from pydantic.dataclasses import Dataclass
     from pydantic.schema import TypeModelOrEnum, TypeModelSet
 
@@ -91,3 +92,24 @@ def pait_model_schema(
     if m_definitions:
         m_schema.update({"definitions": m_definitions})
     return m_schema
+
+
+def create_pydantic_model(
+    annotation_dict: Dict[str, Tuple[Type, Any]],
+    class_name: str = "DynamicModel",
+    pydantic_config: Type["BaseConfig"] = None,
+    pydantic_base: Type["BaseModel"] = None,
+    pydantic_module: str = "pydantic.main",
+    pydantic_validators: Dict[str, classmethod] = None,
+) -> Type["BaseModel"]:
+    """pydantic self.pait_response helper
+    if use create_model('DynamicModel', **annotation_dict), mypy will tip error
+    """
+    return create_model(
+        class_name,
+        __config__=pydantic_config,
+        __base__=pydantic_base,
+        __module__=pydantic_module,
+        __validators__=pydantic_validators,
+        **annotation_dict,
+    )

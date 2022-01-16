@@ -1,4 +1,3 @@
-import json
 import sys
 from tempfile import NamedTemporaryFile
 from typing import Callable, Generator, Type
@@ -221,7 +220,7 @@ class TestSanic:
                 path_dict={"age": 3},
                 query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
             ).json()
-            == json.loads(sanic_example.UserSuccessRespModel2.get_example_value())
+            == sanic_example.UserSuccessRespModel2.get_example_value()
         )
 
     def test_pait_model(self, client: SanicTestClient) -> None:

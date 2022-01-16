@@ -19,7 +19,7 @@ h11==0.12.0; python_version >= "3.6"
 httpcore==0.12.3; python_version >= "3.6"
 httptools==0.3.0; python_full_version >= "3.5.0" and python_version >= "3.7"
 httpx==0.17.1; python_version >= "3.6"
-identify==2.4.3; python_full_version >= "3.6.1"
+identify==2.4.4; python_full_version >= "3.6.1"
 idna==3.3; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.6.0" and python_version >= "3.6"
 importlib-metadata==4.10.0; python_version < "3.8" and python_version >= "3.7" and python_full_version >= "3.6.1" and (python_version >= "3.7" and python_full_version < "3.0.0" and python_version < "3.8" or python_full_version >= "3.5.0" and python_version < "3.8" and python_version >= "3.7")
 iniconfig==1.1.1; python_version >= "3.6"

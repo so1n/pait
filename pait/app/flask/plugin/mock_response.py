@@ -1,9 +1,7 @@
-import json
 from tempfile import NamedTemporaryFile
 
 from flask import Response, jsonify, make_response, send_from_directory
 
-from pait.g import config
 from pait.model import response
 from pait.plugin.base_mock_response import BaseMockPlugin
 
@@ -13,9 +11,7 @@ __all__ = ["MockPlugin"]
 class MockPlugin(BaseMockPlugin):
     def mock_response(self) -> Response:
         if issubclass(self.pait_response, response.PaitJsonResponseModel):
-            resp: Response = jsonify(
-                json.loads(self.pait_response.get_example_value(json_encoder_cls=config.json_encoder))
-            )
+            resp: Response = jsonify(self.pait_response.get_example_value())
         elif issubclass(self.pait_response, response.PaitTextResponseModel) or issubclass(
             self.pait_response, response.PaitHtmlResponseModel
         ):

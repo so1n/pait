@@ -3,12 +3,15 @@ from typing import Any, List, Type
 
 from pydantic import BaseModel
 
+import pait.util._pydantic_util
 from pait import field, util
 
 
 class TestUtil:
     def test_create_pydantic_model(self) -> None:
-        pydantic_model_class: Type[BaseModel] = util.create_pydantic_model({"a": (int, ...), "b": (str, ...)})
+        pydantic_model_class: Type[BaseModel] = pait.util._pydantic_util.create_pydantic_model(
+            {"a": (int, ...), "b": (str, ...)}
+        )
         pydantic_model = pydantic_model_class(a=1, b="a")
         assert pydantic_model.dict() == {"a": 1, "b": "a"}
 

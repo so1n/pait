@@ -130,7 +130,7 @@ class UserSuccessRespModel2(PaitJsonResponseModel):
             uid: int = Field(description="user id", gt=10, lt=1000, example=666)
             user_name: str = Field(example="mock_name", description="user name", min_length=2, max_length=10)
             multi_user_name: List[str] = Field(
-                example=("mock_name",), description="user name", min_length=2, max_length=4
+                example=["mock_name"], description="user name", min_length=2, max_length=10
             )
             sex: SexEnum = Field(example=SexEnum.man, description="sex")
             age: int = Field(example=99, description="age", gt=1, lt=100)

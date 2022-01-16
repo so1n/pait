@@ -1,4 +1,3 @@
-import json
 from typing import Any, AsyncContextManager
 
 import aiofiles  # type: ignore
@@ -6,7 +5,6 @@ from sanic import response as sanic_response
 from sanic.response import json as resp_json
 from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
 
-from pait.g import config
 from pait.model import response
 from pait.plugin.base_mock_response import BaseAsyncMockPlugin
 
@@ -15,9 +13,7 @@ class MockPlugin(BaseAsyncMockPlugin):
     def mock_response(self) -> Any:
         async def make_mock_response() -> sanic_response.BaseHTTPResponse:
             if issubclass(self.pait_response, response.PaitJsonResponseModel):
-                resp: sanic_response.BaseHTTPResponse = resp_json(
-                    json.loads(self.pait_response.get_example_value(json_encoder_cls=config.json_encoder))
-                )
+                resp: sanic_response.BaseHTTPResponse = resp_json(self.pait_response.get_example_value())
             elif issubclass(self.pait_response, response.PaitTextResponseModel) or issubclass(
                 self.pait_response, response.PaitHtmlResponseModel
             ):

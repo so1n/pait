@@ -7,7 +7,7 @@ from types import TracebackType
 from typing import TYPE_CHECKING, Any, Callable, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union
 
 from pydantic import BaseConfig, BaseModel
-from pydantic.fields import UndefinedType
+from pydantic.fields import Undefined, UndefinedType
 
 from pait import field
 from pait.app.base import BaseAppHelper
@@ -99,7 +99,7 @@ class ParamHandlerMixin(PluginProtocol):
 
     @staticmethod
     def check_field_type(value: Any, target_type: Union[Type, object], error_msg: str) -> None:
-        if isinstance(value, UndefinedType) or (inspect.isclass(value) and issubclass(value, UndefinedType)):
+        if isinstance(value, UndefinedType):
             return
         if inspect.isfunction(value):
             value = value()
@@ -134,7 +134,7 @@ class ParamHandlerMixin(PluginProtocol):
                                     f"{parameter.default}'s default_factory  value must {parameter.annotation}",
                                 )
                             cls.check_field_type(
-                                parameter.default.extra.get("example", UndefinedType),
+                                parameter.default.extra.get("example", Undefined),
                                 parameter.annotation,
                                 f"{parameter.default}'s example value must {parameter.annotation}",
                             )

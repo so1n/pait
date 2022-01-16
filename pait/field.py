@@ -75,9 +75,6 @@ class BaseField(FieldInfo):
     def get_field_name(cls) -> str:
         return cls.field_name or cls.__name__.lower()
 
-    def __lt__(self, other: "BaseField") -> bool:
-        return self.get_field_name() < other.get_field_name()
-
     @classmethod
     def i(
         cls,

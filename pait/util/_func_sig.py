@@ -1,7 +1,8 @@
 import inspect
-import sys
 from dataclasses import dataclass
-from typing import Callable, Dict, ForwardRef, List, Optional, Type
+from typing import Callable, Dict, List, Optional, Type
+
+from ._util import get_real_annotation
 
 
 @dataclass()
@@ -28,12 +29,7 @@ def get_func_sig(func: Callable) -> FuncSig:
         if not (sig.parameters[key].annotation != sig.empty or sig.parameters[key].name == "self"):
             continue
         parameter: inspect.Parameter = sig.parameters[key]
-        if isinstance(parameter.annotation, str):
-            # get real type
-            value: ForwardRef = ForwardRef(parameter.annotation, is_argument=False)
-            setattr(
-                parameter, "_annotation", value._evaluate(sys.modules[func.__module__].__dict__, None)  # type: ignore
-            )
+        setattr(parameter, "_annotation", get_real_annotation(parameter.annotation, func))
         param_list.append(parameter)
 
     # return_param = sig.return_annotation

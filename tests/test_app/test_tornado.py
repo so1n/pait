@@ -214,7 +214,7 @@ class TestTornado(AsyncHTTPTestCase):
                 path_dict={"age": 3},
                 query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
             ).json()
-            == json.loads(tornado_example.UserSuccessRespModel2.get_example_value())
+            == tornado_example.UserSuccessRespModel2.get_example_value()
         )
 
     def test_pait_model(self) -> None:

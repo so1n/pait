@@ -7,7 +7,7 @@ from pydantic import BaseModel, ValidationError
 
 from pait.model import response
 from pait.model.core import PaitCoreModel
-from pait.util import gen_example_dict_from_schema, gen_example_json_from_python, get_pait_response_model
+from pait.util import gen_example_dict_from_schema, gen_example_value_from_python, get_pait_response_model
 
 RESP_T = TypeVar("RESP_T")
 
@@ -194,7 +194,7 @@ class BaseTestHelper(Generic[RESP_T]):
                 response_data_default_dict: dict = gen_example_dict_from_schema(response_data_model.schema())
                 ratio: float = difflib.SequenceMatcher(
                     None,
-                    str(gen_example_json_from_python(resp_dict)),
+                    str(gen_example_value_from_python(resp_dict)),
                     str(response_data_default_dict),
                 ).quick_ratio()
                 if ratio > max_quick_ratio:

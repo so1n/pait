@@ -5,7 +5,8 @@ import pytest
 from pydantic import BaseModel
 from pytest_mock import MockFixture
 
-from pait import field, util
+import pait.util._gen_tip
+from pait import field
 from pait.app.base import BaseAppHelper
 
 pytestmark = pytest.mark.asyncio
@@ -71,7 +72,7 @@ class TestUtil:
             annotation=str,
         )
         with pytest.raises(Exception):
-            raise util.gen_tip_exc(Demo(), Exception(), parameter)
+            raise pait.util._gen_tip.gen_tip_exc(Demo(), Exception(), parameter)
         patch.assert_called_with(AnyStringWith("class: `Demo`  attributes error"))
 
     def test_raise_and_tip_param_value_is_pait_field(self, mocker: MockFixture) -> None:
@@ -80,7 +81,7 @@ class TestUtil:
             "b", inspect.Parameter.POSITIONAL_ONLY, annotation=str, default=FakeField.i()
         )
         with pytest.raises(Exception):
-            raise util.gen_tip_exc(Demo(), Exception(), parameter)
+            raise pait.util._gen_tip.gen_tip_exc(Demo(), Exception(), parameter)
 
         patch.assert_called_with(AnyStringWith("class: `Demo`  attributes error"))
 
@@ -90,7 +91,7 @@ class TestUtil:
             "b", inspect.Parameter.POSITIONAL_ONLY, annotation=str, default=""
         )
         with pytest.raises(Exception):
-            raise util.gen_tip_exc(Demo(), Exception(), parameter)
+            raise pait.util._gen_tip.gen_tip_exc(Demo(), Exception(), parameter)
         patch.assert_called_with(StringNotIn("alias"))
         patch.assert_called_with(AnyStringWith("class: `Demo`  attributes error"))
 

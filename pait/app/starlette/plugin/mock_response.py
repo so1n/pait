@@ -1,4 +1,3 @@
-import json
 from tempfile import NamedTemporaryFile
 from typing import IO, Any, AsyncContextManager
 
@@ -6,7 +5,6 @@ import aiofiles  # type: ignore
 from starlette.background import BackgroundTask
 from starlette.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse, Response
 
-from pait.g import config
 from pait.model import response
 from pait.plugin.base_mock_response import BaseAsyncMockPlugin, BaseMockPlugin
 
@@ -15,9 +13,7 @@ class MockAsyncPlugin(BaseAsyncMockPlugin):
     def mock_response(self) -> Any:
         async def make_mock_response() -> Response:
             if issubclass(self.pait_response, response.PaitJsonResponseModel):
-                resp: Response = JSONResponse(
-                    json.loads(self.pait_response.get_example_value(json_encoder_cls=config.json_encoder))
-                )
+                resp: Response = JSONResponse(self.pait_response.get_example_value())
             elif issubclass(self.pait_response, response.PaitTextResponseModel):
                 resp = PlainTextResponse(
                     self.pait_response.get_example_value(), media_type=self.pait_response.media_type
@@ -49,9 +45,7 @@ class MockAsyncPlugin(BaseAsyncMockPlugin):
 class MockPlugin(BaseMockPlugin):
     def mock_response(self) -> Any:
         if issubclass(self.pait_response, response.PaitJsonResponseModel):
-            resp: Response = JSONResponse(
-                json.loads(self.pait_response.get_example_value(json_encoder_cls=config.json_encoder))
-            )
+            resp: Response = JSONResponse(self.pait_response.get_example_value())
         elif issubclass(self.pait_response, response.PaitTextResponseModel):
             resp = PlainTextResponse(self.pait_response.get_example_value(), media_type=self.pait_response.media_type)
         elif issubclass(self.pait_response, response.PaitHtmlResponseModel):

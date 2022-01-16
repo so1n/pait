@@ -30,6 +30,21 @@ class TestApp:
         exec_msg: str = e.value.args[0]
         assert exec_msg.startswith("Pait not support")
 
+    def test_add_doc_route(self, mocker: MockFixture) -> None:
+        for i in app.auto_load_app.app_list:
+            patch = mocker.patch(f"pait.app.{i}.add_doc_route")
+            app.add_doc_route(importlib.import_module(f"example.param_verify.{i}_example").create_app())  # type: ignore
+            patch.assert_called()
+
+        class Demo:
+            pass
+
+        with pytest.raises(NotImplementedError) as e:
+            app.add_doc_route(Demo)
+
+        exec_msg: str = e.value.args[0]
+        assert exec_msg.startswith("Pait not support")
+
     def test_pait(self, mocker: MockFixture) -> None:
         for i in app.auto_load_app.app_list:
             self._clean_app_from_sys_module()

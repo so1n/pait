@@ -43,7 +43,7 @@ class JsonRespPluginProtocolMixin(PluginProtocol):
             if str(e) == "TypedDict does not support instance and class checks":
 
                 def check_resp_by_typed_dict(response_dict: dict) -> None:
-                    pydantic.create_model_from_typeddict(return_type)(**response_dict)  # type: ignore
+                    pydantic.self.pait_response_from_typeddict(return_type)(**response_dict)  # type: ignore
 
                 kwargs["check_resp_fn"] = check_resp_by_typed_dict
             else:

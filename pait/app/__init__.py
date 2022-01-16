@@ -36,8 +36,25 @@ def load_app(app: Any, project_name: str = "") -> Dict[str, PaitCoreModel]:
     return _base_call_func(app, "load_app", app, project_name=project_name)
 
 
-def add_doc_route(app: Any, prefix: str = "/") -> None:
-    return _base_call_func(app, "add_doc_route", prefix=prefix)
+def add_doc_route(
+    app: Any,
+    scheme: Optional[str] = None,
+    open_json_url_only_path: bool = False,
+    prefix: str = "/",
+    pin_code: str = "",
+    title: str = "Pait Doc",
+    open_api_tag_list: Optional[List[Dict[str, Any]]] = None,
+) -> None:
+    return _base_call_func(
+        app,
+        "add_doc_route",
+        scheme=scheme,
+        open_json_url_only_path=open_json_url_only_path,
+        prefix=prefix,
+        pin_code=pin_code,
+        title=title,
+        open_api_tag_list=open_api_tag_list,
+    )
 
 
 def pait(
