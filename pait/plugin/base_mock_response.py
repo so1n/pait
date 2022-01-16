@@ -20,6 +20,7 @@ class MockPluginInitProtocolMixin(PluginProtocol):
 
     @classmethod
     def cls_hook_by_core_model(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
+        super().cls_hook_by_core_model(pait_core_model, kwargs)
         if not pait_core_model.response_model_list:
             raise RuntimeError(f"{pait_core_model.func} can not found response model")
         if "pait_response" in kwargs:

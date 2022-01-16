@@ -75,7 +75,6 @@ async def api_exception(request: Request, exc: Exception) -> JSONResponse:
     elif isinstance(exc, PaitBaseException):
         return JSONResponse({"code": -1, "msg": str(exc)})
     elif isinstance(exc, ValidationError):
-        # pydantic参数校验错误
         error_param_list: List[str] = []
         for i in exc.errors():
             error_param_list.extend(i["loc"])

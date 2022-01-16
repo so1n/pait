@@ -22,9 +22,9 @@ class AutoCompleteJsonRespPluginProtocolMixin(PluginProtocol):
 
     @classmethod
     def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
+        super().cls_hook_by_core_model(pait_core_model, kwargs)
         if "pait_response_model" in kwargs:
             raise ValueError("Please use response_model_list param")
-        super().cls_hook_by_core_model(pait_core_model, kwargs)
         pait_response_model: Type[PaitBaseResponseModel] = get_pait_response_model(
             pait_core_model.response_model_list, find_core_response_model=True
         )

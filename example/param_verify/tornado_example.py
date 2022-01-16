@@ -69,7 +69,6 @@ class MyHandler(RequestHandler):
         elif isinstance(exc, PaitBaseException):
             self.write({"code": -1, "msg": str(exc)})
         elif isinstance(exc, ValidationError):
-            # pydantic参数校验错误
             error_param_list: List[str] = []
             for i in exc.errors():
                 error_param_list.extend(i["loc"])
