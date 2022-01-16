@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, get_ty
 
 from pydantic import BaseConfig, BaseModel, create_model
 
-from pait.exceptions import PaitBaseException
+from pait.exceptions import TipException
 from pait.field import BaseField, Depends, is_pait_field
 
 from ._func_sig import FuncSig
@@ -199,7 +199,7 @@ def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:
 
 def gen_tip_exc(_object: Any, exception: "Exception", parameter: Optional[inspect.Parameter] = None) -> Exception:
     """Help users understand which parameter is wrong"""
-    if not parameter and getattr(exception, "_is_tip_exc", None):
+    if not parameter and (getattr(exception, "_is_tip_exc", None) or isinstance(exception, TipException)):
         return exception
     if parameter:
         param_value: BaseField = parameter.default
@@ -245,10 +245,7 @@ def gen_tip_exc(_object: Any, exception: "Exception", parameter: Optional[inspec
         if "class" in error_object_name:
             error_object_name = str(_object.__class__)
         logging.debug(f"class: `{error_object_name}`  attributes error\n    {param_str}")
-    exc_msg: str = f'File "{file}",' f" line {line}," f" in {error_object_name}." f" error:{str(exception)}"
-    try:
-        exc: Exception = exception.__class__(exc_msg)
-    except Exception:
-        exc = PaitBaseException(exc_msg)
+
     setattr(exception, "_is_tip_exc", True)
-    return exc
+    exc_msg: str = f'File "{file}",' f" line {line}," f" in {error_object_name}." f" error:{str(exception)}"
+    return TipException(exc_msg, exception)

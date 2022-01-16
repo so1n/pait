@@ -33,7 +33,7 @@ from pait.app.flask import Pait, add_doc_route, pait
 from pait.app.flask.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.app.flask.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.flask.plugin.mock_response import MockPlugin
-from pait.exceptions import PaitBaseException
+from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.g import config
 from pait.model.links import LinksModel
@@ -60,6 +60,19 @@ other_pait: Pait = pait.create_sub_pait(author=("so1n",), status=PaitStatus.test
 
 
 def api_exception(exc: Exception) -> Dict[str, Any]:
+    if isinstance(exc, TipException):
+        exc = exc.exc
+
+    if isinstance(exc, PaitBaseParamException):
+        return {"code": -1, "msg": f"error param:{exc.param}, {exc.msg}"}
+    elif isinstance(exc, PaitBaseException):
+        return {"code": -1, "msg": str(exc)}
+    elif isinstance(exc, ValidationError):
+        # pydantic参数校验错误
+        error_param_list: List[str] = []
+        for i in exc.errors():
+            error_param_list.extend(i["loc"])
+        return {"code": -1, "msg": f"miss param: {error_param_list}"}
     return {"code": -1, "msg": str(exc)}
 
 

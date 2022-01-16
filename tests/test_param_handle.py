@@ -99,7 +99,7 @@ class TestUtil:
     #     parameter: inspect.Parameter = inspect.Parameter(
     #         "b", inspect.Parameter.POSITIONAL_ONLY, annotation=str, default=FakeField.i()
     #     )
-    #     with pytest.raises(exceptions.NotFoundFieldError):
+    #     with pytest.raises(exceptions.NotFoundFieldException):
     #         param_handle.get_request_value_from_parameter(parameter, FakeAppHelper(None, (), {}))
     #
     #     parameter = inspect.Parameter("b", inspect.Parameter.POSITIONAL_ONLY, annotation=int, default=field.Body.i())

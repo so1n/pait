@@ -7,9 +7,6 @@ class _BoundClass(object):
     pass
 
 
-_bound_class: _BoundClass = _BoundClass()
-
-
 class LazyProperty:
     """Cache field computing resources
     >>> class Demo:
@@ -20,6 +17,7 @@ class LazyProperty:
 
     def __call__(self, func: Callable) -> Callable:
         key: str = f"{self.__class__.__name__}_{func.__name__}_future"
+        _bound_class: _BoundClass = _BoundClass()
         if not asyncio.iscoroutinefunction(func):
 
             def wrapper(*args: Any, **kwargs: Any) -> Any:

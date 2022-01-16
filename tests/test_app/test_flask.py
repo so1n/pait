@@ -55,8 +55,7 @@ class TestFlask:
         msg: str = FlaskTestHelper(client, flask_example.raise_tip_route, header_dict={"Content-Type": "test"}).json()[
             "msg"
         ]
-        assert 'File "/home/so1n/github/pait/example/param_verify/flask_example.py", ' in msg
-        assert "in raise_tip_route. error:content__type value is <class 'pydantic.fields.UndefinedType'>" in msg
+        assert msg == "error param:content__type, Can not found content__type value"
 
     def test_post(self, client: FlaskClient) -> None:
         flask_test_helper: FlaskTestHelper = FlaskTestHelper(
@@ -92,7 +91,10 @@ class TestFlask:
             ("/api/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10", -1),
             ("/api/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
         ]:
-            assert client.get(url).get_json()["code"] == api_code
+            resp: dict = client.get(url).get_json()
+            assert resp["code"] == api_code
+            if api_code == -1:
+                assert resp["msg"] == "miss param: ['data', 'age']"
 
     def test_auto_complete_json_route(self, client: FlaskClient) -> None:
         def check_dict(source_dict: dict, target_dict: dict) -> None:

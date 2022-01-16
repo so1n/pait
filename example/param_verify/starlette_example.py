@@ -41,7 +41,7 @@ from pait.app.starlette.plugin.auto_complete_json_resp import (
 )
 from pait.app.starlette.plugin.check_json_resp import AsyncCheckJsonRespPlugin
 from pait.app.starlette.plugin.mock_response import MockAsyncPlugin, MockPlugin
-from pait.exceptions import PaitBaseException
+from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
@@ -67,6 +67,19 @@ other_pait: Pait = pait.create_sub_pait(author=("so1n",), status=PaitStatus.test
 
 
 async def api_exception(request: Request, exc: Exception) -> JSONResponse:
+    if isinstance(exc, TipException):
+        exc = exc.exc
+
+    if isinstance(exc, PaitBaseParamException):
+        return JSONResponse({"code": -1, "msg": f"error param:{exc.param}, {exc.msg}"})
+    elif isinstance(exc, PaitBaseException):
+        return JSONResponse({"code": -1, "msg": str(exc)})
+    elif isinstance(exc, ValidationError):
+        # pydantic参数校验错误
+        error_param_list: List[str] = []
+        for i in exc.errors():
+            error_param_list.extend(i["loc"])
+        return JSONResponse({"code": -1, "msg": f"miss param: {error_param_list}"})
     return JSONResponse({"code": -1, "msg": str(exc)})
 
 

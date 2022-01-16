@@ -11,7 +11,13 @@ from pydantic.fields import UndefinedType
 
 from pait import field
 from pait.app.base import BaseAppHelper
-from pait.exceptions import FieldValueTypeError, NotFoundFieldError, PaitBaseException, ParseTypeError
+from pait.exceptions import (
+    FieldValueTypeException,
+    NotFoundFieldException,
+    NotFoundValueException,
+    PaitBaseException,
+    ParseTypeError,
+)
 from pait.field import BaseField
 from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginProtocol
 from pait.util import (
@@ -133,7 +139,7 @@ class ParamHandlerMixin(PluginProtocol):
                                 f"{parameter.default}'s example value must {parameter.annotation}",
                             )
                         except ParseTypeError as e:
-                            raise FieldValueTypeError(parameter.name, str(e))
+                            raise FieldValueTypeException(parameter.name, str(e))
                 else:
                     # args param
                     # support model: model: ModelType
@@ -209,7 +215,7 @@ class ParamHandlerMixin(PluginProtocol):
                     if param_value.default_factory:
                         request_value = param_value.default_factory()
                     else:
-                        raise NotFoundFieldError(parameter.name, f"{parameter.name} value is {str(UndefinedType)}")
+                        raise NotFoundValueException(parameter.name, f"Can not found {parameter.name} value")
 
             if base_model_dict is not None and inspect.isclass(annotation) and issubclass(annotation, BaseModel):
                 # parse annotation is pydantic.BaseModel and base_model_dict not None
@@ -228,7 +234,7 @@ class ParamHandlerMixin(PluginProtocol):
         # )
         app_field_func: Optional[Callable] = getattr(self._app_helper, field_name, None)
         if app_field_func is None:
-            raise NotFoundFieldError(parameter.name, f"field: {field_name} not found in {self._app_helper}")
+            raise NotFoundFieldException(parameter.name, f"field: {field_name} not found in {self._app_helper}")
         return app_field_func()
 
 

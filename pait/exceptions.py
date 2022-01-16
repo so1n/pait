@@ -17,9 +17,19 @@ class PaitBaseParamException(PaitBaseException):
         self.msg: str = msg
 
 
-class NotFoundFieldError(PaitBaseParamException):
+class NotFoundFieldException(PaitBaseParamException):
     pass
 
 
-class FieldValueTypeError(PaitBaseParamException):
+class NotFoundValueException(PaitBaseParamException):
     pass
+
+
+class FieldValueTypeException(PaitBaseParamException):
+    pass
+
+
+class TipException(PaitBaseException):
+    def __init__(self, msg: str, exc: Exception):
+        super().__init__(msg)
+        self.exc: Exception = exc

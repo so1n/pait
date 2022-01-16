@@ -50,8 +50,7 @@ class TestSanic:
         msg: str = SanicTestHelper(client, sanic_example.raise_tip_route, header_dict={"Content-Type": "test"}).json()[
             "msg"
         ]
-        assert 'File "/home/so1n/github/pait/example/param_verify/sanic_example.py", ' in msg
-        assert "in raise_tip_route. error:content__type value is <class 'pydantic.fields.UndefinedType'>" in msg
+        assert msg == "error param:content__type, Can not found content__type value"
 
     def test_post(self, client: SanicTestClient) -> None:
         test_helper: SanicTestHelper = SanicTestHelper(
@@ -87,7 +86,10 @@ class TestSanic:
             ("/api/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10", -1),
             ("/api/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
         ]:
-            assert client.get(url)[1].json["code"] == api_code
+            resp: dict = client.get(url)[1].json
+            assert resp["code"] == api_code
+            if api_code == -1:
+                assert resp["msg"] == "miss param: ['data', 'age']"
 
     def test_auto_complete_json_route(self, client: SanicTestClient) -> None:
         def check_dict(source_dict: dict, target_dict: dict) -> None:

@@ -51,8 +51,7 @@ class TestTornado(AsyncHTTPTestCase):
         msg: str = TornadoTestHelper(
             self, tornado_example.RaiseTipHandler.post, header_dict={"Content-Type": "test"}, body_dict={"temp": None}
         ).json()["msg"]
-        assert 'File "/home/so1n/github/pait/example/param_verify/tornado_example.py", ' in msg
-        assert "in post. error:content_type value is <class 'pydantic.fields.UndefinedType'>" in msg
+        assert msg == "error param:content__type, Can not found content__type value"
 
     def test_post(self) -> None:
         test_helper: TornadoTestHelper = TornadoTestHelper(
@@ -87,7 +86,10 @@ class TestTornado(AsyncHTTPTestCase):
             ("/api/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10", -1),
             ("/api/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
         ]:
-            assert json.loads(self.fetch(url).body.decode())["code"] == api_code
+            resp: dict = json.loads(self.fetch(url).body.decode())
+            assert resp["code"] == api_code
+            if api_code == -1:
+                assert resp["msg"] == "miss param: ['data', 'age']"
 
     def test_auto_complete_json_route(self) -> None:
         def check_dict(source_dict: dict, target_dict: dict) -> None:
