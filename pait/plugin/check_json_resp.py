@@ -1,12 +1,11 @@
-import sys
-from typing import Any, Callable, Dict, ForwardRef, Optional, Type
+from typing import Any, Callable, Dict, Optional, Type
 
 import pydantic
 
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitBaseResponseModel, PaitJsonResponseModel
 from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginProtocol
-from pait.util import get_pait_response_model
+from pait.util import gen_example_dict_from_pydantic_base_model, get_pait_response_model, get_real_annotation
 
 
 class JsonRespPluginProtocolMixin(PluginProtocol):
@@ -17,21 +16,19 @@ class JsonRespPluginProtocolMixin(PluginProtocol):
     @classmethod
     def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
         super().cls_hook_by_core_model(pait_core_model, kwargs)
+
+        pait_response_model: Type[PaitBaseResponseModel] = get_pait_response_model(
+            pait_core_model.response_model_list, find_core_response_model=True
+        )
+        if not issubclass(pait_response_model, PaitJsonResponseModel):
+            raise ValueError(f"pait_response_model must {PaitJsonResponseModel} not {kwargs['pait_response_model']}")
+
         return_type: Optional[Type] = pait_core_model.func.__annotations__.get("return", None)  # type: ignore
         if not return_type:
             raise ValueError(f"Can not found return type by func:{pait_core_model.func}")
-        if isinstance(return_type, str):
-            value: ForwardRef = ForwardRef(return_type, is_argument=False)
-            return_type = value._evaluate(sys.modules[pait_core_model.func.__module__].__dict__, None)  # type: ignore
+        return_type = get_real_annotation(return_type, pait_core_model.func)
         try:
             if issubclass(return_type, dict):
-                pait_response_model: Type[PaitBaseResponseModel] = get_pait_response_model(
-                    pait_core_model.response_model_list, find_core_response_model=True
-                )
-                if not issubclass(pait_response_model, PaitJsonResponseModel):
-                    raise ValueError(
-                        f"pait_response_model must {PaitJsonResponseModel} not {kwargs['pait_response_model']}"
-                    )
 
                 def check_resp_by_dict(response_dict: dict) -> None:
                     pait_response_model.response_data(**response_dict)  # type: ignore
@@ -40,10 +37,14 @@ class JsonRespPluginProtocolMixin(PluginProtocol):
             else:
                 raise ValueError(f"Can not found {cls.__name__} support return type")
         except TypeError as e:
-            if str(e) == "TypedDict does not support instance and class checks":
+            if hasattr(return_type, "__required_keys__"):
+                base_model_class: Type[pydantic.BaseModel] = pydantic.create_model_from_typeddict(
+                    return_type  # type: ignore
+                )
+                base_model_class(**gen_example_dict_from_pydantic_base_model(pait_response_model.response_data))
 
                 def check_resp_by_typed_dict(response_dict: dict) -> None:
-                    pydantic.self.pait_response_from_typeddict(return_type)(**response_dict)  # type: ignore
+                    base_model_class(**response_dict)  # type: ignore
 
                 kwargs["check_resp_fn"] = check_resp_by_typed_dict
             else:
