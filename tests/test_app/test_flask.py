@@ -1,3 +1,4 @@
+import difflib
 import sys
 from tempfile import NamedTemporaryFile
 from typing import Callable, Generator, Type
@@ -10,8 +11,10 @@ from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 
 from example.param_verify import flask_example
+from pait.api_doc.html import get_redoc_html, get_swagger_ui_html
+from pait.api_doc.open_api import PaitOpenApi
 from pait.app import auto_load_app
-from pait.app.flask import FlaskTestHelper
+from pait.app.flask import FlaskTestHelper, load_app
 from pait.model import response
 from tests.conftest import enable_mock
 
@@ -156,7 +159,6 @@ class TestFlask:
 
     def test_pait_base_field_route(self, client: FlaskClient) -> None:
         file_content: str = "Hello Word!"
-        client.set_cookie("localhost", "abcd", "abcd")
 
         with NamedTemporaryFile(delete=True) as f1:
             f1.write(file_content.encode())
@@ -182,6 +184,7 @@ class TestFlask:
                 client,
                 flask_example.pait_base_field_route,
                 file_dict={"upload_file": f1},
+                cookie_dict={"abcd": "abcd"},
                 form_dict={"a": "1", "b": "2", "c": ["3", "4"]},
                 query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
                 path_dict={"age": 2},
@@ -193,14 +196,23 @@ class TestFlask:
             client,
             flask_example.check_param_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
+            strict_inspection_check_json_content=False,
         )
         assert "requires at most one of param user_name or alias_user_name" in flask_test_helper.json()["msg"]
         flask_test_helper = FlaskTestHelper(
             client,
             flask_example.check_param_route,
             query_dict={"uid": 123, "sex": "man", "age": 10, "birthday": "2000-01-01"},
+            strict_inspection_check_json_content=False,
         )
         assert "birthday requires param alias_user_name, which if not none" in flask_test_helper.json()["msg"]
+        flask_test_helper = FlaskTestHelper(
+            client,
+            flask_example.check_param_route,
+            query_dict={"uid": 123, "sex": "man", "age": 10, "birthday": "2000-01-01", "alias_user_name": "appe"},
+            strict_inspection_check_json_content=False,
+        )
+        assert flask_test_helper.json()["code"] == 0
 
     def test_check_response(self, client: FlaskClient) -> None:
         flask_test_helper: FlaskTestHelper = FlaskTestHelper(
@@ -324,6 +336,30 @@ class TestFlask:
             FlaskTestHelper(client, flask_example.text_response_route).request()
         exec_msg: str = e.value.args[0]
         assert exec_msg == "Pait Can not auto select method, please choice method in ['GET', 'POST']"
+
+    def test_doc_route(self, client: FlaskClient) -> None:
+        assert client.get("/swagger").status_code == 404
+        assert client.get("/redoc").status_code == 404
+        assert client.get("/swagger?pin_code=6666").get_data().decode() == get_swagger_ui_html(
+            "http://localhost/openapi.json?pin_code=6666", "Pait Doc"
+        )
+        assert client.get("/redoc?pin_code=6666").get_data().decode() == get_redoc_html(
+            "http://localhost/openapi.json?pin_code=6666", "Pait Doc"
+        )
+        assert (
+            difflib.SequenceMatcher(
+                None,
+                str(client.get("/openapi.json?pin_code=6666").json),
+                str(
+                    PaitOpenApi(
+                        load_app(client.application),
+                        title="Pait Doc",
+                        open_api_server_list=[{"url": "http://localhost", "description": ""}],
+                    ).open_api_dict
+                ),
+            ).quick_ratio()
+            > 0.95
+        )
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:

@@ -56,10 +56,10 @@ def add_doc_route(
         if open_json_url_only_path:
             openapi_json_url: str = f"{'/'.join(request.url.path.split('/')[:-1])}/openapi.json"
         else:
-            openapi_json_url = (
-                f"{_scheme}://{request.url.hostname}:{request.url.port}"
-                f"{'/'.join(request.url.path.split('/')[:-1])}/openapi.json"
-            )
+            url: str = f"{_scheme}://{request.url.hostname}"
+            if request.url.port:
+                url += f":{request.url.port}"
+            openapi_json_url = f"{url}{'/'.join(request.url.path.split('/')[:-1])}/openapi.json"
         if r_pin_code:
             openapi_json_url += f"?pin_code={r_pin_code}"
         return openapi_json_url
@@ -76,10 +76,13 @@ def add_doc_route(
     def openapi_route(request: Request) -> JSONResponse:
         pait_dict: Dict[str, PaitCoreModel] = load_app(request.app)
         _scheme: str = scheme or request.url.scheme
+        url: str = f"{_scheme}://{request.url.hostname}"
+        if request.url.port:
+            url += f":{request.url.port}"
         pait_openapi: PaitOpenApi = PaitOpenApi(
             pait_dict,
             title=title,
-            open_api_server_list=[{"url": f"{_scheme}://{request.url.hostname}:{request.url.port}", "description": ""}],
+            open_api_server_list=[{"url": url, "description": ""}],
             open_api_tag_list=open_api_tag_list,
         )
         return JSONResponse(pait_openapi.open_api_dict)

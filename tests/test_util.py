@@ -1,5 +1,5 @@
 import inspect
-from typing import Any, List, Type
+from typing import Any, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel
 
@@ -8,6 +8,18 @@ from pait import field, util
 
 
 class TestUtil:
+    def test_parse_typing(self) -> None:
+        assert dict is util.parse_typing(dict)
+        assert list is util.parse_typing(List)
+        assert dict is util.parse_typing(Dict)
+        assert dict is util.parse_typing(Union[dict])
+        assert dict is util.parse_typing(Union[Dict])
+        assert dict is util.parse_typing(Union[Dict[str, Any]])
+        assert dict in set(util.parse_typing(Optional[Dict]))  # type: ignore
+        assert type(None) in set(util.parse_typing(Optional[Dict]))  # type: ignore
+        assert dict in set(util.parse_typing(Optional[dict]))  # type: ignore
+        assert type(None) in set(util.parse_typing(Optional[dict]))  # type: ignore
+
     def test_create_pydantic_model(self) -> None:
         pydantic_model_class: Type[BaseModel] = pait.util._pydantic_util.create_pydantic_model(
             {"a": (int, ...), "b": (str, ...)}

@@ -578,7 +578,7 @@ def create_app() -> Application:
             (r"/api/check-pre-depend-async-contextmanager", PreDependAsyncContextmanagerHanler),
         ]
     )
-    add_doc_route(app)
+    add_doc_route(app, pin_code="6666")
     return app
 
 

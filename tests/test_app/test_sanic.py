@@ -1,3 +1,4 @@
+import difflib
 import sys
 from tempfile import NamedTemporaryFile
 from typing import Callable, Generator, Type
@@ -11,8 +12,10 @@ from sanic_testing.testing import SanicTestClient
 from sanic_testing.testing import TestingResponse as Response  # type: ignore
 
 from example.param_verify import sanic_example
+from pait.api_doc.html import get_redoc_html, get_swagger_ui_html
+from pait.api_doc.open_api import PaitOpenApi
 from pait.app import auto_load_app
-from pait.app.sanic import SanicTestHelper
+from pait.app.sanic import SanicTestHelper, load_app
 from pait.model import response
 from tests.conftest import enable_mock
 
@@ -177,7 +180,7 @@ class TestSanic:
                 sanic_example.pait_base_field_route,
                 file_dict={"upload_file": f1},
                 form_dict={"a": "1", "b": "2", "c": ["3", "4"]},
-                cookie_dict={"cookie": "abcd=abcd;"},
+                cookie_dict={"abcd": "abcd"},
                 query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
                 path_dict={"age": 2},
                 strict_inspection_check_json_content=False,
@@ -188,14 +191,23 @@ class TestSanic:
             client,
             sanic_example.check_param_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
+            strict_inspection_check_json_content=False,
         )
         assert "requires at most one of param user_name or alias_user_name" in test_helper.json()["msg"]
         test_helper = SanicTestHelper(
             client,
             sanic_example.check_param_route,
             query_dict={"uid": 123, "sex": "man", "age": 10, "birthday": "2000-01-01"},
+            strict_inspection_check_json_content=False,
         )
         assert "birthday requires param alias_user_name, which if not none" in test_helper.json()["msg"]
+        test_helper = SanicTestHelper(
+            client,
+            sanic_example.check_param_route,
+            query_dict={"uid": 123, "sex": "man", "age": 10, "birthday": "2000-01-01", "alias_user_name": "appe"},
+            strict_inspection_check_json_content=False,
+        )
+        assert test_helper.json()["code"] == 0
 
     def test_check_response(self, client: SanicTestClient) -> None:
         test_helper: SanicTestHelper = SanicTestHelper(
@@ -316,6 +328,30 @@ class TestSanic:
             SanicTestHelper(client, sanic_example.text_response_route).request()
         exec_msg: str = e.value.args[0]
         assert exec_msg == "Pait Can not auto select method, please choice method in ['GET', 'POST']"
+
+    def test_doc_route(self, client: SanicTestClient) -> None:
+        assert client.get("/swagger")[1].status_code == 404
+        assert client.get("/redoc")[1].status_code == 404
+        assert client.get("/swagger?pin_code=6666")[1].text == get_swagger_ui_html(
+            f"http://{client.host}:{client.port}/openapi.json?pin_code=6666", "Pait Doc"
+        )
+        assert client.get("/redoc?pin_code=6666")[1].text == get_redoc_html(
+            f"http://{client.host}:{client.port}/openapi.json?pin_code=6666", "Pait Doc"
+        )
+        assert (
+            difflib.SequenceMatcher(
+                None,
+                str(client.get("/openapi.json?pin_code=6666")[1].json),
+                str(
+                    PaitOpenApi(
+                        load_app(client.app),
+                        title="Pait Doc",
+                        open_api_server_list=[{"url": "http://localhost", "description": ""}],
+                    ).open_api_dict
+                ),
+            ).quick_ratio()
+            > 0.95
+        )
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:

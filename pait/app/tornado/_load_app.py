@@ -37,9 +37,8 @@ def load_app(app: Application, project_name: str = "") -> Dict[str, PaitCoreMode
             openapi_path = openapi_path[:-1]
         base_name: str = rule.target.__name__
         for method in ["get", "post", "head", "options", "delete", "put", "trace", "patch"]:
-            try:
-                handler: Callable = getattr(rule.target, method, None)
-            except TypeError:
+            handler: Optional[Callable] = getattr(rule.target, method, None)
+            if not handler:
                 continue
             route_name: str = f"{base_name}.{method}"
             pait_id: Optional[str] = getattr(handler, "_pait_id", None)

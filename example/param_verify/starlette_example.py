@@ -624,7 +624,7 @@ def create_app() -> Starlette:
             Route("/api/check_pre_depend_async_contextmanager", pre_depend_async_contextmanager_route, methods=["GET"]),
         ]
     )
-    add_doc_route(app)
+    add_doc_route(app, pin_code="6666")
     app.add_exception_handler(PaitBaseException, api_exception)
     app.add_exception_handler(ValidationError, api_exception)
     app.add_exception_handler(RuntimeError, api_exception)

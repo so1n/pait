@@ -188,7 +188,7 @@ def pait_base_field_route(
 @user_pait(
     status=PaitStatus.release,
     tag=(tag.check_param_tag,),
-    response_model_list=[UserSuccessRespModel2, FailRespModel],
+    response_model_list=[SimpleRespModel, FailRespModel],
     post_plugin_list=[
         PluginManager(RequiredPlugin, required_dict={"birthday": ["alias_user_name"]}),
         PluginManager(AtMostOneOfPlugin, at_most_one_of_list=[["user_name", "alias_user_name"]]),
@@ -491,7 +491,7 @@ def check_json_plugin_route1(
 
 def create_app() -> Flask:
     app: Flask = Flask(__name__)
-    add_doc_route(app)
+    add_doc_route(app, pin_code="6666")
     app.add_url_rule("/api/login", view_func=login_route, methods=["POST"])
     app.add_url_rule("/api/user", view_func=get_user_route, methods=["GET"])
     app.add_url_rule("/api/raise-tip", view_func=raise_tip_route, methods=["POST"])

@@ -15,7 +15,7 @@ class SanicTestHelper(BaseTestHelper[TestingResponse]):
 
     def _app_init_field(self) -> None:
         if self.cookie_dict:
-            self.header_dict.update(self.cookie_dict)
+            self.header_dict["cookie"] = ";".join([f"{key}={value}" for key, value in self.cookie_dict.items()])
 
     def _gen_pait_dict(self) -> Dict[str, PaitCoreModel]:
         return load_app(self.client.app)

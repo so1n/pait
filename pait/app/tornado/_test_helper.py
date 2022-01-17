@@ -19,7 +19,7 @@ class TornadoTestHelper(BaseTestHelper[HTTPResponse]):
 
     def _app_init_field(self) -> None:
         if self.cookie_dict:
-            self.header_dict.update(self.cookie_dict)
+            self.header_dict["cookie"] = ";".join([f"{key}={value}" for key, value in self.cookie_dict.items()])
         if "$?" in self.path:
             self.path = self.path.replace("$?", "?")
         elif self.path.endswith("$"):

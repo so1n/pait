@@ -47,7 +47,7 @@ def add_doc_route(
     def _get_request_pin_code(r_pin_code: str = Query.i("", alias="pin_code")) -> Optional[str]:
         if pin_code:
             if r_pin_code != pin_code:
-                raise NotFound
+                raise NotFound("")
         return r_pin_code
 
     def _get_open_json_url(request: Request, r_pin_code: str) -> str:

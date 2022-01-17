@@ -36,7 +36,7 @@ class BaseTestHelper(Generic[RESP_T]):
         :param func:  route handle decorated by pait
         :param pait_dict:  pait core data
         :param body_dict:  request body param
-        :param cookie_dict:  request cookie param
+        :param cookie:  request cookie param
         :param file_dict:  request file param
         :param form_dict:  request form param
         :param header_dict:  request herder param

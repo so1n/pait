@@ -2,13 +2,23 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Type
 
+import pytest
 from pydantic import BaseModel, Field
 
 from example.param_verify.model import SexEnum
-from pait.model import response
+from pait.model import response, tag
 
 
-class TestModelResponse:
+class TestTagModel:
+    def test_repeat_register_tag(self) -> None:
+        tag.Tag("TestDemo", "test create tag")
+        tag.Tag("TestDemo", "test create tag")
+
+        with pytest.raises(KeyError):
+            tag.Tag("TestDemo", "test create tag by other desc")
+
+
+class TestResponseModel:
     def test_json_response_model(self) -> None:
         def factory_value() -> str:
             return "mock"

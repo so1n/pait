@@ -1,3 +1,4 @@
+import difflib
 import json
 import sys
 from tempfile import NamedTemporaryFile
@@ -9,8 +10,10 @@ from tornado.testing import AsyncHTTPTestCase, HTTPResponse
 from tornado.web import Application
 
 from example.param_verify import tornado_example
+from pait.api_doc.html import get_redoc_html, get_swagger_ui_html
+from pait.api_doc.open_api import PaitOpenApi
 from pait.app import auto_load_app
-from pait.app.tornado import TornadoTestHelper
+from pait.app.tornado import TornadoTestHelper, load_app
 from pait.model import response
 from tests.conftest import enable_mock
 
@@ -171,25 +174,47 @@ class TestTornado(AsyncHTTPTestCase):
                 tornado_example.PaitBaseFieldHandler.post,
                 file_dict={f1.name: f1.read()},
                 form_dict={"a": "1", "b": "2", "c": "3"},
-                cookie_dict={"cookie": "abcd=abcd;"},
+                cookie_dict={"abcd": "abcd"},
                 query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
                 path_dict={"age": 2},
                 strict_inspection_check_json_content=False,
             ).json()
+
+            # can not use get(Http Method) in form or file request
+            with pytest.raises(RuntimeError):
+                TornadoTestHelper(
+                    self,
+                    tornado_example.PaitBaseFieldHandler.post,
+                    file_dict={f1.name: f1.read()},
+                    form_dict={"a": "1", "b": "2", "c": "3"},
+                    cookie_dict={"cookie": "abcd=abcd;"},
+                    query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
+                    path_dict={"age": 2},
+                    strict_inspection_check_json_content=False,
+                ).get()
 
     def test_check_param(self) -> None:
         test_helper: TornadoTestHelper = TornadoTestHelper(
             self,
             tornado_example.CheckParamHandler.get,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
+            strict_inspection_check_json_content=False,
         )
         assert "requires at most one of param user_name or alias_user_name" in test_helper.json()["msg"]
         test_helper = TornadoTestHelper(
             self,
             tornado_example.CheckParamHandler.get,
             query_dict={"uid": 123, "sex": "man", "age": 10, "birthday": "2000-01-01"},
+            strict_inspection_check_json_content=False,
         )
         assert "birthday requires param alias_user_name, which if not none" in test_helper.json()["msg"]
+        test_helper = TornadoTestHelper(
+            self,
+            tornado_example.CheckParamHandler.get,
+            query_dict={"uid": 123, "sex": "man", "age": 10, "birthday": "2000-01-01", "alias_user_name": "appe"},
+            strict_inspection_check_json_content=False,
+        )
+        assert test_helper.json()["code"] == 0
 
     def test_check_response(self) -> None:
         test_helper: TornadoTestHelper = TornadoTestHelper(
@@ -348,6 +373,30 @@ class TestTornado(AsyncHTTPTestCase):
 
     def test_file_response(self) -> None:
         self.response_test_helper(tornado_example.FileResponseHanler.get, response.PaitFileResponseModel)
+
+    def test_doc_route(self) -> None:
+        assert self.fetch("/swagger").code == 404
+        assert self.fetch("/redoc").code == 404
+        assert self.fetch("/swagger?pin_code=6666").body.decode() == get_swagger_ui_html(
+            self.get_url("/openapi.json?pin_code=6666"), "Pait Doc"
+        )
+        assert self.fetch("/redoc?pin_code=6666").body.decode() == get_redoc_html(
+            self.get_url("/openapi.json?pin_code=6666"), "Pait Doc"
+        )
+        assert (
+            difflib.SequenceMatcher(
+                None,
+                str(json.loads(self.fetch("/openapi.json?pin_code=6666").body.decode())),
+                str(
+                    PaitOpenApi(
+                        load_app(self.get_app()),
+                        title="Pait Doc",
+                        open_api_server_list=[{"url": "http://localhost", "description": ""}],
+                    ).open_api_dict
+                ),
+            ).quick_ratio()
+            > 0.95
+        )
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:
