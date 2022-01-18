@@ -283,7 +283,7 @@ def pait_model_route(test_pait_model: TestPaitModel) -> dict:
 @other_pait(status=PaitStatus.test, tag=(tag.depend_tag,), response_model_list=[SuccessRespModel, FailRespModel])
 def depend_contextmanager_route(uid: str = Depends.i(context_depend), is_raise: bool = Query.i(default=False)) -> dict:
     if is_raise:
-        raise RuntimeError()
+        raise RuntimeError("test")
     return {"code": 0, "msg": uid}
 
 

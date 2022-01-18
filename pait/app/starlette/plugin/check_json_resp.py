@@ -22,8 +22,7 @@ class AsyncCheckJsonRespPlugin(_AsyncCheckJsonRespPlugin):
         self.media_type: Optional[str] = media_type
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        response: Any = await self.call_next(*args, **kwargs)
-        self.check_resp_fn(response)
+        response: Any = await super().__call__(*args, **kwargs)
         return JSONResponse(response, status_code=self.status_code, headers=self.headers, media_type=self.media_type)
 
 
@@ -41,6 +40,5 @@ class CheckJsonRespPlugin(_CheckJsonRespPlugin):
         self.media_type: Optional[str] = media_type
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        response: Any = self.call_next(*args, **kwargs)
-        self.check_resp_fn(response)
+        response: Any = super().__call__(*args, **kwargs)
         return JSONResponse(response, status_code=self.status_code, headers=self.headers, media_type=self.media_type)

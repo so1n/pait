@@ -18,7 +18,7 @@ class PluginProtocol(object):
 
     @classmethod
     def cls_hook_by_core_model(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
-        return kwargs
+        return kwargs  # pragma: no cover
 
     def __post_init__(self, pait_core_model: "PaitCoreModel", args: tuple, kwargs: dict) -> None:
         self.pait_core_model = pait_core_model
@@ -28,7 +28,7 @@ class PluginProtocol(object):
 
 class BasePlugin(PluginProtocol):
     def call_next(self, *args: Any, **kwargs: Any) -> Any:
-        raise RuntimeError("Failed to load PluginManager, please check the list of plugins")
+        raise RuntimeError("Failed to load PluginManager, please check the list of plugins")  # pragma: no cover
 
     @classmethod
     def cls_hook_by_core_model(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
@@ -37,12 +37,12 @@ class BasePlugin(PluginProtocol):
         return kwargs
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        return self.call_next(*args, **kwargs)
+        return self.call_next(*args, **kwargs)  # pragma: no cover
 
 
 class BaseAsyncPlugin(PluginProtocol):
     async def call_next(self, *args: Any, **kwargs: Any) -> Any:
-        raise RuntimeError("Failed to load PluginManager, please check the list of plugins")
+        raise RuntimeError("Failed to load PluginManager, please check the list of plugins")  # pragma: no cover
 
     @classmethod
     def cls_hook_by_core_model(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
@@ -51,7 +51,7 @@ class BaseAsyncPlugin(PluginProtocol):
         return kwargs
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        return await self.call_next(*args, **kwargs)
+        return await self.call_next(*args, **kwargs)  # pragma: no cover
 
 
 _T = Union[BasePlugin, BaseAsyncPlugin]

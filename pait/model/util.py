@@ -15,8 +15,6 @@ def sync_config_data_to_pait_core_model(config: "Config", pait_core_model: "Pait
 
     if config.default_response_model_list:
         pait_core_model.add_response_model_list(config.default_response_model_list)
-    if config.enable_mock_response_filter_fn:
-        pait_core_model.enable_mock_response_filter_fn = config.enable_mock_response_filter_fn
     if config.default_pydantic_model_config and pait_core_model.pydantic_model_config != BaseConfig:
         pait_core_model.pydantic_model_config = config.default_pydantic_model_config
     if config.block_http_method_set:

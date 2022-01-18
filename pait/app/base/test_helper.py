@@ -214,11 +214,11 @@ class BaseTestHelper(Generic[RESP_T]):
             ):
                 real_response_model = response_model
                 if not isinstance(self._get_text(resp), type(response_model.response_data)):
-                    error_msg_list.append("check text content type error")
+                    error_msg_list.append("check text content type error")  # pragma: no cover
             elif issubclass(response_model, response.PaitFileResponseModel):
                 real_response_model = response_model
                 if not isinstance(self._get_bytes(resp), type(response_model.response_data)):
-                    error_msg_list.append("check bytes content type error")
+                    error_msg_list.append("check bytes content type error")  # pragma: no cover
             else:
                 raise TypeError(f"Pait not support response model:{response_model}")
             if not error_msg_list:
@@ -243,7 +243,7 @@ class BaseTestHelper(Generic[RESP_T]):
             f"response error result:{model_check_msg_dict} "
             f"total response model:{self.pait_core_model.response_model_list}. "
             f"response info: {response_dict} "
-        )
+        )  # pragma: no cover
 
     def _replace_path(self, path_str: str) -> Optional[str]:
         raise NotImplementedError()

@@ -24,12 +24,12 @@ class AutoCompleteJsonRespPluginProtocolMixin(PluginProtocol):
     def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
         super().cls_hook_by_core_model(pait_core_model, kwargs)
         if "pait_response_model" in kwargs:
-            raise ValueError("Please use response_model_list param")
+            raise RuntimeError("Please use response_model_list param")
         pait_response_model: Type[PaitBaseResponseModel] = get_pait_response_model(
             pait_core_model.response_model_list, find_core_response_model=True
         )
         if not issubclass(pait_response_model, PaitJsonResponseModel):
-            raise ValueError(f"pait_response_model must {PaitJsonResponseModel} not {kwargs['pait_response_model']}")
+            raise ValueError(f"pait_response_model must {PaitJsonResponseModel} not {pait_response_model}")
         kwargs["pait_response_model"] = pait_response_model
         return kwargs
 

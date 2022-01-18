@@ -11,7 +11,7 @@ class Tag(object):
         if self._name in _tag_dict and _tag_dict[self._name] != self._desc:
             raise KeyError(f"{self._name} tag already exists")
 
-        _tag_dict[self._name] = self._desc
+        _tag_dict[self._name] = self.desc
 
     @property
     def name(self) -> str:

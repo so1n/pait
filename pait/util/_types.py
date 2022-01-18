@@ -1,4 +1,5 @@
-from typing import Any, AsyncIterator, Iterator, List, Optional, Set, Type, Union, _GenericAlias  # type: ignore
+from collections.abc import AsyncIterator, Iterator
+from typing import Any, List, Optional, Set, Type, Union, _GenericAlias  # type: ignore
 
 from pait.exceptions import ParseTypeError
 
@@ -43,7 +44,7 @@ def parse_typing(_type: Any) -> Union[List[Type[Any]], Type]:
             return type_list
         elif origin in (AsyncIterator, Iterator):
             # support AsyncIterator, Iterator
-            return _type.__args__[0]
+            return parse_typing(_type.__args__[0])
         return origin
     elif _type in _CAN_JSON_TYPE_SET:
         return _type

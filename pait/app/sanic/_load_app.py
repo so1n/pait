@@ -47,11 +47,11 @@ def load_app(app: Sanic, project_name: str = "") -> Dict[str, PaitCoreModel]:
             else:
                 real_handler = handler
             if not real_handler:
-                logging.warning(f"{route_name} can not found handle")
+                logging.warning(f"{route_name} can not found handle")  # pragma: no cover
                 continue
             pait_id: Optional[str] = getattr(real_handler, "_pait_id", None)
             if not pait_id:
-                logging.warning(f"{route_name} can not found pait id")
+                logging.warning(f"{route_name} can not found pait id")  # pragma: no cover
                 continue
             pait_data.add_route_info(
                 AppHelper.app_name, pait_id, path, openapi_path, {method}, route_name, project_name

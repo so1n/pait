@@ -1075,7 +1075,7 @@ paths:
       - check resp
       summary: ''
       description: ''
-      operationId: GET.pait.text_response_route
+      operationId: GET.pait.async_text_response_route
       responses:
         200:
           description: text response

@@ -230,7 +230,6 @@ class TestFlask:
         flask_test_helper.json()
 
     def test_mock_route(self, client: FlaskClient) -> None:
-        print(flask_example.UserSuccessRespModel2.get_example_value())
         assert (
             FlaskTestHelper(
                 client,

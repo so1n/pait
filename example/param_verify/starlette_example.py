@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import time
+from tempfile import NamedTemporaryFile
 from typing import Any, AsyncContextManager, Dict, List, Optional, Tuple
 
 import aiofiles  # type: ignore
@@ -39,7 +40,7 @@ from pait.app.starlette.plugin.auto_complete_json_resp import (
     AsyncAutoCompleteJsonRespPlugin,
     AutoCompleteJsonRespPlugin,
 )
-from pait.app.starlette.plugin.check_json_resp import AsyncCheckJsonRespPlugin
+from pait.app.starlette.plugin.check_json_resp import AsyncCheckJsonRespPlugin, CheckJsonRespPlugin
 from pait.app.starlette.plugin.mock_response import MockAsyncPlugin, MockPlugin
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
@@ -428,7 +429,15 @@ class CbvRoute(HTTPEndpoint):
 
 
 @check_resp_pait(response_model_list=[TextRespModel])
-async def text_response_route() -> PlainTextResponse:
+async def async_text_response_route() -> PlainTextResponse:
+    response: PlainTextResponse = PlainTextResponse(str(time.time()))
+    response.media_type = "text/plain"
+    response.headers.append("X-Example-Type", "text")
+    return response
+
+
+@check_resp_pait(response_model_list=[TextRespModel])
+def text_response_route() -> PlainTextResponse:
     response: PlainTextResponse = PlainTextResponse(str(time.time()))
     response.media_type = "text/plain"
     response.headers.append("X-Example-Type", "text")
@@ -436,7 +445,15 @@ async def text_response_route() -> PlainTextResponse:
 
 
 @check_resp_pait(response_model_list=[HtmlRespModel])
-async def html_response_route() -> HTMLResponse:
+async def async_html_response_route() -> HTMLResponse:
+    response: HTMLResponse = HTMLResponse("<H1>" + str(time.time()) + "</H1>")
+    response.media_type = "text/html"
+    response.headers.append("X-Example-Type", "html")
+    return response
+
+
+@check_resp_pait(response_model_list=[HtmlRespModel])
+def html_response_route() -> HTMLResponse:
     response: HTMLResponse = HTMLResponse("<H1>" + str(time.time()) + "</H1>")
     response.media_type = "text/html"
     response.headers.append("X-Example-Type", "html")
@@ -444,7 +461,24 @@ async def html_response_route() -> HTMLResponse:
 
 
 @check_resp_pait(response_model_list=[FileRespModel])
-async def file_response_route() -> FileResponse:
+def file_response_route() -> FileResponse:
+    named_temporary_file = NamedTemporaryFile(delete=True)
+    f: Any = named_temporary_file.__enter__()
+    f.write("Hello Word!".encode())
+    f.seek(0)
+
+    def close_file() -> None:
+        named_temporary_file.__exit__(None, None, None)
+
+    response: FileResponse = FileResponse(
+        f.name, media_type="application/octet-stream", background=BackgroundTask(close_file)
+    )
+    response.headers.append("X-Example-Type", "file")
+    return response
+
+
+@check_resp_pait(response_model_list=[FileRespModel])
+async def async_file_response_route() -> FileResponse:
     named_temporary_file: AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()  # type: ignore
     f: Any = await named_temporary_file.__aenter__()
     await f.write("Hello Word!".encode())
@@ -529,8 +563,31 @@ def auto_complete_json_route(
     return return_dict
 
 
+@plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[PluginManager(CheckJsonRespPlugin)])
+def check_json_plugin_route(
+    uid: int = Query.i(description="user id", gt=10, lt=1000),
+    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+    age: int = Query.i(description="age", gt=1, lt=100),
+    display_age: int = Query.i(0, description="display_age"),
+) -> dict:
+    """Test json plugin by resp type is dict"""
+    return_dict: dict = {
+        "code": 0,
+        "msg": "",
+        "data": {
+            "uid": uid,
+            "user_name": user_name,
+            "email": email,
+        },
+    }
+    if display_age == 1:
+        return_dict["data"]["age"] = age
+    return return_dict
+
+
 @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[PluginManager(AsyncCheckJsonRespPlugin)])
-async def check_json_plugin_route(
+async def async_check_json_plugin_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
@@ -570,8 +627,31 @@ _typed_dict = TypedDict(
 )
 
 
+@plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[PluginManager(CheckJsonRespPlugin)])
+def check_json_plugin_route1(
+    uid: int = Query.i(description="user id", gt=10, lt=1000),
+    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
+    age: int = Query.i(description="age", gt=1, lt=100),
+    display_age: int = Query.i(0, description="display_age"),
+) -> _typed_dict:
+    """Test json plugin by resp type is typed dict"""
+    return_dict: dict = {
+        "code": 0,
+        "msg": "",
+        "data": {
+            "uid": uid,
+            "user_name": user_name,
+            "email": email,
+        },
+    }
+    if display_age == 1:
+        return_dict["data"]["age"] = age
+    return return_dict  # type: ignore
+
+
 @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[PluginManager(AsyncCheckJsonRespPlugin)])
-async def check_json_plugin_route1(
+async def async_check_json_plugin_route1(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
@@ -614,10 +694,15 @@ def create_app() -> Starlette:
             Route("/api/text-resp", text_response_route, methods=["GET"]),
             Route("/api/html-resp", html_response_route, methods=["GET"]),
             Route("/api/file-resp", file_response_route, methods=["GET"]),
+            Route("/api/async-text-resp", async_text_response_route, methods=["GET"]),
+            Route("/api/async-html-resp", async_html_response_route, methods=["GET"]),
+            Route("/api/async-file-resp", async_file_response_route, methods=["GET"]),
             Route("/api/auto-complete-json-plugin", auto_complete_json_route, methods=["GET"]),
             Route("/api/async-auto-complete-json-plugin", async_auto_complete_json_route, methods=["GET"]),
             Route("/api/check-json-plugin", check_json_plugin_route, methods=["GET"]),
             Route("/api/check-json-plugin-1", check_json_plugin_route1, methods=["GET"]),
+            Route("/api/async-check-json-plugin", async_check_json_plugin_route, methods=["GET"]),
+            Route("/api/async-check-json-plugin-1", async_check_json_plugin_route1, methods=["GET"]),
             Route("/api/check_depend_contextmanager", depend_contextmanager_route, methods=["GET"]),
             Route("/api/check_depend_async_contextmanager", depend_async_contextmanager_route, methods=["GET"]),
             Route("/api/check_pre_depend_contextmanager", pre_depend_contextmanager_route, methods=["GET"]),

@@ -46,7 +46,6 @@ class PaitCoreModel(object):
         self.pre_depend_list: List[Callable] = pre_depend_list or []
         self.func_path: str = ""
         self.block_http_method_set: Set[str] = set()
-        self.enable_mock_response_filter_fn: Optional[Callable[[Type[PaitBaseResponseModel]], bool]] = None
         self.pydantic_model_config: Type[BaseConfig] = pydantic_model_config or BaseConfig
 
         # api doc

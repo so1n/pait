@@ -12,19 +12,19 @@ class MockPlugin(BaseAsyncMockPlugin):
 
     def mock_response(self) -> Any:
         async def make_mock_response() -> Any:
-            self.tornado_handle.set_status(self.pait_response.status_code[0])
-            for key, value in self.pait_response.header.items():
+            self.tornado_handle.set_status(self.pait_response_model.status_code[0])
+            for key, value in self.pait_response_model.header.items():
                 self.tornado_handle.set_header(key, value)
-            self.tornado_handle.set_header("Content-Type", self.pait_response.media_type)
-            if issubclass(self.pait_response, response.PaitJsonResponseModel):
-                self.tornado_handle.write(self.pait_response.get_example_value())
-            elif issubclass(self.pait_response, response.PaitTextResponseModel) or issubclass(
-                self.pait_response, response.PaitHtmlResponseModel
+            self.tornado_handle.set_header("Content-Type", self.pait_response_model.media_type)
+            if issubclass(self.pait_response_model, response.PaitJsonResponseModel):
+                self.tornado_handle.write(self.pait_response_model.get_example_value())
+            elif issubclass(self.pait_response_model, response.PaitTextResponseModel) or issubclass(
+                self.pait_response_model, response.PaitHtmlResponseModel
             ):
-                self.tornado_handle.write(self.pait_response.get_example_value())
-            elif issubclass(self.pait_response, response.PaitFileResponseModel):
+                self.tornado_handle.write(self.pait_response_model.get_example_value())
+            elif issubclass(self.pait_response_model, response.PaitFileResponseModel):
                 async with aiofiles.tempfile.NamedTemporaryFile() as f:  # type: ignore
-                    await f.write(self.pait_response.get_example_value())
+                    await f.write(self.pait_response_model.get_example_value())
                     await f.seek(0)
                     async for line in f:
                         self.tornado_handle.write(line)

@@ -125,18 +125,18 @@ class ParamHandlerMixin(PluginProtocol):
                             cls.check_field_type(
                                 parameter.default.default,
                                 parameter.annotation,
-                                f"{parameter.default}'s default value must {parameter.annotation}",
+                                f"{parameter.name}'s Field.default value must {parameter.annotation}",
                             )
                             if parameter.default.default_factory:
                                 cls.check_field_type(
                                     parameter.default.default_factory(),
                                     parameter.annotation,
-                                    f"{parameter.default}'s default_factory  value must {parameter.annotation}",
+                                    f"{parameter.name}'s Field.default_factory value must {parameter.annotation}",
                                 )
                             cls.check_field_type(
                                 parameter.default.extra.get("example", Undefined),
                                 parameter.annotation,
-                                f"{parameter.default}'s example value must {parameter.annotation}",
+                                f"{parameter.name}'s Field.example value must {parameter.annotation}",
                             )
                         except ParseTypeError as e:
                             raise FieldValueTypeException(parameter.name, str(e))
@@ -177,7 +177,7 @@ class ParamHandlerMixin(PluginProtocol):
         elif issubclass(parameter.annotation, BaseModel):
             return True
         else:
-            logging.warning(f"Pait not support args: {parameter}")
+            logging.warning(f"Pait not support args: {parameter}")  # pragma: no cover
         return False
 
     def request_value_handle(
@@ -195,7 +195,7 @@ class ParamHandlerMixin(PluginProtocol):
         if not isinstance(param_value, BaseField):
             # not support
             # raise PaitBaseException(f"must use {BaseField.__class__.__name__}, no {param_value}")
-            return
+            return  # pragma: no cover
         elif (
             isinstance(request_value, Mapping)
             # some type like dict, but not isinstance Mapping, e.g: werkzeug.datastructures.EnvironHeaders
@@ -234,7 +234,9 @@ class ParamHandlerMixin(PluginProtocol):
         # )
         app_field_func: Optional[Callable] = getattr(self._app_helper, field_name, None)
         if app_field_func is None:
-            raise NotFoundFieldException(parameter.name, f"field: {field_name} not found in {self._app_helper}")
+            raise NotFoundFieldException(
+                parameter.name, f"field: {field_name} not found in {self._app_helper}"
+            )  # pragma: no cover
         return app_field_func()
 
 
@@ -345,6 +347,9 @@ class ParamHandler(ParamHandlerMixin, BasePlugin):
                 contextmanager.__exit__(exc_type, exc_val, exc_tb)
             except Exception as e:
                 exc_list.append(e)
+            else:
+                if exc_type and issubclass(exc_type, Exception):
+                    exc_list.append(exc_type(exc_val).with_traceback(exc_tb))
         if exc_list:
             raise_multiple_exc(exc_list)
             return True
@@ -464,6 +469,9 @@ class AsyncParamHandler(ParamHandlerMixin, BaseAsyncPlugin):
                     await contextmanager.__aexit__(exc_type, exc_val, exc_tb)
             except Exception as e:
                 exc_list.append(e)
+            else:
+                if exc_type and issubclass(exc_type, Exception):
+                    exc_list.append(exc_type(exc_val).with_traceback(exc_tb))
         if exc_list:
             raise_multiple_exc(exc_list)
             return True

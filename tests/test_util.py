@@ -1,13 +1,37 @@
 import inspect
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, AsyncIterator, Dict, Iterator, List, Optional, Type, Union
 
+import pytest
 from pydantic import BaseModel
+from pytest_mock import MockFixture
 
 import pait.util._pydantic_util
 from pait import field, util
 
+pytestmark = pytest.mark.asyncio
+
 
 class TestUtil:
+    def test_change_local(self) -> None:
+        for item in ["zh-cn", "en", "customer_1", "customer_2"]:
+            util.change_local(item)
+
+            from pait.util._i18n import i18n_local
+
+            assert i18n_local == item
+
+        with pytest.raises(ValueError):
+            util.change_local("aaa")
+        util.change_local("en")
+
+    def test_join_i18n(self) -> None:
+        util.change_local("en")
+        assert "Group Name" == util.join_i18n([util.I18n.Group, util.I18n.Name])
+
+        util.change_local("zh-cn")
+        assert "组名称" == util.join_i18n([util.I18n.Group, util.I18n.Name])
+        util.change_local("en")
+
     def test_parse_typing(self) -> None:
         assert dict is util.parse_typing(dict)
         assert list is util.parse_typing(List)
@@ -15,10 +39,72 @@ class TestUtil:
         assert dict is util.parse_typing(Union[dict])
         assert dict is util.parse_typing(Union[Dict])
         assert dict is util.parse_typing(Union[Dict[str, Any]])
+        assert dict is util.parse_typing(AsyncIterator[Dict])
+        assert dict is util.parse_typing(Iterator[Dict])
+        assert dict in util.parse_typing(Union[Dict, str, int])
         assert dict in set(util.parse_typing(Optional[Dict]))  # type: ignore
         assert type(None) in set(util.parse_typing(Optional[Dict]))  # type: ignore
         assert dict in set(util.parse_typing(Optional[dict]))  # type: ignore
         assert type(None) in set(util.parse_typing(Optional[dict]))  # type: ignore
+
+    def test_get_real_annotation(self) -> None:
+        class Demo:
+            class SubDemo:
+                pass
+
+            a: SubDemo
+
+        assert "class 'tests.test_util.TestUtil.test_get_real_annotation.<locals>.Demo.SubDemo'" in str(
+            util.get_real_annotation(Demo.__annotations__["a"], Demo)
+        )
+
+        # support postponed annotations
+        class Demo1:
+            class SubDemo1:
+                pass
+
+            a: "SubDemo1"
+
+        assert "class 'tests.test_util.TestUtil.test_get_real_annotation.<locals>.Demo1.SubDemo1'" in str(
+            util.get_real_annotation(Demo1.__annotations__["a"], Demo1)
+        )
+
+        # Closures
+        def demo2() -> None:
+            class Demo2:
+                class SubDemo2:
+                    pass
+
+                a: "SubDemo2"
+
+            assert (
+                "class 'tests.test_util.TestUtil.test_get_real_annotation.<locals>.demo2.<locals>.Demo2.SubDemo2"
+            ) in str(util.get_real_annotation(Demo2.__annotations__["a"], Demo2))
+
+        demo2()
+
+    def test_get_pait_response_model(self) -> None:
+        from example.param_verify.model import TextRespModel, UserSuccessRespModel2, UserSuccessRespModel3
+        from pait.model.response import PaitJsonResponseModel
+
+        class CoreTestRespModel(TextRespModel):
+            is_core: bool = True
+
+        # Find target pait response class
+        assert UserSuccessRespModel3 == util.get_pait_response_model(
+            [UserSuccessRespModel2, CoreTestRespModel, UserSuccessRespModel3], PaitJsonResponseModel
+        )
+        # Find two core pait response class
+        with pytest.raises(RuntimeError):
+            util.get_pait_response_model(
+                [UserSuccessRespModel2, CoreTestRespModel, UserSuccessRespModel3], find_core_response_model=True
+            )
+        # Find core pait response class
+        assert CoreTestRespModel == util.get_pait_response_model(
+            [UserSuccessRespModel2, CoreTestRespModel, UserSuccessRespModel3]
+        )
+
+        assert UserSuccessRespModel2 == util.get_pait_response_model([UserSuccessRespModel2])
 
     def test_create_pydantic_model(self) -> None:
         pydantic_model_class: Type[BaseModel] = pait.util._pydantic_util.create_pydantic_model(
@@ -65,3 +151,90 @@ class TestUtil:
         assert result[0].name == "c"
         assert result[0].annotation == str
         assert result[0].default == value
+
+
+class AnyStringWith(str):
+    def __eq__(self, other: Any) -> bool:
+        return self in other
+
+
+class StringNotIn(str):
+    def __eq__(self, other: Any) -> bool:
+        return self not in other
+
+
+class Demo:
+    pass
+
+
+class FakeField(field.BaseField):
+    pass
+
+
+class TestGenTipExc:
+    def test_raise_and_tip_param_value_is_empty(self, mocker: MockFixture) -> None:
+        patch = mocker.patch("pait.param_handle.logging.debug")
+        parameter: inspect.Parameter = inspect.Parameter(
+            "b",
+            inspect.Parameter.POSITIONAL_ONLY,
+            annotation=str,
+        )
+        with pytest.raises(Exception):
+            raise pait.util._gen_tip.gen_tip_exc(Demo(), Exception(), parameter)
+        patch.assert_called_with(AnyStringWith("class: `Demo`  attributes error"))
+
+    def test_raise_and_tip_param_value_is_pait_field(self, mocker: MockFixture) -> None:
+        patch = mocker.patch("pait.param_handle.logging.debug")
+        parameter: inspect.Parameter = inspect.Parameter(
+            "b", inspect.Parameter.POSITIONAL_ONLY, annotation=str, default=FakeField.i()
+        )
+        with pytest.raises(Exception):
+            raise pait.util._gen_tip.gen_tip_exc(Demo(), Exception(), parameter)
+
+        patch.assert_called_with(AnyStringWith("class: `Demo`  attributes error"))
+
+    def test_raise_and_tip_param_value_is_not_pait_field(self, mocker: MockFixture) -> None:
+        patch = mocker.patch("pait.param_handle.logging.debug")
+        parameter: inspect.Parameter = inspect.Parameter(
+            "b", inspect.Parameter.POSITIONAL_ONLY, annotation=str, default=""
+        )
+        with pytest.raises(Exception):
+            raise pait.util._gen_tip.gen_tip_exc(Demo(), Exception(), parameter)
+        patch.assert_called_with(StringNotIn("alias"))
+        patch.assert_called_with(AnyStringWith("class: `Demo`  attributes error"))
+
+
+class TestLazyProperty:
+    async def test_lazy_property_fun(self) -> None:
+        @util.LazyProperty()
+        def _demo(a: int, b: int) -> int:
+            return a + b
+
+        @util.LazyProperty()
+        async def _async_demo(a: int, b: int) -> int:
+            return a + b
+
+        assert _demo(1, 3) == _demo(1, 4)
+        assert await _async_demo(1, 5) == await _async_demo(1, 6)
+        assert _demo(2, 1) != await _async_demo(2, 1)
+
+    async def test_lazy_property_class(self) -> None:
+        class Demo(object):
+            @util.LazyProperty()
+            def demo_func(self, a: int, b: int) -> int:
+                return a + b
+
+            @util.LazyProperty()
+            async def async_demo_func(self, a: int, b: int) -> int:
+                return a + b
+
+        demo: Demo = Demo()
+        demo1: Demo = Demo()
+        assert demo.demo_func(1, 2) == demo.demo_func(1, 3)
+        assert demo1.demo_func(1, 4) == demo1.demo_func(1, 5)
+
+        assert await demo.async_demo_func(2, 2) == await demo.async_demo_func(2, 3)
+        assert await demo1.async_demo_func(2, 4) == await demo1.async_demo_func(2, 5)
+
+        assert demo.demo_func(3, 1) != demo1.demo_func(3, 1)
+        assert await demo.async_demo_func(3, 2) != await demo1.async_demo_func(3, 2)

@@ -50,7 +50,7 @@ class LinksModel(object):
                     f"Check expr: {self.openapi_runtime_expr} error."
                     "Please refer to the section of the document(https://swagger.io/docs/specification/links/) "
                     "at `Runtime Expression Syntax`"
-                )
+                )  # pragma: no cover
 
             base_model: Type[BaseModel] = self.pait_response_model.response_data  # type: ignore
             for key in key_list:

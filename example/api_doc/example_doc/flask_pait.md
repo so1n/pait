@@ -1,7 +1,7 @@
 # Pait Doc
 <details><summary>Group: check_resp</summary>
 
-### Name: text_response_route
+### Name: async_text_response_route
 
 
 
@@ -11,7 +11,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 344">text_response_route</abbr>|    |
+    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 344">async_text_response_route</abbr>|    |
 - Path: /api/text-resp
 - Method: GET
 - Request:

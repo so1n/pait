@@ -2,7 +2,7 @@ from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
 from json import JSONEncoder
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type
+from typing import Any, Dict, List, Optional, Set, Tuple, Type
 
 from pydantic import BaseConfig
 
@@ -17,10 +17,10 @@ from pait.util import python_type_default_value_dict as pait_python_type_default
 
 class CustomJSONEncoder(JSONEncoder):
     def default(self, obj: Any) -> Any:
-        if type(obj) == date:
-            return datetime.strptime(str(obj), "%Y-%m-%d")
-        elif isinstance(obj, datetime):
+        if isinstance(obj, datetime):
             return int(obj.timestamp())
+        elif isinstance(obj, date):
+            return obj.strftime("%Y-%m-%d")
         elif isinstance(obj, Decimal):
             return float(obj)
         elif isinstance(obj, Enum):
@@ -39,7 +39,6 @@ class Config(object):
     def __init__(self) -> None:
         self.author: Tuple[str, ...] = ("",)
         self.status: PaitStatus = PaitStatus.undefined
-        self.enable_mock_response_filter_fn: Optional[Callable[[Type[PaitBaseResponseModel]], bool]] = None
         self.block_http_method_set: Set[str] = set()
         self.default_response_model_list: List[Type[PaitBaseResponseModel]] = []
         self.json_encoder: Type[JSONEncoder] = CustomJSONEncoder
@@ -58,7 +57,6 @@ class Config(object):
         author: Optional[Tuple[str, ...]] = None,
         status: Optional[PaitStatus] = None,
         default_response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
-        enable_mock_response_filter_fn: Optional[Callable[[Type[PaitBaseResponseModel]], bool]] = None,
         block_http_method_set: Optional[Set[str]] = None,
         json_type_default_value_dict: Optional[Dict[str, Any]] = None,
         python_type_default_value_dict: Optional[Dict[type, Any]] = None,
@@ -71,8 +69,6 @@ class Config(object):
         :param author:  Only @pait(author=None) will be called to change the configuration
         :param status:  Only @pait(status=None) will be called to change the configuration
         :param default_response_model_list: Add a default response structure for all routing handles
-        :param enable_mock_response_filter_fn:
-            There are multiple response bodies in response_list, you can filter by changing the function
         :param block_http_method_set:
             Under normal circumstances, pait.load_app can obtain the http method of the routing handle.
             However, some application frameworks such as flask will automatically add optional http methods
@@ -90,8 +86,6 @@ class Config(object):
             self.status = status
         if default_response_model_list:
             self.default_response_model_list = default_response_model_list
-        if enable_mock_response_filter_fn:
-            self.enable_mock_response_filter_fn = enable_mock_response_filter_fn
         if block_http_method_set:
             self.block_http_method_set = block_http_method_set
         if json_type_default_value_dict:

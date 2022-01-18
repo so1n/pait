@@ -19,7 +19,7 @@ class AppHelper(BaseAppHelper):
     def __init__(self, class_: Any, args: List[Any], kwargs: Mapping[str, Any]):
         super().__init__(class_, args, kwargs)
         if not self.cbv_instance:
-            raise RuntimeError("Can not load Tornado handle")
+            raise RuntimeError("Can not load Tornado handle")  # pragma: no cover
 
         self.request = self.cbv_instance.request
         self.path_kwargs: Dict[str, Any] = self.cbv_instance.path_kwargs
@@ -38,7 +38,7 @@ class AppHelper(BaseAppHelper):
         if self.request.arguments:
             form_dict: dict = {key: value[0].decode() for key, value in self.request.arguments.items()}
         else:
-            form_dict = json.loads(self.request.body.decode())
+            form_dict = json.loads(self.request.body.decode())  # pragma: no cover
         return {key: value[0] for key, value in form_dict.items()}
 
     def header(self) -> dict:
@@ -56,7 +56,7 @@ class AppHelper(BaseAppHelper):
         if self.request.arguments:
             return {key: [i.decode() for i in value] for key, value in self.request.arguments.items()}
         else:
-            return {key: [value] for key, value in json.loads(self.request.body.decode()).items()}
+            return {key: [value] for key, value in json.loads(self.request.body.decode()).items()}  # pragma: no cover
 
     @LazyProperty()
     def multiquery(self) -> Dict[str, Any]:

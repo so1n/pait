@@ -58,7 +58,7 @@ def add_doc_route(
         else:
             url: str = f"{_scheme}://{request.url.hostname}"
             if request.url.port:
-                url += f":{request.url.port}"
+                url += f":{request.url.port}"  # pragma: no cover
             openapi_json_url = f"{url}{'/'.join(request.url.path.split('/')[:-1])}/openapi.json"
         if r_pin_code:
             openapi_json_url += f"?pin_code={r_pin_code}"
@@ -78,7 +78,7 @@ def add_doc_route(
         _scheme: str = scheme or request.url.scheme
         url: str = f"{_scheme}://{request.url.hostname}"
         if request.url.port:
-            url += f":{request.url.port}"
+            url += f":{request.url.port}"  # pragma: no cover
         pait_openapi: PaitOpenApi = PaitOpenApi(
             pait_dict,
             title=title,

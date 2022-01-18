@@ -27,9 +27,7 @@ class AsyncAutoCompleteJsonRespPlugin(_AsyncAutoCompleteJsonRespPlugin):
         self.json_kwargs: dict = json_kwargs
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        default_response_dict: dict = self.pait_response_model.get_default_dict()
-        response_dict: dict = await self.call_next(*args, **kwargs)
-        default_response_dict.update(response_dict)
+        response_dict: Any = await super(AsyncAutoCompleteJsonRespPlugin, self).__call__(*args, **kwargs)
         return json(
             response_dict,
             status=self.status,

@@ -87,8 +87,8 @@ def pait_model_schema(
     )
     if model_name in nested_models:
         # model_name is in Nested models, it has circular references
-        m_definitions[model_name] = m_schema
-        m_schema = get_schema_ref(model_name, ref_prefix, ref_template, False)
+        m_definitions[model_name] = m_schema  # pragma: no cover
+        m_schema = get_schema_ref(model_name, ref_prefix, ref_template, False)  # pragma: no cover
     if m_definitions:
         m_schema.update({"definitions": m_definitions})
     return m_schema
@@ -102,7 +102,7 @@ def create_pydantic_model(
     pydantic_module: str = "pydantic.main",
     pydantic_validators: Dict[str, classmethod] = None,
 ) -> Type["BaseModel"]:
-    """pydantic self.pait_response helper
+    """pydantic self.pait_response_model helper
     if use create_model('DynamicModel', **annotation_dict), mypy will tip error
     """
     return create_model(

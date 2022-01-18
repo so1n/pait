@@ -2,7 +2,7 @@ import asyncio
 import difflib
 import sys
 from tempfile import NamedTemporaryFile
-from typing import Callable, Generator, Type
+from typing import Callable, Generator, Type, Union
 from unittest import mock
 
 import pytest
@@ -17,6 +17,7 @@ from pait.api_doc.open_api import PaitOpenApi
 from pait.app import auto_load_app
 from pait.app.starlette import StarletteTestHelper, load_app
 from pait.model import response
+from pait.plugin.base_mock_response import BaseAsyncMockPlugin, BaseMockPlugin
 from tests.conftest import enable_mock
 
 
@@ -39,14 +40,16 @@ def client(mocker: MockFixture) -> Generator[TestClient, None, None]:
 
 
 def response_test_helper(
-    client: TestClient, route_handler: Callable, pait_response: Type[response.PaitBaseResponseModel]
+    client: TestClient,
+    route_handler: Callable,
+    pait_response: Type[response.PaitBaseResponseModel],
+    plugin: Type[Union[BaseMockPlugin, BaseAsyncMockPlugin]],
 ) -> None:
-    from pait.app.starlette.plugin.mock_response import MockAsyncPlugin
 
     test_helper: StarletteTestHelper = StarletteTestHelper(client, route_handler)
     test_helper.get()
 
-    with enable_mock(route_handler, MockAsyncPlugin):
+    with enable_mock(route_handler, plugin):
         resp: Response = test_helper.get()
         for key, value in pait_response.header.items():
             assert resp.headers[key] == value
@@ -91,6 +94,7 @@ class TestStarlette:
 
     def test_check_json_route(self, client: TestClient) -> None:
         for url, api_code in [
+            # sync route
             (
                 "/api/check-json-plugin?uid=123&user_name=appl&sex=man&age=10",
                 -1,
@@ -98,6 +102,14 @@ class TestStarlette:
             ("/api/check-json-plugin?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
             ("/api/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10", -1),
             ("/api/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
+            # async route
+            (
+                "/api/async-check-json-plugin?uid=123&user_name=appl&sex=man&age=10",
+                -1,
+            ),
+            ("/api/async-check-json-plugin?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
+            ("/api/async-check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10", -1),
+            ("/api/async-check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
         ]:
             resp: dict = client.get(url).json()
             assert resp["code"] == api_code
@@ -342,13 +354,28 @@ class TestStarlette:
         ).json()
 
     def test_text_response(self, client: TestClient) -> None:
-        response_test_helper(client, starlette_example.text_response_route, response.PaitTextResponseModel)
+        from pait.app.starlette.plugin.mock_response import MockAsyncPlugin, MockPlugin
+
+        response_test_helper(client, starlette_example.text_response_route, response.PaitTextResponseModel, MockPlugin)
+        response_test_helper(
+            client, starlette_example.async_text_response_route, response.PaitTextResponseModel, MockAsyncPlugin
+        )
 
     def test_html_response(self, client: TestClient) -> None:
-        response_test_helper(client, starlette_example.html_response_route, response.PaitHtmlResponseModel)
+        from pait.app.starlette.plugin.mock_response import MockAsyncPlugin, MockPlugin
+
+        response_test_helper(client, starlette_example.html_response_route, response.PaitHtmlResponseModel, MockPlugin)
+        response_test_helper(
+            client, starlette_example.async_html_response_route, response.PaitHtmlResponseModel, MockAsyncPlugin
+        )
 
     def test_file_response(self, client: TestClient) -> None:
-        response_test_helper(client, starlette_example.file_response_route, response.PaitFileResponseModel)
+        from pait.app.starlette.plugin.mock_response import MockAsyncPlugin, MockPlugin
+
+        response_test_helper(client, starlette_example.file_response_route, response.PaitFileResponseModel, MockPlugin)
+        response_test_helper(
+            client, starlette_example.async_file_response_route, response.PaitFileResponseModel, MockAsyncPlugin
+        )
 
     def test_test_helper_not_support_mutil_method(self, client: TestClient) -> None:
         app: Starlette = client.app  # type: ignore

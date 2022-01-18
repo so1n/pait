@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from decimal import Decimal
 from typing import Type
@@ -6,7 +7,72 @@ import pytest
 from pydantic import BaseModel, Field
 
 from example.param_verify.model import SexEnum
-from pait.model import response, tag
+from pait.model import links, response, tag
+from pait.model.config import Config
+
+
+class TestConfigModel:
+    def test_repeat_config_init(self) -> None:
+        config: Config = Config()
+        config.author = "so1n"  # type: ignore
+        assert config.author == "so1n"
+        assert not config.initialized
+        config.init_config()
+        assert config.initialized
+
+        with pytest.raises(RuntimeError) as e:
+            config.init_config()
+
+        exec_msg: str = e.value.args[0]
+        assert "Can not set new value in runtime" in exec_msg
+        with pytest.raises(RuntimeError) as e:
+            config.author = "test"  # type: ignore
+
+        exec_msg = e.value.args[0]
+        assert "Can not set new value in runtime" in exec_msg
+
+    def test_default_json_encoder(self) -> None:
+        config: Config = Config()
+        assert json.dumps(
+            {
+                "date": datetime.fromtimestamp(0).date(),
+                "datetime": datetime.fromtimestamp(1600000000),
+                "decimal": Decimal("0.0"),
+                "enum": SexEnum.man,
+                "int": 1,
+                "str": "",
+            },
+            cls=config.json_encoder,
+        ) == json.dumps(
+            {"date": "1970-01-01", "datetime": 1600000000, "decimal": 0.0, "enum": "man", "int": 1, "str": ""}
+        )
+
+
+class TestLinksModel:
+    def test_links_model(self) -> None:
+        class DemoResponseModel(response.PaitBaseResponseModel):
+            response_data = ""
+
+        # not found header
+        with pytest.raises(KeyError) as e:
+            links.LinksModel(DemoResponseModel, "$response.header.")._check_openapi_runtime_expr()
+
+        exec_msg: str = e.value.args[0]
+        assert "Can not found header key" in exec_msg
+
+        # not base model response data
+        with pytest.raises(RuntimeError) as e:
+            links.LinksModel(DemoResponseModel, "$response.body#")._check_openapi_runtime_expr()
+
+        exec_msg = e.value.args[0]
+        assert "pait_response_model.response_data type is pydantic.Basemodel" in exec_msg
+
+        # not support expr
+        with pytest.raises(ValueError) as e:
+            links.LinksModel(DemoResponseModel, "$response.body")._check_openapi_runtime_expr()
+
+        exec_msg = e.value.args[0]
+        assert "Only support $response.headerXXX or $response.bodyXXX. " in exec_msg
 
 
 class TestTagModel:

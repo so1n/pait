@@ -1,13 +1,13 @@
 # Pait Doc
 <details><summary>Group: check_resp</summary>
 
-### Name: text_response_route
+### Name: async_text_response_route
 
 - API Info
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 383">text_response_route</abbr>|    |
+    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 383">async_text_response_route</abbr>|    |
 - Path: /api/text-resp
 - Method: GET,HEAD
 - Request:

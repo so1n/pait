@@ -24,9 +24,7 @@ class AsyncAutoCompleteJsonRespPlugin(_AsyncAutoCompleteJsonRespPlugin):
         self.media_type: Optional[str] = media_type
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        default_response_dict: dict = self.pait_response_model.get_default_dict()
-        response_dict: dict = await self.call_next(*args, **kwargs)
-        default_response_dict.update(response_dict)
+        response_dict: Any = await super(AsyncAutoCompleteJsonRespPlugin, self).__call__(*args, **kwargs)
         return JSONResponse(
             response_dict, status_code=self.status_code, headers=self.headers, media_type=self.media_type
         )
@@ -47,9 +45,7 @@ class AutoCompleteJsonRespPlugin(_AutoCompleteJsonRespPlugin):
         self.media_type: Optional[str] = media_type
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        default_response_dict: dict = self.pait_response_model.get_default_dict()
-        response_dict: dict = self.call_next(*args, **kwargs)
-        default_response_dict.update(response_dict)
+        response_dict: Any = super(AutoCompleteJsonRespPlugin, self).__call__(*args, **kwargs)
         return JSONResponse(
-            default_response_dict, status_code=self.status_code, headers=self.headers, media_type=self.media_type
+            response_dict, status_code=self.status_code, headers=self.headers, media_type=self.media_type
         )

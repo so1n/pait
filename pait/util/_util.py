@@ -53,7 +53,7 @@ def get_real_annotation(annotation: Union[Type, str], target_obj: Any) -> Type:
         value: ForwardRef = ForwardRef(annotation, is_argument=False)
         new_annotation = value._evaluate(sys.modules[target_obj.__module__].__dict__, None)  # type: ignore
         if not new_annotation:
-            raise RuntimeError(f"get real annotation from {target_obj} fail")
+            raise RuntimeError(f"get real annotation from {target_obj} fail")  # pragma: no cover
     return new_annotation
 
 

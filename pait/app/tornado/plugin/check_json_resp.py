@@ -25,7 +25,7 @@ class AsyncCheckJsonRespPlugin(_AsyncCheckJsonRespPlugin):
         self.json_kwargs: dict = json_kwargs
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        response: Any = await self.call_next(*args, **kwargs)
+        response: Any = await super(AsyncCheckJsonRespPlugin, self).__call__(*args, **kwargs)
         self.check_resp_fn(response)
         tornado_handle: RequestHandler = args[0]
         tornado_handle.write(response)

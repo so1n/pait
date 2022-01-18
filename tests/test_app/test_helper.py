@@ -100,7 +100,7 @@ class TestPaitTestHelper:
 
         for http_method in ["patch", "post", "put", "delete", "options"]:
             with pytest.raises(RuntimeError) as e:
-                print(http_method, getattr(FlaskTestHelper(client, flask_example.html_response_route), http_method)())
+                http_method, getattr(FlaskTestHelper(client, flask_example.html_response_route), http_method)()
 
             exec_msg: str = e.value.args[0]
             assert "405 METHOD NOT ALLOWED" in exec_msg or "'Allow'" in exec_msg

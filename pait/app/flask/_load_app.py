@@ -46,7 +46,9 @@ def load_app(app: Flask, project_name: str = "") -> Dict[str, PaitCoreModel]:
                 continue
             view_class_endpoint = getattr(endpoint, "view_class", None)
             if not view_class_endpoint or not issubclass(view_class_endpoint, MethodView):
-                logging.warning(f"loan path:{path} fail, endpoint:{endpoint} not `view_class` attributes")
+                logging.warning(
+                    f"loan path:{path} fail, endpoint:{endpoint} not `view_class` attributes"
+                )  # pragma: no cover
                 continue
             for method in view_class_endpoint.methods:
                 method = method.lower()

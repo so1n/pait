@@ -17,9 +17,7 @@ class AsyncAutoCompleteJsonRespPlugin(_AsyncAutoCompleteJsonRespPlugin):
         super(AsyncAutoCompleteJsonRespPlugin, self).__init__(pait_response_model=pait_response_model)
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        default_response_dict: dict = self.pait_response_model.get_default_dict()
-        response_dict: dict = await self.call_next(*args, **kwargs)
-        default_response_dict.update(response_dict)
+        response_dict: Any = await super(AsyncAutoCompleteJsonRespPlugin, self).__call__(*args, **kwargs)
         tornado_handle: RequestHandler = args[0]
         tornado_handle.write(response_dict)
         return response_dict

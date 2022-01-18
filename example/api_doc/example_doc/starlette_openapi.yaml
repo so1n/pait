@@ -1620,7 +1620,7 @@ paths:
       - check resp
       summary: ''
       description: ''
-      operationId: GET.text_response_route
+      operationId: GET.async_text_response_route
       responses:
         200:
           description: text response
@@ -1637,7 +1637,7 @@ paths:
       - check resp
       summary: ''
       description: ''
-      operationId: HEAD.text_response_route
+      operationId: HEAD.async_text_response_route
       responses:
         200:
           description: text response

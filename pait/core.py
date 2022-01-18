@@ -193,7 +193,9 @@ class Pait(object):
                 if isinstance(_tag, Tag):
                     _tag = _tag.name
                 else:
-                    logging.warning("In later versions tag only supports Tag class, and does not support str type")
+                    logging.warning(
+                        "In later versions tag only supports Tag class, and does not support str type"
+                    )  # pragma: no cover
                 new_tag.append(_tag)
 
         def wrapper(func: Callable) -> Callable:
