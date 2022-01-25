@@ -34,6 +34,7 @@ autoflake = "1.4"
 flake8 = "3.9.2"
 pytest-profiling = "1.7.0"
 aiofiles = "0.8.0"
+mkdocs-material = "^8.1.7"
 
 [tool.black]
 line-length = 120

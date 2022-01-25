@@ -1,0 +1,26 @@
+site_name: My Docs
+theme:
+    name: material
+    language: zh
+    features:
+        - navigation.top
+        - content.code.annotate
+extra:
+  version:
+    provider: mike
+  alternate:
+    - name: English
+      link: /en/
+      lang: en
+    - name: 中文
+      link: /zh/
+      lang: zh
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/so1n
+plugins:
+    - search:
+        lang:
+            - en
+markdown_extensions:
+  - meta
