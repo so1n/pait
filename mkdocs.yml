@@ -1,10 +1,46 @@
-site_name: My Docs
+site_name: Pait
+site_description: Pait is a Python api tool. Pait enables your Python web framework to have type checking, parameter type conversion, interface document generation and can display your documents through Redoc or Swagger (power by inspect, pydantic)
+
 theme:
     name: material
     language: zh
     features:
         - navigation.top
         - content.code.annotate
+
+repo_name: so1n/pait
+repo_url: https://github.com/so1n/pait
+edit_uri: ""
+
+
+nav:
+  - 介绍: 'index.md'
+  - 类型转换与参数校验:
+    - 介绍: 'index.md'
+    - 如何使用Pait的Field: 'index.md'
+    - Field的复用: 'index.md'
+    - 依赖注入: 'index.md'
+    - 异常提示: 'index.md'
+    - 高级使用方法: 'index.md'
+  - 文档:
+    - 介绍: 'index.md'
+    - OpenApi生成: 'index.md'
+    - OpenApi路由使用: 'index.md'
+    - 其它文档: 'index.md'
+  - 单元测试支持: 'index.md'
+  - 插件:
+    - 介绍: 'index.md'
+    - 参数检查插件: 'index.md'
+    - Json响应插件: 'index.md'
+    - Mock响应插件: 'index.md'
+  - 其它:
+    - 隐式引入与显式引入: 'index.md'
+    - config模块: 'index.md'
+    - 如何在其它Web框架使用Pait: 'index.md'
+    - IDE支持: 'index.md'
+    - 示例代码: 'index.md'
+  - 发行说明: 'index.md'
+
 extra:
   version:
     provider: mike
@@ -24,3 +60,11 @@ plugins:
             - en
 markdown_extensions:
   - meta
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
