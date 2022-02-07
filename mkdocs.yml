@@ -17,8 +17,8 @@ nav:
   - 介绍: '0_index.md'
   - 类型转换与参数校验:
     - 介绍: '1_1_introduction.md'
-    - 如何使用Field: '1_2_field.md'
-    - Field的复用: 'index.md'
+    - 如何使用Field: '1_2_how_to_use_field.md'
+    - 如何使用Type: '1_3_how_to_use_type.md'
     - 依赖注入: 'index.md'
     - 异常提示: 'index.md'
     - 高级使用方法: 'index.md'
