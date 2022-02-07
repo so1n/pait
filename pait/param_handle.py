@@ -98,12 +98,17 @@ class ParamHandlerMixin(PluginProtocol):
         cls.check_param_field_handle(func_sig, func_sig.param_list)
 
     @staticmethod
-    def check_field_type(value: Any, target_type: Union[Type, object], error_msg: str) -> None:
+    def check_field_type(value: Any, target_type: Any, error_msg: str) -> None:
         if isinstance(value, UndefinedType):
             return
         if inspect.isfunction(value):
             value = value()
-        if not is_type(type(value), target_type):
+        try:
+            result = is_type(type(value), target_type)
+        except ParseTypeError:
+            result = isinstance(value, target_type)
+
+        if not result:
             raise ParseTypeError(error_msg)
 
     @classmethod

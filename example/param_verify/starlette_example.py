@@ -683,7 +683,7 @@ def create_app() -> Starlette:
             Route("/api/post", post_route, methods=["POST"]),
             Route("/api/depend", depend_route, methods=["POST"]),
             Route("/api/field-default-factory", field_default_factory_route, methods=["POST"]),
-            Route("/api/pait-base-field/{age}", pait_base_field_route, methods=["GET"]),
+            Route("/api/pait-base-field/{age}", pait_base_field_route, methods=["POST"]),
             Route("/api/same-alias", same_alias_route, methods=["GET"]),
             Route("/api/mock/{age}", mock_route, methods=["GET"]),
             Route("/api/async-mock/{age}", async_mock_route, methods=["GET"]),
