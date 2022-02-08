@@ -20,7 +20,7 @@ nav:
     - 如何使用Field: '1_2_how_to_use_field.md'
     - 如何使用Type: '1_3_how_to_use_type.md'
     - Depend: '1_4_depend.md'
-    - 异常提示: 'index.md'
+    - 异常提示: '1_5_exception.md'
     - 高级使用方法: 'index.md'
   - 文档:
     - 介绍: 'index.md'

@@ -59,5 +59,5 @@ def gen_tip_exc(_object: Any, exception: "Exception", parameter: Optional[inspec
         logging.debug(f"class: `{error_object_name}`  attributes error\n    {param_str}")
 
     setattr(exception, "_is_tip_exc", True)
-    exc_msg: str = f'File "{file}",' f" line {line}," f" in {error_object_name}." f" error:{str(exception)}"
+    exc_msg: str = f'File "{file}",' f" line {line}," f" in {error_object_name}." f"\nerror:{str(exception)}"
     return TipException(exc_msg, exception)
