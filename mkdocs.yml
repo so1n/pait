@@ -19,7 +19,7 @@ nav:
     - 介绍: '1_1_introduction.md'
     - 如何使用Field: '1_2_how_to_use_field.md'
     - 如何使用Type: '1_3_how_to_use_type.md'
-    - 依赖注入: 'index.md'
+    - Depend: '1_4_depend.md'
     - 异常提示: 'index.md'
     - 高级使用方法: 'index.md'
   - 文档:
@@ -63,6 +63,8 @@ markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
+  - admonition
+  - pymdownx.details
   - pymdownx.snippets
   - pymdownx.superfences
   - def_list
