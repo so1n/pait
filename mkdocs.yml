@@ -21,7 +21,7 @@ nav:
     - 如何使用Type: '1_3_how_to_use_type.md'
     - Depend: '1_4_depend.md'
     - 异常提示: '1_5_exception.md'
-    - 高级使用方法: 'index.md'
+  - Pait的复用: '2_pait_multiplexing.md'
   - 文档:
     - 介绍: 'index.md'
     - OpenApi生成: 'index.md'
