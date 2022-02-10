@@ -3,7 +3,17 @@
 - 2 Plugin Panel
 
 
-### 0.7.3[Now]
+### 0.7.4[Now]
+Improve the interaction of md documents and increase the functionality of existing plug-ins
+
+- Style: Change md doc style
+- Feature: Md Support i18n and Request Param table support display example and other column
+- Feature: Friendly exc design
+- Feature: Check Field's default,example and default_factory value type when program start
+- Refactor: Refactor mock response plugin
+- Feature: Add auto complete json plugin
+
+### 0.7.3
 Core architecture modification, support for plug-in mechanism
 
 - Feature: Support create sub pait
