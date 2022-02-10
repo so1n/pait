@@ -8,10 +8,10 @@ from pait.model.core import PaitCoreModel
 
 from ._load_app import load_app
 
-__all__ = ["StarletteTestHelper"]
+__all__ = ["StarletteTestHelper", "TestHelper"]
 
 
-class StarletteTestHelper(BaseTestHelper[_Response]):
+class TestHelper(BaseTestHelper[_Response]):
     client: TestClient
 
     def _app_init_field(self) -> None:
@@ -62,3 +62,7 @@ class StarletteTestHelper(BaseTestHelper[_Response]):
             files=self.file_dict,
         )
         return resp
+
+
+class StarletteTestHelper(TestHelper):
+    """Will remove on version 1.0"""

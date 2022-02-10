@@ -11,10 +11,10 @@ from pait.model.core import PaitCoreModel
 
 from ._load_app import load_app
 
-__all__ = ["TornadoTestHelper"]
+__all__ = ["TornadoTestHelper", "TestHelper"]
 
 
-class TornadoTestHelper(BaseTestHelper[HTTPResponse]):
+class TestHelper(BaseTestHelper[HTTPResponse]):
     client: AsyncHTTPTestCase
 
     def _app_init_field(self) -> None:
@@ -117,3 +117,7 @@ class TornadoTestHelper(BaseTestHelper[HTTPResponse]):
         body.write(("--%s--\r\n" % boundary).encode(encoding="utf-8"))
         content_type: str = "multipart/form-data;boundary=%s" % boundary
         return content_type, body.getvalue()
+
+
+class TornadoTestHelper(TestHelper):
+    """Will remove on version 1.0"""

@@ -7,10 +7,10 @@ from pait.model.core import PaitCoreModel
 
 from ._load_app import load_app
 
-__all__ = ["SanicTestHelper"]
+__all__ = ["SanicTestHelper", "TestHelper"]
 
 
-class SanicTestHelper(BaseTestHelper[TestingResponse]):
+class TestHelper(BaseTestHelper[TestingResponse]):
     client: SanicTestClient
 
     def _app_init_field(self) -> None:
@@ -66,3 +66,7 @@ class SanicTestHelper(BaseTestHelper[TestingResponse]):
                 files=self.file_dict,
             )
         return resp
+
+
+class SanicTestHelper(TestHelper):
+    """Will remove on version 1.0"""

@@ -8,10 +8,10 @@ from pait.model.core import PaitCoreModel
 
 from ._load_app import load_app
 
-__all__ = ["FlaskTestHelper"]
+__all__ = ["FlaskTestHelper", "TestHelper"]
 
 
-class FlaskTestHelper(BaseTestHelper[Response]):
+class TestHelper(BaseTestHelper[Response]):
     client: FlaskClient
 
     def _app_init_field(self) -> None:
@@ -61,3 +61,7 @@ class FlaskTestHelper(BaseTestHelper[Response]):
         return self.client.open(
             self.path, data=self.form_dict, json=self.body_dict, headers=self.header_dict, method=method
         )
+
+
+class FlaskTestHelper(TestHelper):
+    """Will remove on version 1.0"""
