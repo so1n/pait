@@ -410,6 +410,7 @@ async def param_required_route_by_extra_param(
 
 if __name__ == "__main__":
     with create_app() as app:
+        CacheResponsePlugin.set_redis_to_app(app, Redis(decode_responses=True))
         app.add_route("/api/mock/{age}", mock_route, methods=["GET"])
         app.add_route("/api/async-mock/{age}", async_mock_route, methods=["GET"])
         app.add_route("/api/auto-complete-json-plugin", auto_complete_json_route, methods=["GET"])

@@ -2,6 +2,7 @@ import difflib
 import json
 import random
 import sys
+from contextlib import contextmanager
 from typing import Callable, Generator, Type
 from unittest import mock
 
@@ -10,6 +11,7 @@ from flask import Flask, Response
 from flask.ctx import AppContext
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
+from werkzeug.test import _TestCookieJar
 
 from example.common import response_model
 from example.flask_example import grpc_route, main_example
@@ -23,8 +25,8 @@ from tests.conftest import enable_plugin, grpc_test_create_user_request, grpc_te
 from tests.test_app.base_test import BaseTest
 
 
-@pytest.fixture
-def client() -> Generator[FlaskClient, None, None]:
+@contextmanager
+def client_ctx() -> Generator[FlaskClient, None, None]:
     # Flask provides a way to test your application by exposing the Werkzeug test Client
     # and handling the context locals for you.
     app: Flask = main_example.create_app()
@@ -37,16 +39,21 @@ def client() -> Generator[FlaskClient, None, None]:
 
 
 @pytest.fixture
+def client() -> Generator[FlaskClient, None, None]:
+    with client_ctx() as client:
+        yield client
+
+
+@contextmanager
+def base_test_ctx() -> Generator[BaseTest, None, None]:
+    with client_ctx() as client:
+        yield BaseTest(client, _TestHelper)
+
+
+@pytest.fixture
 def base_test() -> Generator[BaseTest, None, None]:
-    # Flask provides a way to test your application by exposing the Werkzeug test Client
-    # and handling the context locals for you.
-    app: Flask = main_example.create_app()
-    client: FlaskClient = app.test_client()
-    # Establish an application context before running the tests.
-    ctx: AppContext = app.app_context()
-    ctx.push()
-    yield BaseTest(client, _TestHelper)
-    ctx.pop()
+    with client_ctx() as client:
+        yield BaseTest(client, _TestHelper)
 
 
 def response_test_helper(
@@ -119,37 +126,38 @@ class TestFlask:
         exec_msg: str = e.value.args[0]
         assert exec_msg == "Pait Can not auto select method, please choice method in ['GET', 'POST']"
 
-    def test_doc_route(self, client: FlaskClient) -> None:
-        main_example.add_api_doc_route(client.application)
-        for doc_route_path in default_doc_fn_dict.keys():
-            assert client.get(f"/{doc_route_path}").status_code == 404
-            assert client.get(f"/api-doc/{doc_route_path}").status_code == 200
+    def test_doc_route(self) -> None:
+        with client_ctx() as client:
+            main_example.add_api_doc_route(client.application)
+            for doc_route_path in default_doc_fn_dict.keys():
+                assert client.get(f"/{doc_route_path}").status_code == 404
+                assert client.get(f"/api-doc/{doc_route_path}").status_code == 200
 
-        for doc_route_path, fn in default_doc_fn_dict.items():
-            assert client.get(f"/{doc_route_path}?pin-code=6666").get_data().decode() == fn(
-                "http://localhost/openapi.json?pin-code=6666", title="Pait Api Doc(private)"
+            for doc_route_path, fn in default_doc_fn_dict.items():
+                assert client.get(f"/{doc_route_path}?pin-code=6666").get_data().decode() == fn(
+                    "http://localhost/openapi.json?pin-code=6666", title="Pait Api Doc(private)"
+                )
+
+            assert (
+                json.loads(client.get("/openapi.json?pin-code=6666&template-token=xxx").get_data().decode())["paths"][
+                    "/api/user"
+                ]["get"]["parameters"][0]["schema"]["example"]
+                == "xxx"
             )
-
-        assert (
-            json.loads(client.get("/openapi.json?pin-code=6666&template-token=xxx").get_data().decode())["paths"][
-                "/api/user"
-            ]["get"]["parameters"][0]["schema"]["example"]
-            == "xxx"
-        )
-        assert (
-            difflib.SequenceMatcher(
-                None,
-                str(client.get("/openapi.json?pin-code=6666").get_data().decode()),
-                str(
-                    OpenAPI(
-                        load_app(client.application),
-                        openapi_info_model=InfoModel(title="Pait Doc"),
-                        server_model_list=[ServerModel(url="http://localhost")],
-                    ).content()
-                ),
-            ).quick_ratio()
-            > 0.95
-        )
+            assert (
+                difflib.SequenceMatcher(
+                    None,
+                    str(client.get("/openapi.json?pin-code=6666").get_data().decode()),
+                    str(
+                        OpenAPI(
+                            load_app(client.application),
+                            openapi_info_model=InfoModel(title="Pait Doc"),
+                            server_model_list=[ServerModel(url="http://localhost")],
+                        ).content()
+                    ),
+                ).quick_ratio()
+                > 0.95
+            )
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:
@@ -159,22 +167,19 @@ class TestFlask:
         with mock.patch.dict("sys.modules", sys.modules):
             assert flask == auto_load_app.auto_load_app_class()
 
-    def test_app_attribute(self, client: FlaskClient) -> None:
-        key: str = "app_test_app_attribute"
-        value: int = random.randint(1, 100)
-        set_app_attribute(client.application, key, value)
+    def test_app_attribute(self) -> None:
+        with client_ctx() as client:
+            key: str = "app_test_app_attribute"
+            value: int = random.randint(1, 100)
+            set_app_attribute(client.application, key, value)
 
-        is_call: bool = False
+            def demo_route() -> dict:
+                assert get_app_attribute(client.application, key) == value
+                return {}
 
-        def demo_route() -> None:
-            assert get_app_attribute(client.application, key) == value
-            nonlocal is_call
-            is_call = True
-
-        url: str = "/api/test-invoke-demo"
-        client.application.add_url_rule(url, view_func=demo_route)
-        client.get(url)
-        assert is_call
+            url: str = "/api/test-invoke-demo"
+            client.application.add_url_rule(url, view_func=demo_route)
+            assert client.get(url).json == {}
 
     def test_text_response(self, client: FlaskClient) -> None:
         response_test_helper(client, main_example.text_response_route, response.TextResponseModel)
@@ -230,6 +235,8 @@ class TestFlask:
         base_test.pre_depend_contextmanager(main_example.pre_depend_contextmanager_route, mocker)
 
     def test_api_key_route(self, base_test: BaseTest) -> None:
+        # clear cookie
+        base_test.client.cookie_jar = _TestCookieJar()
         base_test.api_key_route(main_example.api_key_cookie_route, {"cookie_dict": {"token": "my-token"}})
         base_test.api_key_route(main_example.api_key_header_route, {"header_dict": {"token": "my-token"}})
         base_test.api_key_route(main_example.api_key_query_route, {"query_dict": {"token": "my-token"}})
@@ -274,81 +281,88 @@ class TestFlask:
 
 
 class TestFlaskGrpc:
-    def test_create_user(self, client: FlaskClient) -> None:
+    def test_create_user(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import CreateUserRequest
 
-        grpc_route.add_grpc_gateway_route(client.application)
-        main_example.add_api_doc_route(client.application)
+        with client_ctx() as client:
+            grpc_route.add_grpc_gateway_route(client.application)
+            main_example.add_api_doc_route(client.application)
 
-        with grpc_test_create_user_request(client.application) as queue:
-            body: bytes = client.post(
-                "/api/user/create",
-                json={"uid": "10086", "user_name": "so1n", "pw": "123456", "sex": 0},
-            ).data
-            assert body == b'{"code":0,"data":{},"msg":""}\n'
-            message: CreateUserRequest = queue.get(timeout=1)
-            assert message.uid == "10086"
-            assert message.user_name == "so1n"
-            assert message.password == "123456"
-            assert message.sex == 0
+            with grpc_test_create_user_request(client.application) as queue:
+                body: bytes = client.post(
+                    "/api/user/create",
+                    json={"uid": "10086", "user_name": "so1n", "pw": "123456", "sex": 0},
+                ).data
+                assert body == b'{"code":0,"data":{},"msg":""}\n'
+                message: CreateUserRequest = queue.get(timeout=1)
+                assert message.uid == "10086"
+                assert message.user_name == "so1n"
+                assert message.password == "123456"
+                assert message.sex == 0
 
-    def test_login(self, client: FlaskClient) -> None:
+    def test_login(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
 
-        grpc_route.add_grpc_gateway_route(client.application)
-        main_example.add_api_doc_route(client.application)
+        with client_ctx() as client:
+            grpc_route.add_grpc_gateway_route(client.application)
+            main_example.add_api_doc_route(client.application)
 
-        with grpc_test_create_user_request(client.application) as queue:
-            body: bytes = client.post("/api/user/login", json={"uid": "10086", "password": "pw"}).data
-            assert body == b'{"code":0,"data":{},"msg":""}\n'
-            message: LoginUserRequest = queue.get(timeout=1)
-            assert message.uid == "10086"
-            assert message.password == "pw"
+            with grpc_test_create_user_request(client.application) as queue:
+                body: bytes = client.post("/api/user/login", json={"uid": "10086", "password": "pw"}).data
+                assert body == b'{"code":0,"data":{},"msg":""}\n'
+                message: LoginUserRequest = queue.get(timeout=1)
+                assert message.uid == "10086"
+                assert message.password == "pw"
 
-    def test_logout(self, client: FlaskClient) -> None:
+    def test_logout(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LogoutUserRequest
 
-        grpc_route.add_grpc_gateway_route(client.application)
-        main_example.add_api_doc_route(client.application)
+        with client_ctx() as client:
+            grpc_route.add_grpc_gateway_route(client.application)
+            main_example.add_api_doc_route(client.application)
 
-        with grpc_test_create_user_request(client.application) as queue:
-            body: bytes = client.post("/api/user/logout", json={"uid": "10086"}, headers={"token": "token"}).data
-            assert body == b'{"code":0,"data":{},"msg":""}\n'
-            message: LogoutUserRequest = queue.get(timeout=1)
-            assert message.uid == "10086"
-            assert message.token == "token"
+            with grpc_test_create_user_request(client.application) as queue:
+                body: bytes = client.post("/api/user/logout", json={"uid": "10086"}, headers={"token": "token"}).data
+                assert body == b'{"code":0,"data":{},"msg":""}\n'
+                message: LogoutUserRequest = queue.get(timeout=1)
+                assert message.uid == "10086"
+                assert message.token == "token"
 
-    def test_delete_fail_token(self, client: FlaskClient) -> None:
+    def test_delete_fail_token(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import GetUidByTokenRequest
 
-        grpc_route.add_grpc_gateway_route(client.application)
-        main_example.add_api_doc_route(client.application)
+        with client_ctx() as client:
+            grpc_route.add_grpc_gateway_route(client.application)
+            main_example.add_api_doc_route(client.application)
 
-        with grpc_test_create_user_request(client.application) as queue:
-            body: bytes = client.post(
-                "/api/user/delete",
-                json={"uid": "10086"},
-                headers={"token": "fail_token"},
-            ).data
-            assert body == b'{"code":-1,"msg":"Not found user by token:fail_token"}\n'
-            message: GetUidByTokenRequest = queue.get(timeout=1)
-            assert message.token == "fail_token"
+            with grpc_test_create_user_request(client.application) as queue:
+                body: bytes = client.post(
+                    "/api/user/delete",
+                    json={"uid": "10086"},
+                    headers={"token": "fail_token"},
+                ).data
+                assert body == b'{"code":-1,"msg":"Not found user by token:fail_token"}\n'
+                message: GetUidByTokenRequest = queue.get(timeout=1)
+                assert message.token == "fail_token"
 
-    def test_grpc_openapi(self, client: FlaskClient) -> None:
-        grpc_route.add_grpc_gateway_route(client.application)
+    def test_grpc_openapi(self) -> None:
+        with client_ctx() as client:
+            grpc_route.add_grpc_gateway_route(client.application)
 
-        from pait.app.flask import load_app
+            from pait.app.flask import load_app
 
-        grpc_test_openapi(load_app(client.application))
+            grpc_test_openapi(load_app(client.application))
 
-    def test_grpc_openapi_by_protobuf_file(self, base_test: BaseTest) -> None:
-        from pait.app.flask import load_app
-        from pait.app.flask.grpc_route import GrpcGatewayRoute
-
-        base_test.grpc_openapi_by_protobuf_file(base_test.client.application, GrpcGatewayRoute, load_app)
-
-    def test_grpc_openapi_by_option(self, base_test: BaseTest) -> None:
+    def test_grpc_openapi_by_protobuf_file(self) -> None:
         from pait.app.flask import load_app
         from pait.app.flask.grpc_route import GrpcGatewayRoute
 
-        base_test.grpc_openapi_by_option(base_test.client.application, GrpcGatewayRoute, load_app)
+        with base_test_ctx() as base_test:
+            base_test.grpc_openapi_by_protobuf_file(base_test.client.application, GrpcGatewayRoute, load_app)
+
+    def test_grpc_openapi_by_option(self) -> None:
+        from pait.app.flask import load_app
+        from pait.app.flask.grpc_route import GrpcGatewayRoute
+
+        with base_test_ctx() as base_test:
+            base_test.grpc_openapi_by_option(base_test.client.application, GrpcGatewayRoute, load_app)

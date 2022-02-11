@@ -330,6 +330,8 @@ class TestTornadoGrpc(BaseTestTornado):
     def test_create_user(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import CreateUserRequest
 
+        self.setUp()
+
         main_example.add_grpc_gateway_route(self._app)
         main_example.add_api_doc_route(self._app)
 
@@ -350,6 +352,7 @@ class TestTornadoGrpc(BaseTestTornado):
     def test_login(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
 
+        self.setUp()
         main_example.add_grpc_gateway_route(self._app)
         main_example.add_api_doc_route(self._app)
 
@@ -363,6 +366,7 @@ class TestTornadoGrpc(BaseTestTornado):
     def test_logout(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LogoutUserRequest
 
+        self.setUp()
         main_example.add_grpc_gateway_route(self._app)
         main_example.add_api_doc_route(self._app)
 
@@ -377,6 +381,8 @@ class TestTornadoGrpc(BaseTestTornado):
 
     def test_delete_fail_token(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import GetUidByTokenRequest
+
+        self.setUp()
 
         main_example.add_grpc_gateway_route(self._app)
         main_example.add_api_doc_route(self._app)

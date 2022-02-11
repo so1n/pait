@@ -305,6 +305,7 @@ async def param_required_route_by_extra_param(
 
 if __name__ == "__main__":
     with create_app(__name__) as app:
+        CacheResponsePlugin.set_redis_to_app(app, Redis(decode_responses=True))
         app.add_route(mock_route, "/api/plugin/mock/<age>", methods={"GET"})
         app.add_route(cache_response, "/api/plugin/cache-response", methods={"GET"})
         app.add_route(cache_response1, "/api/plugin/cache-response1", methods={"GET"})

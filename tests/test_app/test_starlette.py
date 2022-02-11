@@ -3,6 +3,7 @@ import difflib
 import json
 import random
 import sys
+from contextlib import contextmanager
 from typing import Callable, Generator, Type
 from unittest import mock
 
@@ -26,8 +27,8 @@ from tests.conftest import enable_plugin, grpc_test_create_user_request, grpc_te
 from tests.test_app.base_test import BaseTest
 
 
-@pytest.fixture
-def client(mocker: MockFixture) -> Generator[TestClient, None, None]:
+@contextmanager
+def client_ctx() -> Generator[TestClient, None, None]:
     # starlette run after sanic
     # fix starlette.testclient get_event_loop status is close
     # def get_event_loop() -> asyncio.AbstractEventLoop:
@@ -46,9 +47,21 @@ def client(mocker: MockFixture) -> Generator[TestClient, None, None]:
 
 
 @pytest.fixture
-def base_test() -> Generator[BaseTest, None, None]:
+def client() -> Generator[TestClient, None, None]:
+    with client_ctx() as client:
+        yield client
+
+
+@contextmanager
+def base_test_crx() -> Generator[BaseTest, None, None]:
     asyncio.set_event_loop(asyncio.new_event_loop())
     yield BaseTest(TestClient(main_example.create_app()), _TestHelper)
+
+
+@pytest.fixture
+def base_test() -> Generator[BaseTest, None, None]:
+    with base_test_crx() as base_test:
+        yield base_test
 
 
 def response_test_helper(
@@ -288,66 +301,70 @@ class TestStarlette:
 
 
 class TestStarletteGrpc:
-    def test_create_user(self, client: TestClient) -> None:
+    def test_create_user(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import CreateUserRequest
 
-        main_example.add_grpc_gateway_route(client.app)
-        main_example.add_api_doc_route(client.app)
+        with client_ctx() as client:
+            main_example.add_grpc_gateway_route(client.app)
+            main_example.add_api_doc_route(client.app)
 
-        with grpc_test_create_user_request(client.app) as queue:
-            body: bytes = client.post(
-                "/api/user/create",
-                json={"uid": "10086", "user_name": "so1n", "pw": "123456", "sex": 0},
-                headers={"token": "token"},
-            ).content
-            assert body == b'{"code":0,"msg":"","data":{}}'
-            message: CreateUserRequest = queue.get(timeout=1)
-            assert message.uid == "10086"
-            assert message.user_name == "so1n"
-            assert message.password == "123456"
-            assert message.sex == 0
+            with grpc_test_create_user_request(client.app) as queue:
+                body: bytes = client.post(
+                    "/api/user/create",
+                    json={"uid": "10086", "user_name": "so1n", "pw": "123456", "sex": 0},
+                    headers={"token": "token"},
+                ).content
+                assert body == b'{"code":0,"msg":"","data":{}}'
+                message: CreateUserRequest = queue.get(timeout=1)
+                assert message.uid == "10086"
+                assert message.user_name == "so1n"
+                assert message.password == "123456"
+                assert message.sex == 0
 
-    def test_login(self, client: TestClient) -> None:
+    def test_login(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
 
-        main_example.add_grpc_gateway_route(client.app)
-        main_example.add_api_doc_route(client.app)
+        with client_ctx() as client:
+            main_example.add_grpc_gateway_route(client.app)
+            main_example.add_api_doc_route(client.app)
 
-        with grpc_test_create_user_request(client.app) as queue:
-            body: bytes = client.post("/api/user/login", json={"uid": "10086", "password": "pw"}).content
-            assert body == b'{"code":0,"msg":"","data":{}}'
-            message: LoginUserRequest = queue.get(timeout=1)
-            assert message.uid == "10086"
-            assert message.password == "pw"
+            with grpc_test_create_user_request(client.app) as queue:
+                body: bytes = client.post("/api/user/login", json={"uid": "10086", "password": "pw"}).content
+                assert body == b'{"code":0,"msg":"","data":{}}'
+                message: LoginUserRequest = queue.get(timeout=1)
+                assert message.uid == "10086"
+                assert message.password == "pw"
 
-    def test_logout(self, client: TestClient) -> None:
+    def test_logout(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LogoutUserRequest
 
-        main_example.add_grpc_gateway_route(client.app)
-        main_example.add_api_doc_route(client.app)
+        with client_ctx() as client:
+            main_example.add_grpc_gateway_route(client.app)
+            main_example.add_api_doc_route(client.app)
 
-        with grpc_test_create_user_request(client.app) as queue:
-            body: bytes = client.post("/api/user/logout", json={"uid": "10086"}, headers={"token": "token"}).content
-            assert body == b'{"code":0,"msg":"","data":{}}'
-            message: LogoutUserRequest = queue.get(timeout=1)
-            assert message.uid == "10086"
-            assert message.token == "token"
+            with grpc_test_create_user_request(client.app) as queue:
+                body: bytes = client.post("/api/user/logout", json={"uid": "10086"}, headers={"token": "token"}).content
+                assert body == b'{"code":0,"msg":"","data":{}}'
+                message: LogoutUserRequest = queue.get(timeout=1)
+                assert message.uid == "10086"
+                assert message.token == "token"
 
-    def test_delete_fail_token(self, client: TestClient) -> None:
+    def test_delete_fail_token(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import GetUidByTokenRequest
 
-        main_example.add_grpc_gateway_route(client.app)
-        main_example.add_api_doc_route(client.app)
+        with client_ctx() as client:
+            main_example.add_grpc_gateway_route(client.app)
+            main_example.add_api_doc_route(client.app)
 
-        with grpc_test_create_user_request(client.app) as queue:
-            body: bytes = client.post(
-                "/api/user/delete",
-                json={"uid": "10086"},
-                headers={"token": "fail_token"},
-            ).content
-            assert body == b'{"code":-1,"msg":"Not found user by token:fail_token"}'
-            message: GetUidByTokenRequest = queue.get(timeout=1)
-            assert message.token == "fail_token"
+            with grpc_test_create_user_request(client.app) as queue:
+                body: bytes = client.post(
+                    "/api/user/delete",
+                    json={"uid": "10086"},
+                    headers={"token": "fail_token"},
+                ).content
+                assert body == b'{"code":-1,"msg":"Not found user by token:fail_token"}'
+                message: GetUidByTokenRequest = queue.get(timeout=1)
+                assert message.token == "fail_token"
 
     def test_grpc_openapi(self, client: TestClient) -> None:
         main_example.add_grpc_gateway_route(client.app)

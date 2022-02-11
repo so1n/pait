@@ -295,6 +295,7 @@ def param_required_route_by_extra_param(
 
 if __name__ == "__main__":
     with create_app(__name__) as app:
+        CacheResponsePlugin.set_redis_to_app(app, Redis(decode_responses=True))
         app.add_url_rule("/api/check-json-plugin", view_func=check_json_plugin_route, methods=["GET"])
         app.add_url_rule("/api/cache-response", view_func=cache_response, methods=["GET"])
         app.add_url_rule("/api/cache-response-1", view_func=cache_response1, methods=["GET"])

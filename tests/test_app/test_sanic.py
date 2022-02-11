@@ -2,6 +2,7 @@ import difflib
 import json
 import random
 import sys
+from contextlib import contextmanager
 from typing import Callable, Generator, Type
 from unittest import mock
 
@@ -25,18 +26,30 @@ from tests.conftest import enable_plugin, fixture_loop, grpc_test_create_user_re
 from tests.test_app.base_test import BaseTest
 
 
-@pytest.fixture
-def client() -> Generator[SanicTestClient, None, None]:
+@contextmanager
+def client_ctx() -> Generator[SanicTestClient, None, None]:
     app: Sanic = main_example.create_app(configure_logging=False)
     app.config.ACCESS_LOG = False
     yield app.test_client
 
 
 @pytest.fixture
-def base_test() -> Generator[BaseTest, None, None]:
+def client() -> Generator[SanicTestClient, None, None]:
+    with client_ctx() as client:
+        yield client
+
+
+@contextmanager
+def base_test_ctx() -> Generator[BaseTest, None, None]:
     app: Sanic = main_example.create_app(configure_logging=False)
     app.config.ACCESS_LOG = False
     yield BaseTest(app.test_client, _TestHelper)
+
+
+@pytest.fixture
+def base_test() -> Generator[BaseTest, None, None]:
+    with base_test_ctx() as base_test:
+        yield base_test
 
 
 def response_test_helper(
@@ -99,44 +112,46 @@ class TestSanic:
             if api_code == -1:
                 assert resp["msg"] == "miss param: ['data', 'age']"
 
-    def test_test_helper_not_support_mutil_method(self, client: SanicTestClient) -> None:
-        client.app.add_route(main_example.text_response_route, "/api/new-text-resp", methods={"GET", "POST"})
-        with pytest.raises(RuntimeError) as e:
-            _TestHelper(client, main_example.text_response_route).request()
-        exec_msg: str = e.value.args[0]
-        assert exec_msg == "Pait Can not auto select method, please choice method in ['GET', 'POST']"
+    def test_test_helper_not_support_mutil_method(self) -> None:
+        with client_ctx() as client:
+            client.app.add_route(main_example.text_response_route, "/api/new-text-resp", methods={"GET", "POST"})
+            with pytest.raises(RuntimeError) as e:
+                _TestHelper(client, main_example.text_response_route).request()
+            exec_msg: str = e.value.args[0]
+            assert exec_msg == "Pait Can not auto select method, please choice method in ['GET', 'POST']"
 
-    def test_doc_route(self, client: SanicTestClient) -> None:
-        main_example.add_api_doc_route(client.app)
-        for doc_route_path in default_doc_fn_dict.keys():
-            assert client.get(f"/{doc_route_path}")[1].status_code == 404
-            assert client.get(f"/api-doc/{doc_route_path}")[1].status_code == 200
+    def test_doc_route(self) -> None:
+        with client_ctx() as client:
+            main_example.add_api_doc_route(client.app)
+            for doc_route_path in default_doc_fn_dict.keys():
+                assert client.get(f"/{doc_route_path}")[1].status_code == 404
+                assert client.get(f"/api-doc/{doc_route_path}")[1].status_code == 200
 
-        for doc_route_path, fn in default_doc_fn_dict.items():
-            assert client.get(f"/{doc_route_path}?pin-code=6666")[1].text == fn(
-                f"http://{client.host}:{client.port}/openapi.json?pin-code=6666", title="Pait Api Doc(private)"
+            for doc_route_path, fn in default_doc_fn_dict.items():
+                assert client.get(f"/{doc_route_path}?pin-code=6666")[1].text == fn(
+                    f"http://{client.host}:{client.port}/openapi.json?pin-code=6666", title="Pait Api Doc(private)"
+                )
+
+            assert (
+                json.loads(client.get("/openapi.json?pin-code=6666&template-token=xxx")[1].text)["paths"]["/api/user"][
+                    "get"
+                ]["parameters"][0]["schema"]["example"]
+                == "xxx"
             )
-
-        assert (
-            json.loads(client.get("/openapi.json?pin-code=6666&template-token=xxx")[1].text)["paths"]["/api/user"][
-                "get"
-            ]["parameters"][0]["schema"]["example"]
-            == "xxx"
-        )
-        assert (
-            difflib.SequenceMatcher(
-                None,
-                str(client.get("/openapi.json?pin-code=6666")[1].text),
-                str(
-                    OpenAPI(
-                        load_app(client.app),
-                        openapi_info_model=InfoModel(title="Pait Doc"),
-                        server_model_list=[ServerModel(url="http://localhost")],
-                    ).content()
-                ),
-            ).quick_ratio()
-            > 0.95
-        )
+            assert (
+                difflib.SequenceMatcher(
+                    None,
+                    str(client.get("/openapi.json?pin-code=6666")[1].text),
+                    str(
+                        OpenAPI(
+                            load_app(client.app),
+                            openapi_info_model=InfoModel(title="Pait Doc"),
+                            server_model_list=[ServerModel(url="http://localhost")],
+                        ).content()
+                    ),
+                ).quick_ratio()
+                > 0.95
+            )
 
     def test_text_response(self, client: SanicTestClient) -> None:
         response_test_helper(client, main_example.text_response_route, response.TextResponseModel)
@@ -259,76 +274,82 @@ class TestSanic:
 
 
 class TestSanicGrpc:
-    def test_create_user(self, client: SanicTestClient) -> None:
+    def test_create_user(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import CreateUserRequest
 
-        main_example.add_grpc_gateway_route(client.app)
-        main_example.add_api_doc_route(client.app)
+        with client_ctx() as client:
+            main_example.add_grpc_gateway_route(client.app)
+            main_example.add_api_doc_route(client.app)
 
-        with grpc_test_create_user_request(client.app) as queue:
-            request, response = client.post(
-                "/api/user/create",
-                json={"uid": "10086", "user_name": "so1n", "pw": "123456", "sex": 0},
-                headers={"token": "token"},
-            )
-            assert response.body == b'{"code":0,"msg":"","data":{}}'
-            message: CreateUserRequest = queue.get(timeout=1)
-            assert message.uid == "10086"
-            assert message.user_name == "so1n"
-            assert message.password == "123456"
-            assert message.sex == 0
+            with grpc_test_create_user_request(client.app) as queue:
+                request, response = client.post(
+                    "/api/user/create",
+                    json={"uid": "10086", "user_name": "so1n", "pw": "123456", "sex": 0},
+                    headers={"token": "token"},
+                )
+                assert response.body == b'{"code":0,"msg":"","data":{}}'
+                message: CreateUserRequest = queue.get(timeout=1)
+                assert message.uid == "10086"
+                assert message.user_name == "so1n"
+                assert message.password == "123456"
+                assert message.sex == 0
 
-    def test_login(self, client: SanicTestClient) -> None:
+    def test_login(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
 
-        main_example.add_grpc_gateway_route(client.app)
-        main_example.add_api_doc_route(client.app)
+        with client_ctx() as client:
+            main_example.add_grpc_gateway_route(client.app)
+            main_example.add_api_doc_route(client.app)
 
-        with grpc_test_create_user_request(client.app) as queue:
-            request, response = client.post("/api/user/login", json={"uid": "10086", "password": "pw"})
-            assert response.body == b'{"code":0,"msg":"","data":{}}'
-            message: LoginUserRequest = queue.get(timeout=1)
-            assert message.uid == "10086"
-            assert message.password == "pw"
+            with grpc_test_create_user_request(client.app) as queue:
+                request, response = client.post("/api/user/login", json={"uid": "10086", "password": "pw"})
+                assert response.body == b'{"code":0,"msg":"","data":{}}'
+                message: LoginUserRequest = queue.get(timeout=1)
+                assert message.uid == "10086"
+                assert message.password == "pw"
 
-    def test_logout(self, client: SanicTestClient) -> None:
+    def test_logout(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LogoutUserRequest
 
-        main_example.add_grpc_gateway_route(client.app)
-        main_example.add_api_doc_route(client.app)
+        with client_ctx() as client:
+            main_example.add_grpc_gateway_route(client.app)
+            main_example.add_api_doc_route(client.app)
 
-        with grpc_test_create_user_request(client.app) as queue:
-            request, response = client.post("/api/user/logout", json={"uid": "10086"}, headers={"token": "token"})
-            assert response.body == b'{"code":0,"msg":"","data":{}}'
-            message: LogoutUserRequest = queue.get(timeout=1)
-            assert message.uid == "10086"
-            assert message.token == "token"
+            with grpc_test_create_user_request(client.app) as queue:
+                request, response = client.post("/api/user/logout", json={"uid": "10086"}, headers={"token": "token"})
+                assert response.body == b'{"code":0,"msg":"","data":{}}'
+                message: LogoutUserRequest = queue.get(timeout=1)
+                assert message.uid == "10086"
+                assert message.token == "token"
 
-    def test_delete_fail_token(self, client: SanicTestClient) -> None:
+    def test_delete_fail_token(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import GetUidByTokenRequest
 
-        main_example.add_grpc_gateway_route(client.app)
-        main_example.add_api_doc_route(client.app)
+        with client_ctx() as client:
+            main_example.add_grpc_gateway_route(client.app)
+            main_example.add_api_doc_route(client.app)
 
-        with grpc_test_create_user_request(client.app) as queue:
-            request, response = client.post(
-                "/api/user/delete",
-                json={"uid": "10086"},
-                headers={"token": "fail_token"},
-            )
-            assert response.body == b'{"code":-1,"msg":"Not found user by token:fail_token"}'
-            message: GetUidByTokenRequest = queue.get(timeout=1)
-            assert message.token == "fail_token"
+            with grpc_test_create_user_request(client.app) as queue:
+                request, response = client.post(
+                    "/api/user/delete",
+                    json={"uid": "10086"},
+                    headers={"token": "fail_token"},
+                )
+                assert response.body == b'{"code":-1,"msg":"Not found user by token:fail_token"}'
+                message: GetUidByTokenRequest = queue.get(timeout=1)
+                assert message.token == "fail_token"
 
-    def test_grpc_openapi(self, client: SanicTestClient) -> None:
-        main_example.add_grpc_gateway_route(client.app)
+    def test_grpc_openapi(self) -> None:
 
         from pait.app.sanic import load_app
 
-        grpc_test_openapi(load_app(client.app))
+        with client_ctx() as client:
+            main_example.add_grpc_gateway_route(client.app)
+            grpc_test_openapi(load_app(client.app))
 
-    def test_grpc_openapi_by_protobuf_file(self, base_test: BaseTest) -> None:
+    def test_grpc_openapi_by_protobuf_file(self) -> None:
         from pait.app.sanic import load_app
         from pait.app.sanic.grpc_route import GrpcGatewayRoute
 
-        base_test.grpc_openapi_by_protobuf_file(base_test.client.app, GrpcGatewayRoute, load_app)
+        with base_test_ctx() as base_test:
+            base_test.grpc_openapi_by_protobuf_file(base_test.client.app, GrpcGatewayRoute, load_app)
