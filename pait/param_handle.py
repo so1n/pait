@@ -103,7 +103,7 @@ class ParamHandlerMixin(PluginProtocol):
         if inspect.isfunction(value):
             value = value()
         try:
-            create_pydantic_model({"faker_param_name": (target_type, value)})
+            create_pydantic_model({"faker_param_name": (target_type, ...)})(faker_param_name=value)
         except Exception:
             raise ParseTypeError(error_msg)
 
