@@ -3,7 +3,10 @@
 - 2 Plugin Panel
 
 
-### 0.7.4.1[Now]
+### 0.7.4.2[Now]
+- Fix: OpenAPI _field_list_2_request_body not use _replace_pydantic_definitions method
+- Fix: config.init_config i18n param not enable
+### 0.7.4.1
 - Feature: Support Enum Type in response
 - Refactor: check_field_type core func is_type -> create_pydantic_model
 ### 0.7.4
