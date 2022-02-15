@@ -27,7 +27,6 @@ from pait.util import (
     get_func_sig,
     get_parameter_list_from_class,
     get_parameter_list_from_pydantic_basemodel,
-    is_type,
 )
 
 if TYPE_CHECKING:
@@ -104,11 +103,8 @@ class ParamHandlerMixin(PluginProtocol):
         if inspect.isfunction(value):
             value = value()
         try:
-            result = is_type(type(value), target_type)
-        except ParseTypeError:
-            result = isinstance(value, target_type)
-
-        if not result:
+            create_pydantic_model({"faker_param_name": (target_type, value)})
+        except Exception:
             raise ParseTypeError(error_msg)
 
     @classmethod
