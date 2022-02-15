@@ -3,7 +3,10 @@
 - 2 Plugin Panel
 
 
-### 0.7.4[Now]
+### 0.7.4.1[Now]
+- Feature: Support Enum Type in response
+- Refactor: check_field_type core func is_type -> create_pydantic_model
+### 0.7.4
 Improve the interaction of md documents and increase the functionality of existing plug-ins
 
 - Style: Change md doc style
