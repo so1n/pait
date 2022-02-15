@@ -317,9 +317,10 @@ class PaitOpenApi(PaitBaseParse):
             annotation_dict, class_name=f"{self._snake_name_to_hump_name(operation_id)}DynamicModel"
         )
         schema_dict = copy.deepcopy(pait_model_schema(_pydantic_model))
-        # pait will disassemble and reassemble the BaseModel, so there is no way to reuse the model in openapi.
-        # TODO support model
-        # self._replace_pydantic_definitions(schema_dict)
+        # pait will decompose and reassemble the Field into a new BaseModel,
+        # making it impossible to reuse the BaseModel,
+        # but the Field may refer to some BaseModel, so it is still necessary to use the change function
+        self._replace_pydantic_definitions(schema_dict)
         if "definitions" in schema_dict:
             del schema_dict["definitions"]
         if field_class.media_type in openapi_request_body_dict["content"]:
