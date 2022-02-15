@@ -97,8 +97,8 @@ class Config(object):
         if default_pydantic_model_config:
             self.default_pydantic_model_config = default_pydantic_model_config
 
-        if pait_i18n_local:
-            change_local(pait_i18n_local)
+        if i18n_local:
+            change_local(i18n_local)
         if i18n_config_dict:
             pait_i18n_config_dict.update(i18n_config_dict)
 
