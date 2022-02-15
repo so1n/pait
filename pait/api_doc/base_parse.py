@@ -64,6 +64,8 @@ class PaitBaseParse(object):
         field_dict_list: List[FieldSchemaTypeDict] = []
         # model property openapi dict
         # e.g. : {'code': {'title': 'Code', 'description': 'api code', 'default': 1, 'type': 'integer'}}
+        if "properties" not in schema_dict:
+            return field_dict_list
         property_dict: dict = schema_dict["properties"]
         # class schema in the parent schema
         if not definition_dict:

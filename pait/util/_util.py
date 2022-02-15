@@ -144,6 +144,8 @@ def gen_example_dict_from_schema(
     use_example_value: bool = True,
 ) -> Dict[str, Any]:
     gen_dict: Dict[str, Any] = {}
+    if "properties" not in schema_dict:
+        return gen_dict
     property_dict: Dict[str, Any] = schema_dict["properties"]
     if not definition_dict:
         _definition_dict: dict = schema_dict.get("definitions", {})
