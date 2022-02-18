@@ -3,7 +3,10 @@
 - 2 Plugin Panel
 
 
-### 0.7.4.2[Now]
+### 0.7.4.3[Now]
+- Fix: gen BaseModel param
+
+### 0.7.4.2
 - Fix: OpenAPI _field_list_2_request_body not use _replace_pydantic_definitions method
 - Fix: config.init_config i18n param not enable
 ### 0.7.4.1

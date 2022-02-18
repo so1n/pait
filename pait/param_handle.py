@@ -286,7 +286,7 @@ class ParamHandler(ParamHandlerMixin, BasePlugin):
                         single_field_dict,
                         self.pydantic_model_config,
                         use_pydantic_base_model_alias=use_pydantic_base_model_alias,
-                    ).dict(),
+                    ).__dict__,
                 )
             except Exception as e:
                 raise e from gen_tip_exc(_object, e)
@@ -399,7 +399,7 @@ class AsyncParamHandler(ParamHandlerMixin, BaseAsyncPlugin):
                         single_field_dict,
                         self.pydantic_model_config,
                         use_pydantic_base_model_alias=use_pydantic_base_model_alias,
-                    ).dict()
+                    ).__dict__
                 )
             except Exception as e:
                 raise e from gen_tip_exc(_object, e)
