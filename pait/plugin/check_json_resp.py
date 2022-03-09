@@ -1,3 +1,4 @@
+import sys
 from typing import Any, Callable, Dict, Optional, Type
 
 import pydantic
@@ -6,6 +7,26 @@ from pait.model.core import PaitCoreModel
 from pait.model.response import PaitBaseResponseModel, PaitJsonResponseModel
 from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginProtocol
 from pait.util import gen_example_dict_from_pydantic_base_model, get_pait_response_model, get_real_annotation
+
+# copy from https://github.com/agronholm/typeguard/blob/master/src/typeguard/__init__.py#L64
+if sys.version_info >= (3, 10):
+    from typing import is_typeddict
+else:
+    _typed_dict_meta_types = ()
+    if sys.version_info >= (3, 8):
+        from typing import _TypedDictMeta
+
+        _typed_dict_meta_types += (_TypedDictMeta,)
+
+    try:
+        from typing_extensions import _TypedDictMeta  # type: ignore
+
+        _typed_dict_meta_types += (_TypedDictMeta,)  # type: ignore
+    except ImportError:
+        pass
+
+    def is_typeddict(tp) -> bool:  # type: ignore
+        return isinstance(tp, _typed_dict_meta_types)
 
 
 class JsonRespPluginProtocolMixin(PluginProtocol):
@@ -30,7 +51,7 @@ class JsonRespPluginProtocolMixin(PluginProtocol):
             raise ValueError(f"Can not found return type by func:{pait_core_model.func}")
         return_type = get_real_annotation(return_type, pait_core_model.func)
 
-        if hasattr(return_type, "__required_keys__"):
+        if is_typeddict(return_type):
             base_model_class: Type[pydantic.BaseModel] = pydantic.create_model_from_typeddict(
                 return_type  # type: ignore
             )
