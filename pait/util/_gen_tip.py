@@ -11,7 +11,7 @@ from pait.util import FuncSig
 
 def gen_tip_exc(_object: Any, exception: "Exception", parameter: Optional[inspect.Parameter] = None) -> Exception:
     """Help users understand which parameter is wrong"""
-    if not parameter and (getattr(exception, "_is_tip_exc", None) or isinstance(exception, TipException)):
+    if isinstance(exception, TipException):
         return exception
     if parameter:
         param_value: BaseField = parameter.default
@@ -58,6 +58,5 @@ def gen_tip_exc(_object: Any, exception: "Exception", parameter: Optional[inspec
             error_object_name = str(_object.__class__)  # pragma: no cover
         logging.debug(f"class: `{error_object_name}`  attributes error\n    {param_str}")
 
-    setattr(exception, "_is_tip_exc", True)
     exc_msg: str = f'File "{file}",' f" line {line}," f" in {error_object_name}." f"\nerror:{str(exception)}"
     return TipException(exc_msg, exception)

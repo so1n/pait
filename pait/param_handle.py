@@ -4,7 +4,7 @@ import inspect
 import logging
 from contextlib import AbstractAsyncContextManager, AbstractContextManager
 from types import TracebackType
-from typing import TYPE_CHECKING, Any, Callable, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, Dict, List, Optional, Tuple, Type, Union
 
 from pydantic import BaseConfig, BaseModel
 from pydantic.fields import Undefined, UndefinedType
@@ -122,22 +122,26 @@ class ParamHandlerMixin(PluginProtocol):
                     if isinstance(parameter.default, field.Depends):
                         cls.check_depend_handle(parameter.default.func)
                     elif isinstance(parameter.default, field.BaseField):
+                        if not isinstance(parameter.default.alias, str):
+                            raise FieldValueTypeException(
+                                parameter.name, f"{parameter.name}'s Field.alias type must str"
+                            )
                         try:
                             cls.check_field_type(
                                 parameter.default.default,
                                 parameter.annotation,
-                                f"{parameter.name}'s Field.default value must {parameter.annotation}",
+                                f"{parameter.name}'s Field.default type must {parameter.annotation}",
                             )
                             if parameter.default.default_factory:
                                 cls.check_field_type(
                                     parameter.default.default_factory(),
                                     parameter.annotation,
-                                    f"{parameter.name}'s Field.default_factory value must {parameter.annotation}",
+                                    f"{parameter.name}'s Field.default_factory type must {parameter.annotation}",
                                 )
                             cls.check_field_type(
                                 parameter.default.extra.get("example", Undefined),
                                 parameter.annotation,
-                                f"{parameter.name}'s Field.example value must {parameter.annotation}",
+                                f"{parameter.name}'s Field.example type must {parameter.annotation}",
                             )
                         except ParseTypeError as e:
                             raise FieldValueTypeException(parameter.name, str(e))
@@ -197,17 +201,13 @@ class ParamHandlerMixin(PluginProtocol):
             # not support
             # raise PaitBaseException(f"must use {BaseField.__class__.__name__}, no {param_value}")
             return  # pragma: no cover
-        elif (
-            isinstance(request_value, Mapping)
-            # some type like dict, but not isinstance Mapping, e.g: werkzeug.datastructures.EnvironHeaders
-            or self._app_helper.check_header_type(type(request_value))
-            or self._app_helper.check_form_type(type(request_value))
-        ):
+        # some type like dict, but not isinstance Mapping, e.g: werkzeug.datastructures.EnvironHeaders
+        elif getattr(request_value, "get", None):
             if not param_value.raw_return:
                 # The code execution effect should be consistent with the generated documentation, no diversity
                 # so remove code:
                 #   > if type(param_value.alias) is str and param_value.alias in request_value:
-                if type(param_value.alias) is str and param_value.alias:
+                if param_value.alias:
                     request_value_key: str = param_value.alias
                 else:
                     request_value_key = param_name
