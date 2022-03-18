@@ -15,6 +15,7 @@ from ._util import (
     get_parameter_list_from_class,
     get_parameter_list_from_pydantic_basemodel,
     get_real_annotation,
+    http_method_tuple,
     json_type_default_value_dict,
     python_type_default_value_dict,
 )

@@ -1,7 +1,7 @@
 # Pait Doc
 <details><summary>Group: check_resp</summary>
 
-### Name: async_text_response_route
+### Name: text_response_route
 
 
 
@@ -11,7 +11,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 344">async_text_response_route</abbr>|    |
+    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 357">text_response_route</abbr>|    |
 - Path: /api/text-resp
 - Method: GET
 - Request:
@@ -37,7 +37,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 353">html_response_route</abbr>|    |
+    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 366">html_response_route</abbr>|    |
 - Path: /api/html-resp
 - Method: GET
 - Request:
@@ -63,7 +63,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 362">file_response_route</abbr>|    |
+    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 375">file_response_route</abbr>|    |
 - Path: /api/file-resp
 - Method: GET
 - Request:
@@ -87,7 +87,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 375">login_route</abbr>|    |
+    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 388">login_route</abbr>|    |
 - Path: /api/login
 - Method: POST
 - Request:
@@ -132,7 +132,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 384">get_user_route</abbr>|    |
+    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 397">get_user_route</abbr>|    |
 - Path: /api/user
 - Method: GET
 - Request:
@@ -174,7 +174,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 277">pre_depend_contextmanager_route</abbr>|    |
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 290">pre_depend_contextmanager_route</abbr>|    |
 - Path: /api/pre-depend-contextmanager
 - Method: GET
 - Request:
@@ -237,7 +237,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 270">depend_contextmanager_route</abbr>|    |
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 283">depend_contextmanager_route</abbr>|    |
 - Path: /api/depend-contextmanager
 - Method: GET
 - Request:
@@ -304,7 +304,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 111">same_alias_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 124">same_alias_route</abbr>|    |
 - Path: /api/same-alias
 - Method: GET
 - Request:
@@ -377,7 +377,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 264">pait_model_route</abbr>|    |
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 277">pait_model_route</abbr>|    |
 - Path: /api/pait-model
 - Method: POST
 - Request:
@@ -455,7 +455,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#DC143C>abandoned</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 65">raise_tip_route</abbr>|    |
+    |so1n    |<font color=#DC143C>abandoned</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 78">raise_tip_route</abbr>|    |
 - Path: /api/raise-tip
 - Method: POST
 - Request:
@@ -523,7 +523,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 97">depend_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 110">depend_route</abbr>|    |
 - Path: /api/depend
 - Method: POST
 - Request:
@@ -644,6 +644,64 @@
 
 </details><details><summary>Group: plugin</summary>
 
+### Name: auto_complete_json_route
+
+
+
+**Desc**:Test json plugin by resp type is dict
+
+- API Info
+
+    |Author|Status|Func|Summary|
+    |---|---|---|---|
+    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 405">auto_complete_json_route</abbr>|    |
+- Path: /api/auto-complete-json-plugin
+- Method: GET
+- Request:
+    - Query Param
+
+        |Param Name|Type|Default|Example|Desc|Other|
+        |---|---|---|---|---|---|
+        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+        |display_age|integer| | |display_age||
+        |email|string|example@xxx.com| |user email||
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
+- Response:
+
+    - UserSuccessRespModel3
+
+        - Response Info
+
+            |Status Code|Media Type|Desc|
+            |---|---|---|
+            |200|application/json|success response|
+        - Response Data
+
+            |Param Name|Type|Default|Example|Desc|Other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code||
+            |data.age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+            |data.email|string|**`Required`**| |user email||
+            |data.uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+            |data.user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
+            |msg|string|success| |api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 0,
+              "msg": "success",
+              "data": {
+                "uid": 0,
+                "user_name": "",
+                "age": 0,
+                "email": ""
+              }
+            }
+            ```
+
+
 ### Name: check_json_plugin_route1
 
 
@@ -654,7 +712,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 433">check_json_plugin_route1</abbr>|    |
+    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 469">check_json_plugin_route1</abbr>|    |
 - Path: /api/check-json-plugin-1
 - Method: GET
 - Request:
@@ -712,7 +770,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 392">check_json_plugin_route</abbr>|    |
+    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 428">check_json_plugin_route</abbr>|    |
 - Path: /api/check-json-plugin
 - Method: GET
 - Request:
@@ -768,7 +826,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 123">field_default_factory_route</abbr>|    |
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 136">field_default_factory_route</abbr>|    |
 - Path: /api/field-default-factory
 - Method: POST
 - Request:
@@ -838,7 +896,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 175">check_param_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 188">check_param_route</abbr>|    |
 - Path: /api/check-param
 - Method: GET
 - Request:
@@ -855,7 +913,7 @@
         |user_name|string| | |user name|[`maxLength:4`], [`minLength:2`]|
 - Response:
 
-    - UserSuccessRespModel2
+    - SimpleRespModel
 
         - Response Info
 
@@ -867,11 +925,7 @@
             |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
             |code|integer| | |api code||
-            |data.age|integer|**`Required`**|99|age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
-            |data.email|string|**`Required`**|example@so1n.me|user email||
-            |data.multi_user_name|array|**`Required`**|('mock_name',)|user name|[`maxLength:4`], [`minLength:2`], [`items:{'type': 'string', 'minLength': 2, 'maxLength': 4}`]|
-            |data.uid|integer|**`Required`**|666|user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
-            |data.user_name|string|**`Required`**|mock_name|user name|[`maxLength:10`], [`minLength:2`]|
+            |data|object|**`Required`**| |success result||
             |msg|string|success| |api status msg||
         - Example Response Json Data
 
@@ -879,14 +933,7 @@
             {
               "code": 0,
               "msg": "success",
-              "data": {
-                "uid": 666,
-                "user_name": "mock_name",
-                "multi_user_name": [],
-                "sex": "man",
-                "age": 99,
-                "email": "example@so1n.me"
-              }
+              "data": {}
             }
             ```
 
@@ -923,7 +970,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 208">check_response_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 221">check_response_route</abbr>|    |
 - Path: /api/check-resp
 - Method: GET
 - Request:
@@ -1003,7 +1050,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 78">post_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 91">post_route</abbr>|    |
 - Path: /api/post
 - Method: POST
 - Request:
@@ -1088,7 +1135,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 292">CbvRoute.get</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 305">CbvRoute.get</abbr>|    |
 - Path: /api/cbv
 - Method: get
 - Request:
@@ -1173,7 +1220,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 317">CbvRoute.post</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 330">CbvRoute.post</abbr>|    |
 - Path: /api/cbv
 - Method: post
 - Request:
@@ -1258,7 +1305,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 136">pait_base_field_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 149">pait_base_field_route</abbr>|    |
 - Path: /api/pait-base-field/<age>
 - Method: POST
 - Request:
@@ -1360,7 +1407,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 235">mock_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 248">mock_route</abbr>|    |
 - Path: /api/mock/<age>
 - Method: GET
 - Request:
@@ -1398,7 +1445,7 @@
             |code|integer| | |api code||
             |data.age|integer|**`Required`**|99|age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
             |data.email|string|**`Required`**|example@so1n.me|user email||
-            |data.multi_user_name|array|**`Required`**|('mock_name',)|user name|[`maxLength:4`], [`minLength:2`], [`items:{'type': 'string', 'minLength': 2, 'maxLength': 4}`]|
+            |data.multi_user_name|array|**`Required`**|['mock_name']|user name|[`maxLength:10`], [`minLength:2`], [`items:{'type': 'string', 'minLength': 2, 'maxLength': 10}`]|
             |data.uid|integer|**`Required`**|666|user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
             |data.user_name|string|**`Required`**|mock_name|user name|[`maxLength:10`], [`minLength:2`]|
             |msg|string|success| |api status msg||

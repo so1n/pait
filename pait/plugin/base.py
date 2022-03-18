@@ -28,12 +28,12 @@ class PluginProtocol(object):
 
 class BasePlugin(PluginProtocol):
     def call_next(self, *args: Any, **kwargs: Any) -> Any:
-        raise RuntimeError("Failed to load PluginManager, please check the list of plugins")  # pragma: no cover
+        raise RuntimeError("Failed to load Plugin, please check the list of plugins")  # pragma: no cover
 
     @classmethod
     def cls_hook_by_core_model(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         if inspect.iscoroutinefunction(pait_core_model.func):
-            raise TypeError("PluginManager not support async func")
+            raise TypeError("Plugin not support async func")
         return kwargs
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
@@ -42,12 +42,12 @@ class BasePlugin(PluginProtocol):
 
 class BaseAsyncPlugin(PluginProtocol):
     async def call_next(self, *args: Any, **kwargs: Any) -> Any:
-        raise RuntimeError("Failed to load PluginManager, please check the list of plugins")  # pragma: no cover
+        raise RuntimeError("Failed to load Plugin, please check the list of plugins")  # pragma: no cover
 
     @classmethod
     def cls_hook_by_core_model(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         if not inspect.iscoroutinefunction(pait_core_model.func):
-            raise TypeError("PluginManager only support async func")
+            raise TypeError("Plugin only support async func")
         return kwargs
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:

@@ -356,6 +356,9 @@ class PaitBaseParse(object):
                     all_field_dict[field_class].extend(field_dict_list)
         return all_field_dict
 
+    def __str__(self) -> str:
+        return self.content
+
     def output(self, filename: Optional[str], suffix: str = "") -> None:
         if not suffix:
             suffix = self._content_type

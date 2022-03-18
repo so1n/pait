@@ -57,7 +57,7 @@ class PaitCoreModel(object):
         self.author: Optional[Tuple[str, ...]] = author  # The main developer of this func
         self.summary: str = summary or ""
         self.desc: str = desc or func.__doc__ or ""  # desc of this func
-        self.status: Optional[PaitStatus] = status or PaitStatus.undefined
+        self.status: PaitStatus = status or PaitStatus.undefined
         self.group: str = group or "root"  # Which group this interface belongs to
         self.tag: Tuple[str, ...] = tag or ("default",)  # Interface tag
 

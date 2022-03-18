@@ -7,6 +7,7 @@ from starlette.routing import Route
 
 from pait.g import pait_data
 from pait.model.core import PaitCoreModel
+from pait.util import http_method_tuple
 
 from ._app_helper import AppHelper
 
@@ -27,7 +28,7 @@ def load_app(app: Starlette, project_name: str = "") -> Dict[str, PaitCoreModel]
         endpoint: Union[Callable, Type] = route.endpoint
         pait_id: str = getattr(route.endpoint, "_pait_id", None)
         if not pait_id and inspect.isclass(endpoint) and issubclass(endpoint, HTTPEndpoint):  # type: ignore
-            for method in ["get", "post", "head", "options", "delete", "put", "trace", "patch"]:
+            for method in http_method_tuple:
                 method_endpoint = getattr(endpoint, method, None)
                 if not method_endpoint:
                     continue

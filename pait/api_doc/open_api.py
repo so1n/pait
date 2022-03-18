@@ -355,7 +355,6 @@ class PaitOpenApi(PaitBaseParse):
                 for method in pait_model.method_list:
                     # Documentation for each route
                     openapi_method_dict: dict = openapi_path_dict.setdefault(method.lower(), {})
-                    openapi_method_dict["group"] = group  # Not an openapi standard parameter
                     if pait_model.tag:
                         openapi_method_dict["tags"] = list(pait_model.tag)
                         # Additional labeling instructions
@@ -378,9 +377,19 @@ class PaitOpenApi(PaitBaseParse):
                         PaitStatus.abandoned,
                     ):
                         openapi_method_dict["deprecated"] = True
+                    else:
+                        openapi_method_dict["deprecated"] = False
+
                     openapi_method_dict["summary"] = pait_model.summary
                     openapi_method_dict["description"] = pait_model.desc
                     openapi_method_dict["operationId"] = f"{method}.{pait_model.operation_id}"
+
+                    # Not an openapi standard parameter
+                    openapi_method_dict["pait_info"] = {
+                        "group": group,
+                        "pait_status": pait_model.status.value,
+                        "author": pait_model.author,
+                    }
 
                     all_field_dict: FieldDictType = self._parse_pait_model_to_field_dict(pait_model)
                     all_field_class_list: List[Type[pait_field.BaseField]] = sorted(

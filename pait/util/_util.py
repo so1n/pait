@@ -5,7 +5,7 @@ from datetime import datetime
 from decimal import Decimal
 from enum import Enum
 from json import JSONEncoder
-from typing import TYPE_CHECKING, Any, Dict, ForwardRef, List, Optional, Type, Union, get_type_hints
+from typing import TYPE_CHECKING, Any, Dict, ForwardRef, List, Optional, Tuple, Type, Union, get_type_hints
 
 from pydantic import BaseModel
 from pydantic.fields import Undefined, UndefinedType
@@ -17,6 +17,7 @@ from ._types import ParseTypeError, parse_typing
 if TYPE_CHECKING:
     from pait.model.response import PaitBaseResponseModel
 
+http_method_tuple: Tuple[str, ...] = ("get", "post", "head", "options", "delete", "put", "trace", "patch")
 
 json_type_default_value_dict: Dict[str, Any] = {
     "null": None,

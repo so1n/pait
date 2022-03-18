@@ -93,7 +93,7 @@ class ParamHandlerMixin(PluginProtocol):
 
     @classmethod
     def check_depend_handle(cls, func: Callable) -> Any:
-        func_sig: FuncSig = get_func_sig(func)
+        func_sig: FuncSig = get_func_sig(func)  # get and cache func sig
         cls.check_param_field_handle(func_sig, func_sig.param_list)
 
     @staticmethod
@@ -108,6 +108,38 @@ class ParamHandlerMixin(PluginProtocol):
             raise ParseTypeError(error_msg)
 
     @classmethod
+    def check_param_field_by_parameter(
+        cls,
+        parameter: inspect.Parameter,
+    ) -> None:
+        if isinstance(parameter.default, field.Depends):
+            cls.check_depend_handle(parameter.default.func)
+        elif isinstance(parameter.default, field.BaseField):
+            if parameter.default.alias and not isinstance(parameter.default.alias, str):
+                raise FieldValueTypeException(parameter.name, f"{parameter.name}'s Field.alias type must str")
+            try:
+                cls.check_field_type(
+                    parameter.default.default,
+                    parameter.annotation,
+                    f"{parameter.name}'s Field.default type must {parameter.annotation}",
+                )
+                if parameter.default.default_factory:
+                    cls.check_field_type(
+                        parameter.default.default_factory(),
+                        parameter.annotation,
+                        f"{parameter.name}'s Field.default_factory type must {parameter.annotation}",
+                    )
+                cls.check_field_type(
+                    parameter.default.extra.get("example", Undefined),
+                    parameter.annotation,
+                    f"{parameter.name}'s Field.example type must {parameter.annotation}",
+                )
+            except ParseTypeError as e:
+                raise FieldValueTypeException(parameter.name, str(e))
+        else:
+            raise NotFoundFieldException(parameter.name, f"{parameter.name}'s Field not found")
+
+    @classmethod
     def check_param_field_handle(
         cls,
         _object: Union[FuncSig, Type, None],
@@ -119,37 +151,16 @@ class ParamHandlerMixin(PluginProtocol):
                 if parameter.default != parameter.empty:
                     # kwargs param
                     # support model: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseField())
-                    if isinstance(parameter.default, field.Depends):
-                        cls.check_depend_handle(parameter.default.func)
-                    elif isinstance(parameter.default, field.BaseField):
-                        if not isinstance(parameter.default.alias, str):
-                            raise FieldValueTypeException(
-                                parameter.name, f"{parameter.name}'s Field.alias type must str"
-                            )
-                        try:
-                            cls.check_field_type(
-                                parameter.default.default,
-                                parameter.annotation,
-                                f"{parameter.name}'s Field.default type must {parameter.annotation}",
-                            )
-                            if parameter.default.default_factory:
-                                cls.check_field_type(
-                                    parameter.default.default_factory(),
-                                    parameter.annotation,
-                                    f"{parameter.name}'s Field.default_factory type must {parameter.annotation}",
-                                )
-                            cls.check_field_type(
-                                parameter.default.extra.get("example", Undefined),
-                                parameter.annotation,
-                                f"{parameter.name}'s Field.example type must {parameter.annotation}",
-                            )
-                        except ParseTypeError as e:
-                            raise FieldValueTypeException(parameter.name, str(e))
+                    cls.check_param_field_by_parameter(parameter)
                 else:
                     # args param
                     # support model: model: ModelType
-                    if issubclass(parameter.annotation, BaseModel):
-                        get_parameter_list_from_pydantic_basemodel(parameter.annotation)
+                    if not issubclass(parameter.annotation, BaseModel):
+                        continue
+                    # cache and get parameter_list
+                    param_list = get_parameter_list_from_pydantic_basemodel(parameter.annotation)
+                    for _parameter in param_list:
+                        cls.check_param_field_by_parameter(_parameter)
             except PaitBaseException as e:
                 raise gen_tip_exc(_object, e, parameter)
 
@@ -185,8 +196,8 @@ class ParamHandlerMixin(PluginProtocol):
             logging.warning(f"Pait not support args: {parameter}")  # pragma: no cover
         return False
 
+    @staticmethod
     def request_value_handle(
-        self,
         parameter: inspect.Parameter,
         request_value: Any,
         base_model_dict: Optional[Dict[str, Any]],
