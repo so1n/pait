@@ -177,6 +177,7 @@ class PaitMd(PaitBaseParse):
                         ):
                             markdown_text += f"{' ' * 8}- {join_i18n([I18n.Response, I18n.Data])}\n\n"
                             field_dict_list = self._parse_schema(resp_model.response_data.schema())
+                            # field_dict: FieldDictType = {}
                             markdown_text += self.gen_md_param_table(field_dict_list, blank_num=12)
                             markdown_text += (
                                 f"{' ' * 8}- " f"{join_i18n([I18n.Example, I18n.Response, 'Json', I18n.Data])} \n\n"

@@ -87,7 +87,7 @@ class TestPlugin:
                 )
 
             exec_msg: str = e.value.args[0]
-            assert "PluginManager only support async func" in exec_msg
+            assert "Plugin only support async func" in exec_msg
 
     def test_sync_plugin_in_async_func(self) -> None:
         async def demo() -> None:
@@ -110,7 +110,7 @@ class TestPlugin:
                 )
 
             exec_msg: str = e.value.args[0]
-            assert "PluginManager not support async func" in exec_msg
+            assert "Plugin not support async func" in exec_msg
 
 
 class TestJsonPlugin:
@@ -290,7 +290,7 @@ class TestParamPlugin:
             )
 
         exec_msg: str = e.value.args[0]
-        assert "default value must <class 'str'>" in exec_msg
+        assert "default type must <class 'str'>" in exec_msg
 
     def test_error_default_factory_value(self) -> None:
         def demo_factory() -> datetime.datetime:
@@ -310,7 +310,7 @@ class TestParamPlugin:
             )
 
         exec_msg: str = e.value.args[0]
-        assert "default_factory value must <class 'str'>" in exec_msg
+        assert "default_factory type must <class 'str'>" in exec_msg
 
     def test_error_example_value(self) -> None:
         def demo_factory() -> datetime.datetime:
@@ -330,7 +330,7 @@ class TestParamPlugin:
             )
 
         exec_msg: str = e.value.args[0]
-        assert "example value must <class 'str'>" in exec_msg
+        assert "example type must <class 'str'>" in exec_msg
 
         def demo1(value: str = field.Query(example=datetime.datetime.now())) -> None:
             pass
@@ -346,4 +346,4 @@ class TestParamPlugin:
             )
 
         exec_msg = e.value.args[0]
-        assert "example value must <class 'str'>" in exec_msg
+        assert "example type must <class 'str'>" in exec_msg

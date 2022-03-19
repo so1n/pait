@@ -1,6 +1,6 @@
 import inspect
 import warnings
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union, get_type_hints
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
 
 from pydantic import BaseModel
 from pydantic.fields import Undefined
@@ -133,52 +133,26 @@ class PaitBaseParse(object):
         return field_dict_list
 
     def _parse_base_model_to_field_dict(
-        self,
-        field_dict: FieldDictType,
-        _pydantic_model: Type[BaseModel],
-        param_field_dict: Dict[str, BaseField],
+        self, field_dict: FieldDictType, _pydantic_model: Type[BaseModel], specified_field: Optional[BaseField] = None
     ) -> None:
-        """
-        write field_dict from _pydantic_model or param_field_dict
-        :param field_dict:
-          e.g.
-            {
-                "Body": [
-                    {
-                        "param_name": "",
-                        "description": "",
-                        "default": "",
-                        "type": _"",
-                        "other": {"": ""},
-                        "raw": {
-                            "param_name": "",
-                            "schema": {"": ""},
-                            "parent_schema": {"": ""},
-                        },
-                    }
-                ]
-            }
-        :param _pydantic_model: pydantic.basemodel
-        :param param_field_dict:
-            e.g.
-            {
-                'uid': Query(default=Ellipsis, description='user id', gt=10, lt=1000, extra={}),
-                'user_name': Query(default=Ellipsis, description='user name', min_length=2, max_length=4, extra={}),
-                'user_agent': Header(
-                    default=Ellipsis, alias='user-agent', alias_priority=2, description='user agent', extra={}
-                ),
-                'age': Body(default=Ellipsis, description='age', gt=1, lt=100, extra={})
-            }
-        :return:
-        """
-        # TODO design like _parse_schema
-        param_name_alias_dict: Dict[str, str] = {
-            value.alias: key for key, value in param_field_dict.items() if isinstance(value, BaseField) and value.alias
-        }
+        """write field_dict from _pydantic_model or param_field_dict"""
+        param_field_dict: Dict[str, BaseField] = {}
+        param_annotation_dict: Dict[str, Type] = {}
+        from typing import get_type_hints
+
+        for field_name, model_field in _pydantic_model.__fields__.items():
+            param_annotation = get_type_hints(_pydantic_model)[field_name]
+            field = model_field.field_info
+            if specified_field:
+                field = specified_field.from_pydantic_field(field)
+            if isinstance(field, BaseField) and field.alias:
+                field_name = field.alias
+            param_field_dict[field_name] = field
+            param_annotation_dict[field_name] = param_annotation
+
         property_dict: Dict[str, Any] = _pydantic_model.schema()["properties"]
         for param_name, param_dict in property_dict.items():
-            param_python_name: str = param_name_alias_dict.get(param_name, param_name)
-            pait_field: BaseField = param_field_dict[param_python_name]
+            pait_field: BaseField = param_field_dict[param_name]
             pait_field_class: Type[BaseField] = pait_field.__class__
             if "$ref" in param_dict:
                 # ref support
@@ -201,14 +175,14 @@ class PaitBaseParse(object):
                 if default is not self._undefined:
                     default = f'Only choose from: {",".join(["`" + i + "`" for i in default])}'
                 _type: str = "enum"
-                description: str = param_field_dict[param_python_name].description
+                description: str = pait_field.description
             else:
                 default = param_dict.get("default", self._undefined)
                 _type = param_dict.get("type", self._undefined)
                 description = param_dict.get("description")
             # NOTE: I do not know <pydandic.Filed(default=None)> can not found default value
             if default is self._undefined and param_name not in _pydantic_model.schema().get("required", []):
-                default = param_field_dict[param_python_name].default
+                default = pait_field.default
             _field_dict: FieldSchemaTypeDict = {
                 "param_name": param_name,
                 "description": description,
@@ -223,7 +197,7 @@ class PaitBaseParse(object):
                     "param_name": param_name,
                     "schema": param_dict,
                     "parent_schema": _pydantic_model.schema(),
-                    "annotation": _pydantic_model.__annotations__[param_python_name],
+                    "annotation": param_annotation_dict[param_name],
                     "field": pait_field,
                 },
             }
@@ -254,13 +228,7 @@ class PaitBaseParse(object):
                     # Adapt each property of pydantic.BaseModel to pait.field
                     # Convert Field classes of pydantic.
                     # Model properties to Field classes of genuine request types, such as: Body, Query, Header, etc.
-                    param_filed_dict: Dict[str, BaseField] = {
-                        _param_name: pait_field.from_pydantic_field(
-                            annotation.__fields__[_param_name].field_info  # type: ignore
-                        )
-                        for _param_name, _ in get_type_hints(annotation).items()
-                    }
-                    self._parse_base_model_to_field_dict(field_dict, annotation, param_filed_dict)
+                    self._parse_base_model_to_field_dict(field_dict, annotation, specified_field=pait_field)
                 else:
                     # def test(pait_model_route: int = Body())
                     if isinstance(pait_field, Depends):
@@ -276,13 +244,7 @@ class PaitBaseParse(object):
 
             elif issubclass(parameter.annotation, BaseModel):
                 # def test(pait_model_route: PaitBaseModel)
-                _pait_model: Type[BaseModel] = parameter.annotation
-                param_filed_dict = {
-                    key: model_field.field_info
-                    for key, model_field in _pait_model.__fields__.items()
-                    if isinstance(model_field.field_info, BaseField)
-                }
-                self._parse_base_model_to_field_dict(field_dict, _pait_model, param_filed_dict)
+                self._parse_base_model_to_field_dict(field_dict, parameter.annotation)
 
     def _parse_func_param_to_field_dict(self, func: Callable, pait_model: PaitCoreModel) -> FieldDictType:
         """gen filed dict from func
@@ -320,7 +282,6 @@ class PaitBaseParse(object):
 
         if single_field_list:
             annotation_dict: Dict[str, Tuple[Type, Any]] = {}
-            _pait_field_dict: Dict[str, BaseField] = {}
             _column_name_set: Set[str] = set()
             for field_name, parameter in single_field_list:
                 field: BaseField = parameter.default
@@ -335,14 +296,13 @@ class PaitBaseParse(object):
                     _pydantic_model: Type[BaseModel] = create_pydantic_model(
                         {parameter.name: (parameter.annotation, field)}
                     )
-                    self._parse_base_model_to_field_dict(field_dict, _pydantic_model, {parameter.name: field})
+                    self._parse_base_model_to_field_dict(field_dict, _pydantic_model)
                 else:
                     _column_name_set.add(key)
                     annotation_dict[parameter.name] = (parameter.annotation, field)
-                    _pait_field_dict[parameter.name] = field
 
             _pydantic_model = create_pydantic_model(annotation_dict)
-            self._parse_base_model_to_field_dict(field_dict, _pydantic_model, _pait_field_dict)
+            self._parse_base_model_to_field_dict(field_dict, _pydantic_model)
         return field_dict
 
     def _parse_pait_model_to_field_dict(self, pait_model: PaitCoreModel) -> FieldDictType:
