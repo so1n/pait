@@ -58,7 +58,6 @@ def add_doc_route(
 
 
 def pait(
-    enable_mock_response: bool = False,
     pydantic_model_config: Optional[Type[BaseConfig]] = None,
     # param check
     pre_depend_list: Optional[List[Callable]] = None,
@@ -87,7 +86,6 @@ def pait(
     if not _pait:
         raise NotImplementedError(f"Pait not support:{load_class_app}")
     return _pait(
-        enable_mock_response=enable_mock_response,
         pydantic_model_config=pydantic_model_config,
         pre_depend_list=pre_depend_list,
         append_pre_depend_list=append_pre_depend_list,
