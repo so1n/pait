@@ -22,7 +22,7 @@ nav:
     - Depend: '1_4_depend.md'
     - 异常提示: '1_5_exception.md'
   - Pait的复用: '2_pait_multiplexing.md'
-  - 文档:
+  - API文档:
     - 介绍: '3_1_introduction.md'
     - OpenApi生成: '3_2_openapi.md'
     - OpenApi路由使用: '3_3_openapi_route.md'
@@ -31,9 +31,9 @@ nav:
   - 插件:
       - 介绍: '5_1_introduction.md'
       - 参数检查插件: '5_2_param_check_plugin.md'
-      - Json响应插件: '5_3_json_response_check_plugin.md'
+      - Json响应插件: '5_3_json_response_plugin.md'
       - Mock响应插件: '5_4_mock_json_response_check_plugin.md'
-      - 自动补全Json响应插件: '5_5_auto_complete_json_response_plugin.md'
+      - 如何自定义插件: '5_5_how_tp_customize_the_plugin.md'
   - 其它: "6_other.md"
 
 extra:
