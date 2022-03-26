@@ -9,7 +9,7 @@ from starlette.routing import Mount, Route
 
 from pait.api_doc.html import get_redoc_html as _get_redoc_html
 from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
-from pait.api_doc.open_api import PaitOpenApi
+from pait.api_doc.open_api import PaitOpenAPI
 from pait.field import Depends, Query
 from pait.g import config
 from pait.model.core import PaitCoreModel
@@ -79,7 +79,7 @@ def add_doc_route(
         url: str = f"{_scheme}://{request.url.hostname}"
         if request.url.port:
             url += f":{request.url.port}"  # pragma: no cover
-        pait_openapi: PaitOpenApi = PaitOpenApi(
+        pait_openapi: PaitOpenAPI = PaitOpenAPI(
             pait_dict,
             title=title,
             open_api_server_list=[{"url": url, "description": ""}],

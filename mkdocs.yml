@@ -22,11 +22,7 @@ nav:
     - Depend: '1_4_depend.md'
     - 异常提示: '1_5_exception.md'
   - Pait的复用: '2_pait_multiplexing.md'
-  - API文档:
-    - 介绍: '3_1_introduction.md'
-    - OpenApi生成: '3_2_openapi.md'
-    - OpenApi路由使用: '3_3_openapi_route.md'
-    - 其它文档: '3_4_other_docs.md'
+  - API文档: '3_api_doc.md'
   - 单元测试支持: '4_unit_test_helper.md'
   - 插件:
       - 介绍: '5_1_introduction.md'

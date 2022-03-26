@@ -11,7 +11,7 @@ from tornado.web import Application
 
 from example.param_verify import tornado_example
 from pait.api_doc.html import get_redoc_html, get_swagger_ui_html
-from pait.api_doc.open_api import PaitOpenApi
+from pait.api_doc.open_api import PaitOpenAPI
 from pait.app import auto_load_app
 from pait.app.tornado import TornadoTestHelper, load_app
 from pait.model import response
@@ -388,7 +388,7 @@ class TestTornado(AsyncHTTPTestCase):
                 None,
                 str(json.loads(self.fetch("/openapi.json?pin_code=6666").body.decode())),
                 str(
-                    PaitOpenApi(
+                    PaitOpenAPI(
                         load_app(self.get_app()),
                         title="Pait Doc",
                         open_api_server_list=[{"url": "http://localhost", "description": ""}],

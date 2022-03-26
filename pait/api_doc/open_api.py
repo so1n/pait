@@ -16,7 +16,7 @@ from pait.util import create_pydantic_model, get_model_global_name, pait_model_s
 
 from .base_parse import FieldDictType, FieldSchemaTypeDict
 
-__all__ = ["PaitOpenApi"]
+__all__ = ["PaitOpenAPI"]
 
 
 class _OpenApiInfoModel(BaseModel):
@@ -56,7 +56,7 @@ class _OpenApiServerModel(BaseModel):
     description: str = Field(None)
 
 
-class PaitOpenApi(PaitBaseParse):
+class PaitOpenAPI(PaitBaseParse):
     def __init__(
         self,
         pait_dict: Dict[str, PaitCoreModel],

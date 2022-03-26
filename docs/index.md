@@ -76,16 +76,13 @@ add_doc_route(app)
 uvicorn.run(app)
 ```
 只需要添加高亮部分的代码，就完成了一个简单的接口，接着运行代码，并在浏览器访问: [http://127.0.0.1:8000/swagger](http://127.0.0.1:8000/swagger) ,可以看到有个SwaggerUI的页面，目前有两组接口：
-
-![](https://github.com/so1n/so1n_blog_photo/blob/master/blog_photo/Pait%20doc-%E9%A6%96%E9%A1%B5%E7%A4%BA%E4%BE%8B%E6%8E%A5%E5%8F%A3-Swagger%E9%A6%96%E9%A1%B5.png?raw=true)
+![](https://cdn.jsdelivr.net/gh/so1n/so1n_blog_photo@master/blog_photo/1648292884021Pait%20doc-%E9%A6%96%E9%A1%B5%E7%A4%BA%E4%BE%8B%E6%8E%A5%E5%8F%A3-Swagger%E9%A6%96%E9%A1%B5.png)
 
 其中一组是`Pait doc`自带的3个接口，另外一组是`default`，里面有我们刚创建的`/api`接口，点开`/api`接口，然后会弹出该接口的详情：
-
-![](https://github.com/so1n/so1n_blog_photo/blob/master/blog_photo/Pait%20doc-%E9%A6%96%E9%A1%B5%E7%A4%BA%E4%BE%8B%E6%8E%A5%E5%8F%A3-api%E6%8E%A5%E5%8F%A3.png?raw=true)
+![](https://cdn.jsdelivr.net/gh/so1n/so1n_blog_photo@master/blog_photo/1648292937018Pait%20doc-%E9%A6%96%E9%A1%B5%E7%A4%BA%E4%BE%8B%E6%8E%A5%E5%8F%A3-api%E6%8E%A5%E5%8F%A3.png)
 
 详情里的数据是由`Pait`通过读取函数签名以及传入的`DemoResponseModel`生成的， 接着可以点击`try it out`，并输入参数并点击`Excute`，既可以看到Curl命令生成结果以及服务器响应结果:
-
-![](https://github.com/so1n/so1n_blog_photo/blob/master/blog_photo/Pait%20doc-%E9%A6%96%E9%A1%B5%E7%A4%BA%E4%BE%8B%E6%8E%A5%E5%8F%A3-Swagger%E8%AF%B7%E6%B1%82.png?raw=true)
+![](https://cdn.jsdelivr.net/gh/so1n/so1n_blog_photo@master/blog_photo/1648292980016Pait%20doc-%E9%A6%96%E9%A1%B5%E7%A4%BA%E4%BE%8B%E6%8E%A5%E5%8F%A3-Swagger%E8%AF%B7%E6%B1%82.png)
 
 从结果可以看出，路由函数正常工作，而路由函数的参数是`Pait`自动从Json Body中提取uid和user_name的值并传入的。
 

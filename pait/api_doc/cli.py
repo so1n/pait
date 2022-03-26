@@ -4,7 +4,7 @@ import inspect
 from typing import Dict, List, Optional
 
 from pait.api_doc.markdown import PaitMd
-from pait.api_doc.open_api import PaitOpenApi
+from pait.api_doc.open_api import PaitOpenAPI
 from pait.app import load_app
 from pait.model.core import PaitCoreModel
 
@@ -45,9 +45,9 @@ def main() -> None:
         if type_ == "md":
             PaitMd(pait_dict, title=title, use_html_details=use_html_details).output(filename)
         elif type_ == "openapi_json":
-            PaitOpenApi(pait_dict, title=title, type_="json").output(filename)
+            PaitOpenAPI(pait_dict, title=title, type_="json").output(filename)
         elif type_ == "openapi_yaml":
-            PaitOpenApi(pait_dict, title=title, type_="yaml").output(filename)
+            PaitOpenAPI(pait_dict, title=title, type_="yaml").output(filename)
         else:
             raise ValueError(f"Not support output type: {type_}, please select from the following options")
 

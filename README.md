@@ -17,7 +17,7 @@ Pait allows the Python Web framework to have functions such as parameter type ch
 >
 > There is no test case for the document output function, and the function is still being improved
 
-[中文文档](https://github.com/so1n/pait/blob/master/README_ZH.md)
+[中文文档](https://so1n.me/pait/)
 # Feature
  - [x] Parameter checksum automatic conversion (parameter check depends on `Pydantic`)
  - [x] Parameter dependency verification
@@ -374,6 +374,7 @@ The openapi module of pait supports the following parameters (more parameters wi
 - filename: Output file name, or if empty, output to terminal
 
 The following is the sample code output from the openapi documentation (modified by the 1.1 code). See [Example code](https://github.com/so1n/pait/tree/master/example/api_doc) and [doc example](https://github.com/so1n/pait/blob/master/example/api_doc/example_doc)
+
 ```Python
 import uvicorn
 
@@ -392,17 +393,18 @@ from pydantic import (
 
 # Create a Model based on Pydantic.BaseModel
 class PydanticModel(BaseModel):
-    uid: conint(gt=10, lt=1000)  # Whether the auto-check type is int, and whether it is greater than or equal to 10 and less than or equal to 1000
-    user_name: constr(min_length=2, max_length=4)  # Whether the auto-check type is str, and whether the length is greater than or equal to 2, less than or equal to 4
-
+    uid: conint(gt=10,
+                lt=1000)  # Whether the auto-check type is int, and whether it is greater than or equal to 10 and less than or equal to 1000
+    user_name: constr(min_length=2,
+                      max_length=4)  # Whether the auto-check type is str, and whether the length is greater than or equal to 2, less than or equal to 4
 
 
 # Decorating functions with the pait decorator
 @pait()
 async def demo_post(
-    # pait through the Body () to know the current need to get the value of the body from the request, and assign the value to the model,
-    # and the structure of the model is the above PydanticModel, he will be based on our definition of the field automatically get the value and conversion and judgment
-    model: PydanticModel = Body.i()
+        # pait through the Body () to know the current need to get the value of the body from the request, and assign the value to the model,
+        # and the structure of the model is the above PydanticModel, he will be based on our definition of the field automatically get the value and conversion and judgment
+        model: PydanticModel = Body.i()
 ):
     # Get the corresponding value to return
     return JSONResponse({'result': model.dict()})
@@ -418,13 +420,12 @@ uvicorn.run(app)
 # --------------------
 
 from pait.app.starlette import load_app
-from pait.api_doc.open_api import PaitOpenApi
-
+from pait.api_doc.open_api import PaitOpenAPI
 
 # Extracting routing information to pait's data module
 pait_dict = load_app(app)
 # Generate openapi for routing based on data from the data module
-PaitOpenApi(pait_dict)
+PaitOpenAPI(pait_dict)
 ```
 #### 2.1.2.OpenApi Route
 `Pait` currently supports openapi.json routing, and also supports page display of `Redoc` and `Swagger`, and these only need to call the `add_doc_route` function to add three routes to the `app` instance:

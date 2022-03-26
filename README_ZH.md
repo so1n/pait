@@ -374,6 +374,7 @@ pait的openapi模块支持一下参数(下一个版本会提供更多的参数):
 [示例代码](https://github.com/so1n/pait/tree/master/example/api_doc)
 以及
 [文档输出例子](https://github.com/so1n/pait/blob/master/example/api_doc/example_doc)
+
 ```Python
 from pydantic import BaseModel, conint, constr
 from starlette.applications import Starlette
@@ -386,36 +387,36 @@ from pait.field import Body
 
 # 创建一个基于Pydantic.BaseModel的Model
 class PydanticModel(BaseModel):
-    uid: conint(gt=10, lt=1000)  # 自动校验类型是否为int,且是否大于10小于1000
-    user_name: constr(min_length=2, max_length=4)  # 自动校验类型是否为str, 且长度是否大于等于2,小于等于4
+  uid: conint(gt=10, lt=1000)  # 自动校验类型是否为int,且是否大于10小于1000
+  user_name: constr(min_length=2, max_length=4)  # 自动校验类型是否为str, 且长度是否大于等于2,小于等于4
 
 
 # 使用pait装饰器装饰函数
 @pait()
 async def demo_post(
-    # pait通过Body()知道当前需要从请求中获取body的值,并赋值到model中,
-    # 而这个model的结构正是上面的PydanticModel,他会根据我们定义的字段自动获取值并进行转换和判断
-    model: PydanticModel = Body.i()
+        # pait通过Body()知道当前需要从请求中获取body的值,并赋值到model中,
+        # 而这个model的结构正是上面的PydanticModel,他会根据我们定义的字段自动获取值并进行转换和判断
+        model: PydanticModel = Body.i()
 ):
-    # 获取对应的值进行返回
-    return JSONResponse({'result': model.dict()})
+  # 获取对应的值进行返回
+  return JSONResponse({'result': model.dict()})
 
 
 app = Starlette(
-    routes=[
-        Route('/api', demo_post, methods=['POST']),
-    ]
+  routes=[
+    Route('/api', demo_post, methods=['POST']),
+  ]
 )
 
 # 上面是跟1.1的例子一样
 
-from pait.api_doc.open_api import PaitOpenApi
+from pait.api_doc.open_api import PaitOpenAPI
 from pait.app.starlette import load_app
 
 # 提取路由信息到pait的数据模块
 pair_dict = load_app(app)
 # 根据数据模块的数据生成路由的openapi
-PaitOpenApi(pair_dict)
+PaitOpenAPI(pair_dict)
 ```
 #### 2.1.2.OpenApi路由
 `Pait`目前支持openapi.json路由, 同时支持`Redoc`和`Swagger`的页面展示, 而这些只需要调用`add_doc_route`函数即可为`app`实例增加三个路由:
