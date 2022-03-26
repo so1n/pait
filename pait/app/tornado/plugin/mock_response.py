@@ -7,7 +7,7 @@ from pait.model import response
 from pait.plugin.base_mock_response import BaseAsyncMockPlugin
 
 
-class MockPlugin(BaseAsyncMockPlugin):
+class AsyncMockPlugin(BaseAsyncMockPlugin):
     tornado_handle: RequestHandler
 
     def mock_response(self) -> Any:

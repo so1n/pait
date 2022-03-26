@@ -34,12 +34,11 @@ from example.param_verify.model import (
 from pait.app.tornado import Pait, add_doc_route, pait
 from pait.app.tornado.plugin.auto_complete_json_resp import AsyncAutoCompleteJsonRespPlugin
 from pait.app.tornado.plugin.check_json_resp import AsyncCheckJsonRespPlugin
-from pait.app.tornado.plugin.mock_response import MockPlugin
+from pait.app.tornado.plugin.mock_response import AsyncMockPlugin
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
-from pait.plugin import PluginManager
 from pait.plugin.at_most_one_of import AsyncAtMostOneOfPlugin
 from pait.plugin.required import AsyncRequiredPlugin
 
@@ -207,8 +206,8 @@ class CheckParamHandler(MyHandler):
         tag=(tag.check_param_tag,),
         response_model_list=[UserSuccessRespModel2, FailRespModel],
         post_plugin_list=[
-            PluginManager(AsyncRequiredPlugin, required_dict={"birthday": ["alias_user_name"]}),
-            PluginManager(AsyncAtMostOneOfPlugin, at_most_one_of_list=[["user_name", "alias_user_name"]]),
+            AsyncRequiredPlugin.build(required_dict={"birthday": ["alias_user_name"]}),
+            AsyncAtMostOneOfPlugin.build(at_most_one_of_list=[["user_name", "alias_user_name"]]),
         ],
     )
     async def get(
@@ -273,7 +272,7 @@ class MockHandler(MyHandler):
         status=PaitStatus.release,
         tag=(tag.mock_tag,),
         response_model_list=[UserSuccessRespModel2, FailRespModel],
-        plugin_list=[PluginManager(MockPlugin)],
+        plugin_list=[AsyncMockPlugin.build()],
     )
     async def get(
         self,
@@ -456,9 +455,7 @@ class GetUserHandler(MyHandler):
 
 
 class AutoCompleteJsonHandler(MyHandler):
-    @plugin_pait(
-        response_model_list=[UserSuccessRespModel3], plugin_list=[PluginManager(AsyncAutoCompleteJsonRespPlugin)]
-    )
+    @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[AsyncAutoCompleteJsonRespPlugin.build()])
     async def get(
         self,
         uid: int = Query.i(description="user id", gt=10, lt=1000),
@@ -483,7 +480,7 @@ class AutoCompleteJsonHandler(MyHandler):
 
 
 class CheckJsonPluginHandler(MyHandler):
-    @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[PluginManager(AsyncCheckJsonRespPlugin)])
+    @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[AsyncCheckJsonRespPlugin.build()])
     async def get(
         self,
         uid: int = Query.i(description="user id", gt=10, lt=1000),
@@ -526,7 +523,7 @@ _typed_dict = TypedDict(
 
 
 class CheckJsonPlugin1Handler(MyHandler):
-    @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[PluginManager(AsyncCheckJsonRespPlugin)])
+    @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[AsyncCheckJsonRespPlugin.build()])
     async def get(
         self,
         uid: int = Query.i(description="user id", gt=10, lt=1000),

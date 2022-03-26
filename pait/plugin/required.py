@@ -1,7 +1,7 @@
 from typing import Any, Dict, List
 
 from pait.exceptions import CheckValueError
-from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginProtocol
+from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginManager, PluginProtocol
 from pait.util import gen_tip_exc
 
 __all__ = ["RequiredPlugin", "AsyncRequiredPlugin"]
@@ -30,6 +30,10 @@ class RequiredPluginProtocol(PluginProtocol):
                         )
         except Exception as e:
             raise e from gen_tip_exc(self.pait_core_model.func, e)
+
+    @classmethod
+    def build(cls, *, required_dict: Dict[str, List[str]]) -> "PluginManager":  # type: ignore
+        return PluginManager(cls, required_dict=required_dict)  # type: ignore
 
 
 class RequiredPlugin(RequiredPluginProtocol, BasePlugin):

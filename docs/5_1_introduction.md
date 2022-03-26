@@ -44,3 +44,9 @@ uvicorn.run(app)
 这段代码使用到的是一个名为`RequiredPlugin`的插件，这个插件属于后置形插件，所以是以`post_plugin_list`来传入插件。
 同时`Pait`为了防止多个请求共享到相同的插件变量，所以不支持直接引入插件，而是需要通过一个名为`PluginManager`的类来托管，
 其中，`RequiredPlugin`插件要求传入一个`required_dict`参数，需要把这个参数一并写入到`PluginManager`中，由`PluginManager`来初始化和运行插件。
+
+不过这种写法比较啰嗦，同时无法通过类型检查工具来检查传的参数是否正确，在`Pait` 0.7.5版本后，可以通过`build`方法来方便的使用插件，使用方法如下：
+```python
+@pait(post_plugin_list=[RequiredPlugin.build(required_dict={"email": ["username"]})])
+```
+这样一来也可以通过`mypy`,`pyright`等工具进行参数检查。

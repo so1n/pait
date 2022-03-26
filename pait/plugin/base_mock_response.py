@@ -2,7 +2,7 @@ from abc import ABC
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Type
 
 from pait.model.response import PaitBaseResponseModel
-from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginProtocol
+from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginManager, PluginProtocol
 from pait.util import get_pait_response_model
 
 if TYPE_CHECKING:
@@ -43,6 +43,10 @@ class MockPluginInitProtocolMixin(PluginProtocol):
 
     def get_mock_response(self) -> Any:
         return self.mock_response()
+
+    @classmethod
+    def build(cls) -> "PluginManager":  # type: ignore
+        return PluginManager(cls)  # type: ignore
 
 
 class BaseMockPlugin(MockPluginInitProtocolMixin, BasePlugin, ABC):

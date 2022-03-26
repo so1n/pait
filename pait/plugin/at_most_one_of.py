@@ -1,7 +1,7 @@
 from typing import Any, List
 
 from pait.exceptions import CheckValueError
-from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginProtocol
+from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginManager, PluginProtocol
 from pait.util import gen_tip_exc
 
 __all__ = ["AsyncAtMostOneOfPlugin", "AtMostOneOfPlugin"]
@@ -26,6 +26,10 @@ class AtMostOneOfPluginProtocol(PluginProtocol):
                     raise CheckValueError(f"requires at most one of param {' or '.join(at_most_one_of)}")
         except Exception as e:
             raise e from gen_tip_exc(self.pait_core_model.func, e)
+
+    @classmethod
+    def build(cls, *, at_most_one_of_list: List[List[str]]) -> "PluginManager":  # type: ignore
+        return PluginManager(cls, at_most_one_of_list=at_most_one_of_list)  # type: ignore
 
 
 class AtMostOneOfPlugin(AtMostOneOfPluginProtocol, BasePlugin):

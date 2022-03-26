@@ -25,6 +25,10 @@ class PluginProtocol(object):
         self.args = list(args) or []
         self.kwargs = kwargs or {}
 
+    @classmethod
+    def build(cls, **kwargs: Any) -> "PluginManager":
+        return PluginManager(cls, **kwargs)  # type: ignore
+
 
 class BasePlugin(PluginProtocol):
     def call_next(self, *args: Any, **kwargs: Any) -> Any:
