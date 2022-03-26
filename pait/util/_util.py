@@ -105,7 +105,7 @@ def gen_example_dict_from_pydantic_base_model(
         if use_example_value:
             example_value: Any = model_field.field_info.extra.get("example", Undefined)
             if not isinstance(example_value, UndefinedType):
-                if inspect.isfunction(example_value):
+                if getattr(example_value, "__call__", None):
                     example_value = example_value()
                 elif isinstance(example_value, Enum):
                     example_value = example_value.value

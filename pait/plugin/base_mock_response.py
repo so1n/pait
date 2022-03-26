@@ -10,8 +10,6 @@ if TYPE_CHECKING:
 
 
 class MockPluginInitProtocolMixin(PluginProtocol):
-    is_pre_core: bool = False
-
     def __init__(self, pait_response_model: Type[PaitBaseResponseModel], **kwargs: Any):
         self.pait_response_model: Type[PaitBaseResponseModel] = pait_response_model
         super().__init__(**kwargs)

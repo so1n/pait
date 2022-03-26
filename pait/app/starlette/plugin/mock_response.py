@@ -9,7 +9,7 @@ from pait.model import response
 from pait.plugin.base_mock_response import BaseAsyncMockPlugin, BaseMockPlugin
 
 
-class MockAsyncPlugin(BaseAsyncMockPlugin):
+class AsyncMockPlugin(BaseAsyncMockPlugin):
     def mock_response(self) -> Any:
         async def make_mock_response() -> Response:
             if issubclass(self.pait_response_model, response.PaitJsonResponseModel):

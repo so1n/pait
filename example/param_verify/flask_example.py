@@ -249,7 +249,7 @@ def check_response_route(
     status=PaitStatus.release,
     tag=(tag.mock_tag,),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
-    post_plugin_list=[PluginManager(MockPlugin)],
+    plugin_list=[PluginManager(MockPlugin)],
 )
 def mock_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
@@ -402,7 +402,7 @@ def get_user_route(token: str = Header.i("", description="token", link=token_lin
         return {"code": 1, "msg": ""}
 
 
-@plugin_pait(response_model_list=[UserSuccessRespModel3], post_plugin_list=[PluginManager(AutoCompleteJsonRespPlugin)])
+@plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[PluginManager(AutoCompleteJsonRespPlugin)])
 def auto_complete_json_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),

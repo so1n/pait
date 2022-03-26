@@ -7,8 +7,6 @@ from pait.util import get_pait_response_model
 
 
 class AutoCompleteJsonRespPluginProtocolMixin(PluginProtocol):
-    is_pre_core: bool = False
-
     def __init__(self, *, pait_response_model: PaitJsonResponseModel) -> None:
         super(AutoCompleteJsonRespPluginProtocolMixin, self).__init__()
         self.pait_response_model: PaitJsonResponseModel = pait_response_model

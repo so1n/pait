@@ -22,7 +22,7 @@ def enable_mock(
     pait_core_model: "PaitCoreModel" = getattr(route_handler, "pait_core_model")
     raw_plugin_manager_list: List["PluginManager"] = pait_core_model._plugin_manager_list
     try:
-        pait_core_model.add_plugin([], [PluginManager(mock_plugin_class)])
+        pait_core_model.add_plugin([PluginManager(mock_plugin_class)], [])
         yield
     finally:
         pait_core_model._plugin_manager_list = raw_plugin_manager_list

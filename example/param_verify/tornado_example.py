@@ -273,7 +273,7 @@ class MockHandler(MyHandler):
         status=PaitStatus.release,
         tag=(tag.mock_tag,),
         response_model_list=[UserSuccessRespModel2, FailRespModel],
-        post_plugin_list=[PluginManager(MockPlugin)],
+        plugin_list=[PluginManager(MockPlugin)],
     )
     async def get(
         self,
@@ -457,7 +457,7 @@ class GetUserHandler(MyHandler):
 
 class AutoCompleteJsonHandler(MyHandler):
     @plugin_pait(
-        response_model_list=[UserSuccessRespModel3], post_plugin_list=[PluginManager(AsyncAutoCompleteJsonRespPlugin)]
+        response_model_list=[UserSuccessRespModel3], plugin_list=[PluginManager(AsyncAutoCompleteJsonRespPlugin)]
     )
     async def get(
         self,

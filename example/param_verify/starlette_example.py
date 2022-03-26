@@ -41,7 +41,7 @@ from pait.app.starlette.plugin.auto_complete_json_resp import (
     AutoCompleteJsonRespPlugin,
 )
 from pait.app.starlette.plugin.check_json_resp import AsyncCheckJsonRespPlugin, CheckJsonRespPlugin
-from pait.app.starlette.plugin.mock_response import MockAsyncPlugin, MockPlugin
+from pait.app.starlette.plugin.mock_response import AsyncMockPlugin, MockPlugin
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model.links import LinksModel
@@ -263,7 +263,7 @@ async def check_response_route(
     status=PaitStatus.release,
     tag=(tag.mock_tag,),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
-    post_plugin_list=[PluginManager(MockAsyncPlugin)],
+    plugin_list=[PluginManager(AsyncMockPlugin)],
 )
 async def async_mock_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
@@ -294,7 +294,7 @@ async def async_mock_route(
     status=PaitStatus.release,
     tag=(tag.mock_tag,),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
-    post_plugin_list=[PluginManager(MockPlugin)],
+    plugin_list=[PluginManager(MockPlugin)],
 )
 def mock_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
@@ -515,9 +515,7 @@ def get_user_route(token: str = Header.i("", description="token", link=token_lin
         return JSONResponse({"code": 1, "msg": ""})
 
 
-@plugin_pait(
-    response_model_list=[UserSuccessRespModel3], post_plugin_list=[PluginManager(AsyncAutoCompleteJsonRespPlugin)]
-)
+@plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[PluginManager(AsyncAutoCompleteJsonRespPlugin)])
 async def async_auto_complete_json_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
@@ -540,7 +538,7 @@ async def async_auto_complete_json_route(
     return return_dict
 
 
-@plugin_pait(response_model_list=[UserSuccessRespModel3], post_plugin_list=[PluginManager(AutoCompleteJsonRespPlugin)])
+@plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[PluginManager(AutoCompleteJsonRespPlugin)])
 def auto_complete_json_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),

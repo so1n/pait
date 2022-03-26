@@ -354,27 +354,27 @@ class TestStarlette:
         ).json()
 
     def test_text_response(self, client: TestClient) -> None:
-        from pait.app.starlette.plugin.mock_response import MockAsyncPlugin, MockPlugin
+        from pait.app.starlette.plugin.mock_response import AsyncMockPlugin, MockPlugin
 
         response_test_helper(client, starlette_example.text_response_route, response.PaitTextResponseModel, MockPlugin)
         response_test_helper(
-            client, starlette_example.async_text_response_route, response.PaitTextResponseModel, MockAsyncPlugin
+            client, starlette_example.async_text_response_route, response.PaitTextResponseModel, AsyncMockPlugin
         )
 
     def test_html_response(self, client: TestClient) -> None:
-        from pait.app.starlette.plugin.mock_response import MockAsyncPlugin, MockPlugin
+        from pait.app.starlette.plugin.mock_response import AsyncMockPlugin, MockPlugin
 
         response_test_helper(client, starlette_example.html_response_route, response.PaitHtmlResponseModel, MockPlugin)
         response_test_helper(
-            client, starlette_example.async_html_response_route, response.PaitHtmlResponseModel, MockAsyncPlugin
+            client, starlette_example.async_html_response_route, response.PaitHtmlResponseModel, AsyncMockPlugin
         )
 
     def test_file_response(self, client: TestClient) -> None:
-        from pait.app.starlette.plugin.mock_response import MockAsyncPlugin, MockPlugin
+        from pait.app.starlette.plugin.mock_response import AsyncMockPlugin, MockPlugin
 
         response_test_helper(client, starlette_example.file_response_route, response.PaitFileResponseModel, MockPlugin)
         response_test_helper(
-            client, starlette_example.async_file_response_route, response.PaitFileResponseModel, MockAsyncPlugin
+            client, starlette_example.async_file_response_route, response.PaitFileResponseModel, AsyncMockPlugin
         )
 
     def test_test_helper_not_support_mutil_method(self, client: TestClient) -> None:

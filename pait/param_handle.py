@@ -100,7 +100,7 @@ class ParamHandlerMixin(PluginProtocol):
     def check_field_type(value: Any, target_type: Any, error_msg: str) -> None:
         if isinstance(value, UndefinedType):
             return
-        if inspect.isfunction(value):
+        if getattr(value, "__call__", None):
             value = value()
         try:
             create_pydantic_model({"faker_param_name": (target_type, ...)})(faker_param_name=value)
