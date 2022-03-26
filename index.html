@@ -378,85 +378,10 @@
   
   
   
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" >
-      
-      
-      
-      
-        <label class="md-nav__link" for="__nav_4">
-          API文档
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" aria-label="API文档" data-md-level="1">
-        <label class="md-nav__title" for="__nav_4">
-          <span class="md-nav__icon md-icon"></span>
-          API文档
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
-            
-              
-  
-  
-  
     <li class="md-nav__item">
-      <a href="3_1_introduction/" class="md-nav__link">
-        介绍
+      <a href="3_api_doc/" class="md-nav__link">
+        API文档
       </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="3_2_openapi/" class="md-nav__link">
-        OpenApi生成
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="3_3_openapi_route/" class="md-nav__link">
-        OpenApi路由使用
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="3_4_other_docs/" class="md-nav__link">
-        其它文档
-      </a>
-    </li>
-  
-
-            
-          
-        </ul>
-      </nav>
     </li>
   
 
@@ -694,12 +619,12 @@
 <a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a><span class="n">add_doc_route</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 <a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 </code></pre></div>
-只需要添加高亮部分的代码，就完成了一个简单的接口，接着运行代码，并在浏览器访问: <a href="http://127.0.0.1:8000/swagger">http://127.0.0.1:8000/swagger</a> ,可以看到有个SwaggerUI的页面，目前有两组接口：</p>
-<p><img alt="" src="https://github.com/so1n/so1n_blog_photo/blob/master/blog_photo/Pait%20doc-%E9%A6%96%E9%A1%B5%E7%A4%BA%E4%BE%8B%E6%8E%A5%E5%8F%A3-Swagger%E9%A6%96%E9%A1%B5.png?raw=true" /></p>
-<p>其中一组是<code>Pait doc</code>自带的3个接口，另外一组是<code>default</code>，里面有我们刚创建的<code>/api</code>接口，点开<code>/api</code>接口，然后会弹出该接口的详情：</p>
-<p><img alt="" src="https://github.com/so1n/so1n_blog_photo/blob/master/blog_photo/Pait%20doc-%E9%A6%96%E9%A1%B5%E7%A4%BA%E4%BE%8B%E6%8E%A5%E5%8F%A3-api%E6%8E%A5%E5%8F%A3.png?raw=true" /></p>
-<p>详情里的数据是由<code>Pait</code>通过读取函数签名以及传入的<code>DemoResponseModel</code>生成的， 接着可以点击<code>try it out</code>，并输入参数并点击<code>Excute</code>，既可以看到Curl命令生成结果以及服务器响应结果:</p>
-<p><img alt="" src="https://github.com/so1n/so1n_blog_photo/blob/master/blog_photo/Pait%20doc-%E9%A6%96%E9%A1%B5%E7%A4%BA%E4%BE%8B%E6%8E%A5%E5%8F%A3-Swagger%E8%AF%B7%E6%B1%82.png?raw=true" /></p>
+只需要添加高亮部分的代码，就完成了一个简单的接口，接着运行代码，并在浏览器访问: <a href="http://127.0.0.1:8000/swagger">http://127.0.0.1:8000/swagger</a> ,可以看到有个SwaggerUI的页面，目前有两组接口：
+<img alt="" src="https://cdn.jsdelivr.net/gh/so1n/so1n_blog_photo@master/blog_photo/1648292884021Pait%20doc-%E9%A6%96%E9%A1%B5%E7%A4%BA%E4%BE%8B%E6%8E%A5%E5%8F%A3-Swagger%E9%A6%96%E9%A1%B5.png" /></p>
+<p>其中一组是<code>Pait doc</code>自带的3个接口，另外一组是<code>default</code>，里面有我们刚创建的<code>/api</code>接口，点开<code>/api</code>接口，然后会弹出该接口的详情：
+<img alt="" src="https://cdn.jsdelivr.net/gh/so1n/so1n_blog_photo@master/blog_photo/1648292937018Pait%20doc-%E9%A6%96%E9%A1%B5%E7%A4%BA%E4%BE%8B%E6%8E%A5%E5%8F%A3-api%E6%8E%A5%E5%8F%A3.png" /></p>
+<p>详情里的数据是由<code>Pait</code>通过读取函数签名以及传入的<code>DemoResponseModel</code>生成的， 接着可以点击<code>try it out</code>，并输入参数并点击<code>Excute</code>，既可以看到Curl命令生成结果以及服务器响应结果:
+<img alt="" src="https://cdn.jsdelivr.net/gh/so1n/so1n_blog_photo@master/blog_photo/1648292980016Pait%20doc-%E9%A6%96%E9%A1%B5%E7%A4%BA%E4%BE%8B%E6%8E%A5%E5%8F%A3-Swagger%E8%AF%B7%E6%B1%82.png" /></p>
 <p>从结果可以看出，路由函数正常工作，而路由函数的参数是<code>Pait</code>自动从Json Body中提取uid和user_name的值并传入的。</p>
 <h2 id="_7">插件</h2>
 <p>除了参数校验和文档生成外，<code>Pait</code>还拥有一个插件系统，通过插件系统可以拓展其它功能，比如Mock响应功能，它能根据ResponseModel来自动返回数据，即使这个路由没有数据返回，比如下面的代码：
