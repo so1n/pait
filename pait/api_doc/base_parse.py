@@ -135,7 +135,14 @@ class PaitBaseParse(object):
     def _parse_base_model_to_field_dict(
         self, field_dict: FieldDictType, _pydantic_model: Type[BaseModel], specified_field: Optional[BaseField] = None
     ) -> None:
-        """write field_dict from _pydantic_model or param_field_dict"""
+        """
+        write field_dict from _pydantic_model or param_field_dict
+        :param field_dict: collection parse result data
+        :param _pydantic_model: Pydantic Model
+        :param specified_field: Adapt each property of pydantic.BaseModel to pait.field
+            Convert Field classes of pydantic.
+            Model properties to Field classes of genuine request types, such as: Body, Query, Header, etc.
+        """
         param_field_dict: Dict[str, BaseField] = {}
         param_annotation_dict: Dict[str, Type] = {}
         from typing import get_type_hints
@@ -224,11 +231,15 @@ class PaitBaseParse(object):
                     and not isinstance(pait_field, Depends)
                 ):
                     # support def test(pait_model_route: BaseModel = Body())
-
-                    # Adapt each property of pydantic.BaseModel to pait.field
-                    # Convert Field classes of pydantic.
-                    # Model properties to Field classes of genuine request types, such as: Body, Query, Header, etc.
-                    self._parse_base_model_to_field_dict(field_dict, annotation, specified_field=pait_field)
+                    if not pait_field.raw_return:
+                        # support raw_return is True
+                        self._parse_base_model_to_field_dict(
+                            field_dict,
+                            create_pydantic_model({parameter.name: (parameter.annotation, pait_field)}),
+                            specified_field=pait_field,
+                        )
+                    else:
+                        self._parse_base_model_to_field_dict(field_dict, annotation, specified_field=pait_field)
                 else:
                     # def test(pait_model_route: int = Body())
                     if isinstance(pait_field, Depends):
