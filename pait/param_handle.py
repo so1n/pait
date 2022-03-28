@@ -65,7 +65,6 @@ def parameter_2_basemodel(
             param_field.default = create_pydantic_model({"alias": (parameter.annotation, parameter.default)})(
                 **{alias: value}
             ).__dict__["alias"]
-            param_field.default = value
             base_model_key: str = parameter.default.alias if use_pydantic_base_model_alias else parameter.name
         else:
             param_field = parameter.default
