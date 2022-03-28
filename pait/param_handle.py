@@ -55,16 +55,23 @@ def parameter_2_basemodel(
     param_value_dict: Dict[str, Any] = {}
     for parameter, value in parameter_value_dict.items():
         if isinstance(parameter.default, BaseField) and parameter.default.alias:
-            # Resolve the key mismatch between Field.alias and request value
+            # Resolve
+            #   the key mismatch between Field.alias and request value
+            #   different Fields but same alias
             param_field: field.BaseField = copy.deepcopy(parameter.default)
+            # Note: pydantic not check field.default value
+            #   TODO: Change the structure to optimize performance in 0.7.5
+            alias: str = parameter.default.alias
+            param_field.default = create_pydantic_model({"alias": (parameter.annotation, parameter.default)})(
+                **{alias: value}
+            ).__dict__["alias"]
             param_field.default = value
             base_model_key: str = parameter.default.alias if use_pydantic_base_model_alias else parameter.name
         else:
             param_field = parameter.default
             base_model_key = parameter.name
+            param_value_dict[base_model_key] = value
         annotation_dict[base_model_key] = (parameter.annotation, param_field)
-        param_value_dict[base_model_key] = value
-
     return create_pydantic_model(annotation_dict, pydantic_config=pydantic_config)(**param_value_dict)
 
 
@@ -298,6 +305,8 @@ class ParamHandler(ParamHandlerMixin, BasePlugin):
             return
         # support pait_model param(def handle(model: PaitBaseModel))
         _pait_model: Type[BaseModel] = parameter.annotation
+        # Set use_pydantic_base_model_alias to True,
+        # so that the generated structure's Key is preferred to alias, which is convenient to import to _pait_model
         _, kwargs = self.param_handle(
             None, get_parameter_list_from_pydantic_basemodel(_pait_model), use_pydantic_base_model_alias=True
         )
@@ -412,6 +421,8 @@ class AsyncParamHandler(ParamHandlerMixin, BaseAsyncPlugin):
         if not self._set_parameter_value_to_args(parameter, func_args):
             return
         _pait_model: Type[BaseModel] = parameter.annotation
+        # Set use_pydantic_base_model_alias to True, so that the generated structure's Key is preferred to alias,
+        # which is convenient to import to _pait_model
         _, kwargs = await self.param_handle(
             _object, get_parameter_list_from_pydantic_basemodel(_pait_model), use_pydantic_base_model_alias=True
         )
