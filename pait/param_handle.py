@@ -4,7 +4,7 @@ import inspect
 import logging
 from contextlib import AbstractAsyncContextManager, AbstractContextManager
 from types import TracebackType
-from typing import TYPE_CHECKING, Any, Callable, Coroutine, Dict, List, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, Dict, Generator, List, Optional, Set, Tuple, Type, Union
 
 from pydantic import BaseConfig, BaseModel
 from pydantic.fields import Undefined, UndefinedType
@@ -45,6 +45,40 @@ def raise_multiple_exc(exc_list: List[Exception]) -> None:
         raise_multiple_exc(exc_list)
 
 
+def parameter_2_dict(
+    parameter_value_dict: Dict["inspect.Parameter", Any],
+    pydantic_config: Type[BaseConfig],
+    use_pydantic_base_model_alias: bool = False,
+) -> Generator[dict, None, None]:
+    """Convert all parameters into pydantic mods"""
+    annotation_dict: Dict[str, Tuple[Type, Any]] = {}
+    param_value_dict: Dict[str, Any] = {}
+
+    # Resolve
+    #   the key mismatch between Field.alias and request value
+    #   different Fields but same alias
+    key_set: Set[str] = set()
+
+    for parameter, value in parameter_value_dict.items():
+        param_field = parameter.default
+        if isinstance(parameter.default, BaseField) and parameter.default.alias:
+            value_key: str = parameter.default.alias
+            class_name: str = parameter.default.alias if use_pydantic_base_model_alias else parameter.name
+        else:
+            value_key = parameter.name
+            class_name = parameter.name
+        if value_key in key_set:
+            yield create_pydantic_model(annotation_dict, pydantic_config=pydantic_config)(**param_value_dict).__dict__
+            key_set = set()
+            annotation_dict = {}
+            param_value_dict = {}
+
+        key_set.add(value_key)
+        param_value_dict[value_key] = value
+        annotation_dict[class_name] = (parameter.annotation, param_field)
+    yield create_pydantic_model(annotation_dict, pydantic_config=pydantic_config)(**param_value_dict).__dict__
+
+
 def parameter_2_basemodel(
     parameter_value_dict: Dict["inspect.Parameter", Any],
     pydantic_config: Type[BaseConfig],
@@ -55,16 +89,19 @@ def parameter_2_basemodel(
     param_value_dict: Dict[str, Any] = {}
     for parameter, value in parameter_value_dict.items():
         if isinstance(parameter.default, BaseField) and parameter.default.alias:
-            # Resolve the key mismatch between Field.alias and request value
+            # Resolve
+            #   the key mismatch between Field.alias and request value
+            #   different Fields but same alias
             param_field: field.BaseField = copy.deepcopy(parameter.default)
+            # Note: pydantic not check field.default value when config.validate_all = False
+            # See issue: https://github.com/samuelcolvin/pydantic/issues/1280
             param_field.default = value
             base_model_key: str = parameter.default.alias if use_pydantic_base_model_alias else parameter.name
         else:
             param_field = parameter.default
             base_model_key = parameter.name
+            param_value_dict[base_model_key] = value
         annotation_dict[base_model_key] = (parameter.annotation, param_field)
-        param_value_dict[base_model_key] = value
-
     return create_pydantic_model(annotation_dict, pydantic_config=pydantic_config)(**param_value_dict)
 
 
@@ -292,13 +329,12 @@ class ParamHandler(ParamHandlerMixin, BasePlugin):
         # support field: def demo(demo_param: int = pait.field.BaseField())
         if single_field_dict:
             try:
-                kwargs_param_dict.update(
-                    parameter_2_basemodel(
-                        single_field_dict,
-                        self.pydantic_model_config,
-                        use_pydantic_base_model_alias=use_pydantic_base_model_alias,
-                    ).__dict__,
-                )
+                for parse_dict in parameter_2_dict(
+                    single_field_dict,
+                    self.pydantic_model_config,
+                    use_pydantic_base_model_alias=use_pydantic_base_model_alias,
+                ):
+                    kwargs_param_dict.update(parse_dict)
             except Exception as e:
                 raise e from gen_tip_exc(_object, e)
         return args_param_list, kwargs_param_dict
@@ -309,6 +345,8 @@ class ParamHandler(ParamHandlerMixin, BasePlugin):
             return
         # support pait_model param(def handle(model: PaitBaseModel))
         _pait_model: Type[BaseModel] = parameter.annotation
+        # Set use_pydantic_base_model_alias to True,
+        # so that the generated structure's Key is preferred to alias, which is convenient to import to _pait_model
         _, kwargs = self.param_handle(
             None, get_parameter_list_from_pydantic_basemodel(_pait_model), use_pydantic_base_model_alias=True
         )
@@ -405,13 +443,12 @@ class AsyncParamHandler(ParamHandlerMixin, BaseAsyncPlugin):
         # support field: def demo(demo_param: int = pait.field.BaseField())
         if single_field_dict:
             try:
-                kwargs_param_dict.update(
-                    parameter_2_basemodel(
-                        single_field_dict,
-                        self.pydantic_model_config,
-                        use_pydantic_base_model_alias=use_pydantic_base_model_alias,
-                    ).__dict__
-                )
+                for parse_dict in parameter_2_dict(
+                    single_field_dict,
+                    self.pydantic_model_config,
+                    use_pydantic_base_model_alias=use_pydantic_base_model_alias,
+                ):
+                    kwargs_param_dict.update(parse_dict)
             except Exception as e:
                 raise e from gen_tip_exc(_object, e)
         return args_param_list, kwargs_param_dict
@@ -423,6 +460,8 @@ class AsyncParamHandler(ParamHandlerMixin, BaseAsyncPlugin):
         if not self._set_parameter_value_to_args(parameter, func_args):
             return
         _pait_model: Type[BaseModel] = parameter.annotation
+        # Set use_pydantic_base_model_alias to True, so that the generated structure's Key is preferred to alias,
+        # which is convenient to import to _pait_model
         _, kwargs = await self.param_handle(
             _object, get_parameter_list_from_pydantic_basemodel(_pait_model), use_pydantic_base_model_alias=True
         )

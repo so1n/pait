@@ -53,7 +53,9 @@ class Pait(object):
         if not issubclass(self.app_helper_class, BaseAppHelper):
             raise TypeError(f"{self.app_helper_class} must sub from {BaseAppHelper.__class__.__name__}")
 
-        self._pydantic_model_config: Optional[Type[BaseConfig]] = pydantic_model_config
+        # Note: pydantic not check field.default value when config.validate_all = False
+        # See issue: https://github.com/samuelcolvin/pydantic/issues/1280
+        self._pydantic_model_config: Type[BaseConfig] = pydantic_model_config or BaseConfig
         # param check
         self._pre_depend_list: Optional[List[Callable]] = pre_depend_list
         # doc
