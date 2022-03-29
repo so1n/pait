@@ -2,13 +2,16 @@ from contextlib import contextmanager
 from typing import TYPE_CHECKING, Callable, Generator, List, Type, Union
 
 from pait.g import config
+from pait.model.config import apply_block_http_method_set
 from pait.plugin.base import PluginManager
 from pait.plugin.base_mock_response import BaseAsyncMockPlugin, BaseMockPlugin
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
 
-config.init_config(block_http_method_set={"HEAD", "OPTIONS"})
+config.init_config(
+    apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"}, match_key="all", match_value=None)]
+)
 
 
 @contextmanager

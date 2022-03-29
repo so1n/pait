@@ -36,6 +36,7 @@ from pait.app.flask.plugin.mock_response import MockPlugin
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.g import config
+from pait.model.config import apply_block_http_method_set
 from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
 from pait.plugin.at_most_one_of import AtMostOneOfPlugin
@@ -524,5 +525,9 @@ if __name__ == "__main__":
     logging.basicConfig(
         format="[%(asctime)s %(levelname)s] %(message)s", datefmt="%y-%m-%d %H:%M:%S", level=logging.DEBUG
     )
-    config.init_config(block_http_method_set={"HEAD", "OPTIONS"})
+    config.init_config(
+        apply_func_list=[
+            apply_block_http_method_set({"HEAD", "OPTIONS"}, match_key="all", match_value=None),
+        ]
+    )
     create_app().run(port=8000, debug=True)

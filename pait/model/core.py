@@ -1,7 +1,7 @@
 import copy
 import inspect
 import logging
-from typing import TYPE_CHECKING, Callable, List, Optional, Set, Tuple, Type
+from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
 
 from pydantic import BaseConfig
 
@@ -104,6 +104,33 @@ class PaitCoreModel(object):
     @property
     def plugin_list(self) -> List[PluginManager]:
         return self._plugin_manager_list
+
+    def match(self, key: str, target: Any) -> bool:
+        """By different attributes to determine whether to match with pait_core_model,
+        if the key is `all` then match
+        if the key is prefixed with ! then the result will be reversed
+        """
+        if key == "all":
+            return True
+        is_reverse: bool = False
+        if "!" in key:
+            key = key[1:]
+            is_reverse = True
+
+        value: Any = getattr(self, key, ...)
+        if value is ...:
+            raise KeyError(f"match fail, not found key:{key}")
+        if key in ("status", "group"):
+            result: bool = value is target
+        elif key in ("tag", "method_list"):
+            result = target in value
+        else:
+            raise KeyError(f"Not support key:{key}")
+
+        if is_reverse:
+            return not result
+        else:
+            return result
 
     def add_plugin(
         self, plugin_list: Optional[List[PluginManager]], post_plugin_list: Optional[List[PluginManager]]
