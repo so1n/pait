@@ -45,10 +45,31 @@ class TestApp:
         exec_msg: str = e.value.args[0]
         assert exec_msg.startswith("Pait not support")
 
+    def test_pait_class(self) -> None:
+        for i in app.auto_load_app.app_list:
+            self._clean_app_from_sys_module()
+            # import web app
+            importlib.import_module(i)
+            # reload pait.app
+            importlib.reload(app)
+            assert app.Pait == getattr(importlib.import_module(f"pait.app.{i}"), "Pait")
+
+    def test_add_doc_route_class(self) -> None:
+        for i in app.auto_load_app.app_list:
+            self._clean_app_from_sys_module()
+            # import web app
+            importlib.import_module(i)
+            # reload pait.app
+            importlib.reload(app)
+            assert app.AddDocRoute == getattr(importlib.import_module(f"pait.app.{i}"), "AddDocRoute")
+
     def test_pait(self, mocker: MockFixture) -> None:
         for i in app.auto_load_app.app_list:
             self._clean_app_from_sys_module()
+            # import web app
             importlib.import_module(i)
+            # reload pait.app
+            importlib.reload(app)
             patch = mocker.patch(f"pait.app.{i}.pait")
             app.pait()
             patch.assert_called_once()

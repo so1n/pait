@@ -10,6 +10,21 @@ from ..model.core import PaitCoreModel  # type: ignore
 from ..model.response import PaitBaseResponseModel  # type: ignore
 from .auto_load_app import auto_load_app_class  # type: ignore
 
+try:
+    load_class_app: Any = auto_load_app_class()
+    pait_app_path: str = "pait.app." + load_class_app.__name__.lower()
+    from typing import TYPE_CHECKING
+
+    if TYPE_CHECKING:
+        from pait.app.base.doc_route import AddDocRoute as _AddDocRoute
+        from pait.core import Pait as _Pait
+
+    Pait: "_Pait" = getattr(import_module(pait_app_path), "Pait")
+    AddDocRoute: "_AddDocRoute" = getattr(import_module(pait_app_path), "AddDocRoute")
+except RuntimeError:
+    # Automatic loading of classes, loading failure when the user can not use
+    pait_app_path = ""
+
 
 def _import_func_from_app(app: Any, fun_name: str) -> Callable:
     app_name: str = app.__class__.__name__.lower()
@@ -40,10 +55,11 @@ def add_doc_route(
     app: Any,
     scheme: Optional[str] = None,
     open_json_url_only_path: bool = False,
-    prefix: str = "/",
+    prefix: str = "",
     pin_code: str = "",
-    title: str = "Pait Doc",
+    title: str = "",
     open_api_tag_list: Optional[List[Dict[str, Any]]] = None,
+    project_name: str = "",
 ) -> None:
     return _base_call_func(
         app,
@@ -54,6 +70,7 @@ def add_doc_route(
         pin_code=pin_code,
         title=title,
         open_api_tag_list=open_api_tag_list,
+        project_name=project_name,
     )
 
 
@@ -80,9 +97,9 @@ def pait(
     """provide parameter checks and type conversions for each routing function/cbv class
     Note:This is an implicit method
     """
-    load_class_app = auto_load_app_class()
-    app_name: str = load_class_app.__name__.lower()
-    _pait: Optional[Callable] = getattr(import_module("pait.app." + app_name), "pait")
+    if not pait_app_path:
+        raise RuntimeError("Auto load app fail")
+    _pait: Optional[Callable] = getattr(import_module(pait_app_path), "pait")
     if not _pait:
         raise NotImplementedError(f"Pait not support:{load_class_app}")
     return _pait(
