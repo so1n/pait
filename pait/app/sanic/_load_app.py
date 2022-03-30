@@ -14,6 +14,8 @@ __all__ = ["load_app"]
 
 def load_app(app: Sanic, project_name: str = "") -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`"""
+    if not project_name:
+        project_name = app.name
     _pait_data: Dict[str, PaitCoreModel] = {}
     for route in app.router.routes:
         if "static" in route.name:

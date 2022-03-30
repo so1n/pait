@@ -26,6 +26,7 @@ def add_doc_route(
     pin_code: str = "",
     title: str = "Pait Doc",
     open_api_tag_list: Optional[List[Dict[str, Any]]] = None,
+    project_name: str = "",
 ) -> None:
 
     doc_pait: Pait = Pait(
@@ -80,7 +81,7 @@ def add_doc_route(
     class OpenApiHandle(BaseHandle, ABC):
         @doc_pait(pre_depend_list=[_get_request_pin_code])
         async def get(self) -> None:
-            pait_dict: Dict[str, PaitCoreModel] = load_app(self.application)
+            pait_dict: Dict[str, PaitCoreModel] = load_app(self.application, project_name=project_name)
             _scheme: str = scheme or self.request.protocol
             pait_openapi: PaitOpenAPI = PaitOpenAPI(
                 pait_dict,

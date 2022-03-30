@@ -532,7 +532,7 @@ async def check_json_plugin_route1(
 
 
 def create_app() -> Sanic:
-    app: Sanic = Sanic(name="pait")
+    app: Sanic = Sanic(name=__name__)
     add_doc_route(app, pin_code="6666")
     app.add_route(login_route, "/api/login", methods={"POST"})
     app.add_route(get_user_route, "/api/user", methods={"GET"})
