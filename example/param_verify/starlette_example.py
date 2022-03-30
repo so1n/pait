@@ -35,7 +35,7 @@ from example.param_verify.model import (
     context_depend,
     demo_depend,
 )
-from pait.app.starlette import Pait, add_doc_route, pait
+from pait.app.starlette import AddDocRoute, Pait, add_doc_route, pait
 from pait.app.starlette.plugin.auto_complete_json_resp import (
     AsyncAutoCompleteJsonRespPlugin,
     AutoCompleteJsonRespPlugin,
@@ -706,7 +706,9 @@ def create_app() -> Starlette:
             Route("/api/check_pre_depend_async_contextmanager", pre_depend_async_contextmanager_route, methods=["GET"]),
         ]
     )
-    add_doc_route(app, pin_code="6666")
+    # prefix `/` route group must be behind other route group
+    AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
+    add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
     app.add_exception_handler(PaitBaseException, api_exception)
     app.add_exception_handler(ValidationError, api_exception)
     app.add_exception_handler(RuntimeError, api_exception)
@@ -716,4 +718,12 @@ def create_app() -> Starlette:
 if __name__ == "__main__":
     import uvicorn  # type: ignore
 
+    from pait.g import config
+    from pait.model.config import apply_block_http_method_set
+
+    config.init_config(
+        apply_func_list=[
+            apply_block_http_method_set({"HEAD", "OPTIONS"}, match_key="all", match_value=None),
+        ]
+    )
     uvicorn.run(create_app(), log_level="debug")

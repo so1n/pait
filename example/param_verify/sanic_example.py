@@ -32,7 +32,7 @@ from example.param_verify.model import (
     context_depend,
     demo_depend,
 )
-from pait.app.sanic import Pait, add_doc_route, pait
+from pait.app.sanic import AddDocRoute, Pait, add_doc_route, pait
 from pait.app.sanic.plugin.auto_complete_json_resp import AsyncAutoCompleteJsonRespPlugin
 from pait.app.sanic.plugin.check_json_resp import AsyncCheckJsonRespPlugin
 from pait.app.sanic.plugin.mock_response import AsyncMockPlugin
@@ -533,7 +533,8 @@ async def check_json_plugin_route1(
 
 def create_app() -> Sanic:
     app: Sanic = Sanic(name=__name__)
-    add_doc_route(app, pin_code="6666")
+    add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
+    AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
     app.add_route(login_route, "/api/login", methods={"POST"})
     app.add_route(get_user_route, "/api/user", methods={"GET"})
     app.add_route(raise_tip_route, "/api/raise_tip", methods={"POST"})

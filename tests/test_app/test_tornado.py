@@ -278,14 +278,14 @@ class TestTornado(AsyncHTTPTestCase):
             query_dict={"uid": 123},
         )
         test_helper.get()
-        info_logger.assert_called_once_with("context_depend exit")
+        info_logger.assert_called_with("context_depend exit")
         test_helper = TornadoTestHelper(
             self,
             tornado_example.PreDependContextmanagerHanler.get,
             query_dict={"uid": 123, "is_raise": True},
         )
         test_helper.get()
-        error_logger.assert_called_once_with("context_depend error")
+        error_logger.assert_called_with("context_depend error")
 
     @mock.patch("example.param_verify.model.logging.error")
     @mock.patch("example.param_verify.model.logging.info")
@@ -296,14 +296,14 @@ class TestTornado(AsyncHTTPTestCase):
             query_dict={"uid": 123},
         )
         test_helper.get()
-        info_logger.assert_called_once_with("context_depend exit")
+        info_logger.assert_called_with("context_depend exit")
         test_helper = TornadoTestHelper(
             self,
             tornado_example.PreDependAsyncContextmanagerHanler.get,
             query_dict={"uid": 123, "is_raise": True},
         )
         test_helper.get()
-        error_logger.assert_called_once_with("context_depend error")
+        error_logger.assert_called_with("context_depend error")
 
     @mock.patch("example.param_verify.model.logging.error")
     @mock.patch("example.param_verify.model.logging.info")
@@ -314,14 +314,14 @@ class TestTornado(AsyncHTTPTestCase):
             query_dict={"uid": 123},
         )
         test_helper.get()
-        info_logger.assert_called_once_with("context_depend exit")
+        info_logger.assert_called_with("context_depend exit")
         test_helper = TornadoTestHelper(
             self,
             tornado_example.DependContextmanagerHanler.get,
             query_dict={"uid": 123, "is_raise": True},
         )
         test_helper.get()
-        error_logger.assert_called_once_with("context_depend error")
+        error_logger.assert_called_with("context_depend error")
 
     @mock.patch("example.param_verify.model.logging.error")
     @mock.patch("example.param_verify.model.logging.info")
@@ -332,14 +332,14 @@ class TestTornado(AsyncHTTPTestCase):
             query_dict={"uid": 123},
         )
         test_helper.get()
-        info_logger.assert_called_once_with("context_depend exit")
+        info_logger.assert_called_with("context_depend exit")
         test_helper = TornadoTestHelper(
             self,
             tornado_example.DependAsyncContextmanagerHanler.get,
             query_dict={"uid": 123, "is_raise": True},
         )
         test_helper.get()
-        error_logger.assert_called_once_with("context_depend error")
+        error_logger.assert_called_with("context_depend error")
 
     def test_get_cbv(self) -> None:
         assert {
@@ -378,10 +378,10 @@ class TestTornado(AsyncHTTPTestCase):
         assert self.fetch("/swagger").code == 404
         assert self.fetch("/redoc").code == 404
         assert self.fetch("/swagger?pin_code=6666").body.decode() == get_swagger_ui_html(
-            self.get_url("/openapi.json?pin_code=6666"), "Pait Doc"
+            self.get_url("/openapi.json?pin_code=6666"), "Pait Api Doc(private)"
         )
         assert self.fetch("/redoc?pin_code=6666").body.decode() == get_redoc_html(
-            self.get_url("/openapi.json?pin_code=6666"), "Pait Doc"
+            self.get_url("/openapi.json?pin_code=6666"), "Pait Api Doc(private)"
         )
         assert (
             difflib.SequenceMatcher(
@@ -390,7 +390,7 @@ class TestTornado(AsyncHTTPTestCase):
                 str(
                     PaitOpenAPI(
                         load_app(self.get_app()),
-                        title="Pait Doc",
+                        title="Pait Api Doc(private)",
                         open_api_server_list=[{"url": "http://localhost", "description": ""}],
                     ).open_api_dict
                 ),

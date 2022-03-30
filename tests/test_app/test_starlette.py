@@ -389,10 +389,10 @@ class TestStarlette:
         assert client.get("/swagger").status_code == 404
         assert client.get("/redoc").status_code == 404
         assert client.get("/swagger?pin_code=6666").text == get_swagger_ui_html(
-            f"{client.base_url}/openapi.json?pin_code=6666", "Pait Doc"
+            f"{client.base_url}/openapi.json?pin_code=6666", "Pait Api Doc(private)"
         )
         assert client.get("/redoc?pin_code=6666").text == get_redoc_html(
-            f"{client.base_url}/openapi.json?pin_code=6666", "Pait Doc"
+            f"{client.base_url}/openapi.json?pin_code=6666", "Pait Api Doc(private)"
         )
         assert (
             difflib.SequenceMatcher(

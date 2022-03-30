@@ -31,7 +31,7 @@ from example.param_verify.model import (
     context_depend,
     demo_depend,
 )
-from pait.app.tornado import Pait, add_doc_route, pait
+from pait.app.tornado import AddDocRoute, Pait, add_doc_route, pait
 from pait.app.tornado.plugin.auto_complete_json_resp import AsyncAutoCompleteJsonRespPlugin
 from pait.app.tornado.plugin.check_json_resp import AsyncCheckJsonRespPlugin
 from pait.app.tornado.plugin.mock_response import AsyncMockPlugin
@@ -575,7 +575,8 @@ def create_app() -> Application:
             (r"/api/check-pre-depend-async-contextmanager", PreDependAsyncContextmanagerHanler),
         ]
     )
-    add_doc_route(app, pin_code="6666")
+    AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
+    add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
     return app
 
 

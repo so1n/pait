@@ -29,7 +29,7 @@ from example.param_verify.model import (
     context_depend,
     demo_depend,
 )
-from pait.app.flask import Pait, add_doc_route, pait
+from pait.app.flask import AddDocRoute, Pait, add_doc_route, pait
 from pait.app.flask.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.app.flask.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.flask.plugin.mock_response import MockPlugin
@@ -491,7 +491,8 @@ def check_json_plugin_route1(
 
 def create_app() -> Flask:
     app: Flask = Flask(__name__)
-    add_doc_route(app, pin_code="6666")
+    add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
+    AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
     app.add_url_rule("/api/login", view_func=login_route, methods=["POST"])
     app.add_url_rule("/api/user", view_func=get_user_route, methods=["GET"])
     app.add_url_rule("/api/raise-tip", view_func=raise_tip_route, methods=["POST"])

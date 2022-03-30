@@ -1,5 +1,4 @@
-import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 from starlette.applications import Starlette
 from starlette.exceptions import HTTPException
@@ -10,91 +9,108 @@ from starlette.routing import Mount, Route
 from pait.api_doc.html import get_redoc_html as _get_redoc_html
 from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenAPI
-from pait.field import Depends, Query
-from pait.g import config
+from pait.app.base.doc_route import AddDocRoute as _AddDocRoute
+from pait.app.base.doc_route import DocHtmlRespModel, OpenAPIRespModel
+from pait.field import Depends
 from pait.model.core import PaitCoreModel
-from pait.model.status import PaitStatus
-from pait.model.tag import Tag
 
 from ._load_app import load_app
 from ._pait import Pait
+
+__all__ = ["AddDocRoute", "add_doc_route"]
+prefix_set_dict: Dict[Starlette, Set[str]] = {}
+
+
+class AddDocRoute(_AddDocRoute):
+    not_found_exc: Exception = HTTPException(
+        status_code=404,
+        detail=(
+            "The requested URL was not found on the server. If you entered"
+            " the URL manually please check your spelling and try again."
+        ),
+    )
+
+    def _gen_route(self, app: Starlette) -> Any:
+        # prefix `/` route group must be behind other route group
+        if app not in prefix_set_dict:
+            prefix_set: Set[str] = set()
+            prefix_set_dict[app] = prefix_set
+        else:
+            prefix_set = prefix_set_dict[app]
+        for prefix in prefix_set:
+            if self.prefix.startswith(prefix):
+                raise RuntimeError(f"prefix:{prefix} already exists, can use:{self.prefix}")
+
+        prefix_set.add(self.prefix)
+        doc_pait = self._get_doc_pait(Pait)
+
+        def _get_open_json_url(request: Request, r_pin_code: str) -> str:
+            _scheme: str = self.scheme or request.url.scheme
+            request_path: str = "/".join(request.url.path.split("/")[:-1])
+            if self.open_json_url_only_path:
+                openapi_json_url: str = f"{request_path}/openapi.json"
+            else:
+                url: str = f"{_scheme}://{request.url.hostname}"
+                if request.url.port:
+                    url += f":{request.url.port}"  # pragma: no cover
+                openapi_json_url = f"{url}{request_path}/openapi.json"
+            if r_pin_code:
+                openapi_json_url += f"?pin_code={r_pin_code}"
+            return openapi_json_url
+
+        @doc_pait(response_model_list=[DocHtmlRespModel])
+        def get_redoc_html(request: Request, r_pin_code: str = Depends.i(self._get_request_pin_code)) -> HTMLResponse:
+            return HTMLResponse(_get_redoc_html(_get_open_json_url(request, r_pin_code), self.title))
+
+        @doc_pait(response_model_list=[DocHtmlRespModel])
+        def get_swagger_ui_html(
+            request: Request, r_pin_code: str = Depends.i(self._get_request_pin_code)
+        ) -> HTMLResponse:
+            return HTMLResponse(_get_swagger_ui_html(_get_open_json_url(request, r_pin_code), self.title))
+
+        @doc_pait(pre_depend_list=[self._get_request_pin_code], response_model_list=[OpenAPIRespModel])
+        def openapi_route(request: Request) -> JSONResponse:
+            pait_dict: Dict[str, PaitCoreModel] = load_app(request.app, project_name=self.project_name)
+            _scheme: str = self.scheme or request.url.scheme
+            url: str = f"{_scheme}://{request.url.hostname}"
+            if request.url.port:
+                url += f":{request.url.port}"  # pragma: no cover
+            pait_openapi: PaitOpenAPI = PaitOpenAPI(
+                pait_dict,
+                title=self.title,
+                open_api_server_list=[{"url": url, "description": ""}],
+                open_api_tag_list=self.open_api_tag_list,
+            )
+            return JSONResponse(pait_openapi.open_api_dict)
+
+        route: Mount = Mount(
+            self.prefix,
+            name=self.title,
+            routes=[
+                Route("/redoc", get_redoc_html, methods=["GET"]),
+                Route("/swagger", get_swagger_ui_html, methods=["GET"]),
+                Route("/openapi.json", openapi_route, methods=["GET"]),
+            ],
+        )
+        app.routes.append(route)
 
 
 def add_doc_route(
     app: Starlette,
     scheme: Optional[str] = None,
     open_json_url_only_path: bool = False,
-    prefix: str = "/",
+    prefix: str = "",
     pin_code: str = "",
-    title: str = "Pait Doc",
+    title: str = "",
     open_api_tag_list: Optional[List[Dict[str, Any]]] = None,
     project_name: str = "",
 ) -> None:
-    if pin_code:
-        logging.info(f"doc route start pin code:{pin_code}")
-
-    doc_pait: Pait = Pait(
-        author=config.author or ("so1n",),
-        status=config.status or PaitStatus.release,
-        tag=(Tag("pait_doc", desc="pait default doc route"),),
-        group="pait_doc",
-    )
-
-    def _get_request_pin_code(r_pin_code: str = Query.i("", alias="pin_code")) -> Optional[str]:
-        if pin_code:
-            if r_pin_code != pin_code:
-                raise HTTPException(
-                    status_code=404,
-                    detail=(
-                        "The requested URL was not found on the server. If you entered"
-                        " the URL manually please check your spelling and try again."
-                    ),
-                )
-        return r_pin_code
-
-    def _get_open_json_url(request: Request, r_pin_code: str) -> str:
-        _scheme: str = scheme or request.url.scheme
-        if open_json_url_only_path:
-            openapi_json_url: str = f"{'/'.join(request.url.path.split('/')[:-1])}/openapi.json"
-        else:
-            url: str = f"{_scheme}://{request.url.hostname}"
-            if request.url.port:
-                url += f":{request.url.port}"  # pragma: no cover
-            openapi_json_url = f"{url}{'/'.join(request.url.path.split('/')[:-1])}/openapi.json"
-        if r_pin_code:
-            openapi_json_url += f"?pin_code={r_pin_code}"
-        return openapi_json_url
-
-    @doc_pait()
-    def get_redoc_html(request: Request, r_pin_code: str = Depends.i(_get_request_pin_code)) -> HTMLResponse:
-        return HTMLResponse(_get_redoc_html(_get_open_json_url(request, r_pin_code), title))
-
-    @doc_pait()
-    def get_swagger_ui_html(request: Request, r_pin_code: str = Depends.i(_get_request_pin_code)) -> HTMLResponse:
-        return HTMLResponse(_get_swagger_ui_html(_get_open_json_url(request, r_pin_code), title))
-
-    @doc_pait(pre_depend_list=[_get_request_pin_code])
-    def openapi_route(request: Request) -> JSONResponse:
-        pait_dict: Dict[str, PaitCoreModel] = load_app(request.app, project_name=project_name)
-        _scheme: str = scheme or request.url.scheme
-        url: str = f"{_scheme}://{request.url.hostname}"
-        if request.url.port:
-            url += f":{request.url.port}"  # pragma: no cover
-        pait_openapi: PaitOpenAPI = PaitOpenAPI(
-            pait_dict,
-            title=title,
-            open_api_server_list=[{"url": url, "description": ""}],
-            open_api_tag_list=open_api_tag_list,
-        )
-        return JSONResponse(pait_openapi.open_api_dict)
-
-    route: Mount = Mount(
-        prefix,
-        name="api doc",
-        routes=[
-            Route("/redoc", get_redoc_html, methods=["GET"]),
-            Route("/swagger", get_swagger_ui_html, methods=["GET"]),
-            Route("/openapi.json", openapi_route, methods=["GET"]),
-        ],
-    )
-    app.routes.append(route)
+    AddDocRoute(
+        scheme=scheme,
+        open_json_url_only_path=open_json_url_only_path,
+        prefix=prefix,
+        pin_code=pin_code,
+        title=title,
+        open_api_tag_list=open_api_tag_list,
+        project_name=project_name,
+    ).gen_route(app)
