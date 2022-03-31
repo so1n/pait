@@ -5,11 +5,14 @@ from pait.api_doc.markdown import PaitMd
 from pait.api_doc.open_api import PaitOpenAPI
 from pait.app import load_app
 from pait.model.core import PaitCoreModel
+from pait.util import I18nContext
 
 if __name__ == "__main__":
     filename: str = "./example_doc/sanic"
     pait_dict: Dict[str, PaitCoreModel] = load_app(create_app())
-    PaitMd(pait_dict, use_html_details=True).output(filename)
+    for i18n_lang in ("zh-cn", "en"):
+        with I18nContext(i18n_lang):
+            PaitMd(pait_dict, use_html_details=True).output(f"{filename}-{i18n_lang}")
     for i in ("json", "yaml"):
         PaitOpenAPI(
             pait_dict,

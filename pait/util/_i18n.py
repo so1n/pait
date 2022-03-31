@@ -1,10 +1,13 @@
 import re
-from typing import Any, Dict, List
+from contextvars import ContextVar, Token
+from typing import Any, Dict, List, Optional
 
 from typing_extensions import TypedDict
 
 I18nTypedDict = TypedDict("I18nTypedDict", {"en": str, "zh-cn": str})
 
+i18n_local: str = "en"
+_I18N_CONTEXT: ContextVar[str] = ContextVar("i18n_context", default=i18n_local)
 i18n_config_dict: Dict[str, I18nTypedDict] = {
     "Group": {
         "en": "Group",
@@ -56,7 +59,42 @@ i18n_config_dict: Dict[str, I18nTypedDict] = {
     "Type": {"en": "Type", "zh-cn": "类型"},
     "Param": {"en": "Param", "zh-cn": "参数"},
 }
-i18n_local: str = "en"
+
+
+def change_local(lang: str) -> None:
+    global i18n_local
+
+    check_i18n_lang(lang)
+    i18n_local = lang
+
+
+def join_i18n(i18n_list: List[str]) -> str:
+    if i18n_local == "zh-cn":
+        return "".join(i18n_list)
+    else:
+        return " ".join(i18n_list)
+
+
+def check_i18n_lang(lang: str) -> None:
+    if lang not in ("en", "zh-cn"):
+        if not lang.startswith("customer_"):
+            raise ValueError(f"Not support {lang}")
+
+
+class I18nContext(object):
+    def __init__(self, i18n_lang: str) -> None:
+        check_i18n_lang(i18n_lang)
+        self._token: Optional[Token] = None
+        self._i18n_lang: str = i18n_lang
+
+    def __enter__(self) -> "I18nContext":
+        self._token = _I18N_CONTEXT.set(self._i18n_lang)
+        return self
+
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+        if self._token:
+            _I18N_CONTEXT.reset(self._token)
+            self._token = None
 
 
 class I18nHelper(object):
@@ -66,7 +104,8 @@ class I18nHelper(object):
 
     def __get__(self, instance: Any, owner: Any) -> Any:
         default: str = " ".join((re.sub(r"(?P<key>[A-Z])", r"_\g<key>", self.__class__.__name__)).split("_"))
-        return i18n_config_dict[self.name].get(i18n_local, default)
+        i18n_key: str = _I18N_CONTEXT.get(i18n_local)
+        return i18n_config_dict[self.name].get(i18n_key, default)
 
     @classmethod
     def i(cls, name: str) -> Any:
@@ -96,19 +135,3 @@ class I18n(object):
     Required: str = I18nHelper.i("Required")
     Type: str = I18nHelper.i("Type")
     Param: str = I18nHelper.i("Param")
-
-
-def change_local(lang: str) -> None:
-    global i18n_local
-
-    if lang not in ("en", "zh-cn"):
-        if not lang.startswith("customer_"):
-            raise ValueError(f"Not support {lang}")
-    i18n_local = lang
-
-
-def join_i18n(i18n_list: List[str]) -> str:
-    if i18n_local == "zh-cn":
-        return "".join(i18n_list)
-    else:
-        return " ".join(i18n_list)

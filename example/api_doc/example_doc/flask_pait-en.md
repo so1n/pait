@@ -1,14 +1,18 @@
 # Pait Doc
 <details><summary>Group: check_resp</summary>
 
-### Name: pait.async_text_response_route
+### Name: text_response_route
+
+
+
+**Desc**:test return test response
 
 - API Info
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 381">async_text_response_route</abbr>|    |
-- Path: api/text-resp
+    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 357">text_response_route</abbr>|    |
+- Path: /api/text-resp
 - Method: GET
 - Request:
 - Response:
@@ -23,14 +27,18 @@
         - Header
             {'X-Example-Type': 'text'}
 
-### Name: pait.html_response_route
+### Name: html_response_route
+
+
+
+**Desc**:test return html response
 
 - API Info
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 386">html_response_route</abbr>|    |
-- Path: api/html-resp
+    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 366">html_response_route</abbr>|    |
+- Path: /api/html-resp
 - Method: GET
 - Request:
 - Response:
@@ -45,14 +53,18 @@
         - Header
             {'X-Example-Type': 'html'}
 
-### Name: pait.file_response_route
+### Name: file_response_route
+
+
+
+**Desc**:test return file response
 
 - API Info
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 393">file_response_route</abbr>|    |
-- Path: api/file-resp
+    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 375">file_response_route</abbr>|    |
+- Path: /api/file-resp
 - Method: GET
 - Request:
 - Response:
@@ -69,14 +81,14 @@
 
 </details><details><summary>Group: links</summary>
 
-### Name: pait.login_route
+### Name: login_route
 
 - API Info
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 414">login_route</abbr>|    |
-- Path: api/login
+    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 388">login_route</abbr>|    |
+- Path: /api/login
 - Method: POST
 - Request:
     - Body Param
@@ -114,14 +126,14 @@
             ```
 
 
-### Name: pait.get_user_route
+### Name: get_user_route
 
 - API Info
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 427">get_user_route</abbr>|    |
-- Path: api/user
+    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 397">get_user_route</abbr>|    |
+- Path: /api/user
 - Method: GET
 - Request:
     - Header Param
@@ -156,28 +168,25 @@
 
 </details><details><summary>Group: other</summary>
 
-### Name: ~~pait.raise_tip_route~~
-
-
-
-**Desc**:test pait raise tip
+### Name: pre_depend_contextmanager_route
 
 - API Info
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#DC143C>abandoned</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 69">raise_tip_route</abbr>|    |
-- Path: api/raise_tip
-- Method: POST
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 290">pre_depend_contextmanager_route</abbr>|    |
+- Path: /api/pre-depend-contextmanager
+- Method: GET
 - Request:
-    - Header Param
+    - Query Param
 
         |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |content__type|string|**`Required`**| |Content-Type||
+        |is_raise|boolean| | | ||
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
 - Response:
 
-    - SimpleRespModel
+    - SuccessRespModel
 
         - Response Info
 
@@ -189,15 +198,13 @@
             |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
             |code|integer| | |api code||
-            |data|object|**`Required`**| |success result||
             |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
             {
               "code": 0,
-              "msg": "success",
-              "data": {}
+              "msg": "success"
             }
             ```
 
@@ -224,33 +231,25 @@
             ```
 
 
-### Name: pait.depend_route
-
-
-
-**Desc**:Test Method:Post request, Pydantic Model
+### Name: depend_contextmanager_route
 
 - API Info
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 101">depend_route</abbr>|    |
-- Path: api/depend
-- Method: POST
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 283">depend_contextmanager_route</abbr>|    |
+- Path: /api/depend-contextmanager
+- Method: GET
 - Request:
-    - Body Param
+    - Query Param
 
         |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
-    - Header Param
-
-        |Param Name|Type|Default|Example|Desc|Other|
-        |---|---|---|---|---|---|
-        |user-agent|string|**`Required`**| |user agent||
+        |is_raise|boolean| | | ||
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
 - Response:
 
-    - SimpleRespModel
+    - SuccessRespModel
 
         - Response Info
 
@@ -262,15 +261,13 @@
             |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
             |code|integer| | |api code||
-            |data|object|**`Required`**| |success result||
             |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
             {
               "code": 0,
-              "msg": "success",
-              "data": {}
+              "msg": "success"
             }
             ```
 
@@ -297,14 +294,18 @@
             ```
 
 
-### Name: pait.same_alias_route
+### Name: same_alias_route
+
+
+
+**Desc**:Test different request types, but they have the same alias and different parameter names
 
 - API Info
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 115">same_alias_route</abbr>|    |
-- Path: api/same-alias
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 124">same_alias_route</abbr>|    |
+- Path: /api/same-alias
 - Method: GET
 - Request:
     - Header Param
@@ -319,8 +320,54 @@
         |token|string| | | ||
 - Response:
 
+    - SimpleRespModel
 
-### Name: pait.pait_model_route
+        - Response Info
+
+            |Status Code|Media Type|Desc|
+            |---|---|---|
+            |200|application/json|success response|
+        - Response Data
+
+            |Param Name|Type|Default|Example|Desc|Other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code||
+            |data|object|**`Required`**| |success result||
+            |msg|string|success| |api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 0,
+              "msg": "success",
+              "data": {}
+            }
+            ```
+
+    - FailRespModel
+
+        - Response Info
+
+            |Status Code|Media Type|Desc|
+            |---|---|---|
+            |200|application/json|fail response|
+        - Response Data
+
+            |Param Name|Type|Default|Example|Desc|Other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 1,
+              "msg": "fail"
+            }
+            ```
+
+
+### Name: pait_model_route
 
 
 
@@ -330,8 +377,8 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 274">pait_model_route</abbr>|    |
-- Path: api/pait-model
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 277">pait_model_route</abbr>|    |
+- Path: /api/pait-model
 - Method: POST
 - Request:
     - Body Param
@@ -398,25 +445,28 @@
             ```
 
 
-### Name: pait.depend_contextmanager_route
+### Name: ~~raise_tip_route~~
+
+
+
+**Desc**:test pait raise tip
 
 - API Info
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 280">depend_contextmanager_route</abbr>|    |
-- Path: api/check-depend-contextmanager
-- Method: GET
+    |so1n    |<font color=#DC143C>abandoned</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 78">raise_tip_route</abbr>|    |
+- Path: /api/raise-tip
+- Method: POST
 - Request:
-    - Query Param
+    - Header Param
 
         |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |is_raise|boolean| | | ||
-        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |content__type|string|**`Required`**| |Content-Type||
 - Response:
 
-    - SuccessRespModel
+    - SimpleRespModel
 
         - Response Info
 
@@ -428,13 +478,15 @@
             |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
             |code|integer| | |api code||
+            |data|object|**`Required`**| |success result||
             |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
             {
               "code": 0,
-              "msg": "success"
+              "msg": "success",
+              "data": {}
             }
             ```
 
@@ -461,25 +513,33 @@
             ```
 
 
-### Name: pait.pre_depend_contextmanager_route
+### Name: depend_route
+
+
+
+**Desc**:Testing depend and using request parameters
 
 - API Info
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 289">pre_depend_contextmanager_route</abbr>|    |
-- Path: api/check-pre-depend-contextmanager
-- Method: GET
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 110">depend_route</abbr>|    |
+- Path: /api/depend
+- Method: POST
 - Request:
-    - Query Param
+    - Body Param
 
         |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |is_raise|boolean| | | ||
-        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+    - Header Param
+
+        |Param Name|Type|Default|Example|Desc|Other|
+        |---|---|---|---|---|---|
+        |user-agent|string|**`Required`**| |user agent||
 - Response:
 
-    - SuccessRespModel
+    - SimpleRespModel
 
         - Response Info
 
@@ -491,139 +551,15 @@
             |Param Name|Type|Default|Example|Desc|Other|
             |---|---|---|---|---|---|
             |code|integer| | |api code||
+            |data|object|**`Required`**| |success result||
             |msg|string|success| |api status msg||
         - Example Response Json Data
 
             ```json
             {
               "code": 0,
-              "msg": "success"
-            }
-            ```
-
-    - FailRespModel
-
-        - Response Info
-
-            |Status Code|Media Type|Desc|
-            |---|---|---|
-            |200|application/json|fail response|
-        - Response Data
-
-            |Param Name|Type|Default|Example|Desc|Other|
-            |---|---|---|---|---|---|
-            |code|integer|1| |api code||
-            |msg|string|fail| |api status msg||
-        - Example Response Json Data
-
-            ```json
-            {
-              "code": 1,
-              "msg": "fail"
-            }
-            ```
-
-
-### Name: pait.depend_async_contextmanager_route
-
-- API Info
-
-    |Author|Status|Func|Summary|
-    |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 313">depend_async_contextmanager_route</abbr>|    |
-- Path: api/check-depend-async-contextmanager
-- Method: GET
-- Request:
-    - Query Param
-
-        |Param Name|Type|Default|Example|Desc|Other|
-        |---|---|---|---|---|---|
-        |is_raise|boolean| | | ||
-        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
-- Response:
-
-    - SuccessRespModel
-
-        - Response Info
-
-            |Status Code|Media Type|Desc|
-            |---|---|---|
-            |200|application/json|success response|
-        - Response Data
-
-            |Param Name|Type|Default|Example|Desc|Other|
-            |---|---|---|---|---|---|
-            |code|integer| | |api code||
-            |msg|string|success| |api status msg||
-        - Example Response Json Data
-
-            ```json
-            {
-              "code": 0,
-              "msg": "success"
-            }
-            ```
-
-    - FailRespModel
-
-        - Response Info
-
-            |Status Code|Media Type|Desc|
-            |---|---|---|
-            |200|application/json|fail response|
-        - Response Data
-
-            |Param Name|Type|Default|Example|Desc|Other|
-            |---|---|---|---|---|---|
-            |code|integer|1| |api code||
-            |msg|string|fail| |api status msg||
-        - Example Response Json Data
-
-            ```json
-            {
-              "code": 1,
-              "msg": "fail"
-            }
-            ```
-
-
-### Name: pait.pre_depend_async_contextmanager_route
-
-- API Info
-
-    |Author|Status|Func|Summary|
-    |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 301">pre_depend_async_contextmanager_route</abbr>|    |
-- Path: api/check-pre-depend-async-contextmanager
-- Method: GET
-- Request:
-    - Query Param
-
-        |Param Name|Type|Default|Example|Desc|Other|
-        |---|---|---|---|---|---|
-        |is_raise|boolean| | | ||
-        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
-- Response:
-
-    - SuccessRespModel
-
-        - Response Info
-
-            |Status Code|Media Type|Desc|
-            |---|---|---|
-            |200|application/json|success response|
-        - Response Data
-
-            |Param Name|Type|Default|Example|Desc|Other|
-            |---|---|---|---|---|---|
-            |code|integer| | |api code||
-            |msg|string|success| |api status msg||
-        - Example Response Json Data
-
-            ```json
-            {
-              "code": 0,
-              "msg": "success"
+              "msg": "success",
+              "data": {}
             }
             ```
 
@@ -652,14 +588,14 @@
 
 </details><details><summary>Group: pait_doc</summary>
 
-### Name: pait.api doc.get_redoc_html
+### Name: Pait Api Doc.openapi_route
 
 - API Info
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/sanic/_route.py;line: 63">add_doc_route.<locals>.get_redoc_html</abbr>|    |
-- Path: redoc
+    |    |undefined    |<abbr title="file:example;line: 45">AddDocRoute._gen_route.<locals>.openapi_route</abbr>|    |
+- Path: /api-doc/openapi.json
 - Method: GET
 - Request:
     - Query Param
@@ -669,15 +605,22 @@
         |pin_code|string| | | ||
 - Response:
 
+    - OpenAPIRespModel
 
-### Name: pait.api doc.openapi_route
+        - Response Info
+
+            |Status Code|Media Type|Desc|
+            |---|---|---|
+            |200|application/json|open api json response|
+
+### Name: Pait Api Doc.get_swagger_ui_html
 
 - API Info
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/sanic/_route.py;line: 71">add_doc_route.<locals>.openapi_route</abbr>|    |
-- Path: openapi.json
+    |    |undefined    |<abbr title="file:example;line: 41">AddDocRoute._gen_route.<locals>.get_swagger_ui_html</abbr>|    |
+- Path: /api-doc/swagger
 - Method: GET
 - Request:
     - Query Param
@@ -687,15 +630,24 @@
         |pin_code|string| | | ||
 - Response:
 
+    - DocHtmlRespModel
 
-### Name: pait.api doc.get_swagger_ui_html
+        - Response Info
+
+            |Status Code|Media Type|Desc|
+            |---|---|---|
+            |200|text/html|doc html response|
+        - Header
+            {'X-Example-Type': 'html'}
+
+### Name: Pait Api Doc.get_redoc_html
 
 - API Info
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/sanic/_route.py;line: 67">add_doc_route.<locals>.get_swagger_ui_html</abbr>|    |
-- Path: swagger
+    |    |undefined    |<abbr title="file:example;line: 37">AddDocRoute._gen_route.<locals>.get_redoc_html</abbr>|    |
+- Path: /api-doc/redoc
 - Method: GET
 - Request:
     - Query Param
@@ -705,10 +657,98 @@
         |pin_code|string| | | ||
 - Response:
 
+    - DocHtmlRespModel
+
+        - Response Info
+
+            |Status Code|Media Type|Desc|
+            |---|---|---|
+            |200|text/html|doc html response|
+        - Header
+            {'X-Example-Type': 'html'}
+
+### Name: Pait Api Doc(private).openapi_route
+
+- API Info
+
+    |Author|Status|Func|Summary|
+    |---|---|---|---|
+    |    |undefined    |<abbr title="file:example;line: 45">AddDocRoute._gen_route.<locals>.openapi_route</abbr>|    |
+- Path: /openapi.json
+- Method: GET
+- Request:
+    - Query Param
+
+        |Param Name|Type|Default|Example|Desc|Other|
+        |---|---|---|---|---|---|
+        |pin_code|string| | | ||
+- Response:
+
+    - OpenAPIRespModel
+
+        - Response Info
+
+            |Status Code|Media Type|Desc|
+            |---|---|---|
+            |200|application/json|open api json response|
+
+### Name: Pait Api Doc(private).get_swagger_ui_html
+
+- API Info
+
+    |Author|Status|Func|Summary|
+    |---|---|---|---|
+    |    |undefined    |<abbr title="file:example;line: 41">AddDocRoute._gen_route.<locals>.get_swagger_ui_html</abbr>|    |
+- Path: /swagger
+- Method: GET
+- Request:
+    - Query Param
+
+        |Param Name|Type|Default|Example|Desc|Other|
+        |---|---|---|---|---|---|
+        |pin_code|string| | | ||
+- Response:
+
+    - DocHtmlRespModel
+
+        - Response Info
+
+            |Status Code|Media Type|Desc|
+            |---|---|---|
+            |200|text/html|doc html response|
+        - Header
+            {'X-Example-Type': 'html'}
+
+### Name: Pait Api Doc(private).get_redoc_html
+
+- API Info
+
+    |Author|Status|Func|Summary|
+    |---|---|---|---|
+    |    |undefined    |<abbr title="file:example;line: 37">AddDocRoute._gen_route.<locals>.get_redoc_html</abbr>|    |
+- Path: /redoc
+- Method: GET
+- Request:
+    - Query Param
+
+        |Param Name|Type|Default|Example|Desc|Other|
+        |---|---|---|---|---|---|
+        |pin_code|string| | | ||
+- Response:
+
+    - DocHtmlRespModel
+
+        - Response Info
+
+            |Status Code|Media Type|Desc|
+            |---|---|---|
+            |200|text/html|doc html response|
+        - Header
+            {'X-Example-Type': 'html'}
 
 </details><details><summary>Group: plugin</summary>
 
-### Name: pait.check_json_plugin_route
+### Name: auto_complete_json_route
 
 
 
@@ -718,8 +758,8 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 435">check_json_plugin_route</abbr>|    |
-- Path: api/check-json-plugin
+    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 405">auto_complete_json_route</abbr>|    |
+- Path: /api/auto-complete-json-plugin
 - Method: GET
 - Request:
     - Query Param
@@ -766,7 +806,7 @@
             ```
 
 
-### Name: pait.check_json_plugin_route1
+### Name: check_json_plugin_route1
 
 
 
@@ -776,8 +816,66 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 476">check_json_plugin_route1</abbr>|    |
-- Path: api/check-json-plugin-1
+    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 469">check_json_plugin_route1</abbr>|    |
+- Path: /api/check-json-plugin-1
+- Method: GET
+- Request:
+    - Query Param
+
+        |Param Name|Type|Default|Example|Desc|Other|
+        |---|---|---|---|---|---|
+        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+        |display_age|integer| | |display_age||
+        |email|string|example@xxx.com| |user email||
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
+- Response:
+
+    - UserSuccessRespModel3
+
+        - Response Info
+
+            |Status Code|Media Type|Desc|
+            |---|---|---|
+            |200|application/json|success response|
+        - Response Data
+
+            |Param Name|Type|Default|Example|Desc|Other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code||
+            |data.age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+            |data.email|string|**`Required`**| |user email||
+            |data.uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+            |data.user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
+            |msg|string|success| |api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 0,
+              "msg": "success",
+              "data": {
+                "uid": 0,
+                "user_name": "",
+                "age": 0,
+                "email": ""
+              }
+            }
+            ```
+
+
+### Name: check_json_plugin_route
+
+
+
+**Desc**:Test json plugin by resp type is dict
+
+- API Info
+
+    |Author|Status|Func|Summary|
+    |---|---|---|---|
+    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 428">check_json_plugin_route</abbr>|    |
+- Path: /api/check-json-plugin
 - Method: GET
 - Request:
     - Query Param
@@ -826,7 +924,227 @@
 
 </details><details><summary>Group: user</summary>
 
-### Name: pait.post_route
+### Name: field_default_factory_route
+
+- API Info
+
+    |Author|Status|Func|Summary|
+    |---|---|---|---|
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 136">field_default_factory_route</abbr>|    |
+- Path: /api/field-default-factory
+- Method: POST
+- Request:
+    - Body Param
+
+        |Param Name|Type|Default|Example|Desc|Other|
+        |---|---|---|---|---|---|
+        |data_dict|object|**`Required`**| |test default factory||
+        |data_list|array|**`Required`**| |test default factory|[`items:{'type': 'string'}`]|
+        |demo_value|integer|**`Required`**| |Json body value not empty||
+- Response:
+
+    - SimpleRespModel
+
+        - Response Info
+
+            |Status Code|Media Type|Desc|
+            |---|---|---|
+            |200|application/json|success response|
+        - Response Data
+
+            |Param Name|Type|Default|Example|Desc|Other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code||
+            |data|object|**`Required`**| |success result||
+            |msg|string|success| |api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 0,
+              "msg": "success",
+              "data": {}
+            }
+            ```
+
+    - FailRespModel
+
+        - Response Info
+
+            |Status Code|Media Type|Desc|
+            |---|---|---|
+            |200|application/json|fail response|
+        - Response Data
+
+            |Param Name|Type|Default|Example|Desc|Other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 1,
+              "msg": "fail"
+            }
+            ```
+
+
+### Name: check_param_route
+
+
+
+**Desc**:Test check param
+
+- API Info
+
+    |Author|Status|Func|Summary|
+    |---|---|---|---|
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 188">check_param_route</abbr>|    |
+- Path: /api/check-param
+- Method: GET
+- Request:
+    - Query Param
+
+        |Param Name|Type|Default|Example|Desc|Other|
+        |---|---|---|---|---|---|
+        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+        |alias_user_name|string| | |user name|[`maxLength:4`], [`minLength:2`]|
+        |birthday|string| | |birthday||
+        |email|string|example@xxx.com| |user email||
+        |sex|enum|Only choose from: `man`,`woman`| |sex|[`enum:['man', 'woman']`]|
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string| | |user name|[`maxLength:4`], [`minLength:2`]|
+- Response:
+
+    - SimpleRespModel
+
+        - Response Info
+
+            |Status Code|Media Type|Desc|
+            |---|---|---|
+            |200|application/json|success response|
+        - Response Data
+
+            |Param Name|Type|Default|Example|Desc|Other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code||
+            |data|object|**`Required`**| |success result||
+            |msg|string|success| |api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 0,
+              "msg": "success",
+              "data": {}
+            }
+            ```
+
+    - FailRespModel
+
+        - Response Info
+
+            |Status Code|Media Type|Desc|
+            |---|---|---|
+            |200|application/json|fail response|
+        - Response Data
+
+            |Param Name|Type|Default|Example|Desc|Other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 1,
+              "msg": "fail"
+            }
+            ```
+
+
+### Name: check_response_route
+
+
+
+**Desc**:Test test-helper check response
+
+- API Info
+
+    |Author|Status|Func|Summary|
+    |---|---|---|---|
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 221">check_response_route</abbr>|    |
+- Path: /api/check-resp
+- Method: GET
+- Request:
+    - Query Param
+
+        |Param Name|Type|Default|Example|Desc|Other|
+        |---|---|---|---|---|---|
+        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+        |display_age|integer| | |display_age||
+        |email|string|example@xxx.com| |user email||
+        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+        |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
+- Response:
+
+    - UserSuccessRespModel3
+
+        - Response Info
+
+            |Status Code|Media Type|Desc|
+            |---|---|---|
+            |200|application/json|success response|
+        - Response Data
+
+            |Param Name|Type|Default|Example|Desc|Other|
+            |---|---|---|---|---|---|
+            |code|integer| | |api code||
+            |data.age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
+            |data.email|string|**`Required`**| |user email||
+            |data.uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
+            |data.user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
+            |msg|string|success| |api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 0,
+              "msg": "success",
+              "data": {
+                "uid": 0,
+                "user_name": "",
+                "age": 0,
+                "email": ""
+              }
+            }
+            ```
+
+    - FailRespModel
+
+        - Response Info
+
+            |Status Code|Media Type|Desc|
+            |---|---|---|
+            |200|application/json|fail response|
+        - Response Data
+
+            |Param Name|Type|Default|Example|Desc|Other|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
+        - Example Response Json Data
+
+            ```json
+            {
+              "code": 1,
+              "msg": "fail"
+            }
+            ```
+
+
+### Name: post_route
 
 
 
@@ -836,8 +1154,8 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 82">post_route</abbr>|    |
-- Path: api/post
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 91">post_route</abbr>|    |
+- Path: /api/post
 - Method: POST
 - Request:
     - Body Param
@@ -911,73 +1229,7 @@
             ```
 
 
-### Name: pait.field_default_factory_route
-
-- API Info
-
-    |Author|Status|Func|Summary|
-    |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 125">field_default_factory_route</abbr>|    |
-- Path: api/field-default-factory
-- Method: POST
-- Request:
-    - Body Param
-
-        |Param Name|Type|Default|Example|Desc|Other|
-        |---|---|---|---|---|---|
-        |data_dict|object|**`Required`**| |test default factory||
-        |data_list|array|**`Required`**| |test default factory|[`items:{'type': 'string'}`]|
-        |demo_value|integer|**`Required`**| |Json body value not empty||
-- Response:
-
-    - SimpleRespModel
-
-        - Response Info
-
-            |Status Code|Media Type|Desc|
-            |---|---|---|
-            |200|application/json|success response|
-        - Response Data
-
-            |Param Name|Type|Default|Example|Desc|Other|
-            |---|---|---|---|---|---|
-            |code|integer| | |api code||
-            |data|object|**`Required`**| |success result||
-            |msg|string|success| |api status msg||
-        - Example Response Json Data
-
-            ```json
-            {
-              "code": 0,
-              "msg": "success",
-              "data": {}
-            }
-            ```
-
-    - FailRespModel
-
-        - Response Info
-
-            |Status Code|Media Type|Desc|
-            |---|---|---|
-            |200|application/json|fail response|
-        - Response Data
-
-            |Param Name|Type|Default|Example|Desc|Other|
-            |---|---|---|---|---|---|
-            |code|integer|1| |api code||
-            |msg|string|fail| |api status msg||
-        - Example Response Json Data
-
-            ```json
-            {
-              "code": 1,
-              "msg": "fail"
-            }
-            ```
-
-
-### Name: pait.CbvRoute
+### Name: test_cbv.get
 
 
 
@@ -987,9 +1239,9 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 325">CbvRoute.get</abbr>|    |
-- Path: api/cbv
-- Method: GET
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 305">CbvRoute.get</abbr>|    |
+- Path: /api/cbv
+- Method: get
 - Request:
     - Header Param
 
@@ -1062,7 +1314,7 @@
             ```
 
 
-### Name: pait.CbvRoute
+### Name: test_cbv.post
 
 
 
@@ -1072,9 +1324,9 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 352">CbvRoute.post</abbr>|    |
-- Path: api/cbv
-- Method: POST
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 330">CbvRoute.post</abbr>|    |
+- Path: /api/cbv
+- Method: post
 - Request:
     - Body Param
 
@@ -1147,172 +1399,7 @@
             ```
 
 
-### Name: pait.check_param_route
-
-
-
-**Desc**:Test check param
-
-- API Info
-
-    |Author|Status|Func|Summary|
-    |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 181">check_param_route</abbr>|    |
-- Path: api/check-param
-- Method: GET
-- Request:
-    - Query Param
-
-        |Param Name|Type|Default|Example|Desc|Other|
-        |---|---|---|---|---|---|
-        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
-        |alias_user_name|string| | |user name|[`maxLength:4`], [`minLength:2`]|
-        |birthday|string| | |birthday||
-        |email|string|example@xxx.com| |user email||
-        |sex|enum|Only choose from: `man`,`woman`| |sex|[`enum:['man', 'woman']`]|
-        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
-        |user_name|string| | |user name|[`maxLength:4`], [`minLength:2`]|
-- Response:
-
-    - UserSuccessRespModel2
-
-        - Response Info
-
-            |Status Code|Media Type|Desc|
-            |---|---|---|
-            |200|application/json|success response|
-        - Response Data
-
-            |Param Name|Type|Default|Example|Desc|Other|
-            |---|---|---|---|---|---|
-            |code|integer| | |api code||
-            |data.age|integer|**`Required`**|99|age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
-            |data.email|string|**`Required`**|example@so1n.me|user email||
-            |data.multi_user_name|array|**`Required`**|('mock_name',)|user name|[`maxLength:4`], [`minLength:2`], [`items:{'type': 'string', 'minLength': 2, 'maxLength': 4}`]|
-            |data.uid|integer|**`Required`**|666|user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
-            |data.user_name|string|**`Required`**|mock_name|user name|[`maxLength:10`], [`minLength:2`]|
-            |msg|string|success| |api status msg||
-        - Example Response Json Data
-
-            ```json
-            {
-              "code": 0,
-              "msg": "success",
-              "data": {
-                "uid": 666,
-                "user_name": "mock_name",
-                "multi_user_name": [],
-                "sex": "man",
-                "age": 99,
-                "email": "example@so1n.me"
-              }
-            }
-            ```
-
-    - FailRespModel
-
-        - Response Info
-
-            |Status Code|Media Type|Desc|
-            |---|---|---|
-            |200|application/json|fail response|
-        - Response Data
-
-            |Param Name|Type|Default|Example|Desc|Other|
-            |---|---|---|---|---|---|
-            |code|integer|1| |api code||
-            |msg|string|fail| |api status msg||
-        - Example Response Json Data
-
-            ```json
-            {
-              "code": 1,
-              "msg": "fail"
-            }
-            ```
-
-
-### Name: pait.check_response_route
-
-
-
-**Desc**:Test test-helper check response
-
-- API Info
-
-    |Author|Status|Func|Summary|
-    |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 216">check_response_route</abbr>|    |
-- Path: api/check-resp
-- Method: GET
-- Request:
-    - Query Param
-
-        |Param Name|Type|Default|Example|Desc|Other|
-        |---|---|---|---|---|---|
-        |age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
-        |display_age|integer| | |display_age||
-        |email|string|example@xxx.com| |user email||
-        |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
-        |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
-- Response:
-
-    - UserSuccessRespModel3
-
-        - Response Info
-
-            |Status Code|Media Type|Desc|
-            |---|---|---|
-            |200|application/json|success response|
-        - Response Data
-
-            |Param Name|Type|Default|Example|Desc|Other|
-            |---|---|---|---|---|---|
-            |code|integer| | |api code||
-            |data.age|integer|**`Required`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
-            |data.email|string|**`Required`**| |user email||
-            |data.uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
-            |data.user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
-            |msg|string|success| |api status msg||
-        - Example Response Json Data
-
-            ```json
-            {
-              "code": 0,
-              "msg": "success",
-              "data": {
-                "uid": 0,
-                "user_name": "",
-                "age": 0,
-                "email": ""
-              }
-            }
-            ```
-
-    - FailRespModel
-
-        - Response Info
-
-            |Status Code|Media Type|Desc|
-            |---|---|---|
-            |200|application/json|fail response|
-        - Response Data
-
-            |Param Name|Type|Default|Example|Desc|Other|
-            |---|---|---|---|---|---|
-            |code|integer|1| |api code||
-            |msg|string|fail| |api status msg||
-        - Example Response Json Data
-
-            ```json
-            {
-              "code": 1,
-              "msg": "fail"
-            }
-            ```
-
-
-### Name: pait.pait_base_field_route
+### Name: pait_base_field_route
 
 
 
@@ -1322,8 +1409,8 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 140">pait_base_field_route</abbr>|    |
-- Path: api/pait-base-field/<age:str>
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 149">pait_base_field_route</abbr>|    |
+- Path: /api/pait-base-field/<age>
 - Method: POST
 - Request:
     - Cookie Param
@@ -1414,7 +1501,7 @@
             ```
 
 
-### Name: pait.mock_route
+### Name: mock_route
 
 
 
@@ -1424,8 +1511,8 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/sanic_example.py;line: 243">mock_route</abbr>|    |
-- Path: api/mock/<age:str>
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 248">mock_route</abbr>|    |
+- Path: /api/mock/<age>
 - Method: GET
 - Request:
     - Multiquery Param
@@ -1462,7 +1549,7 @@
             |code|integer| | |api code||
             |data.age|integer|**`Required`**|99|age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
             |data.email|string|**`Required`**|example@so1n.me|user email||
-            |data.multi_user_name|array|**`Required`**|('mock_name',)|user name|[`maxLength:4`], [`minLength:2`], [`items:{'type': 'string', 'minLength': 2, 'maxLength': 4}`]|
+            |data.multi_user_name|array|**`Required`**|['mock_name']|user name|[`maxLength:10`], [`minLength:2`], [`items:{'type': 'string', 'minLength': 2, 'maxLength': 10}`]|
             |data.uid|integer|**`Required`**|666|user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
             |data.user_name|string|**`Required`**|mock_name|user name|[`maxLength:10`], [`minLength:2`]|
             |msg|string|success| |api status msg||

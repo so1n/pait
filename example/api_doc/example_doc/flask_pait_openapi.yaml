@@ -36,6 +36,181 @@ tags:
 - name: pait_doc
   description: pait default doc route
 paths:
+  /api-doc/openapi.json:
+    get:
+      tags:
+      - pait_doc
+      deprecated: false
+      summary: ''
+      description: ''
+      operationId: GET.Pait Api Doc.openapi_route
+      pait_info:
+        group: pait_doc
+        pait_status: undefined
+        author: &id001 !!python/tuple
+        - ''
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
+      responses:
+        200:
+          description: open api json response
+          headers: &id005 {}
+          content: {}
+          links: &id002
+            GET.get_user_route/header/token:
+              description: test links model
+              operationId: GET.get_user_route
+              parameters:
+                token: $response.body#/data/token
+  /api-doc/swagger:
+    get:
+      tags:
+      - pait_doc
+      deprecated: false
+      summary: ''
+      description: ''
+      operationId: GET.Pait Api Doc.get_swagger_ui_html
+      pait_info:
+        group: pait_doc
+        pait_status: undefined
+        author: *id001
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
+      responses:
+        200:
+          description: doc html response
+          headers: &id003
+            X-Example-Type: html
+          content:
+            text/html: &id004
+              type: string
+              example: <h1>Pait example html</h1>
+          links: *id002
+  /api-doc/redoc:
+    get:
+      tags:
+      - pait_doc
+      deprecated: false
+      summary: ''
+      description: ''
+      operationId: GET.Pait Api Doc.get_redoc_html
+      pait_info:
+        group: pait_doc
+        pait_status: undefined
+        author: *id001
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
+      responses:
+        200:
+          description: doc html response
+          headers: *id003
+          content:
+            text/html: *id004
+          links: *id002
+  /openapi.json:
+    get:
+      tags:
+      - pait_doc
+      deprecated: false
+      summary: ''
+      description: ''
+      operationId: GET.Pait Api Doc(private).openapi_route
+      pait_info:
+        group: pait_doc
+        pait_status: undefined
+        author: *id001
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
+      responses:
+        200:
+          description: open api json response
+          headers: *id005
+          content: {}
+          links: *id002
+  /swagger:
+    get:
+      tags:
+      - pait_doc
+      deprecated: false
+      summary: ''
+      description: ''
+      operationId: GET.Pait Api Doc(private).get_swagger_ui_html
+      pait_info:
+        group: pait_doc
+        pait_status: undefined
+        author: *id001
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
+      responses:
+        200:
+          description: doc html response
+          headers: *id003
+          content:
+            text/html: *id004
+          links: *id002
+  /redoc:
+    get:
+      tags:
+      - pait_doc
+      deprecated: false
+      summary: ''
+      description: ''
+      operationId: GET.Pait Api Doc(private).get_redoc_html
+      pait_info:
+        group: pait_doc
+        pait_status: undefined
+        author: *id001
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
+      responses:
+        200:
+          description: doc html response
+          headers: *id003
+          content:
+            text/html: *id004
+          links: *id002
   /api/auto-complete-json-plugin:
     get:
       tags:
@@ -47,7 +222,7 @@ paths:
       pait_info:
         group: plugin
         pait_status: undefined
-        author: &id001 !!python/tuple
+        author: &id006 !!python/tuple
         - so1n
       parameters:
       - name: uid
@@ -101,17 +276,12 @@ paths:
       responses:
         200:
           description: success response
-          headers: &id002 {}
+          headers: *id005
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel3__ResponseModel'
-          links: &id003
-            GET.get_user_route/header/token:
-              description: test links model
-              operationId: GET.get_user_route
-              parameters:
-                token: $response.body#/data/token
+          links: *id002
   /api/check-json-plugin-1:
     get:
       tags:
@@ -123,7 +293,7 @@ paths:
       pait_info:
         group: plugin
         pait_status: undefined
-        author: *id001
+        author: *id006
       parameters:
       - name: uid
         in: query
@@ -176,12 +346,12 @@ paths:
       responses:
         200:
           description: success response
-          headers: *id002
+          headers: *id005
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel3__ResponseModel'
-          links: *id003
+          links: *id002
   /api/check-json-plugin:
     get:
       tags:
@@ -193,7 +363,7 @@ paths:
       pait_info:
         group: plugin
         pait_status: undefined
-        author: *id001
+        author: *id006
       parameters:
       - name: uid
         in: query
@@ -246,12 +416,12 @@ paths:
       responses:
         200:
           description: success response
-          headers: *id002
+          headers: *id005
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel3__ResponseModel'
-          links: *id003
+          links: *id002
   /api/pre-depend-contextmanager:
     get:
       tags:
@@ -263,7 +433,7 @@ paths:
       pait_info:
         group: other
         pait_status: test
-        author: *id001
+        author: *id006
       parameters:
       - name: is_raise
         in: query
@@ -286,14 +456,14 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id002
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id003
+          links: *id002
   /api/depend-contextmanager:
     get:
       tags:
@@ -305,7 +475,7 @@ paths:
       pait_info:
         group: other
         pait_status: test
-        author: *id001
+        author: *id006
       parameters:
       - name: uid
         in: query
@@ -328,14 +498,14 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id002
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id003
+          links: *id002
   /api/same-alias:
     get:
       tags:
@@ -348,7 +518,7 @@ paths:
       pait_info:
         group: other
         pait_status: release
-        author: *id001
+        author: *id006
       parameters:
       - name: token
         in: header
@@ -369,14 +539,14 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id002
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id003
+          links: *id002
   /api/pait-model:
     post:
       tags:
@@ -388,7 +558,7 @@ paths:
       pait_info:
         group: other
         pait_status: test
-        author: *id001
+        author: *id006
       requestBody:
         content:
           application/json:
@@ -422,14 +592,14 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id002
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id003
+          links: *id002
   /api/raise-tip:
     post:
       tags:
@@ -441,7 +611,7 @@ paths:
       pait_info:
         group: other
         pait_status: abandoned
-        author: *id001
+        author: *id006
       parameters:
       - name: content__type
         in: header
@@ -454,14 +624,14 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id002
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id003
+          links: *id002
   /api/depend:
     post:
       tags:
@@ -474,7 +644,7 @@ paths:
       pait_info:
         group: other
         pait_status: release
-        author: *id001
+        author: *id006
       requestBody:
         content:
           application/json:
@@ -502,14 +672,14 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id002
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id003
+          links: *id002
   /api/field-default-factory:
     post:
       tags:
@@ -521,7 +691,7 @@ paths:
       pait_info:
         group: user
         pait_status: test
-        author: *id001
+        author: *id006
       requestBody:
         content:
           application/json:
@@ -548,14 +718,14 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id002
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id003
+          links: *id002
   /api/check-param:
     get:
       tags:
@@ -567,7 +737,7 @@ paths:
       pait_info:
         group: user
         pait_status: release
-        author: *id001
+        author: *id006
       parameters:
       - name: uid
         in: query
@@ -640,14 +810,14 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id002
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id003
+          links: *id002
   /api/check-resp:
     get:
       tags:
@@ -659,7 +829,7 @@ paths:
       pait_info:
         group: user
         pait_status: release
-        author: *id001
+        author: *id006
       parameters:
       - name: uid
         in: query
@@ -712,14 +882,14 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id002
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel3__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id003
+          links: *id002
   /api/post:
     post:
       tags:
@@ -732,7 +902,7 @@ paths:
       pait_info:
         group: user
         pait_status: release
-        author: *id001
+        author: *id006
       requestBody:
         content:
           application/json:
@@ -782,14 +952,14 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id002
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id003
+          links: *id002
   /api/cbv:
     get:
       tags:
@@ -801,7 +971,7 @@ paths:
       pait_info:
         group: user
         pait_status: release
-        author: *id001
+        author: *id006
       parameters:
       - name: Content-Type
         in: header
@@ -855,14 +1025,14 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id002
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id003
+          links: *id002
     post:
       tags:
       - cbv
@@ -873,7 +1043,7 @@ paths:
       pait_info:
         group: user
         pait_status: release
-        author: *id001
+        author: *id006
       requestBody:
         content:
           application/json:
@@ -920,14 +1090,14 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id002
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id003
+          links: *id002
   /api/pait-base-field/{age}:
     post:
       tags:
@@ -939,7 +1109,7 @@ paths:
       pait_info:
         group: user
         pait_status: release
-        author: *id001
+        author: *id006
       parameters:
       - name: cookie
         in: cookie
@@ -1061,14 +1231,14 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id002
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id003
+          links: *id002
   /api/mock/{age}:
     get:
       tags:
@@ -1080,7 +1250,7 @@ paths:
       pait_info:
         group: user
         pait_status: release
-        author: *id001
+        author: *id006
       parameters:
       - name: multi_user_name
         in: multiquery
@@ -1149,14 +1319,14 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id002
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel2__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id003
+          links: *id002
   /api/text-resp:
     get:
       tags:
@@ -1168,7 +1338,7 @@ paths:
       pait_info:
         group: check_resp
         pait_status: undefined
-        author: *id001
+        author: *id006
       responses:
         200:
           description: text response
@@ -1178,7 +1348,7 @@ paths:
             text/plain:
               type: string
               example: pait example data
-          links: *id003
+          links: *id002
   /api/html-resp:
     get:
       tags:
@@ -1190,17 +1360,15 @@ paths:
       pait_info:
         group: check_resp
         pait_status: undefined
-        author: *id001
+        author: *id006
       responses:
         200:
           description: html response
           headers:
             X-Example-Type: html
           content:
-            text/html:
-              type: string
-              example: <h1>Pait example html</h1>
-          links: *id003
+            text/html: *id004
+          links: *id002
   /api/file-resp:
     get:
       tags:
@@ -1212,7 +1380,7 @@ paths:
       pait_info:
         group: check_resp
         pait_status: undefined
-        author: *id001
+        author: *id006
       responses:
         200:
           description: file response
@@ -1222,7 +1390,7 @@ paths:
             application/octet-stream:
               type: string
               format: binary
-          links: *id003
+          links: *id002
   /api/login:
     post:
       tags:
@@ -1234,7 +1402,7 @@ paths:
       pait_info:
         group: links
         pait_status: undefined
-        author: *id001
+        author: *id006
       requestBody:
         content:
           application/json:
@@ -1256,12 +1424,12 @@ paths:
       responses:
         200:
           description: login response
-          headers: *id002
+          headers: *id005
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/example__param_verify__model__LoginRespModel__ResponseModel'
-          links: *id003
+          links: *id002
   /api/user:
     get:
       tags:
@@ -1273,7 +1441,7 @@ paths:
       pait_info:
         group: links
         pait_status: undefined
-        author: *id001
+        author: *id006
       parameters:
       - name: token
         in: header
@@ -1287,76 +1455,12 @@ paths:
       responses:
         200:
           description: success response
-          headers: *id002
+          headers: *id005
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/example__param_verify__model__ResponseModel'
-          links: *id003
-  /openapi.json:
-    get:
-      tags:
-      - pait_doc
-      deprecated: false
-      summary: ''
-      description: ''
-      operationId: GET.api doc.openapi_route
-      pait_info:
-        group: pait_doc
-        pait_status: undefined
-        author: &id004 !!python/tuple
-        - ''
-      parameters:
-      - name: pin_code
-        in: query
-        required: false
-        description: ''
-        schema:
-          title: Pin Code
-          default: ''
-          type: string
-  /swagger:
-    get:
-      tags:
-      - pait_doc
-      deprecated: false
-      summary: ''
-      description: ''
-      operationId: GET.api doc.get_swagger_ui_html
-      pait_info:
-        group: pait_doc
-        pait_status: undefined
-        author: *id004
-      parameters:
-      - name: pin_code
-        in: query
-        required: false
-        description: ''
-        schema:
-          title: Pin Code
-          default: ''
-          type: string
-  /redoc:
-    get:
-      tags:
-      - pait_doc
-      deprecated: false
-      summary: ''
-      description: ''
-      operationId: GET.api doc.get_redoc_html
-      pait_info:
-        group: pait_doc
-        pait_status: undefined
-        author: *id004
-      parameters:
-      - name: pin_code
-        in: query
-        required: false
-        description: ''
-        schema:
-          title: Pin Code
-          default: ''
-          type: string
+          links: *id002
 components:
   schemas:
     example__param_verify__model__UserSuccessRespModel3__ResponseModel__DataModel:

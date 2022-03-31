@@ -38,12 +38,17 @@ tags:
 paths:
   /api/login:
     post:
-      group: links
       tags:
       - links
+      deprecated: false
       summary: ''
       description: ''
       operationId: post.LoginHanlder.post
+      pait_info:
+        group: links
+        pait_status: undefined
+        author: &id001 !!python/tuple
+        - so1n
       requestBody:
         content:
           application/json:
@@ -65,12 +70,12 @@ paths:
       responses:
         200:
           description: login response
-          headers: &id001 {}
+          headers: &id002 {}
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/example__param_verify__model__LoginRespModel__ResponseModel'
-          links: &id002
+          links: &id003
             get.GetUserHandler.get/header/token:
               description: test links model
               operationId: get.GetUserHandler.get
@@ -78,12 +83,16 @@ paths:
                 token: $response.body#/data/token
   /api/user:
     get:
-      group: links
       tags:
       - links
+      deprecated: false
       summary: ''
       description: ''
       operationId: get.GetUserHandler.get
+      pait_info:
+        group: links
+        pait_status: undefined
+        author: *id001
       parameters:
       - name: token
         in: header
@@ -97,50 +106,57 @@ paths:
       responses:
         200:
           description: success response
-          headers: *id001
+          headers: *id002
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/example__param_verify__model__ResponseModel'
-          links: *id002
+          links: *id003
   /api/raise-tip:
     post:
-      group: other
       tags:
       - raise
       deprecated: true
       summary: ''
       description: test pait raise tip
       operationId: post.RaiseTipHandler.post
+      pait_info:
+        group: other
+        pait_status: abandoned
+        author: *id001
       parameters:
-      - name: content_type
+      - name: content__type
         in: header
         required: true
         description: content-type
         schema:
-          title: Content Type
+          title: Content  Type
           description: content-type
           type: string
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id002
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id003
   /api/depend:
     post:
-      group: other
       tags:
       - user
       - depend
+      deprecated: false
       summary: ''
       description: Test Method:Post request, Pydantic Model
       operationId: post.DependHandler.post
+      pait_info:
+        group: other
+        pait_status: release
+        author: *id001
       requestBody:
         content:
           application/json:
@@ -168,22 +184,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id002
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id003
   /api/same-alias:
     get:
-      group: other
       tags:
       - same alias
+      deprecated: false
       summary: ''
       description: ''
       operationId: get.SameAliasHandler.get
+      pait_info:
+        group: other
+        pait_status: release
+        author: *id001
       parameters:
       - name: token
         in: header
@@ -204,22 +224,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id002
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id003
   /api/pait-model:
     post:
-      group: other
       tags:
       - field
+      deprecated: false
       summary: ''
       description: Test pait model
       operationId: post.PaitModelHanler.post
+      pait_info:
+        group: other
+        pait_status: release
+        author: *id001
       requestBody:
         content:
           application/json:
@@ -228,7 +252,7 @@ paths:
               type: object
               properties:
                 user_info:
-                  $ref: '#/definitions/example__param_verify__model__TestPaitModel__UserInfo'
+                  $ref: '#/components/schemas/example__param_verify__model__TestPaitModel__UserInfo'
               required:
               - user_info
       parameters:
@@ -253,22 +277,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id002
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id003
   /api/check-depend-contextmanager:
     get:
-      group: other
       tags:
       - depend
+      deprecated: false
       summary: ''
       description: ''
       operationId: get.DependContextmanagerHanler.get
+      pait_info:
+        group: other
+        pait_status: undefined
+        author: *id001
       parameters:
       - name: uid
         in: query
@@ -291,22 +319,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id002
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id003
   /api/check-depend-async-contextmanager:
     get:
-      group: other
       tags:
       - depend
+      deprecated: false
       summary: ''
       description: ''
       operationId: get.DependAsyncContextmanagerHanler.get
+      pait_info:
+        group: other
+        pait_status: undefined
+        author: *id001
       parameters:
       - name: uid
         in: query
@@ -329,22 +361,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id002
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id003
   /api/check-pre-depend-contextmanager:
     get:
-      group: other
       tags:
       - depend
+      deprecated: false
       summary: ''
       description: ''
       operationId: get.PreDependContextmanagerHanler.get
+      pait_info:
+        group: other
+        pait_status: undefined
+        author: *id001
       parameters:
       - name: is_raise
         in: query
@@ -367,22 +403,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id002
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id003
   /api/check-pre-depend-async-contextmanager:
     get:
-      group: other
       tags:
       - depend
+      deprecated: false
       summary: ''
       description: ''
       operationId: get.PreDependAsyncContextmanagerHanler.get
+      pait_info:
+        group: other
+        pait_status: undefined
+        author: *id001
       parameters:
       - name: is_raise
         in: query
@@ -405,23 +445,27 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id002
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id003
   /api/post:
     post:
-      group: user
       tags:
       - user
       - post
+      deprecated: false
       summary: ''
       description: Test Method:Post Pydantic Model
       operationId: post.PostHandler.post
+      pait_info:
+        group: user
+        pait_status: release
+        author: *id001
       requestBody:
         content:
           application/json:
@@ -453,7 +497,7 @@ paths:
                 sex:
                   description: sex
                   allOf:
-                  - $ref: '#/definitions/example__param_verify__model__SexEnum'
+                  - $ref: '#/components/schemas/example__param_verify__model__SexEnum'
               required:
               - uid
               - user_name
@@ -471,22 +515,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id002
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id003
   /api/field-default-factory:
     post:
-      group: user
       tags:
       - field
+      deprecated: false
       summary: ''
       description: ''
       operationId: post.FieldDefaultFactoryHandler.post
+      pait_info:
+        group: user
+        pait_status: test
+        author: *id001
       requestBody:
         content:
           application/json:
@@ -513,22 +561,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id002
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id003
   /api/pait-base-field/{age}:
     post:
-      group: user
       tags:
       - field
+      deprecated: false
       summary: ''
       description: ''
       operationId: post.PaitBaseFieldHandler.post
+      pait_info:
+        group: user
+        pait_status: release
+        author: *id001
       parameters:
       - name: cookie
         in: cookie
@@ -650,22 +702,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id002
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id003
   /api/mock/{age}:
     get:
-      group: user
       tags:
       - mock
+      deprecated: false
       summary: ''
       description: Test Field
       operationId: get.MockHandler.get
+      pait_info:
+        group: user
+        pait_status: release
+        author: *id001
       parameters:
       - name: multi_user_name
         in: multiquery
@@ -732,22 +788,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id002
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel2__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id003
   /api/cbv:
     get:
-      group: user
       tags:
       - cbv
+      deprecated: false
       summary: ''
       description: Text Pydantic Model and Field
       operationId: get.CbvHandler.get
+      pait_info:
+        group: user
+        pait_status: release
+        author: *id001
       parameters:
       - name: Content-Type
         in: header
@@ -801,21 +861,25 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id002
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id003
     post:
-      group: user
       tags:
       - cbv
+      deprecated: false
       summary: ''
       description: test cbv post method
       operationId: post.CbvHandler.post
+      pait_info:
+        group: user
+        pait_status: release
+        author: *id001
       requestBody:
         content:
           application/json:
@@ -845,7 +909,7 @@ paths:
                 sex:
                   description: sex
                   allOf:
-                  - $ref: '#/definitions/example__param_verify__model__SexEnum'
+                  - $ref: '#/components/schemas/example__param_verify__model__SexEnum'
               required:
               - age
               - uid
@@ -862,22 +926,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id002
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id003
   /api/check-param:
     get:
-      group: user
       tags:
       - check param
+      deprecated: false
       summary: ''
       description: Test check param
       operationId: get.CheckParamHandler.get
+      pait_info:
+        group: user
+        pait_status: release
+        author: *id001
       parameters:
       - name: uid
         in: query
@@ -950,22 +1018,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id002
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel2__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id003
   /api/check-resp:
     get:
-      group: user
       tags:
       - check resp
+      deprecated: false
       summary: ''
       description: Test test-helper check response
       operationId: get.CheckRespHandler.get
+      pait_info:
+        group: user
+        pait_status: release
+        author: *id001
       parameters:
       - name: uid
         in: query
@@ -1018,22 +1090,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id002
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel3__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id003
   /api/text-resp:
     get:
-      group: check_resp
       tags:
       - check resp
+      deprecated: false
       summary: ''
       description: ''
       operationId: get.TextResponseHanler.get
+      pait_info:
+        group: check_resp
+        pait_status: undefined
+        author: *id001
       responses:
         200:
           description: text response
@@ -1043,15 +1119,19 @@ paths:
             text/plain:
               type: string
               example: pait example data
-          links: *id002
+          links: *id003
   /api/html-resp:
     get:
-      group: check_resp
       tags:
       - check resp
+      deprecated: false
       summary: ''
       description: ''
       operationId: get.HtmlResponseHanler.get
+      pait_info:
+        group: check_resp
+        pait_status: undefined
+        author: *id001
       responses:
         200:
           description: html response
@@ -1061,15 +1141,19 @@ paths:
             text/html:
               type: string
               example: <h1>Pait example html</h1>
-          links: *id002
+          links: *id003
   /api/file-resp:
     get:
-      group: check_resp
       tags:
       - check resp
+      deprecated: false
       summary: ''
       description: ''
       operationId: get.FileResponseHanler.get
+      pait_info:
+        group: check_resp
+        pait_status: undefined
+        author: *id001
       responses:
         200:
           description: file response
@@ -1079,15 +1163,89 @@ paths:
             application/octet-stream:
               type: string
               format: binary
-          links: *id002
-  /api/check-json-plugin:
+          links: *id003
+  /api/auto-complete-json-plugin:
     get:
-      group: plugin
       tags:
       - plugin
+      deprecated: false
+      summary: ''
+      description: Test json plugin by resp type is dict
+      operationId: get.AutoCompleteJsonHandler.get
+      pait_info:
+        group: plugin
+        pait_status: undefined
+        author: *id001
+      parameters:
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      - name: email
+        in: query
+        required: false
+        description: user email
+        schema:
+          title: Email
+          description: user email
+          default: example@xxx.com
+          type: string
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+      - name: age
+        in: query
+        required: true
+        description: age
+        schema:
+          title: Age
+          description: age
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
+          type: integer
+      - name: display_age
+        in: query
+        required: false
+        description: display_age
+        schema:
+          title: Display Age
+          description: display_age
+          default: 0
+          type: integer
+      responses:
+        200:
+          description: success response
+          headers: *id002
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel3__ResponseModel'
+          links: *id003
+  /api/check-json-plugin:
+    get:
+      tags:
+      - plugin
+      deprecated: false
       summary: ''
       description: Test json plugin by resp type is dict
       operationId: get.CheckJsonPluginHandler.get
+      pait_info:
+        group: plugin
+        pait_status: undefined
+        author: *id001
       parameters:
       - name: uid
         in: query
@@ -1140,20 +1298,24 @@ paths:
       responses:
         200:
           description: success response
-          headers: *id001
+          headers: *id002
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel3__ResponseModel'
-          links: *id002
+          links: *id003
   /api/check-json-plugin-1:
     get:
-      group: plugin
       tags:
       - plugin
+      deprecated: false
       summary: ''
       description: Test json plugin by resp type is typed dict
       operationId: get.CheckJsonPlugin1Handler.get
+      pait_info:
+        group: plugin
+        pait_status: undefined
+        author: *id001
       parameters:
       - name: uid
         in: query
@@ -1206,20 +1368,88 @@ paths:
       responses:
         200:
           description: success response
-          headers: *id001
+          headers: *id002
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel3__ResponseModel'
-          links: *id002
-  /redoc:
+          links: *id003
+  /api-doc/redoc:
     get:
-      group: pait_doc
       tags:
       - pait_doc
+      deprecated: false
       summary: ''
       description: ''
       operationId: get.GetRedocHtmlHandle.get
+      pait_info:
+        group: pait_doc
+        pait_status: undefined
+        author: &id004 !!python/tuple
+        - ''
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
+  /api-doc/swagger:
+    get:
+      tags:
+      - pait_doc
+      deprecated: false
+      summary: ''
+      description: ''
+      operationId: get.GetSwaggerUiHtmlHandle.get
+      pait_info:
+        group: pait_doc
+        pait_status: undefined
+        author: *id004
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
+  /api-doc/openapi.json:
+    get:
+      tags:
+      - pait_doc
+      deprecated: false
+      summary: ''
+      description: ''
+      operationId: get.OpenApiHandle.get
+      pait_info:
+        group: pait_doc
+        pait_status: undefined
+        author: *id004
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
+  /redoc:
+    get:
+      tags:
+      - pait_doc
+      deprecated: false
+      summary: ''
+      description: ''
+      operationId: get.GetRedocHtmlHandle.get
+      pait_info:
+        group: pait_doc
+        pait_status: undefined
+        author: *id004
       parameters:
       - name: pin_code
         in: query
@@ -1231,12 +1461,16 @@ paths:
           type: string
   /swagger:
     get:
-      group: pait_doc
       tags:
       - pait_doc
+      deprecated: false
       summary: ''
       description: ''
       operationId: get.GetSwaggerUiHtmlHandle.get
+      pait_info:
+        group: pait_doc
+        pait_status: undefined
+        author: *id004
       parameters:
       - name: pin_code
         in: query
@@ -1248,12 +1482,16 @@ paths:
           type: string
   /openapi.json:
     get:
-      group: pait_doc
       tags:
       - pait_doc
+      deprecated: false
       summary: ''
       description: ''
       operationId: get.OpenApiHandle.get
+      pait_info:
+        group: pait_doc
+        pait_status: undefined
+        author: *id004
       parameters:
       - name: pin_code
         in: query
@@ -1340,6 +1578,32 @@ components:
           description: api status msg
           default: fail
           type: string
+    example__param_verify__model__TestPaitModel__UserInfo:
+      title: UserInfo
+      type: object
+      properties:
+        user_name:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+        age:
+          title: Age
+          description: age
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
+          type: integer
+      required:
+      - user_name
+      - age
+    example__param_verify__model__SexEnum:
+      title: SexEnum
+      description: An enumeration.
+      enum:
+      - man
+      - woman
+      type: string
     example__param_verify__model__UserSuccessRespModel__ResponseModel__DataModel:
       title: DataModel
       type: object
@@ -1367,8 +1631,7 @@ components:
           type: integer
         sex:
           description: sex
-          default: !!python/object/apply:example.param_verify.model.SexEnum
-          - man
+          default: man
           allOf:
           - $ref: '#/components/schemas/example__param_verify__model__SexEnum'
         content_type:
@@ -1377,13 +1640,6 @@ components:
           type: string
       required:
       - content_type
-    example__param_verify__model__SexEnum:
-      title: SexEnum
-      description: An enumeration.
-      enum:
-      - man
-      - woman
-      type: string
     example__param_verify__model__UserSuccessRespModel__ResponseModel:
       title: ResponseModel
       type: object
@@ -1423,15 +1679,15 @@ components:
         multi_user_name:
           title: Multi User Name
           description: user name
-          maxLength: 4
+          maxLength: 10
           minLength: 2
-          example: !!python/tuple
+          example:
           - mock_name
           type: array
           items:
             type: string
             minLength: 2
-            maxLength: 4
+            maxLength: 10
         sex:
           description: sex
           example: !!python/object/apply:example.param_verify.model.SexEnum

@@ -36,48 +36,19 @@ tags:
 - name: pait_doc
   description: pait default doc route
 paths:
-  /redoc:
-    get:
-      group: pait_doc
-      tags:
-      - pait_doc
-      summary: ''
-      description: ''
-      operationId: GET.pait.api doc.get_redoc_html
-      parameters:
-      - name: pin_code
-        in: query
-        required: false
-        description: ''
-        schema:
-          title: Pin Code
-          default: ''
-          type: string
-  /openapi.json:
-    get:
-      group: pait_doc
-      tags:
-      - pait_doc
-      summary: ''
-      description: ''
-      operationId: GET.pait.api doc.openapi_route
-      parameters:
-      - name: pin_code
-        in: query
-        required: false
-        description: ''
-        schema:
-          title: Pin Code
-          default: ''
-          type: string
   /swagger:
     get:
-      group: pait_doc
       tags:
       - pait_doc
+      deprecated: false
       summary: ''
       description: ''
-      operationId: GET.pait.api doc.get_swagger_ui_html
+      operationId: GET.example.param_verify.sanic_example.Pait Api Doc(private).get_swagger_ui_html
+      pait_info:
+        group: pait_doc
+        pait_status: undefined
+        author: &id001 !!python/tuple
+        - ''
       parameters:
       - name: pin_code
         in: query
@@ -87,19 +58,177 @@ paths:
           title: Pin Code
           default: ''
           type: string
-  /api/login:
-    post:
-      group: links
+      responses:
+        200:
+          description: doc html response
+          headers: &id002
+            X-Example-Type: html
+          content:
+            text/html: &id003
+              type: string
+              example: <h1>Pait example html</h1>
+          links: &id004
+            GET.example.param_verify.sanic_example.get_user_route/header/token:
+              description: test links model
+              operationId: GET.example.param_verify.sanic_example.get_user_route
+              parameters:
+                token: $response.body#/data/token
+  /redoc:
+    get:
       tags:
-      - links
+      - pait_doc
+      deprecated: false
       summary: ''
       description: ''
-      operationId: POST.pait.login_route
+      operationId: GET.example.param_verify.sanic_example.Pait Api Doc(private).get_redoc_html
+      pait_info:
+        group: pait_doc
+        pait_status: undefined
+        author: *id001
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
+      responses:
+        200:
+          description: doc html response
+          headers: *id002
+          content:
+            text/html: *id003
+          links: *id004
+  /openapi.json:
+    get:
+      tags:
+      - pait_doc
+      deprecated: false
+      summary: ''
+      description: ''
+      operationId: GET.example.param_verify.sanic_example.Pait Api Doc(private).openapi_route
+      pait_info:
+        group: pait_doc
+        pait_status: undefined
+        author: *id001
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
+      responses:
+        200:
+          description: open api json response
+          headers: &id005 {}
+          content: {}
+          links: *id004
+  /api-doc/swagger:
+    get:
+      tags:
+      - pait_doc
+      deprecated: false
+      summary: ''
+      description: ''
+      operationId: GET.example.param_verify.sanic_example.Pait Api Doc.get_swagger_ui_html
+      pait_info:
+        group: pait_doc
+        pait_status: undefined
+        author: *id001
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
+      responses:
+        200:
+          description: doc html response
+          headers: *id002
+          content:
+            text/html: *id003
+          links: *id004
+  /api-doc/openapi.json:
+    get:
+      tags:
+      - pait_doc
+      deprecated: false
+      summary: ''
+      description: ''
+      operationId: GET.example.param_verify.sanic_example.Pait Api Doc.openapi_route
+      pait_info:
+        group: pait_doc
+        pait_status: undefined
+        author: *id001
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
+      responses:
+        200:
+          description: open api json response
+          headers: *id005
+          content: {}
+          links: *id004
+  /api-doc/redoc:
+    get:
+      tags:
+      - pait_doc
+      deprecated: false
+      summary: ''
+      description: ''
+      operationId: GET.example.param_verify.sanic_example.Pait Api Doc.get_redoc_html
+      pait_info:
+        group: pait_doc
+        pait_status: undefined
+        author: *id001
+      parameters:
+      - name: pin_code
+        in: query
+        required: false
+        description: ''
+        schema:
+          title: Pin Code
+          default: ''
+          type: string
+      responses:
+        200:
+          description: doc html response
+          headers: *id002
+          content:
+            text/html: *id003
+          links: *id004
+  /api/login:
+    post:
+      tags:
+      - links
+      deprecated: false
+      summary: ''
+      description: ''
+      operationId: POST.example.param_verify.sanic_example.login_route
+      pait_info:
+        group: links
+        pait_status: undefined
+        author: &id006 !!python/tuple
+        - so1n
       requestBody:
         content:
           application/json:
             schema:
-              title: Pait.loginRouteDynamicModel
+              title: Example.paramVerify.sanicExample.loginRouteDynamicModel
               type: object
               properties:
                 uid:
@@ -116,25 +245,24 @@ paths:
       responses:
         200:
           description: login response
-          headers: &id001 {}
+          headers: *id005
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/example__param_verify__model__LoginRespModel__ResponseModel'
-          links: &id002
-            GET.pait.get_user_route/header/token:
-              description: test links model
-              operationId: GET.pait.get_user_route
-              parameters:
-                token: $response.body#/data/token
+          links: *id004
   /api/user:
     get:
-      group: links
       tags:
       - links
+      deprecated: false
       summary: ''
       description: ''
-      operationId: GET.pait.get_user_route
+      operationId: GET.example.param_verify.sanic_example.get_user_route
+      pait_info:
+        group: links
+        pait_status: undefined
+        author: *id006
       parameters:
       - name: token
         in: header
@@ -148,21 +276,24 @@ paths:
       responses:
         200:
           description: success response
-          headers: *id001
+          headers: *id005
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/example__param_verify__model__ResponseModel'
-          links: *id002
+          links: *id004
   /api/raise_tip:
     post:
-      group: other
       tags:
       - raise
       deprecated: true
       summary: ''
       description: test pait raise tip
-      operationId: POST.pait.raise_tip_route
+      operationId: POST.example.param_verify.sanic_example.raise_tip_route
+      pait_info:
+        group: other
+        pait_status: abandoned
+        author: *id006
       parameters:
       - name: content__type
         in: header
@@ -175,28 +306,32 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id004
   /api/depend:
     post:
-      group: other
       tags:
       - user
       - depend
+      deprecated: false
       summary: ''
       description: Test Method:Post request, Pydantic Model
-      operationId: POST.pait.depend_route
+      operationId: POST.example.param_verify.sanic_example.depend_route
+      pait_info:
+        group: other
+        pait_status: release
+        author: *id006
       requestBody:
         content:
           application/json:
             schema:
-              title: Pait.dependRouteDynamicModel
+              title: Example.paramVerify.sanicExample.dependRouteDynamicModel
               type: object
               properties:
                 age:
@@ -219,22 +354,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id004
   /api/same-alias:
     get:
-      group: other
       tags:
       - same alias
+      deprecated: false
       summary: ''
       description: ''
-      operationId: GET.pait.same_alias_route
+      operationId: GET.example.param_verify.sanic_example.same_alias_route
+      pait_info:
+        group: other
+        pait_status: release
+        author: *id006
       parameters:
       - name: token
         in: header
@@ -254,21 +393,25 @@ paths:
           type: string
   /api/pait-model:
     post:
-      group: other
       tags:
       - field
+      deprecated: false
       summary: ''
       description: Test pait model
-      operationId: POST.pait.pait_model_route
+      operationId: POST.example.param_verify.sanic_example.pait_model_route
+      pait_info:
+        group: other
+        pait_status: test
+        author: *id006
       requestBody:
         content:
           application/json:
             schema:
-              title: Pait.paitModelRouteDynamicModel
+              title: Example.paramVerify.sanicExample.paitModelRouteDynamicModel
               type: object
               properties:
                 user_info:
-                  $ref: '#/definitions/example__param_verify__model__TestPaitModel__UserInfo'
+                  $ref: '#/components/schemas/example__param_verify__model__TestPaitModel__UserInfo'
               required:
               - user_info
       parameters:
@@ -293,22 +436,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id004
   /api/check-depend-contextmanager:
     get:
-      group: other
       tags:
       - depend
+      deprecated: false
       summary: ''
       description: ''
-      operationId: GET.pait.depend_contextmanager_route
+      operationId: GET.example.param_verify.sanic_example.depend_contextmanager_route
+      pait_info:
+        group: other
+        pait_status: test
+        author: *id006
       parameters:
       - name: uid
         in: query
@@ -331,22 +478,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id004
   /api/check-pre-depend-contextmanager:
     get:
-      group: other
       tags:
       - depend
+      deprecated: false
       summary: ''
       description: ''
-      operationId: GET.pait.pre_depend_contextmanager_route
+      operationId: GET.example.param_verify.sanic_example.pre_depend_contextmanager_route
+      pait_info:
+        group: other
+        pait_status: test
+        author: *id006
       parameters:
       - name: is_raise
         in: query
@@ -369,22 +520,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id004
   /api/check-depend-async-contextmanager:
     get:
-      group: other
       tags:
       - depend
+      deprecated: false
       summary: ''
       description: ''
-      operationId: GET.pait.depend_async_contextmanager_route
+      operationId: GET.example.param_verify.sanic_example.depend_async_contextmanager_route
+      pait_info:
+        group: other
+        pait_status: test
+        author: *id006
       parameters:
       - name: uid
         in: query
@@ -407,22 +562,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id004
   /api/check-pre-depend-async-contextmanager:
     get:
-      group: other
       tags:
       - depend
+      deprecated: false
       summary: ''
       description: ''
-      operationId: GET.pait.pre_depend_async_contextmanager_route
+      operationId: GET.example.param_verify.sanic_example.pre_depend_async_contextmanager_route
+      pait_info:
+        group: other
+        pait_status: test
+        author: *id006
       parameters:
       - name: is_raise
         in: query
@@ -445,28 +604,32 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id004
   /api/post:
     post:
-      group: user
       tags:
       - user
       - post
+      deprecated: false
       summary: ''
       description: Test Method:Post Pydantic Model
-      operationId: POST.pait.post_route
+      operationId: POST.example.param_verify.sanic_example.post_route
+      pait_info:
+        group: user
+        pait_status: release
+        author: *id006
       requestBody:
         content:
           application/json:
             schema:
-              title: Pait.postRouteDynamicModel
+              title: Example.paramVerify.sanicExample.postRouteDynamicModel
               type: object
               properties:
                 uid:
@@ -493,7 +656,7 @@ paths:
                 sex:
                   description: sex
                   allOf:
-                  - $ref: '#/definitions/example__param_verify__model__SexEnum'
+                  - $ref: '#/components/schemas/example__param_verify__model__SexEnum'
               required:
               - uid
               - user_name
@@ -511,27 +674,31 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id004
   /api/field-default-factory:
     post:
-      group: user
       tags:
       - field
+      deprecated: false
       summary: ''
       description: ''
-      operationId: POST.pait.field_default_factory_route
+      operationId: POST.example.param_verify.sanic_example.field_default_factory_route
+      pait_info:
+        group: user
+        pait_status: test
+        author: *id006
       requestBody:
         content:
           application/json:
             schema:
-              title: Pait.fieldDefaultFactoryRouteDynamicModel
+              title: Example.paramVerify.sanicExample.fieldDefaultFactoryRouteDynamicModel
               type: object
               properties:
                 demo_value:
@@ -553,22 +720,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id004
   /api/cbv:
     get:
-      group: user
       tags:
       - cbv
+      deprecated: false
       summary: ''
       description: Text cbv route get
-      operationId: GET.pait.CbvRoute
+      operationId: GET.example.param_verify.sanic_example.CbvRoute
+      pait_info:
+        group: user
+        pait_status: release
+        author: *id006
       parameters:
       - name: Content-Type
         in: header
@@ -622,26 +793,30 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id004
     post:
-      group: user
       tags:
       - cbv
+      deprecated: false
       summary: ''
       description: test cbv post method
-      operationId: POST.pait.CbvRoute
+      operationId: POST.example.param_verify.sanic_example.CbvRoute
+      pait_info:
+        group: user
+        pait_status: release
+        author: *id006
       requestBody:
         content:
           application/json:
             schema:
-              title: Pait.cbvrouteDynamicModel
+              title: Example.paramVerify.sanicExample.cbvrouteDynamicModel
               type: object
               properties:
                 age:
@@ -666,7 +841,7 @@ paths:
                 sex:
                   description: sex
                   allOf:
-                  - $ref: '#/definitions/example__param_verify__model__SexEnum'
+                  - $ref: '#/components/schemas/example__param_verify__model__SexEnum'
               required:
               - age
               - uid
@@ -683,22 +858,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id004
   /api/check-param:
     get:
-      group: user
       tags:
       - check param
+      deprecated: false
       summary: ''
       description: Test check param
-      operationId: GET.pait.check_param_route
+      operationId: GET.example.param_verify.sanic_example.check_param_route
+      pait_info:
+        group: user
+        pait_status: release
+        author: *id006
       parameters:
       - name: uid
         in: query
@@ -771,22 +950,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel2__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id004
   /api/check-resp:
     get:
-      group: user
       tags:
       - check resp
+      deprecated: false
       summary: ''
       description: Test test-helper check response
-      operationId: GET.pait.check_response_route
+      operationId: GET.example.param_verify.sanic_example.check_response_route
+      pait_info:
+        group: user
+        pait_status: release
+        author: *id006
       parameters:
       - name: uid
         in: query
@@ -839,22 +1022,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel3__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id004
   /api/pait-base-field/{age}:
     post:
-      group: user
       tags:
       - field
+      deprecated: false
       summary: ''
       description: Test the use of all BaseField-based
-      operationId: POST.pait.pait_base_field_route
+      operationId: POST.example.param_verify.sanic_example.pait_base_field_route
+      pait_info:
+        group: user
+        pait_status: release
+        author: *id006
       parameters:
       - name: cookie
         in: cookie
@@ -946,7 +1133,7 @@ paths:
               - upload_file
           application/x-www-form-urlencoded:
             schema:
-              title: Pait.paitBaseFieldRouteDynamicModel
+              title: Example.paramVerify.sanicExample.paitBaseFieldRouteDynamicModel
               type: object
               properties:
                 a:
@@ -976,22 +1163,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__SimpleRespModel__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id004
   /api/mock/{age}:
     get:
-      group: user
       tags:
       - mock
+      deprecated: false
       summary: ''
       description: Test gen mock response
-      operationId: GET.pait.mock_route
+      operationId: GET.example.param_verify.sanic_example.mock_route
+      pait_info:
+        group: user
+        pait_status: release
+        author: *id006
       parameters:
       - name: multi_user_name
         in: multiquery
@@ -1060,22 +1251,26 @@ paths:
       responses:
         200:
           description: success response|fail response
-          headers: *id001
+          headers: *id005
           content:
             application/json:
               schema:
                 oneOf:
                 - $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel2__ResponseModel'
                 - $ref: '#/components/schemas/example__param_verify__model__ResponseFailModel'
-          links: *id002
+          links: *id004
   /api/text-resp:
     get:
-      group: check_resp
       tags:
       - check resp
+      deprecated: false
       summary: ''
       description: ''
-      operationId: GET.pait.async_text_response_route
+      operationId: GET.example.param_verify.sanic_example.text_response_route
+      pait_info:
+        group: check_resp
+        pait_status: undefined
+        author: *id006
       responses:
         200:
           description: text response
@@ -1085,33 +1280,39 @@ paths:
             text/plain:
               type: string
               example: pait example data
-          links: *id002
+          links: *id004
   /api/html-resp:
     get:
-      group: check_resp
       tags:
       - check resp
+      deprecated: false
       summary: ''
       description: ''
-      operationId: GET.pait.html_response_route
+      operationId: GET.example.param_verify.sanic_example.html_response_route
+      pait_info:
+        group: check_resp
+        pait_status: undefined
+        author: *id006
       responses:
         200:
           description: html response
           headers:
             X-Example-Type: html
           content:
-            text/html:
-              type: string
-              example: <h1>Pait example html</h1>
-          links: *id002
+            text/html: *id003
+          links: *id004
   /api/file-resp:
     get:
-      group: check_resp
       tags:
       - check resp
+      deprecated: false
       summary: ''
       description: ''
-      operationId: GET.pait.file_response_route
+      operationId: GET.example.param_verify.sanic_example.file_response_route
+      pait_info:
+        group: check_resp
+        pait_status: undefined
+        author: *id006
       responses:
         200:
           description: file response
@@ -1121,15 +1322,19 @@ paths:
             application/octet-stream:
               type: string
               format: binary
-          links: *id002
+          links: *id004
   /api/check-json-plugin:
     get:
-      group: plugin
       tags:
       - plugin
+      deprecated: false
       summary: ''
       description: Test json plugin by resp type is dict
-      operationId: GET.pait.check_json_plugin_route
+      operationId: GET.example.param_verify.sanic_example.check_json_plugin_route
+      pait_info:
+        group: plugin
+        pait_status: undefined
+        author: *id006
       parameters:
       - name: uid
         in: query
@@ -1182,20 +1387,24 @@ paths:
       responses:
         200:
           description: success response
-          headers: *id001
+          headers: *id005
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel3__ResponseModel'
-          links: *id002
-  /api/check-json-plugin-1:
+          links: *id004
+  /api/auto-complete-json-plugin:
     get:
-      group: plugin
       tags:
       - plugin
+      deprecated: false
       summary: ''
-      description: Test json plugin by resp type is typed dict
-      operationId: GET.pait.check_json_plugin_route1
+      description: Test json plugin by resp type is dict
+      operationId: GET.example.param_verify.sanic_example.auto_complete_json_route
+      pait_info:
+        group: plugin
+        pait_status: undefined
+        author: *id006
       parameters:
       - name: uid
         in: query
@@ -1248,12 +1457,82 @@ paths:
       responses:
         200:
           description: success response
-          headers: *id001
+          headers: *id005
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel3__ResponseModel'
-          links: *id002
+          links: *id004
+  /api/check-json-plugin-1:
+    get:
+      tags:
+      - plugin
+      deprecated: false
+      summary: ''
+      description: Test json plugin by resp type is typed dict
+      operationId: GET.example.param_verify.sanic_example.check_json_plugin_route1
+      pait_info:
+        group: plugin
+        pait_status: undefined
+        author: *id006
+      parameters:
+      - name: uid
+        in: query
+        required: true
+        description: user id
+        schema:
+          title: Uid
+          description: user id
+          exclusiveMinimum: 10
+          exclusiveMaximum: 1000
+          type: integer
+      - name: email
+        in: query
+        required: false
+        description: user email
+        schema:
+          title: Email
+          description: user email
+          default: example@xxx.com
+          type: string
+      - name: user_name
+        in: query
+        required: true
+        description: user name
+        schema:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+      - name: age
+        in: query
+        required: true
+        description: age
+        schema:
+          title: Age
+          description: age
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
+          type: integer
+      - name: display_age
+        in: query
+        required: false
+        description: display_age
+        schema:
+          title: Display Age
+          description: display_age
+          default: 0
+          type: integer
+      responses:
+        200:
+          description: success response
+          headers: *id005
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/example__param_verify__model__UserSuccessRespModel3__ResponseModel'
+          links: *id004
 components:
   schemas:
     example__param_verify__model__LoginRespModel__ResponseModel__DataModel:
@@ -1331,6 +1610,32 @@ components:
           description: api status msg
           default: fail
           type: string
+    example__param_verify__model__TestPaitModel__UserInfo:
+      title: UserInfo
+      type: object
+      properties:
+        user_name:
+          title: User Name
+          description: user name
+          maxLength: 4
+          minLength: 2
+          type: string
+        age:
+          title: Age
+          description: age
+          exclusiveMinimum: 1
+          exclusiveMaximum: 100
+          type: integer
+      required:
+      - user_name
+      - age
+    example__param_verify__model__SexEnum:
+      title: SexEnum
+      description: An enumeration.
+      enum:
+      - man
+      - woman
+      type: string
     example__param_verify__model__UserSuccessRespModel__ResponseModel__DataModel:
       title: DataModel
       type: object
@@ -1358,8 +1663,7 @@ components:
           type: integer
         sex:
           description: sex
-          default: !!python/object/apply:example.param_verify.model.SexEnum
-          - man
+          default: man
           allOf:
           - $ref: '#/components/schemas/example__param_verify__model__SexEnum'
         content_type:
@@ -1368,13 +1672,6 @@ components:
           type: string
       required:
       - content_type
-    example__param_verify__model__SexEnum:
-      title: SexEnum
-      description: An enumeration.
-      enum:
-      - man
-      - woman
-      type: string
     example__param_verify__model__UserSuccessRespModel__ResponseModel:
       title: ResponseModel
       type: object
@@ -1414,15 +1711,15 @@ components:
         multi_user_name:
           title: Multi User Name
           description: user name
-          maxLength: 4
+          maxLength: 10
           minLength: 2
-          example: !!python/tuple
+          example:
           - mock_name
           type: array
           items:
             type: string
             minLength: 2
-            maxLength: 4
+            maxLength: 10
         sex:
           description: sex
           example: !!python/object/apply:example.param_verify.model.SexEnum
