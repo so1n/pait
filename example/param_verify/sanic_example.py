@@ -71,7 +71,7 @@ async def api_exception(request: Request, exc: Exception) -> response.HTTPRespon
     elif isinstance(exc, PaitBaseException):
         return response.json({"code": -1, "msg": str(exc)})
     elif isinstance(exc, ValidationError):
-        error_param_list: List[str] = []
+        error_param_list: list = []
         for i in exc.errors():
             error_param_list.extend(i["loc"])
         return response.json({"code": -1, "msg": f"miss param: {error_param_list}"})

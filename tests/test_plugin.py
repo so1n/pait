@@ -276,7 +276,7 @@ class TestMockPlugin:
 
 class TestParamPlugin:
     def test_error_default_value(self) -> None:
-        def demo(value: str = field.Query(default=datetime.datetime.now())) -> None:
+        def demo(value: str = field.Query.i(default=datetime.datetime.now())) -> None:
             pass
 
         with pytest.raises(TipException) as e:
@@ -293,7 +293,7 @@ class TestParamPlugin:
         assert "default type must <class 'str'>" in exec_msg
 
     def test_error_default_factory_value(self) -> None:
-        def demo(value: str = field.Query(default_factory=datetime.datetime.now)) -> None:
+        def demo(value: str = field.Query.i(default_factory=datetime.datetime.now)) -> None:
             pass
 
         with pytest.raises(TipException) as e:
@@ -310,7 +310,7 @@ class TestParamPlugin:
         assert "default_factory type must <class 'str'>" in exec_msg
 
     def test_error_example_value(self) -> None:
-        def demo(value: str = field.Query(example=datetime.datetime.now())) -> None:
+        def demo(value: str = field.Query.i(example=datetime.datetime.now())) -> None:
             pass
 
         with pytest.raises(TipException) as e:
@@ -326,7 +326,7 @@ class TestParamPlugin:
         exec_msg: str = e.value.args[0]
         assert "example type must <class 'str'>" in exec_msg
 
-        def demo1(value: str = field.Query(example=datetime.datetime.now())) -> None:
+        def demo1(value: str = field.Query.i(example=datetime.datetime.now())) -> None:
             pass
 
         with pytest.raises(TipException) as e:

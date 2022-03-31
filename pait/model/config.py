@@ -39,7 +39,7 @@ def apply_default_response_model(
 
 
 def apply_default_pydantic_model_config(
-    pydantic_model_config: BaseConfig, match_key: str, match_value: Any
+    pydantic_model_config: Type[BaseConfig], match_key: str, match_value: Any
 ) -> APPLY_FN:
     """pait route gen pydantic model default config"""
 

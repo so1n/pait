@@ -68,7 +68,7 @@ def api_exception(exc: Exception) -> Dict[str, Any]:
     elif isinstance(exc, PaitBaseException):
         return {"code": -1, "msg": str(exc)}
     elif isinstance(exc, ValidationError):
-        error_param_list: List[str] = []
+        error_param_list: list = []
         for i in exc.errors():
             error_param_list.extend(i["loc"])
         return {"code": -1, "msg": f"miss param: {error_param_list}"}

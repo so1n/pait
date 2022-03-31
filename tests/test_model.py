@@ -61,14 +61,14 @@ class TestLinksModel:
         assert "Can not found header key" in exec_msg
 
         # not base model response data
-        with pytest.raises(RuntimeError) as e:
+        with pytest.raises(RuntimeError) as e:  # type: ignore
             links.LinksModel(DemoResponseModel, "$response.body#")._check_openapi_runtime_expr()
 
         exec_msg = e.value.args[0]
         assert "pait_response_model.response_data type is pydantic.Basemodel" in exec_msg
 
         # not support expr
-        with pytest.raises(ValueError) as e:
+        with pytest.raises(ValueError) as e:  # type: ignore
             links.LinksModel(DemoResponseModel, "$response.body")._check_openapi_runtime_expr()
 
         exec_msg = e.value.args[0]

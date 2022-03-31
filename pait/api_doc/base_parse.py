@@ -154,7 +154,7 @@ class PaitBaseParse(object):
                 field = specified_field.from_pydantic_field(field)
             if isinstance(field, BaseField) and field.alias:
                 field_name = field.alias
-            param_field_dict[field_name] = field
+            param_field_dict[field_name] = field  # type: ignore
             param_annotation_dict[field_name] = param_annotation
 
         property_dict: Dict[str, Any] = _pydantic_model.schema()["properties"]

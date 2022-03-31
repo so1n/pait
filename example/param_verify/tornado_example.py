@@ -68,7 +68,7 @@ class MyHandler(RequestHandler):
         elif isinstance(exc, PaitBaseException):
             self.write({"code": -1, "msg": str(exc)})
         elif isinstance(exc, ValidationError):
-            error_param_list: List[str] = []
+            error_param_list: list = []
             for i in exc.errors():
                 error_param_list.extend(i["loc"])
             self.write({"code": -1, "msg": f"miss param: {error_param_list}"})
