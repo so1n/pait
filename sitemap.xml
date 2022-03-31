@@ -1,77 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://so1n.me/pait/zh/</loc>
+         <loc>https://so1n.me/pait/</loc>
          <lastmod>2022-03-31</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://so1n.me/pait/zh/1_1_introduction/</loc>
+         <loc>https://so1n.me/pait/1_1_introduction/</loc>
          <lastmod>2022-03-31</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://so1n.me/pait/zh/1_2_how_to_use_field/</loc>
+         <loc>https://so1n.me/pait/1_2_how_to_use_field/</loc>
          <lastmod>2022-03-31</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://so1n.me/pait/zh/1_3_how_to_use_type/</loc>
+         <loc>https://so1n.me/pait/1_3_how_to_use_type/</loc>
          <lastmod>2022-03-31</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://so1n.me/pait/zh/1_4_depend/</loc>
+         <loc>https://so1n.me/pait/1_4_depend/</loc>
          <lastmod>2022-03-31</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://so1n.me/pait/zh/1_5_exception/</loc>
+         <loc>https://so1n.me/pait/1_5_exception/</loc>
          <lastmod>2022-03-31</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://so1n.me/pait/zh/2_pait_multiplexing/</loc>
+         <loc>https://so1n.me/pait/2_pait_multiplexing/</loc>
          <lastmod>2022-03-31</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://so1n.me/pait/zh/3_api_doc/</loc>
+         <loc>https://so1n.me/pait/3_api_doc/</loc>
          <lastmod>2022-03-31</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://so1n.me/pait/zh/4_unit_test_helper/</loc>
+         <loc>https://so1n.me/pait/4_unit_test_helper/</loc>
          <lastmod>2022-03-31</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://so1n.me/pait/zh/5_1_introduction/</loc>
+         <loc>https://so1n.me/pait/5_1_introduction/</loc>
          <lastmod>2022-03-31</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://so1n.me/pait/zh/5_2_param_check_plugin/</loc>
+         <loc>https://so1n.me/pait/5_2_param_check_plugin/</loc>
          <lastmod>2022-03-31</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://so1n.me/pait/zh/5_3_json_response_plugin/</loc>
+         <loc>https://so1n.me/pait/5_3_json_response_plugin/</loc>
          <lastmod>2022-03-31</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://so1n.me/pait/zh/5_4_mock_json_response_check_plugin/</loc>
+         <loc>https://so1n.me/pait/5_4_mock_json_response_check_plugin/</loc>
          <lastmod>2022-03-31</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://so1n.me/pait/zh/5_5_how_tp_customize_the_plugin/</loc>
+         <loc>https://so1n.me/pait/5_5_how_tp_customize_the_plugin/</loc>
          <lastmod>2022-03-31</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://so1n.me/pait/zh/6_other/</loc>
+         <loc>https://so1n.me/pait/6_other/</loc>
          <lastmod>2022-03-31</lastmod>
          <changefreq>daily</changefreq>
     </url>
