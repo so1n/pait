@@ -37,10 +37,10 @@ extra:
     provider: mike
   alternate:
     - name: English
-      link: /en/
+      link: /pait/
       lang: en
     - name: 中文
-      link: /zh/
+      link: /pait-zh-doc/
       lang: zh
   social:
     - icon: fontawesome/brands/github
