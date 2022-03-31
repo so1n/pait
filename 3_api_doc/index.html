@@ -10,6 +10,8 @@
       
       
       
+        <link rel="canonical" href="https://so1n.me/pait/zh/3_api_doc/">
+      
       <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.7">
     
@@ -771,7 +773,7 @@
 <p>此外，<code>add_doc_route</code>函数支持其它参数，具体如下：
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># 把路由注入到app中, 并且以/doc为前缀</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">add_doc_route</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;/doc&#39;</span><span class="p">)</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1"># 通常挂在Nginx后面的应用程序可能无法知道当前请求的scheme是https还是http，可以通过scheme指定请求点scheme </span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1"># 通常挂在Nginx后面的应用程序可能无法知道当前请求的scheme是https还是http，可以通过scheme指定请求点scheme</span>
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">add_doc_route</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">scheme</span><span class="o">=</span><span class="s1">&#39;https&#39;</span><span class="p">)</span>
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="c1"># 通常不适合把接口文档暴露给外面的用户使用，目前支持`pin_code`参数来增加一点点安全性，</span>
 <a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="c1"># 比如如下定义后，只能通过http://127.0.0.1/swagger?pin_code=6666才能成功访问Swagger页面</span>
