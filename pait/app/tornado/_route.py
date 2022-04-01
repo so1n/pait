@@ -1,5 +1,7 @@
+import json
 from abc import ABC
 from typing import Any, Dict, List, Optional
+from urllib.parse import urlencode
 
 from tornado.web import Application, RequestHandler
 
@@ -8,7 +10,9 @@ from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenAPI
 from pait.app.base.doc_route import AddDocRoute as _AddDocRoute
 from pait.field import Depends
+from pait.g import config
 from pait.model.core import PaitCoreModel
+from pait.model.template import TemplateContext
 
 from ._load_app import load_app
 from ._pait import Pait
@@ -38,7 +42,7 @@ class AddDocRoute(_AddDocRoute):
                 )
                 self.finish()
 
-            def _get_open_json_url(self, r_pin_code: str) -> str:
+            def _get_open_json_url(self, r_pin_code: str, url_dict: Dict[str, Any]) -> str:
                 _scheme: str = doc_route_self.scheme or self.request.protocol
                 if doc_route_self.open_json_url_only_path:
                     openapi_json_url: str = f"{'/'.join(self.request.path.split('/')[:-1])}/openapi.json"
@@ -47,33 +51,45 @@ class AddDocRoute(_AddDocRoute):
                         f"{_scheme}://{self.request.host}{'/'.join(self.request.path.split('/')[:-1])}/openapi.json"
                     )
                 if r_pin_code:
-                    openapi_json_url += f"?pin_code={r_pin_code}"
+                    url_dict["pin_code"] = r_pin_code
+                openapi_json_url += "?" + urlencode(url_dict)
                 return openapi_json_url
 
         class GetRedocHtmlHandle(BaseHandle, ABC):
             @doc_pait()
-            async def get(self, r_pin_code: str = Depends.i(doc_route_self._get_request_pin_code)) -> None:
-                self.write(_get_redoc_html(self._get_open_json_url(r_pin_code), doc_route_self.title))
+            async def get(
+                self,
+                r_pin_code: str = Depends.i(doc_route_self._get_request_pin_code),
+                url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
+            ) -> None:
+                self.write(_get_redoc_html(self._get_open_json_url(r_pin_code, url_dict), doc_route_self.title))
 
         class GetSwaggerUiHtmlHandle(BaseHandle, ABC):
             @doc_pait()
-            async def get(self, r_pin_code: str = Depends.i(doc_route_self._get_request_pin_code)) -> None:
-                self.write(_get_swagger_ui_html(self._get_open_json_url(r_pin_code), doc_route_self.title))
+            async def get(
+                self,
+                r_pin_code: str = Depends.i(doc_route_self._get_request_pin_code),
+                url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
+            ) -> None:
+                self.write(_get_swagger_ui_html(self._get_open_json_url(r_pin_code, url_dict), doc_route_self.title))
 
         class OpenApiHandle(BaseHandle, ABC):
             @doc_pait(pre_depend_list=[doc_route_self._get_request_pin_code])
-            async def get(self) -> None:
+            async def get(
+                self, url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map(extra_key=True))
+            ) -> None:
                 pait_dict: Dict[str, PaitCoreModel] = load_app(
                     self.application, project_name=doc_route_self.project_name
                 )
                 _scheme: str = doc_route_self.scheme or self.request.protocol
-                pait_openapi: PaitOpenAPI = PaitOpenAPI(
-                    pait_dict,
-                    title=doc_route_self.title,
-                    open_api_server_list=[{"url": f"{_scheme}://{self.request.host}", "description": ""}],
-                    open_api_tag_list=doc_route_self.open_api_tag_list,
-                )
-                self.write(pait_openapi.open_api_dict)
+                with TemplateContext(url_dict):
+                    pait_openapi: PaitOpenAPI = PaitOpenAPI(
+                        pait_dict,
+                        title=doc_route_self.title,
+                        open_api_server_list=[{"url": f"{_scheme}://{self.request.host}", "description": ""}],
+                        open_api_tag_list=doc_route_self.open_api_tag_list,
+                    )
+                    self.write(json.loads(json.dumps(pait_openapi.open_api_dict, cls=config.json_encoder)))
 
         prefix: str = doc_route_self.prefix
         if not prefix.endswith("/"):

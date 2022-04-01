@@ -5,8 +5,10 @@ from ._lazy_property import LazyProperty
 from ._pydantic_util import create_pydantic_model, get_model_global_name, pait_get_model_name_map, pait_model_schema
 from ._types import is_type, parse_typing
 from ._util import (
+    CustomJSONEncoder,
     Undefined,
     UndefinedType,
+    example_value_handle,
     gen_example_dict_from_pydantic_base_model,
     gen_example_dict_from_schema,
     gen_example_json_from_schema,

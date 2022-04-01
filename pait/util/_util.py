@@ -1,7 +1,7 @@
 import inspect
 import json
 import sys
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
 from json import JSONEncoder
@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from pydantic.fields import Undefined, UndefinedType
 
 from pait.field import BaseField, Depends, is_pait_field
+from pait.model.template import TemplateVar
 
 from ._types import ParseTypeError, parse_typing
 
@@ -42,6 +43,16 @@ python_type_default_value_dict: Dict[type, Any] = {
     datetime: datetime.fromtimestamp(0),
     Decimal: Decimal("0.0"),
 }
+
+
+def example_value_handle(example_value: Any) -> Any:
+    if getattr(example_value, "__call__", None):
+        example_value = example_value()
+    elif isinstance(example_value, Enum):
+        example_value = example_value.value
+    elif isinstance(example_value, TemplateVar):
+        example_value = example_value.get_value_from_template_context()
+    return example_value
 
 
 def get_real_annotation(annotation: Union[Type, str], target_obj: Any) -> Type:
@@ -105,11 +116,7 @@ def gen_example_dict_from_pydantic_base_model(
         if use_example_value:
             example_value: Any = model_field.field_info.extra.get("example", Undefined)
             if not isinstance(example_value, UndefinedType):
-                if getattr(example_value, "__call__", None):
-                    example_value = example_value()
-                elif isinstance(example_value, Enum):
-                    example_value = example_value.value
-                gen_dict[key] = example_value
+                gen_dict[key] = example_value_handle(example_value)
                 continue
 
         if not isinstance(model_field.field_info.default, UndefinedType):
@@ -142,7 +149,6 @@ def gen_example_dict_from_pydantic_base_model(
 def gen_example_dict_from_schema(
     schema_dict: Dict[str, Any],
     definition_dict: Optional[dict] = None,
-    use_example_value: bool = True,
 ) -> Dict[str, Any]:
     gen_dict: Dict[str, Any] = {}
     if "properties" not in schema_dict:
@@ -156,23 +162,15 @@ def gen_example_dict_from_schema(
         if "items" in value and value["type"] == "array":
             if "$ref" in value["items"]:
                 model_key: str = value["items"]["$ref"].split("/")[-1]
-                gen_dict[key] = [
-                    gen_example_dict_from_schema(
-                        _definition_dict.get(model_key, {}), _definition_dict, use_example_value=use_example_value
-                    )
-                ]
+                gen_dict[key] = [gen_example_dict_from_schema(_definition_dict.get(model_key, {}), _definition_dict)]
             else:
                 gen_dict[key] = []
         elif "$ref" in value:
             model_key = value["$ref"].split("/")[-1]
-            gen_dict[key] = gen_example_dict_from_schema(
-                _definition_dict.get(model_key, {}), _definition_dict, use_example_value=use_example_value
-            )
+            gen_dict[key] = gen_example_dict_from_schema(_definition_dict.get(model_key, {}), _definition_dict)
         else:
             if "example" in value:
-                gen_dict[key] = value["example"]
-                if inspect.isfunction(gen_dict[key]):
-                    gen_dict[key] = gen_dict[key]()
+                gen_dict[key] = example_value_handle(value["example"])
             elif "default" in value:
                 gen_dict[key] = value["default"]
             else:
@@ -233,3 +231,22 @@ def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:
             parameter_list.append(parameter)
     setattr(cbv_class, "_parameter_list", parameter_list)
     return parameter_list
+
+
+class CustomJSONEncoder(JSONEncoder):
+    def default(self, obj: Any) -> Any:
+        if isinstance(obj, datetime):
+            return int(obj.timestamp())
+        elif isinstance(obj, date):
+            return obj.strftime("%Y-%m-%d")
+        elif isinstance(obj, Decimal):
+            return float(obj)
+        elif isinstance(obj, Enum):
+            return obj.value
+        elif isinstance(obj, TemplateVar):
+            obj = obj.get_value_from_template_context()
+            if isinstance(obj, UndefinedType):
+                obj = None
+            return obj
+        else:
+            return super().default(obj)

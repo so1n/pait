@@ -39,6 +39,7 @@ from pait.g import config
 from pait.model.config import apply_block_http_method_set
 from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
+from pait.model.template import TemplateVar
 from pait.plugin.at_most_one_of import AtMostOneOfPlugin
 from pait.plugin.required import RequiredPlugin
 
@@ -395,7 +396,9 @@ token_links_Model = LinksModel(LoginRespModel, "$response.body#/data/token", des
 
 
 @link_pait(response_model_list=[SuccessRespModel])
-def get_user_route(token: str = Header.i("", description="token", link=token_links_Model)) -> dict:
+def get_user_route(
+    token: str = Header.i("", description="token", link=token_links_Model, example=TemplateVar("token"))
+) -> dict:
     if token:
         return {"code": 0, "msg": ""}
     else:

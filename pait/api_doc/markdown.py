@@ -36,8 +36,11 @@ class PaitMd(PaitBaseParse):
 
         super().__init__(pait_dict)
 
-        self.content = self.gen_markdown_text()
         self._content_type = ".md"
+
+    @property
+    def content(self) -> str:
+        return self.gen_markdown_text()
 
     @staticmethod
     def gen_md_param_table(field_dict_list: List[FieldSchemaTypeDict], blank_num: int = 8) -> str:

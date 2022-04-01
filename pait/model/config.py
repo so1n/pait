@@ -1,6 +1,3 @@
-from datetime import date, datetime
-from decimal import Decimal
-from enum import Enum
 from json import JSONEncoder
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, Tuple, Type
 
@@ -9,7 +6,7 @@ from pydantic import BaseConfig
 from pait.model.response import PaitBaseResponseModel
 from pait.model.status import PaitStatus
 from pait.plugin.base import PluginManager
-from pait.util import I18nTypedDict, change_local, http_method_tuple
+from pait.util import CustomJSONEncoder, I18nTypedDict, change_local, http_method_tuple
 from pait.util import i18n_config_dict as pait_i18n_config_dict
 from pait.util import i18n_local as pait_i18n_local
 from pait.util import json_type_default_value_dict as pait_json_type_default_value_dict
@@ -85,20 +82,6 @@ def apply_plugin(
             pait_core_model.add_plugin(pre_plugin_manager_list, post_plugin_manager_list)
 
     return _apply
-
-
-class CustomJSONEncoder(JSONEncoder):
-    def default(self, obj: Any) -> Any:
-        if isinstance(obj, datetime):
-            return int(obj.timestamp())
-        elif isinstance(obj, date):
-            return obj.strftime("%Y-%m-%d")
-        elif isinstance(obj, Decimal):
-            return float(obj)
-        elif isinstance(obj, Enum):
-            return obj.value
-        else:
-            return super().default(obj)
 
 
 class Config(object):

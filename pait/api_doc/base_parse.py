@@ -42,8 +42,11 @@ class PaitBaseParse(object):
         self._group_pait_dict: Dict[str, List[PaitCoreModel]] = {}
 
         self._init(pait_dict)
-        self.content: str = ""
         self._content_type: str = ""
+
+    @property
+    def content(self) -> str:
+        return ""
 
     def _init(self, pait_dict: Dict[str, PaitCoreModel]) -> None:
         """read from `pait_id_dict` and write PaitMd attributes"""

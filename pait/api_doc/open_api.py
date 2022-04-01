@@ -113,13 +113,20 @@ class PaitOpenAPI(PaitBaseParse):
         }
         self.parse_data_2_openapi()
         if type_ == "json":
-            self.content = json.dumps(self.open_api_dict, cls=config.json_encoder)
             self._content_type = ".json"
         elif type_ == "yaml":
+            self._content_type = ".yaml"
+
+    @property
+    def content(self) -> str:
+        if self._content_type == ".json":
+            return json.dumps(self.open_api_dict, cls=config.json_encoder)
+        elif self._content_type == ".yaml":
             import yaml  # type: ignore
 
-            self.content = yaml.dump(self.open_api_dict, sort_keys=False)
-            self._content_type = ".yaml"
+            return yaml.dump(self.open_api_dict, sort_keys=False)
+        else:
+            raise TypeError(f"Not support content_type {self._content_type}")
 
     def _replace_pydantic_definitions(self, schema: dict, parent_schema: Optional[dict] = None) -> None:
         """update schemas'definitions to components schemas"""

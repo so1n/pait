@@ -23,6 +23,7 @@ from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginProtocol
 from pait.util import (
     FuncSig,
     create_pydantic_model,
+    example_value_handle,
     gen_tip_exc,
     get_func_sig,
     get_parameter_list_from_class,
@@ -166,10 +167,11 @@ class ParamHandlerMixin(PluginProtocol):
                         parameter.annotation,
                         f"{parameter.name}'s Field.default_factory type must {parameter.annotation}",
                     )
+                example_value: Any = parameter.default.extra.get("example", Undefined)
                 cls.check_field_type(
-                    parameter.default.extra.get("example", Undefined),
+                    example_value_handle(example_value),
                     parameter.annotation,
-                    f"{parameter.name}'s Field.example type must {parameter.annotation}",
+                    f"{parameter.name}'s Field.example type must {parameter.annotation} not {example_value}",
                 )
             except ParseTypeError as e:
                 raise FieldValueTypeException(parameter.name, str(e))

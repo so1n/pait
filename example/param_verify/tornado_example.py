@@ -39,6 +39,7 @@ from pait.exceptions import PaitBaseException, PaitBaseParamException, TipExcept
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
+from pait.model.template import TemplateVar
 from pait.plugin.at_most_one_of import AsyncAtMostOneOfPlugin
 from pait.plugin.required import AsyncRequiredPlugin
 
@@ -447,7 +448,9 @@ token_links_Model = LinksModel(LoginRespModel, "$response.body#/data/token", des
 
 class GetUserHandler(MyHandler):
     @link_pait(response_model_list=[SuccessRespModel])
-    def get(self, token: str = Header.i("", description="token", link=token_links_Model)) -> None:
+    def get(
+        self, token: str = Header.i("", description="token", link=token_links_Model, example=TemplateVar("token"))
+    ) -> None:
         if token:
             self.write({"code": 0, "msg": ""})
         else:

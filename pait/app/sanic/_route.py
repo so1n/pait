@@ -1,5 +1,6 @@
 import json
 from typing import Any, Dict, List, Optional
+from urllib.parse import urlencode
 
 from sanic import response
 from sanic.app import Sanic
@@ -17,6 +18,7 @@ from pait.app.base.doc_route import DocHtmlRespModel, OpenAPIRespModel
 from pait.field import Depends
 from pait.g import config
 from pait.model.core import PaitCoreModel
+from pait.model.template import TemplateContext
 
 from ._load_app import load_app
 from ._pait import Pait
@@ -30,37 +32,47 @@ class AddDocRoute(_AddDocRoute):
     def _gen_route(self, app: Sanic) -> Any:
         doc_pait = self._get_doc_pait(Pait)
 
-        def _get_open_json_url(request: Request, r_pin_code: str) -> str:
+        def _get_open_json_url(request: Request, r_pin_code: str, url_dict: Dict[str, Any]) -> str:
             _scheme: str = self.scheme or request.scheme
             if self.open_json_url_only_path:
                 openapi_json_url: str = f"{'/'.join(request.path.split('/')[:-1])}/openapi.json"
             else:
                 openapi_json_url = f"{_scheme}://{request.host}{'/'.join(request.path.split('/')[:-1])}/openapi.json"
             if r_pin_code:
-                openapi_json_url += f"?pin_code={r_pin_code}"
+                url_dict["pin_code"] = r_pin_code
+            openapi_json_url += "?" + urlencode(url_dict)
             return openapi_json_url
 
         @doc_pait(response_model_list=[DocHtmlRespModel])
-        def get_redoc_html(request: Request, r_pin_code: str = Depends.i(self._get_request_pin_code)) -> HTTPResponse:
-            return response.html(_get_redoc_html(_get_open_json_url(request, r_pin_code), self.title))
+        def get_redoc_html(
+            request: Request,
+            r_pin_code: str = Depends.i(self._get_request_pin_code),
+            url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
+        ) -> HTTPResponse:
+            return response.html(_get_redoc_html(_get_open_json_url(request, r_pin_code, url_dict), self.title))
 
         @doc_pait(response_model_list=[DocHtmlRespModel])
         def get_swagger_ui_html(
-            request: Request, r_pin_code: str = Depends.i(self._get_request_pin_code)
+            request: Request,
+            r_pin_code: str = Depends.i(self._get_request_pin_code),
+            url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
         ) -> HTTPResponse:
-            return response.html(_get_swagger_ui_html(_get_open_json_url(request, r_pin_code), self.title))
+            return response.html(_get_swagger_ui_html(_get_open_json_url(request, r_pin_code, url_dict), self.title))
 
         @doc_pait(pre_depend_list=[self._get_request_pin_code], response_model_list=[OpenAPIRespModel])
-        def openapi_route(request: Request) -> HTTPResponse:
+        def openapi_route(
+            request: Request, url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map(extra_key=True))
+        ) -> HTTPResponse:
             pait_dict: Dict[str, PaitCoreModel] = load_app(request.app, project_name=self.project_name)
             _scheme: str = self.scheme or request.scheme
-            pait_openapi: PaitOpenAPI = PaitOpenAPI(
-                pait_dict,
-                title=self.title,
-                open_api_server_list=[{"url": f"{_scheme}://{request.host}", "description": ""}],
-                open_api_tag_list=self.open_api_tag_list,
-            )
-            return response.json(pait_openapi.open_api_dict, dumps=json.dumps, cls=config.json_encoder)
+            with TemplateContext(url_dict):
+                pait_openapi: PaitOpenAPI = PaitOpenAPI(
+                    pait_dict,
+                    title=self.title,
+                    open_api_server_list=[{"url": f"{_scheme}://{request.host}", "description": ""}],
+                    open_api_tag_list=self.open_api_tag_list,
+                )
+                return response.json(pait_openapi.open_api_dict, dumps=json.dumps, cls=config.json_encoder)
 
         blueprint: Blueprint = Blueprint(self.title, self.prefix)
         blueprint.add_route(get_redoc_html, "/redoc", methods={"GET"})

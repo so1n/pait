@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Callable, Dict, List, Optional, Type
 
 from pydantic import BaseModel
 
@@ -57,6 +57,26 @@ class AddDocRoute(object):
             if r_pin_code != self.pin_code:
                 raise self.not_found_exc
         return r_pin_code
+
+    @staticmethod
+    def _get_request_template_map(extra_key: bool = False) -> Callable:
+        def _get_request_template_map(
+            url_dict: Dict[str, Any] = Query.i(
+                default_factory=dict,
+                raw_return=True,
+                description="Set the template variable, for example, there is a template parameter token, "
+                "then the requested parameter is template-token=xxx",
+            )
+        ) -> dict:
+            template_dict: Dict[str, Any] = {}
+            for k, v in url_dict.items():
+                if k.startswith("template-"):
+                    if extra_key:
+                        k = k.replace("template-", "")
+                    template_dict[k] = v
+            return template_dict
+
+        return _get_request_template_map
 
     @staticmethod
     def _get_doc_pait(pait_class: Type[Pait]) -> Pait:
