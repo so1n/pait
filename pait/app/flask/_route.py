@@ -1,4 +1,3 @@
-import json
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlencode
 
@@ -11,7 +10,6 @@ from pait.api_doc.open_api import PaitOpenAPI
 from pait.app.base.doc_route import AddDocRoute as _AddDocRoute
 from pait.app.base.doc_route import DocHtmlRespModel, OpenAPIRespModel
 from pait.field import Depends
-from pait.g import config
 from pait.model.core import PaitCoreModel
 from pait.model.template import TemplateContext
 
@@ -66,7 +64,7 @@ class AddDocRoute(_AddDocRoute):
                     open_api_server_list=[{"url": f"{_scheme}://{request.host}", "description": ""}],
                     open_api_tag_list=self.open_api_tag_list,
                 )
-                response: Response = make_response(json.dumps(pait_openapi.open_api_dict, cls=config.json_encoder))
+                response: Response = make_response(pait_openapi.content)
                 response.mimetype = "application/json"
             return response
 

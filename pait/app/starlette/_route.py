@@ -1,11 +1,10 @@
-import json
 from typing import Any, Dict, List, Optional, Set
 from urllib.parse import urlencode
 
 from starlette.applications import Starlette
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
-from starlette.responses import HTMLResponse, JSONResponse
+from starlette.responses import HTMLResponse, Response
 from starlette.routing import Mount, Route
 
 from pait.api_doc.html import get_redoc_html as _get_redoc_html
@@ -14,7 +13,6 @@ from pait.api_doc.open_api import PaitOpenAPI
 from pait.app.base.doc_route import AddDocRoute as _AddDocRoute
 from pait.app.base.doc_route import DocHtmlRespModel, OpenAPIRespModel
 from pait.field import Depends
-from pait.g import config
 from pait.model.core import PaitCoreModel
 from pait.model.template import TemplateContext
 
@@ -82,7 +80,7 @@ class AddDocRoute(_AddDocRoute):
         @doc_pait(pre_depend_list=[self._get_request_pin_code], response_model_list=[OpenAPIRespModel])
         def openapi_route(
             request: Request, url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map(extra_key=True))
-        ) -> JSONResponse:
+        ) -> Response:
             pait_dict: Dict[str, PaitCoreModel] = load_app(request.app, project_name=self.project_name)
             _scheme: str = self.scheme or request.url.scheme
             url: str = f"{_scheme}://{request.url.hostname}"
@@ -95,7 +93,7 @@ class AddDocRoute(_AddDocRoute):
                     open_api_server_list=[{"url": url, "description": ""}],
                     open_api_tag_list=self.open_api_tag_list,
                 )
-                return JSONResponse(json.loads(json.dumps(pait_openapi.open_api_dict, cls=config.json_encoder)))
+                return Response(pait_openapi.content, media_type="application/json")
 
         route: Mount = Mount(
             self.prefix,

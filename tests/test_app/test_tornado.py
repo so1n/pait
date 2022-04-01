@@ -384,6 +384,12 @@ class TestTornado(AsyncHTTPTestCase):
             self.get_url("/openapi.json?pin_code=6666"), "Pait Api Doc(private)"
         )
         assert (
+            json.loads(self.fetch("/openapi.json?pin_code=6666&template-token=xxx").body.decode())["paths"][
+                "/api/user"
+            ]["get"]["parameters"][0]["schema"]["example"]
+            == "xxx"
+        )
+        assert (
             difflib.SequenceMatcher(
                 None,
                 str(json.loads(self.fetch("/openapi.json?pin_code=6666").body.decode())),

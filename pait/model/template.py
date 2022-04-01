@@ -26,5 +26,8 @@ class TemplateVar(object):
         self._name: str = name
         self._default_value: Any = default_value
 
+    def __call__(self) -> Any:
+        return self.get_value_from_template_context()
+
     def get_value_from_template_context(self) -> Any:
         return TEMPLATE_CONTEXT.get().get(self._name, self._default_value)

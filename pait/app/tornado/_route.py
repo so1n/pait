@@ -1,4 +1,3 @@
-import json
 from abc import ABC
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlencode
@@ -10,7 +9,6 @@ from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenAPI
 from pait.app.base.doc_route import AddDocRoute as _AddDocRoute
 from pait.field import Depends
-from pait.g import config
 from pait.model.core import PaitCoreModel
 from pait.model.template import TemplateContext
 
@@ -33,14 +31,21 @@ class AddDocRoute(_AddDocRoute):
 
         class BaseHandle(RequestHandler, ABC):
             def _handle_request_exception(self, exc: BaseException) -> None:
-                self.set_status(404)
-                self.write(
-                    (
-                        "The requested URL was not found on the server. If you entered"
-                        " the URL manually please check your spelling and try again."
+                if isinstance(exc, NotFound):
+                    self.set_status(404)
+                    self.write(
+                        (
+                            "The requested URL was not found on the server. If you entered"
+                            " the URL manually please check your spelling and try again."
+                        )
                     )
-                )
-                self.finish()
+                    self.finish()
+                else:
+                    import traceback
+
+                    print(traceback.format_exc())
+                    self.set_status(500)
+                    self.finish()
 
             def _get_open_json_url(self, r_pin_code: str, url_dict: Dict[str, Any]) -> str:
                 _scheme: str = doc_route_self.scheme or self.request.protocol
@@ -89,7 +94,8 @@ class AddDocRoute(_AddDocRoute):
                         open_api_server_list=[{"url": f"{_scheme}://{self.request.host}", "description": ""}],
                         open_api_tag_list=doc_route_self.open_api_tag_list,
                     )
-                    self.write(json.loads(json.dumps(pait_openapi.open_api_dict, cls=config.json_encoder)))
+                    self.set_header("Content-Type", "application/json; charset=UTF-8")
+                    self.write(pait_openapi.content)
 
         prefix: str = doc_route_self.prefix
         if not prefix.endswith("/"):

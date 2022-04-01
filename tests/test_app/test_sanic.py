@@ -1,4 +1,5 @@
 import difflib
+import json
 import sys
 from tempfile import NamedTemporaryFile
 from typing import Callable, Generator, Type
@@ -337,6 +338,12 @@ class TestSanic:
         )
         assert client.get("/redoc?pin_code=6666")[1].text == get_redoc_html(
             f"http://{client.host}:{client.port}/openapi.json?pin_code=6666", "Pait Api Doc(private)"
+        )
+        assert (
+            json.loads(client.get("/openapi.json?pin_code=6666&template-token=xxx")[1].text)["paths"]["/api/user"][
+                "get"
+            ]["parameters"][0]["schema"]["example"]
+            == "xxx"
         )
         assert (
             difflib.SequenceMatcher(
