@@ -202,6 +202,7 @@ class BaseTestHelper(Generic[RESP_T]):
                     real_response_model = response_model
                 try:
                     response_data_model(**resp_dict)
+                    # like Basemodel.config.extra = forbid
                     if self.strict_inspection_check_json_content and not self._check_diff_resp_dict(
                         resp_dict, response_data_default_dict
                     ):
