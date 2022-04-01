@@ -35,11 +35,13 @@ class JsonRespPluginProtocolMixin(PluginProtocol):
         self.check_resp_fn: Callable = check_resp_fn
 
     @classmethod
-    def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
-        kwargs = super().cls_hook_by_core_model(pait_core_model, kwargs)
+    def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
+        super().pre_check_hook(pait_core_model, kwargs)
         if "check_resp_fn" in kwargs:
             raise RuntimeError("Please use response_model_list param")
 
+    @classmethod
+    def pre_load_hook(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
         pait_response_model: Type[PaitBaseResponseModel] = get_pait_response_model(
             pait_core_model.response_model_list, find_core_response_model=True
         )

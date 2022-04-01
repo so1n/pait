@@ -1,6 +1,7 @@
 import copy
 import inspect
 import logging
+import os
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
 
 from pydantic import BaseConfig
@@ -12,6 +13,8 @@ from pait.plugin import PluginManager
 
 if TYPE_CHECKING:
     from pait.app.base import BaseAppHelper
+
+ignore_pre_check: bool = bool(os.environ.get("IGNORE_PRE_CHECK", False))
 
 
 class PaitCoreModel(object):
@@ -73,7 +76,7 @@ class PaitCoreModel(object):
             self._param_handler_plugin: PluginManager = PluginManager(AsyncParamHandler)
         else:
             self._param_handler_plugin = PluginManager(ParamHandler)
-        self._param_handler_plugin.cls_hook_by_core_model(self)
+        self._param_handler_plugin.pre_load_hook(self)
         self.add_plugin(plugin_list, post_plugin_list)
 
     @property
@@ -141,13 +144,17 @@ class PaitCoreModel(object):
             for plugin_manager in plugin_list or []:
                 if not plugin_manager.plugin_class.is_pre_core:
                     raise ValueError(f"{plugin_manager.plugin_class} is post plugin")
-                plugin_manager.cls_hook_by_core_model(self)
+                if ignore_pre_check:
+                    plugin_manager.pre_check_hook(self)
+                plugin_manager.pre_load_hook(self)
                 self._plugin_list.append(plugin_manager)
 
             for plugin_manager in post_plugin_list or []:
                 if plugin_manager.plugin_class.is_pre_core:
                     raise ValueError(f"{plugin_manager.plugin_class} is pre plugin")
-                plugin_manager.cls_hook_by_core_model(self)
+                if ignore_pre_check:
+                    plugin_manager.pre_check_hook(self)
+                plugin_manager.pre_load_hook(self)
                 self._post_plugin_list.append(plugin_manager)
         except Exception as e:
             self._plugin_list = raw_plugin_list

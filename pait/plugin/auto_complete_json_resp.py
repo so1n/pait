@@ -19,10 +19,13 @@ class AutoCompleteJsonRespPluginProtocolMixin(PluginProtocol):
                 source_dict[key] = target_dict.get(key, value)
 
     @classmethod
-    def cls_hook_by_core_model(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
-        super().cls_hook_by_core_model(pait_core_model, kwargs)
+    def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
+        super().pre_check_hook(pait_core_model, kwargs)
         if "pait_response_model" in kwargs:
             raise RuntimeError("Please use response_model_list param")
+
+    @classmethod
+    def pre_load_hook(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
         pait_response_model: Type[PaitBaseResponseModel] = get_pait_response_model(
             pait_core_model.response_model_list, find_core_response_model=True
         )

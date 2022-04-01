@@ -54,10 +54,10 @@ class DemoExceptionPlugin(BaseAsyncPlugin):
     is_pre_core: bool = True
 
     @classmethod
-    def cls_hook_by_core_model(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
+    def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         if pait_core_model.func.__name__ != "demo":
             raise RuntimeError(f"The {cls.__name__} is only used for demo func")
-        return super().cls_hook_by_core_model(pait_core_model, kwargs)
+        return super().pre_load_hook(pait_core_model, kwargs)
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
         try:
@@ -69,7 +69,7 @@ class DemoExceptionPlugin(BaseAsyncPlugin):
 
 - 0.由于该路由函数是`async`的，所以该函数只能被基于`BaseAsyncPlugin`插件挂载。
 - 1.第9行的`is_pre_core = True`是设置该插件为前置插件，这样就能拦截`Pait`和路由函数的异常了。
-- 2.第12行的`cls_hook_by_core_model`方法会进行一些初始化的检查，该检查只会在初始化的时候运行，这个检查的逻辑是如果判定该插件并不是挂在`demo`函数上就会抛错，
+- 2.第12行的`pre_load_hook`方法会进行一些初始化的检查，该检查只会在初始化的时候运行，这个检查的逻辑是如果判定该插件并不是挂在`demo`函数上就会抛错，
 其中`pait_core_model`是`Pait`为路由函数生成的一些属性。
 - 3.第17行的`__call__`方法是该插件的主要处理逻辑，当有请求进来时，`Pait`会通过`__call__`方法调用插件，插件可以通过`call_next`来调用下一个插件，
 该插件通过`try...except`来捕获后续所有调用段异常，如果是符合条件的异常就会被捕获，并生成不一样的响应结果。

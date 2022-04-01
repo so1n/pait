@@ -78,7 +78,7 @@ class TestPlugin:
             AsyncCheckJsonRespPlugin,
         ]:
             with pytest.raises(TypeError) as e:
-                test_plugin.cls_hook_by_core_model(  # type: ignore
+                test_plugin.pre_check_hook(  # type: ignore
                     PaitCoreModel(
                         demo,
                         BaseAppHelper,
@@ -101,7 +101,7 @@ class TestPlugin:
             CheckJsonRespPlugin,
         ]:
             with pytest.raises(TypeError) as e:
-                plugin.cls_hook_by_core_model(  # type: ignore
+                plugin.pre_check_hook(  # type: ignore
                     PaitCoreModel(
                         demo,
                         BaseAppHelper,
@@ -119,7 +119,7 @@ class TestJsonPlugin:
             pass
 
         with pytest.raises(RuntimeError) as e:
-            CheckJsonRespPlugin.cls_hook_by_core_model(
+            CheckJsonRespPlugin.pre_check_hook(
                 PaitCoreModel(
                     demo,
                     BaseAppHelper,
@@ -138,7 +138,7 @@ class TestJsonPlugin:
             pass
 
         with pytest.raises(ValueError) as e:
-            CheckJsonRespPlugin.cls_hook_by_core_model(
+            CheckJsonRespPlugin.pre_load_hook(
                 PaitCoreModel(demo, BaseAppHelper, response_model_list=[DemoCoreTestResponseModel]), {}
             )
 
@@ -153,7 +153,7 @@ class TestJsonPlugin:
             pass
 
         with pytest.raises(ValueError) as e:
-            CheckJsonRespPlugin.cls_hook_by_core_model(
+            CheckJsonRespPlugin.pre_load_hook(
                 PaitCoreModel(demo, BaseAppHelper, response_model_list=[DemoCoreJsonResponseModel]), {}
             )
 
@@ -168,7 +168,7 @@ class TestJsonPlugin:
             pass
 
         with pytest.raises(ValueError) as e:
-            CheckJsonRespPlugin.cls_hook_by_core_model(
+            CheckJsonRespPlugin.pre_load_hook(
                 PaitCoreModel(demo, BaseAppHelper, response_model_list=[DemoCoreJsonResponseModel]), {}
             )
 
@@ -182,7 +182,7 @@ class TestAutoCompleteJsonPlugin:
             pass
 
         with pytest.raises(RuntimeError) as e:
-            AutoCompleteJsonRespPlugin.cls_hook_by_core_model(
+            AutoCompleteJsonRespPlugin.pre_check_hook(
                 PaitCoreModel(
                     demo,
                     BaseAppHelper,
@@ -201,7 +201,7 @@ class TestAutoCompleteJsonPlugin:
             pass
 
         with pytest.raises(ValueError) as e:
-            AutoCompleteJsonRespPlugin.cls_hook_by_core_model(
+            AutoCompleteJsonRespPlugin.pre_load_hook(
                 PaitCoreModel(demo, BaseAppHelper, response_model_list=[DemoCoreTestResponseModel]), {}
             )
 
@@ -215,7 +215,7 @@ class TestMockPlugin:
             pass
 
         with pytest.raises(RuntimeError) as e:
-            BaseMockPlugin.cls_hook_by_core_model(
+            BaseMockPlugin.pre_check_hook(
                 PaitCoreModel(
                     demo,
                     BaseAppHelper,
@@ -231,7 +231,7 @@ class TestMockPlugin:
             pass
 
         with pytest.raises(RuntimeError) as e:
-            BaseMockPlugin.cls_hook_by_core_model(
+            BaseMockPlugin.pre_check_hook(
                 PaitCoreModel(demo, BaseAppHelper, response_model_list=[response.PaitJsonResponseModel]),
                 {"pait_response_model": ""},
             )
@@ -249,7 +249,7 @@ class TestMockPlugin:
             else:
                 return False
 
-        kwargs: dict = BaseMockPlugin.cls_hook_by_core_model(
+        kwargs: dict = BaseMockPlugin.pre_load_hook(
             PaitCoreModel(
                 demo,
                 BaseAppHelper,
@@ -263,7 +263,7 @@ class TestMockPlugin:
         def demo() -> None:
             pass
 
-        kwargs: dict = BaseMockPlugin.cls_hook_by_core_model(
+        kwargs: dict = BaseMockPlugin.pre_load_hook(
             PaitCoreModel(
                 demo,
                 BaseAppHelper,
@@ -280,7 +280,7 @@ class TestParamPlugin:
             pass
 
         with pytest.raises(TipException) as e:
-            ParamHandler.cls_hook_by_core_model(
+            ParamHandler.pre_check_hook(
                 PaitCoreModel(
                     demo,
                     BaseAppHelper,
@@ -297,7 +297,7 @@ class TestParamPlugin:
             pass
 
         with pytest.raises(TipException) as e:
-            ParamHandler.cls_hook_by_core_model(
+            ParamHandler.pre_check_hook(
                 PaitCoreModel(
                     demo,
                     BaseAppHelper,
@@ -314,7 +314,7 @@ class TestParamPlugin:
             pass
 
         with pytest.raises(TipException) as e:
-            ParamHandler.cls_hook_by_core_model(
+            ParamHandler.pre_check_hook(
                 PaitCoreModel(
                     demo,
                     BaseAppHelper,
@@ -330,7 +330,7 @@ class TestParamPlugin:
             pass
 
         with pytest.raises(TipException) as e:
-            ParamHandler.cls_hook_by_core_model(
+            ParamHandler.pre_check_hook(
                 PaitCoreModel(
                     demo1,
                     BaseAppHelper,

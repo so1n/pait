@@ -202,7 +202,7 @@ class ParamHandlerMixin(PluginProtocol):
                 raise gen_tip_exc(_object, e, parameter)
 
     @classmethod
-    def cls_hook_by_core_model(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
+    def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
         # check param from pre depend
         for pre_depend in pait_core_model.pre_depend_list:
             cls.check_depend_handle(pre_depend)
@@ -214,7 +214,6 @@ class ParamHandlerMixin(PluginProtocol):
         # TODO support cbv class Attribute
         # I don't know how to get the class of the decorated function at the initialization of the decorator,
         # which may be an unattainable requirement
-        return kwargs
 
     def _set_parameter_value_to_args(self, parameter: inspect.Parameter, func_args: list) -> bool:
         """Extract the self parameter of the cbv handler,

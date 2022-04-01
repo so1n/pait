@@ -15,12 +15,15 @@ class MockPluginInitProtocolMixin(PluginProtocol):
         super().__init__(**kwargs)
 
     @classmethod
-    def cls_hook_by_core_model(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
-        super().cls_hook_by_core_model(pait_core_model, kwargs)
+    def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
+        super().pre_check_hook(pait_core_model, kwargs)
         if not pait_core_model.response_model_list:
             raise RuntimeError(f"{pait_core_model.func} can not found response model")
         if "pait_response_model" in kwargs:
             raise RuntimeError("Please use response_model_list param")
+
+    @classmethod
+    def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         pait_response: Optional[Type[PaitBaseResponseModel]] = None
         enable_mock_response_filter_fn: Optional[Callable] = kwargs.pop("enable_mock_response_filter_fn", None)
         if enable_mock_response_filter_fn and pait_core_model.response_model_list:
@@ -45,8 +48,18 @@ class MockPluginInitProtocolMixin(PluginProtocol):
         return self.mock_response()
 
     @classmethod
-    def build(cls) -> "PluginManager":  # type: ignore
-        return PluginManager(cls)  # type: ignore
+    def build(  # type: ignore
+        cls,  # type: ignore
+        enable_mock_response_filter_fn: Optional[Callable] = None,  # type: ignore
+        target_pait_response_class: Optional[Type["PaitBaseResponseModel"]] = None,  # type: ignore
+        find_core_response_model: bool = False,  # type: ignore
+    ) -> "PluginManager":  # type: ignore
+        return PluginManager(
+            cls,  # type: ignore
+            enable_mock_response_filter_fn=enable_mock_response_filter_fn,
+            target_pait_response_class=target_pait_response_class,
+            find_core_response_model=find_core_response_model,
+        )
 
 
 class BaseMockPlugin(MockPluginInitProtocolMixin, BasePlugin, ABC):
