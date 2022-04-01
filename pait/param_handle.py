@@ -407,7 +407,7 @@ class AsyncParamHandler(ParamHandlerMixin, BaseAsyncPlugin):
         kwargs_param_dict: Dict[str, Any] = {}
         single_field_dict: Dict["inspect.Parameter", Any] = {}
 
-        for parameter in param_list:
+        async def _param_handle(parameter: inspect.Parameter) -> None:
             try:
                 if parameter.default != parameter.empty:
                     # kwargs param
@@ -423,8 +423,11 @@ class AsyncParamHandler(ParamHandlerMixin, BaseAsyncPlugin):
                     # args param
                     # support model: model: ModelType
                     await self.set_parameter_value_to_args(_object, parameter, args_param_list)
-            except PaitBaseException as e:
-                raise gen_tip_exc(_object, e, parameter)
+            except PaitBaseException as closer_e:
+                raise gen_tip_exc(_object, closer_e, parameter)
+
+        if param_list:
+            await asyncio.gather(*[_param_handle(parameter) for parameter in param_list])
         # support field: def demo(demo_param: int = pait.field.BaseField())
         if single_field_dict:
             try:
@@ -462,8 +465,8 @@ class AsyncParamHandler(ParamHandlerMixin, BaseAsyncPlugin):
 
     async def _gen_param(self) -> None:
         # check param from pre depend
-        for pre_depend in self.pre_depend_list:
-            await self._depend_handle(pre_depend)
+        if self.pre_depend_list:
+            await asyncio.gather(*[self._depend_handle(pre_depend) for pre_depend in self.pre_depend_list])
 
         # gen and check param from func
         func_sig: FuncSig = get_func_sig(self.pait_core_model.func)
@@ -490,7 +493,8 @@ class AsyncParamHandler(ParamHandlerMixin, BaseAsyncPlugin):
         self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[TracebackType]
     ) -> Optional[bool]:
         exc_list: List[Exception] = []
-        for contextmanager in self._contextmanager_list:
+
+        async def _aexit(contextmanager: Union[AbstractAsyncContextManager, AbstractContextManager]) -> None:
             try:
                 if isinstance(contextmanager, AbstractContextManager):
                     contextmanager.__exit__(exc_type, exc_val, exc_tb)
@@ -501,6 +505,8 @@ class AsyncParamHandler(ParamHandlerMixin, BaseAsyncPlugin):
             else:
                 if exc_type and issubclass(exc_type, Exception):
                     exc_list.append(exc_type(exc_val).with_traceback(exc_tb))
+
+        await asyncio.gather(*[_aexit(contextmanager) for contextmanager in self._contextmanager_list])
         if exc_list:
             raise_multiple_exc(exc_list)
             return True
