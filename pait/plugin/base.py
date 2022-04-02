@@ -69,7 +69,7 @@ class PluginManager(object):
         self._kwargs: Any = kwargs
 
     def pre_check_hook(self, pait_core_model: "PaitCoreModel") -> None:
-        self._kwargs = self.plugin_class.pre_check_hook(pait_core_model, self._kwargs)
+        self.plugin_class.pre_check_hook(pait_core_model, self._kwargs)
 
     def pre_load_hook(self, pait_core_model: "PaitCoreModel") -> None:
         self._kwargs = self.plugin_class.pre_load_hook(pait_core_model, self._kwargs)

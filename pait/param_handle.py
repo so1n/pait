@@ -1,5 +1,4 @@
 import asyncio
-import copy
 import inspect
 import logging
 from contextlib import AbstractAsyncContextManager, AbstractContextManager
@@ -28,6 +27,7 @@ from pait.util import (
     get_func_sig,
     get_parameter_list_from_class,
     get_parameter_list_from_pydantic_basemodel,
+    ignore_pre_check,
 )
 
 if TYPE_CHECKING:
@@ -62,10 +62,7 @@ def parameter_2_dict(
     for parameter, value in parameter_value_dict.items():
         param_field = parameter.default
         class_name = parameter.name
-        if isinstance(parameter.default, BaseField) and parameter.default.alias:
-            value_key: str = parameter.default.alias
-        else:
-            value_key = parameter.name
+        value_key = parameter.default.request_key
         if value_key in key_set:
             yield create_pydantic_model(annotation_dict, pydantic_config=pydantic_config)(**param_value_dict).__dict__
             key_set = set()
@@ -78,32 +75,6 @@ def parameter_2_dict(
     yield create_pydantic_model(annotation_dict, pydantic_config=pydantic_config)(**param_value_dict).__dict__
 
 
-def parameter_2_basemodel(
-    parameter_value_dict: Dict["inspect.Parameter", Any],
-    pydantic_config: Type[BaseConfig],
-    use_pydantic_base_model_alias: bool = False,
-) -> BaseModel:
-    """Convert all parameters into pydantic mods"""
-    annotation_dict: Dict[str, Tuple[Type, Any]] = {}
-    param_value_dict: Dict[str, Any] = {}
-    for parameter, value in parameter_value_dict.items():
-        if isinstance(parameter.default, BaseField) and parameter.default.alias:
-            # Resolve
-            #   the key mismatch between Field.alias and request value
-            #   different Fields but same alias
-            param_field: field.BaseField = copy.deepcopy(parameter.default)
-            # Note: pydantic not check field.default value when config.validate_all = False
-            # See issue: https://github.com/samuelcolvin/pydantic/issues/1280
-            param_field.default = value
-            base_model_key: str = parameter.default.alias if use_pydantic_base_model_alias else parameter.name
-        else:
-            param_field = parameter.default
-            base_model_key = parameter.name
-            param_value_dict[base_model_key] = value
-        annotation_dict[base_model_key] = (parameter.annotation, param_field)
-    return create_pydantic_model(annotation_dict, pydantic_config=pydantic_config)(**param_value_dict)
-
-
 class ParamHandlerMixin(PluginProtocol):
     def __post_init__(self, pait_core_model: "PaitCoreModel", args: tuple, kwargs: dict) -> None:
         super(ParamHandlerMixin, self).__post_init__(pait_core_model, args, kwargs)
@@ -114,18 +85,15 @@ class ParamHandlerMixin(PluginProtocol):
         if self.args and self.args[0].__class__.__name__ in self.pait_core_model.func.__qualname__:
             self.cbv_instance = self.args[0]
             self.cbv_type = self.cbv_instance.__class__
-        # else:
-        #     cbv_type = getattr(inspect.getmodule(func), func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0])
+            self.cbv_param_list: List["inspect.Parameter"] = get_parameter_list_from_class(self.cbv_type)
+        else:
+            self.cbv_param_list = []
+            # cbv_type = getattr(inspect.getmodule(func), func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0])
 
         self._app_helper: BaseAppHelper = pait_core_model.app_helper_class(self.cbv_instance, self.args, self.kwargs)
 
         self.pre_depend_list: List[Callable] = pait_core_model.pre_depend_list
         self.pydantic_model_config: Type[BaseConfig] = pait_core_model.pydantic_model_config
-
-        if self.cbv_type:
-            self.cbv_param_list: List["inspect.Parameter"] = get_parameter_list_from_class(self.cbv_type)
-        else:
-            self.cbv_param_list = []
 
     @classmethod
     def check_depend_handle(cls, func: Callable) -> Any:
@@ -151,28 +119,31 @@ class ParamHandlerMixin(PluginProtocol):
         if isinstance(parameter.default, field.Depends):
             cls.check_depend_handle(parameter.default.func)
         elif isinstance(parameter.default, field.BaseField):
-            if parameter.default.alias and not isinstance(parameter.default.alias, str):
-                raise FieldValueTypeException(parameter.name, f"{parameter.name}'s Field.alias type must str")
-            try:
-                cls.check_field_type(
-                    parameter.default.default,
-                    parameter.annotation,
-                    f"{parameter.name}'s Field.default type must {parameter.annotation}",
-                )
-                if parameter.default.default_factory:
+            if not parameter.default.alias:
+                parameter.default.request_key = parameter.name
+            if not ignore_pre_check:
+                if parameter.default.alias and not isinstance(parameter.default.alias, str):
+                    raise FieldValueTypeException(parameter.name, f"{parameter.name}'s Field.alias type must str")
+                try:
                     cls.check_field_type(
-                        parameter.default.default_factory(),
+                        parameter.default.default,
                         parameter.annotation,
-                        f"{parameter.name}'s Field.default_factory type must {parameter.annotation}",
+                        f"{parameter.name}'s Field.default type must {parameter.annotation}",
                     )
-                example_value: Any = parameter.default.extra.get("example", Undefined)
-                cls.check_field_type(
-                    example_value_handle(example_value),
-                    parameter.annotation,
-                    f"{parameter.name}'s Field.example type must {parameter.annotation} not {example_value}",
-                )
-            except ParseTypeError as e:
-                raise FieldValueTypeException(parameter.name, str(e))
+                    if parameter.default.default_factory:
+                        cls.check_field_type(
+                            parameter.default.default_factory(),
+                            parameter.annotation,
+                            f"{parameter.name}'s Field.default_factory type must {parameter.annotation}",
+                        )
+                    example_value: Any = parameter.default.extra.get("example", Undefined)
+                    cls.check_field_type(
+                        example_value_handle(example_value),
+                        parameter.annotation,
+                        f"{parameter.name}'s Field.example type must {parameter.annotation} not {example_value}",
+                    )
+                except ParseTypeError as e:
+                    raise FieldValueTypeException(parameter.name, str(e))
         else:
             raise NotFoundFieldException(parameter.name, f"{parameter.name}'s Field not found")
 
@@ -202,18 +173,29 @@ class ParamHandlerMixin(PluginProtocol):
                 raise gen_tip_exc(_object, e, parameter)
 
     @classmethod
-    def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
-        # check param from pre depend
+    def pre_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
+        # check and load param from pre depend
         for pre_depend in pait_core_model.pre_depend_list:
             cls.check_depend_handle(pre_depend)
 
-        # check param from func
+        # check and load param from func
         func_sig: FuncSig = get_func_sig(pait_core_model.func)
         cls.check_param_field_handle(func_sig, func_sig.param_list)
 
         # TODO support cbv class Attribute
         # I don't know how to get the class of the decorated function at the initialization of the decorator,
         # which may be an unattainable requirement
+
+    @classmethod
+    def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
+        if ignore_pre_check:
+            # pre_check has helped to do the same task as pre_load
+            cls.pre_hook(pait_core_model, kwargs)
+        return kwargs
+
+    @classmethod
+    def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
+        cls.pre_hook(pait_core_model, kwargs)
 
     def _set_parameter_value_to_args(self, parameter: inspect.Parameter, func_args: list) -> bool:
         """Extract the self parameter of the cbv handler,
@@ -243,34 +225,18 @@ class ParamHandlerMixin(PluginProtocol):
         pait_field: BaseField = parameter.default
         annotation: Type[BaseModel] = parameter.annotation
 
-        if not isinstance(pait_field, BaseField):
-            # not support
-            # raise PaitBaseException(f"must use {BaseField.__class__.__name__}, no {param_value}")
-            return  # pragma: no cover
         # some type like dict, but not isinstance Mapping, e.g: werkzeug.datastructures.EnvironHeaders
-        elif getattr(request_value, "get", None):
-            if not pait_field.raw_return:
-                # The code execution effect should be consistent with the generated documentation, no diversity
-                # so remove code:
-                #   > if type(param_value.alias) is str and param_value.alias in request_value:
-                if pait_field.alias:
-                    request_value_key: str = pait_field.alias
-                else:
-                    request_value_key = parameter.name
-                request_value = request_value.get(request_value_key, pait_field.default)
-                if isinstance(request_value, UndefinedType):
-                    if pait_field.default_factory:
-                        request_value = pait_field.default_factory()
-                    else:
-                        raise NotFoundValueException(parameter.name, f"Can not found {parameter.name} value")
+        # assert getattr(request_value, "get", None), f"{parameter.name}'s request value must like dict"
+        if not pait_field.raw_return:
+            request_value = pait_field.request_value_handle(request_value)
+            if request_value is Undefined:
+                raise NotFoundValueException(parameter.name, f"Can not found {parameter.name} value")
 
-            if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
-                # parse annotation is pydantic.BaseModel and base_model_dict not None
-                base_model_dict[parameter.name] = annotation(**request_value)
-            else:
-                # parse annotation is python type and pydantic.field
-                parameter_value_dict[parameter] = request_value
+        if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
+            # parse annotation is pydantic.BaseModel and base_model_dict not None
+            base_model_dict[parameter.name] = annotation(**request_value)
         else:
+            # parse annotation is python type and pydantic.field
             parameter_value_dict[parameter] = request_value
 
     def get_request_value_from_parameter(self, parameter: inspect.Parameter) -> Union[Any, Coroutine]:

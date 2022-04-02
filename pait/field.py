@@ -1,5 +1,5 @@
 from dataclasses import MISSING
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Mapping, Optional
 
 from pydantic.fields import FieldInfo, Undefined
 from pydantic.typing import NoArgAnyCallable
@@ -41,6 +41,17 @@ class BaseField(FieldInfo):
     ):
         if self.__class__.__mro__[2] != FieldInfo:
             raise RuntimeError("Only classes that inherit BaseField can be used")
+
+        # Same checks as pydantic, checked in advance here
+        if default is not Undefined and default_factory is not None:
+            raise ValueError("cannot specify both default and default_factory")
+
+        # Reduce runtime judgments by preloading
+        if default is not Undefined:
+            self.request_value_handle = self.request_value_handle_by_default  # type: ignore
+        elif default_factory is not None:
+            self.request_value_handle = self.request_value_handle_by_default_factory  # type: ignore
+
         self.raw_return = raw_return
         if example is not MISSING:
             extra["example"] = example
@@ -50,6 +61,8 @@ class BaseField(FieldInfo):
         self.link: "Optional[LinksModel]" = link
 
         self.media_type = media_type or self.__class__.media_type
+        # if not alias, pait will set the key name to request_key in the preload phase
+        self.request_key: Optional[str] = alias
         self.openapi_serialization = openapi_serialization or self.__class__.openapi_serialization
         super().__init__(
             default,
@@ -70,6 +83,15 @@ class BaseField(FieldInfo):
             regex=regex,
             **extra,
         )
+
+    def request_value_handle(self, request_value: Mapping) -> Any:
+        return request_value.get(self.request_key, Undefined)
+
+    def request_value_handle_by_default(self, request_value: Mapping) -> Any:
+        return request_value.get(self.request_key, self.default)
+
+    def request_value_handle_by_default_factory(self, request_value: Mapping) -> Any:
+        return request_value.get(self.request_key, self.default_factory())
 
     @classmethod
     def get_field_name(cls) -> str:

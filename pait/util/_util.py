@@ -1,5 +1,6 @@
 import inspect
 import json
+import os
 import sys
 from datetime import date, datetime
 from decimal import Decimal
@@ -18,6 +19,7 @@ from ._types import ParseTypeError, parse_typing
 if TYPE_CHECKING:
     from pait.model.response import PaitBaseResponseModel
 
+ignore_pre_check: bool = bool(os.environ.get("IGNORE_PRE_CHECK", False))
 http_method_tuple: Tuple[str, ...] = ("get", "post", "head", "options", "delete", "put", "trace", "patch")
 
 json_type_default_value_dict: Dict[str, Any] = {
