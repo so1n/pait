@@ -203,8 +203,9 @@ class ParamHandlerMixin(PluginProtocol):
         and check if there are any other parameters that do not meet the conditions
         """
         if self.cbv_instance and not func_args:
-            # first parma must self param
-            func_args.append(self._app_helper.cbv_instance)
+            if parameter.annotation == parameter.empty:
+                # first parma must self param, looking forward to the appearance of `self type
+                func_args.append(self._app_helper.cbv_instance)
         elif self._app_helper.check_request_type(parameter.annotation):
             # support request param(def handle(request: Request))
             func_args.append(self._app_helper.request)
