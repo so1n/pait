@@ -40,8 +40,8 @@ class PaitCoreModel(object):
         # pait
         self.app_helper_class: "Type[BaseAppHelper]" = app_helper_class
         self.func: Callable = func  # route func
-        self.qualname: str = func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0]
-        self.pait_id: str = f"{self.qualname}_{id(func)}"
+        # self.qualname: str = func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0]
+        self.pait_id: str = f"{func.__qualname__}_{self.func_md5}"
         setattr(func, "_pait_id", self.pait_id)
         setattr(func, "pait_core_model", self)
         self.pre_depend_list: List[Callable] = pre_depend_list or []
@@ -78,6 +78,14 @@ class PaitCoreModel(object):
             self._param_handler_plugin.pre_check_hook(self)
         self._param_handler_plugin.pre_load_hook(self)
         self.add_plugin(plugin_list, post_plugin_list)
+
+    @property
+    def func_md5(self) -> str:
+        from hashlib import md5
+
+        h = md5()
+        h.update(self.func.__code__.co_code)  # type: ignore
+        return h.hexdigest()
 
     @property
     def method_list(self) -> List[str]:

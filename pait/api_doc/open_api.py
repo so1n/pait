@@ -392,10 +392,11 @@ class PaitOpenAPI(PaitBaseParse):
                     openapi_method_dict["operationId"] = f"{method}.{pait_model.operation_id}"
 
                     # Not an openapi standard parameter
-                    openapi_method_dict["pait_info"] = {
+                    openapi_method_dict["pai_info"] = {
                         "group": group,
-                        "pait_status": pait_model.status.value,
+                        "status": pait_model.status.value,
                         "author": pait_model.author,
+                        "md5": pait_model.func_md5,
                     }
 
                     all_field_dict: FieldDictType = self._parse_pait_model_to_field_dict(pait_model)
