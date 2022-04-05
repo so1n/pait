@@ -4,8 +4,8 @@ from example.param_verify.flask_example import create_app
 from pait.api_doc.markdown import PaitMd
 from pait.api_doc.open_api import PaitOpenAPI
 from pait.app import load_app
+from pait.extra.config import apply_block_http_method_set
 from pait.g import config
-from pait.model.config import apply_block_http_method_set
 from pait.model.core import PaitCoreModel
 from pait.util import I18nContext
 

@@ -4,6 +4,15 @@ from pydantic import BaseModel
 
 from pait.util import gen_example_dict_from_pydantic_base_model
 
+__all__ = [
+    "PaitResponseModel",
+    "PaitBaseResponseModel",
+    "PaitHtmlResponseModel",
+    "PaitJsonResponseModel",
+    "PaitFileResponseModel",
+    "PaitTextResponseModel",
+]
+
 
 class PaitBaseResponseModel(object):
     """response model https://swagger.io/docs/specification/describing-responses/"""

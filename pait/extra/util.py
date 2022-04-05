@@ -5,6 +5,9 @@ if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
 
 
+__all__ = ["sync_config_data_to_pait_core_model"]
+
+
 def sync_config_data_to_pait_core_model(config: "Config", pait_core_model: "PaitCoreModel", **kwargs: Any) -> None:
     if not pait_core_model.author:
         pait_core_model.author = config.author

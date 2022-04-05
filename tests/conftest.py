@@ -1,8 +1,8 @@
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Callable, Generator, List, Type, Union
 
+from pait.extra.config import apply_block_http_method_set
 from pait.g import config
-from pait.model.config import apply_block_http_method_set
 from pait.plugin.base import PluginManager
 from pait.plugin.base_mock_response import BaseAsyncMockPlugin, BaseMockPlugin
 

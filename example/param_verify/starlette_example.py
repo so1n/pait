@@ -721,8 +721,8 @@ def create_app() -> Starlette:
 if __name__ == "__main__":
     import uvicorn  # type: ignore
 
+    from pait.extra.config import apply_block_http_method_set
     from pait.g import config
-    from pait.model.config import apply_block_http_method_set
 
     config.init_config(
         apply_func_list=[

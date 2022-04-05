@@ -34,9 +34,9 @@ from pait.app.flask.plugin.auto_complete_json_resp import AutoCompleteJsonRespPl
 from pait.app.flask.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.flask.plugin.mock_response import MockPlugin
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
+from pait.extra.config import apply_block_http_method_set
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.g import config
-from pait.model.config import apply_block_http_method_set
 from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
 from pait.model.template import TemplateVar

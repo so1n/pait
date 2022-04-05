@@ -1,9 +1,9 @@
 from typing import Any
 
 from pait.data import PaitData
+from pait.extra.util import sync_config_data_to_pait_core_model
 from pait.model import tag
 from pait.model.config import Config
-from pait.model.util import sync_config_data_to_pait_core_model
 
 __all__ = ["config", "pait_data"]
 

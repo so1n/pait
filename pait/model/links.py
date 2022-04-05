@@ -9,6 +9,9 @@ if TYPE_CHECKING:
     from .response import PaitBaseResponseModel
 
 
+__all__ = ["LinksModel"]
+
+
 class LinksModel(object):
     param_name: str
     pait_field: "field.BaseField"

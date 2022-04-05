@@ -15,6 +15,9 @@ if TYPE_CHECKING:
     from pait.app.base import BaseAppHelper
 
 
+__all__ = ["PaitCoreModel"]
+
+
 class PaitCoreModel(object):
     def __init__(
         self,

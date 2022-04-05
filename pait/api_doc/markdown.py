@@ -7,8 +7,9 @@ from pydantic.fields import Undefined
 
 from pait import field
 from pait.api_doc.base_parse import FieldDictType, FieldSchemaTypeDict, PaitBaseParse
+from pait.extra.status import pait_status_color
 from pait.model.core import PaitCoreModel
-from pait.model.status import PaitStatus, pait_status_color
+from pait.model.status import PaitStatus
 from pait.util import I18n, gen_example_dict_from_schema, join_i18n
 
 
