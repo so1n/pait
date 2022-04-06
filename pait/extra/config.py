@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Callable, List, Set, Type
+from typing import TYPE_CHECKING, Callable, List, Set, Type
 
 from pydantic import BaseConfig, BaseModel
 
@@ -8,11 +8,11 @@ from pait.util import http_method_tuple
 
 if TYPE_CHECKING:
     from pait.model.config import APPLY_FN
-    from pait.model.core import PaitCoreModel
+    from pait.model.core import MatchRule, PaitCoreModel
 
 
 __all__ = [
-    "apply_plugin",
+    "apply_multi_plugin",
     "apply_default_response_model",
     "apply_default_pydantic_model_config",
     "apply_block_http_method_set",
@@ -20,21 +20,21 @@ __all__ = [
 
 
 def apply_default_extra_openapi_model(
-    extra_openapi_model: Type[BaseModel], match_key: str = "all", match_value: Any = None
+    extra_openapi_model: Type[BaseModel], match_rule: MatchRule = MatchRule()
 ) -> "APPLY_FN":
     """
     Add a default extre_openapi structure for routing handles
     """
 
     def _apply(pait_core_model: "PaitCoreModel") -> None:
-        if pait_core_model.match(match_key, match_value):
+        if pait_core_model.match(match_rule):
             pait_core_model.extra_openapi_model_list = [extra_openapi_model]
 
     return _apply
 
 
 def apply_default_response_model(
-    response_model_list: List[Type[PaitBaseResponseModel]], match_key: str = "all", match_value: Any = None
+    response_model_list: List[Type[PaitBaseResponseModel]], match_rule: MatchRule = MatchRule()
 ) -> "APPLY_FN":
     """
     Add a default response structure for routing handles
@@ -44,27 +44,25 @@ def apply_default_response_model(
             raise ValueError(f"{response_model} is core response model can not set to default_response_model_list")
 
     def _apply(pait_core_model: "PaitCoreModel") -> None:
-        if pait_core_model.match(match_key, match_value):
+        if pait_core_model.match(match_rule):
             pait_core_model.add_response_model_list(response_model_list)
 
     return _apply
 
 
 def apply_default_pydantic_model_config(
-    pydantic_model_config: Type[BaseConfig], match_key: str = "all", match_value: Any = None
+    pydantic_model_config: Type[BaseConfig], match_rule: MatchRule = MatchRule()
 ) -> "APPLY_FN":
     """pait route gen pydantic model default config"""
 
     def _apply(pait_core_model: "PaitCoreModel") -> None:
-        if pait_core_model.match(match_key, match_value):
+        if pait_core_model.match(match_rule):
             pait_core_model.pydantic_model_config = pydantic_model_config
 
     return _apply
 
 
-def apply_block_http_method_set(
-    block_http_method_set: Set[str], match_key: str = "all", match_value: Any = None
-) -> "APPLY_FN":
+def apply_block_http_method_set(block_http_method_set: Set[str], match_rule: MatchRule = MatchRule()) -> "APPLY_FN":
     """
     Under normal circumstances, pait.load_app can obtain the http method of the routing handle.
      However, some application frameworks such as flask will automatically add optional http methods
@@ -76,18 +74,18 @@ def apply_block_http_method_set(
             raise ValueError(f"Error http method: {block_http_method}")
 
     def _apply(pait_core_model: "PaitCoreModel") -> None:
-        if pait_core_model.match(match_key, match_value):
+        if pait_core_model.match(match_rule):
             pait_core_model.block_http_method_set = block_http_method_set
             pait_core_model.method_list = pait_core_model.method_list
 
     return _apply
 
 
-def apply_plugin(
-    plugin_manager_fn_list: List[Callable[[], PluginManager]], match_key: str = "all", match_value: Any = None
+def apply_multi_plugin(
+    plugin_manager_fn_list: List[Callable[[], PluginManager]], match_rule: MatchRule = MatchRule()
 ) -> "APPLY_FN":
     def _apply(pait_core_model: "PaitCoreModel") -> None:
-        if pait_core_model.match(match_key, match_value):
+        if pait_core_model.match(match_rule):
             pre_plugin_manager_list: List[PluginManager] = []
             post_plugin_manager_list: List[PluginManager] = []
             for plugin_manager_fn in plugin_manager_fn_list:

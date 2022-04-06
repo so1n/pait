@@ -1,6 +1,7 @@
 import copy
 import inspect
 import logging
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
 
 from pydantic import BaseConfig, BaseModel
@@ -16,6 +17,12 @@ if TYPE_CHECKING:
 
 
 __all__ = ["PaitCoreModel"]
+
+
+@dataclass
+class MatchRule(object):
+    key: str = "all"
+    target: Any = None
 
 
 class PaitCoreModel(object):
@@ -128,11 +135,13 @@ class PaitCoreModel(object):
     def plugin_list(self) -> List[PluginManager]:
         return self._plugin_manager_list
 
-    def match(self, key: str, target: Any) -> bool:
+    def match(self, match_rule: MatchRule) -> bool:
         """By different attributes to determine whether to match with pait_core_model,
         if the key is `all` then match
         if the key is prefixed with ! then the result will be reversed
         """
+        key: str = match_rule.key
+        target: Any = match_rule.target
         if key == "all":
             return True
         is_reverse: bool = False
