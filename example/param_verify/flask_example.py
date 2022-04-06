@@ -34,7 +34,7 @@ from pait.app.flask.plugin.auto_complete_json_resp import AutoCompleteJsonRespPl
 from pait.app.flask.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.flask.plugin.mock_response import MockPlugin
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
-from pait.extra.config import apply_block_http_method_set, apply_default_extra_openapi_model
+from pait.extra.config import apply_block_http_method_set, apply_extra_openapi_model
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.g import config
 from pait.model.links import LinksModel
@@ -539,7 +539,7 @@ if __name__ == "__main__":
     config.init_config(
         apply_func_list=[
             apply_block_http_method_set({"HEAD", "OPTIONS"}),
-            apply_default_extra_openapi_model(ExtraModel),
+            apply_extra_openapi_model(ExtraModel),
         ]
     )
     create_app().run(port=8000, debug=True)

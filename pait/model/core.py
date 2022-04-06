@@ -155,11 +155,14 @@ class PaitCoreModel(object):
     def plugin_list(self) -> List[PluginManager]:
         return self._plugin_manager_list
 
-    def match(self, match_rule: MatchRule) -> bool:
+    def match(self, match_rule: Optional[MatchRule] = None) -> bool:
         """By different attributes to determine whether to match with pait_core_model,
         if the key is `all` then match
         if the key is prefixed with ! then the result will be reversed
         """
+        if not match_rule:
+            match_rule = MatchRule()
+
         key: _MatchKeyLiteral = match_rule.key
         target: Any = match_rule.target
         if key == "all":

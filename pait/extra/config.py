@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Callable, List, Set, Type
+from typing import TYPE_CHECKING, Callable, List, Optional, Set, Type
 
 from pydantic import BaseConfig, BaseModel
 
@@ -13,16 +13,16 @@ if TYPE_CHECKING:
 
 __all__ = [
     "apply_multi_plugin",
-    "apply_default_extra_openapi_model",
-    "apply_default_response_model",
+    "apply_extra_openapi_model",
+    "apply_response_model",
     "apply_default_pydantic_model_config",
     "apply_block_http_method_set",
     "apply_pre_depend",
 ]
 
 
-def apply_default_extra_openapi_model(
-    extra_openapi_model: Type[BaseModel], match_rule: MatchRule = MatchRule()
+def apply_extra_openapi_model(
+    extra_openapi_model: Type[BaseModel], match_rule: Optional["MatchRule"] = None
 ) -> "APPLY_FN":
     """
     Add a default extre_openapi structure for routing handles
@@ -35,8 +35,8 @@ def apply_default_extra_openapi_model(
     return _apply
 
 
-def apply_default_response_model(
-    response_model_list: List[Type[PaitBaseResponseModel]], match_rule: MatchRule = MatchRule()
+def apply_response_model(
+    response_model_list: List[Type[PaitBaseResponseModel]], match_rule: Optional["MatchRule"] = None
 ) -> "APPLY_FN":
     """
     Add a default response structure for routing handles
@@ -53,7 +53,7 @@ def apply_default_response_model(
 
 
 def apply_default_pydantic_model_config(
-    pydantic_model_config: Type[BaseConfig], match_rule: MatchRule = MatchRule()
+    pydantic_model_config: Type[BaseConfig], match_rule: Optional["MatchRule"] = None
 ) -> "APPLY_FN":
     """pait route gen pydantic model default config"""
 
@@ -64,7 +64,9 @@ def apply_default_pydantic_model_config(
     return _apply
 
 
-def apply_block_http_method_set(block_http_method_set: Set[str], match_rule: MatchRule = MatchRule()) -> "APPLY_FN":
+def apply_block_http_method_set(
+    block_http_method_set: Set[str], match_rule: Optional["MatchRule"] = None
+) -> "APPLY_FN":
     """
     Under normal circumstances, pait.load_app can obtain the http method of the routing handle.
      However, some application frameworks such as flask will automatically add optional http methods
@@ -84,7 +86,7 @@ def apply_block_http_method_set(block_http_method_set: Set[str], match_rule: Mat
 
 
 def apply_multi_plugin(
-    plugin_manager_fn_list: List[Callable[[], PluginManager]], match_rule: MatchRule = MatchRule()
+    plugin_manager_fn_list: List[Callable[[], PluginManager]], match_rule: Optional["MatchRule"] = None
 ) -> "APPLY_FN":
     def _apply(pait_core_model: "PaitCoreModel") -> None:
         if pait_core_model.match(match_rule):
@@ -101,7 +103,7 @@ def apply_multi_plugin(
     return _apply
 
 
-def apply_pre_depend(pre_depend: Callable, match_rule: MatchRule = MatchRule()) -> "APPLY_FN":
+def apply_pre_depend(pre_depend: Callable, match_rule: Optional["MatchRule"] = None) -> "APPLY_FN":
     def _apply(pait_core_model: "PaitCoreModel") -> None:
         if pait_core_model.match(match_rule):
             pait_core_model.pre_depend_list.append(pre_depend)

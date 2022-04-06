@@ -722,7 +722,7 @@ if __name__ == "__main__":
     import uvicorn  # type: ignore
     from pydantic import BaseModel
 
-    from pait.extra.config import apply_block_http_method_set, apply_default_extra_openapi_model
+    from pait.extra.config import apply_block_http_method_set, apply_extra_openapi_model
     from pait.g import config
 
     class ExtraModel(BaseModel):
@@ -732,7 +732,7 @@ if __name__ == "__main__":
     config.init_config(
         apply_func_list=[
             apply_block_http_method_set({"HEAD", "OPTIONS"}),
-            apply_default_extra_openapi_model(ExtraModel),
+            apply_extra_openapi_model(ExtraModel),
         ]
     )
     uvicorn.run(create_app(), log_level="debug")

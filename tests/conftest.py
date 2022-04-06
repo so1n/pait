@@ -9,9 +9,7 @@ from pait.plugin.base_mock_response import BaseAsyncMockPlugin, BaseMockPlugin
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
 
-config.init_config(
-    apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"}, match_key="all", match_value=None)]
-)
+config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
 
 
 @contextmanager
