@@ -1,6 +1,7 @@
 import copy
 import inspect
 import logging
+import sys
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
 
@@ -12,16 +13,35 @@ from pait.param_handle import AsyncParamHandler, ParamHandler
 from pait.plugin import PluginManager
 from pait.util import ignore_pre_check
 
+if sys.version_info >= (3, 10):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
+
+
 if TYPE_CHECKING:
     from pait.app.base import BaseAppHelper
 
 
-__all__ = ["PaitCoreModel"]
+__all__ = ["PaitCoreModel", "MatchRule"]
+_MatchKeyLiteral = Literal[
+    "all",
+    "status",
+    "group",
+    "tag",
+    "method_list",
+    "path",
+    "!status",
+    "!group",
+    "!tag",
+    "!method_list",
+    "!path",
+]
 
 
 @dataclass
 class MatchRule(object):
-    key: str = "all"
+    key: _MatchKeyLiteral = "all"
     target: Any = None
 
 
@@ -140,13 +160,13 @@ class PaitCoreModel(object):
         if the key is `all` then match
         if the key is prefixed with ! then the result will be reversed
         """
-        key: str = match_rule.key
+        key: _MatchKeyLiteral = match_rule.key
         target: Any = match_rule.target
         if key == "all":
             return True
         is_reverse: bool = False
-        if "!" in key:
-            key = key[1:]
+        if key.startswith("!"):
+            key = key[1:]  # type: ignore
             is_reverse = True
 
         value: Any = getattr(self, key, ...)
@@ -156,6 +176,8 @@ class PaitCoreModel(object):
             result: bool = value is target
         elif key in ("tag", "method_list"):
             result = target in value
+        elif key == "path":
+            result = target.startswith(target)
         else:
             raise KeyError(f"Not support key:{key}")
 

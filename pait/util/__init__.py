@@ -8,6 +8,7 @@ from ._util import (
     CustomJSONEncoder,
     Undefined,
     UndefinedType,
+    create_factory,
     example_value_handle,
     gen_example_dict_from_pydantic_base_model,
     gen_example_dict_from_schema,

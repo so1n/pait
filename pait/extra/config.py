@@ -13,9 +13,11 @@ if TYPE_CHECKING:
 
 __all__ = [
     "apply_multi_plugin",
+    "apply_default_extra_openapi_model",
     "apply_default_response_model",
     "apply_default_pydantic_model_config",
     "apply_block_http_method_set",
+    "apply_pre_depend",
 ]
 
 
@@ -95,5 +97,13 @@ def apply_multi_plugin(
                 else:
                     post_plugin_manager_list.append(plugin_manager)
             pait_core_model.add_plugin(pre_plugin_manager_list, post_plugin_manager_list)
+
+    return _apply
+
+
+def apply_pre_depend(pre_depend: Callable, match_rule: MatchRule = MatchRule()) -> "APPLY_FN":
+    def _apply(pait_core_model: "PaitCoreModel") -> None:
+        if pait_core_model.match(match_rule):
+            pait_core_model.pre_depend_list.append(pre_depend)
 
     return _apply

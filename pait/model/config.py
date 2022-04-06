@@ -61,6 +61,9 @@ class Config(object):
         :param json_type_default_value_dict: Configure default values for each json type
         :param python_type_default_value_dict: Configure default values for each python type
         :param json_encoder: Define certain types of serialization rules
+        :param i18n_local: Select the default i18 language
+        :param i18n_config_dict: Update i18n-related configuration
+        :param apply_func_list: List of functions for application configuration
         :return:
         """
         if self.__initialized:

@@ -7,7 +7,7 @@ from pydantic.fields import Undefined
 
 from pait import field
 from pait.api_doc.base_parse import FieldDictType, FieldSchemaTypeDict, PaitBaseParse
-from pait.extra.status import pait_status_color
+from pait.extra.status import get_color
 from pait.model.core import PaitCoreModel
 from pait.model.status import PaitStatus
 from pait.util import I18n, gen_example_dict_from_schema, join_i18n
@@ -111,9 +111,7 @@ class PaitMd(PaitBaseParse):
 
                 # func or interface details
                 func_code: CodeType = pait_model.func.__code__  # type: ignore
-                status_text: str = (
-                    f"<font color={pait_status_color(pait_model.status)}>{pait_model.status.value}</font>"
-                )
+                status_text: str = f"<font color={get_color(pait_model.status)}>{pait_model.status.value}</font>"
                 markdown_text += f"- {join_i18n([I18n.API, I18n.Info])}\n\n"
                 markdown_text += f"{' ' * 4}|{I18n.Author}|{I18n.Status}|{I18n.Func}|{I18n.Summary}|\n"
                 markdown_text += f"{' ' * 4}|---|---|---|---|\n"
