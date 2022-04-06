@@ -34,7 +34,7 @@ from pait.app.flask.plugin.auto_complete_json_resp import AutoCompleteJsonRespPl
 from pait.app.flask.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.flask.plugin.mock_response import MockPlugin
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
-from pait.extra.config import apply_block_http_method_set
+from pait.extra.config import apply_block_http_method_set, apply_default_extra_openapi_model
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.g import config
 from pait.model.links import LinksModel
@@ -526,12 +526,20 @@ def create_app() -> Flask:
 if __name__ == "__main__":
     import logging
 
+    from pydantic import BaseModel
+
     logging.basicConfig(
         format="[%(asctime)s %(levelname)s] %(message)s", datefmt="%y-%m-%d %H:%M:%S", level=logging.DEBUG
     )
+
+    class ExtraModel(BaseModel):
+        extra_a: str = Query.i(default="", description="Fields used to demonstrate the expansion module")
+        extra_b: int = Query.i(default=0, description="Fields used to demonstrate the expansion module")
+
     config.init_config(
         apply_func_list=[
             apply_block_http_method_set({"HEAD", "OPTIONS"}, match_key="all", match_value=None),
+            apply_default_extra_openapi_model(ExtraModel, match_key="all", match_value=None),
         ]
     )
     create_app().run(port=8000, debug=True)

@@ -317,6 +317,9 @@ class PaitBaseParse(object):
 
             _pydantic_model = create_pydantic_model(annotation_dict)
             self._parse_base_model_to_field_dict(field_dict, _pydantic_model)
+
+        for extra_openapi_model in pait_model.extra_openapi_model_list:
+            self._parse_base_model_to_field_dict(field_dict, extra_openapi_model)
         return field_dict
 
     def _parse_pait_model_to_field_dict(self, pait_model: PaitCoreModel) -> FieldDictType:

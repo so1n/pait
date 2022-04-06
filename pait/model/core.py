@@ -3,7 +3,7 @@ import inspect
 import logging
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
 
-from pydantic import BaseConfig
+from pydantic import BaseConfig, BaseModel
 
 from pait.model.response import PaitBaseResponseModel, PaitResponseModel
 from pait.model.status import PaitStatus
@@ -64,6 +64,7 @@ class PaitCoreModel(object):
         self.status: PaitStatus = status or PaitStatus.undefined
         self.group: str = group or "root"  # Which group this interface belongs to
         self.tag: Tuple[str, ...] = tag or ("default",)  # Interface tag
+        self._extra_openapi_model_list: List[Type[BaseModel]] = []
 
         self._response_model_list: List[Type[PaitBaseResponseModel]] = []
         if response_model_list:
@@ -114,6 +115,14 @@ class PaitCoreModel(object):
                     f" with {PaitBaseResponseModel}"
                 )
             self._response_model_list.append(response_model)
+
+    @property
+    def extra_openapi_model_list(self) -> List[Type[BaseModel]]:
+        return self._extra_openapi_model_list
+
+    @extra_openapi_model_list.setter
+    def extra_openapi_model_list(self, item: List[Type[BaseModel]]) -> None:
+        self._extra_openapi_model_list.extend(item)
 
     @property
     def plugin_list(self) -> List[PluginManager]:

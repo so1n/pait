@@ -720,13 +720,19 @@ def create_app() -> Starlette:
 
 if __name__ == "__main__":
     import uvicorn  # type: ignore
+    from pydantic import BaseModel
 
-    from pait.extra.config import apply_block_http_method_set
+    from pait.extra.config import apply_block_http_method_set, apply_default_extra_openapi_model
     from pait.g import config
+
+    class ExtraModel(BaseModel):
+        extra_a: str = Query.i(default="", description="Fields used to demonstrate the expansion module")
+        extra_b: int = Query.i(default=0, description="Fields used to demonstrate the expansion module")
 
     config.init_config(
         apply_func_list=[
             apply_block_http_method_set({"HEAD", "OPTIONS"}, match_key="all", match_value=None),
+            apply_default_extra_openapi_model(ExtraModel, match_key="all", match_value=None),
         ]
     )
     uvicorn.run(create_app(), log_level="debug")

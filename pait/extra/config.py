@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any, Callable, List, Set, Type
 
-from pydantic import BaseConfig
+from pydantic import BaseConfig, BaseModel
 
 from pait.model.response import PaitBaseResponseModel
 from pait.plugin.base import PluginManager
@@ -17,6 +17,20 @@ __all__ = [
     "apply_default_pydantic_model_config",
     "apply_block_http_method_set",
 ]
+
+
+def apply_default_extra_openapi_model(
+    extra_openapi_model: Type[BaseModel], match_key: str, match_value: Any
+) -> "APPLY_FN":
+    """
+    Add a default extre_openapi structure for routing handles
+    """
+
+    def _apply(pait_core_model: "PaitCoreModel") -> None:
+        if pait_core_model.match(match_key, match_value):
+            pait_core_model.extra_openapi_model_list = [extra_openapi_model]
+
+    return _apply
 
 
 def apply_default_response_model(
