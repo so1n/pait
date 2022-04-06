@@ -5,14 +5,33 @@ import sys
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
+from functools import wraps
 from json import JSONEncoder
-from typing import TYPE_CHECKING, Any, Dict, ForwardRef, List, Optional, Tuple, Type, Union, get_type_hints
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    ForwardRef,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+    get_type_hints,
+)
 
 from pydantic import BaseModel
 from pydantic.fields import Undefined, UndefinedType
 
 from pait.field import BaseField, Depends, is_pait_field
 from pait.model.template import TemplateVar
+
+if sys.version_info >= (3, 10):
+    from typing import ParamSpec
+else:
+    from typing_extensions import ParamSpec
 
 from ._types import ParseTypeError, parse_typing
 
@@ -45,6 +64,18 @@ python_type_default_value_dict: Dict[type, Any] = {
     datetime: datetime.fromtimestamp(0),
     Decimal: Decimal("0.0"),
 }
+
+
+P = ParamSpec("P")
+R_T = TypeVar("R_T")
+
+
+def create_factory(func: Callable[P, R_T]) -> Callable[P, R_T]:  # type: ignore
+    @wraps(func)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R_T:  # type: ignore
+        return lambda: func(*args, **kwargs)  # type: ignore
+
+    return wrapper
 
 
 def example_value_handle(example_value: Any) -> Any:
