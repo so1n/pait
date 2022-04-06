@@ -601,8 +601,8 @@ if __name__ == "__main__":
 
     config.init_config(
         apply_func_list=[
-            apply_block_http_method_set({"HEAD", "OPTIONS"}, match_key="all", match_value=None),
-            apply_default_extra_openapi_model(ExtraModel, match_key="all", match_value=None),
+            apply_block_http_method_set({"HEAD", "OPTIONS"}),
+            apply_default_extra_openapi_model(ExtraModel),
         ]
     )
     create_app().listen(8000)

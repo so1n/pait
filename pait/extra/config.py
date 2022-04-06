@@ -20,7 +20,7 @@ __all__ = [
 
 
 def apply_default_extra_openapi_model(
-    extra_openapi_model: Type[BaseModel], match_key: str, match_value: Any
+    extra_openapi_model: Type[BaseModel], match_key: str = "all", match_value: Any = None
 ) -> "APPLY_FN":
     """
     Add a default extre_openapi structure for routing handles
@@ -34,7 +34,7 @@ def apply_default_extra_openapi_model(
 
 
 def apply_default_response_model(
-    response_model_list: List[Type[PaitBaseResponseModel]], match_key: str, match_value: Any
+    response_model_list: List[Type[PaitBaseResponseModel]], match_key: str = "all", match_value: Any = None
 ) -> "APPLY_FN":
     """
     Add a default response structure for routing handles
@@ -51,7 +51,7 @@ def apply_default_response_model(
 
 
 def apply_default_pydantic_model_config(
-    pydantic_model_config: Type[BaseConfig], match_key: str, match_value: Any
+    pydantic_model_config: Type[BaseConfig], match_key: str = "all", match_value: Any = None
 ) -> "APPLY_FN":
     """pait route gen pydantic model default config"""
 
@@ -62,7 +62,9 @@ def apply_default_pydantic_model_config(
     return _apply
 
 
-def apply_block_http_method_set(block_http_method_set: Set[str], match_key: str, match_value: Any) -> "APPLY_FN":
+def apply_block_http_method_set(
+    block_http_method_set: Set[str], match_key: str = "all", match_value: Any = None
+) -> "APPLY_FN":
     """
     Under normal circumstances, pait.load_app can obtain the http method of the routing handle.
      However, some application frameworks such as flask will automatically add optional http methods
@@ -82,7 +84,7 @@ def apply_block_http_method_set(block_http_method_set: Set[str], match_key: str,
 
 
 def apply_plugin(
-    plugin_manager_fn_list: List[Callable[[], PluginManager]], match_key: str, match_value: Any
+    plugin_manager_fn_list: List[Callable[[], PluginManager]], match_key: str = "all", match_value: Any = None
 ) -> "APPLY_FN":
     def _apply(pait_core_model: "PaitCoreModel") -> None:
         if pait_core_model.match(match_key, match_value):
