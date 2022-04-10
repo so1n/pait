@@ -4,6 +4,8 @@ from typing import Callable, Dict, List, Optional, Type
 
 from ._util import get_real_annotation
 
+__all__ = ["FuncSig", "get_func_sig"]
+
 
 @dataclass()
 class FuncSig:

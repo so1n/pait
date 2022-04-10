@@ -10,6 +10,8 @@ from pait.util import FuncSig
 
 _indent: str = 4 * " "
 
+__all__ = ["gen_tip_exc"]
+
 
 def gen_tip_exc(_object: Any, exception: "Exception", parameter: Optional[inspect.Parameter] = None) -> Exception:
     """Help users understand which parameter is wrong"""

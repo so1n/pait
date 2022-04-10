@@ -2,6 +2,8 @@ import asyncio
 from concurrent import futures
 from typing import Any, Callable, Optional
 
+__all__ = ["LazyProperty"]
+
 
 class _BoundClass(object):
     pass

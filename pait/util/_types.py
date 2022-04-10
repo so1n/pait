@@ -4,6 +4,7 @@ from typing import Any, List, Optional, Set, Type, Union, _GenericAlias  # type:
 from pait.exceptions import ParseTypeError
 
 _CAN_JSON_TYPE_SET: Set[Optional[type]] = {bool, dict, float, int, list, str, tuple, type(None), None}
+__all__ = ["parse_typing", "is_type"]
 
 
 def parse_typing(_type: Any) -> Union[List[Type[Any]], Type]:

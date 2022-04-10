@@ -17,6 +17,8 @@ if TYPE_CHECKING:
     from pydantic.schema import TypeModelOrEnum, TypeModelSet
 
 
+__all__ = ["pait_model_schema", "create_pydantic_model", "get_model_global_name"]
+
 global_name_model_map = {}
 global_conflicting_names: Set[str] = set()
 
