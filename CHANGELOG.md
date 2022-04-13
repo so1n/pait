@@ -3,7 +3,18 @@
 - 2 Plugin Panel
 
 
-### 0.7.4.3[Now]
+### 0.7.4.6[Now]
+- Future: check_json_resp_plugin check typedict
+- Fix: netsed tipexception
+- Refactor:  refactor ParamPlugin check param after start
+- Refactor:  api_doc.base_parse._parse_base_model_to_field_dict
+- Fix: fix example not support method and modify mock plugin is_pre_core=True
+- Feature:  plugin add build method
+- Fix: api doc not support raw_return is False
+- Fix: pydantic not check default value
+
+> NOTE: Skip 0.7.4.4 and 0.7.4.5
+### 0.7.4.3
 - Fix: gen BaseModel param
 
 ### 0.7.4.2
