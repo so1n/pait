@@ -3,7 +3,26 @@
 - 2 Plugin Panel
 
 
-### 0.7.4.6[Now]
+### 0.7.5[Now]
+Add some auxiliary functions and optimize the parsing speed
+
+- Feature, config support apply function feature and add PaitCoreModel match logic
+- Feature, add_doc_route func support projrct_name
+- Feature, add AddDocRoute class
+- Feature, add auto load Pait&AddDocRoute class feature(magic feature)
+- Feature, add i18n context feature
+- Feature, add_doc_route support template var feature
+- Feature, plugin's clas_hook refactor pre_check_hook and pre_load_hook
+- Feature, add func md5, pait status color, extra func, create_factory func
+
+- Fix, fix starlette's load_app func not support Mount route
+
+- Optimize, optimize ParamHandler parsing speed[by plugin's pre_load_hook], include `asyncio call`，`pydantic call`
+- Optimize, optimize open json route response
+- Optimize, optimize pait exc tip
+
+- Style, util pkg design like python asyncio
+### 0.7.4.6
 - Future: check_json_resp_plugin check typedict
 - Fix: netsed tipexception
 - Refactor:  refactor ParamPlugin check param after start
