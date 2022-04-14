@@ -32,6 +32,13 @@ class TestUtil:
         assert "组名称" == util.join_i18n([util.I18n.Group, util.I18n.Name])
         util.change_local("en")
 
+    def test_join_i18n_context(self) -> None:
+        with util.I18nContext("zh-cn"):
+            assert "组名称" == util.join_i18n([util.I18n.Group, util.I18n.Name])
+
+            with pytest.raises(RuntimeError):
+                util.change_local("en")
+
     def test_parse_typing(self) -> None:
         assert dict is util.parse_typing(dict)
         assert list is util.parse_typing(List)

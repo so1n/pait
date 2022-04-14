@@ -41,9 +41,6 @@ class AddDocRoute(_AddDocRoute):
                     )
                     self.finish()
                 else:
-                    import traceback
-
-                    print(traceback.format_exc())
                     self.set_status(500)
                     self.finish()
 

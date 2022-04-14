@@ -11,11 +11,7 @@ from pait.util import I18nContext
 
 if __name__ == "__main__":
     filename: str = "./example_doc/flask_pait"
-    config.init_config(
-        apply_func_list=[
-            apply_block_http_method_set({"HEAD", "OPTIONS"}, match_key="all", match_value=None),
-        ]
-    )
+    config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
 
     pait_dict: Dict[str, PaitCoreModel] = load_app(create_app())
     for i18n_lang in ("zh-cn", "en"):

@@ -65,12 +65,14 @@ i18n_config_dict: Dict[str, I18nTypedDict] = {
 def change_local(lang: str) -> None:
     global i18n_local
 
+    if _I18N_CONTEXT.get(""):
+        raise RuntimeError("Can't change i18n_local in i18n context")
     check_i18n_lang(lang)
     i18n_local = lang
 
 
 def join_i18n(i18n_list: List[str]) -> str:
-    if i18n_local == "zh-cn":
+    if _I18N_CONTEXT.get(i18n_local) == "zh-cn":
         return "".join(i18n_list)
     else:
         return " ".join(i18n_list)

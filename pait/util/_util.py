@@ -31,7 +31,7 @@ from pait.model.template import TemplateVar
 if sys.version_info >= (3, 10):
     from typing import ParamSpec
 else:
-    from typing_extensions import ParamSpec
+    from typing_extensions import ParamSpec  # type: ignore
 
 from ._types import ParseTypeError, parse_typing
 
@@ -54,7 +54,7 @@ __all__ = [
     "gen_example_value_from_python",
     "get_real_annotation",
 ]
-ignore_pre_check: bool = bool(os.environ.get("IGNORE_PRE_CHECK", False))
+ignore_pre_check: bool = bool(os.environ.get("PAIT_IGNORE_PRE_CHECK", False))
 http_method_tuple: Tuple[str, ...] = ("get", "post", "head", "options", "delete", "put", "trace", "patch")
 
 json_type_default_value_dict: Dict[str, Any] = {

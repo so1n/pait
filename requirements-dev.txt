@@ -71,13 +71,13 @@ starlette==0.14.1; python_version >= "3.6"
 toml==0.10.2; python_full_version >= "3.6.1" and python_version >= "3.6" and (python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.5")
 tornado==6.1; python_version >= "3.5"
 typed-ast==1.4.3; python_version >= "3.6"
-typing-extensions==4.0.1; python_version >= "3.7" and python_full_version >= "3.6.1" and python_version < "3.8" and (python_version >= "3.7" and python_full_version < "3.0.0" and python_version < "3.8" or python_full_version >= "3.5.0" and python_version < "3.8" and python_version >= "3.7")
+typing-extensions==4.1.1; python_version >= "3.6"
 ujson==5.1.0; sys_platform != "win32" and implementation_name == "cpython" and python_version >= "3.7"
 urllib3==1.26.8; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version < "4"
 uvicorn==0.13.4
 uvloop==0.16.0; sys_platform != "win32" and implementation_name == "cpython" and python_version >= "3.7"
 virtualenv==20.13.0; python_full_version >= "3.6.1"
 watchdog==2.1.6; python_version >= "3.6"
-websockets==9.1; python_full_version >= "3.6.1" and python_version >= "3.7"
+websockets==8.1; python_full_version >= "3.6.1" and python_version >= "3.7"
 werkzeug==1.0.1; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0"
 zipp==3.7.0; python_version < "3.8" and python_version >= "3.7" and python_full_version >= "3.6.1" and (python_version >= "3.7" and python_full_version < "3.0.0" and python_version < "3.8" or python_full_version >= "3.5.0" and python_version < "3.8" and python_version >= "3.7")

@@ -76,3 +76,6 @@ class PluginManager(object):
 
     def get_plugin(self) -> _T:
         return self.plugin_class(**self._kwargs)
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} {self.plugin_class.__name__}>"

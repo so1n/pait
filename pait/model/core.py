@@ -23,8 +23,8 @@ if TYPE_CHECKING:
     from pait.app.base import BaseAppHelper
 
 
-__all__ = ["PaitCoreModel", "MatchRule"]
-_MatchKeyLiteral = Literal[
+__all__ = ["PaitCoreModel", "MatchRule", "MatchKeyLiteral"]
+MatchKeyLiteral = Literal[
     "all",
     "status",
     "group",
@@ -41,7 +41,7 @@ _MatchKeyLiteral = Literal[
 
 @dataclass
 class MatchRule(object):
-    key: _MatchKeyLiteral = "all"
+    key: MatchKeyLiteral = "all"
     target: Any = None
 
 
@@ -120,13 +120,13 @@ class PaitCoreModel(object):
 
     @property
     def method_list(self) -> List[str]:
-        return self._method_list
+        _temp_set: Set[str] = set(self._method_list.copy())
+        _temp_set.difference_update(self.block_http_method_set)
+        return sorted(list(_temp_set))
 
     @method_list.setter
     def method_list(self, method_list: List[str]) -> None:
-        _temp_set: Set[str] = set(self._method_list) | set(method_list)
-        _temp_set.difference_update(self.block_http_method_set)
-        self._method_list = sorted(list(_temp_set))
+        self._method_list = list(set(self._method_list) | set(method_list))
 
     @property
     def response_model_list(self) -> List[Type[PaitBaseResponseModel]]:
@@ -163,7 +163,7 @@ class PaitCoreModel(object):
         if not match_rule:
             match_rule = MatchRule()
 
-        key: _MatchKeyLiteral = match_rule.key
+        key: MatchKeyLiteral = match_rule.key
         target: Any = match_rule.target
         if key == "all":
             return True
@@ -180,7 +180,7 @@ class PaitCoreModel(object):
         elif key in ("tag", "method_list"):
             result = target in value
         elif key == "path":
-            result = target.startswith(target)
+            result = value.startswith(target)
         else:
             raise KeyError(f"Not support key:{key}")
 
