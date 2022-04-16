@@ -8,13 +8,13 @@ from .base import JsonProtocol
 __all__ = ["AutoCompleteJsonRespPlugin", "AsyncAutoCompleteJsonRespPlugin"]
 
 
-class AsyncAutoCompleteJsonRespPlugin(JsonProtocol, _AsyncAutoCompleteJsonRespPlugin):  # type: ignore
+class AsyncAutoCompleteJsonRespPlugin(JsonProtocol, _AsyncAutoCompleteJsonRespPlugin):
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
         response: Any = await super(AsyncAutoCompleteJsonRespPlugin, self).__call__(*args, **kwargs)
         return self.gen_response(response)
 
 
-class AutoCompleteJsonRespPlugin(JsonProtocol, _AutoCompleteJsonRespPlugin):  # type: ignore
+class AutoCompleteJsonRespPlugin(JsonProtocol, _AutoCompleteJsonRespPlugin):
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         response: Any = super(AutoCompleteJsonRespPlugin, self).__call__(*args, **kwargs)
         return self.gen_response(response)

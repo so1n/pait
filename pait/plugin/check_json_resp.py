@@ -5,7 +5,7 @@ import pydantic
 
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitBaseResponseModel, PaitJsonResponseModel
-from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginManager, PluginProtocol
+from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginProtocol
 from pait.util import gen_example_dict_from_pydantic_base_model, get_pait_response_model, get_real_annotation
 
 # copy from https://github.com/agronholm/typeguard/blob/master/src/typeguard/__init__.py#L64
@@ -31,9 +31,6 @@ else:
 
 class JsonRespPluginProtocolMixin(PluginProtocol):
     check_resp_fn: Callable
-
-    def __init__(self, **kwargs: Any) -> None:
-        super(JsonRespPluginProtocolMixin, self).__init__(**kwargs)
 
     @classmethod
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
@@ -68,10 +65,6 @@ class JsonRespPluginProtocolMixin(PluginProtocol):
 
         kwargs["check_resp_fn"] = check_resp_by_dict
         return kwargs
-
-    @classmethod
-    def build(cls, **kwargs: Any) -> "PluginManager":  # type: ignore
-        return PluginManager(cls, **kwargs)  # type: ignore
 
 
 class CheckJsonRespPlugin(JsonRespPluginProtocolMixin, BasePlugin):

@@ -9,7 +9,7 @@ from .base import JsonProtocol
 __all__ = ["AsyncCheckJsonRespPlugin"]
 
 
-class AsyncCheckJsonRespPlugin(JsonProtocol, _AsyncCheckJsonRespPlugin):  # type: ignore
+class AsyncCheckJsonRespPlugin(JsonProtocol, _AsyncCheckJsonRespPlugin):
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
         response: Any = await super(AsyncCheckJsonRespPlugin, self).__call__(*args, **kwargs)
         self.check_resp_fn(response)

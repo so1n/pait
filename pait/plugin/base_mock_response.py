@@ -10,9 +10,7 @@ if TYPE_CHECKING:
 
 
 class MockPluginInitProtocolMixin(PluginProtocol):
-    def __init__(self, pait_response_model: Type[PaitBaseResponseModel], **kwargs: Any):
-        self.pait_response_model: Type[PaitBaseResponseModel] = pait_response_model
-        super().__init__(**kwargs)
+    pait_response_model: Type[PaitBaseResponseModel]
 
     @classmethod
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
@@ -51,8 +49,7 @@ class MockPluginInitProtocolMixin(PluginProtocol):
         target_pait_response_class: Optional[Type["PaitBaseResponseModel"]] = None,  # type: ignore
         find_core_response_model: bool = False,  # type: ignore
     ) -> "PluginManager":  # type: ignore
-        return PluginManager(
-            cls,  # type: ignore
+        return super().build(
             enable_mock_response_filter_fn=enable_mock_response_filter_fn,
             target_pait_response_class=target_pait_response_class,
             find_core_response_model=find_core_response_model,

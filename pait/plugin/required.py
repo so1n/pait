@@ -12,13 +12,11 @@ class RequiredPluginProtocol(PluginProtocol):
     Check dependencies between parameters
     """
 
+    required_dict: Dict[str, List[str]]
+
     is_pre_core: bool = False
 
-    def __init__(self, *, required_dict: Dict[str, List[str]]):
-        super().__init__()
-        self.required_dict: Dict[str, List[str]] = required_dict
-
-    def check_param(self, *args: Any, **kwargs: Any) -> None:
+    def check_param(self, **kwargs: Any) -> None:
         try:
             for pre_param, param_list in self.required_dict.items():
                 if pre_param not in kwargs or not kwargs[pre_param]:
@@ -38,11 +36,11 @@ class RequiredPluginProtocol(PluginProtocol):
 
 class RequiredPlugin(RequiredPluginProtocol, BasePlugin):
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        self.check_param(*args, **kwargs)
+        self.check_param(**kwargs)
         return self.call_next(*args, **kwargs)
 
 
 class AsyncRequiredPlugin(RequiredPluginProtocol, BaseAsyncPlugin):
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        self.check_param(*args, **kwargs)
+        self.check_param(**kwargs)
         return await self.call_next(*args, **kwargs)

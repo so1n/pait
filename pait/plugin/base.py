@@ -14,6 +14,9 @@ class PluginProtocol(object):
     kwargs: dict
 
     def __init__(self, **kwargs: Any) -> None:
+        """Direct init calls are not supported,
+        so there is no need to write clearly in init what parameters are needed
+        """
         if kwargs:
             for k, v in kwargs.items():
                 if getattr(self, k, None) is not None:

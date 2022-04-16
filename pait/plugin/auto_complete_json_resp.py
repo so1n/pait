@@ -2,15 +2,12 @@ from typing import Any, Dict, Type
 
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitBaseResponseModel, PaitJsonResponseModel
-from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginManager, PluginProtocol
+from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginProtocol
 from pait.util import get_pait_response_model
 
 
 class AutoCompleteJsonRespPluginProtocolMixin(PluginProtocol):
     pait_response_model: PaitJsonResponseModel
-
-    def __init__(self, **kwargs: Any) -> None:
-        super(AutoCompleteJsonRespPluginProtocolMixin, self).__init__(**kwargs)
 
     def update(self, source_dict: dict, target_dict: dict) -> None:
         for key, value in source_dict.items():
@@ -34,10 +31,6 @@ class AutoCompleteJsonRespPluginProtocolMixin(PluginProtocol):
             raise ValueError(f"pait_response_model must {PaitJsonResponseModel} not {pait_response_model}")
         kwargs["pait_response_model"] = pait_response_model
         return kwargs
-
-    @classmethod
-    def build(cls, **kwargs: Any) -> "PluginManager":
-        return PluginManager(cls, **kwargs)  # type: ignore
 
 
 class AutoCompleteJsonRespPlugin(AutoCompleteJsonRespPluginProtocolMixin, BasePlugin):

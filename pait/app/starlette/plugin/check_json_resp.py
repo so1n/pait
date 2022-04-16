@@ -10,13 +10,13 @@ from .base import JsonProtocol
 __all__ = ["AsyncCheckJsonRespPlugin", "CheckJsonRespPlugin"]
 
 
-class AsyncCheckJsonRespPlugin(JsonProtocol, _AsyncCheckJsonRespPlugin):  # type: ignore
+class AsyncCheckJsonRespPlugin(JsonProtocol, _AsyncCheckJsonRespPlugin):
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
         response: Any = await super().__call__(*args, **kwargs)
         return JSONResponse(response, status_code=self.status_code, headers=self.headers, media_type=self.media_type)
 
 
-class CheckJsonRespPlugin(JsonProtocol, _CheckJsonRespPlugin):  # type: ignore
+class CheckJsonRespPlugin(JsonProtocol, _CheckJsonRespPlugin):
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         response: Any = super().__call__(*args, **kwargs)
         return JSONResponse(response, status_code=self.status_code, headers=self.headers, media_type=self.media_type)

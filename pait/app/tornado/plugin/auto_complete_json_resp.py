@@ -9,7 +9,7 @@ from .base import JsonProtocol
 __all__ = ["AsyncAutoCompleteJsonRespPlugin"]
 
 
-class AsyncAutoCompleteJsonRespPlugin(JsonProtocol, _AsyncAutoCompleteJsonRespPlugin):  # type: ignore
+class AsyncAutoCompleteJsonRespPlugin(JsonProtocol, _AsyncAutoCompleteJsonRespPlugin):
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
         response: Any = await super(AsyncAutoCompleteJsonRespPlugin, self).__call__(*args, **kwargs)
         tornado_handle: RequestHandler = args[0]
