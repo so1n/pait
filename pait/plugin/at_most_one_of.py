@@ -29,7 +29,7 @@ class AtMostOneOfPluginProtocol(PluginProtocol):
 
     @classmethod
     def build(cls, *, at_most_one_of_list: List[List[str]]) -> "PluginManager":  # type: ignore
-        return PluginManager(cls, at_most_one_of_list=at_most_one_of_list)  # type: ignore
+        return super().build(at_most_one_of_list=at_most_one_of_list)
 
 
 class AtMostOneOfPlugin(AtMostOneOfPluginProtocol, BasePlugin):

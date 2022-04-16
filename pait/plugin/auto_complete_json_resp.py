@@ -7,9 +7,10 @@ from pait.util import get_pait_response_model
 
 
 class AutoCompleteJsonRespPluginProtocolMixin(PluginProtocol):
-    def __init__(self, *, pait_response_model: PaitJsonResponseModel) -> None:
-        super(AutoCompleteJsonRespPluginProtocolMixin, self).__init__()
-        self.pait_response_model: PaitJsonResponseModel = pait_response_model
+    pait_response_model: PaitJsonResponseModel
+
+    def __init__(self, **kwargs: Any) -> None:
+        super(AutoCompleteJsonRespPluginProtocolMixin, self).__init__(**kwargs)
 
     def update(self, source_dict: dict, target_dict: dict) -> None:
         for key, value in source_dict.items():
@@ -35,8 +36,8 @@ class AutoCompleteJsonRespPluginProtocolMixin(PluginProtocol):
         return kwargs
 
     @classmethod
-    def build(cls) -> "PluginManager":  # type: ignore
-        return PluginManager(cls)  # type: ignore
+    def build(cls, **kwargs: Any) -> "PluginManager":
+        return PluginManager(cls, **kwargs)  # type: ignore
 
 
 class AutoCompleteJsonRespPlugin(AutoCompleteJsonRespPluginProtocolMixin, BasePlugin):

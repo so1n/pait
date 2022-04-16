@@ -1,51 +1,20 @@
-from typing import Any, Optional
+from typing import Any
 
-from starlette.responses import JSONResponse
-
-from pait.model.response import PaitJsonResponseModel
 from pait.plugin.auto_complete_json_resp import AsyncAutoCompleteJsonRespPlugin as _AsyncAutoCompleteJsonRespPlugin
 from pait.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin as _AutoCompleteJsonRespPlugin
+
+from .base import JsonProtocol
 
 __all__ = ["AutoCompleteJsonRespPlugin", "AsyncAutoCompleteJsonRespPlugin"]
 
 
-class AsyncAutoCompleteJsonRespPlugin(_AsyncAutoCompleteJsonRespPlugin):
-    def __init__(
-        self,
-        *,
-        pait_response_model: PaitJsonResponseModel,
-        status_code: int = 200,
-        headers: Optional[dict] = None,
-        media_type: Optional[str] = None,
-    ) -> None:
-        super(AsyncAutoCompleteJsonRespPlugin, self).__init__(pait_response_model=pait_response_model)
-        self.status_code: int = status_code
-        self.headers: Optional[dict] = headers
-        self.media_type: Optional[str] = media_type
-
+class AsyncAutoCompleteJsonRespPlugin(JsonProtocol, _AsyncAutoCompleteJsonRespPlugin):  # type: ignore
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        response_dict: Any = await super(AsyncAutoCompleteJsonRespPlugin, self).__call__(*args, **kwargs)
-        return JSONResponse(
-            response_dict, status_code=self.status_code, headers=self.headers, media_type=self.media_type
-        )
+        response: Any = await super(AsyncAutoCompleteJsonRespPlugin, self).__call__(*args, **kwargs)
+        return self.gen_response(response)
 
 
-class AutoCompleteJsonRespPlugin(_AutoCompleteJsonRespPlugin):
-    def __init__(
-        self,
-        *,
-        pait_response_model: PaitJsonResponseModel,
-        status_code: int = 200,
-        headers: Optional[dict] = None,
-        media_type: Optional[str] = None,
-    ) -> None:
-        super(AutoCompleteJsonRespPlugin, self).__init__(pait_response_model=pait_response_model)
-        self.status_code: int = status_code
-        self.headers: Optional[dict] = headers
-        self.media_type: Optional[str] = media_type
-
+class AutoCompleteJsonRespPlugin(JsonProtocol, _AutoCompleteJsonRespPlugin):  # type: ignore
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        response_dict: Any = super(AutoCompleteJsonRespPlugin, self).__call__(*args, **kwargs)
-        return JSONResponse(
-            response_dict, status_code=self.status_code, headers=self.headers, media_type=self.media_type
-        )
+        response: Any = super(AutoCompleteJsonRespPlugin, self).__call__(*args, **kwargs)
+        return self.gen_response(response)

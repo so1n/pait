@@ -33,7 +33,7 @@ class RequiredPluginProtocol(PluginProtocol):
 
     @classmethod
     def build(cls, *, required_dict: Dict[str, List[str]]) -> "PluginManager":  # type: ignore
-        return PluginManager(cls, required_dict=required_dict)  # type: ignore
+        return super().build(required_dict=required_dict)
 
 
 class RequiredPlugin(RequiredPluginProtocol, BasePlugin):

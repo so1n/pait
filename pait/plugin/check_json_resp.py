@@ -30,9 +30,10 @@ else:
 
 
 class JsonRespPluginProtocolMixin(PluginProtocol):
-    def __init__(self, *, check_resp_fn: Callable) -> None:
-        super(JsonRespPluginProtocolMixin, self).__init__()
-        self.check_resp_fn: Callable = check_resp_fn
+    check_resp_fn: Callable
+
+    def __init__(self, **kwargs: Any) -> None:
+        super(JsonRespPluginProtocolMixin, self).__init__(**kwargs)
 
     @classmethod
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
@@ -69,8 +70,8 @@ class JsonRespPluginProtocolMixin(PluginProtocol):
         return kwargs
 
     @classmethod
-    def build(cls) -> "PluginManager":  # type: ignore
-        return PluginManager(cls)  # type: ignore
+    def build(cls, **kwargs: Any) -> "PluginManager":  # type: ignore
+        return PluginManager(cls, **kwargs)  # type: ignore
 
 
 class CheckJsonRespPlugin(JsonRespPluginProtocolMixin, BasePlugin):

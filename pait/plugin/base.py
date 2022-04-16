@@ -14,7 +14,11 @@ class PluginProtocol(object):
     kwargs: dict
 
     def __init__(self, **kwargs: Any) -> None:
-        pass
+        if kwargs:
+            for k, v in kwargs.items():
+                if getattr(self, k, None) is not None:
+                    continue
+                setattr(self, k, v)
 
     @classmethod
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:

@@ -44,9 +44,6 @@ class MockPluginInitProtocolMixin(PluginProtocol):
     def mock_response(self) -> Any:
         raise NotImplementedError()
 
-    def get_mock_response(self) -> Any:
-        return self.mock_response()
-
     @classmethod
     def build(  # type: ignore
         cls,  # type: ignore
@@ -64,9 +61,9 @@ class MockPluginInitProtocolMixin(PluginProtocol):
 
 class BaseMockPlugin(MockPluginInitProtocolMixin, BasePlugin, ABC):
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        return self.get_mock_response()
+        return self.mock_response()
 
 
 class BaseAsyncMockPlugin(MockPluginInitProtocolMixin, BaseAsyncPlugin, ABC):
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        return await self.get_mock_response()
+        return await self.mock_response()
