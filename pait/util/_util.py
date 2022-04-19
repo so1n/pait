@@ -16,6 +16,7 @@ from typing import (
     ForwardRef,
     List,
     Optional,
+    Set,
     Tuple,
     Type,
     TypeVar,
@@ -185,18 +186,30 @@ def gen_example_dict_from_pydantic_base_model(
         else:
             annotation: Type = get_pydantic_annotation(key, pydantic_base_model)
 
-            if issubclass(annotation, BaseModel):
+            if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
                 gen_dict[key] = gen_example_dict_from_pydantic_base_model(annotation)
             else:
+                sub_type: Optional[Type] = None
                 try:
                     parse_typing_result: Union[List[Type[Any]], Type] = parse_typing(annotation)
                     if isinstance(parse_typing_result, list):
                         real_type: Type = parse_typing_result[0]
                     else:
                         real_type = parse_typing_result
+                    if getattr(annotation, "__args__", None):
+                        sub_type_set: Set[Type] = set(annotation.__args__)
+                        if len(sub_type_set) == 1:
+                            sub_type = sub_type_set.pop()
                 except ParseTypeError:
                     real_type = annotation
-                if issubclass(real_type, Enum):
+                if (
+                    real_type is list
+                    and sub_type is not None
+                    and inspect.isclass(sub_type)
+                    and issubclass(sub_type, BaseModel)
+                ):
+                    gen_dict[key] = [gen_example_value_from_python(sub_type)]
+                elif issubclass(real_type, Enum):
                     gen_dict[key] = [i for i in real_type.__members__.values()][0].value
                 else:
                     gen_dict[key] = python_type_default_value_dict[real_type]
