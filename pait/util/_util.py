@@ -2,6 +2,7 @@ import inspect
 import json
 import os
 import sys
+from dataclasses import MISSING
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
@@ -119,7 +120,14 @@ def get_real_annotation(annotation: Union[Type, str], target_obj: Any) -> Type:
 
 
 def get_pydantic_annotation(key: str, pydantic_base_model: Type[BaseModel]) -> Type:
-    annotation: Type = pydantic_base_model.__annotations__[key]
+    annotation: Any = MISSING
+    for base in reversed(pydantic_base_model.__mro__):
+        ann: Union[str, Type] = base.__dict__.get("__annotations__", {}).get(key, MISSING)
+        if ann is not MISSING:
+            annotation = ann
+            break
+    if annotation is MISSING:
+        raise RuntimeError(f"get annotation from {pydantic_base_model} fail")  # pragma: no cover
     annotation = get_real_annotation(annotation, pydantic_base_model)
 
     if getattr(annotation, "real", None) and annotation != bool:

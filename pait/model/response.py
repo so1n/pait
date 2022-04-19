@@ -64,7 +64,11 @@ class PaitJsonResponseModel(PaitBaseResponseModel):
 
     @classmethod
     def get_default_dict(cls, **extra: Any) -> dict:
-        return gen_example_dict_from_pydantic_base_model(cls.response_data, use_example_value=False)
+        default_dict: dict = getattr(cls.response_data, "PaitJsonResponseModel_default_dict", {})
+        if not default_dict:
+            default_dict = gen_example_dict_from_pydantic_base_model(cls.response_data, use_example_value=False)
+            setattr(cls.response_data, "PaitJsonResponseModel_default_dict", default_dict)
+        return default_dict
 
 
 class PaitResponseModel(PaitJsonResponseModel):
