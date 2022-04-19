@@ -2,6 +2,7 @@ import inspect
 import json
 import os
 import sys
+from dataclasses import MISSING
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
@@ -15,6 +16,7 @@ from typing import (
     ForwardRef,
     List,
     Optional,
+    Set,
     Tuple,
     Type,
     TypeVar,
@@ -119,7 +121,14 @@ def get_real_annotation(annotation: Union[Type, str], target_obj: Any) -> Type:
 
 
 def get_pydantic_annotation(key: str, pydantic_base_model: Type[BaseModel]) -> Type:
-    annotation: Type = pydantic_base_model.__annotations__[key]
+    annotation: Any = MISSING
+    for base in reversed(pydantic_base_model.__mro__):
+        ann: Union[str, Type] = base.__dict__.get("__annotations__", {}).get(key, MISSING)
+        if ann is not MISSING:
+            annotation = ann
+            break
+    if annotation is MISSING:
+        raise RuntimeError(f"get annotation from {pydantic_base_model} fail")  # pragma: no cover
     annotation = get_real_annotation(annotation, pydantic_base_model)
 
     if getattr(annotation, "real", None) and annotation != bool:
@@ -177,18 +186,30 @@ def gen_example_dict_from_pydantic_base_model(
         else:
             annotation: Type = get_pydantic_annotation(key, pydantic_base_model)
 
-            if issubclass(annotation, BaseModel):
+            if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
                 gen_dict[key] = gen_example_dict_from_pydantic_base_model(annotation)
             else:
+                sub_type: Optional[Type] = None
                 try:
                     parse_typing_result: Union[List[Type[Any]], Type] = parse_typing(annotation)
                     if isinstance(parse_typing_result, list):
                         real_type: Type = parse_typing_result[0]
                     else:
                         real_type = parse_typing_result
+                    if getattr(annotation, "__args__", None):
+                        sub_type_set: Set[Type] = set(annotation.__args__)
+                        if len(sub_type_set) == 1:
+                            sub_type = sub_type_set.pop()
                 except ParseTypeError:
                     real_type = annotation
-                if issubclass(real_type, Enum):
+                if (
+                    real_type is list
+                    and sub_type is not None
+                    and inspect.isclass(sub_type)
+                    and issubclass(sub_type, BaseModel)
+                ):
+                    gen_dict[key] = [gen_example_value_from_python(sub_type)]
+                elif issubclass(real_type, Enum):
                     gen_dict[key] = [i for i in real_type.__members__.values()][0].value
                 else:
                     gen_dict[key] = python_type_default_value_dict[real_type]
