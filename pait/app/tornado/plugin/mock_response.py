@@ -4,10 +4,10 @@ import aiofiles  # type: ignore
 from tornado.web import RequestHandler
 
 from pait.model import response
-from pait.plugin.base_mock_response import BaseAsyncMockPlugin
+from pait.plugin.base_mock_response import BaseMockPlugin
 
 
-class AsyncMockPlugin(BaseAsyncMockPlugin):
+class MockPlugin(BaseMockPlugin):
     tornado_handle: RequestHandler
 
     def mock_response(self) -> Any:
@@ -36,3 +36,7 @@ class AsyncMockPlugin(BaseAsyncMockPlugin):
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
         self.tornado_handle = args[0]
         await super().__call__(args, kwargs)
+
+
+class AsyncMockPlugin(MockPlugin):
+    """"""

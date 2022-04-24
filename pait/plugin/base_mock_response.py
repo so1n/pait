@@ -2,14 +2,14 @@ from abc import ABC
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Type
 
 from pait.model.response import PaitBaseResponseModel
-from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginManager, PluginProtocol
+from pait.plugin.base import PluginManager, PluginProtocol
 from pait.util import get_pait_response_model
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
 
 
-class MockPluginInitProtocolMixin(PluginProtocol):
+class MockPluginProtocol(PluginProtocol):
     pait_response_model: Type[PaitBaseResponseModel]
 
     @classmethod
@@ -22,6 +22,7 @@ class MockPluginInitProtocolMixin(PluginProtocol):
 
     @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
+        kwargs = super().pre_load_hook(pait_core_model, kwargs)
         pait_response: Optional[Type[PaitBaseResponseModel]] = None
         enable_mock_response_filter_fn: Optional[Callable] = kwargs.pop("enable_mock_response_filter_fn", None)
         if enable_mock_response_filter_fn and pait_core_model.response_model_list:
@@ -55,12 +56,13 @@ class MockPluginInitProtocolMixin(PluginProtocol):
             find_core_response_model=find_core_response_model,
         )
 
-
-class BaseMockPlugin(MockPluginInitProtocolMixin, BasePlugin, ABC):
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         return self.mock_response()
 
 
-class BaseAsyncMockPlugin(MockPluginInitProtocolMixin, BaseAsyncPlugin, ABC):
-    async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        return await self.mock_response()
+class BaseMockPlugin(MockPluginProtocol, ABC):
+    """"""
+
+
+class BaseAsyncMockPlugin(MockPluginProtocol, ABC):
+    """"""

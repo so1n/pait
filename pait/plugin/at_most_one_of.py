@@ -1,13 +1,13 @@
 from typing import Any, List
 
 from pait.exceptions import CheckValueError
-from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginManager, PluginProtocol
+from pait.plugin.base import PluginManager, PluginProtocol
 from pait.util import gen_tip_exc
 
 __all__ = ["AsyncAtMostOneOfPlugin", "AtMostOneOfPlugin"]
 
 
-class AtMostOneOfPluginProtocol(PluginProtocol):
+class AtMostOneOfPlugin(PluginProtocol):
     """
     Check whether each group of parameters appear at the same time
     """
@@ -28,14 +28,10 @@ class AtMostOneOfPluginProtocol(PluginProtocol):
     def build(cls, *, at_most_one_of_list: List[List[str]]) -> "PluginManager":  # type: ignore
         return super().build(at_most_one_of_list=at_most_one_of_list)
 
-
-class AtMostOneOfPlugin(AtMostOneOfPluginProtocol, BasePlugin):
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         self.check_param(**kwargs)
         return self.call_next(*args, **kwargs)
 
 
-class AsyncAtMostOneOfPlugin(AtMostOneOfPluginProtocol, BaseAsyncPlugin):
-    async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        self.check_param(**kwargs)
-        return await self.call_next(*args, **kwargs)
+class AsyncAtMostOneOfPlugin(AtMostOneOfPlugin):
+    """"""

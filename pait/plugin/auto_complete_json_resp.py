@@ -1,12 +1,14 @@
-from typing import Any, Dict, Type
+from typing import TYPE_CHECKING, Any, Dict, Type
 
-from pait.model.core import PaitCoreModel
 from pait.model.response import PaitBaseResponseModel, PaitJsonResponseModel
-from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginProtocol
+from pait.plugin.base import PluginProtocol
 from pait.util import get_pait_response_model
 
+if TYPE_CHECKING:
+    from pait.model.core import PaitCoreModel
 
-class AutoCompleteJsonRespPluginProtocolMixin(PluginProtocol):
+
+class AutoCompleteJsonRespPlugin(PluginProtocol):
     pait_response_model: PaitJsonResponseModel
 
     def update(self, source_dict: dict, target_dict: dict) -> None:
@@ -24,6 +26,7 @@ class AutoCompleteJsonRespPluginProtocolMixin(PluginProtocol):
 
     @classmethod
     def pre_load_hook(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
+        kwargs = super().pre_load_hook(pait_core_model, kwargs)
         pait_response_model: Type[PaitBaseResponseModel] = get_pait_response_model(
             pait_core_model.response_model_list, find_core_response_model=True
         )
@@ -32,18 +35,24 @@ class AutoCompleteJsonRespPluginProtocolMixin(PluginProtocol):
         kwargs["pait_response_model"] = pait_response_model
         return kwargs
 
-
-class AutoCompleteJsonRespPlugin(AutoCompleteJsonRespPluginProtocolMixin, BasePlugin):
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+    def _sync_call(self, *args: Any, **kwargs: Any) -> Any:
         default_response_dict: dict = self.pait_response_model.get_default_dict()
-        response_dict: dict = self.call_next(*args, **kwargs)
+        response_dict = self.call_next(*args, **kwargs)
         self.update(default_response_dict, response_dict)
         return default_response_dict
 
-
-class AsyncAutoCompleteJsonRespPlugin(AutoCompleteJsonRespPluginProtocolMixin, BaseAsyncPlugin):
-    async def __call__(self, *args: Any, **kwargs: Any) -> Any:
+    async def _async_call(self, *args: Any, **kwargs: Any) -> Any:
         default_response_dict: dict = self.pait_response_model.get_default_dict()
         response_dict: dict = await self.call_next(*args, **kwargs)
         self.update(default_response_dict, response_dict)
         return default_response_dict
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        if self._is_async_func:
+            return self._async_call(*args, **kwargs)
+        else:
+            return self._sync_call(*args, **kwargs)
+
+
+class AsyncAutoCompleteJsonRespPlugin(AutoCompleteJsonRespPlugin):
+    """"""

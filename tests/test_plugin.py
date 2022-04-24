@@ -14,12 +14,10 @@ from pait.model import response
 from pait.model.core import PaitCoreModel
 from pait.param_handle import ParamHandler
 from pait.plugin import PluginManager
-from pait.plugin.at_most_one_of import AsyncAtMostOneOfPlugin, AtMostOneOfPlugin
-from pait.plugin.auto_complete_json_resp import AsyncAutoCompleteJsonRespPlugin, AutoCompleteJsonRespPlugin
-from pait.plugin.base import BasePlugin
-from pait.plugin.base_mock_response import BaseAsyncMockPlugin, BaseMockPlugin
-from pait.plugin.check_json_resp import AsyncCheckJsonRespPlugin, CheckJsonRespPlugin
-from pait.plugin.required import AsyncRequiredPlugin, RequiredPlugin
+from pait.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
+from pait.plugin.base import PluginProtocol
+from pait.plugin.base_mock_response import BaseMockPlugin
+from pait.plugin.check_json_resp import CheckJsonRespPlugin
 
 
 @pytest.fixture
@@ -37,10 +35,10 @@ def client() -> Generator[FlaskClient, None, None]:
 
 class TestPlugin:
     def test_add_plugin(self) -> None:
-        class NotPrePlugin(BasePlugin):
+        class NotPrePlugin(PluginProtocol):
             is_pre_core = False
 
-        class PrePlugin(BasePlugin):
+        class PrePlugin(PluginProtocol):
             is_pre_core = True
 
         def demo() -> None:
@@ -65,52 +63,6 @@ class TestPlugin:
         assert "is pre plugin" in exec_msg
         assert core_model._plugin_list == raw_plugin_list
         assert core_model._post_plugin_list == raw_post_plugin_list
-
-    def test_async_plugin_in_sync_func(self) -> None:
-        def demo() -> None:
-            pass
-
-        for test_plugin in [
-            AsyncAtMostOneOfPlugin,
-            AsyncAutoCompleteJsonRespPlugin,
-            BaseAsyncMockPlugin,
-            AsyncRequiredPlugin,
-            AsyncCheckJsonRespPlugin,
-        ]:
-            with pytest.raises(TypeError) as e:
-                test_plugin.pre_check_hook(  # type: ignore
-                    PaitCoreModel(
-                        demo,
-                        BaseAppHelper,
-                    ),
-                    {},
-                )
-
-            exec_msg: str = e.value.args[0]
-            assert "Plugin only support async func" in exec_msg
-
-    def test_sync_plugin_in_async_func(self) -> None:
-        async def demo() -> None:
-            pass
-
-        for plugin in [
-            AtMostOneOfPlugin,
-            AutoCompleteJsonRespPlugin,
-            BaseMockPlugin,
-            RequiredPlugin,
-            CheckJsonRespPlugin,
-        ]:
-            with pytest.raises(TypeError) as e:
-                plugin.pre_check_hook(  # type: ignore
-                    PaitCoreModel(
-                        demo,
-                        BaseAppHelper,
-                    ),
-                    {},
-                )
-
-            exec_msg: str = e.value.args[0]
-            assert "Plugin not support async func" in exec_msg
 
 
 class TestJsonPlugin:

@@ -1,13 +1,14 @@
 import sys
-from typing import Any, Callable, Dict, Optional, Type
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Type
 
 import pydantic
 
-from pait.model.core import PaitCoreModel
 from pait.model.response import PaitBaseResponseModel, PaitJsonResponseModel
-from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginProtocol
+from pait.plugin.base import PluginProtocol
 from pait.util import gen_example_dict_from_pydantic_base_model, get_pait_response_model, get_real_annotation
 
+if TYPE_CHECKING:
+    from pait.model.core import PaitCoreModel
 # copy from https://github.com/agronholm/typeguard/blob/master/src/typeguard/__init__.py#L64
 if sys.version_info >= (3, 10):
     from typing import is_typeddict
@@ -29,7 +30,7 @@ else:
         return isinstance(tp, _typed_dict_meta_types)
 
 
-class JsonRespPluginProtocolMixin(PluginProtocol):
+class CheckJsonRespPlugin(PluginProtocol):
     check_resp_fn: Callable
 
     @classmethod
@@ -39,7 +40,8 @@ class JsonRespPluginProtocolMixin(PluginProtocol):
             raise RuntimeError("Please use response_model_list param")
 
     @classmethod
-    def pre_load_hook(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
+    def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
+        kwargs = super().pre_load_hook(pait_core_model, kwargs)
         pait_response_model: Type[PaitBaseResponseModel] = get_pait_response_model(
             pait_core_model.response_model_list, find_core_response_model=True
         )
@@ -66,16 +68,22 @@ class JsonRespPluginProtocolMixin(PluginProtocol):
         kwargs["check_resp_fn"] = check_resp_by_dict
         return kwargs
 
-
-class CheckJsonRespPlugin(JsonRespPluginProtocolMixin, BasePlugin):
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+    def _sync_call(self, *args: Any, **kwargs: Any) -> Any:
         response: Any = self.call_next(*args, **kwargs)
         self.check_resp_fn(response)
         return response
 
-
-class AsyncCheckJsonRespPlugin(JsonRespPluginProtocolMixin, BaseAsyncPlugin):
-    async def __call__(self, *args: Any, **kwargs: Any) -> Any:
+    async def _async_call(self, *args: Any, **kwargs: Any) -> Any:
         response: Any = await self.call_next(*args, **kwargs)
         self.check_resp_fn(response)
         return response
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        if self._is_async_func:
+            return self._async_call(*args, **kwargs)
+        else:
+            return self._sync_call(*args, **kwargs)
+
+
+class AsyncCheckJsonRespPlugin(CheckJsonRespPlugin):
+    """"""

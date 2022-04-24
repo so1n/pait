@@ -36,18 +36,15 @@ from example.param_verify.model import (
     demo_depend,
 )
 from pait.app.starlette import AddDocRoute, Pait, add_doc_route, pait
-from pait.app.starlette.plugin.auto_complete_json_resp import (
-    AsyncAutoCompleteJsonRespPlugin,
-    AutoCompleteJsonRespPlugin,
-)
-from pait.app.starlette.plugin.check_json_resp import AsyncCheckJsonRespPlugin, CheckJsonRespPlugin
-from pait.app.starlette.plugin.mock_response import AsyncMockPlugin, MockPlugin
+from pait.app.starlette.plugin import AtMostOneOfPlugin
+from pait.app.starlette.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
+from pait.app.starlette.plugin.check_json_resp import CheckJsonRespPlugin
+from pait.app.starlette.plugin.mock_response import MockPlugin
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
 from pait.model.template import TemplateVar
-from pait.plugin.at_most_one_of import AsyncAtMostOneOfPlugin
 from pait.plugin.required import AsyncRequiredPlugin
 
 global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
@@ -202,7 +199,7 @@ async def pait_base_field_route(
     response_model_list=[UserSuccessRespModel2, FailRespModel],
     post_plugin_list=[
         AsyncRequiredPlugin.build(required_dict={"birthday": ["alias_user_name"]}),
-        AsyncAtMostOneOfPlugin.build(at_most_one_of_list=[["user_name", "alias_user_name"]]),
+        AtMostOneOfPlugin.build(at_most_one_of_list=[["user_name", "alias_user_name"]]),
     ],
 )
 async def check_param_route(
@@ -263,7 +260,7 @@ async def check_response_route(
     status=PaitStatus.release,
     tag=(tag.mock_tag,),
     response_model_list=[UserSuccessRespModel2, FailRespModel],
-    plugin_list=[AsyncMockPlugin.build()],
+    plugin_list=[MockPlugin.build()],
 )
 async def async_mock_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
@@ -517,7 +514,7 @@ def get_user_route(
         return JSONResponse({"code": 1, "msg": ""})
 
 
-@plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[AsyncAutoCompleteJsonRespPlugin.build()])
+@plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[AutoCompleteJsonRespPlugin.build()])
 async def async_auto_complete_json_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
@@ -586,7 +583,7 @@ def check_json_plugin_route(
     return return_dict
 
 
-@plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[AsyncCheckJsonRespPlugin.build()])
+@plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[CheckJsonRespPlugin.build()])
 async def async_check_json_plugin_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
@@ -650,7 +647,7 @@ def check_json_plugin_route1(
     return return_dict  # type: ignore
 
 
-@plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[AsyncCheckJsonRespPlugin.build()])
+@plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[CheckJsonRespPlugin.build()])
 async def async_check_json_plugin_route1(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),

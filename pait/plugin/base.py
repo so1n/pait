@@ -1,10 +1,12 @@
 import inspect
-from typing import TYPE_CHECKING, Any, Dict, Type, TypeVar, Union
+import logging
+from typing import TYPE_CHECKING, Any, Dict, Type, TypeVar
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
 
 _PluginT = TypeVar("_PluginT", bound="PluginProtocol")
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class PluginProtocol(object):
@@ -12,6 +14,8 @@ class PluginProtocol(object):
     pait_core_model: "PaitCoreModel"
     args: list
     kwargs: dict
+
+    _is_async_func: bool
 
     def __init__(self, **kwargs: Any) -> None:
         """Direct init calls are not supported,
@@ -25,10 +29,13 @@ class PluginProtocol(object):
 
     @classmethod
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
-        pass
+        class_name: str = cls.__class__.__name__
+        if class_name.startswith("Async"):
+            logger.warning(f"Please use {class_name.replace('Async', '')}, {class_name} will remove on version 1.0")
 
     @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
+        kwargs["_is_async_func"] = inspect.iscoroutinefunction(pait_core_model.func)
         return kwargs  # pragma: no cover
 
     def __post_init__(self, pait_core_model: "PaitCoreModel", args: tuple, kwargs: dict) -> None:
@@ -40,34 +47,14 @@ class PluginProtocol(object):
     def build(cls, **kwargs: Any) -> "PluginManager":
         return PluginManager(cls, **kwargs)  # type: ignore
 
-
-class BasePlugin(PluginProtocol):
     def call_next(self, *args: Any, **kwargs: Any) -> Any:
         raise RuntimeError("Failed to load Plugin, please check the list of plugins")  # pragma: no cover
-
-    @classmethod
-    def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
-        if inspect.iscoroutinefunction(pait_core_model.func):
-            raise TypeError("Plugin not support async func")
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         return self.call_next(*args, **kwargs)  # pragma: no cover
 
 
-class BaseAsyncPlugin(PluginProtocol):
-    async def call_next(self, *args: Any, **kwargs: Any) -> Any:
-        raise RuntimeError("Failed to load Plugin, please check the list of plugins")  # pragma: no cover
-
-    @classmethod
-    def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
-        if not inspect.iscoroutinefunction(pait_core_model.func):
-            raise TypeError("Plugin only support async func")
-
-    async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        return await self.call_next(*args, **kwargs)  # pragma: no cover
-
-
-_T = Union[BasePlugin, BaseAsyncPlugin]
+_T = TypeVar("_T", bound=PluginProtocol)
 
 
 class PluginManager(object):

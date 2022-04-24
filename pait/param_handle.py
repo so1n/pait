@@ -18,7 +18,7 @@ from pait.exceptions import (
     ParseTypeError,
 )
 from pait.field import BaseField
-from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginProtocol
+from pait.plugin.base import PluginProtocol
 from pait.util import (
     FuncSig,
     create_pydantic_model,
@@ -75,9 +75,9 @@ def parameter_2_dict(
     yield create_pydantic_model(annotation_dict, pydantic_config=pydantic_config)(**param_value_dict).__dict__
 
 
-class ParamHandlerMixin(PluginProtocol):
+class BaseParamHandler(PluginProtocol):
     def __post_init__(self, pait_core_model: "PaitCoreModel", args: tuple, kwargs: dict) -> None:
-        super(ParamHandlerMixin, self).__post_init__(pait_core_model, args, kwargs)
+        super(BaseParamHandler, self).__post_init__(pait_core_model, args, kwargs)
 
         # cbv handle
         self.cbv_instance: Optional[Any] = None
@@ -254,7 +254,7 @@ class ParamHandlerMixin(PluginProtocol):
         return app_field_func()
 
 
-class ParamHandler(ParamHandlerMixin, BasePlugin):
+class ParamHandler(BaseParamHandler):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._contextmanager_list: List[AbstractContextManager] = []
@@ -359,7 +359,7 @@ class ParamHandler(ParamHandlerMixin, BasePlugin):
             return False
 
 
-class AsyncParamHandler(ParamHandlerMixin, BaseAsyncPlugin):
+class AsyncParamHandler(BaseParamHandler):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._contextmanager_list: List[Union[AbstractAsyncContextManager, AbstractContextManager]] = []

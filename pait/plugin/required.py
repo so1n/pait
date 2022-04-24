@@ -1,13 +1,13 @@
 from typing import Any, Dict, List
 
 from pait.exceptions import CheckValueError
-from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginManager, PluginProtocol
+from pait.plugin.base import PluginManager, PluginProtocol
 from pait.util import gen_tip_exc
 
 __all__ = ["RequiredPlugin", "AsyncRequiredPlugin"]
 
 
-class RequiredPluginProtocol(PluginProtocol):
+class RequiredPlugin(PluginProtocol):
     """
     Check dependencies between parameters
     """
@@ -33,14 +33,10 @@ class RequiredPluginProtocol(PluginProtocol):
     def build(cls, *, required_dict: Dict[str, List[str]]) -> "PluginManager":  # type: ignore
         return super().build(required_dict=required_dict)
 
-
-class RequiredPlugin(RequiredPluginProtocol, BasePlugin):
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         self.check_param(**kwargs)
         return self.call_next(*args, **kwargs)
 
 
-class AsyncRequiredPlugin(RequiredPluginProtocol, BaseAsyncPlugin):
-    async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        self.check_param(**kwargs)
-        return await self.call_next(*args, **kwargs)
+class AsyncRequiredPlugin(RequiredPlugin):
+    """"""

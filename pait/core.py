@@ -12,12 +12,12 @@ from pait.model.core import PaitCoreModel
 from pait.model.response import PaitBaseResponseModel
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
-from pait.plugin.base import BaseAsyncPlugin, BasePlugin, PluginManager
+from pait.plugin.base import PluginManager, PluginProtocol
 from pait.util import get_func_sig
 
 _AppendT = TypeVar("_AppendT", list, tuple)
 _PaitT = TypeVar("_PaitT", bound="Pait")
-_PluginT = Union[BasePlugin, BaseAsyncPlugin]
+_PluginT = TypeVar("_PluginT", bound="PluginProtocol")
 TagT = Union[str, Tag]
 
 
@@ -133,11 +133,10 @@ class Pait(object):
         pait_core_model: PaitCoreModel,
         args: Any,
         kwargs: Any,
-        func: Callable,
     ) -> List[_PluginT]:
         plugin_instance_list: List[_PluginT] = []
 
-        pre_plugin: Callable = func
+        pre_plugin: Callable = pait_core_model.func
         for plugin_manager in pait_core_model.plugin_list:
             plugin_instance: _PluginT = plugin_manager.get_plugin()
             plugin_instance.__post_init__(pait_core_model, args, kwargs)
@@ -226,20 +225,16 @@ class Pait(object):
 
                 @wraps(func)
                 async def dispatch(*args: Any, **kwargs: Any) -> Callable:
-                    first_plugin: BaseAsyncPlugin = self._plugin_manager_handler(  # type: ignore
-                        pait_core_model, args, kwargs, func
-                    )[0]
-                    return await first_plugin(*args, **kwargs)
+                    invoke: PluginProtocol = self._plugin_manager_handler(pait_core_model, args, kwargs)[0]
+                    return await invoke(*args, **kwargs)
 
                 return dispatch
             else:
 
                 @wraps(func)
                 def dispatch(*args: Any, **kwargs: Any) -> Callable:
-                    first_plugin: BasePlugin = self._plugin_manager_handler(  # type: ignore
-                        pait_core_model, args, kwargs, func
-                    )[0]
-                    return first_plugin(*args, **kwargs)
+                    invoke: PluginProtocol = self._plugin_manager_handler(pait_core_model, args, kwargs)[0]
+                    return invoke(*args, **kwargs)
 
                 return dispatch
 

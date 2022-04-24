@@ -1,8 +1,5 @@
 from typing import Any
 
-from starlette.responses import JSONResponse
-
-from pait.plugin.check_json_resp import AsyncCheckJsonRespPlugin as _AsyncCheckJsonRespPlugin
 from pait.plugin.check_json_resp import CheckJsonRespPlugin as _CheckJsonRespPlugin
 
 from .base import JsonProtocol
@@ -10,13 +7,15 @@ from .base import JsonProtocol
 __all__ = ["AsyncCheckJsonRespPlugin", "CheckJsonRespPlugin"]
 
 
-class AsyncCheckJsonRespPlugin(JsonProtocol, _AsyncCheckJsonRespPlugin):
-    async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        response: Any = await super().__call__(*args, **kwargs)
-        return JSONResponse(response, status_code=self.status_code, headers=self.headers, media_type=self.media_type)
-
-
 class CheckJsonRespPlugin(JsonProtocol, _CheckJsonRespPlugin):
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        response: Any = super().__call__(*args, **kwargs)
-        return JSONResponse(response, status_code=self.status_code, headers=self.headers, media_type=self.media_type)
+    def _sync_call(self, *args: Any, **kwargs: Any) -> Any:
+        response: Any = super()._sync_call(*args, **kwargs)
+        return self.gen_response(response)
+
+    async def _async_call(self, *args: Any, **kwargs: Any) -> Any:
+        response: Any = await super()._async_call(*args, **kwargs)
+        return self.gen_response(response)
+
+
+class AsyncCheckJsonRespPlugin(CheckJsonRespPlugin):
+    """"""
