@@ -25,7 +25,7 @@ class AutoCompleteJsonRespPlugin(PluginProtocol):
             raise RuntimeError("Please use response_model_list param")
 
     @classmethod
-    def pre_load_hook(cls, pait_core_model: PaitCoreModel, kwargs: Dict) -> Dict:
+    def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         kwargs = super().pre_load_hook(pait_core_model, kwargs)
         pait_response_model: Type[PaitBaseResponseModel] = get_pait_response_model(
             pait_core_model.response_model_list, find_core_response_model=True
