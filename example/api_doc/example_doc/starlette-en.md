@@ -7,7 +7,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 438">text_response_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 436">text_response_route</abbr>|    |
 - Path: /api/text-resp
 - Method: GET,HEAD
 - Request:
@@ -29,7 +29,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 454">html_response_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 452">html_response_route</abbr>|    |
 - Path: /api/html-resp
 - Method: GET,HEAD
 - Request:
@@ -51,7 +51,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 462">file_response_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 460">file_response_route</abbr>|    |
 - Path: /api/file-resp
 - Method: GET,HEAD
 - Request:
@@ -73,7 +73,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 430">async_text_response_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 428">async_text_response_route</abbr>|    |
 - Path: /api/async-text-resp
 - Method: GET,HEAD
 - Request:
@@ -95,7 +95,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 446">async_html_response_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 444">async_html_response_route</abbr>|    |
 - Path: /api/async-html-resp
 - Method: GET,HEAD
 - Request:
@@ -117,7 +117,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 479">async_file_response_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 477">async_file_response_route</abbr>|    |
 - Path: /api/async-file-resp
 - Method: GET,HEAD
 - Request:
@@ -141,7 +141,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 496">login_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 494">login_route</abbr>|    |
 - Path: /api/login
 - Method: POST
 - Request:
@@ -186,7 +186,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 509">get_user_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 507">get_user_route</abbr>|    |
 - Path: /api/user
 - Method: GET,HEAD
 - Request:
@@ -194,7 +194,7 @@
 
         |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |token|string| | |token||
+        |token|string| |<pait.model.template.TemplateVar object at 0x7f9aa28d1550>|token||
 - Response:
 
     - SuccessRespModel
@@ -232,7 +232,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#DC143C>abandoned</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 85">raise_tip_route</abbr>|    |
+    |so1n    |<font color=#DC143C>abandoned</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 83">raise_tip_route</abbr>|    |
 - Path: /api/raise-tip
 - Method: POST
 - Request:
@@ -300,7 +300,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 98">post_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 96">post_route</abbr>|    |
 - Path: /api/post
 - Method: POST
 - Request:
@@ -385,7 +385,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 323">pait_model_route</abbr>|    |
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 321">pait_model_route</abbr>|    |
 - Path: /api/pait-model
 - Method: POST
 - Request:
@@ -459,7 +459,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 329">depend_contextmanager_route</abbr>|    |
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 327">depend_contextmanager_route</abbr>|    |
 - Path: /api/check_depend_contextmanager
 - Method: GET,HEAD
 - Request:
@@ -522,7 +522,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 362">depend_async_contextmanager_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 360">depend_async_contextmanager_route</abbr>|    |
 - Path: /api/check_depend_async_contextmanager
 - Method: GET,HEAD
 - Request:
@@ -585,7 +585,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 338">pre_depend_contextmanager_route</abbr>|    |
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 336">pre_depend_contextmanager_route</abbr>|    |
 - Path: /api/check_pre_depend_contextmanager
 - Method: GET,HEAD
 - Request:
@@ -648,7 +648,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 350">pre_depend_async_contextmanager_route</abbr>|    |
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 348">pre_depend_async_contextmanager_route</abbr>|    |
 - Path: /api/check_pre_depend_async_contextmanager
 - Method: GET,HEAD
 - Request:
@@ -713,86 +713,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/starlette/_route.py;line: 61">AddDocRoute._gen_route.<locals>.get_redoc_html</abbr>|    |
-- Path: /api-doc/redoc
-- Method: GET,HEAD
-- Request:
-    - Query Param
-
-        |Param Name|Type|Default|Example|Desc|Other|
-        |---|---|---|---|---|---|
-        |pin_code|string| | | ||
-- Response:
-
-    - DocHtmlRespModel
-
-        - Response Info
-
-            |Status Code|Media Type|Desc|
-            |---|---|---|
-            |200|text/html|doc html response|
-        - Header
-            {'X-Example-Type': 'html'}
-
-### Name: get_swagger_ui_html
-
-- API Info
-
-    |Author|Status|Func|Summary|
-    |---|---|---|---|
-    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/starlette/_route.py;line: 65">AddDocRoute._gen_route.<locals>.get_swagger_ui_html</abbr>|    |
-- Path: /api-doc/swagger
-- Method: GET,HEAD
-- Request:
-    - Query Param
-
-        |Param Name|Type|Default|Example|Desc|Other|
-        |---|---|---|---|---|---|
-        |pin_code|string| | | ||
-- Response:
-
-    - DocHtmlRespModel
-
-        - Response Info
-
-            |Status Code|Media Type|Desc|
-            |---|---|---|
-            |200|text/html|doc html response|
-        - Header
-            {'X-Example-Type': 'html'}
-
-### Name: openapi_route
-
-- API Info
-
-    |Author|Status|Func|Summary|
-    |---|---|---|---|
-    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/starlette/_route.py;line: 71">AddDocRoute._gen_route.<locals>.openapi_route</abbr>|    |
-- Path: /api-doc/openapi.json
-- Method: GET,HEAD
-- Request:
-    - Query Param
-
-        |Param Name|Type|Default|Example|Desc|Other|
-        |---|---|---|---|---|---|
-        |pin_code|string| | | ||
-- Response:
-
-    - OpenAPIRespModel
-
-        - Response Info
-
-            |Status Code|Media Type|Desc|
-            |---|---|---|
-            |200|application/json|open api json response|
-
-### Name: get_redoc_html
-
-- API Info
-
-    |Author|Status|Func|Summary|
-    |---|---|---|---|
-    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/starlette/_route.py;line: 61">AddDocRoute._gen_route.<locals>.get_redoc_html</abbr>|    |
+    |    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/pait/app/starlette/_route.py;line: 64">AddDocRoute._gen_route.<locals>.get_redoc_html</abbr>|    |
 - Path: /redoc
 - Method: GET,HEAD
 - Request:
@@ -800,7 +721,7 @@
 
         |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |pin_code|string| | | ||
+        |url_dict|object|**`Required`**| |Set the template variable, for example, there is a template parameter token, then the requested parameter is template-token=xxx||
 - Response:
 
     - DocHtmlRespModel
@@ -819,7 +740,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/starlette/_route.py;line: 65">AddDocRoute._gen_route.<locals>.get_swagger_ui_html</abbr>|    |
+    |    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/pait/app/starlette/_route.py;line: 72">AddDocRoute._gen_route.<locals>.get_swagger_ui_html</abbr>|    |
 - Path: /swagger
 - Method: GET,HEAD
 - Request:
@@ -827,7 +748,7 @@
 
         |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |pin_code|string| | | ||
+        |url_dict|object|**`Required`**| |Set the template variable, for example, there is a template parameter token, then the requested parameter is template-token=xxx||
 - Response:
 
     - DocHtmlRespModel
@@ -846,7 +767,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/starlette/_route.py;line: 71">AddDocRoute._gen_route.<locals>.openapi_route</abbr>|    |
+    |    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/pait/app/starlette/_route.py;line: 80">AddDocRoute._gen_route.<locals>.openapi_route</abbr>|    |
 - Path: /openapi.json
 - Method: GET,HEAD
 - Request:
@@ -855,6 +776,7 @@
         |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
         |pin_code|string| | | ||
+        |url_dict|object|**`Required`**| |Set the template variable, for example, there is a template parameter token, then the requested parameter is template-token=xxx||
 - Response:
 
     - OpenAPIRespModel
@@ -877,7 +799,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 540">auto_complete_json_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 540">auto_complete_json_route</abbr>|    |
 - Path: /api/auto-complete-json-plugin
 - Method: GET,HEAD
 - Request:
@@ -935,7 +857,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 517">async_auto_complete_json_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 517">async_auto_complete_json_route</abbr>|    |
 - Path: /api/async-auto-complete-json-plugin
 - Method: GET,HEAD
 - Request:
@@ -993,7 +915,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 563">check_json_plugin_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 563">check_json_plugin_route</abbr>|    |
 - Path: /api/check-json-plugin
 - Method: GET,HEAD
 - Request:
@@ -1051,7 +973,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 627">check_json_plugin_route1</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 627">check_json_plugin_route1</abbr>|    |
 - Path: /api/check-json-plugin-1
 - Method: GET,HEAD
 - Request:
@@ -1109,7 +1031,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 586">async_check_json_plugin_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 586">async_check_json_plugin_route</abbr>|    |
 - Path: /api/async-check-json-plugin
 - Method: GET,HEAD
 - Request:
@@ -1167,7 +1089,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 650">async_check_json_plugin_route1</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 650">async_check_json_plugin_route1</abbr>|    |
 - Path: /api/async-check-json-plugin-1
 - Method: GET,HEAD
 - Request:
@@ -1227,7 +1149,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 117">depend_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 115">depend_route</abbr>|    |
 - Path: /api/depend
 - Method: POST
 - Request:
@@ -1296,7 +1218,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 142">field_default_factory_route</abbr>|    |
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 140">field_default_factory_route</abbr>|    |
 - Path: /api/field-default-factory
 - Method: POST
 - Request:
@@ -1366,7 +1288,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 157">pait_base_field_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 155">pait_base_field_route</abbr>|    |
 - Path: /api/pait-base-field/{age}
 - Method: POST
 - Request:
@@ -1464,7 +1386,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 131">same_alias_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 129">same_alias_route</abbr>|    |
 - Path: /api/same-alias
 - Method: GET,HEAD
 - Request:
@@ -1537,7 +1459,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 292">mock_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 290">mock_route</abbr>|    |
 - Path: /api/mock/{age}
 - Method: GET,HEAD
 - Request:
@@ -1629,7 +1551,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 261">async_mock_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 259">async_mock_route</abbr>|    |
 - Path: /api/async-mock/{age}
 - Method: GET,HEAD
 - Request:
@@ -1721,7 +1643,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 374">CbvRoute.get</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 372">CbvRoute.get</abbr>|    |
 - Path: /api/cbv
 - Method: get
 - Request:
@@ -1806,7 +1728,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 401">CbvRoute.post</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 399">CbvRoute.post</abbr>|    |
 - Path: /api/cbv
 - Method: post
 - Request:
@@ -1891,7 +1813,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 198">check_param_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 196">check_param_route</abbr>|    |
 - Path: /api/check-param
 - Method: GET,HEAD
 - Request:
@@ -1976,7 +1898,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 233">check_response_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/starlette_example.py;line: 231">check_response_route</abbr>|    |
 - Path: /api/check-resp
 - Method: GET,HEAD
 - Request:

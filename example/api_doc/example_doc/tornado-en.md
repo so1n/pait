@@ -7,7 +7,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 407">TextResponseHanler.get</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 408">TextResponseHanler.get</abbr>|    |
 - Path: /api/text-resp$
 - Method: get
 - Request:
@@ -29,7 +29,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 415">HtmlResponseHanler.get</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 416">HtmlResponseHanler.get</abbr>|    |
 - Path: /api/html-resp$
 - Method: get
 - Request:
@@ -51,7 +51,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 423">FileResponseHanler.get</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 424">FileResponseHanler.get</abbr>|    |
 - Path: /api/file-resp$
 - Method: get
 - Request:
@@ -75,7 +75,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 436">LoginHanlder.post</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 437">LoginHanlder.post</abbr>|    |
 - Path: /api/login$
 - Method: post
 - Request:
@@ -120,7 +120,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 449">GetUserHandler.get</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 450">GetUserHandler.get</abbr>|    |
 - Path: /api/user$
 - Method: get
 - Request:
@@ -128,7 +128,7 @@
 
         |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |token|string| | |token||
+        |token|string| |<pait.model.template.TemplateVar object at 0x7f12311cd0b8>|token||
 - Response:
 
     - SuccessRespModel
@@ -166,7 +166,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#DC143C>abandoned</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 81">RaiseTipHandler.post</abbr>|    |
+    |so1n    |<font color=#DC143C>abandoned</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 82">RaiseTipHandler.post</abbr>|    |
 - Path: /api/raise-tip$
 - Method: post
 - Request:
@@ -234,7 +234,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 117">DependHandler.post</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 118">DependHandler.post</abbr>|    |
 - Path: /api/depend$
 - Method: post
 - Request:
@@ -303,7 +303,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 133">SameAliasHandler.get</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 134">SameAliasHandler.get</abbr>|    |
 - Path: /api/same-alias$
 - Method: get
 - Request:
@@ -376,7 +376,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 304">PaitModelHanler.post</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 305">PaitModelHanler.post</abbr>|    |
 - Path: /api/pait-model$
 - Method: post
 - Request:
@@ -450,7 +450,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 311">DependContextmanagerHanler.get</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 312">DependContextmanagerHanler.get</abbr>|    |
 - Path: /api/check-depend-contextmanager$
 - Method: get
 - Request:
@@ -513,7 +513,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 319">DependAsyncContextmanagerHanler.get</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 320">DependAsyncContextmanagerHanler.get</abbr>|    |
 - Path: /api/check-depend-async-contextmanager$
 - Method: get
 - Request:
@@ -576,7 +576,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 327">PreDependContextmanagerHanler.get</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 328">PreDependContextmanagerHanler.get</abbr>|    |
 - Path: /api/check-pre-depend-contextmanager$
 - Method: get
 - Request:
@@ -639,7 +639,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 337">PreDependAsyncContextmanagerHanler.get</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 338">PreDependAsyncContextmanagerHanler.get</abbr>|    |
 - Path: /api/check-pre-depend-async-contextmanager$
 - Method: get
 - Request:
@@ -704,61 +704,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 54">AddDocRoute._gen_route.<locals>.GetRedocHtmlHandle.get</abbr>|    |
-- Path: /api-doc/redoc$
-- Method: get
-- Request:
-    - Query Param
-
-        |Param Name|Type|Default|Example|Desc|Other|
-        |---|---|---|---|---|---|
-        |pin_code|string| | | ||
-- Response:
-
-
-### Name: GetSwaggerUiHtmlHandle.get
-
-- API Info
-
-    |Author|Status|Func|Summary|
-    |---|---|---|---|
-    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 59">AddDocRoute._gen_route.<locals>.GetSwaggerUiHtmlHandle.get</abbr>|    |
-- Path: /api-doc/swagger$
-- Method: get
-- Request:
-    - Query Param
-
-        |Param Name|Type|Default|Example|Desc|Other|
-        |---|---|---|---|---|---|
-        |pin_code|string| | | ||
-- Response:
-
-
-### Name: OpenApiHandle.get
-
-- API Info
-
-    |Author|Status|Func|Summary|
-    |---|---|---|---|
-    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 64">AddDocRoute._gen_route.<locals>.OpenApiHandle.get</abbr>|    |
-- Path: /api-doc/openapi.json$
-- Method: get
-- Request:
-    - Query Param
-
-        |Param Name|Type|Default|Example|Desc|Other|
-        |---|---|---|---|---|---|
-        |pin_code|string| | | ||
-- Response:
-
-
-### Name: GetRedocHtmlHandle.get
-
-- API Info
-
-    |Author|Status|Func|Summary|
-    |---|---|---|---|
-    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 54">AddDocRoute._gen_route.<locals>.GetRedocHtmlHandle.get</abbr>|    |
+    |    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 61">AddDocRoute._gen_route.<locals>.GetRedocHtmlHandle.get</abbr>|    |
 - Path: /redoc$
 - Method: get
 - Request:
@@ -766,7 +712,7 @@
 
         |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |pin_code|string| | | ||
+        |url_dict|object|**`Required`**| |Set the template variable, for example, there is a template parameter token, then the requested parameter is template-token=xxx||
 - Response:
 
 
@@ -776,7 +722,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 59">AddDocRoute._gen_route.<locals>.GetSwaggerUiHtmlHandle.get</abbr>|    |
+    |    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 70">AddDocRoute._gen_route.<locals>.GetSwaggerUiHtmlHandle.get</abbr>|    |
 - Path: /swagger$
 - Method: get
 - Request:
@@ -784,7 +730,7 @@
 
         |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |pin_code|string| | | ||
+        |url_dict|object|**`Required`**| |Set the template variable, for example, there is a template parameter token, then the requested parameter is template-token=xxx||
 - Response:
 
 
@@ -794,7 +740,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |    |undefined    |<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 64">AddDocRoute._gen_route.<locals>.OpenApiHandle.get</abbr>|    |
+    |    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/pait/app/tornado/_route.py;line: 79">AddDocRoute._gen_route.<locals>.OpenApiHandle.get</abbr>|    |
 - Path: /openapi.json$
 - Method: get
 - Request:
@@ -803,6 +749,7 @@
         |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
         |pin_code|string| | | ||
+        |url_dict|object|**`Required`**| |Set the template variable, for example, there is a template parameter token, then the requested parameter is template-token=xxx||
 - Response:
 
 
@@ -818,7 +765,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 458">AutoCompleteJsonHandler.get</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 461">AutoCompleteJsonHandler.get</abbr>|    |
 - Path: /api/auto-complete-json-plugin$
 - Method: get
 - Request:
@@ -876,7 +823,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 483">CheckJsonPluginHandler.get</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 486">CheckJsonPluginHandler.get</abbr>|    |
 - Path: /api/check-json-plugin$
 - Method: get
 - Request:
@@ -934,7 +881,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 526">CheckJsonPlugin1Handler.get</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 529">CheckJsonPlugin1Handler.get</abbr>|    |
 - Path: /api/check-json-plugin-1$
 - Method: get
 - Request:
@@ -994,7 +941,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 96">PostHandler.post</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 97">PostHandler.post</abbr>|    |
 - Path: /api/post$
 - Method: post
 - Request:
@@ -1075,7 +1022,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 145">FieldDefaultFactoryHandler.post</abbr>|    |
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 146">FieldDefaultFactoryHandler.post</abbr>|    |
 - Path: /api/field-default-factory$
 - Method: post
 - Request:
@@ -1141,7 +1088,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 162">PaitBaseFieldHandler.post</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 163">PaitBaseFieldHandler.post</abbr>|    |
 - Path: /api/pait-base-field/(?P<age>\w+)$
 - Method: post
 - Request:
@@ -1243,7 +1190,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 270">MockHandler.get</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 271">MockHandler.get</abbr>|    |
 - Path: /api/mock/(?P<age>\w+)$
 - Method: get
 - Request:
@@ -1335,7 +1282,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 351">CbvHandler.get</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 352">CbvHandler.get</abbr>|    |
 - Path: /api/cbv$
 - Method: get
 - Request:
@@ -1420,7 +1367,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 378">CbvHandler.post</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 379">CbvHandler.post</abbr>|    |
 - Path: /api/cbv$
 - Method: post
 - Request:
@@ -1505,7 +1452,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 204">CheckParamHandler.get</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 205">CheckParamHandler.get</abbr>|    |
 - Path: /api/check-param$
 - Method: get
 - Request:
@@ -1590,7 +1537,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 241">CheckRespHandler.get</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:/home/so1n/github/pait/example/param_verify/tornado_example.py;line: 242">CheckRespHandler.get</abbr>|    |
 - Path: /api/check-resp$
 - Method: get
 - Request:

@@ -10,7 +10,7 @@ from pait.api_doc.base_parse import FieldDictType, FieldSchemaTypeDict, PaitBase
 from pait.extra.status import get_color
 from pait.model.core import PaitCoreModel
 from pait.model.status import PaitStatus
-from pait.util import I18n, gen_example_dict_from_schema, join_i18n
+from pait.util import I18n, I18nContext, gen_example_dict_from_schema, i18n_local, join_i18n
 
 
 class PaitMd(PaitBaseParse):
@@ -22,6 +22,7 @@ class PaitMd(PaitBaseParse):
         title: str = "Pait Doc",
         use_html_details: bool = True,
         enable_inductive_model: bool = True,
+        i18n_lang: str = i18n_local,
     ):
         """
         :param pait_dict: pait dict
@@ -34,6 +35,7 @@ class PaitMd(PaitBaseParse):
         self._use_html_details: bool = use_html_details  # some not support markdown in html
         self._enable_inductive_model: bool = enable_inductive_model
         self._title: str = title
+        self._i18n_lang: str = i18n_lang
 
         super().__init__(pait_dict)
 
@@ -41,7 +43,11 @@ class PaitMd(PaitBaseParse):
 
     @property
     def content(self) -> str:
-        return self.gen_markdown_text()
+        if self._i18n_lang == i18n_local:
+            return self.gen_markdown_text()
+        else:
+            with I18nContext(self._i18n_lang):
+                return self.gen_markdown_text()
 
     @staticmethod
     def gen_md_param_table(field_dict_list: List[FieldSchemaTypeDict], blank_num: int = 8) -> str:

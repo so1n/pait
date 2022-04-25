@@ -11,7 +11,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 357">text_response_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 358">text_response_route</abbr>|    |
 - Path: /api/text-resp
 - Method: GET
 - Request:
@@ -37,7 +37,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 366">html_response_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 367">html_response_route</abbr>|    |
 - Path: /api/html-resp
 - Method: GET
 - Request:
@@ -63,7 +63,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 375">file_response_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 376">file_response_route</abbr>|    |
 - Path: /api/file-resp
 - Method: GET
 - Request:
@@ -87,7 +87,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 388">login_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 389">login_route</abbr>|    |
 - Path: /api/login
 - Method: POST
 - Request:
@@ -132,7 +132,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 397">get_user_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 398">get_user_route</abbr>|    |
 - Path: /api/user
 - Method: GET
 - Request:
@@ -140,7 +140,7 @@
 
         |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |token|string| | |token||
+        |token|string| |<pait.model.template.TemplateVar object at 0x7fc409f19438>|token||
 - Response:
 
     - SuccessRespModel
@@ -174,7 +174,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 290">pre_depend_contextmanager_route</abbr>|    |
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 291">pre_depend_contextmanager_route</abbr>|    |
 - Path: /api/pre-depend-contextmanager
 - Method: GET
 - Request:
@@ -237,7 +237,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 283">depend_contextmanager_route</abbr>|    |
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 284">depend_contextmanager_route</abbr>|    |
 - Path: /api/depend-contextmanager
 - Method: GET
 - Request:
@@ -304,7 +304,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 124">same_alias_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 125">same_alias_route</abbr>|    |
 - Path: /api/same-alias
 - Method: GET
 - Request:
@@ -377,7 +377,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 277">pait_model_route</abbr>|    |
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 278">pait_model_route</abbr>|    |
 - Path: /api/pait-model
 - Method: POST
 - Request:
@@ -455,7 +455,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#DC143C>abandoned</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 78">raise_tip_route</abbr>|    |
+    |so1n    |<font color=#DC143C>abandoned</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 79">raise_tip_route</abbr>|    |
 - Path: /api/raise-tip
 - Method: POST
 - Request:
@@ -523,7 +523,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 110">depend_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 111">depend_route</abbr>|    |
 - Path: /api/depend
 - Method: POST
 - Request:
@@ -588,92 +588,13 @@
 
 </details><details><summary>Group: pait_doc</summary>
 
-### Name: Pait Api Doc.openapi_route
-
-- API Info
-
-    |Author|Status|Func|Summary|
-    |---|---|---|---|
-    |    |undefined    |<abbr title="file:example;line: 45">AddDocRoute._gen_route.<locals>.openapi_route</abbr>|    |
-- Path: /api-doc/openapi.json
-- Method: GET
-- Request:
-    - Query Param
-
-        |Param Name|Type|Default|Example|Desc|Other|
-        |---|---|---|---|---|---|
-        |pin_code|string| | | ||
-- Response:
-
-    - OpenAPIRespModel
-
-        - Response Info
-
-            |Status Code|Media Type|Desc|
-            |---|---|---|
-            |200|application/json|open api json response|
-
-### Name: Pait Api Doc.get_swagger_ui_html
-
-- API Info
-
-    |Author|Status|Func|Summary|
-    |---|---|---|---|
-    |    |undefined    |<abbr title="file:example;line: 41">AddDocRoute._gen_route.<locals>.get_swagger_ui_html</abbr>|    |
-- Path: /api-doc/swagger
-- Method: GET
-- Request:
-    - Query Param
-
-        |Param Name|Type|Default|Example|Desc|Other|
-        |---|---|---|---|---|---|
-        |pin_code|string| | | ||
-- Response:
-
-    - DocHtmlRespModel
-
-        - Response Info
-
-            |Status Code|Media Type|Desc|
-            |---|---|---|
-            |200|text/html|doc html response|
-        - Header
-            {'X-Example-Type': 'html'}
-
-### Name: Pait Api Doc.get_redoc_html
-
-- API Info
-
-    |Author|Status|Func|Summary|
-    |---|---|---|---|
-    |    |undefined    |<abbr title="file:example;line: 37">AddDocRoute._gen_route.<locals>.get_redoc_html</abbr>|    |
-- Path: /api-doc/redoc
-- Method: GET
-- Request:
-    - Query Param
-
-        |Param Name|Type|Default|Example|Desc|Other|
-        |---|---|---|---|---|---|
-        |pin_code|string| | | ||
-- Response:
-
-    - DocHtmlRespModel
-
-        - Response Info
-
-            |Status Code|Media Type|Desc|
-            |---|---|---|
-            |200|text/html|doc html response|
-        - Header
-            {'X-Example-Type': 'html'}
-
 ### Name: Pait Api Doc(private).openapi_route
 
 - API Info
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |    |undefined    |<abbr title="file:example;line: 45">AddDocRoute._gen_route.<locals>.openapi_route</abbr>|    |
+    |    |<font color=#DC143C>undefined</font>    |<abbr title="file:example;line: 54">AddDocRoute._gen_route.<locals>.openapi_route</abbr>|    |
 - Path: /openapi.json
 - Method: GET
 - Request:
@@ -682,6 +603,7 @@
         |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
         |pin_code|string| | | ||
+        |url_dict|object|**`Required`**| |Set the template variable, for example, there is a template parameter token, then the requested parameter is template-token=xxx||
 - Response:
 
     - OpenAPIRespModel
@@ -698,7 +620,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |    |undefined    |<abbr title="file:example;line: 41">AddDocRoute._gen_route.<locals>.get_swagger_ui_html</abbr>|    |
+    |    |<font color=#DC143C>undefined</font>    |<abbr title="file:example;line: 47">AddDocRoute._gen_route.<locals>.get_swagger_ui_html</abbr>|    |
 - Path: /swagger
 - Method: GET
 - Request:
@@ -706,7 +628,7 @@
 
         |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |pin_code|string| | | ||
+        |url_dict|object|**`Required`**| |Set the template variable, for example, there is a template parameter token, then the requested parameter is template-token=xxx||
 - Response:
 
     - DocHtmlRespModel
@@ -725,7 +647,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |    |undefined    |<abbr title="file:example;line: 37">AddDocRoute._gen_route.<locals>.get_redoc_html</abbr>|    |
+    |    |<font color=#DC143C>undefined</font>    |<abbr title="file:example;line: 40">AddDocRoute._gen_route.<locals>.get_redoc_html</abbr>|    |
 - Path: /redoc
 - Method: GET
 - Request:
@@ -733,7 +655,7 @@
 
         |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |pin_code|string| | | ||
+        |url_dict|object|**`Required`**| |Set the template variable, for example, there is a template parameter token, then the requested parameter is template-token=xxx||
 - Response:
 
     - DocHtmlRespModel
@@ -758,7 +680,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 405">auto_complete_json_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 408">auto_complete_json_route</abbr>|    |
 - Path: /api/auto-complete-json-plugin
 - Method: GET
 - Request:
@@ -816,7 +738,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 469">check_json_plugin_route1</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 472">check_json_plugin_route1</abbr>|    |
 - Path: /api/check-json-plugin-1
 - Method: GET
 - Request:
@@ -874,7 +796,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |undefined    |<abbr title="file:example/param_verify/flask_example.py;line: 428">check_json_plugin_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 431">check_json_plugin_route</abbr>|    |
 - Path: /api/check-json-plugin
 - Method: GET
 - Request:
@@ -930,7 +852,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 136">field_default_factory_route</abbr>|    |
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 137">field_default_factory_route</abbr>|    |
 - Path: /api/field-default-factory
 - Method: POST
 - Request:
@@ -1000,7 +922,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 188">check_param_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 189">check_param_route</abbr>|    |
 - Path: /api/check-param
 - Method: GET
 - Request:
@@ -1074,7 +996,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 221">check_response_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 222">check_response_route</abbr>|    |
 - Path: /api/check-resp
 - Method: GET
 - Request:
@@ -1154,7 +1076,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 91">post_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 92">post_route</abbr>|    |
 - Path: /api/post
 - Method: POST
 - Request:
@@ -1239,7 +1161,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 305">CbvRoute.get</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 306">CbvRoute.get</abbr>|    |
 - Path: /api/cbv
 - Method: get
 - Request:
@@ -1324,7 +1246,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 330">CbvRoute.post</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 331">CbvRoute.post</abbr>|    |
 - Path: /api/cbv
 - Method: post
 - Request:
@@ -1409,7 +1331,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 149">pait_base_field_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 150">pait_base_field_route</abbr>|    |
 - Path: /api/pait-base-field/<age>
 - Method: POST
 - Request:
@@ -1511,7 +1433,7 @@
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 248">mock_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 249">mock_route</abbr>|    |
 - Path: /api/mock/<age>
 - Method: GET
 - Request:
