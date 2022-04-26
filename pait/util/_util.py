@@ -56,6 +56,7 @@ __all__ = [
     "gen_example_value_from_python",
     "get_real_annotation",
     "create_factory",
+    "enable_gevent",
 ]
 ignore_pre_check: bool = bool(os.environ.get("PAIT_IGNORE_PRE_CHECK", False))
 http_method_tuple: Tuple[str, ...] = ("get", "post", "head", "options", "delete", "put", "trace", "patch")
@@ -321,3 +322,14 @@ class CustomJSONEncoder(JSONEncoder):
             return obj
         else:
             return super().default(obj)
+
+
+def enable_gevent() -> bool:
+    try:
+        from socket import socket
+
+        from gevent.socket import socket as gsocket
+
+        return socket is gsocket
+    except ImportError:
+        return False

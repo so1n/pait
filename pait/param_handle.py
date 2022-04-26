@@ -188,6 +188,7 @@ class BaseParamHandler(PluginProtocol):
 
     @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
+        super().pre_load_hook(pait_core_model, kwargs)
         if ignore_pre_check:
             # pre_check has helped to do the same task as pre_load
             cls.pre_hook(pait_core_model, kwargs)
@@ -195,6 +196,7 @@ class BaseParamHandler(PluginProtocol):
 
     @classmethod
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
+        super().pre_check_hook(pait_core_model, kwargs)
         cls.pre_hook(pait_core_model, kwargs)
 
     def _set_parameter_value_to_args(self, parameter: inspect.Parameter, func_args: list) -> bool:
@@ -330,6 +332,7 @@ class ParamHandler(BaseParamHandler):
         return None
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        print(self.pait_core_model.func)
         with self:
             return self.call_next(*self.args, **self.kwargs)
 

@@ -10,7 +10,7 @@ from pait.model.response import PaitBaseResponseModel, PaitResponseModel
 from pait.model.status import PaitStatus
 from pait.param_handle import AsyncParamHandler, ParamHandler
 from pait.plugin import PluginManager
-from pait.util import ignore_pre_check
+from pait.util import enable_gevent, ignore_pre_check
 
 if sys.version_info >= (3, 10):
     from typing import Literal
@@ -100,8 +100,12 @@ class PaitCoreModel(object):
         self._plugin_list: List[PluginManager] = []
         self._post_plugin_list: List[PluginManager] = []
         self._plugin_manager_list: List[PluginManager] = []
-        if inspect.iscoroutinefunction(self.func):
-            self._param_handler_plugin: PluginManager = PluginManager(AsyncParamHandler)
+        if enable_gevent():
+            from pait.gevent_param_handler import GeventParamHandler
+
+            self._param_handler_plugin: PluginManager = PluginManager(GeventParamHandler)
+        elif inspect.iscoroutinefunction(self.func):
+            self._param_handler_plugin = PluginManager(AsyncParamHandler)
         else:
             self._param_handler_plugin = PluginManager(ParamHandler)
         if not ignore_pre_check:

@@ -553,4 +553,16 @@ if __name__ == "__main__":
             apply_extra_openapi_model(ExtraModel),
         ]
     )
+
+    from gevent import monkey  # type: ignore
+    from gevent.pywsgi import WSGIServer  # type: ignore
+
+    def gevent_run(app: Flask, host: str = "127.0.0.1", port: int = 8000, debug: bool = True) -> None:
+        monkey.patch_all()
+        app.debug = debug
+        http_server: WSGIServer = WSGIServer((host, port), app)
+        logging.info(f"{app} listen on {host}:{port} ...")
+        http_server.serve_forever()
+
     create_app().run(port=8000, debug=True)
+    # gevent_run(create_app())
