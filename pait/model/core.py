@@ -1,4 +1,3 @@
-import copy
 import inspect
 import logging
 import sys
@@ -216,8 +215,11 @@ class PaitCoreModel(object):
             raise e
         else:
             # In future version, it may be possible to switch plugins at runtime
-            plugin_manager_list: List[PluginManager] = copy.deepcopy(
-                self._plugin_list + [self._param_handler_plugin] + self._post_plugin_list
+            plugin_manager_list: List[PluginManager] = (
+                [i for i in self._plugin_list] + [self._param_handler_plugin] + [i for i in self._post_plugin_list]
             )
+            # copy.deepcopy(
+            #     self._plugin_list + [self._param_handler_plugin] + self._post_plugin_list
+            # )
             plugin_manager_list.reverse()
             self._plugin_manager_list = plugin_manager_list

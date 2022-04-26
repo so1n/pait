@@ -36,6 +36,7 @@ flake8 = "3.9.2"
 pytest-profiling = "1.7.0"
 aiofiles = "0.8.0"
 mkdocs-material = "^8.1.7"
+redis = "^4.2.2"
 
 [tool.black]
 line-length = 120

@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import aiofiles  # type: ignore
 from pydantic import ValidationError
+from redis.asyncio import Redis  # type: ignore
 from tornado.httputil import RequestStartLine
 from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
@@ -33,6 +34,7 @@ from example.param_verify.model import (
 )
 from pait.app.tornado import AddDocRoute, Pait, add_doc_route, pait
 from pait.app.tornado.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
+from pait.app.tornado.plugin.cache_resonse import CacheResponsePlugin
 from pait.app.tornado.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.tornado.plugin.mock_response import MockPlugin
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
@@ -482,6 +484,15 @@ class AutoCompleteJsonHandler(MyHandler):
         return return_dict
 
 
+class CacheResponseHandler(MyHandler):
+    @plugin_pait(
+        response_model_list=[SimpleRespModel],
+        plugin_list=[CacheResponsePlugin.build(redis=Redis(decode_responses=True), cache_time=10)],
+    )
+    async def get(self) -> None:
+        self.write(str(time.time()))
+
+
 class CheckJsonPluginHandler(MyHandler):
     @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[CheckJsonRespPlugin.build()])
     async def get(
@@ -570,6 +581,7 @@ def create_app() -> Application:
             (r"/api/html-resp", HtmlResponseHanler),
             (r"/api/file-resp", FileResponseHanler),
             (r"/api/auto-complete-json-plugin", AutoCompleteJsonHandler),
+            (r"/api/cache-response", CacheResponseHandler),
             (r"/api/check-json-plugin", CheckJsonPluginHandler),
             (r"/api/check-json-plugin-1", CheckJsonPlugin1Handler),
             (r"/api/check-depend-contextmanager", DependContextmanagerHanler),

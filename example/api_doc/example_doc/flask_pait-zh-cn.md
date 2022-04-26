@@ -140,7 +140,7 @@
 
         |参数名称|类型|默认|示例|描述|其它|
         |---|---|---|---|---|---|
-        |token|string| |<pait.model.template.TemplateVar object at 0x7fc409f19438>|token||
+        |token|string| |<pait.model.template.TemplateVar object at 0x7efc89981470>|token||
 - 响应:
 
     - SuccessRespModel
@@ -1151,26 +1151,21 @@
             ```
 
 
-### 名称: test_cbv.get
+### 名称: test_cbv.post
 
 
 
-**描述**:Text cbv route get
+**描述**:test cbv post method
 
 - API信息
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 306">CbvRoute.get</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 331">CbvRoute.post</abbr>|    |
 - 路径: /api/cbv
-- 方法: get
+- 方法: post
 - 请求:
-    - Header 参数
-
-        |参数名称|类型|默认|示例|描述|其它|
-        |---|---|---|---|---|---|
-        |Content-Type|string|**`必填`**| | ||
-    - Query 参数
+    - Body 参数
 
         |参数名称|类型|默认|示例|描述|其它|
         |---|---|---|---|---|---|
@@ -1178,6 +1173,11 @@
         |sex|enum|Only choose from: `man`,`woman`| |sex|[`enum:['man', 'woman']`]|
         |uid|integer|**`必填`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
         |user_name|string|**`必填`**| |user name|[`maxLength:4`], [`minLength:2`]|
+    - Header 参数
+
+        |参数名称|类型|默认|示例|描述|其它|
+        |---|---|---|---|---|---|
+        |Content-Type|string|**`必填`**| | ||
 - 响应:
 
     - UserSuccessRespModel
@@ -1236,21 +1236,26 @@
             ```
 
 
-### 名称: test_cbv.post
+### 名称: test_cbv.get
 
 
 
-**描述**:test cbv post method
+**描述**:Text cbv route get
 
 - API信息
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 331">CbvRoute.post</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 306">CbvRoute.get</abbr>|    |
 - 路径: /api/cbv
-- 方法: post
+- 方法: get
 - 请求:
-    - Body 参数
+    - Header 参数
+
+        |参数名称|类型|默认|示例|描述|其它|
+        |---|---|---|---|---|---|
+        |Content-Type|string|**`必填`**| | ||
+    - Query 参数
 
         |参数名称|类型|默认|示例|描述|其它|
         |---|---|---|---|---|---|
@@ -1258,11 +1263,6 @@
         |sex|enum|Only choose from: `man`,`woman`| |sex|[`enum:['man', 'woman']`]|
         |uid|integer|**`必填`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
         |user_name|string|**`必填`**| |user name|[`maxLength:4`], [`minLength:2`]|
-    - Header 参数
-
-        |参数名称|类型|默认|示例|描述|其它|
-        |---|---|---|---|---|---|
-        |Content-Type|string|**`必填`**| | ||
 - 响应:
 
     - UserSuccessRespModel

@@ -7,6 +7,7 @@ from typing import Any, AsyncContextManager, Dict, List, Optional, Tuple
 
 import aiofiles  # type: ignore
 from pydantic import ValidationError
+from redis.asyncio import Redis  # type: ignore
 from starlette.applications import Starlette
 from starlette.background import BackgroundTask
 from starlette.endpoints import HTTPEndpoint
@@ -38,6 +39,7 @@ from example.param_verify.model import (
 from pait.app.starlette import AddDocRoute, Pait, add_doc_route, pait
 from pait.app.starlette.plugin import AtMostOneOfPlugin
 from pait.app.starlette.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
+from pait.app.starlette.plugin.cache_resonse import CacheResponsePlugin
 from pait.app.starlette.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.starlette.plugin.mock_response import MockPlugin
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
@@ -560,6 +562,14 @@ def auto_complete_json_route(
     return return_dict
 
 
+@plugin_pait(
+    response_model_list=[SimpleRespModel],
+    plugin_list=[CacheResponsePlugin.build(redis=Redis(decode_responses=True), cache_time=10)],
+)
+async def cache_response() -> PlainTextResponse:
+    return PlainTextResponse(str(time.time()))
+
+
 @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[CheckJsonRespPlugin.build()])
 def check_json_plugin_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
@@ -696,6 +706,7 @@ def create_app() -> Starlette:
             Route("/api/async-file-resp", async_file_response_route, methods=["GET"]),
             Route("/api/auto-complete-json-plugin", auto_complete_json_route, methods=["GET"]),
             Route("/api/async-auto-complete-json-plugin", async_auto_complete_json_route, methods=["GET"]),
+            Route("/api/cache-response", cache_response, methods=["GET"]),
             Route("/api/check-json-plugin", check_json_plugin_route, methods=["GET"]),
             Route("/api/check-json-plugin-1", check_json_plugin_route1, methods=["GET"]),
             Route("/api/async-check-json-plugin", async_check_json_plugin_route, methods=["GET"]),

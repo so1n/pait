@@ -140,7 +140,7 @@
 
         |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
-        |token|string| |<pait.model.template.TemplateVar object at 0x7fc409f19438>|token||
+        |token|string| |<pait.model.template.TemplateVar object at 0x7efc89981470>|token||
 - Response:
 
     - SuccessRespModel
@@ -1151,26 +1151,21 @@
             ```
 
 
-### Name: test_cbv.get
+### Name: test_cbv.post
 
 
 
-**Desc**:Text cbv route get
+**Desc**:test cbv post method
 
 - API Info
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 306">CbvRoute.get</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 331">CbvRoute.post</abbr>|    |
 - Path: /api/cbv
-- Method: get
+- Method: post
 - Request:
-    - Header Param
-
-        |Param Name|Type|Default|Example|Desc|Other|
-        |---|---|---|---|---|---|
-        |Content-Type|string|**`Required`**| | ||
-    - Query Param
+    - Body Param
 
         |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
@@ -1178,6 +1173,11 @@
         |sex|enum|Only choose from: `man`,`woman`| |sex|[`enum:['man', 'woman']`]|
         |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
         |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
+    - Header Param
+
+        |Param Name|Type|Default|Example|Desc|Other|
+        |---|---|---|---|---|---|
+        |Content-Type|string|**`Required`**| | ||
 - Response:
 
     - UserSuccessRespModel
@@ -1236,21 +1236,26 @@
             ```
 
 
-### Name: test_cbv.post
+### Name: test_cbv.get
 
 
 
-**Desc**:test cbv post method
+**Desc**:Text cbv route get
 
 - API Info
 
     |Author|Status|Func|Summary|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 331">CbvRoute.post</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 306">CbvRoute.get</abbr>|    |
 - Path: /api/cbv
-- Method: post
+- Method: get
 - Request:
-    - Body Param
+    - Header Param
+
+        |Param Name|Type|Default|Example|Desc|Other|
+        |---|---|---|---|---|---|
+        |Content-Type|string|**`Required`**| | ||
+    - Query Param
 
         |Param Name|Type|Default|Example|Desc|Other|
         |---|---|---|---|---|---|
@@ -1258,11 +1263,6 @@
         |sex|enum|Only choose from: `man`,`woman`| |sex|[`enum:['man', 'woman']`]|
         |uid|integer|**`Required`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
         |user_name|string|**`Required`**| |user name|[`maxLength:4`], [`minLength:2`]|
-    - Header Param
-
-        |Param Name|Type|Default|Example|Desc|Other|
-        |---|---|---|---|---|---|
-        |Content-Type|string|**`Required`**| | ||
 - Response:
 
     - UserSuccessRespModel

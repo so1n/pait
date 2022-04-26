@@ -6,6 +6,7 @@ from typing import Any, AsyncContextManager, Dict, List, Optional, Tuple
 
 import aiofiles  # type: ignore
 from pydantic import ValidationError
+from redis.asyncio import Redis  # type: ignore
 from sanic import response
 from sanic.app import Sanic
 from sanic.request import Request
@@ -34,6 +35,7 @@ from example.param_verify.model import (
 )
 from pait.app.sanic import AddDocRoute, Pait, add_doc_route, pait
 from pait.app.sanic.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
+from pait.app.sanic.plugin.cache_resonse import CacheResponsePlugin
 from pait.app.sanic.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.sanic.plugin.mock_response import MockPlugin
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
@@ -470,6 +472,14 @@ async def auto_complete_json_route(
     return return_dict
 
 
+@plugin_pait(
+    response_model_list=[SimpleRespModel],
+    plugin_list=[CacheResponsePlugin.build(redis=Redis(decode_responses=True), cache_time=10)],
+)
+async def cache_response(request: Request) -> response.HTTPResponse:
+    return response.text(str(time.time()))
+
+
 @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[CheckJsonRespPlugin.build()])
 async def check_json_plugin_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
@@ -554,6 +564,7 @@ def create_app() -> Sanic:
     app.add_route(text_response_route, "/api/text-resp", methods={"GET"})
     app.add_route(html_response_route, "/api/html-resp", methods={"GET"})
     app.add_route(file_response_route, "/api/file-resp", methods={"GET"})
+    app.add_route(cache_response, "/api/cache-response", methods={"GET"})
     app.add_route(check_json_plugin_route, "/api/check-json-plugin", methods={"GET"})
     app.add_route(auto_complete_json_route, "/api/auto-complete-json-plugin", methods={"GET"})
     app.add_route(check_json_plugin_route1, "/api/check-json-plugin-1", methods={"GET"})
