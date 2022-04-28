@@ -332,7 +332,6 @@ class ParamHandler(BaseParamHandler):
         return None
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        print(self.pait_core_model.func)
         with self:
             return self.call_next(*self.args, **self.kwargs)
 

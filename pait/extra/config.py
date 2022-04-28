@@ -9,6 +9,7 @@ from pait.util import http_method_tuple
 if TYPE_CHECKING:
     from pait.model.config import APPLY_FN
     from pait.model.core import MatchRule, PaitCoreModel
+    from pait.param_handle import BaseParamHandler
 
 
 __all__ = [
@@ -107,5 +108,15 @@ def apply_pre_depend(pre_depend: Callable, match_rule: Optional["MatchRule"] = N
     def _apply(pait_core_model: "PaitCoreModel") -> None:
         if pait_core_model.match(match_rule):
             pait_core_model.pre_depend_list.append(pre_depend)
+
+    return _apply
+
+
+def apply_param_handler(
+    param_handler_plugin: "Type[BaseParamHandler]", match_rule: Optional["MatchRule"] = None
+) -> "APPLY_FN":
+    def _apply(pait_core_model: "PaitCoreModel") -> None:
+        if pait_core_model.match(match_rule):
+            pait_core_model.param_handler_plugin = param_handler_plugin
 
     return _apply

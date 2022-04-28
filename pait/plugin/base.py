@@ -1,6 +1,6 @@
 import inspect
 import logging
-from typing import TYPE_CHECKING, Any, Dict, Type, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, Generic, Type, TypeVar
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
@@ -57,7 +57,7 @@ class PluginProtocol(object):
 _T = TypeVar("_T", bound=PluginProtocol)
 
 
-class PluginManager(object):
+class PluginManager(Generic[_T]):
     def __init__(self, plugin_class: Type[_T], **kwargs: Any):
         self.plugin_class: Type[_T] = plugin_class
         self._kwargs: Any = kwargs

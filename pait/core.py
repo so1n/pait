@@ -1,7 +1,7 @@
 import inspect
 import logging
 from functools import wraps
-from typing import Any, Callable, List, Optional, Tuple, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, List, Optional, Tuple, Type, TypeVar, Union
 
 from pydantic import BaseConfig
 
@@ -15,6 +15,8 @@ from pait.model.tag import Tag
 from pait.plugin.base import PluginManager, PluginProtocol
 from pait.util import get_func_sig
 
+if TYPE_CHECKING:
+    from param_handle import BaseParamHandler
 _AppendT = TypeVar("_AppendT", list, tuple)
 _PaitT = TypeVar("_PaitT", bound="Pait")
 _PluginT = TypeVar("_PluginT", bound="PluginProtocol")
@@ -40,6 +42,7 @@ class Pait(object):
         response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
         plugin_list: Optional[List[PluginManager]] = None,
         post_plugin_list: Optional[List[PluginManager]] = None,
+        param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
     ):
 
         check_cls_param_list: List[str] = ["app_helper_class"]
@@ -69,6 +72,7 @@ class Pait(object):
         self._response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = response_model_list
         self._plugin_list: Optional[List[PluginManager]] = plugin_list
         self._post_plugin_list: Optional[List[PluginManager]] = post_plugin_list
+        self._param_handler_plugin: Optional[Type["BaseParamHandler"]] = param_handler_plugin
 
     @staticmethod
     def _append_data(
@@ -103,6 +107,7 @@ class Pait(object):
         append_plugin_list: Optional[List[PluginManager]] = None,
         post_plugin_list: Optional[List[PluginManager]] = None,
         append_post_plugin_list: Optional[List[PluginManager]] = None,
+        param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
     ) -> _PaitT:
         pre_depend_list = self._append_data(pre_depend_list, append_pre_depend_list, self._pre_depend_list)
         author = self._append_data(author, append_author, self._author)
@@ -126,6 +131,7 @@ class Pait(object):
             response_model_list=response_model_list,
             plugin_list=plugin_list,
             post_plugin_list=post_plugin_list,
+            param_handler_plugin=param_handler_plugin or self._param_handler_plugin,
         )
 
     @staticmethod
@@ -168,6 +174,7 @@ class Pait(object):
         append_plugin_list: Optional[List[PluginManager]] = None,
         post_plugin_list: Optional[List[PluginManager]] = None,
         append_post_plugin_list: Optional[List[PluginManager]] = None,
+        param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
     ) -> Callable:
         app_name: str = self.app_helper_class.app_name
         pydantic_model_config = pydantic_model_config or self._pydantic_model_config
@@ -218,6 +225,7 @@ class Pait(object):
                 pydantic_model_config=pydantic_model_config,
                 plugin_list=plugin_list,
                 post_plugin_list=post_plugin_list,
+                param_handler_plugin=param_handler_plugin or self._param_handler_plugin,
             )
             sync_config_data_to_pait_core_model(config, pait_core_model)
             pait_data.register(app_name, pait_core_model)

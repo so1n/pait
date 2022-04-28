@@ -1,5 +1,5 @@
 from importlib import import_module
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Type
 
 from pydantic import BaseConfig
 
@@ -9,6 +9,9 @@ from pait.model.status import PaitStatus
 from ..model.core import PaitCoreModel  # type: ignore
 from ..model.response import PaitBaseResponseModel  # type: ignore
 from .auto_load_app import auto_load_app_class  # type: ignore
+
+if TYPE_CHECKING:
+    from pait.param_handle import BaseParamHandler
 
 try:
     load_class_app: Any = auto_load_app_class()
@@ -93,6 +96,7 @@ def pait(
     append_response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
     plugin_list: Optional[List[PluginManager]] = None,
     append_plugin_list: Optional[List[PluginManager]] = None,
+    param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
 ) -> Callable:
     """provide parameter checks and type conversions for each routing function/cbv class
     Note:This is an implicit method
@@ -119,4 +123,5 @@ def pait(
         append_response_model_list=append_response_model_list,
         plugin_list=plugin_list,
         append_plugin_list=append_plugin_list,
+        param_handler_plugin=param_handler_plugin,
     )

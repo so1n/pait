@@ -70,32 +70,3 @@ class TestPaitCore:
         assert g.pait_data.pait_id_dict[app_name][pait_id].method_list == ["get"]
         assert g.pait_data.pait_id_dict[app_name][pait_id].operation_id == "fake"
         assert g.pait_data
-
-    def test_enable_gevent(self) -> None:
-        pait_core_model: PaitCoreModel = PaitCoreModel(demo, FakeAppHelper)
-
-        from pait.gevent_param_handler import GeventParamHandler
-        from pait.param_handle import ParamHandler
-
-        assert pait_core_model._param_handler_plugin.plugin_class == ParamHandler
-
-        import gevent.monkey
-
-        gevent.monkey.patch_socket()
-        try:
-            assert PaitCoreModel(demo, FakeAppHelper)._param_handler_plugin.plugin_class == GeventParamHandler
-        finally:
-            import socket
-            from importlib import reload
-
-            reload(socket)
-
-    def test_not_install_gevent(self) -> None:
-        import sys
-
-        sys.modules.pop("gevent", None)
-        pait_core_model: PaitCoreModel = PaitCoreModel(demo, FakeAppHelper)
-
-        from pait.param_handle import ParamHandler
-
-        assert pait_core_model._param_handler_plugin.plugin_class == ParamHandler

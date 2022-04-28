@@ -8,9 +8,9 @@ from pydantic import BaseConfig, BaseModel
 
 from pait.model.response import PaitBaseResponseModel, PaitResponseModel
 from pait.model.status import PaitStatus
-from pait.param_handle import AsyncParamHandler, ParamHandler
+from pait.param_handle import AsyncParamHandler, BaseParamHandler, ParamHandler
 from pait.plugin import PluginManager
-from pait.util import enable_gevent, ignore_pre_check
+from pait.util import ignore_pre_check
 
 if sys.version_info >= (3, 10):
     from typing import Literal
@@ -45,6 +45,8 @@ class MatchRule(object):
 
 
 class PaitCoreModel(object):
+    _param_handler_plugin: PluginManager["BaseParamHandler"]
+
     def __init__(
         self,
         func: Callable,
@@ -65,6 +67,7 @@ class PaitCoreModel(object):
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
         plugin_list: Optional[List[PluginManager]] = None,
         post_plugin_list: Optional[List[PluginManager]] = None,
+        param_handler_plugin: Optional[Type[BaseParamHandler]] = None,
     ):
         # pait
         self.app_helper_class: "Type[BaseAppHelper]" = app_helper_class
@@ -100,10 +103,18 @@ class PaitCoreModel(object):
         self._plugin_list: List[PluginManager] = []
         self._post_plugin_list: List[PluginManager] = []
         self._plugin_manager_list: List[PluginManager] = []
-        if enable_gevent():
-            from pait.gevent_param_handler import GeventParamHandler
 
-            self._param_handler_plugin: PluginManager = PluginManager(GeventParamHandler)
+        self.param_handler_plugin = param_handler_plugin  # type: ignore
+        self.add_plugin(plugin_list, post_plugin_list)
+
+    @property
+    def param_handler_plugin(self) -> Type[BaseParamHandler]:
+        return self._param_handler_plugin.plugin_class
+
+    @param_handler_plugin.setter
+    def param_handler_plugin(self, param_handler_plugin: Optional[Type[BaseParamHandler]]) -> None:
+        if param_handler_plugin:
+            self._param_handler_plugin = PluginManager(param_handler_plugin)
         elif inspect.iscoroutinefunction(self.func):
             self._param_handler_plugin = PluginManager(AsyncParamHandler)
         else:
@@ -111,7 +122,8 @@ class PaitCoreModel(object):
         if not ignore_pre_check:
             self._param_handler_plugin.pre_check_hook(self)
         self._param_handler_plugin.pre_load_hook(self)
-        self.add_plugin(plugin_list, post_plugin_list)
+        if not self._plugin_manager_list:
+            self.add_plugin([], [])
 
     @property
     def func_md5(self) -> str:
