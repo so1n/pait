@@ -17,7 +17,7 @@ class PluginProtocol(object):
 
     _is_async_func: bool
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self: "_PluginT", **kwargs: Any) -> None:
         """Direct init calls are not supported,
         so there is no need to write clearly in init what parameters are needed
         """
@@ -44,7 +44,7 @@ class PluginProtocol(object):
         self.kwargs = kwargs or {}
 
     @classmethod
-    def build(cls, **kwargs: Any) -> "PluginManager":
+    def build(cls, **kwargs: Any) -> "PluginManager[_PluginT]":
         return PluginManager(cls, **kwargs)  # type: ignore
 
     def call_next(self, *args: Any, **kwargs: Any) -> Any:
@@ -54,12 +54,9 @@ class PluginProtocol(object):
         return self.call_next(*args, **kwargs)  # pragma: no cover
 
 
-_T = TypeVar("_T", bound=PluginProtocol)
-
-
-class PluginManager(Generic[_T]):
-    def __init__(self, plugin_class: Type[_T], **kwargs: Any):
-        self.plugin_class: Type[_T] = plugin_class
+class PluginManager(Generic[_PluginT]):
+    def __init__(self, plugin_class: Type[_PluginT], **kwargs: Any):
+        self.plugin_class: Type[_PluginT] = plugin_class
         self._kwargs: Any = kwargs
 
     def pre_check_hook(self, pait_core_model: "PaitCoreModel") -> None:
@@ -68,7 +65,7 @@ class PluginManager(Generic[_T]):
     def pre_load_hook(self, pait_core_model: "PaitCoreModel") -> None:
         self._kwargs = self.plugin_class.pre_load_hook(pait_core_model, self._kwargs)
 
-    def get_plugin(self) -> _T:
+    def get_plugin(self) -> _PluginT:
         return self.plugin_class(**self._kwargs)
 
     def __repr__(self) -> str:

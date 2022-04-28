@@ -1,5 +1,5 @@
 import pickle
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Tuple, Union
 
 from redis import Redis  # type: ignore
 from redis.asyncio import Redis as AsyncioRedis  # type: ignore
@@ -8,7 +8,6 @@ from pait.plugin.base import PluginProtocol
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
-    from pait.model.response import PaitBaseResponseModel
     from pait.plugin.base import PluginManager
 
 
@@ -21,7 +20,6 @@ class CacheResponsePlugin(PluginProtocol):
     timeout: Optional[float]
     sleep: Optional[float]
     blocking_timeout: Optional[float]
-    pait_response_model: Type["PaitBaseResponseModel"]
 
     def __post_init__(self, pait_core_model: "PaitCoreModel", args: tuple, kwargs: dict) -> None:
         self.lock_name: str = self.name + ":" + "lock"

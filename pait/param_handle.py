@@ -28,6 +28,7 @@ from pait.util import (
     get_parameter_list_from_class,
     get_parameter_list_from_pydantic_basemodel,
     ignore_pre_check,
+    is_bounded_func,
 )
 
 if TYPE_CHECKING:
@@ -97,6 +98,8 @@ class BaseParamHandler(PluginProtocol):
 
     @classmethod
     def check_depend_handle(cls, func: Callable) -> Any:
+        if inspect.ismethod(func) and not is_bounded_func(func):
+            raise ValueError(f"Method: {func.__qualname__} is not a bounded function")
         func_sig: FuncSig = get_func_sig(func)  # get and cache func sig
         cls.check_param_field_handle(func_sig, func_sig.param_list)
 
@@ -203,16 +206,17 @@ class BaseParamHandler(PluginProtocol):
         """Extract the self parameter of the cbv handler,
         the request parameter of the route and the parameter of type PaitBaseModel,
         and check if there are any other parameters that do not meet the conditions
+
+        Sort by frequency of occurrence
         """
-        if self.cbv_instance and not func_args:
-            if parameter.annotation == parameter.empty:
-                # first parma must self param, looking forward to the appearance of `self type
-                func_args.append(self._app_helper.cbv_instance)
+        if issubclass(parameter.annotation, BaseModel):
+            return True
+        elif self.cbv_instance and not func_args and parameter.annotation == parameter.empty:
+            # first parma must self param, looking forward to the appearance of `self type
+            func_args.append(self._app_helper.cbv_instance)
         elif self._app_helper.check_request_type(parameter.annotation):
             # support request param(def handle(request: Request))
             func_args.append(self._app_helper.request)
-        elif issubclass(parameter.annotation, BaseModel):
-            return True
         else:
             logging.warning(f"Pait not support args: {parameter}")  # pragma: no cover
         return False
@@ -243,7 +247,6 @@ class BaseParamHandler(PluginProtocol):
             parameter_value_dict[parameter] = request_value
 
     def get_request_value_from_parameter(self, parameter: inspect.Parameter) -> Union[Any, Coroutine]:
-        assert isinstance(parameter.default, BaseField), f"{parameter.name}'s value must pait field"
         field_name: str = parameter.default.get_field_name()
         # Note: not use hasattr with LazyProperty (
         #   because hasattr will calling getattr(obj, name) and catching AttributeError,

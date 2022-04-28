@@ -4,7 +4,7 @@ from typing import Callable, Dict, List, Optional, Type
 
 from ._util import get_real_annotation
 
-__all__ = ["FuncSig", "get_func_sig"]
+__all__ = ["FuncSig", "get_func_sig", "is_bounded_func"]
 
 
 @dataclass()
@@ -28,6 +28,9 @@ def get_func_sig(func: Callable) -> FuncSig:
     sig: inspect.Signature = inspect.signature(func)
     param_list: List[inspect.Parameter] = []
     for key in sig.parameters:
+        # NOTE:
+        #   The cbv func decorated in Pait is unbound, so it can get to self；
+        #   Depend func must be bound func when it is used, so it cannot get self；
         if not (sig.parameters[key].annotation != sig.empty or sig.parameters[key].name == "self"):
             continue
         parameter: inspect.Parameter = sig.parameters[key]
@@ -38,3 +41,7 @@ def get_func_sig(func: Callable) -> FuncSig:
     func_sig: FuncSig = FuncSig(func=func, sig=sig, param_list=param_list)
     _func_sig_dict[func] = func_sig
     return func_sig
+
+
+def is_bounded_func(func: Callable) -> bool:
+    return inspect.signature(func).parameters.get("self", None) is None
