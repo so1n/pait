@@ -32,7 +32,7 @@ from example.param_verify.model import (
     context_depend,
     demo_depend,
 )
-from pait.app.tornado import AddDocRoute, Pait, add_doc_route, pait
+from pait.app.tornado import AddDocRoute, Pait, add_doc_route, load_app, pait
 from pait.app.tornado.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.app.tornado.plugin.cache_resonse import CacheResponsePlugin
 from pait.app.tornado.plugin.check_json_resp import CheckJsonRespPlugin
@@ -406,6 +406,16 @@ class CbvHandler(MyHandler):
         )
 
 
+class NotPaitCbvHandler(MyHandler):
+    user_name: str = Query.i()
+
+    async def get(self) -> None:
+        self.write(self.user_name)
+
+    async def post(self) -> None:
+        self.write(self.user_name)
+
+
 class TextResponseHanler(MyHandler):
     @check_resp_pait(response_model_list=[TextRespModel])
     async def get(self) -> None:
@@ -575,6 +585,7 @@ def create_app() -> Application:
             (r"/api/mock/(?P<age>\w+)", MockHandler),
             (r"/api/pait-model", PaitModelHanler),
             (r"/api/cbv", CbvHandler),
+            (r"/api/not-pait-cbv", NotPaitCbvHandler),
             (r"/api/check-param", CheckParamHandler),
             (r"/api/check-resp", CheckRespHandler),
             (r"/api/text-resp", TextResponseHanler),
@@ -592,6 +603,7 @@ def create_app() -> Application:
     )
     AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
     add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
+    load_app(app, auto_load_route=True)
     return app
 
 

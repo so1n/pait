@@ -12,7 +12,7 @@ from ._app_helper import AppHelper
 __all__ = ["load_app"]
 
 
-def load_app(app: Sanic, project_name: str = "") -> Dict[str, PaitCoreModel]:
+def load_app(app: Sanic, project_name: str = "", auto_load_route: bool = False) -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`"""
     if not project_name:
         project_name = app.name
@@ -51,10 +51,22 @@ def load_app(app: Sanic, project_name: str = "") -> Dict[str, PaitCoreModel]:
             if not real_handler:
                 logging.warning(f"{route_name} can not found handle")  # pragma: no cover
                 continue
-            pait_id: Optional[str] = getattr(real_handler, "_pait_id", None)
+            pait_id: str = getattr(real_handler, "_pait_id", "")
             if not pait_id:
-                logging.warning(f"{route_name} can not found pait id")  # pragma: no cover
-                continue
+                if auto_load_route:
+                    from pait.app.sanic import pait
+
+                    real_handler = pait()(real_handler)
+                    pait_id = getattr(real_handler, "_pait_id", "")
+
+                    if view_class:
+                        setattr(view_class, method.lower(), real_handler)
+                    else:
+                        route.handler = real_handler
+                else:
+                    logging.warning(f"{route_name} can not found pait id")  # pragma: no cover
+                    continue
+
             pait_data.add_route_info(
                 AppHelper.app_name, pait_id, path, openapi_path, {method}, route_name, project_name
             )

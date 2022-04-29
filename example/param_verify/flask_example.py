@@ -30,7 +30,7 @@ from example.param_verify.model import (
     context_depend,
     demo_depend,
 )
-from pait.app.flask import AddDocRoute, Pait, add_doc_route, pait
+from pait.app.flask import AddDocRoute, Pait, add_doc_route, load_app, pait
 from pait.app.flask.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.app.flask.plugin.cache_resonse import CacheResponsePlugin
 from pait.app.flask.plugin.check_json_resp import CheckJsonRespPlugin
@@ -357,6 +357,16 @@ class CbvRoute(MethodView):
         }
 
 
+class NotPaitCbvRoute(MethodView):
+    user_name: str = Query.i()
+
+    def get(self) -> Response:
+        return make_response(self.user_name, 200)
+
+    def post(self) -> Response:
+        return make_response(self.user_name, 200)
+
+
 @check_resp_pait(response_model_list=[TextRespModel])
 def text_response_route() -> Response:
     """test return test response"""
@@ -479,6 +489,12 @@ def cache_response() -> Response:
     return make_response(str(time.time()), 200)
 
 
+def not_pait_route(
+    user_name: str = Query.i(),
+) -> Response:
+    return make_response(user_name, 200)
+
+
 @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[CheckJsonRespPlugin.build()])
 def check_json_plugin_route1(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
@@ -524,6 +540,8 @@ def create_app() -> Flask:
     app.add_url_rule("/api/check-resp", view_func=check_response_route, methods=["GET"])
     app.add_url_rule("/api/check-json-plugin", view_func=check_json_plugin_route, methods=["GET"])
     app.add_url_rule("/api/cache-response", view_func=cache_response, methods=["GET"])
+    app.add_url_rule("/api/not-pait", view_func=not_pait_route, methods=["GET"])
+    app.add_url_rule("/api/not-pait-cbv", view_func=NotPaitCbvRoute.as_view("NotPaitRoute"))
     app.add_url_rule("/api/check-json-plugin-1", view_func=check_json_plugin_route1, methods=["GET"])
     app.add_url_rule("/api/auto-complete-json-plugin", view_func=auto_complete_json_route, methods=["GET"])
     app.add_url_rule("/api/depend-contextmanager", view_func=depend_contextmanager_route, methods=["GET"])
@@ -531,6 +549,7 @@ def create_app() -> Flask:
     app.errorhandler(PaitBaseException)(api_exception)
     app.errorhandler(ValidationError)(api_exception)
     app.errorhandler(RuntimeError)(api_exception)
+    load_app(app, auto_load_route=True)
     return app
 
 

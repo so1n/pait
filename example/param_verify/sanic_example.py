@@ -33,7 +33,7 @@ from example.param_verify.model import (
     context_depend,
     demo_depend,
 )
-from pait.app.sanic import AddDocRoute, Pait, add_doc_route, pait
+from pait.app.sanic import AddDocRoute, Pait, add_doc_route, load_app, pait
 from pait.app.sanic.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.app.sanic.plugin.cache_resonse import CacheResponsePlugin
 from pait.app.sanic.plugin.check_json_resp import CheckJsonRespPlugin
@@ -393,6 +393,16 @@ class CbvRoute(HTTPMethodView):
         )
 
 
+class NotPaitCbvRoute(HTTPMethodView):
+    name: str = Query.i()
+
+    async def get(self) -> response.HTTPResponse:
+        return response.text(self.name, 200)
+
+    async def post(self) -> response.HTTPResponse:
+        return response.text(self.name, 200)
+
+
 @check_resp_pait(response_model_list=[TextRespModel])
 async def text_response_route(request: Request) -> response.HTTPResponse:
     return response.text(str(time.time()), headers={"X-Example-Type": "text"})
@@ -480,6 +490,12 @@ async def cache_response(request: Request) -> response.HTTPResponse:
     return response.text(str(time.time()))
 
 
+async def not_pait_route(
+    uid: int = Query.i(description="user id", gt=10, lt=1000),
+) -> response.HTTPResponse:
+    return response.text(str(uid), 200)
+
+
 @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[CheckJsonRespPlugin.build()])
 async def check_json_plugin_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
@@ -559,12 +575,14 @@ def create_app() -> Sanic:
     app.add_route(mock_route, "/api/mock/<age>", methods={"GET"})
     app.add_route(pait_model_route, "/api/pait-model", methods={"POST"})
     app.add_route(CbvRoute.as_view(), "/api/cbv")
+    app.add_route(NotPaitCbvRoute.as_view(), "/api/not-pait-cbv")
     app.add_route(check_param_route, "/api/check-param", methods={"GET"})
     app.add_route(check_response_route, "/api/check-resp", methods={"GET"})
     app.add_route(text_response_route, "/api/text-resp", methods={"GET"})
     app.add_route(html_response_route, "/api/html-resp", methods={"GET"})
     app.add_route(file_response_route, "/api/file-resp", methods={"GET"})
     app.add_route(cache_response, "/api/cache-response", methods={"GET"})
+    app.add_route(not_pait_route, "/api/not-pait", methods={"GET"})
     app.add_route(check_json_plugin_route, "/api/check-json-plugin", methods={"GET"})
     app.add_route(auto_complete_json_route, "/api/auto-complete-json-plugin", methods={"GET"})
     app.add_route(check_json_plugin_route1, "/api/check-json-plugin-1", methods={"GET"})
@@ -575,6 +593,7 @@ def create_app() -> Sanic:
     app.exception(PaitBaseException)(api_exception)
     app.exception(ValidationError)(api_exception)
     app.exception(RuntimeError)(api_exception)
+    load_app(app, auto_load_route=True)
     return app
 
 

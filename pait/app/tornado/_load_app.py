@@ -1,3 +1,4 @@
+import logging
 from typing import Callable, Dict, Optional
 
 from tornado.web import Application
@@ -10,7 +11,7 @@ from ._app_helper import AppHelper
 __all__ = ["load_app"]
 
 
-def load_app(app: Application, project_name: str = "") -> Dict[str, PaitCoreModel]:
+def load_app(app: Application, project_name: str = "", auto_load_route: bool = False) -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`"""
     _pait_data: Dict[str, PaitCoreModel] = {}
     for rule in app.wildcard_router.rules:
@@ -41,9 +42,16 @@ def load_app(app: Application, project_name: str = "") -> Dict[str, PaitCoreMode
             if not handler:
                 continue
             route_name: str = f"{base_name}.{method}"
-            pait_id: Optional[str] = getattr(handler, "_pait_id", None)
+            pait_id: str = getattr(handler, "_pait_id", "")
             if not pait_id:
-                continue
+                if auto_load_route:
+                    from pait.app.tornado import pait
+
+                    handler = pait()(handler)
+                    pait_id = getattr(handler, "_pait_id", None)
+                    setattr(rule.target, method, handler)
+                else:
+                    logging.warning(f"{route_name} can not found pait id")  # pragma: no cover
             pait_data.add_route_info(
                 AppHelper.app_name, pait_id, path, openapi_path, {method}, route_name, project_name
             )

@@ -23,7 +23,7 @@ class PaitBaseResponseModel(object):
     # response data
     response_data: Union[Type[BaseModel], str, bytes]
     # response media type
-    media_type: str
+    media_type: str = "*/*"
 
     # response name
     name: Optional[str] = None

@@ -335,15 +335,16 @@ class ParamHandler(BaseParamHandler):
         return None
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        with self:
-            return self.call_next(*self.args, **self.kwargs)
+        try:
+            with self:
+                return self.call_next(*self.args, **self.kwargs)
+        except Exception as e:
+            print(self.call_next, *self.args, **self.kwargs)
+            raise e from gen_tip_exc(self.call_next, e)
 
     def __enter__(self) -> "ParamHandler":
-        try:
-            self._gen_param()
-            return self
-        except Exception as e:
-            raise e from gen_tip_exc(self.call_next, e)
+        self._gen_param()
+        return self
 
     def __exit__(
         self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[TracebackType]

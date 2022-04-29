@@ -36,7 +36,7 @@ from example.param_verify.model import (
     context_depend,
     demo_depend,
 )
-from pait.app.starlette import AddDocRoute, Pait, add_doc_route, pait
+from pait.app.starlette import AddDocRoute, Pait, add_doc_route, load_app, pait
 from pait.app.starlette.plugin import AtMostOneOfPlugin
 from pait.app.starlette.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.app.starlette.plugin.cache_resonse import CacheResponsePlugin
@@ -427,6 +427,16 @@ class CbvRoute(HTTPEndpoint):
         )
 
 
+class NotPaitCbvRoute(HTTPEndpoint):
+    name: str = Query.i()
+
+    async def get(self) -> PlainTextResponse:
+        return PlainTextResponse(self.name)
+
+    async def post(self) -> PlainTextResponse:
+        return PlainTextResponse(self.name)
+
+
 @check_resp_pait(response_model_list=[TextRespModel])
 async def async_text_response_route() -> PlainTextResponse:
     response: PlainTextResponse = PlainTextResponse(str(time.time()))
@@ -570,6 +580,10 @@ async def cache_response() -> PlainTextResponse:
     return PlainTextResponse(str(time.time()))
 
 
+async def not_pait_route(user_name: str = Query.i()) -> PlainTextResponse:
+    return PlainTextResponse(user_name)
+
+
 @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[CheckJsonRespPlugin.build()])
 def check_json_plugin_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
@@ -707,6 +721,8 @@ def create_app() -> Starlette:
             Route("/api/auto-complete-json-plugin", auto_complete_json_route, methods=["GET"]),
             Route("/api/async-auto-complete-json-plugin", async_auto_complete_json_route, methods=["GET"]),
             Route("/api/cache-response", cache_response, methods=["GET"]),
+            Route("/api/not-pait-route", not_pait_route, methods=["GET"]),
+            Route("/api/not-pait-cbv", NotPaitCbvRoute),
             Route("/api/check-json-plugin", check_json_plugin_route, methods=["GET"]),
             Route("/api/check-json-plugin-1", check_json_plugin_route1, methods=["GET"]),
             Route("/api/async-check-json-plugin", async_check_json_plugin_route, methods=["GET"]),
@@ -723,6 +739,7 @@ def create_app() -> Starlette:
     app.add_exception_handler(PaitBaseException, api_exception)
     app.add_exception_handler(ValidationError, api_exception)
     app.add_exception_handler(RuntimeError, api_exception)
+    load_app(app, auto_load_route=True)
     return app
 
 

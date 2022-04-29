@@ -159,7 +159,11 @@ class PaitOpenAPI(PaitBaseParse):
         for resp_model_class in pait_model.response_model_list:
             resp_model: PaitBaseResponseModel = resp_model_class()
             global_model_name: str = ""
-            if isinstance(resp_model.response_data, type) and issubclass(resp_model.response_data, BaseModel):
+            if (
+                getattr(resp_model, "response_data", None)
+                and isinstance(resp_model.response_data, type)
+                and issubclass(resp_model.response_data, BaseModel)
+            ):
                 global_model_name = get_model_global_name(resp_model.response_data)
 
                 schema_dict: dict = copy.deepcopy(pait_model_schema(resp_model.response_data))
