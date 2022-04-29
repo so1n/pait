@@ -428,13 +428,13 @@ class CbvRoute(HTTPEndpoint):
 
 
 class NotPaitCbvRoute(HTTPEndpoint):
-    name: str = Query.i()
+    user_name: str = Query.i()
 
     async def get(self) -> PlainTextResponse:
-        return PlainTextResponse(self.name)
+        return PlainTextResponse(self.user_name)
 
     async def post(self) -> PlainTextResponse:
-        return PlainTextResponse(self.name)
+        return PlainTextResponse(self.user_name)
 
 
 @check_resp_pait(response_model_list=[TextRespModel])

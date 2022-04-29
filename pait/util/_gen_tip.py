@@ -53,10 +53,12 @@ def gen_tip_exc(_object: Any, exception: "Exception", parameter: Optional[inspec
         module: Any = inspect.getmodule(_object)
         if module:
             file = module.__file__
-        line = inspect.getsourcelines(_object.__class__)[1]
-        error_object_name = _object.__class__.__name__
+
+        class_object = _object.__class__ if not inspect.isclass(_object) else _object
+        line = inspect.getsourcelines(class_object)[1]
+        error_object_name = class_object.__name__
         if "class" in error_object_name:
-            error_object_name = str(_object.__class__)  # pragma: no cover
+            error_object_name = str(class_object)  # pragma: no cover
         error_source_tip = f"class: `{error_object_name}`  attributes error\n    {param_str}"
 
     logging.debug(error_source_tip)

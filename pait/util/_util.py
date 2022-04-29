@@ -269,7 +269,6 @@ def get_parameter_list_from_pydantic_basemodel(pait_model: Type[BaseModel]) -> L
     for key, model_field in pait_model.__fields__.items():
         if not is_pait_field(model_field.field_info):
             raise TypeError(f"{model_field.field_info} must instance {BaseField} or {Depends}")
-
         parameter = inspect.Parameter(
             key,
             inspect.Parameter.POSITIONAL_ONLY,
@@ -293,6 +292,10 @@ def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:
             default: Any = getattr(cbv_class, param_name, Undefined)
             if not is_pait_field(default):
                 continue
+
+            # Optimize parsing speed
+            if not default.alias:
+                default.request_key = param_name
             parameter: "inspect.Parameter" = inspect.Parameter(
                 param_name,
                 inspect.Parameter.POSITIONAL_ONLY,

@@ -394,13 +394,13 @@ class CbvRoute(HTTPMethodView):
 
 
 class NotPaitCbvRoute(HTTPMethodView):
-    name: str = Query.i()
+    user_name: str = Query.i()
 
     async def get(self) -> response.HTTPResponse:
-        return response.text(self.name, 200)
+        return response.text(self.user_name, 200)
 
     async def post(self) -> response.HTTPResponse:
-        return response.text(self.name, 200)
+        return response.text(self.user_name, 200)
 
 
 @check_resp_pait(response_model_list=[TextRespModel])

@@ -339,7 +339,6 @@ class ParamHandler(BaseParamHandler):
             with self:
                 return self.call_next(*self.args, **self.kwargs)
         except Exception as e:
-            print(self.call_next, *self.args, **self.kwargs)
             raise e from gen_tip_exc(self.call_next, e)
 
     def __enter__(self) -> "ParamHandler":
