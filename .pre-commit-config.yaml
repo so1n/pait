@@ -3,6 +3,7 @@ repos:
     rev: v0.910
     hooks:
       - id: mypy
+        exclude: "^example/example_grpc/python_example_proto_code/example_proto"
   - repo: https://github.com/PyCQA/isort
     rev: 5.9.3
     hooks:
@@ -15,6 +16,7 @@ repos:
     rev: 3.9.2
     hooks:
       - id: flake8
+        exclude: "^example/example_grpc/python_example_proto_code/example_proto"
   - repo: https://github.com/myint/autoflake
     rev: v1.4
     hooks:

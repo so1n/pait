@@ -1,0 +1,50 @@
+syntax = "proto3";
+package user;
+import "google/protobuf/empty.proto";
+
+
+// create user
+message CreateUserRequest {
+  string uid = 1;
+  string user_name = 2;
+  string password = 3;
+}
+
+// delete user
+message DeleteUserRequest {
+  string uid = 1;
+}
+
+// login user
+message LoginUserRequest {
+  string uid = 1;
+  string password = 2;
+}
+message LoginUserResult {
+  string uid = 1;
+  string user_name = 2;
+  string token = 3;
+}
+
+// logout user
+message LogoutUserRequest {
+  string uid = 1;
+  string token = 2;
+}
+
+// check login
+message GetUidByTokenRequest {
+  string token = 1;
+}
+// check login
+message GetUidByTokenResult {
+  string uid = 1;
+}
+
+service User {
+  rpc get_uid_by_token (GetUidByTokenRequest) returns (GetUidByTokenResult);
+  rpc logout_user (LogoutUserRequest) returns (google.protobuf.Empty);
+  rpc login_user(LoginUserRequest) returns (LoginUserResult);
+  rpc create_user(CreateUserRequest) returns (google.protobuf.Empty);
+  rpc delete_user(DeleteUserRequest) returns (google.protobuf.Empty);
+}
