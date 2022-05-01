@@ -1,4 +1,4 @@
-from typing import Any, Dict, Tuple, Type
+from typing import Any, Dict, Optional, Tuple, Type
 
 from google.protobuf.descriptor import FieldDescriptor  # type: ignore
 from google.protobuf.message import Message  # type: ignore
@@ -26,9 +26,15 @@ type_dict: Dict[str, type] = {
 }
 
 
-def parse_msg_to_pydantic_model(msg: Type[Message], field: Type[FieldInfo] = FieldInfo) -> Type[BaseModel]:
+def parse_msg_to_pydantic_model(
+    msg: Type[Message],
+    default_field: Type[FieldInfo] = FieldInfo,
+    request_param_field_dict: Optional[Dict[str, Type[FieldInfo]]] = None,
+) -> Type[BaseModel]:
+    request_param_field_dict = request_param_field_dict or {}
 
     annotation_dict: Dict[str, Tuple[Type, Any]] = {}
     for column in msg.DESCRIPTOR.fields:
+        field: Type[FieldInfo] = request_param_field_dict.get(column.name, default_field)
         annotation_dict[column.name] = (type_dict[column.type], field(default=column.default_value))
     return create_pydantic_model(annotation_dict, class_name=msg.DESCRIPTOR.name)
