@@ -2,8 +2,17 @@
 - 1 Add a user-friendly doc ui
 - 2 Plugin Panel
 
+### 0.7.7[Future]
+Add grpc gateway route
 
-### 0.7.5[Now]
+### 0.7.6[Now]
+- Fix, fix not support cbv route attribute
+- Feature, support param_handle param
+- Feature, add cache response
+- Feature, PaitMd support i18n_lang param
+- Refactor, merger plugin async and sync invoke
+
+### 0.7.5
 Add some auxiliary functions and optimize the parsing speed
 
 - Feature, config support apply function feature and add PaitCoreModel match logic
