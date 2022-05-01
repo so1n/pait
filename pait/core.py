@@ -175,6 +175,7 @@ class Pait(object):
         post_plugin_list: Optional[List[PluginManager]] = None,
         append_post_plugin_list: Optional[List[PluginManager]] = None,
         param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
+        feature_code: str = "",
     ) -> Callable:
         app_name: str = self.app_helper_class.app_name
         pydantic_model_config = pydantic_model_config or self._pydantic_model_config
@@ -226,6 +227,7 @@ class Pait(object):
                 plugin_list=plugin_list,
                 post_plugin_list=post_plugin_list,
                 param_handler_plugin=param_handler_plugin or self._param_handler_plugin,
+                feature_code=feature_code,
             )
             sync_config_data_to_pait_core_model(config, pait_core_model)
             pait_data.register(app_name, pait_core_model)

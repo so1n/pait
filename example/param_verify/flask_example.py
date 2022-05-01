@@ -11,6 +11,7 @@ from pydantic import ValidationError
 from redis import Redis  # type: ignore
 from typing_extensions import TypedDict
 
+from example.example_grpc.client import user_stub
 from example.param_verify import tag
 from example.param_verify.model import (
     FailRespModel,
@@ -31,6 +32,7 @@ from example.param_verify.model import (
     demo_depend,
 )
 from pait.app.flask import AddDocRoute, Pait, add_doc_route, load_app, pait
+from pait.app.flask.grpc_route import GrpcRoute
 from pait.app.flask.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.app.flask.plugin.cache_resonse import CacheResponsePlugin
 from pait.app.flask.plugin.check_json_resp import CheckJsonRespPlugin
@@ -522,6 +524,7 @@ def create_app() -> Flask:
     app: Flask = Flask(__name__)
     add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
     AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
+    GrpcRoute(user_stub, prefix="/api", title="Grpc").gen_route(app)
     app.add_url_rule("/api/login", view_func=login_route, methods=["POST"])
     app.add_url_rule("/api/user", view_func=get_user_route, methods=["GET"])
     app.add_url_rule("/api/raise-tip", view_func=raise_tip_route, methods=["POST"])

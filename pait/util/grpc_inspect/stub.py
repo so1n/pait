@@ -61,7 +61,6 @@ class ParseStub(object):
             except StopIteration:
                 continue
 
-            print(method_name)
             if method_name.split("/")[-1] not in line and method_name not in line_list[index + 1]:
                 continue
 

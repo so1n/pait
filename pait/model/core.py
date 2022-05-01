@@ -68,12 +68,16 @@ class PaitCoreModel(object):
         plugin_list: Optional[List[PluginManager]] = None,
         post_plugin_list: Optional[List[PluginManager]] = None,
         param_handler_plugin: Optional[Type[BaseParamHandler]] = None,
+        feature_code: str = "",
     ):
         # pait
         self.app_helper_class: "Type[BaseAppHelper]" = app_helper_class
         self.func: Callable = func  # route func
         # self.qualname: str = func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0]
         self.pait_id: str = f"{func.__qualname__}_{self.func_md5}"
+        # Some functions have the same md5 as the name and need to be distinguished by the feature code
+        if feature_code:
+            self.pait_id = f"{feature_code}_{self.pait_id}"
         setattr(func, "_pait_id", self.pait_id)
         setattr(func, "pait_core_model", self)
         self.pre_depend_list: List[Callable] = pre_depend_list or []

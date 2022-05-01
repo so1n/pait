@@ -34,6 +34,7 @@ def auto_gen_service_method(stub: Any, service: Any) -> None:
         method_name: str = method.split("/")[-1]
 
         def _func(self: Any, request: Any, context: Any) -> Any:
+            logger.info(f"{self.__class__.__name__} receive request:{request}")
             return grpc_model.response()
 
         setattr(service, method_name, _func)
@@ -65,4 +66,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        format="[%(asctime)s %(levelname)s] %(message)s", datefmt="%y-%m-%d %H:%M:%S", level=logging.DEBUG
+    )
     main()

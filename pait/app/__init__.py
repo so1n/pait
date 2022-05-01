@@ -97,6 +97,7 @@ def pait(
     plugin_list: Optional[List[PluginManager]] = None,
     append_plugin_list: Optional[List[PluginManager]] = None,
     param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
+    feature_code: str = "",
 ) -> Callable:
     """provide parameter checks and type conversions for each routing function/cbv class
     Note:This is an implicit method
@@ -124,4 +125,5 @@ def pait(
         plugin_list=plugin_list,
         append_plugin_list=append_plugin_list,
         param_handler_plugin=param_handler_plugin,
+        feature_code=feature_code,
     )

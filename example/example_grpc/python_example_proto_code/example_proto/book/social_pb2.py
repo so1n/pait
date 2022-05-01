@@ -7,133 +7,103 @@ from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
 from google.protobuf import symbol_database as _symbol_database
-
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\x1f\x65xample_proto/book/social.proto\x12\x0b\x62ook_social\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto":\n\x0fLikeBookRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x0c\n\x04like\x18\x02 \x01(\x08\x12\x0b\n\x03uid\x18\x03 \x01(\t"#\n\x13GetBookLikesRequest\x12\x0c\n\x04isbn\x18\x01 \x03(\t"5\n\x12GetBookLikesResult\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x11\n\tbook_like\x18\x02 \x01(\x05"I\n\x16GetBookLikesListResult\x12/\n\x06result\x18\x01 \x03(\x0b\x32\x1f.book_social.GetBookLikesResult"@\n\x12\x43ommentBookRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t\x12\x0b\n\x03uid\x18\x03 \x01(\t"\x93\x01\n\x15GetBookCommentRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x39\n\x10next_create_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x00\x88\x01\x01\x12\x12\n\x05limit\x18\x03 \x01(\x05H\x01\x88\x01\x01\x42\x13\n\x11_next_create_timeB\x08\n\x06_limit"s\n\x14GetBookCommentResult\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t\x12\x0b\n\x03uid\x18\x03 \x01(\t\x12/\n\x0b\x63reate_time\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp"M\n\x18GetBookCommentListResult\x12\x31\n\x06result\x18\x01 \x03(\x0b\x32!.book_social.GetBookCommentResult2\xcf\x02\n\nBookSocial\x12\x41\n\tlike_book\x12\x1c.book_social.LikeBookRequest\x1a\x16.google.protobuf.Empty\x12V\n\rget_book_like\x12 .book_social.GetBookLikesRequest\x1a#.book_social.GetBookLikesListResult\x12G\n\x0c\x63omment_book\x12\x1f.book_social.CommentBookRequest\x1a\x16.google.protobuf.Empty\x12]\n\x10get_book_comment\x12".book_social.GetBookCommentRequest\x1a%.book_social.GetBookCommentListResultb\x06proto3'
-)
+from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
+from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-_LIKEBOOKREQUEST = DESCRIPTOR.message_types_by_name["LikeBookRequest"]
-_GETBOOKLIKESREQUEST = DESCRIPTOR.message_types_by_name["GetBookLikesRequest"]
-_GETBOOKLIKESRESULT = DESCRIPTOR.message_types_by_name["GetBookLikesResult"]
-_GETBOOKLIKESLISTRESULT = DESCRIPTOR.message_types_by_name["GetBookLikesListResult"]
-_COMMENTBOOKREQUEST = DESCRIPTOR.message_types_by_name["CommentBookRequest"]
-_GETBOOKCOMMENTREQUEST = DESCRIPTOR.message_types_by_name["GetBookCommentRequest"]
-_GETBOOKCOMMENTRESULT = DESCRIPTOR.message_types_by_name["GetBookCommentResult"]
-_GETBOOKCOMMENTLISTRESULT = DESCRIPTOR.message_types_by_name["GetBookCommentListResult"]
-LikeBookRequest = _reflection.GeneratedProtocolMessageType(
-    "LikeBookRequest",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _LIKEBOOKREQUEST,
-        "__module__": "example_proto.book.social_pb2"
-        # @@protoc_insertion_point(class_scope:book_social.LikeBookRequest)
-    },
-)
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1f\x65xample_proto/book/social.proto\x12\x0b\x62ook_social\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\":\n\x0fLikeBookRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x0c\n\x04like\x18\x02 \x01(\x08\x12\x0b\n\x03uid\x18\x03 \x01(\t\"#\n\x13GetBookLikesRequest\x12\x0c\n\x04isbn\x18\x01 \x03(\t\"5\n\x12GetBookLikesResult\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x11\n\tbook_like\x18\x02 \x01(\x05\"I\n\x16GetBookLikesListResult\x12/\n\x06result\x18\x01 \x03(\x0b\x32\x1f.book_social.GetBookLikesResult\"@\n\x12\x43ommentBookRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t\x12\x0b\n\x03uid\x18\x03 \x01(\t\"\x93\x01\n\x15GetBookCommentRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x39\n\x10next_create_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x00\x88\x01\x01\x12\x12\n\x05limit\x18\x03 \x01(\x05H\x01\x88\x01\x01\x42\x13\n\x11_next_create_timeB\x08\n\x06_limit\"s\n\x14GetBookCommentResult\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t\x12\x0b\n\x03uid\x18\x03 \x01(\t\x12/\n\x0b\x63reate_time\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"M\n\x18GetBookCommentListResult\x12\x31\n\x06result\x18\x01 \x03(\x0b\x32!.book_social.GetBookCommentResult2\xcf\x02\n\nBookSocial\x12\x41\n\tlike_book\x12\x1c.book_social.LikeBookRequest\x1a\x16.google.protobuf.Empty\x12V\n\rget_book_like\x12 .book_social.GetBookLikesRequest\x1a#.book_social.GetBookLikesListResult\x12G\n\x0c\x63omment_book\x12\x1f.book_social.CommentBookRequest\x1a\x16.google.protobuf.Empty\x12]\n\x10get_book_comment\x12\".book_social.GetBookCommentRequest\x1a%.book_social.GetBookCommentListResultb\x06proto3')
+
+
+
+_LIKEBOOKREQUEST = DESCRIPTOR.message_types_by_name['LikeBookRequest']
+_GETBOOKLIKESREQUEST = DESCRIPTOR.message_types_by_name['GetBookLikesRequest']
+_GETBOOKLIKESRESULT = DESCRIPTOR.message_types_by_name['GetBookLikesResult']
+_GETBOOKLIKESLISTRESULT = DESCRIPTOR.message_types_by_name['GetBookLikesListResult']
+_COMMENTBOOKREQUEST = DESCRIPTOR.message_types_by_name['CommentBookRequest']
+_GETBOOKCOMMENTREQUEST = DESCRIPTOR.message_types_by_name['GetBookCommentRequest']
+_GETBOOKCOMMENTRESULT = DESCRIPTOR.message_types_by_name['GetBookCommentResult']
+_GETBOOKCOMMENTLISTRESULT = DESCRIPTOR.message_types_by_name['GetBookCommentListResult']
+LikeBookRequest = _reflection.GeneratedProtocolMessageType('LikeBookRequest', (_message.Message,), {
+  'DESCRIPTOR' : _LIKEBOOKREQUEST,
+  '__module__' : 'example_proto.book.social_pb2'
+  # @@protoc_insertion_point(class_scope:book_social.LikeBookRequest)
+  })
 _sym_db.RegisterMessage(LikeBookRequest)
 
-GetBookLikesRequest = _reflection.GeneratedProtocolMessageType(
-    "GetBookLikesRequest",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _GETBOOKLIKESREQUEST,
-        "__module__": "example_proto.book.social_pb2"
-        # @@protoc_insertion_point(class_scope:book_social.GetBookLikesRequest)
-    },
-)
+GetBookLikesRequest = _reflection.GeneratedProtocolMessageType('GetBookLikesRequest', (_message.Message,), {
+  'DESCRIPTOR' : _GETBOOKLIKESREQUEST,
+  '__module__' : 'example_proto.book.social_pb2'
+  # @@protoc_insertion_point(class_scope:book_social.GetBookLikesRequest)
+  })
 _sym_db.RegisterMessage(GetBookLikesRequest)
 
-GetBookLikesResult = _reflection.GeneratedProtocolMessageType(
-    "GetBookLikesResult",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _GETBOOKLIKESRESULT,
-        "__module__": "example_proto.book.social_pb2"
-        # @@protoc_insertion_point(class_scope:book_social.GetBookLikesResult)
-    },
-)
+GetBookLikesResult = _reflection.GeneratedProtocolMessageType('GetBookLikesResult', (_message.Message,), {
+  'DESCRIPTOR' : _GETBOOKLIKESRESULT,
+  '__module__' : 'example_proto.book.social_pb2'
+  # @@protoc_insertion_point(class_scope:book_social.GetBookLikesResult)
+  })
 _sym_db.RegisterMessage(GetBookLikesResult)
 
-GetBookLikesListResult = _reflection.GeneratedProtocolMessageType(
-    "GetBookLikesListResult",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _GETBOOKLIKESLISTRESULT,
-        "__module__": "example_proto.book.social_pb2"
-        # @@protoc_insertion_point(class_scope:book_social.GetBookLikesListResult)
-    },
-)
+GetBookLikesListResult = _reflection.GeneratedProtocolMessageType('GetBookLikesListResult', (_message.Message,), {
+  'DESCRIPTOR' : _GETBOOKLIKESLISTRESULT,
+  '__module__' : 'example_proto.book.social_pb2'
+  # @@protoc_insertion_point(class_scope:book_social.GetBookLikesListResult)
+  })
 _sym_db.RegisterMessage(GetBookLikesListResult)
 
-CommentBookRequest = _reflection.GeneratedProtocolMessageType(
-    "CommentBookRequest",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _COMMENTBOOKREQUEST,
-        "__module__": "example_proto.book.social_pb2"
-        # @@protoc_insertion_point(class_scope:book_social.CommentBookRequest)
-    },
-)
+CommentBookRequest = _reflection.GeneratedProtocolMessageType('CommentBookRequest', (_message.Message,), {
+  'DESCRIPTOR' : _COMMENTBOOKREQUEST,
+  '__module__' : 'example_proto.book.social_pb2'
+  # @@protoc_insertion_point(class_scope:book_social.CommentBookRequest)
+  })
 _sym_db.RegisterMessage(CommentBookRequest)
 
-GetBookCommentRequest = _reflection.GeneratedProtocolMessageType(
-    "GetBookCommentRequest",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _GETBOOKCOMMENTREQUEST,
-        "__module__": "example_proto.book.social_pb2"
-        # @@protoc_insertion_point(class_scope:book_social.GetBookCommentRequest)
-    },
-)
+GetBookCommentRequest = _reflection.GeneratedProtocolMessageType('GetBookCommentRequest', (_message.Message,), {
+  'DESCRIPTOR' : _GETBOOKCOMMENTREQUEST,
+  '__module__' : 'example_proto.book.social_pb2'
+  # @@protoc_insertion_point(class_scope:book_social.GetBookCommentRequest)
+  })
 _sym_db.RegisterMessage(GetBookCommentRequest)
 
-GetBookCommentResult = _reflection.GeneratedProtocolMessageType(
-    "GetBookCommentResult",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _GETBOOKCOMMENTRESULT,
-        "__module__": "example_proto.book.social_pb2"
-        # @@protoc_insertion_point(class_scope:book_social.GetBookCommentResult)
-    },
-)
+GetBookCommentResult = _reflection.GeneratedProtocolMessageType('GetBookCommentResult', (_message.Message,), {
+  'DESCRIPTOR' : _GETBOOKCOMMENTRESULT,
+  '__module__' : 'example_proto.book.social_pb2'
+  # @@protoc_insertion_point(class_scope:book_social.GetBookCommentResult)
+  })
 _sym_db.RegisterMessage(GetBookCommentResult)
 
-GetBookCommentListResult = _reflection.GeneratedProtocolMessageType(
-    "GetBookCommentListResult",
-    (_message.Message,),
-    {
-        "DESCRIPTOR": _GETBOOKCOMMENTLISTRESULT,
-        "__module__": "example_proto.book.social_pb2"
-        # @@protoc_insertion_point(class_scope:book_social.GetBookCommentListResult)
-    },
-)
+GetBookCommentListResult = _reflection.GeneratedProtocolMessageType('GetBookCommentListResult', (_message.Message,), {
+  'DESCRIPTOR' : _GETBOOKCOMMENTLISTRESULT,
+  '__module__' : 'example_proto.book.social_pb2'
+  # @@protoc_insertion_point(class_scope:book_social.GetBookCommentListResult)
+  })
 _sym_db.RegisterMessage(GetBookCommentListResult)
 
-_BOOKSOCIAL = DESCRIPTOR.services_by_name["BookSocial"]
+_BOOKSOCIAL = DESCRIPTOR.services_by_name['BookSocial']
 if _descriptor._USE_C_DESCRIPTORS == False:
 
-    DESCRIPTOR._options = None
-    _LIKEBOOKREQUEST._serialized_start = 110
-    _LIKEBOOKREQUEST._serialized_end = 168
-    _GETBOOKLIKESREQUEST._serialized_start = 170
-    _GETBOOKLIKESREQUEST._serialized_end = 205
-    _GETBOOKLIKESRESULT._serialized_start = 207
-    _GETBOOKLIKESRESULT._serialized_end = 260
-    _GETBOOKLIKESLISTRESULT._serialized_start = 262
-    _GETBOOKLIKESLISTRESULT._serialized_end = 335
-    _COMMENTBOOKREQUEST._serialized_start = 337
-    _COMMENTBOOKREQUEST._serialized_end = 401
-    _GETBOOKCOMMENTREQUEST._serialized_start = 404
-    _GETBOOKCOMMENTREQUEST._serialized_end = 551
-    _GETBOOKCOMMENTRESULT._serialized_start = 553
-    _GETBOOKCOMMENTRESULT._serialized_end = 668
-    _GETBOOKCOMMENTLISTRESULT._serialized_start = 670
-    _GETBOOKCOMMENTLISTRESULT._serialized_end = 747
-    _BOOKSOCIAL._serialized_start = 750
-    _BOOKSOCIAL._serialized_end = 1085
+  DESCRIPTOR._options = None
+  _LIKEBOOKREQUEST._serialized_start=110
+  _LIKEBOOKREQUEST._serialized_end=168
+  _GETBOOKLIKESREQUEST._serialized_start=170
+  _GETBOOKLIKESREQUEST._serialized_end=205
+  _GETBOOKLIKESRESULT._serialized_start=207
+  _GETBOOKLIKESRESULT._serialized_end=260
+  _GETBOOKLIKESLISTRESULT._serialized_start=262
+  _GETBOOKLIKESLISTRESULT._serialized_end=335
+  _COMMENTBOOKREQUEST._serialized_start=337
+  _COMMENTBOOKREQUEST._serialized_end=401
+  _GETBOOKCOMMENTREQUEST._serialized_start=404
+  _GETBOOKCOMMENTREQUEST._serialized_end=551
+  _GETBOOKCOMMENTRESULT._serialized_start=553
+  _GETBOOKCOMMENTRESULT._serialized_end=668
+  _GETBOOKCOMMENTLISTRESULT._serialized_start=670
+  _GETBOOKCOMMENTLISTRESULT._serialized_end=747
+  _BOOKSOCIAL._serialized_start=750
+  _BOOKSOCIAL._serialized_end=1085
 # @@protoc_insertion_point(module_scope)

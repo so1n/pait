@@ -32,11 +32,9 @@ message LogoutUserRequest {
   string token = 2;
 }
 
-// check login
 message GetUidByTokenRequest {
   string token = 1;
 }
-// check login
 message GetUidByTokenResult {
   string uid = 1;
 }
