@@ -21,34 +21,47 @@ class GrpcModel(object):
     func: Callable
     request: Type[Message] = Message
     response: Type[Message] = Message
+    desc: str = ""
+    service_desc: str = ""
 
 
 class ParseStub(object):
     def __init__(self, stub: Any):
         self._stub: Any = stub
         self._method_dict: Dict[str, GrpcModel] = {}
-
-        grpc_invoke_dict: Dict[str, Callable] = self._stub.__dict__.copy()
-        for value in grpc_invoke_dict.values():
-            if hasattr(value, "__wrapped__"):
-                value = value.__wrapped__  # type: ignore
-            method = value._method  # type: ignore
-            if isinstance(method, bytes):
-                method = method.decode()
-            self._method_dict[method] = GrpcModel(method=method, func=value)
-
+        self._grpc_invoke_dict: Dict[str, Callable] = self._stub.__dict__.copy()
+        self._sys_module_dict = sys.modules[stub.__class__.__module__].__dict__
         self._line_list: List[str] = inspect.getsource(stub.__class__).split("\n")
+
         class_module: Optional[ModuleType] = inspect.getmodule(stub.__class__)
         if not class_module:
             raise RuntimeError(f"Can not found {stub} module")
-
         self._class_module: ModuleType = class_module
-        self._sys_module_dict = sys.modules[stub.__class__.__module__].__dict__
+
+        self._gen_rpc_metadate()
         self._parse()
 
     @property
     def method_dict(self) -> Dict[str, GrpcModel]:
         return self._method_dict
+
+    def _gen_rpc_metadate(self) -> None:
+        # proto file auto gen doc in *Service not in *Stub
+        service_class_name: str = self._stub.__class__.__name__.replace("Stub", "Servicer")
+        service_class: Type = getattr(self._class_module, service_class_name)
+
+        for invoke_name, value in self._grpc_invoke_dict.items():
+            if hasattr(value, "__wrapped__"):
+                value = value.__wrapped__  # type: ignore
+            method = value._method  # type: ignore
+            if isinstance(method, bytes):
+                method = method.decode()
+            self._method_dict[method] = GrpcModel(
+                method=method,
+                func=value,
+                desc=service_class.__dict__[invoke_name].__doc__ or "",
+                service_desc=service_class.__doc__ or "",
+            )
 
     def _parse(self) -> None:
         method_dict_iter: Iterable = iter(self._method_dict.items())

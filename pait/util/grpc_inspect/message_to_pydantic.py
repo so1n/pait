@@ -1,10 +1,11 @@
-from typing import Any, Dict, Optional, Tuple, Type
+from typing import Any, Dict, Optional, Tuple, Type, Union
 
 from google.protobuf.descriptor import FieldDescriptor  # type: ignore
 from google.protobuf.message import Message  # type: ignore
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
 
+from pait.field import Depends
 from pait.util import create_pydantic_model
 
 type_dict: Dict[str, type] = {
@@ -29,12 +30,15 @@ type_dict: Dict[str, type] = {
 def parse_msg_to_pydantic_model(
     msg: Type[Message],
     default_field: Type[FieldInfo] = FieldInfo,
-    request_param_field_dict: Optional[Dict[str, Type[FieldInfo]]] = None,
+    request_param_field_dict: Optional[Dict[str, Union[Type[FieldInfo], Depends]]] = None,
 ) -> Type[BaseModel]:
     request_param_field_dict = request_param_field_dict or {}
 
     annotation_dict: Dict[str, Tuple[Type, Any]] = {}
     for column in msg.DESCRIPTOR.fields:
-        field: Type[FieldInfo] = request_param_field_dict.get(column.name, default_field)
-        annotation_dict[column.name] = (type_dict[column.type], field(default=column.default_value))
+        field: Union[Type[FieldInfo], Depends] = request_param_field_dict.get(column.name, default_field)
+        if isinstance(field, Depends):
+            annotation_dict[column.name] = (type_dict[column.type], field)
+        else:
+            annotation_dict[column.name] = (type_dict[column.type], field(default=column.default_value))
     return create_pydantic_model(annotation_dict, class_name=msg.DESCRIPTOR.name)

@@ -525,6 +525,8 @@ def create_app() -> Flask:
     add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
     AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
     GrpcRoute(user_stub, prefix="/api", title="Grpc").gen_route(app)
+    # GrpcRoute(social_stub, prefix="/api", title="Grpc").gen_route(app)
+    # GrpcRoute(manager_stub, prefix="/api", title="Grpc").gen_route(app)
     app.add_url_rule("/api/login", view_func=login_route, methods=["POST"])
     app.add_url_rule("/api/user", view_func=get_user_route, methods=["GET"])
     app.add_url_rule("/api/raise-tip", view_func=raise_tip_route, methods=["POST"])
