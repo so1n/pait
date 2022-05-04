@@ -20,6 +20,11 @@ class BookSocialStub(object):
                 request_serializer=example__proto_dot_book_dot_social__pb2.LikeBookRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
+        self.like_multi_book = channel.unary_unary(
+                '/book_social.BookSocial/like_multi_book',
+                request_serializer=example__proto_dot_book_dot_social__pb2.LikeBookMapRequest.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                )
         self.get_book_like = channel.unary_unary(
                 '/book_social.BookSocial/get_book_like',
                 request_serializer=example__proto_dot_book_dot_social__pb2.GetBookLikesRequest.SerializeToString,
@@ -41,6 +46,12 @@ class BookSocialServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def like_book(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def like_multi_book(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -70,6 +81,11 @@ def add_BookSocialServicer_to_server(servicer, server):
             'like_book': grpc.unary_unary_rpc_method_handler(
                     servicer.like_book,
                     request_deserializer=example__proto_dot_book_dot_social__pb2.LikeBookRequest.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            ),
+            'like_multi_book': grpc.unary_unary_rpc_method_handler(
+                    servicer.like_multi_book,
+                    request_deserializer=example__proto_dot_book_dot_social__pb2.LikeBookMapRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
             'get_book_like': grpc.unary_unary_rpc_method_handler(
@@ -110,6 +126,23 @@ class BookSocial(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/book_social.BookSocial/like_book',
             example__proto_dot_book_dot_social__pb2.LikeBookRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def like_multi_book(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/book_social.BookSocial/like_multi_book',
+            example__proto_dot_book_dot_social__pb2.LikeBookMapRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

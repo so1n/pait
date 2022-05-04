@@ -64,16 +64,35 @@ def _parse_msg_to_pydantic_model(
 
         if column.type == FieldDescriptor.TYPE_MESSAGE:
             if column.message_type.name == "Timestamp":
+                # support google.protobuf.Timestamp
                 type_ = timestamp_type
                 timestamp_handler_field_silt.append(column.name)
+            elif column.message_type.name.endswith("Entry"):
+                # support google.protobuf.MapEntry
+                key, value = column.message_type.fields
+                key_type: Any = (
+                    type_dict[key.type]
+                    if not key.message_type
+                    else _parse_msg_to_pydantic_model(key.message_type, grpc_timestamp_handler_tuple)
+                )
+                value_type: Any = (
+                    type_dict[value.type]
+                    if not value.message_type
+                    else _parse_msg_to_pydantic_model(value.message_type, grpc_timestamp_handler_tuple)
+                )
+                type_ = Dict[key_type, value_type]
+            elif column.message_type.name == "Struct":
+                # support google.protobuf.Struct
+                type_ = Dict[str, Any]
             else:
+                # support google.protobuf.Message
                 type_ = _parse_msg_to_pydantic_model(column.message_type, grpc_timestamp_handler_tuple)
         else:
             if column.label == FieldDescriptor.LABEL_REQUIRED:
                 use_field_raw_field = True
             elif column.label == FieldDescriptor.LABEL_REPEATED:
                 type_ = List[type_]  # type: ignore
-                default_factory = column.default_value
+                default_factory = list
             else:
                 default = column.default_value
 
@@ -81,12 +100,8 @@ def _parse_msg_to_pydantic_model(
             use_field: Any = field
         elif use_field_raw_field:
             use_field = ...
-        elif default_factory:
-            use_field = field(default_factory=lambda: default_factory)
-        elif default:
-            use_field = field(default=default)
         else:
-            use_field = field()
+            use_field = field(default=default, default_factory=default_factory)
         annotation_dict[name] = (type_, use_field)
 
     if timestamp_handler_field_silt:

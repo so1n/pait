@@ -10,6 +10,11 @@ message LikeBookRequest {
   string uid = 3;
 }
 
+message LikeBookMapRequest {
+  map<string, bool> like_map = 1;
+  string uid = 2;
+}
+
 // get book likes
 message GetBookLikesRequest {
   repeated string isbn = 1;
@@ -51,6 +56,7 @@ message GetBookCommentListResult {
 
 service BookSocial {
   rpc like_book (LikeBookRequest) returns (google.protobuf.Empty);
+  rpc like_multi_book (LikeBookMapRequest) returns (google.protobuf.Empty);
   rpc get_book_like (GetBookLikesRequest) returns (GetBookLikesListResult);
   rpc comment_book (CommentBookRequest) returns (google.protobuf.Empty);
   rpc get_book_comment (GetBookCommentRequest) returns (GetBookCommentListResult);
