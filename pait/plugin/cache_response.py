@@ -72,7 +72,9 @@ class CacheResponsePlugin(PluginProtocol):
                 result = await self.redis.get(real_key)
                 if not result:
                     result = await func(*args, **kwargs)
-                    await self.redis.set(real_key, pickle.dumps(result).decode("latin1"), ex=self.cache_time)
+                    await self.redis.set(  # type: ignore
+                        real_key, pickle.dumps(result).decode("latin1"), ex=self.cache_time
+                    )
                     return result
         return pickle.loads(result.encode("latin1"))
 

@@ -50,6 +50,7 @@ def raise_multiple_exc(exc_list: List[Exception]) -> None:
 def parameter_2_dict(
     parameter_value_dict: Dict["inspect.Parameter", Any],
     pydantic_config: Type[BaseConfig],
+    validators: Dict[str, classmethod] = None,
 ) -> Generator[dict, None, None]:
     """Convert all parameters into pydantic mods"""
     annotation_dict: Dict[str, Tuple[Type, Any]] = {}
@@ -65,7 +66,11 @@ def parameter_2_dict(
         class_name = parameter.name
         value_key = parameter.default.request_key
         if value_key in key_set:
-            yield create_pydantic_model(annotation_dict, pydantic_config=pydantic_config)(**param_value_dict).__dict__
+            yield create_pydantic_model(
+                annotation_dict,
+                pydantic_config=pydantic_config,
+                pydantic_validators=validators,
+            )(**param_value_dict).__dict__
             key_set = set()
             annotation_dict = {}
             param_value_dict = {}
@@ -73,7 +78,11 @@ def parameter_2_dict(
         key_set.add(value_key)
         param_value_dict[value_key] = value
         annotation_dict[class_name] = (parameter.annotation, param_field)
-    yield create_pydantic_model(annotation_dict, pydantic_config=pydantic_config)(**param_value_dict).__dict__
+    yield create_pydantic_model(
+        annotation_dict,
+        pydantic_config=pydantic_config,
+        pydantic_validators=validators,
+    )(**param_value_dict).__dict__
 
 
 class BaseParamHandler(PluginProtocol):
@@ -263,6 +272,33 @@ class BaseParamHandler(PluginProtocol):
             )  # pragma: no cover
         return app_field_func()
 
+    def valid_and_merge_kwargs_by_single_field_dict(
+        self,
+        single_field_dict: Dict["inspect.Parameter", Any],
+        kwargs_param_dict: Dict[str, Any],
+        _object: Union[FuncSig, Type, None],
+    ) -> None:
+        try:
+            for parse_dict in parameter_2_dict(single_field_dict, self.pydantic_model_config):
+                kwargs_param_dict.update(parse_dict)
+        except Exception as e:
+            raise e from gen_tip_exc(_object, e)
+
+    @staticmethod
+    def valid_and_merge_kwargs_by_pydantic_model(
+        single_field_dict: Dict["inspect.Parameter", Any],
+        kwargs_param_dict: Dict[str, Any],
+        pydantic_model: Type[BaseModel],
+        _object: Union[FuncSig, Type, None],
+    ) -> None:
+        try:
+            request_dict: Dict[str, Any] = kwargs_param_dict.copy()
+            for k, v in single_field_dict.items():
+                request_dict[k.default.request_key] = v
+            kwargs_param_dict.update(pydantic_model(**request_dict))
+        except Exception as e:
+            raise e from gen_tip_exc(_object, e)
+
 
 class ParamHandler(BaseParamHandler):
     def __init__(self, **kwargs: Any) -> None:
@@ -273,6 +309,7 @@ class ParamHandler(BaseParamHandler):
         self,
         _object: Union[FuncSig, Type, None],
         param_list: List["inspect.Parameter"],
+        pydantic_model: Type[BaseModel] = None,
     ) -> Tuple[List[Any], Dict[str, Any]]:
         args_param_list: List[Any] = []
         kwargs_param_dict: Dict[str, Any] = {}
@@ -297,11 +334,12 @@ class ParamHandler(BaseParamHandler):
                 raise gen_tip_exc(_object, e, parameter)
         # support field: def demo(demo_param: int = pait.field.BaseField())
         if single_field_dict:
-            try:
-                for parse_dict in parameter_2_dict(single_field_dict, self.pydantic_model_config):
-                    kwargs_param_dict.update(parse_dict)
-            except Exception as e:
-                raise e from gen_tip_exc(_object, e)
+            if pydantic_model:
+                self.valid_and_merge_kwargs_by_pydantic_model(
+                    single_field_dict, kwargs_param_dict, pydantic_model, _object
+                )
+            else:
+                self.valid_and_merge_kwargs_by_single_field_dict(single_field_dict, kwargs_param_dict, _object)
         return args_param_list, kwargs_param_dict
 
     def set_parameter_value_to_args(self, parameter: inspect.Parameter, func_args: list) -> None:
@@ -310,7 +348,9 @@ class ParamHandler(BaseParamHandler):
             return
         # support pait_model param(def handle(model: PaitBaseModel))
         _pait_model: Type[BaseModel] = parameter.annotation
-        _, kwargs = self.param_handle(None, get_parameter_list_from_pydantic_basemodel(_pait_model))
+        _, kwargs = self.param_handle(
+            None, get_parameter_list_from_pydantic_basemodel(_pait_model), pydantic_model=_pait_model
+        )
         # Data has been validated or is from a trusted source
         func_args.append(_pait_model.construct(**kwargs))
 
@@ -378,6 +418,7 @@ class AsyncParamHandler(BaseParamHandler):
         self,
         _object: Union[FuncSig, Type],
         param_list: List["inspect.Parameter"],
+        pydantic_model: Type[BaseModel] = None,
     ) -> Tuple[List[Any], Dict[str, Any]]:
         args_param_list: List[Any] = []
         kwargs_param_dict: Dict[str, Any] = {}
@@ -406,11 +447,13 @@ class AsyncParamHandler(BaseParamHandler):
             await asyncio.gather(*[_param_handle(parameter) for parameter in param_list])
         # support field: def demo(demo_param: int = pait.field.BaseField())
         if single_field_dict:
-            try:
-                for parse_dict in parameter_2_dict(single_field_dict, self.pydantic_model_config):
-                    kwargs_param_dict.update(parse_dict)
-            except Exception as e:
-                raise e from gen_tip_exc(_object, e)
+            if single_field_dict:
+                if pydantic_model:
+                    self.valid_and_merge_kwargs_by_pydantic_model(
+                        single_field_dict, kwargs_param_dict, pydantic_model, _object
+                    )
+                else:
+                    self.valid_and_merge_kwargs_by_single_field_dict(single_field_dict, kwargs_param_dict, _object)
         return args_param_list, kwargs_param_dict
 
     async def set_parameter_value_to_args(
@@ -421,7 +464,9 @@ class AsyncParamHandler(BaseParamHandler):
             return
         _pait_model: Type[BaseModel] = parameter.annotation
         # Data has been validated or is from a trusted source
-        _, kwargs = await self.param_handle(_object, get_parameter_list_from_pydantic_basemodel(_pait_model))
+        _, kwargs = await self.param_handle(
+            _object, get_parameter_list_from_pydantic_basemodel(_pait_model), _pait_model
+        )
         func_args.append(_pait_model.construct(**kwargs))
 
     async def _depend_handle(self, func: Callable) -> Any:

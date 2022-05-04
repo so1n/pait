@@ -28,7 +28,9 @@ class CacheResponsePlugin(_CacheResponsePlugin):
                         "status_code": tornado_handle._status_code,
                         "headers": tornado_handle._headers,
                     }
-                    await self.redis.set(real_key, pickle.dumps(cache_dict).decode("latin1"), ex=self.cache_time)
+                    await self.redis.set(  # type: ignore
+                        real_key, pickle.dumps(cache_dict).decode("latin1"), ex=self.cache_time
+                    )
                     return None
         cache_dict = pickle.loads(result.encode("latin1"))
         tornado_handle._write_buffer = cache_dict["write_buffer"]

@@ -15,6 +15,8 @@ __all__ = ["gen_tip_exc"]
 
 def gen_tip_exc(_object: Any, exception: "Exception", parameter: Optional[inspect.Parameter] = None) -> Exception:
     """Help users understand which parameter is wrong"""
+    if _object is None:
+        return exception
     if isinstance(exception, TipException):
         return exception
     if parameter:
