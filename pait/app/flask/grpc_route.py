@@ -15,7 +15,7 @@ class GrpcRoute(BaseGrpcRouter):
     make_response: Callable = make_response
 
     def _gen_route(self, app: Flask) -> Any:
-        blueprint: Blueprint = Blueprint(self.title, __name__, url_prefix=self.prefix)
+        blueprint: Blueprint = Blueprint(self.title + self._stub.__class__.__name__, __name__, url_prefix=self.prefix)
         for method_name, grpc_model in self.parser.method_dict.items():
             _route, grpc_pait_model = self._gen_route_func(method_name, grpc_model)
             if not _route:

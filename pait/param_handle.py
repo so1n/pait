@@ -126,18 +126,23 @@ class BaseParamHandler(PluginProtocol):
                 parameter.default.request_key = parameter.name
             if not ignore_pre_check:
                 if parameter.default.alias and not isinstance(parameter.default.alias, str):
-                    raise FieldValueTypeException(parameter.name, f"{parameter.name}'s Field.alias type must str")
+                    raise FieldValueTypeException(
+                        parameter.name,
+                        f"{parameter.name}'s Field.alias type must str. value: {parameter.default.alias}",
+                    )
                 try:
                     cls.check_field_type(
                         parameter.default.default,
                         parameter.annotation,
-                        f"{parameter.name}'s Field.default type must {parameter.annotation}",
+                        f"{parameter.name}'s Field.default type must {parameter.annotation}."
+                        f" value:{parameter.default.default}",
                     )
                     if parameter.default.default_factory:
                         cls.check_field_type(
                             parameter.default.default_factory(),
                             parameter.annotation,
-                            f"{parameter.name}'s Field.default_factory type must {parameter.annotation}",
+                            f"{parameter.name}'s Field.default_factory type must {parameter.annotation}."
+                            f" value:{parameter.default.default_factory()}",
                         )
                     example_value: Any = parameter.default.extra.get("example", Undefined)
                     cls.check_field_type(

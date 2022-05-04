@@ -57,6 +57,7 @@ class GrpcRouter(object):
         self.msg_to_dict: Callable = msg_to_dict
 
         self.url_handler: Callable[[str], str] = url_handler
+        self._stub: Any = stub
         self._request_param_field_dict: Dict[str, Union[Type[BaseField], Depends]] = request_param_field_dict or {}
         self._pait: Pait = pait or self.pait
         self._make_response: Callable = make_response or self.make_response
