@@ -15,11 +15,12 @@ class GrpcRoute(BaseGrpcRouter):
     make_response: Callable = make_response
 
     def _gen_route(self, app: Flask) -> Any:
-        blueprint: Blueprint = Blueprint(self.title + self._stub.__class__.__name__, __name__, url_prefix=self.prefix)
-        for method_name, grpc_model in self.parser.method_dict.items():
-            _route, grpc_pait_model = self._gen_route_func(method_name, grpc_model)
-            if not _route:
-                continue
-            # grpc http method only POST
-            blueprint.add_url_rule(self.url_handler(grpc_pait_model.url), view_func=_route, methods=["POST"])
-        app.register_blueprint(blueprint)
+        for parse_stub in self.parse_stub_list:
+            blueprint: Blueprint = Blueprint(self.title + parse_stub.name, __name__, url_prefix=self.prefix)
+            for method_name, grpc_model in parse_stub.method_dict.items():
+                _route, grpc_pait_model = self._gen_route_func(method_name, grpc_model)
+                if not _route:
+                    continue
+                # grpc http method only POST
+                blueprint.add_url_rule(self.url_handler(grpc_pait_model.url), view_func=_route, methods=["POST"])
+            app.register_blueprint(blueprint)

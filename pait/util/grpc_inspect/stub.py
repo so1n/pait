@@ -28,6 +28,7 @@ class GrpcModel(object):
 class ParseStub(object):
     def __init__(self, stub: Any):
         self._stub: Any = stub
+        self.name: str = self._stub.__class__.__name__
         self._method_dict: Dict[str, GrpcModel] = {}
         self._grpc_invoke_dict: Dict[str, Callable] = self._stub.__dict__.copy()
         self._sys_module_dict = sys.modules[stub.__class__.__module__].__dict__

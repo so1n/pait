@@ -42,7 +42,8 @@ class GrpcRouter(object):
 
     def __init__(
         self,
-        stub: Any,
+        app: Any,
+        *stub: Any,
         prefix: str = "",
         title: str = "",
         msg_to_dict: Callable = MessageToDict,
@@ -55,7 +56,7 @@ class GrpcRouter(object):
     ):
         self.prefix: str = prefix
         self.title: str = title
-        self.parser: ParseStub = ParseStub(stub)
+        self.parse_stub_list: List[ParseStub] = [ParseStub(i) for i in stub]
         self.msg_to_dict: Callable = msg_to_dict
         self.parse_dict: Optional[Callable] = parse_dict
 
@@ -67,6 +68,8 @@ class GrpcRouter(object):
         self._make_response: Callable = make_response or self.make_response
         self._is_gen: bool = False
         self._tag_dict: Dict[str, Tag] = {}
+
+        self._gen_route(app)
 
     def _gen_route_func(self, method_name: str, grpc_model: GrpcModel) -> Tuple[Optional[Callable], GrpcPaitModel]:
         grpc_pait_model: GrpcPaitModel = get_pait_info_from_grpc_desc(grpc_model)
@@ -132,9 +135,3 @@ class GrpcRouter(object):
 
     def _gen_route(self, app: Any) -> Any:  # type: ignore
         raise NotImplementedError()
-
-    def gen_route(self, app: Any) -> Any:
-        if self._is_gen:
-            raise RuntimeError("Grpc route has been generated")
-        self._gen_route(app)
-        self._is_gen = True
