@@ -183,7 +183,7 @@ class PaitBaseParse(object):
                 # enum support
                 default: Any = param_dict.get("enum", self._undefined)
                 if default is not self._undefined:
-                    default = f'Only choose from: {",".join(["`" + i + "`" for i in default])}'
+                    default = f'Only choose from: {",".join(["`" + str(i) + "`" for i in default])}'
                 _type: str = "enum"
                 description: str = pait_field.description
             else:

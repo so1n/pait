@@ -41,11 +41,13 @@ from pait.exceptions import PaitBaseException, PaitBaseParamException, TipExcept
 from pait.extra.config import apply_block_http_method_set, apply_extra_openapi_model
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.g import config
+from pait.model.core import MatchRule
 from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
 from pait.model.template import TemplateVar
 from pait.plugin.at_most_one_of import AtMostOneOfPlugin
 from pait.plugin.required import RequiredPlugin
+from pait.util.grpc_inspect.message_to_pydantic import grpc_timestamp_int_handler
 
 global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
 
@@ -524,7 +526,15 @@ def create_app() -> Flask:
     app: Flask = Flask(__name__)
     add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
     AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
-    GrpcRoute(app, user_stub, social_stub, manager_stub, prefix="/api", title="Grpc")
+    GrpcRoute(
+        app,
+        user_stub,
+        social_stub,
+        manager_stub,
+        prefix="/api",
+        title="Grpc",
+        grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
+    )
     app.add_url_rule("/api/login", view_func=login_route, methods=["POST"])
     app.add_url_rule("/api/user", view_func=get_user_route, methods=["GET"])
     app.add_url_rule("/api/raise-tip", view_func=raise_tip_route, methods=["POST"])
@@ -572,7 +582,7 @@ if __name__ == "__main__":
     config.init_config(
         apply_func_list=[
             apply_block_http_method_set({"HEAD", "OPTIONS"}),
-            apply_extra_openapi_model(ExtraModel),
+            apply_extra_openapi_model(ExtraModel, match_rule=MatchRule(key="!tag", target="grpc")),
         ]
     )
     create_app().run(port=8000, debug=True)

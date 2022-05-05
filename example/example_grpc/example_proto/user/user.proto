@@ -2,12 +2,17 @@ syntax = "proto3";
 package user;
 import "google/protobuf/empty.proto";
 
+enum SexType {
+  man = 0;
+  women = 1;
+}
 
 // create user
 message CreateUserRequest {
   string uid = 1;
   string user_name = 2;
   string password = 3;
+  SexType sex = 4;
 }
 
 // delete user

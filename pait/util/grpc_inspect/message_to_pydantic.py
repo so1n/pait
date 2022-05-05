@@ -1,4 +1,5 @@
 import datetime
+from enum import IntEnum
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 from google.protobuf.descriptor import Descriptor, FieldDescriptor  # type: ignore
@@ -29,10 +30,10 @@ type_dict: Dict[str, Type] = {
     FieldDescriptor.TYPE_SINT64: int,
 }
 
-GRPC_TIMESTAMP_HANDLER_TUPLE_T = Tuple[Any, Callable[[Any, Any], Timestamp]]
+GRPC_TIMESTAMP_HANDLER_TUPLE_T = Tuple[Any, Optional[Callable[[Any, Any], Timestamp]]]
 
 
-def _grpc_timestamp_handler(cls: Any, v: int) -> Timestamp:
+def grpc_timestamp_int_handler(cls: Any, v: int) -> Timestamp:
     t: Timestamp = Timestamp()
 
     if v:
@@ -50,7 +51,7 @@ def _parse_msg_to_pydantic_model(
     annotation_dict: Dict[str, Tuple[Type, Any]] = {}
     validators: Dict[str, classmethod] = {}
     timestamp_handler_field_silt: List[str] = []
-    timestamp_type, grpc_timestamp_handler = grpc_timestamp_handler_tuple
+    timestamp_type, _grpc_timestamp_handler = grpc_timestamp_handler_tuple
 
     for column in descriptor.fields:
         field: Union[Type[FieldInfo], Depends] = request_param_field_dict.get(column.name, default_field)
@@ -87,6 +88,10 @@ def _parse_msg_to_pydantic_model(
             else:
                 # support google.protobuf.Message
                 type_ = _parse_msg_to_pydantic_model(column.message_type, grpc_timestamp_handler_tuple)
+        elif column.type == FieldDescriptor.TYPE_ENUM:
+            # support google.protobuf.Enum
+            type_ = IntEnum(column.enum_type.name, {v.name: v.number for v in column.enum_type.values})  # type: ignore
+            default = 0
         else:
             if column.label == FieldDescriptor.LABEL_REQUIRED:
                 use_field_raw_field = True
@@ -104,13 +109,13 @@ def _parse_msg_to_pydantic_model(
             use_field = field(default=default, default_factory=default_factory)
         annotation_dict[name] = (type_, use_field)
 
-    if timestamp_handler_field_silt:
+    if timestamp_handler_field_silt and _grpc_timestamp_handler:
         validators["timestamp_validator"] = validator(
             *timestamp_handler_field_silt,
             allow_reuse=True,
             check_fields=True,
             always=True,
-        )(grpc_timestamp_handler)
+        )(_grpc_timestamp_handler)
     return create_pydantic_model(annotation_dict, class_name=descriptor.name, pydantic_validators=validators or None)
 
 
@@ -127,10 +132,11 @@ def parse_msg_to_pydantic_model(
         apply only to the outermost pydantic model
     :param request_param_field_dict: The generated pydantic model corresponds to the field of the attribute,
         apply only to the outermost pydantic model
+    :param grpc_timestamp_handler_tuple:
     """
     return _parse_msg_to_pydantic_model(
         msg if isinstance(msg, Descriptor) else msg.DESCRIPTOR,
-        grpc_timestamp_handler_tuple or (int, _grpc_timestamp_handler),
+        grpc_timestamp_handler_tuple or (str, None),
         default_field=default_field,
         request_param_field_dict=request_param_field_dict,
     )
