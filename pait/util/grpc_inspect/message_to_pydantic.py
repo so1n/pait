@@ -61,8 +61,6 @@ def _parse_msg_to_pydantic_model(
         default: Any = Undefined
         default_factory: Optional[NoArgAnyCallable] = None
 
-        use_field_raw_field: bool = False
-
         if column.type == FieldDescriptor.TYPE_MESSAGE:
             if column.message_type.name == "Timestamp":
                 # support google.protobuf.Timestamp
@@ -94,7 +92,7 @@ def _parse_msg_to_pydantic_model(
             default = 0
         else:
             if column.label == FieldDescriptor.LABEL_REQUIRED:
-                use_field_raw_field = True
+                default = ...
             elif column.label == FieldDescriptor.LABEL_REPEATED:
                 type_ = List[type_]  # type: ignore
                 default_factory = list
@@ -103,8 +101,6 @@ def _parse_msg_to_pydantic_model(
 
         if isinstance(field, Depends):
             use_field: Any = field
-        elif use_field_raw_field:
-            use_field = ...
         else:
             use_field = field(default=default, default_factory=default_factory)
         annotation_dict[name] = (type_, use_field)

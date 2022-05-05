@@ -37,6 +37,7 @@ from example.param_verify.model import (
     demo_depend,
 )
 from pait.app.starlette import AddDocRoute, Pait, add_doc_route, load_app, pait
+from pait.app.starlette.grpc_route import GrpcRoute
 from pait.app.starlette.plugin import AtMostOneOfPlugin
 from pait.app.starlette.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.app.starlette.plugin.cache_resonse import CacheResponsePlugin
@@ -44,10 +45,12 @@ from pait.app.starlette.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.starlette.plugin.mock_response import MockPlugin
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
+from pait.model.core import MatchRule
 from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
 from pait.model.template import TemplateVar
 from pait.plugin.required import AsyncRequiredPlugin
+from pait.util.grpc_inspect.message_to_pydantic import grpc_timestamp_int_handler
 
 global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
 
@@ -67,6 +70,9 @@ other_pait: Pait = pait.create_sub_pait(author=("so1n",), status=PaitStatus.test
 
 
 async def api_exception(request: Request, exc: Exception) -> JSONResponse:
+    import traceback
+
+    print(traceback.format_exc())
     if isinstance(exc, TipException):
         exc = exc.exc
 
@@ -733,9 +739,28 @@ def create_app() -> Starlette:
             Route("/api/check_pre_depend_async_contextmanager", pre_depend_async_contextmanager_route, methods=["GET"]),
         ]
     )
-    # prefix `/` route group must be behind other route group
+
+    def init_grpc_route() -> None:
+        # grpc will use the current channel directly when initializing the channel,
+        # so you need to initialize the event loop first and then initialize the grpc channel.
+        from example.example_grpc.client import aio_manager_stub, aio_social_stub, aio_user_stub
+
+        GrpcRoute(
+            app,
+            aio_user_stub,
+            aio_social_stub,
+            aio_manager_stub,
+            prefix="/api",
+            title="Grpc",
+            grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
+        )
+        # prefix `/` route group must be behind other route group
+        add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
+
+    app.add_event_handler("startup", init_grpc_route)
+
     AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
-    add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
+
     app.add_exception_handler(PaitBaseException, api_exception)
     app.add_exception_handler(ValidationError, api_exception)
     app.add_exception_handler(RuntimeError, api_exception)
@@ -757,7 +782,8 @@ if __name__ == "__main__":
     config.init_config(
         apply_func_list=[
             apply_block_http_method_set({"HEAD", "OPTIONS"}),
-            apply_extra_openapi_model(ExtraModel),
+            apply_extra_openapi_model(ExtraModel, match_rule=MatchRule(key="!tag", target="grpc")),
         ]
     )
+
     uvicorn.run(create_app(), log_level="debug")

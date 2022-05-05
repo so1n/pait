@@ -12,6 +12,7 @@ from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
 from typing_extensions import TypedDict
 
+from example.example_grpc.client import aio_manager_stub, aio_social_stub, aio_user_stub
 from example.param_verify import tag
 from example.param_verify.model import (
     FailRespModel,
@@ -33,17 +34,20 @@ from example.param_verify.model import (
     demo_depend,
 )
 from pait.app.tornado import AddDocRoute, Pait, add_doc_route, load_app, pait
+from pait.app.tornado.grpc_route import GrpcRoute
 from pait.app.tornado.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.app.tornado.plugin.cache_resonse import CacheResponsePlugin
 from pait.app.tornado.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.tornado.plugin.mock_response import MockPlugin
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
+from pait.model.core import MatchRule
 from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
 from pait.model.template import TemplateVar
 from pait.plugin.at_most_one_of import AtMostOneOfPlugin
 from pait.plugin.required import RequiredPlugin
+from pait.util.grpc_inspect.message_to_pydantic import grpc_timestamp_int_handler
 
 global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
 
@@ -603,6 +607,16 @@ def create_app() -> Application:
     )
     AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
     add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
+    GrpcRoute(
+        app,
+        aio_user_stub,
+        aio_social_stub,
+        aio_manager_stub,
+        prefix="/api",
+        title="Grpc",
+        grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
+        tornado_request_handler=MyHandler,
+    )
     load_app(app, auto_load_route=True)
     return app
 
@@ -626,7 +640,7 @@ if __name__ == "__main__":
     config.init_config(
         apply_func_list=[
             apply_block_http_method_set({"HEAD", "OPTIONS"}),
-            apply_extra_openapi_model(ExtraModel),
+            apply_extra_openapi_model(ExtraModel, match_rule=MatchRule(key="!tag", target="grpc")),
         ]
     )
     create_app().listen(8000)

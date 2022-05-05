@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import time
 from typing import Any, AsyncContextManager, Dict, List, Optional, Tuple
@@ -34,17 +35,20 @@ from example.param_verify.model import (
     demo_depend,
 )
 from pait.app.sanic import AddDocRoute, Pait, add_doc_route, load_app, pait
+from pait.app.sanic.grpc_route import GrpcRoute
 from pait.app.sanic.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.app.sanic.plugin.cache_resonse import CacheResponsePlugin
 from pait.app.sanic.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.sanic.plugin.mock_response import MockPlugin
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
+from pait.model.core import MatchRule
 from pait.model.links import LinksModel
 from pait.model.status import PaitStatus
 from pait.model.template import TemplateVar
 from pait.plugin.at_most_one_of import AtMostOneOfPlugin
 from pait.plugin.required import RequiredPlugin
+from pait.util.grpc_inspect.message_to_pydantic import grpc_timestamp_int_handler
 
 test_filename: str = ""
 
@@ -563,6 +567,20 @@ async def check_json_plugin_route1(
 def create_app() -> Sanic:
     app: Sanic = Sanic(name=__name__)
     add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
+
+    # grpc will use the current channel directly when initializing the channel,
+    # so you need to initialize the event loop first and then initialize the grpc channel.
+    from example.example_grpc.client import aio_manager_stub, aio_social_stub, aio_user_stub
+
+    GrpcRoute(
+        app,
+        aio_user_stub,
+        aio_social_stub,
+        aio_manager_stub,
+        prefix="/api",
+        title="Grpc",
+        grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
+    )
     AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
     app.add_route(login_route, "/api/login", methods={"POST"})
     app.add_route(get_user_route, "/api/user", methods={"GET"})
@@ -600,6 +618,8 @@ def create_app() -> Sanic:
 if __name__ == "__main__":
     import uvicorn  # type: ignore
     from pydantic import BaseModel
+    from uvicorn.config import Config
+    from uvicorn.server import Server
 
     from pait.extra.config import apply_block_http_method_set, apply_extra_openapi_model
     from pait.g import config
@@ -611,7 +631,17 @@ if __name__ == "__main__":
     config.init_config(
         apply_func_list=[
             apply_block_http_method_set({"HEAD", "OPTIONS"}),
-            apply_extra_openapi_model(ExtraModel),
+            apply_extra_openapi_model(ExtraModel, match_rule=MatchRule(key="!tag", target="grpc")),
         ]
     )
-    uvicorn.run(create_app(), log_level="debug")
+
+    # grpc will use the current channel directly when initializing the channel,
+    # so you need to initialize the event loop first and then initialize the grpc channel.
+
+    async def main() -> None:
+        uvicorn_config: Config = Config(create_app(), log_level="debug")
+        await Server(uvicorn_config).serve()
+
+        uvicorn.run(create_app(), log_level="debug")
+
+    asyncio.run(main())
