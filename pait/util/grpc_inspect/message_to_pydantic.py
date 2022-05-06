@@ -2,15 +2,13 @@ import datetime
 from enum import IntEnum
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
-from google.protobuf.descriptor import Descriptor, FieldDescriptor  # type: ignore
-from google.protobuf.message import Message  # type: ignore
-from google.protobuf.timestamp_pb2 import Timestamp  # type: ignore
 from pydantic import BaseModel, validator
 from pydantic.fields import FieldInfo, Undefined
 from pydantic.typing import NoArgAnyCallable
 
 from pait.field import Depends
 from pait.util import create_pydantic_model
+from pait.util.grpc_inspect.types import Descriptor, FieldDescriptor, Message, Timestamp
 
 type_dict: Dict[str, Type] = {
     FieldDescriptor.TYPE_DOUBLE: float,

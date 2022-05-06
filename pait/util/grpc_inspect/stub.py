@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from types import ModuleType
 from typing import Any, Callable, Dict, Iterable, List, Optional, Type
 
-from google.protobuf.message import Message  # type: ignore
+from pait.util.grpc_inspect.types import Message
 
 
 def get_proto_msg_path(line: str, re_str: str) -> str:

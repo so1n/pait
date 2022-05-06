@@ -1,8 +1,6 @@
 import json
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
-from google.protobuf.json_format import MessageToDict  # type: ignore
-from google.protobuf.message import Message  # type: ignore
 from pydantic import BaseModel, Field
 
 from pait.core import Pait
@@ -11,6 +9,7 @@ from pait.model.response import PaitJsonResponseModel
 from pait.model.tag import Tag
 from pait.util.grpc_inspect.message_to_pydantic import GRPC_TIMESTAMP_HANDLER_TUPLE_T, parse_msg_to_pydantic_model
 from pait.util.grpc_inspect.stub import GrpcModel, ParseStub
+from pait.util.grpc_inspect.types import Message, MessageToDict
 
 grpc_tag: Tag = Tag("grpc", desc="grpc route")
 

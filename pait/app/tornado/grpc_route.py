@@ -14,13 +14,13 @@ from pait.field import BaseField, Depends
 from pait.util.grpc_inspect.message_to_pydantic import GRPC_TIMESTAMP_HANDLER_TUPLE_T
 
 
-def make_response(_: Any, resp_dict: dict) -> dict:
+def tornado_make_response(_: Any, resp_dict: dict) -> dict:
     return resp_dict
 
 
 class GrpcRoute(BaseGrpcRouter):
     pait = tornado_pait
-    make_response = make_response
+    make_response = tornado_make_response
 
     def __init__(
         self,

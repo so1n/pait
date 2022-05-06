@@ -740,26 +740,22 @@ def create_app() -> Starlette:
         ]
     )
 
-    def init_grpc_route() -> None:
-        # grpc will use the current channel directly when initializing the channel,
-        # so you need to initialize the event loop first and then initialize the grpc channel.
-        from example.example_grpc.client import aio_manager_stub, aio_social_stub, aio_user_stub
+    # grpc will use the current channel directly when initializing the channel,
+    # so you need to initialize the event loop first and then initialize the grpc channel.
+    from example.example_grpc.client import aio_manager_stub, aio_social_stub, aio_user_stub
 
-        GrpcRoute(
-            app,
-            aio_user_stub,
-            aio_social_stub,
-            aio_manager_stub,
-            prefix="/api",
-            title="Grpc",
-            grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
-        )
-        # prefix `/` route group must be behind other route group
-        add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
-
-    app.add_event_handler("startup", init_grpc_route)
-
+    GrpcRoute(
+        app,
+        aio_user_stub,
+        aio_social_stub,
+        aio_manager_stub,
+        prefix="/api",
+        title="Grpc",
+        grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
+    )
     AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
+    # prefix `/` route group must be behind other route group
+    add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
 
     app.add_exception_handler(PaitBaseException, api_exception)
     app.add_exception_handler(ValidationError, api_exception)
@@ -769,8 +765,12 @@ def create_app() -> Starlette:
 
 
 if __name__ == "__main__":
+    import asyncio
+
     import uvicorn  # type: ignore
     from pydantic import BaseModel
+    from uvicorn.config import Config
+    from uvicorn.server import Server
 
     from pait.extra.config import apply_block_http_method_set, apply_extra_openapi_model
     from pait.g import config
@@ -786,4 +786,13 @@ if __name__ == "__main__":
         ]
     )
 
-    uvicorn.run(create_app(), log_level="debug")
+    # grpc will use the current channel directly when initializing the channel,
+    # so you need to initialize the event loop first and then initialize the grpc channel.
+
+    async def main() -> None:
+        uvicorn_config: Config = Config(create_app(), log_level="debug")
+        await Server(uvicorn_config).serve()
+
+        uvicorn.run(create_app(), log_level="debug")
+
+    asyncio.run(main())
