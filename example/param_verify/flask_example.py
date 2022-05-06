@@ -32,7 +32,7 @@ from example.param_verify.model import (
     demo_depend,
 )
 from pait.app.flask import AddDocRoute, Pait, add_doc_route, load_app, pait
-from pait.app.flask.grpc_route import GrpcRoute
+from pait.app.flask.grpc_route import GrpcGatewayRoute
 from pait.app.flask.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.app.flask.plugin.cache_resonse import CacheResponsePlugin
 from pait.app.flask.plugin.check_json_resp import CheckJsonRespPlugin
@@ -493,6 +493,14 @@ def cache_response() -> Response:
     return make_response(str(time.time()), 200)
 
 
+@plugin_pait(
+    response_model_list=[SimpleRespModel],
+    plugin_list=[CacheResponsePlugin.build(cache_time=10)],
+)
+def cache_response1() -> Response:
+    return make_response(str(time.time()), 200)
+
+
 def not_pait_route(
     user_name: str = Query.i(),
 ) -> Response:
@@ -524,9 +532,10 @@ def check_json_plugin_route1(
 
 def create_app() -> Flask:
     app: Flask = Flask(__name__)
+    CacheResponsePlugin.set_redis_to_app(app, Redis(decode_responses=True))
     add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
     AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
-    GrpcRoute(
+    GrpcGatewayRoute(
         app,
         user_stub,
         social_stub,
@@ -553,6 +562,7 @@ def create_app() -> Flask:
     app.add_url_rule("/api/check-resp", view_func=check_response_route, methods=["GET"])
     app.add_url_rule("/api/check-json-plugin", view_func=check_json_plugin_route, methods=["GET"])
     app.add_url_rule("/api/cache-response", view_func=cache_response, methods=["GET"])
+    app.add_url_rule("/api/cache-response-1", view_func=cache_response1, methods=["GET"])
     app.add_url_rule("/api/not-pait", view_func=not_pait_route, methods=["GET"])
     app.add_url_rule("/api/not-pait-cbv", view_func=NotPaitCbvRoute.as_view("NotPaitRoute"))
     app.add_url_rule("/api/check-json-plugin-1", view_func=check_json_plugin_route1, methods=["GET"])

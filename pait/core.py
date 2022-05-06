@@ -7,8 +7,8 @@ from pydantic import BaseConfig
 
 from pait.app.base import BaseAppHelper
 from pait.extra.util import sync_config_data_to_pait_core_model
-from pait.g import config, pait_data
-from pait.model.core import PaitCoreModel
+from pait.g import config, pait_context, pait_data
+from pait.model.core import ContextModel, PaitCoreModel
 from pait.model.response import PaitBaseResponseModel
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
@@ -152,6 +152,16 @@ class Pait(object):
         plugin_instance_list.reverse()
         return plugin_instance_list
 
+    @staticmethod
+    def init_context(pait_core_model: "PaitCoreModel", args: Any, kwargs: Any) -> None:
+        # cbv handle
+        cbv_instance: Optional[Any] = None
+        if args and args[0].__class__.__name__ in pait_core_model.func.__qualname__:
+            cbv_instance = args[0]
+
+        app_helper: BaseAppHelper = pait_core_model.app_helper_class(cbv_instance, args, kwargs)
+        pait_context.set(ContextModel(cbv_instance=cbv_instance, app_helper=app_helper))
+
     def __call__(
         self,
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
@@ -235,6 +245,7 @@ class Pait(object):
 
                 @wraps(func)
                 async def dispatch(*args: Any, **kwargs: Any) -> Callable:
+                    self.init_context(pait_core_model, args, kwargs)
                     invoke: PluginProtocol = self._plugin_manager_handler(pait_core_model, args, kwargs)[0]
                     return await invoke(*args, **kwargs)
 
@@ -243,6 +254,7 @@ class Pait(object):
 
                 @wraps(func)
                 def dispatch(*args: Any, **kwargs: Any) -> Callable:
+                    self.init_context(pait_core_model, args, kwargs)
                     invoke: PluginProtocol = self._plugin_manager_handler(pait_core_model, args, kwargs)[0]
                     return invoke(*args, **kwargs)
 

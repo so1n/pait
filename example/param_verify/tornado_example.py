@@ -34,7 +34,7 @@ from example.param_verify.model import (
     demo_depend,
 )
 from pait.app.tornado import AddDocRoute, Pait, add_doc_route, load_app, pait
-from pait.app.tornado.grpc_route import GrpcRoute
+from pait.app.tornado.grpc_route import GrpcGatewayRoute
 from pait.app.tornado.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.app.tornado.plugin.cache_resonse import CacheResponsePlugin
 from pait.app.tornado.plugin.check_json_resp import CheckJsonRespPlugin
@@ -68,6 +68,9 @@ other_pait: Pait = pait.create_sub_pait(author=("so1n",), status=PaitStatus.test
 
 class MyHandler(RequestHandler):
     def _handle_request_exception(self, exc: BaseException) -> None:
+        import traceback
+
+        print(traceback.format_exc())
         if isinstance(exc, TipException):
             exc = exc.exc
         if isinstance(exc, PaitBaseParamException):
@@ -507,6 +510,15 @@ class CacheResponseHandler(MyHandler):
         self.write(str(time.time()))
 
 
+class CacheResponse1Handler(MyHandler):
+    @plugin_pait(
+        response_model_list=[SimpleRespModel],
+        plugin_list=[CacheResponsePlugin.build(cache_time=10)],
+    )
+    async def get(self) -> None:
+        self.write(str(time.time()))
+
+
 class CheckJsonPluginHandler(MyHandler):
     @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[CheckJsonRespPlugin.build()])
     async def get(
@@ -597,6 +609,7 @@ def create_app() -> Application:
             (r"/api/file-resp", FileResponseHanler),
             (r"/api/auto-complete-json-plugin", AutoCompleteJsonHandler),
             (r"/api/cache-response", CacheResponseHandler),
+            (r"/api/cache-response1", CacheResponse1Handler),
             (r"/api/check-json-plugin", CheckJsonPluginHandler),
             (r"/api/check-json-plugin-1", CheckJsonPlugin1Handler),
             (r"/api/check-depend-contextmanager", DependContextmanagerHanler),
@@ -605,9 +618,10 @@ def create_app() -> Application:
             (r"/api/check-pre-depend-async-contextmanager", PreDependAsyncContextmanagerHanler),
         ]
     )
+    CacheResponsePlugin.set_redis_to_app(app, redis=Redis(decode_responses=True))
     AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
     add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
-    GrpcRoute(
+    GrpcGatewayRoute(
         app,
         aio_user_stub,
         aio_social_stub,

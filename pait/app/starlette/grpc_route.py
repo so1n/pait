@@ -4,7 +4,7 @@ from starlette.applications import Starlette
 from starlette.responses import JSONResponse, Response
 from starlette.routing import Mount, Route
 
-from pait.app.base.grpc_route import GrpcRouter as BaseGrpcRouter
+from pait.app.base.grpc_route import GrpcGatewayRoute as BaseGrpcRouter
 from pait.app.starlette import pait
 
 
@@ -12,7 +12,7 @@ def make_response(_: Any, resp_dict: dict) -> Response:
     return JSONResponse(resp_dict)
 
 
-class GrpcRoute(BaseGrpcRouter):
+class GrpcGatewayRoute(BaseGrpcRouter):
     pait = pait
     make_response: Callable = make_response
 

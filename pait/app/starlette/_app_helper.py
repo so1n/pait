@@ -1,3 +1,4 @@
+from dataclasses import MISSING
 from typing import Any, Coroutine, Dict, List, Mapping, Optional
 
 from starlette.datastructures import FormData, Headers, UploadFile
@@ -19,6 +20,12 @@ class AppHelper(BaseAppHelper):
     def __init__(self, class_: Any, args: List[Any], kwargs: Mapping[str, Any]):
         super().__init__(class_, args, kwargs)
         self._form: Optional[FormData] = None
+
+    def get_attributes(self, key: str, default: Any = MISSING) -> Any:
+        if default is MISSING:
+            return getattr(self.request.app.state, key)
+        else:
+            return getattr(self.request.app.state, key, default)
 
     def body(self) -> dict:
         return self.request.json()

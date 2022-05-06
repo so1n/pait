@@ -1,12 +1,17 @@
-from typing import Any
+from contextvars import ContextVar
+from typing import TYPE_CHECKING, Any
 
 from pait.data import PaitData
 from pait.extra.util import sync_config_data_to_pait_core_model
 from pait.model import tag
 from pait.model.config import Config
 
-__all__ = ["config", "pait_data"]
+if TYPE_CHECKING:
+    from pait.model.core import ContextModel
 
+__all__ = ["config", "pait_data", "pait_context"]
+
+pait_context: ContextVar["ContextModel"] = ContextVar("pait_context")
 # In order to reduce the intrusion of pait to the application framework,
 # pait conducts data interaction through PaitData and Config
 pait_data: PaitData = PaitData()

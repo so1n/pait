@@ -35,7 +35,7 @@ def get_pait_info_from_grpc_desc(grpc_model: GrpcModel) -> GrpcPaitModel:
     return GrpcPaitModel(**pait_dict)
 
 
-class GrpcRouter(object):
+class GrpcGatewayRoute(object):
     pait: Pait
     make_response: Callable
 

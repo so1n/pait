@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from pait.app.base import BaseAppHelper
 
 
-__all__ = ["PaitCoreModel", "MatchRule", "MatchKeyLiteral"]
+__all__ = ["PaitCoreModel", "MatchRule", "MatchKeyLiteral", "ContextModel"]
 MatchKeyLiteral = Literal[
     "all",
     "status",
@@ -42,6 +42,12 @@ MatchKeyLiteral = Literal[
 class MatchRule(object):
     key: MatchKeyLiteral = "all"
     target: Any = None
+
+
+@dataclass
+class ContextModel(object):
+    cbv_instance: Optional[Any]
+    app_helper: "BaseAppHelper"
 
 
 class PaitCoreModel(object):

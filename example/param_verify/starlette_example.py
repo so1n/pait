@@ -37,7 +37,7 @@ from example.param_verify.model import (
     demo_depend,
 )
 from pait.app.starlette import AddDocRoute, Pait, add_doc_route, load_app, pait
-from pait.app.starlette.grpc_route import GrpcRoute
+from pait.app.starlette.grpc_route import GrpcGatewayRoute
 from pait.app.starlette.plugin import AtMostOneOfPlugin
 from pait.app.starlette.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.app.starlette.plugin.cache_resonse import CacheResponsePlugin
@@ -586,6 +586,14 @@ async def cache_response() -> PlainTextResponse:
     return PlainTextResponse(str(time.time()))
 
 
+@plugin_pait(
+    response_model_list=[SimpleRespModel],
+    plugin_list=[CacheResponsePlugin.build(cache_time=10)],
+)
+async def cache_response1() -> PlainTextResponse:
+    return PlainTextResponse(str(time.time()))
+
+
 async def not_pait_route(user_name: str = Query.i()) -> PlainTextResponse:
     return PlainTextResponse(user_name)
 
@@ -727,6 +735,7 @@ def create_app() -> Starlette:
             Route("/api/auto-complete-json-plugin", auto_complete_json_route, methods=["GET"]),
             Route("/api/async-auto-complete-json-plugin", async_auto_complete_json_route, methods=["GET"]),
             Route("/api/cache-response", cache_response, methods=["GET"]),
+            Route("/api/cache-response1", cache_response1, methods=["GET"]),
             Route("/api/not-pait-route", not_pait_route, methods=["GET"]),
             Route("/api/not-pait-cbv", NotPaitCbvRoute),
             Route("/api/check-json-plugin", check_json_plugin_route, methods=["GET"]),
@@ -739,12 +748,13 @@ def create_app() -> Starlette:
             Route("/api/check_pre_depend_async_contextmanager", pre_depend_async_contextmanager_route, methods=["GET"]),
         ]
     )
+    CacheResponsePlugin.set_redis_to_app(app, redis=Redis(decode_responses=True))
 
     # grpc will use the current channel directly when initializing the channel,
     # so you need to initialize the event loop first and then initialize the grpc channel.
     from example.example_grpc.client import aio_manager_stub, aio_social_stub, aio_user_stub
 
-    GrpcRoute(
+    GrpcGatewayRoute(
         app,
         aio_user_stub,
         aio_social_stub,

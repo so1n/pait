@@ -1,3 +1,4 @@
+from dataclasses import MISSING
 from typing import Any, Dict, List, Mapping
 
 from sanic.headers import HeaderIterable
@@ -16,6 +17,11 @@ class AppHelper(BaseAppHelper):
     FileType = File
     HeaderType = HeaderIterable
     app_name = "sanic"
+
+    def get_attributes(self, key: str, default: Any = MISSING) -> Any:
+        if default is MISSING:
+            return getattr(self.request.app, key)
+        return getattr(self.request.app, key, default)
 
     def body(self) -> dict:
         return self.request.json

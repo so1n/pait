@@ -1,4 +1,5 @@
 import logging
+from dataclasses import MISSING
 from typing import Any, List, Mapping
 
 
@@ -37,6 +38,9 @@ class BaseAppHelper(object):
         self.request: Any = request
         self.request_args: List[Any] = new_args
         self.request_kwargs: Mapping[str, Any] = kwargs
+
+    def get_attributes(self, key: str, default: Any = MISSING) -> Any:
+        raise NotImplementedError
 
     def cookie(self) -> Any:
         raise NotImplementedError

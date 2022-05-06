@@ -18,6 +18,7 @@ from pait.exceptions import (
     ParseTypeError,
 )
 from pait.field import BaseField
+from pait.g import pait_context
 from pait.plugin.base import PluginProtocol
 from pait.util import (
     FuncSig,
@@ -32,7 +33,7 @@ from pait.util import (
 )
 
 if TYPE_CHECKING:
-    from pait.model.core import PaitCoreModel
+    from pait.model.core import ContextModel, PaitCoreModel
 
 
 def raise_multiple_exc(exc_list: List[Exception]) -> None:
@@ -90,17 +91,17 @@ class BaseParamHandler(PluginProtocol):
         super(BaseParamHandler, self).__post_init__(pait_core_model, args, kwargs)
 
         # cbv handle
-        self.cbv_instance: Optional[Any] = None
+        context_model: ContextModel = pait_context.get()
+        self.cbv_instance: Optional[Any] = context_model.cbv_instance
+        self._app_helper: BaseAppHelper = context_model.app_helper
         self.cbv_type: Optional[Type] = None
-        if self.args and self.args[0].__class__.__name__ in self.pait_core_model.func.__qualname__:
-            self.cbv_instance = self.args[0]
+
+        if self.cbv_instance:
             self.cbv_type = self.cbv_instance.__class__
             self.cbv_param_list: List["inspect.Parameter"] = get_parameter_list_from_class(self.cbv_type)
         else:
             self.cbv_param_list = []
             # cbv_type = getattr(inspect.getmodule(func), func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0])
-
-        self._app_helper: BaseAppHelper = pait_core_model.app_helper_class(self.cbv_instance, self.args, self.kwargs)
 
         self.pre_depend_list: List[Callable] = pait_core_model.pre_depend_list
         self.pydantic_model_config: Type[BaseConfig] = pait_core_model.pydantic_model_config

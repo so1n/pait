@@ -1,4 +1,5 @@
 import json
+from dataclasses import MISSING
 from typing import Any, Dict, List, Mapping
 
 from tornado.httputil import RequestStartLine
@@ -23,6 +24,12 @@ class AppHelper(BaseAppHelper):
 
         self.request = self.cbv_instance.request
         self.path_kwargs: Dict[str, Any] = self.cbv_instance.path_kwargs
+
+    def get_attributes(self, key: str, default: Any = MISSING) -> Any:
+        if default is MISSING:
+            return self.cbv_instance.application.settings[key]
+        else:
+            return self.cbv_instance.application.settings.get(key, default)
 
     def body(self) -> dict:
         return json.loads(self.request.body.decode())

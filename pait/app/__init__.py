@@ -9,6 +9,7 @@ from pait.model.status import PaitStatus
 from ..model.core import PaitCoreModel  # type: ignore
 from ..model.response import PaitBaseResponseModel  # type: ignore
 from .auto_load_app import auto_load_app_class  # type: ignore
+from .base.util import sniffing
 
 if TYPE_CHECKING:
     from pait.param_handle import BaseParamHandler
@@ -20,27 +21,20 @@ try:
 
     if TYPE_CHECKING:
         from pait.app.base.doc_route import AddDocRoute as _AddDocRoute
+        from pait.app.base.grpc_route import GrpcGatewayRoute as _GrpcGatewayRoute
         from pait.core import Pait as _Pait
 
     Pait: "_Pait" = getattr(import_module(pait_app_path), "Pait")
     AddDocRoute: "_AddDocRoute" = getattr(import_module(pait_app_path), "AddDocRoute")
+    GrpcGatewayRoute: "_GrpcGatewayRoute" = getattr(import_module(pait_app_path + ".grpc_route"), "GrpcGatewayRoute")
 except RuntimeError:
     # Automatic loading of classes, loading failure when the user can not use
     pait_app_path = ""
 
 
 def _import_func_from_app(app: Any, fun_name: str) -> Callable:
-    app_name: str = app.__class__.__name__.lower()
-    if app_name == "flask":
-        return getattr(import_module("pait.app.flask"), fun_name)
-    elif app_name == "starlette":
-        return getattr(import_module("pait.app.starlette"), fun_name)
-    elif app_name == "sanic":
-        return getattr(import_module("pait.app.sanic"), fun_name)
-    elif app_name == "application" and app.__class__.__module__ == "tornado.web":
-        return getattr(import_module("pait.app.tornado"), fun_name)
-    else:
-        raise NotImplementedError(f"Pait not support app name:{app_name}, please check app:{app}")
+    app_name: str = sniffing(app)
+    return getattr(import_module(f"pait.app.{app_name}"), fun_name)
 
 
 def _base_call_func(app: Any, fun_name: str, *args: Any, **kwargs: Any) -> Any:
@@ -127,3 +121,34 @@ def pait(
         param_handler_plugin=param_handler_plugin,
         feature_code=feature_code,
     )
+
+
+def set_app_attribute(app: Any, key: str, value: Any) -> None:
+    app_name: str = sniffing(app)
+    if app_name == "flask":
+        from flask import g
+
+        def _before_request() -> None:
+            setattr(g, key, value)
+
+        app.before_request(_before_request)
+    elif app_name == "sanic":
+        setattr(app, key, value)
+    elif app_name == "starlette":
+        setattr(app.state, key, value)
+    elif app_name == "tornado":
+        app.settings[key] = value
+
+
+def get_app_attribute(app: Any, key: str) -> Any:
+    app_name: str = sniffing(app)
+    if app_name == "flask":
+        from flask import g
+
+        return getattr(g, key)
+    elif app_name == "starlette":
+        return getattr(app.state, key)
+    elif app_name == "sanic":
+        return getattr(app, key)
+    elif app_name == "tornado":
+        return app.settings[key]

@@ -1,6 +1,7 @@
+from dataclasses import MISSING
 from typing import Any, Dict, List, Mapping
 
-from flask import Request, request
+from flask import Request, g, request
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 
 from pait.app.base import BaseAppHelper
@@ -10,6 +11,7 @@ __all__ = ["AppHelper"]
 
 
 class AppHelper(BaseAppHelper):
+
     RequestType = Request
     FormType = ImmutableMultiDict
     FileType = Request.files
@@ -20,6 +22,11 @@ class AppHelper(BaseAppHelper):
         super().__init__(class_, args, kwargs)
 
         self.request = request
+
+    def get_attributes(self, key: str, default: Any = MISSING) -> Any:
+        if default is MISSING:
+            return getattr(g, key)
+        return getattr(g, key, default)
 
     def body(self) -> dict:
         return request.json

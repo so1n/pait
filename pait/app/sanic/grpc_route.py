@@ -2,7 +2,7 @@ from typing import Any, Callable
 
 from sanic import Blueprint, HTTPResponse, Sanic, response
 
-from pait.app.base.grpc_route import GrpcRouter as BaseGrpcRouter
+from pait.app.base.grpc_route import GrpcGatewayRoute as BaseGrpcRouter
 from pait.app.sanic import pait
 
 
@@ -10,7 +10,7 @@ def make_response(_: Any, resp_dict: dict) -> HTTPResponse:
     return response.json(resp_dict)
 
 
-class GrpcRoute(BaseGrpcRouter):
+class GrpcGatewayRoute(BaseGrpcRouter):
     pait = pait
     make_response: Callable = make_response
 

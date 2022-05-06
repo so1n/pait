@@ -5,9 +5,8 @@ from google.protobuf.message import Message  # type: ignore
 from pydantic import BaseModel
 from tornado.web import Application, RequestHandler
 
-from pait.app.base.grpc_route import GrpcModel, GrpcPaitModel
-from pait.app.base.grpc_route import GrpcRouter as BaseGrpcRouter
-from pait.app.base.grpc_route import get_pait_info_from_grpc_desc
+from pait.app.base.grpc_route import GrpcGatewayRoute as BaseGrpcRouter
+from pait.app.base.grpc_route import GrpcModel, GrpcPaitModel, get_pait_info_from_grpc_desc
 from pait.app.tornado import pait as tornado_pait
 from pait.core import Pait
 from pait.field import BaseField, Depends
@@ -18,7 +17,7 @@ def tornado_make_response(_: Any, resp_dict: dict) -> dict:
     return resp_dict
 
 
-class GrpcRoute(BaseGrpcRouter):
+class GrpcGatewayRoute(BaseGrpcRouter):
     pait = tornado_pait
     make_response = tornado_make_response
 
@@ -65,7 +64,7 @@ class GrpcRoute(BaseGrpcRouter):
 
         if not hasattr(grpc_model.func, "_loop"):
             raise TypeError(f"grpc_model.func:{grpc_model.func} must be async function")
-        grpc_route: "GrpcRoute" = self
+        grpc_route: "GrpcGatewayRoute" = self
 
         async def _route(  # type: ignore
             self,  # type: ignore

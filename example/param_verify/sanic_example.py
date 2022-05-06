@@ -35,7 +35,7 @@ from example.param_verify.model import (
     demo_depend,
 )
 from pait.app.sanic import AddDocRoute, Pait, add_doc_route, load_app, pait
-from pait.app.sanic.grpc_route import GrpcRoute
+from pait.app.sanic.grpc_route import GrpcGatewayRoute
 from pait.app.sanic.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.app.sanic.plugin.cache_resonse import CacheResponsePlugin
 from pait.app.sanic.plugin.check_json_resp import CheckJsonRespPlugin
@@ -494,6 +494,14 @@ async def cache_response(request: Request) -> response.HTTPResponse:
     return response.text(str(time.time()))
 
 
+@plugin_pait(
+    response_model_list=[SimpleRespModel],
+    plugin_list=[CacheResponsePlugin.build(cache_time=10)],
+)
+async def cache_response1(request: Request) -> response.HTTPResponse:
+    return response.text(str(time.time()))
+
+
 async def not_pait_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
 ) -> response.HTTPResponse:
@@ -566,13 +574,14 @@ async def check_json_plugin_route1(
 
 def create_app() -> Sanic:
     app: Sanic = Sanic(name=__name__)
+    CacheResponsePlugin.set_redis_to_app(app, Redis(decode_responses=True))
     add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
 
     # grpc will use the current channel directly when initializing the channel,
     # so you need to initialize the event loop first and then initialize the grpc channel.
     from example.example_grpc.client import aio_manager_stub, aio_social_stub, aio_user_stub
 
-    GrpcRoute(
+    GrpcGatewayRoute(
         app,
         aio_user_stub,
         aio_social_stub,
@@ -600,6 +609,7 @@ def create_app() -> Sanic:
     app.add_route(html_response_route, "/api/html-resp", methods={"GET"})
     app.add_route(file_response_route, "/api/file-resp", methods={"GET"})
     app.add_route(cache_response, "/api/cache-response", methods={"GET"})
+    app.add_route(cache_response1, "/api/cache-response1", methods={"GET"})
     app.add_route(not_pait_route, "/api/not-pait", methods={"GET"})
     app.add_route(check_json_plugin_route, "/api/check-json-plugin", methods={"GET"})
     app.add_route(auto_complete_json_route, "/api/auto-complete-json-plugin", methods={"GET"})
