@@ -43,6 +43,7 @@ class GrpcGatewayRoute(object):
         self,
         app: Any,
         *stub: Any,
+        parse_msg_desc: Optional[str] = None,
         prefix: str = "",
         title: str = "",
         msg_to_dict: Callable = MessageToDict,
@@ -55,7 +56,7 @@ class GrpcGatewayRoute(object):
     ):
         self.prefix: str = prefix
         self.title: str = title
-        self.parse_stub_list: List[ParseStub] = [ParseStub(i) for i in stub]
+        self.parse_stub_list: List[ParseStub] = [ParseStub(i, parse_msg_desc=parse_msg_desc) for i in stub]
         self.msg_to_dict: Callable = msg_to_dict
         self.parse_dict: Optional[Callable] = parse_dict
 

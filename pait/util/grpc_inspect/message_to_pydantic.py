@@ -1,8 +1,10 @@
 import datetime
+import json
+from dataclasses import MISSING
 from enum import IntEnum
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, Field, validator
 from pydantic.fields import FieldInfo, Undefined
 from pydantic.typing import NoArgAnyCallable
 
@@ -31,6 +33,37 @@ type_dict: Dict[str, Type] = {
 GRPC_TIMESTAMP_HANDLER_TUPLE_T = Tuple[Any, Optional[Callable[[Any, Any], Timestamp]]]
 
 
+class MessagePaitModel(BaseModel):
+    miss_default: bool = Field(True)
+    example: Any = Field(MISSING)
+    alias: Optional[str] = Field(None)
+    title: Optional[str] = Field(None)
+    description: Optional[str] = Field(None)
+    const: Optional[bool] = Field(None)
+    gt: Union[int, float, None] = Field(None)
+    ge: Union[int, float, None] = Field(None)
+    lt: Union[int, float, None] = Field(None)
+    le: Union[int, float, None] = Field(None)
+    min_length: Optional[int] = Field(None)
+    max_length: Optional[int] = Field(None)
+    min_items: Optional[int] = Field(None)
+    max_items: Optional[int] = Field(None)
+    multiple_of: Optional[int] = Field(None)
+    regex: Optional[str] = Field(None)
+    extra: dict = Field(default_factory=dict)
+
+
+def get_pait_info_from_grpc_desc(desc: str) -> MessagePaitModel:
+    pait_dict: dict = {}
+    for line in desc.split("\n"):
+        line = line.strip()
+        if not line.startswith("pait:"):
+            continue
+        line = line.replace("pait:", "")
+        pait_dict.update(json.loads(line))
+    return MessagePaitModel(**pait_dict)
+
+
 def grpc_timestamp_int_handler(cls: Any, v: int) -> Timestamp:
     t: Timestamp = Timestamp()
 
@@ -42,6 +75,7 @@ def grpc_timestamp_int_handler(cls: Any, v: int) -> Timestamp:
 def _parse_msg_to_pydantic_model(
     descriptor: Descriptor,
     grpc_timestamp_handler_tuple: GRPC_TIMESTAMP_HANDLER_TUPLE_T,
+    field_doc_dict: Dict[str, str],
     default_field: Type[FieldInfo] = FieldInfo,
     request_param_field_dict: Optional[Dict[str, Union[Type[FieldInfo], Depends]]] = None,
 ) -> Type[BaseModel]:
@@ -70,12 +104,12 @@ def _parse_msg_to_pydantic_model(
                 key_type: Any = (
                     type_dict[key.type]
                     if not key.message_type
-                    else _parse_msg_to_pydantic_model(key.message_type, grpc_timestamp_handler_tuple)
+                    else _parse_msg_to_pydantic_model(key.message_type, grpc_timestamp_handler_tuple, {})
                 )
                 value_type: Any = (
                     type_dict[value.type]
                     if not value.message_type
-                    else _parse_msg_to_pydantic_model(value.message_type, grpc_timestamp_handler_tuple)
+                    else _parse_msg_to_pydantic_model(value.message_type, grpc_timestamp_handler_tuple, {})
                 )
                 type_ = Dict[key_type, value_type]
             elif column.message_type.name == "Struct":
@@ -83,14 +117,14 @@ def _parse_msg_to_pydantic_model(
                 type_ = Dict[str, Any]
             else:
                 # support google.protobuf.Message
-                type_ = _parse_msg_to_pydantic_model(column.message_type, grpc_timestamp_handler_tuple)
+                type_ = _parse_msg_to_pydantic_model(column.message_type, grpc_timestamp_handler_tuple, {})
         elif column.type == FieldDescriptor.TYPE_ENUM:
             # support google.protobuf.Enum
             type_ = IntEnum(column.enum_type.name, {v.name: v.number for v in column.enum_type.values})  # type: ignore
             default = 0
         else:
             if column.label == FieldDescriptor.LABEL_REQUIRED:
-                default = ...
+                default = Undefined
             elif column.label == FieldDescriptor.LABEL_REPEATED:
                 type_ = List[type_]  # type: ignore
                 default_factory = list
@@ -100,7 +134,15 @@ def _parse_msg_to_pydantic_model(
         if isinstance(field, Depends):
             use_field: Any = field
         else:
-            use_field = field(default=default, default_factory=default_factory)
+            if name in field_doc_dict:
+                msg_pait_model: MessagePaitModel = get_pait_info_from_grpc_desc(field_doc_dict[name])
+                field_param_dict: dict = msg_pait_model.dict()
+                if not msg_pait_model.miss_default:
+                    field_param_dict["default"] = default
+                field_param_dict["default_factory"] = default_factory
+                use_field = field(**field_param_dict)
+            else:
+                use_field = field(default=default, default_factory=default_factory)
         annotation_dict[name] = (type_, use_field)
 
     if timestamp_handler_field_silt and _grpc_timestamp_handler:
@@ -131,6 +173,7 @@ def parse_msg_to_pydantic_model(
     return _parse_msg_to_pydantic_model(
         msg if isinstance(msg, Descriptor) else msg.DESCRIPTOR,
         grpc_timestamp_handler_tuple or (str, None),
+        getattr(msg, "__field_doc_dict__", {}),
         default_field=default_field,
         request_param_field_dict=request_param_field_dict,
     )

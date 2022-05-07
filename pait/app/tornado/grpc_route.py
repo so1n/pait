@@ -25,6 +25,7 @@ class GrpcGatewayRoute(BaseGrpcRouter):
         self,
         app: Any,
         *stub: Any,
+        parse_msg_desc: Optional[str] = None,
         prefix: str = "",
         title: str = "",
         msg_to_dict: Callable = MessageToDict,
@@ -41,6 +42,7 @@ class GrpcGatewayRoute(BaseGrpcRouter):
         super().__init__(
             app,
             *stub,
+            parse_msg_desc=parse_msg_desc,
             prefix=prefix,
             title=title,
             msg_to_dict=msg_to_dict,

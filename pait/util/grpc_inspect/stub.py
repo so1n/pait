@@ -2,6 +2,7 @@ import inspect
 import re
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 from types import ModuleType
 from typing import Any, Callable, Dict, Iterable, List, Optional, Type
 
@@ -26,8 +27,9 @@ class GrpcModel(object):
 
 
 class ParseStub(object):
-    def __init__(self, stub: Any):
+    def __init__(self, stub: Any, parse_msg_desc: Optional[str] = None):
         self._stub: Any = stub
+        self._parse_msg_desc: Optional[str] = parse_msg_desc
         self.name: str = self._stub.__class__.__name__
         self._method_dict: Dict[str, GrpcModel] = {}
         self._grpc_invoke_dict: Dict[str, Callable] = self._stub.__dict__.copy()
@@ -39,12 +41,62 @@ class ParseStub(object):
             raise RuntimeError(f"Can not found {stub} module")
         self._class_module: ModuleType = class_module
 
+        self._filename_desc_dict: Dict[str, Dict[str, Dict[str, str]]] = {}
+
         self._gen_rpc_metadate()
         self._parse()
 
     @property
     def method_dict(self) -> Dict[str, GrpcModel]:
         return self._method_dict
+
+    def _get_desc_from_filename(self, filename: str) -> Dict[str, Dict[str, str]]:
+        if filename in self._filename_desc_dict:
+            return self._filename_desc_dict[filename]
+
+        with open(filename, "r") as f:
+            protobuf_content: str = f.read()
+        message_stack: List[str] = []
+        message_field_dict: Dict[str, Dict[str, str]] = {}
+        _field: str = ""
+        _doc: str = ""
+        _comment_model: bool = False
+
+        for line in protobuf_content.split("\n"):
+            _comment_model = False
+            line_list: List[str] = line.split()
+            for index, column in enumerate(line_list):
+                if _comment_model:
+                    _doc += column
+                    continue
+
+                if column == "message" and line_list[index + 2] == "{":
+                    # message parse start
+                    message_stack.append(line_list[index + 1])
+                    continue
+                if message_stack:
+                    if column == "}":
+                        # message parse end
+                        message_stack.pop()
+                    elif column == "//":
+                        # comment start
+                        _comment_model = True
+                        _doc += "\n"
+                    elif column == "=":
+                        # get field name
+                        _field = line_list[index - 1]
+                    elif column[-1] == ";":
+                        # field parse end
+                        if _doc:
+                            message_str: str = message_stack[-1]
+                            if message_str not in message_field_dict:
+                                message_field_dict[message_str] = {}
+
+                            message_field_dict[message_str][_field] = _doc
+                        _field = ""
+                        _doc = ""
+        self._filename_desc_dict[filename] = message_field_dict
+        return message_field_dict
 
     def _gen_rpc_metadate(self) -> None:
         # proto file auto gen doc in *Service not in *Stub
@@ -64,6 +116,36 @@ class ParseStub(object):
                 service_desc=service_class.__doc__ or "",
             )
 
+    def _gen_message(self, line: str, match_str: str) -> Type[Message]:
+        module_path: str = get_proto_msg_path(line, match_str)
+        message_model: Any = self._class_module  # ModuleType
+        for real_module_path in module_path.split("."):
+            message_model = getattr(message_model, real_module_path)
+        # message_model: Type[Message]
+
+        if not issubclass(message_model, Message):
+            raise RuntimeError("Can not found message")
+
+        if not self._parse_msg_desc:
+            return message_model
+        if Path(self._parse_msg_desc).exists():
+            proto_file_name = message_model.DESCRIPTOR.file.name
+            if proto_file_name.endswith("empty.proto"):
+                return message_model
+            file_str: str = self._parse_msg_desc
+            if not file_str.endswith("/"):
+                file_str += "/"
+            message_field_dict: Dict[str, Dict[str, str]] = self._get_desc_from_filename(file_str + proto_file_name)
+            if message_model.__name__ in message_field_dict:
+                message_model.__field_doc_dict__ = message_field_dict[message_model.__name__]
+        elif self._parse_msg_desc == "by_mypy":
+            raise NotImplementedError("by_pait")
+        elif self._parse_msg_desc == "by_pait":
+            raise NotImplementedError("by_pait")
+        else:
+            raise ValueError(f"parse_msg_desc must be path or `by_mypy` or `by_pait`, not {self._parse_msg_desc})")
+        return message_model
+
     def _parse(self) -> None:
         method_dict_iter: Iterable = iter(self._method_dict.items())
         line_list: List[str] = self._line_list
@@ -78,16 +160,5 @@ class ParseStub(object):
             if method_name.split("/")[-1] not in line and method_name not in line_list[index + 1]:
                 continue
 
-            request_line: str = line_list[index + 2]
-            response_line: str = line_list[index + 3]
-
-            request_module_path: str = get_proto_msg_path(request_line, r"request_serializer=(.+).SerializeToString")
-            response_module_path: str = get_proto_msg_path(response_line, r"response_deserializer=(.+).FromString")
-            request_module: ModuleType = self._class_module
-            for module_path in request_module_path.split("."):
-                request_module = getattr(request_module, module_path)
-            response_module: ModuleType = self._class_module
-            for module_path in response_module_path.split("."):
-                response_module = getattr(response_module, module_path)
-            grpc_model.request = request_module
-            grpc_model.response = response_module
+            grpc_model.request = self._gen_message(line_list[index + 2], r"request_serializer=(.+).SerializeToString")
+            grpc_model.response = self._gen_message(line_list[index + 3], r"response_deserializer=(.+).FromString")
