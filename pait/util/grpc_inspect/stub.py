@@ -50,7 +50,51 @@ class ParseStub(object):
     def method_dict(self) -> Dict[str, GrpcModel]:
         return self._method_dict
 
-    def _get_desc_from_filename(self, filename: str) -> Dict[str, Dict[str, str]]:
+    def _get_desc_from_pyi_file(self, filename: str) -> Dict[str, Dict[str, str]]:
+        if filename in self._filename_desc_dict:
+            return self._filename_desc_dict[filename]
+
+        with open(filename, "r") as f:
+            pyi_content: str = f.read()
+        line_list = pyi_content.split("\n")
+
+        _comment_model: bool = False
+        _doc: str = ""
+        _field_name: str = ""
+        message_str: str = ""
+        message_field_dict: Dict[str, Dict[str, str]] = {}
+        for index, line in enumerate(line_list):
+            if "class" in line:
+                if line.endswith("google.protobuf.message.Message):"):
+                    match_list = re.findall(r"class (.+)\(google.protobuf.message.Message", line)
+                    if not match_list:
+                        continue
+                    message_str = match_list[0]
+                else:
+                    message_str = ""
+                continue
+
+            if message_str:
+                line = line.strip()
+                if _comment_model:
+                    _doc += "\n" + line
+
+                if not _comment_model and line.startswith('"""') and not line_list[index - 1].startswith("class"):
+                    # start add doc
+                    _field_name = line_list[index - 1].split(":")[0].strip()
+                    _comment_model = True
+                    _doc = line
+                if (line.endswith('"""') or line == '"""') and _comment_model:
+                    # end add doc
+                    _comment_model = False
+                    if message_str not in message_field_dict:
+                        message_field_dict[message_str] = {}
+                    message_field_dict[message_str][_field_name] = _doc.replace('"""', "")
+
+        self._filename_desc_dict[filename] = message_field_dict
+        return message_field_dict
+
+    def _get_desc_from_proto_file(self, filename: str) -> Dict[str, Dict[str, str]]:
         if filename in self._filename_desc_dict:
             return self._filename_desc_dict[filename]
 
@@ -118,10 +162,9 @@ class ParseStub(object):
 
     def _gen_message(self, line: str, match_str: str) -> Type[Message]:
         module_path: str = get_proto_msg_path(line, match_str)
-        message_model: Any = self._class_module  # ModuleType
-        for real_module_path in module_path.split("."):
-            message_model = getattr(message_model, real_module_path)
-        # message_model: Type[Message]
+        module_path_list: List[str] = module_path.split(".")
+        message_module: ModuleType = getattr(self._class_module, module_path_list[0])
+        message_model: Type[Message] = getattr(message_module, module_path_list[1])
 
         if not issubclass(message_model, Message):
             raise RuntimeError("Can not found message")
@@ -135,15 +178,23 @@ class ParseStub(object):
             file_str: str = self._parse_msg_desc
             if not file_str.endswith("/"):
                 file_str += "/"
-            message_field_dict: Dict[str, Dict[str, str]] = self._get_desc_from_filename(file_str + proto_file_name)
-            if message_model.__name__ in message_field_dict:
-                message_model.__field_doc_dict__ = message_field_dict[message_model.__name__]
+            message_field_dict: Dict[str, Dict[str, str]] = self._get_desc_from_proto_file(file_str + proto_file_name)
         elif self._parse_msg_desc == "by_mypy":
-            raise NotImplementedError("by_pait")
+            pyi_file_name = inspect.getfile(message_module) + "i"
+            if pyi_file_name.endswith("empty_pb2.pyi"):
+                return message_model
+            if not Path(pyi_file_name).exists():
+                raise RuntimeError(f"Can not found {message_module} pyi file")
+            message_field_dict = self._get_desc_from_pyi_file(pyi_file_name)
         elif self._parse_msg_desc == "by_pait":
             raise NotImplementedError("by_pait")
         else:
-            raise ValueError(f"parse_msg_desc must be path or `by_mypy` or `by_pait`, not {self._parse_msg_desc})")
+            raise ValueError(
+                f"parse_msg_desc must be exist path or `by_mypy` or `by_pait`, not {self._parse_msg_desc})"
+            )
+
+        if message_model.__name__ in message_field_dict:
+            message_model.__field_doc_dict__ = message_field_dict[message_model.__name__]
         return message_model
 
     def _parse(self) -> None:

@@ -543,6 +543,7 @@ def create_app() -> Flask:
         prefix="/api",
         title="Grpc",
         grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
+        parse_msg_desc="by_mypy",
     )
     app.add_url_rule("/api/login", view_func=login_route, methods=["POST"])
     app.add_url_rule("/api/user", view_func=get_user_route, methods=["GET"])
