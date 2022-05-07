@@ -16,7 +16,8 @@ from example.param_verify import starlette_example
 from pait.api_doc.html import get_redoc_html, get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenAPI
 from pait.app import auto_load_app
-from pait.app.starlette import StarletteTestHelper, load_app
+from pait.app.starlette import TestHelper as _TestHelper
+from pait.app.starlette import load_app
 from pait.model import response
 from pait.plugin.base_mock_response import BaseAsyncMockPlugin, BaseMockPlugin
 from tests.conftest import enable_mock
@@ -47,7 +48,7 @@ def response_test_helper(
     plugin: Type[Union[BaseMockPlugin, BaseAsyncMockPlugin]],
 ) -> None:
 
-    test_helper: StarletteTestHelper = StarletteTestHelper(client, route_handler)
+    test_helper: _TestHelper = _TestHelper(client, route_handler)
     test_helper.get()
 
     with enable_mock(route_handler, plugin):
@@ -64,13 +65,13 @@ def response_test_helper(
 
 class TestStarlette:
     def test_raise_tip_route(self, client: TestClient) -> None:
-        msg: str = StarletteTestHelper(
-            client, starlette_example.raise_tip_route, header_dict={"Content-Type": "test"}
-        ).json()["msg"]
+        msg: str = _TestHelper(client, starlette_example.raise_tip_route, header_dict={"Content-Type": "test"}).json()[
+            "msg"
+        ]
         assert msg == "error param:content__type, Can not found content__type value"
 
     def test_post(self, client: TestClient) -> None:
-        test_helper: StarletteTestHelper = StarletteTestHelper(
+        test_helper: _TestHelper = _TestHelper(
             client,
             starlette_example.post_route,
             body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
@@ -141,7 +142,7 @@ class TestStarlette:
             check_dict(auto_complete_dict, real_dict)
 
     def test_depend_route(self, client: TestClient) -> None:
-        assert {"code": 0, "msg": "", "data": {"age": 2, "user_agent": "customer_agent"}} == StarletteTestHelper(
+        assert {"code": 0, "msg": "", "data": {"age": 2, "user_agent": "customer_agent"}} == _TestHelper(
             client,
             starlette_example.depend_route,
             header_dict={"user-agent": "customer_agent"},
@@ -151,7 +152,7 @@ class TestStarlette:
 
     def test_same_alias_name(self, client: TestClient) -> None:
         assert (
-            StarletteTestHelper(
+            _TestHelper(
                 client,
                 starlette_example.same_alias_route,
                 query_dict={"token": "query"},
@@ -161,7 +162,7 @@ class TestStarlette:
             == {"code": 0, "msg": "", "data": {"query_token": "query", "header_token": "header"}}
         )
         assert (
-            StarletteTestHelper(
+            _TestHelper(
                 client,
                 starlette_example.same_alias_route,
                 query_dict={"token": "query1"},
@@ -173,7 +174,7 @@ class TestStarlette:
 
     def test_field_default_factory_route(self, client: TestClient) -> None:
         assert (
-            StarletteTestHelper(
+            _TestHelper(
                 client,
                 starlette_example.field_default_factory_route,
                 body_dict={"demo_value": 0},
@@ -205,7 +206,7 @@ class TestStarlette:
                     "user_name": "appl",
                 },
                 "msg": "",
-            } == StarletteTestHelper(
+            } == _TestHelper(
                 client,
                 starlette_example.pait_base_field_route,
                 file_dict={"upload_file": f1},
@@ -217,21 +218,21 @@ class TestStarlette:
             ).json()
 
     def test_check_param(self, client: TestClient) -> None:
-        test_helper: StarletteTestHelper = StarletteTestHelper(
+        test_helper: _TestHelper = _TestHelper(
             client,
             starlette_example.check_param_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
             strict_inspection_check_json_content=False,
         )
         assert "requires at most one of param user_name or alias_user_name" in test_helper.json()["msg"]
-        test_helper = StarletteTestHelper(
+        test_helper = _TestHelper(
             client,
             starlette_example.check_param_route,
             query_dict={"uid": 123, "sex": "man", "age": 10, "birthday": "2000-01-01"},
             strict_inspection_check_json_content=False,
         )
         assert "birthday requires param alias_user_name, which if not none" in test_helper.json()["msg"]
-        test_helper = StarletteTestHelper(
+        test_helper = _TestHelper(
             client,
             starlette_example.check_param_route,
             query_dict={"uid": 123, "sex": "man", "age": 10, "birthday": "2000-01-01", "alias_user_name": "appe"},
@@ -240,14 +241,14 @@ class TestStarlette:
         assert test_helper.json()["code"] == 0
 
     def test_check_response(self, client: TestClient) -> None:
-        test_helper: StarletteTestHelper = StarletteTestHelper(
+        test_helper: _TestHelper = _TestHelper(
             client,
             starlette_example.check_response_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10},
         )
         with pytest.raises(RuntimeError):
             test_helper.json()
-        test_helper = StarletteTestHelper(
+        test_helper = _TestHelper(
             client,
             starlette_example.check_response_route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "display_age": 1},
@@ -256,7 +257,7 @@ class TestStarlette:
 
     def test_mock_route(self, client: TestClient) -> None:
         assert (
-            StarletteTestHelper(
+            _TestHelper(
                 client,
                 starlette_example.mock_route,
                 path_dict={"age": 3},
@@ -267,7 +268,7 @@ class TestStarlette:
 
     def test_async_mock_route(self, client: TestClient) -> None:
         assert (
-            StarletteTestHelper(
+            _TestHelper(
                 client,
                 starlette_example.async_mock_route,
                 path_dict={"age": 3},
@@ -285,7 +286,7 @@ class TestStarlette:
                 "user_agent": "customer_agent",
                 "user_info": {"age": 2, "user_name": "appl"},
             },
-        } == StarletteTestHelper(
+        } == _TestHelper(
             client,
             starlette_example.pait_model_route,
             header_dict={"user-agent": "customer_agent"},
@@ -297,14 +298,14 @@ class TestStarlette:
     def test_depend_contextmanager(self, client: TestClient, mocker: MockFixture) -> None:
         error_logger = mocker.patch("example.param_verify.model.logging.error")
         info_logger = mocker.patch("example.param_verify.model.logging.info")
-        test_helper: StarletteTestHelper = StarletteTestHelper(
+        test_helper: _TestHelper = _TestHelper(
             client,
             starlette_example.depend_contextmanager_route,
             query_dict={"uid": 123},
         )
         test_helper.get()
         info_logger.assert_called_once_with("context_depend exit")
-        test_helper = StarletteTestHelper(
+        test_helper = _TestHelper(
             client,
             starlette_example.depend_contextmanager_route,
             query_dict={"uid": 123, "is_raise": True},
@@ -315,14 +316,14 @@ class TestStarlette:
     def test_pre_depend_contextmanager(self, client: TestClient, mocker: MockFixture) -> None:
         error_logger = mocker.patch("example.param_verify.model.logging.error")
         info_logger = mocker.patch("example.param_verify.model.logging.info")
-        test_helper: StarletteTestHelper = StarletteTestHelper(
+        test_helper: _TestHelper = _TestHelper(
             client,
             starlette_example.pre_depend_contextmanager_route,
             query_dict={"uid": 123},
         )
         test_helper.get()
         info_logger.assert_called_once_with("context_depend exit")
-        test_helper = StarletteTestHelper(
+        test_helper = _TestHelper(
             client,
             starlette_example.pre_depend_contextmanager_route,
             query_dict={"uid": 123, "is_raise": True},
@@ -335,7 +336,7 @@ class TestStarlette:
             "code": 0,
             "msg": "",
             "data": {"uid": 123, "user_name": "appl", "sex": "man", "age": 2, "content_type": "application/json"},
-        } == StarletteTestHelper(
+        } == _TestHelper(
             client,
             starlette_example.CbvRoute.get,
             query_dict={"uid": "123", "user_name": "appl", "age": 2, "sex": "man"},
@@ -347,7 +348,7 @@ class TestStarlette:
             "code": 0,
             "msg": "",
             "data": {"uid": 123, "user_name": "appl", "sex": "man", "age": 2, "content_type": "application/json"},
-        } == StarletteTestHelper(
+        } == _TestHelper(
             client,
             starlette_example.CbvRoute.post,
             body_dict={"uid": "123", "user_name": "appl", "age": 2, "sex": "man"},
@@ -382,7 +383,7 @@ class TestStarlette:
         app: Starlette = client.app  # type: ignore
         app.add_route("/api/new-text-resp", starlette_example.text_response_route, methods=["GET", "POST"])
         with pytest.raises(RuntimeError) as e:
-            StarletteTestHelper(client, starlette_example.text_response_route).request()
+            _TestHelper(client, starlette_example.text_response_route).request()
         exec_msg: str = e.value.args[0]
         assert exec_msg == "Pait Can not auto select method, please choice method in ['GET', 'POST']"
 
@@ -415,6 +416,25 @@ class TestStarlette:
             ).quick_ratio()
             > 0.95
         )
+
+    def test_cache_response(self, client: TestClient) -> None:
+        from redis import Redis  # type: ignore
+
+        for _ in range(3):
+            Redis().delete("cache_response")
+            Redis().delete("cache_response1")
+            result1: str = _TestHelper(client, starlette_example.cache_response).text()
+            result2: str = _TestHelper(client, starlette_example.cache_response).text()
+            result3: str = _TestHelper(client, starlette_example.cache_response1).text()
+            result4: str = _TestHelper(client, starlette_example.cache_response1).text()
+            assert result1 == result2
+            assert result3 == result4
+            assert result1 != result3
+            assert result2 != result4
+            Redis().delete("cache_response")
+            Redis().delete("cache_response1")
+            assert result1 != _TestHelper(client, starlette_example.cache_response).text()
+            assert result3 != _TestHelper(client, starlette_example.cache_response1).text()
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:

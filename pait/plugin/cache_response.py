@@ -55,7 +55,7 @@ class CacheResponsePlugin(PluginProtocol):
         super().pre_load_hook(pait_core_model, kwargs)
         name: str = kwargs.get("name", "")
         if not name:
-            kwargs["name"] = pait_core_model.func.__name__
+            kwargs["name"] = pait_core_model.func.__qualname__
         kwargs["pait_response_model"] = pait_core_model.response_model_list[0]
         return kwargs
 
@@ -82,6 +82,12 @@ class CacheResponsePlugin(PluginProtocol):
                 real_lock_key = f"{self.lock_name}:{':'.join(args_key_list)}"
         return real_key, real_lock_key
 
+    def _loads(self, response: Any, *args: Any, **kwargs: Any) -> Any:
+        return pickle.loads(response.encode("latin1"))
+
+    def _dumps(self, response: Any, *args: Any, **kwargs: Any) -> Any:
+        return pickle.dumps(response).decode("latin1")
+
     async def _async_cache(self, func: Callable, *args: Any, **kwargs: Any) -> Any:
         real_key, real_lock_key = self._gen_key(*args, **kwargs)
         redis: AsyncioRedis = self._get_redis()
@@ -96,9 +102,9 @@ class CacheResponsePlugin(PluginProtocol):
                 result = await redis.get(real_key)
                 if not result:
                     result = await func(*args, **kwargs)
-                    await redis.set(real_key, pickle.dumps(result).decode("latin1"), ex=self.cache_time)  # type: ignore
+                    await redis.set(real_key, self._dumps(result, *args, **kwargs), ex=self.cache_time)  # type: ignore
                     return result
-        return pickle.loads(result.encode("latin1"))
+        return self._loads(result, *args, **kwargs)
 
     def _cache(self, func: Callable, *args: Any, **kwargs: Any) -> Any:
         real_key, real_lock_key = self._gen_key(*args, **kwargs)
@@ -114,9 +120,9 @@ class CacheResponsePlugin(PluginProtocol):
                 result = redis.get(real_key)
                 if not result:
                     result = func(*args, **kwargs)
-                    redis.set(real_key, pickle.dumps(result).decode("latin1"), ex=self.cache_time)
+                    redis.set(real_key, self._dumps(result, *args, **kwargs), ex=self.cache_time)
                     return result
-        return pickle.loads(result.encode("latin1"))
+        return self._loads(result, *args, **kwargs)
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         if self._is_async_func:

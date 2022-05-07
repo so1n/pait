@@ -44,6 +44,7 @@ from pait.exceptions import PaitBaseException, PaitBaseParamException, TipExcept
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.model.core import MatchRule
 from pait.model.links import LinksModel
+from pait.model.response import PaitTextResponseModel
 from pait.model.status import PaitStatus
 from pait.model.template import TemplateVar
 from pait.plugin.at_most_one_of import AtMostOneOfPlugin
@@ -487,7 +488,7 @@ async def auto_complete_json_route(
 
 
 @plugin_pait(
-    response_model_list=[SimpleRespModel],
+    response_model_list=[PaitTextResponseModel],
     plugin_list=[CacheResponsePlugin.build(redis=Redis(decode_responses=True), cache_time=10)],
 )
 async def cache_response(request: Request) -> response.HTTPResponse:
@@ -495,7 +496,7 @@ async def cache_response(request: Request) -> response.HTTPResponse:
 
 
 @plugin_pait(
-    response_model_list=[SimpleRespModel],
+    response_model_list=[PaitTextResponseModel],
     plugin_list=[CacheResponsePlugin.build(cache_time=10)],
 )
 async def cache_response1(request: Request) -> response.HTTPResponse:

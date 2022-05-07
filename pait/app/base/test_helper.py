@@ -178,6 +178,7 @@ class BaseTestHelper(Generic[RESP_T]):
             if self._get_status_code(resp) not in response_model.status_code:
                 error_msg_list.append("check status code error.")
             if response_model.media_type not in self._get_content_type(resp):
+                print(response_model.media_type, self._get_content_type(resp))
                 error_msg_list.append("check media type error.")
 
             resp_header: Mapping = self._get_headers(resp)

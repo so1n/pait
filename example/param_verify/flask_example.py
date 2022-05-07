@@ -43,6 +43,7 @@ from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, Mul
 from pait.g import config
 from pait.model.core import MatchRule
 from pait.model.links import LinksModel
+from pait.model.response import PaitHtmlResponseModel
 from pait.model.status import PaitStatus
 from pait.model.template import TemplateVar
 from pait.plugin.at_most_one_of import AtMostOneOfPlugin
@@ -486,7 +487,7 @@ _typed_dict = TypedDict(
 
 
 @plugin_pait(
-    response_model_list=[SimpleRespModel],
+    response_model_list=[PaitHtmlResponseModel],
     plugin_list=[CacheResponsePlugin.build(redis=Redis(decode_responses=True), cache_time=10)],
 )
 def cache_response() -> Response:
@@ -494,7 +495,7 @@ def cache_response() -> Response:
 
 
 @plugin_pait(
-    response_model_list=[SimpleRespModel],
+    response_model_list=[PaitHtmlResponseModel],
     plugin_list=[CacheResponsePlugin.build(cache_time=10)],
 )
 def cache_response1() -> Response:

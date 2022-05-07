@@ -5,6 +5,7 @@ import pytest
 from flask import Flask
 from flask.ctx import AppContext
 from flask.testing import FlaskClient
+from redis import Redis  # type: ignore
 
 from example.param_verify import flask_example
 from pait import field
@@ -17,6 +18,7 @@ from pait.plugin import PluginManager
 from pait.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.plugin.base import PluginProtocol
 from pait.plugin.base_mock_response import BaseMockPlugin
+from pait.plugin.cache_response import CacheResponsePlugin
 from pait.plugin.check_json_resp import CheckJsonRespPlugin
 
 
@@ -293,3 +295,35 @@ class TestParamPlugin:
 
         exec_msg = e.value.args[0]
         assert "example type must <class 'str'>" in exec_msg
+
+
+class TestCacheResponsePlugin:
+    def test_not_set_response_model(self) -> None:
+        def demo() -> None:
+            pass
+
+        with pytest.raises(RuntimeError) as e:
+            CacheResponsePlugin.build(redis=Redis()).pre_check_hook(
+                PaitCoreModel(
+                    demo,
+                    BaseAppHelper,
+                ),
+            )
+
+        exec_msg = e.value.args[0]
+        assert "can not found response model" in exec_msg
+
+    def test_set_error_redis(self) -> None:
+        def demo() -> None:
+            pass
+
+        with pytest.raises(ValueError) as e:
+            CacheResponsePlugin.build(redis=Redis(decode_responses=False)).pre_check_hook(
+                PaitCoreModel(
+                    demo,
+                    BaseAppHelper,
+                    response_model_list=[response.PaitJsonResponseModel, response.PaitTextResponseModel],
+                ),
+            )
+        exec_msg = e.value.args[0]
+        assert "Please set redis`s param:decode_responses to True" in exec_msg

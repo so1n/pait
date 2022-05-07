@@ -13,7 +13,8 @@ from example.param_verify import tornado_example
 from pait.api_doc.html import get_redoc_html, get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenAPI
 from pait.app import auto_load_app
-from pait.app.tornado import TornadoTestHelper, load_app
+from pait.app.tornado import TestHelper as _TestHelper
+from pait.app.tornado import load_app
 from pait.model import response
 from tests.conftest import enable_mock
 
@@ -36,7 +37,7 @@ class TestTornado(AsyncHTTPTestCase):
     ) -> None:
         from pait.app.tornado.plugin.mock_response import AsyncMockPlugin
 
-        test_helper: TornadoTestHelper = TornadoTestHelper(self, route_handler)
+        test_helper: _TestHelper = _TestHelper(self, route_handler)
         test_helper.get()
 
         with enable_mock(route_handler, AsyncMockPlugin):
@@ -51,13 +52,13 @@ class TestTornado(AsyncHTTPTestCase):
                 assert resp.body == pait_response.get_example_value()
 
     def test_raise_tip_route(self) -> None:
-        msg: str = TornadoTestHelper(
+        msg: str = _TestHelper(
             self, tornado_example.RaiseTipHandler.post, header_dict={"Content-Type": "test"}, body_dict={"temp": None}
         ).json()["msg"]
         assert msg == "error param:content__type, Can not found content__type value"
 
     def test_post(self) -> None:
-        test_helper: TornadoTestHelper = TornadoTestHelper(
+        test_helper: _TestHelper = _TestHelper(
             self,
             tornado_example.PostHandler.post,
             body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
@@ -115,7 +116,7 @@ class TestTornado(AsyncHTTPTestCase):
 
     def test_same_alias_name(self) -> None:
         assert (
-            TornadoTestHelper(
+            _TestHelper(
                 self,
                 tornado_example.SameAliasHandler.get,
                 query_dict={"token": "query"},
@@ -125,7 +126,7 @@ class TestTornado(AsyncHTTPTestCase):
             == {"code": 0, "msg": "", "data": {"query_token": "query", "header_token": "header"}}
         )
         assert (
-            TornadoTestHelper(
+            _TestHelper(
                 self,
                 tornado_example.SameAliasHandler.get,
                 query_dict={"token": "query1"},
@@ -137,7 +138,7 @@ class TestTornado(AsyncHTTPTestCase):
 
     def test_field_default_factory_route(self) -> None:
         assert (
-            TornadoTestHelper(
+            _TestHelper(
                 self,
                 tornado_example.FieldDefaultFactoryHandler.post,
                 body_dict={"demo_value": 0},
@@ -169,7 +170,7 @@ class TestTornado(AsyncHTTPTestCase):
                     "user_name": "appl",
                 },
                 "msg": "",
-            } == TornadoTestHelper(
+            } == _TestHelper(
                 self,
                 tornado_example.PaitBaseFieldHandler.post,
                 file_dict={f1.name: f1.read()},
@@ -182,7 +183,7 @@ class TestTornado(AsyncHTTPTestCase):
 
             # can not use get(Http Method) in form or file request
             with pytest.raises(RuntimeError):
-                TornadoTestHelper(
+                _TestHelper(
                     self,
                     tornado_example.PaitBaseFieldHandler.post,
                     file_dict={f1.name: f1.read()},
@@ -194,21 +195,21 @@ class TestTornado(AsyncHTTPTestCase):
                 ).get()
 
     def test_check_param(self) -> None:
-        test_helper: TornadoTestHelper = TornadoTestHelper(
+        test_helper: _TestHelper = _TestHelper(
             self,
             tornado_example.CheckParamHandler.get,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
             strict_inspection_check_json_content=False,
         )
         assert "requires at most one of param user_name or alias_user_name" in test_helper.json()["msg"]
-        test_helper = TornadoTestHelper(
+        test_helper = _TestHelper(
             self,
             tornado_example.CheckParamHandler.get,
             query_dict={"uid": 123, "sex": "man", "age": 10, "birthday": "2000-01-01"},
             strict_inspection_check_json_content=False,
         )
         assert "birthday requires param alias_user_name, which if not none" in test_helper.json()["msg"]
-        test_helper = TornadoTestHelper(
+        test_helper = _TestHelper(
             self,
             tornado_example.CheckParamHandler.get,
             query_dict={"uid": 123, "sex": "man", "age": 10, "birthday": "2000-01-01", "alias_user_name": "appe"},
@@ -217,14 +218,14 @@ class TestTornado(AsyncHTTPTestCase):
         assert test_helper.json()["code"] == 0
 
     def test_check_response(self) -> None:
-        test_helper: TornadoTestHelper = TornadoTestHelper(
+        test_helper: _TestHelper = _TestHelper(
             self,
             tornado_example.CheckRespHandler.get,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10},
         )
         with pytest.raises(RuntimeError):
             test_helper.json()
-        test_helper = TornadoTestHelper(
+        test_helper = _TestHelper(
             self,
             tornado_example.CheckRespHandler.get,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "display_age": 1},
@@ -233,7 +234,7 @@ class TestTornado(AsyncHTTPTestCase):
 
     def test_mock_route(self) -> None:
         assert (
-            TornadoTestHelper(
+            _TestHelper(
                 self,
                 tornado_example.MockHandler.get,
                 path_dict={"age": 3},
@@ -251,7 +252,7 @@ class TestTornado(AsyncHTTPTestCase):
                 "user_agent": "customer_agent",
                 "user_info": {"age": 2, "user_name": "appl"},
             },
-        } == TornadoTestHelper(
+        } == _TestHelper(
             self,
             tornado_example.PaitModelHanler.post,
             header_dict={"user-agent": "customer_agent"},
@@ -261,7 +262,7 @@ class TestTornado(AsyncHTTPTestCase):
         ).json()
 
     def test_depend(self) -> None:
-        assert {"code": 0, "msg": "", "data": {"age": 2, "user_agent": "customer_agent"}} == TornadoTestHelper(
+        assert {"code": 0, "msg": "", "data": {"age": 2, "user_agent": "customer_agent"}} == _TestHelper(
             self,
             tornado_example.DependHandler.post,
             header_dict={"user-agent": "customer_agent"},
@@ -272,14 +273,14 @@ class TestTornado(AsyncHTTPTestCase):
     @mock.patch("example.param_verify.model.logging.error")
     @mock.patch("example.param_verify.model.logging.info")
     def test_pre_depend_contextmanager(self, info_logger: Any, error_logger: Any) -> None:
-        test_helper: TornadoTestHelper = TornadoTestHelper(
+        test_helper: _TestHelper = _TestHelper(
             self,
             tornado_example.PreDependContextmanagerHanler.get,
             query_dict={"uid": 123},
         )
         test_helper.get()
         info_logger.assert_called_with("context_depend exit")
-        test_helper = TornadoTestHelper(
+        test_helper = _TestHelper(
             self,
             tornado_example.PreDependContextmanagerHanler.get,
             query_dict={"uid": 123, "is_raise": True},
@@ -290,14 +291,14 @@ class TestTornado(AsyncHTTPTestCase):
     @mock.patch("example.param_verify.model.logging.error")
     @mock.patch("example.param_verify.model.logging.info")
     def test_pre_depend_async_contextmanager(self, info_logger: Any, error_logger: Any) -> None:
-        test_helper: TornadoTestHelper = TornadoTestHelper(
+        test_helper: _TestHelper = _TestHelper(
             self,
             tornado_example.PreDependAsyncContextmanagerHanler.get,
             query_dict={"uid": 123},
         )
         test_helper.get()
         info_logger.assert_called_with("context_depend exit")
-        test_helper = TornadoTestHelper(
+        test_helper = _TestHelper(
             self,
             tornado_example.PreDependAsyncContextmanagerHanler.get,
             query_dict={"uid": 123, "is_raise": True},
@@ -308,14 +309,14 @@ class TestTornado(AsyncHTTPTestCase):
     @mock.patch("example.param_verify.model.logging.error")
     @mock.patch("example.param_verify.model.logging.info")
     def test_depend_contextmanager(self, info_logger: Any, error_logger: Any) -> None:
-        test_helper: TornadoTestHelper = TornadoTestHelper(
+        test_helper: _TestHelper = _TestHelper(
             self,
             tornado_example.DependContextmanagerHanler.get,
             query_dict={"uid": 123},
         )
         test_helper.get()
         info_logger.assert_called_with("context_depend exit")
-        test_helper = TornadoTestHelper(
+        test_helper = _TestHelper(
             self,
             tornado_example.DependContextmanagerHanler.get,
             query_dict={"uid": 123, "is_raise": True},
@@ -326,14 +327,14 @@ class TestTornado(AsyncHTTPTestCase):
     @mock.patch("example.param_verify.model.logging.error")
     @mock.patch("example.param_verify.model.logging.info")
     def test_depend_async_contextmanager(self, info_logger: Any, error_logger: Any) -> None:
-        test_helper: TornadoTestHelper = TornadoTestHelper(
+        test_helper: _TestHelper = _TestHelper(
             self,
             tornado_example.DependAsyncContextmanagerHanler.get,
             query_dict={"uid": 123},
         )
         test_helper.get()
         info_logger.assert_called_with("context_depend exit")
-        test_helper = TornadoTestHelper(
+        test_helper = _TestHelper(
             self,
             tornado_example.DependAsyncContextmanagerHanler.get,
             query_dict={"uid": 123, "is_raise": True},
@@ -346,7 +347,7 @@ class TestTornado(AsyncHTTPTestCase):
             "code": 0,
             "msg": "",
             "data": {"uid": 123, "user_name": "appl", "sex": "man", "age": 2, "content_type": "application/json"},
-        } == TornadoTestHelper(
+        } == _TestHelper(
             self,
             tornado_example.CbvHandler.get,
             query_dict={"uid": "123", "user_name": "appl", "age": 2, "sex": "man"},
@@ -358,7 +359,7 @@ class TestTornado(AsyncHTTPTestCase):
             "code": 0,
             "msg": "",
             "data": {"uid": 123, "user_name": "appl", "sex": "man", "age": 2, "content_type": "application/json"},
-        } == TornadoTestHelper(
+        } == _TestHelper(
             self,
             tornado_example.CbvHandler.post,
             body_dict={"uid": "123", "user_name": "appl", "age": 2, "sex": "man"},
@@ -373,6 +374,25 @@ class TestTornado(AsyncHTTPTestCase):
 
     def test_file_response(self) -> None:
         self.response_test_helper(tornado_example.FileResponseHanler.get, response.PaitFileResponseModel)
+
+    def test_cache_response(self) -> None:
+        async def del_cache() -> None:
+            await tornado_example.Redis().delete("CacheResponseHandler.get")
+            await tornado_example.Redis().delete("CacheResponse1Handler.get")
+
+        for _ in range(3):
+            self.get_new_ioloop().run_sync(del_cache)
+            result1: str = _TestHelper(self, tornado_example.CacheResponseHandler.get).text()
+            result2: str = _TestHelper(self, tornado_example.CacheResponseHandler.get).text()
+            result3: str = _TestHelper(self, tornado_example.CacheResponse1Handler.get).text()
+            result4: str = _TestHelper(self, tornado_example.CacheResponse1Handler.get).text()
+            assert result1 == result2
+            assert result3 == result4
+            assert result1 != result3
+            assert result2 != result4
+            self.get_new_ioloop().run_sync(del_cache)
+            assert result1 != _TestHelper(self, tornado_example.CacheResponseHandler.get).text()
+            assert result3 != _TestHelper(self, tornado_example.CacheResponse1Handler.get).text()
 
     def test_doc_route(self) -> None:
         assert self.fetch("/swagger").code == 404
