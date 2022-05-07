@@ -20,8 +20,8 @@ class AppHelper(BaseAppHelper):
 
     def get_attributes(self, key: str, default: Any = MISSING) -> Any:
         if default is MISSING:
-            return getattr(self.request.app, key)
-        return getattr(self.request.app, key, default)
+            return getattr(self.request.app.ctx, key)
+        return getattr(self.request.app.ctx, key, default)
 
     def body(self) -> dict:
         return self.request.json

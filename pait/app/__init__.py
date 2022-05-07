@@ -133,7 +133,7 @@ def set_app_attribute(app: Any, key: str, value: Any) -> None:
 
         app.before_request(_before_request)
     elif app_name == "sanic":
-        setattr(app, key, value)
+        setattr(app.ctx, key, value)
     elif app_name == "starlette":
         setattr(app.state, key, value)
     elif app_name == "tornado":
@@ -149,6 +149,6 @@ def get_app_attribute(app: Any, key: str) -> Any:
     elif app_name == "starlette":
         return getattr(app.state, key)
     elif app_name == "sanic":
-        return getattr(app, key)
+        return getattr(app.ctx, key)
     elif app_name == "tornado":
         return app.settings[key]

@@ -70,9 +70,6 @@ other_pait: Pait = pait.create_sub_pait(author=("so1n",), status=PaitStatus.test
 
 
 async def api_exception(request: Request, exc: Exception) -> JSONResponse:
-    import traceback
-
-    print(traceback.format_exc())
     if isinstance(exc, TipException):
         exc = exc.exc
 

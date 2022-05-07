@@ -68,9 +68,6 @@ other_pait: Pait = pait.create_sub_pait(author=("so1n",), status=PaitStatus.test
 
 class MyHandler(RequestHandler):
     def _handle_request_exception(self, exc: BaseException) -> None:
-        import traceback
-
-        print(traceback.format_exc())
         if isinstance(exc, TipException):
             exc = exc.exc
         if isinstance(exc, PaitBaseParamException):
