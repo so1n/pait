@@ -137,7 +137,7 @@ def _parse_msg_to_pydantic_model(
             if name in field_doc_dict:
                 msg_pait_model: MessagePaitModel = get_pait_info_from_grpc_desc(field_doc_dict[name])
                 field_param_dict: dict = msg_pait_model.dict()
-                if not msg_pait_model.miss_default:
+                if msg_pait_model.miss_default is not True:
                     field_param_dict["default"] = default
                 field_param_dict["default_factory"] = default_factory
                 use_field = field(**field_param_dict)

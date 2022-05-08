@@ -489,7 +489,7 @@ async def auto_complete_json_route(
 
 @plugin_pait(
     response_model_list=[PaitTextResponseModel],
-    plugin_list=[CacheResponsePlugin.build(redis=Redis(decode_responses=True), cache_time=10)],
+    post_plugin_list=[CacheResponsePlugin.build(redis=Redis(decode_responses=True), cache_time=10)],
 )
 async def cache_response(request: Request) -> response.HTTPResponse:
     return response.text(str(time.time()))
@@ -497,7 +497,7 @@ async def cache_response(request: Request) -> response.HTTPResponse:
 
 @plugin_pait(
     response_model_list=[PaitTextResponseModel],
-    plugin_list=[CacheResponsePlugin.build(cache_time=10)],
+    post_plugin_list=[CacheResponsePlugin.build(cache_time=10)],
 )
 async def cache_response1(request: Request) -> response.HTTPResponse:
     return response.text(str(time.time()))

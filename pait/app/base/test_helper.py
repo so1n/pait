@@ -175,16 +175,28 @@ class BaseTestHelper(Generic[RESP_T]):
         )
         for response_model in response_model_list:
             error_msg_list: List[str] = []
-            if self._get_status_code(resp) not in response_model.status_code:
-                error_msg_list.append("check status code error.")
-            if response_model.media_type not in self._get_content_type(resp):
-                print(response_model.media_type, self._get_content_type(resp))
-                error_msg_list.append("check media type error.")
+            status_code: int = self._get_status_code(resp)
+            content_type: str = self._get_content_type(resp)
+            if status_code not in response_model.status_code:
+                error_msg_list.append(
+                    "check status code error. "
+                    f"Get the response with a status code of {status_code}, "
+                    f"but the response_model specifies a status of {response_model.status_code}"
+                )
+
+            if response_model.media_type not in content_type:
+                error_msg_list.append(
+                    "check media type error."
+                    f"Get the response with a media type of {content_type}, "
+                    f"but the response_model specifies a media type of {response_model.media_type}"
+                )
 
             resp_header: Mapping = self._get_headers(resp)
             for key, _ in response_model.header.items():
                 if key not in resp_header:
-                    error_msg_list.append(f"check header error. Can not found header:{key} in {resp_header}")
+                    error_msg_list.append(
+                        f"check header error. Can not found header:{key} in {str(resp_header).strip()}"
+                    )
 
             # check content
             if issubclass(response_model, response.PaitJsonResponseModel):
@@ -234,16 +246,24 @@ class BaseTestHelper(Generic[RESP_T]):
             "obj": resp,
         }
         if real_response_model in model_check_msg_dict:
+            error_str: str = "\n    ".join(model_check_msg_dict[real_response_model])
             raise RuntimeError(
-                f"Check Response Error."
-                f" maybe error result: {model_check_msg_dict[real_response_model]}"
-                f" by response model:{real_response_model}"
+                f"Check {self.func} Response Error.\n"
+                " maybe error result: \n"
+                f"    {error_str}\n\n"
+                f" by response model:{real_response_model}\n"
                 f" response info: {response_dict}"
             )
+        error_str = ""
+        for k, v in model_check_msg_dict.items():
+            error_str += str(k)
+            error_str += ":\n"
+            error_str += "    \n".join(v)
+
         raise RuntimeError(
-            "Check Response Error. "
-            f"response error result:{model_check_msg_dict} "
-            f"total response model:{self.pait_core_model.response_model_list}. "
+            f"Check {self.func} Response Error. \n"
+            f"response error result:{error_str} \n"
+            f"total response model:{self.pait_core_model.response_model_list}. \n"
             f"response info: {response_dict} "
         )  # pragma: no cover
 

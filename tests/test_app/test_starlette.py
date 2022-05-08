@@ -3,7 +3,7 @@ import difflib
 import json
 import sys
 from tempfile import NamedTemporaryFile
-from typing import Callable, Generator, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Generator, Type, Union
 from unittest import mock
 
 import pytest
@@ -20,7 +20,10 @@ from pait.app.starlette import TestHelper as _TestHelper
 from pait.app.starlette import load_app
 from pait.model import response
 from pait.plugin.base_mock_response import BaseAsyncMockPlugin, BaseMockPlugin
-from tests.conftest import enable_mock
+from tests.conftest import enable_plugin
+
+if TYPE_CHECKING:
+    from pait.model.core import PaitCoreModel
 
 
 @pytest.fixture
@@ -51,7 +54,7 @@ def response_test_helper(
     test_helper: _TestHelper = _TestHelper(client, route_handler)
     test_helper.get()
 
-    with enable_mock(route_handler, plugin):
+    with enable_plugin(route_handler, plugin.build()):
         resp: Response = test_helper.get()
         for key, value in pait_response.header.items():
             assert resp.headers[key] == value
@@ -435,6 +438,62 @@ class TestStarlette:
             Redis().delete("cache_response1")
             assert result1 != _TestHelper(client, starlette_example.cache_response).text()
             assert result3 != _TestHelper(client, starlette_example.cache_response1).text()
+
+    def test_cache_other_response_type(self, client: TestClient) -> None:
+        def _handler(_route_handler: Callable) -> Any:
+            pait_core_model: "PaitCoreModel" = getattr(_route_handler, "pait_core_model")
+            pait_response: Type[response.PaitBaseResponseModel] = pait_core_model.response_model_list[0]
+            resp: Response = _TestHelper(client, _route_handler).get()
+            if issubclass(pait_response, response.PaitHtmlResponseModel) or issubclass(
+                pait_response, response.PaitTextResponseModel
+            ):
+                return resp.text
+            else:
+                return resp.content
+
+        key: str = "test_cache_other_response_type"
+
+        from redis import Redis  # type: ignore
+
+        redis: Redis = Redis(decode_responses=True)
+        async_redis: starlette_example.Redis = starlette_example.Redis(decode_responses=True)
+        for route_handler in [starlette_example.async_text_response_route, starlette_example.async_html_response_route]:
+            redis.delete(key)
+            with enable_plugin(
+                route_handler, starlette_example.CacheResponsePlugin.build(redis=async_redis, name=key, cache_time=5)
+            ):
+                assert _handler(route_handler) == _handler(route_handler)
+
+    def test_cache_response_param_name(self, client: TestClient) -> None:
+        key: str = "test_cache_response_param_name"
+        from redis import Redis  # type: ignore
+
+        redis: Redis = Redis(decode_responses=True)
+        async_redis: starlette_example.Redis = starlette_example.Redis(decode_responses=True)
+
+        for _key in redis.scan_iter(match=key + "*"):
+            redis.delete(_key)
+        route_handler: Callable = starlette_example.post_route
+
+        with enable_plugin(
+            route_handler,
+            starlette_example.CacheResponsePlugin.build(
+                redis=async_redis, name=key, enable_cache_name_merge_param=True, cache_time=5
+            ),
+        ):
+            test_helper1: _TestHelper = _TestHelper(
+                client,
+                route_handler,
+                body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
+            )
+            test_helper2: _TestHelper = _TestHelper(
+                client,
+                route_handler,
+                body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "woman"},
+            )
+            assert test_helper1.json() == test_helper1.json()
+            assert test_helper2.json() == test_helper2.json()
+            assert test_helper1.json() != test_helper2.json()
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:

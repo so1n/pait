@@ -2,7 +2,7 @@ import difflib
 import json
 import sys
 from tempfile import NamedTemporaryFile
-from typing import Callable, Generator, Type
+from typing import TYPE_CHECKING, Any, Callable, Generator, Type
 from unittest import mock
 
 import pytest
@@ -18,7 +18,10 @@ from pait.app import auto_load_app
 from pait.app.flask import TestHelper as _TestHelper
 from pait.app.flask import load_app
 from pait.model import response
-from tests.conftest import enable_mock
+from tests.conftest import enable_plugin
+
+if TYPE_CHECKING:
+    from pait.model.core import PaitCoreModel
 
 
 @pytest.fixture
@@ -42,7 +45,7 @@ def response_test_helper(
     test_helper: _TestHelper = _TestHelper(client, route_handler)
     test_helper.get()
 
-    with enable_mock(route_handler, MockPlugin):
+    with enable_plugin(route_handler, MockPlugin.build()):
         resp: Response = test_helper.get()
         for key, value in pait_response.header.items():
             assert resp.headers[key] == value
@@ -384,6 +387,55 @@ class TestFlask:
             flask_example.Redis().delete("cache_response1")
             assert result1 != _TestHelper(client, flask_example.cache_response).get().get_data()
             assert result3 != _TestHelper(client, flask_example.cache_response1).get().get_data()
+
+    def test_cache_other_response_type(self, client: FlaskClient) -> None:
+        def _handler(_route_handler: Callable) -> Any:
+            pait_core_model: "PaitCoreModel" = getattr(_route_handler, "pait_core_model")
+            pait_response: Type[response.PaitBaseResponseModel] = pait_core_model.response_model_list[0]
+            resp: Response = _TestHelper(client, _route_handler).get()
+            if issubclass(pait_response, response.PaitHtmlResponseModel) or issubclass(
+                pait_response, response.PaitTextResponseModel
+            ):
+                return resp.get_data().decode()
+            else:
+                return resp.get_data()
+
+        key: str = "test_cache_other_response_type"
+
+        redis: flask_example.Redis = flask_example.Redis(decode_responses=True)
+        for route_handler in [flask_example.text_response_route, flask_example.html_response_route]:
+            redis.delete(key)
+            with enable_plugin(
+                route_handler, flask_example.CacheResponsePlugin.build(redis=redis, name=key, cache_time=5)
+            ):
+                assert _handler(route_handler) == _handler(route_handler)
+
+    def test_cache_response_param_name(self, client: FlaskClient) -> None:
+        key: str = "test_cache_response_param_name"
+        redis: flask_example.Redis = flask_example.Redis(decode_responses=True)
+        route_handler: Callable = flask_example.post_route
+
+        for _key in redis.scan_iter(match=key + "*"):
+            redis.delete(_key)
+        with enable_plugin(
+            route_handler,
+            flask_example.CacheResponsePlugin.build(
+                redis=redis, name=key, enable_cache_name_merge_param=True, cache_time=5
+            ),
+        ):
+            test_helper1: _TestHelper = _TestHelper(
+                client,
+                route_handler,
+                body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
+            )
+            test_helper2: _TestHelper = _TestHelper(
+                client,
+                route_handler,
+                body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "woman"},
+            )
+            assert test_helper1.json() == test_helper1.json()
+            assert test_helper2.json() == test_helper2.json()
+            assert test_helper1.json() != test_helper2.json()
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:

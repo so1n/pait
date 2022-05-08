@@ -2,7 +2,7 @@ import difflib
 import json
 import sys
 from tempfile import NamedTemporaryFile
-from typing import Any, Callable, Generator, Type
+from typing import TYPE_CHECKING, Any, Callable, Generator, Type
 from unittest import mock
 
 import pytest
@@ -16,7 +16,10 @@ from pait.app import auto_load_app
 from pait.app.tornado import TestHelper as _TestHelper
 from pait.app.tornado import load_app
 from pait.model import response
-from tests.conftest import enable_mock
+from tests.conftest import enable_plugin
+
+if TYPE_CHECKING:
+    from pait.model.core import PaitCoreModel
 
 
 @pytest.fixture
@@ -40,7 +43,7 @@ class TestTornado(AsyncHTTPTestCase):
         test_helper: _TestHelper = _TestHelper(self, route_handler)
         test_helper.get()
 
-        with enable_mock(route_handler, AsyncMockPlugin):
+        with enable_plugin(route_handler, AsyncMockPlugin.build()):
             resp: HTTPResponse = test_helper.get()
             for key, value in pait_response.header.items():
                 assert resp.headers[key] == value
@@ -393,6 +396,64 @@ class TestTornado(AsyncHTTPTestCase):
             self.get_new_ioloop().run_sync(del_cache)
             assert result1 != _TestHelper(self, tornado_example.CacheResponseHandler.get).text()
             assert result3 != _TestHelper(self, tornado_example.CacheResponse1Handler.get).text()
+
+    def test_cache_other_response_type(self) -> None:
+        def _handler(_route_handler: Callable) -> Any:
+            pait_core_model: "PaitCoreModel" = getattr(_route_handler, "pait_core_model")
+            pait_response: Type[response.PaitBaseResponseModel] = pait_core_model.response_model_list[0]
+            resp: HTTPResponse = _TestHelper(self, _route_handler).get()
+
+            if issubclass(pait_response, response.PaitHtmlResponseModel) or issubclass(
+                pait_response, response.PaitTextResponseModel
+            ):
+                return resp.body.decode()
+            else:
+                return resp.body
+
+        key: str = "test_cache_other_response_type"
+
+        async def del_cache() -> None:
+            await tornado_example.Redis(decode_responses=True).delete(key)
+
+        for route_handler in [tornado_example.TextResponseHanler.get, tornado_example.HtmlResponseHanler.get]:
+            self.get_new_ioloop().run_sync(del_cache)
+            with enable_plugin(route_handler, tornado_example.CacheResponsePlugin.build(name=key, cache_time=5)):
+                tornado_example.CacheResponsePlugin.set_redis_to_app(
+                    self.get_app(), tornado_example.Redis(decode_responses=True)
+                )
+                assert _handler(route_handler) == _handler(route_handler)
+
+    def test_cache_response_param_name(self) -> None:
+        key: str = "test_cache_response_param_name"
+
+        async def del_cache() -> None:
+            redis: tornado_example.Redis = tornado_example.Redis(decode_responses=True)
+            async for _key in redis.scan_iter(match=key + "*"):
+                await redis.delete(_key)
+
+        self.get_new_ioloop().run_sync(del_cache)
+        route_handler: Callable = tornado_example.PostHandler.post
+
+        with enable_plugin(
+            route_handler,
+            tornado_example.CacheResponsePlugin.build(name=key, enable_cache_name_merge_param=True, cache_time=5),
+        ):
+            tornado_example.CacheResponsePlugin.set_redis_to_app(
+                self.get_app(), tornado_example.Redis(decode_responses=True)
+            )
+            test_helper1: _TestHelper = _TestHelper(
+                self,
+                route_handler,
+                body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
+            )
+            test_helper2: _TestHelper = _TestHelper(
+                self,
+                route_handler,
+                body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "woman"},
+            )
+            assert test_helper1.json() == test_helper1.json()
+            assert test_helper2.json() == test_helper2.json()
+            assert test_helper1.json() != test_helper2.json()
 
     def test_doc_route(self) -> None:
         assert self.fetch("/swagger").code == 404

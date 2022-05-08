@@ -488,7 +488,7 @@ _typed_dict = TypedDict(
 
 @plugin_pait(
     response_model_list=[PaitHtmlResponseModel],
-    plugin_list=[CacheResponsePlugin.build(redis=Redis(decode_responses=True), cache_time=10)],
+    post_plugin_list=[CacheResponsePlugin.build(redis=Redis(decode_responses=True), cache_time=10)],
 )
 def cache_response() -> Response:
     return make_response(str(time.time()), 200)
@@ -496,7 +496,7 @@ def cache_response() -> Response:
 
 @plugin_pait(
     response_model_list=[PaitHtmlResponseModel],
-    plugin_list=[CacheResponsePlugin.build(cache_time=10)],
+    post_plugin_list=[CacheResponsePlugin.build(cache_time=10)],
 )
 def cache_response1() -> Response:
     return make_response(str(time.time()), 200)

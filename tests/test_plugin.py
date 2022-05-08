@@ -313,6 +313,18 @@ class TestCacheResponsePlugin:
         exec_msg = e.value.args[0]
         assert "can not found response model" in exec_msg
 
+    def test_set_error_response_model(self) -> None:
+        def demo() -> None:
+            pass
+
+        with pytest.raises(RuntimeError) as e:
+            CacheResponsePlugin.build(redis=Redis()).pre_check_hook(
+                PaitCoreModel(demo, BaseAppHelper, response_model_list=[response.PaitFileResponseModel]),
+            )
+
+        exec_msg = e.value.args[0]
+        assert f"Not use {CacheResponsePlugin.__name__} in " in exec_msg
+
     def test_set_error_redis(self) -> None:
         def demo() -> None:
             pass

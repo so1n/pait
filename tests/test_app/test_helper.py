@@ -92,7 +92,12 @@ class TestPaitTestHelper:
             FlaskTestHelper(client, demo).get()
 
         exec_msg: str = e.value.args[0]
-        assert "'check status code error.', 'check media type error.', 'check header error. " in exec_msg
+        for i in [
+            "check status code error",
+            "check media type error",
+            "check header error",
+        ]:
+            assert i in exec_msg
 
     def test_http_method_call(self, client: FlaskClient) -> None:
         for http_method in ["get", "head"]:

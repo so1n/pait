@@ -502,7 +502,7 @@ class AutoCompleteJsonHandler(MyHandler):
 class CacheResponseHandler(MyHandler):
     @plugin_pait(
         response_model_list=[PaitHtmlResponseModel],
-        plugin_list=[CacheResponsePlugin.build(redis=Redis(decode_responses=True), cache_time=10)],
+        post_plugin_list=[CacheResponsePlugin.build(redis=Redis(decode_responses=True), cache_time=10)],
     )
     async def get(self) -> None:
         self.write(str(time.time()))
@@ -511,7 +511,7 @@ class CacheResponseHandler(MyHandler):
 class CacheResponse1Handler(MyHandler):
     @plugin_pait(
         response_model_list=[PaitHtmlResponseModel],
-        plugin_list=[CacheResponsePlugin.build(cache_time=10)],
+        post_plugin_list=[CacheResponsePlugin.build(cache_time=10)],
     )
     async def get(self) -> None:
         self.write(str(time.time()))

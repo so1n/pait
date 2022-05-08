@@ -2,11 +2,12 @@ import difflib
 import json
 import sys
 from tempfile import NamedTemporaryFile
-from typing import Callable, Generator, Type
+from typing import TYPE_CHECKING, Any, Callable, Generator, Type
 from unittest import mock
 
 import pytest
 from pytest_mock import MockFixture
+from redis import Redis  # type: ignore
 from sanic import Sanic
 from sanic_testing import TestManager as SanicTestManager  # type: ignore
 from sanic_testing.testing import SanicTestClient
@@ -19,7 +20,10 @@ from pait.app import auto_load_app
 from pait.app.sanic import TestHelper as _TestHelper
 from pait.app.sanic import load_app
 from pait.model import response
-from tests.conftest import enable_mock
+from tests.conftest import enable_plugin
+
+if TYPE_CHECKING:
+    from pait.model.core import PaitCoreModel
 
 
 @pytest.fixture
@@ -37,7 +41,7 @@ def response_test_helper(
     test_helper: _TestHelper = _TestHelper(client, route_handler)
     test_helper.get()
 
-    with enable_mock(route_handler, AsyncMockPlugin):
+    with enable_plugin(route_handler, AsyncMockPlugin.build()):
         resp: Response = test_helper.get()
         for key, value in pait_response.header.items():
             assert resp.headers[key] == value
@@ -362,7 +366,6 @@ class TestSanic:
         )
 
     def test_cache_response(self, client: SanicTestClient) -> None:
-        from redis import Redis  # type: ignore
 
         with pytest.raises(RuntimeError):
             # sanic will use a new event loop for each request,
@@ -382,6 +385,68 @@ class TestSanic:
             Redis().delete("cache_response1")
             sanic_example.CacheResponsePlugin.set_redis_to_app(client.app, sanic_example.Redis(decode_responses=True))
             assert result1 != _TestHelper(client, sanic_example.cache_response1).text()
+
+    def test_cache_other_response_type(self, client: SanicTestClient) -> None:
+        def _handler(_route_handler: Callable) -> Any:
+            pait_core_model: "PaitCoreModel" = getattr(_route_handler, "pait_core_model")
+            pait_response: Type[response.PaitBaseResponseModel] = pait_core_model.response_model_list[0]
+            resp: Response = _TestHelper(client, _route_handler).get()
+            if issubclass(pait_response, response.PaitHtmlResponseModel) or issubclass(
+                pait_response, response.PaitTextResponseModel
+            ):
+                return resp.text
+            else:
+                return resp.content
+
+        key: str = "test_cache_other_response_type"
+        redis: Redis = Redis(decode_responses=True)
+
+        for route_handler in [sanic_example.text_response_route, sanic_example.html_response_route]:
+            redis.delete(key)
+            with enable_plugin(route_handler, sanic_example.CacheResponsePlugin.build(name=key, cache_time=5)):
+                sanic_example.CacheResponsePlugin.set_redis_to_app(
+                    client.app, sanic_example.Redis(decode_responses=True)
+                )
+                result1: str = _handler(route_handler)
+                sanic_example.CacheResponsePlugin.set_redis_to_app(
+                    client.app, sanic_example.Redis(decode_responses=True)
+                )
+                result2: str = _handler(route_handler)
+                assert result1 == result2
+
+    def test_cache_response_param_name(self, client: SanicTestClient) -> None:
+        key: str = "test_cache_response_param_name"
+        redis: Redis = Redis(decode_responses=True)
+        route_handler: Callable = sanic_example.post_route
+
+        for _key in redis.scan_iter(match=key + "*"):
+            redis.delete(_key)
+        with enable_plugin(
+            route_handler,
+            sanic_example.CacheResponsePlugin.build(name=key, enable_cache_name_merge_param=True, cache_time=5),
+        ):
+            test_helper1: _TestHelper = _TestHelper(
+                client,
+                route_handler,
+                body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
+            )
+            test_helper2: _TestHelper = _TestHelper(
+                client,
+                route_handler,
+                body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "woman"},
+            )
+            sanic_example.CacheResponsePlugin.set_redis_to_app(client.app, sanic_example.Redis(decode_responses=True))
+            result1: dict = test_helper1.json()
+            sanic_example.CacheResponsePlugin.set_redis_to_app(client.app, sanic_example.Redis(decode_responses=True))
+            result2: dict = test_helper1.json()
+            sanic_example.CacheResponsePlugin.set_redis_to_app(client.app, sanic_example.Redis(decode_responses=True))
+            result3: dict = test_helper2.json()
+            sanic_example.CacheResponsePlugin.set_redis_to_app(client.app, sanic_example.Redis(decode_responses=True))
+            result4: dict = test_helper2.json()
+
+            assert result1 == result2
+            assert result3 == result4
+            assert result1 != result3
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:
