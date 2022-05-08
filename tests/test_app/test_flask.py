@@ -1,5 +1,6 @@
 import difflib
 import json
+import random
 import sys
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Any, Callable, Generator, Type
@@ -14,7 +15,7 @@ from pytest_mock import MockFixture
 from example.param_verify import flask_example
 from pait.api_doc.html import get_redoc_html, get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenAPI
-from pait.app import auto_load_app
+from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.flask import TestHelper as _TestHelper
 from pait.app.flask import load_app
 from pait.model import response
@@ -444,3 +445,20 @@ class TestFlask:
 
         with mock.patch.dict("sys.modules", sys.modules):
             assert flask == auto_load_app.auto_load_app_class()
+
+    def test_app_attribute(self, client: FlaskClient) -> None:
+        key: str = "app_test_app_attribute"
+        value: int = random.randint(1, 100)
+        set_app_attribute(client.application, key, value)
+
+        is_call: bool = False
+
+        def demo_route() -> None:
+            assert get_app_attribute(client.application, key) == value
+            nonlocal is_call
+            is_call = True
+
+        url: str = "/api/test-invoke-demo"
+        client.application.add_url_rule(url, view_func=demo_route)
+        client.get(url)
+        assert is_call

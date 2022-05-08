@@ -109,7 +109,7 @@ class BaseParamHandler(PluginProtocol):
     @classmethod
     def check_depend_handle(cls, func: Callable) -> Any:
         if inspect.ismethod(func) and not is_bounded_func(func):
-            raise ValueError(f"Method: {func.__qualname__} is not a bounded function")
+            raise ValueError(f"Method: {func.__qualname__} is not a bounded function")  # pragma: no cover
         func_sig: FuncSig = get_func_sig(func)  # get and cache func sig
         cls.check_param_field_handle(func_sig, func_sig.param_list)
 
@@ -163,7 +163,7 @@ class BaseParamHandler(PluginProtocol):
                 except ParseTypeError as e:
                     raise FieldValueTypeException(parameter.name, str(e))
         else:
-            raise NotFoundFieldException(parameter.name, f"{parameter.name}'s Field not found")
+            raise NotFoundFieldException(parameter.name, f"{parameter.name}'s Field not found")  # pragma: no cover
 
     @classmethod
     def check_param_field_handle(
@@ -209,7 +209,7 @@ class BaseParamHandler(PluginProtocol):
         super().pre_load_hook(pait_core_model, kwargs)
         if ignore_pre_check:
             # pre_check has helped to do the same task as pre_load
-            cls.pre_hook(pait_core_model, kwargs)
+            cls.pre_hook(pait_core_model, kwargs)  # pragma: no cover
         return kwargs
 
     @classmethod

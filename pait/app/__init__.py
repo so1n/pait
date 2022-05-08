@@ -27,9 +27,9 @@ try:
     Pait: "_Pait" = getattr(import_module(pait_app_path), "Pait")
     AddDocRoute: "_AddDocRoute" = getattr(import_module(pait_app_path), "AddDocRoute")
     GrpcGatewayRoute: "_GrpcGatewayRoute" = getattr(import_module(pait_app_path + ".grpc_route"), "GrpcGatewayRoute")
-except RuntimeError:
+except RuntimeError:  # pragma: no cover
     # Automatic loading of classes, loading failure when the user can not use
-    pait_app_path = ""
+    pait_app_path = ""  # pragma: no cover
 
 
 def _import_func_from_app(app: Any, fun_name: str) -> Callable:
@@ -97,7 +97,7 @@ def pait(
     Note:This is an implicit method
     """
     if not pait_app_path:
-        raise RuntimeError("Auto load app fail")
+        raise RuntimeError("Auto load app fail")  # pragma: no cover
     _pait: Optional[Callable] = getattr(import_module(pait_app_path), "pait")
     if not _pait:
         raise NotImplementedError(f"Pait not support:{load_class_app}")

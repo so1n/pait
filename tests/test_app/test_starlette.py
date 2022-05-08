@@ -1,6 +1,7 @@
 import asyncio
 import difflib
 import json
+import random
 import sys
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Any, Callable, Generator, Type, Union
@@ -15,7 +16,7 @@ from starlette.testclient import TestClient
 from example.param_verify import starlette_example
 from pait.api_doc.html import get_redoc_html, get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenAPI
-from pait.app import auto_load_app
+from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.starlette import TestHelper as _TestHelper
 from pait.app.starlette import load_app
 from pait.model import response
@@ -502,3 +503,9 @@ class TestStarlette:
 
         with mock.patch.dict("sys.modules", sys.modules):
             assert starlette == auto_load_app.auto_load_app_class()
+
+    def test_app_attribute(self, client: TestClient) -> None:
+        key: str = "test_app_attribute"
+        value: int = random.randint(1, 100)
+        set_app_attribute(client.app, key, value)
+        assert get_app_attribute(client.app, key) == value

@@ -31,7 +31,9 @@ class PluginProtocol(object):
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
         class_name: str = cls.__class__.__name__
         if class_name.startswith("Async"):
-            logger.warning(f"Please use {class_name.replace('Async', '')}, {class_name} will remove on version 1.0")
+            logger.warning(
+                f"Please use {class_name.replace('Async', '')}, {class_name} will remove on version 1.0"
+            )  # pragma: no cover
 
     @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:

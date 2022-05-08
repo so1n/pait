@@ -44,7 +44,7 @@ class BaseField(FieldInfo):
 
         # Same checks as pydantic, checked in advance here
         if default is not Undefined and default_factory is not None:
-            raise ValueError("cannot specify both default and default_factory")
+            raise ValueError("cannot specify both default and default_factory")  # pragma: no cover
 
         # Reduce runtime judgments by preloading
         if default is not Undefined:

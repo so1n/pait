@@ -41,8 +41,8 @@ class AddDocRoute(_AddDocRoute):
                     )
                     self.finish()
                 else:
-                    self.set_status(500)
-                    self.finish()
+                    self.set_status(500)  # pragma: no cover
+                    self.finish()  # pragma: no cover
 
             def _get_open_json_url(self, r_pin_code: str, url_dict: Dict[str, Any]) -> str:
                 _scheme: str = doc_route_self.scheme or self.request.protocol

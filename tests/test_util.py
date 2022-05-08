@@ -159,6 +159,12 @@ class TestUtil:
         assert result[0].annotation == str
         assert result[0].default == value
 
+    def test_create_factory(self) -> None:
+        def demo(a: int, b: int) -> int:
+            return a + b
+
+        assert util.create_factory(demo)(1, 2)() == 3
+
 
 class AnyStringWith(str):
     def __eq__(self, other: Any) -> bool:

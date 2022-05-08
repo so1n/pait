@@ -31,7 +31,7 @@ from pait.field import BaseField, Depends, is_pait_field
 from pait.model.template import TemplateVar
 
 if sys.version_info >= (3, 10):
-    from typing import ParamSpec
+    from typing import ParamSpec  # pragma: no cover
 else:
     from typing_extensions import ParamSpec  # type: ignore
 
@@ -268,7 +268,7 @@ def get_parameter_list_from_pydantic_basemodel(pait_model: Type[BaseModel]) -> L
     parameter_list = []
     for key, model_field in pait_model.__fields__.items():
         if not is_pait_field(model_field.field_info):
-            raise TypeError(f"{model_field.field_info} must instance {BaseField} or {Depends}")
+            raise TypeError(f"{model_field.field_info} must instance {BaseField} or {Depends}")  # pragma: no cover
         parameter = inspect.Parameter(
             key,
             inspect.Parameter.POSITIONAL_ONLY,
@@ -326,4 +326,4 @@ class CustomJSONEncoder(JSONEncoder):
                 obj = None
             return obj
         else:
-            return super().default(obj)
+            return super().default(obj)  # pragma: no cover

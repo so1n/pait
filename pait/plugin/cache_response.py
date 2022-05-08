@@ -52,7 +52,7 @@ class CacheResponsePlugin(PluginProtocol):
                 f"{cls.__name__} not support {PaitFileResponseModel.__class__.__name__}"
             )
         if "pait_response_model" in kwargs:
-            raise RuntimeError("Please use response_model_list param")
+            raise RuntimeError("Please use response_model_list param")  # pragma: no cover
 
         if kwargs.get("redis", None) is not None:
             cls.check_redis(kwargs["redis"])

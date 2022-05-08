@@ -1,5 +1,6 @@
 import difflib
 import json
+import random
 import sys
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Any, Callable, Generator, Type
@@ -12,7 +13,7 @@ from tornado.web import Application
 from example.param_verify import tornado_example
 from pait.api_doc.html import get_redoc_html, get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenAPI
-from pait.app import auto_load_app
+from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.tornado import TestHelper as _TestHelper
 from pait.app.tornado import load_app
 from pait.model import response
@@ -492,3 +493,10 @@ class TestTornado(AsyncHTTPTestCase):
 
         with mock.patch.dict("sys.modules", sys.modules):
             assert tornado == auto_load_app.auto_load_app_class()
+
+    def test_app_attribute(self) -> None:
+        key: str = "test_app_attribute"
+        value: int = random.randint(1, 100)
+        app: Application = self.get_app()
+        set_app_attribute(app, key, value)
+        assert get_app_attribute(app, key) == value

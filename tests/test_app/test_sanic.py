@@ -1,5 +1,6 @@
 import difflib
 import json
+import random
 import sys
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Any, Callable, Generator, Type
@@ -16,7 +17,7 @@ from sanic_testing.testing import TestingResponse as Response  # type: ignore
 from example.param_verify import sanic_example
 from pait.api_doc.html import get_redoc_html, get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenAPI
-from pait.app import auto_load_app
+from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.sanic import TestHelper as _TestHelper
 from pait.app.sanic import load_app
 from pait.model import response
@@ -455,3 +456,9 @@ class TestSanic:
 
         with mock.patch.dict("sys.modules", sys.modules):
             assert sanic == auto_load_app.auto_load_app_class()
+
+    def test_app_attribute(self, client: SanicTestClient) -> None:
+        key: str = "test_app_attribute"
+        value: int = random.randint(1, 100)
+        set_app_attribute(client.app, key, value)
+        assert get_app_attribute(client.app, key) == value
