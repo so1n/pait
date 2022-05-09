@@ -3,7 +3,7 @@ import json
 import random
 import sys
 from tempfile import NamedTemporaryFile
-from typing import TYPE_CHECKING, Any, Callable, Generator, Type
+from typing import TYPE_CHECKING, Any, Callable, Type
 from unittest import mock
 
 import pytest
@@ -17,18 +17,13 @@ from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.tornado import TestHelper as _TestHelper
 from pait.app.tornado import load_app
 from pait.model import response
-from tests.conftest import enable_plugin
+from tests.conftest import enable_plugin, grpc_test_create_user_request, grpc_test_openapi
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
 
 
-@pytest.fixture
-def app() -> Generator[Application, None, None]:
-    yield tornado_example.create_app()
-
-
-class TestTornado(AsyncHTTPTestCase):
+class BaseTestTornado(AsyncHTTPTestCase):
     def get_app(self) -> Application:
         return tornado_example.create_app()
 
@@ -36,6 +31,8 @@ class TestTornado(AsyncHTTPTestCase):
         """Returns an absolute url for the given path on the test server."""
         return "%s://localhost:%s%s" % (self.get_protocol(), self.get_http_port(), path)
 
+
+class TestTornado(BaseTestTornado):
     def response_test_helper(
         self, route_handler: Callable, pait_response: Type[response.PaitBaseResponseModel]
     ) -> None:
@@ -500,3 +497,17 @@ class TestTornado(AsyncHTTPTestCase):
         app: Application = self.get_app()
         set_app_attribute(app, key, value)
         assert get_app_attribute(app, key) == value
+
+
+class TestTornadoGrpc(BaseTestTornado):
+    def test_create_user(self) -> None:
+        def _(request_dict: dict) -> None:
+            body: bytes = self.fetch("/api/user/create", body=json.dumps(request_dict).encode(), method="POST").body
+            assert body == b"{}"
+
+        grpc_test_create_user_request(_)
+
+    def test_grpc_openapi(self) -> None:
+        from pait.app.tornado import load_app
+
+        grpc_test_openapi(load_app(self.get_app()))

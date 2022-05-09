@@ -21,7 +21,7 @@ from pait.app.starlette import TestHelper as _TestHelper
 from pait.app.starlette import load_app
 from pait.model import response
 from pait.plugin.base_mock_response import BaseAsyncMockPlugin, BaseMockPlugin
-from tests.conftest import enable_plugin
+from tests.conftest import enable_plugin, grpc_test_create_user_request, grpc_test_openapi
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
@@ -509,3 +509,16 @@ class TestStarlette:
         value: int = random.randint(1, 100)
         set_app_attribute(client.app, key, value)
         assert get_app_attribute(client.app, key) == value
+
+
+class TestStarletteGrpc:
+    def test_create_user(self, client: TestClient) -> None:
+        def _(request_dict: dict) -> None:
+            assert client.post("/api/user/create", json=request_dict).content == b"{}"
+
+        grpc_test_create_user_request(_)
+
+    def test_grpc_openapi(self, client: TestClient) -> None:
+        from pait.app.starlette import load_app
+
+        grpc_test_openapi(load_app(client.app))

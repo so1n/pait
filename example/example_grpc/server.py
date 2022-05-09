@@ -1,6 +1,6 @@
 import logging
 from concurrent import futures
-from typing import Any
+from typing import Any, List, Optional
 
 import grpc
 
@@ -45,14 +45,23 @@ auto_gen_service_method(manager_service.BookManagerStub(helper_channel), Manager
 auto_gen_service_method(social_service.BookSocialStub(helper_channel), SocialService)
 
 
-def main() -> None:
-    server: grpc._server._Server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))  # type: ignore
+def create_app(
+    host_post: str = "0.0.0.0:9000", max_workers: int = 10, interceptor_list: Optional[List] = None
+) -> grpc.Server:
+    server: grpc.Server = grpc.server(
+        futures.ThreadPoolExecutor(max_workers=max_workers),
+        interceptors=interceptor_list,
+    )
     manager_service.add_BookManagerServicer_to_server(ManagerService(), server)
     user_service.add_UserServicer_to_server(UserService(), server)
     social_service.add_BookSocialServicer_to_server(SocialService(), server)
-
-    host_post: str = "0.0.0.0:9000"
     server.add_insecure_port(host_post)
+    return server
+
+
+def main() -> None:
+    host_post: str = "0.0.0.0:9000"
+    server: grpc.Server = create_app(host_post=host_post)
     server.start()
     try:
         for generic_handler in server._state.generic_handlers:  # type: ignore

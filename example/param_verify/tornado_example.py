@@ -12,7 +12,6 @@ from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
 from typing_extensions import TypedDict
 
-from example.example_grpc.client import aio_manager_stub, aio_social_stub, aio_user_stub
 from example.param_verify import tag
 from example.param_verify.model import (
     FailRespModel,
@@ -619,15 +618,17 @@ def create_app() -> Application:
     CacheResponsePlugin.set_redis_to_app(app, redis=Redis(decode_responses=True))
     AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
     add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
+
+    from example.example_grpc.client import get_use_aio_channel_stub_list
+
     GrpcGatewayRoute(
         app,
-        aio_user_stub,
-        aio_social_stub,
-        aio_manager_stub,
+        *get_use_aio_channel_stub_list(init_new_event_loop=False),
         prefix="/api",
         title="Grpc",
         grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
         tornado_request_handler=MyHandler,
+        parse_msg_desc="by_mypy",
     )
     load_app(app, auto_load_route=True)
     return app

@@ -34,7 +34,7 @@ GRPC_TIMESTAMP_HANDLER_TUPLE_T = Tuple[Any, Optional[Callable[[Any, Any], Timest
 
 
 class MessagePaitModel(BaseModel):
-    miss_default: bool = Field(True)
+    miss_default: bool = Field(False)
     example: Any = Field(MISSING)
     alias: Optional[str] = Field(None)
     title: Optional[str] = Field(None)

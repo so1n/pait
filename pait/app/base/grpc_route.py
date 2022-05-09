@@ -61,7 +61,6 @@ class GrpcGatewayRoute(object):
         self.parse_dict: Optional[Callable] = parse_dict
 
         self.url_handler: Callable[[str], str] = url_handler
-        self._stub: Any = stub
         self._request_param_field_dict: Optional[Dict[str, Union[Type[BaseField], Depends]]] = request_param_field_dict
         self._grpc_timestamp_handler_tuple: Optional[GRPC_TIMESTAMP_HANDLER_TUPLE_T] = grpc_timestamp_handler_tuple
         self._pait: Pait = pait or self.pait

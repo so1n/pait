@@ -21,7 +21,7 @@ from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.sanic import TestHelper as _TestHelper
 from pait.app.sanic import load_app
 from pait.model import response
-from tests.conftest import enable_plugin
+from tests.conftest import enable_plugin, fixture_loop, grpc_test_create_user_request, grpc_test_openapi
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
@@ -366,26 +366,25 @@ class TestSanic:
             > 0.95
         )
 
-    def test_cache_response(self, client: SanicTestClient) -> None:
-
+    def test_cache_response_diff_loop(self, client: SanicTestClient) -> None:
         with pytest.raises(RuntimeError):
             # sanic will use a new event loop for each request,
             # and Reids initialization regrets giving the current event loop, so the second request will report an error
             _TestHelper(client, sanic_example.cache_response).text()
             _TestHelper(client, sanic_example.cache_response).text()
 
-        for _ in range(3):
-            Redis().delete("cache_response")
-            Redis().delete("cache_response1")
-            sanic_example.CacheResponsePlugin.set_redis_to_app(client.app, sanic_example.Redis(decode_responses=True))
-            result1: str = _TestHelper(client, sanic_example.cache_response1).text()
-            sanic_example.CacheResponsePlugin.set_redis_to_app(client.app, sanic_example.Redis(decode_responses=True))
-            result2: str = _TestHelper(client, sanic_example.cache_response1).text()
-            assert result1 == result2
-            Redis().delete("cache_response")
-            Redis().delete("cache_response1")
-            sanic_example.CacheResponsePlugin.set_redis_to_app(client.app, sanic_example.Redis(decode_responses=True))
-            assert result1 != _TestHelper(client, sanic_example.cache_response1).text()
+    def test_cache_response(self, client: SanicTestClient) -> None:
+
+        with fixture_loop(mock_close_loop=True):
+            for _ in range(3):
+                Redis().delete("cache_response")
+                Redis().delete("cache_response1")
+                result1: str = _TestHelper(client, sanic_example.cache_response1).text()
+                result2: str = _TestHelper(client, sanic_example.cache_response1).text()
+                assert result1 == result2
+                Redis().delete("cache_response")
+                Redis().delete("cache_response1")
+                assert result1 != _TestHelper(client, sanic_example.cache_response1).text()
 
     def test_cache_other_response_type(self, client: SanicTestClient) -> None:
         def _handler(_route_handler: Callable) -> Any:
@@ -402,18 +401,13 @@ class TestSanic:
         key: str = "test_cache_other_response_type"
         redis: Redis = Redis(decode_responses=True)
 
-        for route_handler in [sanic_example.text_response_route, sanic_example.html_response_route]:
-            redis.delete(key)
-            with enable_plugin(route_handler, sanic_example.CacheResponsePlugin.build(name=key, cache_time=5)):
-                sanic_example.CacheResponsePlugin.set_redis_to_app(
-                    client.app, sanic_example.Redis(decode_responses=True)
-                )
-                result1: str = _handler(route_handler)
-                sanic_example.CacheResponsePlugin.set_redis_to_app(
-                    client.app, sanic_example.Redis(decode_responses=True)
-                )
-                result2: str = _handler(route_handler)
-                assert result1 == result2
+        with fixture_loop(mock_close_loop=True):
+            for route_handler in [sanic_example.text_response_route, sanic_example.html_response_route]:
+                redis.delete(key)
+                with enable_plugin(route_handler, sanic_example.CacheResponsePlugin.build(name=key, cache_time=5)):
+                    result1: str = _handler(route_handler)
+                    result2: str = _handler(route_handler)
+                    assert result1 == result2
 
     def test_cache_response_param_name(self, client: SanicTestClient) -> None:
         key: str = "test_cache_response_param_name"
@@ -436,18 +430,10 @@ class TestSanic:
                 route_handler,
                 body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "woman"},
             )
-            sanic_example.CacheResponsePlugin.set_redis_to_app(client.app, sanic_example.Redis(decode_responses=True))
-            result1: dict = test_helper1.json()
-            sanic_example.CacheResponsePlugin.set_redis_to_app(client.app, sanic_example.Redis(decode_responses=True))
-            result2: dict = test_helper1.json()
-            sanic_example.CacheResponsePlugin.set_redis_to_app(client.app, sanic_example.Redis(decode_responses=True))
-            result3: dict = test_helper2.json()
-            sanic_example.CacheResponsePlugin.set_redis_to_app(client.app, sanic_example.Redis(decode_responses=True))
-            result4: dict = test_helper2.json()
-
-            assert result1 == result2
-            assert result3 == result4
-            assert result1 != result3
+            with fixture_loop(mock_close_loop=True):
+                assert test_helper1.json() == test_helper1.json()
+                assert test_helper2.json() == test_helper2.json()
+                assert test_helper1.json() != test_helper2.json()
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:
@@ -462,3 +448,32 @@ class TestSanic:
         value: int = random.randint(1, 100)
         set_app_attribute(client.app, key, value)
         assert get_app_attribute(client.app, key) == value
+
+
+def init_grpc_route(app: Sanic) -> None:
+    from example.example_grpc.client import get_use_aio_channel_stub_list
+
+    sanic_example.GrpcGatewayRoute(
+        app,
+        *get_use_aio_channel_stub_list(),
+        prefix="/api",
+        title="Grpc",
+        grpc_timestamp_handler_tuple=(int, sanic_example.grpc_timestamp_int_handler),
+        parse_msg_desc="by_mypy",
+    )
+
+
+class TestSanicGrpc:
+    def test_create_user(self, client: SanicTestClient) -> None:
+        with fixture_loop():
+
+            def _(request_dict: dict) -> None:
+                request, response = client.post("/api/user/create", json=request_dict)
+                assert response.body == b"{}"
+
+            grpc_test_create_user_request(_)
+
+    def test_grpc_openapi(self, client: SanicTestClient) -> None:
+        from pait.app.sanic import load_app
+
+        grpc_test_openapi(load_app(client.app))

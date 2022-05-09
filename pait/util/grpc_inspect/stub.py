@@ -18,6 +18,7 @@ def get_proto_msg_path(line: str, re_str: str) -> str:
 
 @dataclass()
 class GrpcModel(object):
+    invoke_name: str
     method: str
     func: Callable
     request: Type[Message] = Message
@@ -154,6 +155,7 @@ class ParseStub(object):
             if isinstance(method, bytes):
                 method = method.decode()
             self._method_dict[method] = GrpcModel(
+                invoke_name=invoke_name,
                 method=method,
                 func=value,
                 desc=service_class.__dict__[invoke_name].__doc__ or "",

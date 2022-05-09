@@ -19,7 +19,7 @@ from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.flask import TestHelper as _TestHelper
 from pait.app.flask import load_app
 from pait.model import response
-from tests.conftest import enable_plugin
+from tests.conftest import enable_plugin, grpc_test_create_user_request, grpc_test_openapi
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
@@ -462,3 +462,17 @@ class TestFlask:
         client.application.add_url_rule(url, view_func=demo_route)
         client.get(url)
         assert is_call
+
+
+class TestFlaskGrpc:
+    def test_create_user(self, client: FlaskClient) -> None:
+        def _(request_dict: dict) -> None:
+            body: bytes = client.post("/api/user/create", json=request_dict).data
+            assert body == b"{}\n"
+
+        grpc_test_create_user_request(_)
+
+    def test_grpc_openapi(self, client: FlaskClient) -> None:
+        from pait.app.flask import load_app
+
+        grpc_test_openapi(load_app(client.application))

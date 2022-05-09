@@ -580,16 +580,15 @@ def create_app() -> Sanic:
 
     # grpc will use the current channel directly when initializing the channel,
     # so you need to initialize the event loop first and then initialize the grpc channel.
-    from example.example_grpc.client import aio_manager_stub, aio_social_stub, aio_user_stub
+    from example.example_grpc.client import get_use_aio_channel_stub_list
 
     GrpcGatewayRoute(
         app,
-        aio_user_stub,
-        aio_social_stub,
-        aio_manager_stub,
+        *get_use_aio_channel_stub_list(),
         prefix="/api",
         title="Grpc",
         grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
+        parse_msg_desc="by_mypy",
     )
     AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
     app.add_route(login_route, "/api/login", methods={"POST"})

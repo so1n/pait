@@ -250,12 +250,17 @@ class BaseParamHandler(PluginProtocol):
         # some type like dict, but not isinstance Mapping, e.g: werkzeug.datastructures.EnvironHeaders
         # assert getattr(request_value, "get", None), f"{parameter.name}'s request value must like dict"
         if not pait_field.raw_return:
+            if request_value is None:
+                raise NotFoundValueException(parameter.name, f"Can not found {parameter.name} value")
+
             request_value = pait_field.request_value_handle(request_value)
             if request_value is Undefined:
                 raise NotFoundValueException(parameter.name, f"Can not found {parameter.name} value")
 
         if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
             # parse annotation is pydantic.BaseModel and base_model_dict not None
+            if request_value is None:
+                raise NotFoundValueException(parameter.name, f"Can not found {parameter.name} value")
             base_model_dict[parameter.name] = annotation(**request_value)
         else:
             # parse annotation is python type and pydantic.field
@@ -326,6 +331,7 @@ class ParamHandler(BaseParamHandler):
                         kwargs_param_dict[parameter.name] = self._depend_handle(parameter.default.func)
                     else:
                         request_value: Any = self.get_request_value_from_parameter(parameter)
+                        # TODO not found value
                         self.request_value_handle(parameter, request_value, kwargs_param_dict, single_field_dict)
                 else:
                     # args param
