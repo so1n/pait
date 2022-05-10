@@ -476,3 +476,33 @@ class TestFlaskGrpc:
         from pait.app.flask import load_app
 
         grpc_test_openapi(load_app(client.application))
+
+    def test_grpc_openapi_by_protobuf_file(self, client: FlaskClient) -> None:
+        import os
+
+        from example.example_grpc.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
+        from example.example_grpc.python_example_proto_code.example_proto.user import user_pb2_grpc
+        from pait.app.flask import load_app
+        from pait.app.flask.grpc_route import GrpcGatewayRoute
+        from pait.util.grpc_inspect.message_to_pydantic import grpc_timestamp_int_handler
+
+        project_path: str = os.getcwd().split("pait/")[0]
+        if project_path.endswith("pait"):
+            project_path += "/"
+        elif not project_path.endswith("pait/"):
+            project_path = os.path.join(project_path, "pait/")
+        grpc_path: str = project_path + "example/example_grpc/"
+
+        prefix: str = "/api-test"
+
+        GrpcGatewayRoute(
+            client.application,
+            user_pb2_grpc.UserStub,
+            social_pb2_grpc.BookSocialStub,
+            manager_pb2_grpc.BookManagerStub,
+            prefix=prefix + "/",
+            title="Grpc-test",
+            grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
+            parse_msg_desc=grpc_path,
+        )
+        grpc_test_openapi(load_app(client.application), url_prefix=prefix)

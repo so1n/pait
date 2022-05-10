@@ -61,7 +61,7 @@ class TestUtil:
 
             a: SubDemo
 
-        assert "class 'tests.test_util.TestUtil.test_get_real_annotation.<locals>.Demo.SubDemo'" in str(
+        assert "test_get_real_annotation.<locals>.Demo.SubDemo'" in str(
             util.get_real_annotation(Demo.__annotations__["a"], Demo)
         )
 
@@ -72,7 +72,7 @@ class TestUtil:
 
             a: "SubDemo1"
 
-        assert "class 'tests.test_util.TestUtil.test_get_real_annotation.<locals>.Demo1.SubDemo1'" in str(
+        assert "test_get_real_annotation.<locals>.Demo1.SubDemo1'" in str(
             util.get_real_annotation(Demo1.__annotations__["a"], Demo1)
         )
 
@@ -84,9 +84,9 @@ class TestUtil:
 
                 a: "SubDemo2"
 
-            assert (
-                "class 'tests.test_util.TestUtil.test_get_real_annotation.<locals>.demo2.<locals>.Demo2.SubDemo2"
-            ) in str(util.get_real_annotation(Demo2.__annotations__["a"], Demo2))
+            assert ("test_get_real_annotation.<locals>.demo2.<locals>.Demo2.SubDemo2") in str(
+                util.get_real_annotation(Demo2.__annotations__["a"], Demo2)
+            )
 
         demo2()
 

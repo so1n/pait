@@ -112,7 +112,7 @@ class ParseStub(object):
             line_list: List[str] = line.split()
             for index, column in enumerate(line_list):
                 if _comment_model:
-                    _doc += column
+                    _doc += column + " "
                     continue
 
                 if column == "message" and line_list[index + 2] == "{":

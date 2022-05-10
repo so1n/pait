@@ -162,23 +162,23 @@ def grpc_test_create_user_request(app: Any, request_callable: Callable[[dict], N
                 # For tornado, the channel cannot be reclaimed
 
 
-def grpc_test_openapi(pait_dict: dict) -> None:
+def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api") -> None:
     from pait.api_doc.open_api import PaitOpenAPI
 
     url_list: List[str] = [
-        "/api/user/create",
-        "/api/user/delete",
-        "/api/user/login",
-        "/api/user/logout",
-        "/api/book_manager-BookManager/get_book_list",
-        "/api/book_manager-BookManager/create_book",
-        "/api/book_manager-BookManager/delete_book",
-        "/api/book_manager-BookManager/get_book",
-        "/api/book_social-BookSocial/get_book_comment",
-        "/api/book_social-BookSocial/like_multi_book",
-        "/api/book_social-BookSocial/get_book_like",
-        "/api/book_social-BookSocial/comment_book",
-        "/api/book_social-BookSocial/like_book",
+        f"{url_prefix}/user/create",
+        f"{url_prefix}/user/delete",
+        f"{url_prefix}/user/login",
+        f"{url_prefix}/user/logout",
+        f"{url_prefix}/book_manager-BookManager/get_book_list",
+        f"{url_prefix}/book_manager-BookManager/create_book",
+        f"{url_prefix}/book_manager-BookManager/delete_book",
+        f"{url_prefix}/book_manager-BookManager/get_book",
+        f"{url_prefix}/book_social-BookSocial/get_book_comment",
+        f"{url_prefix}/book_social-BookSocial/like_multi_book",
+        f"{url_prefix}/book_social-BookSocial/get_book_like",
+        f"{url_prefix}/book_social-BookSocial/comment_book",
+        f"{url_prefix}/book_social-BookSocial/like_book",
     ]
     pait_openapi: PaitOpenAPI = PaitOpenAPI(pait_dict, title="test")
 
@@ -199,33 +199,33 @@ def grpc_test_openapi(pait_dict: dict) -> None:
         assert "post" in path_dict
         # test tags
         assert "grpc" in path_dict["post"]["tags"]
-        if url.startswith("/api/user"):
+        if url.startswith(f"{url_prefix}/user"):
             assert "grpc-user" in path_dict["post"]["tags"]
             if url.endswith("/create") or url.endswith("/delete"):
                 assert "grpc-user-system" in path_dict["post"]["tags"]
-        elif url.startswith("/api/book_manager"):
+        elif url.startswith(f"{url_prefix}/book_manager"):
             assert "grpc-book_manager" in path_dict["post"]["tags"]
-        elif url.startswith("/api/book_social"):
+        elif url.startswith(f"{url_prefix}/book_social"):
             assert "grpc-book_social" in path_dict["post"]["tags"]
 
         # test summary
-        if url == "/api/user/create":
+        if url == f"{url_prefix}/user/create":
             assert path_dict["post"]["summary"] == "Create users through the system"
-        elif url == "/api/user/login":
+        elif url == f"{url_prefix}/user/login":
             assert path_dict["post"]["summary"] == "User login to system"
-        elif url == "/api/user/logout":
+        elif url == f"{url_prefix}/user/logout":
             assert path_dict["post"]["summary"] == "User exit from the system"
         else:
             assert path_dict["post"]["summary"] == ""
 
         # test description
-        if url == "/api/user/delete":
+        if url == f"{url_prefix}/user/delete":
             assert path_dict["post"]["description"] == "This interface performs a logical delete, not a physical delete"
         else:
             assert path_dict["post"]["description"] == ""
 
         # test parse protobuf desc to request pydantic.BaseModel
-        if url == "/api/user/create":
+        if url == f"{url_prefix}/user/create":
             schema: dict = path_dict["post"]["requestBody"]["content"]["application/json"]["schema"]
             # test miss default
             assert schema["required"] == ["uid"]

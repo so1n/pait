@@ -81,7 +81,7 @@ class GrpcGatewayRoute(BaseGrpcRouter):
             self.write(resp_dict)
 
         # change route func name and qualname
-        _route.__name__ = method_name.replace(".", "_")
+        _route.__name__ = grpc_route.title + method_name.replace(".", "_")
         _route.__qualname__ = _route.__qualname__.replace("._route", "." + _route.__name__)
 
         route_class = type(
