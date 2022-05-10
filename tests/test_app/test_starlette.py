@@ -29,20 +29,22 @@ if TYPE_CHECKING:
 
 @pytest.fixture
 def client(mocker: MockFixture) -> Generator[TestClient, None, None]:
-    # fix staelette.testclient get_event_loop status is close
-    def get_event_loop() -> asyncio.AbstractEventLoop:
-        try:
-            loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-            if loop.is_closed():
-                loop = asyncio.new_event_loop()
-        except RuntimeError:
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-        return loop
-
-    mocker.patch("asyncio.get_event_loop").return_value = get_event_loop()
-    client: TestClient = TestClient(starlette_example.create_app())
-    yield client
+    # starlette run after sanic
+    # fix starlette.testclient get_event_loop status is close
+    # def get_event_loop() -> asyncio.AbstractEventLoop:
+    #     try:
+    #         loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
+    #         if loop.is_closed():
+    #             loop = asyncio.new_event_loop()
+    #     except RuntimeError:
+    #         loop = asyncio.new_event_loop()
+    #         asyncio.set_event_loop(loop)
+    #     return loop
+    #
+    # mocker.patch("asyncio.get_event_loop").return_value = get_event_loop()
+    asyncio.set_event_loop(asyncio.new_event_loop())
+    with TestClient(starlette_example.create_app()) as client:
+        yield client
 
 
 def response_test_helper(
@@ -516,7 +518,7 @@ class TestStarletteGrpc:
         def _(request_dict: dict) -> None:
             assert client.post("/api/user/create", json=request_dict).content == b"{}"
 
-        grpc_test_create_user_request(_)
+        grpc_test_create_user_request(client.app, _)
 
     def test_grpc_openapi(self, client: TestClient) -> None:
         from pait.app.starlette import load_app

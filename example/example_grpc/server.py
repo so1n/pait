@@ -24,9 +24,6 @@ class SocialService(social_service.BookSocialServicer):
     pass
 
 
-helper_channel: grpc.Channel = grpc.intercept_channel(grpc.insecure_channel("0.0.0.0:9000"))
-
-
 def auto_gen_service_method(stub: Any, service: Any) -> None:
     """auto return response"""
     parser: ParseStub = ParseStub(stub)
@@ -40,9 +37,9 @@ def auto_gen_service_method(stub: Any, service: Any) -> None:
         setattr(service, method_name, _func)
 
 
-auto_gen_service_method(user_service.UserStub(helper_channel), UserService)
-auto_gen_service_method(manager_service.BookManagerStub(helper_channel), ManagerService)
-auto_gen_service_method(social_service.BookSocialStub(helper_channel), SocialService)
+auto_gen_service_method(user_service.UserStub, UserService)
+auto_gen_service_method(manager_service.BookManagerStub, ManagerService)
+auto_gen_service_method(social_service.BookSocialStub, SocialService)
 
 
 def create_app(

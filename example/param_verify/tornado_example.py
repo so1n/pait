@@ -5,6 +5,7 @@ import time
 from typing import Any, Dict, List, Optional, Tuple
 
 import aiofiles  # type: ignore
+import grpc
 from pydantic import ValidationError
 from redis.asyncio import Redis  # type: ignore
 from tornado.httputil import RequestStartLine
@@ -12,6 +13,8 @@ from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
 from typing_extensions import TypedDict
 
+from example.example_grpc.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
+from example.example_grpc.python_example_proto_code.example_proto.user import user_pb2_grpc
 from example.param_verify import tag
 from example.param_verify.model import (
     FailRespModel,
@@ -32,6 +35,7 @@ from example.param_verify.model import (
     context_depend,
     demo_depend,
 )
+from pait.app import set_app_attribute
 from pait.app.tornado import AddDocRoute, Pait, add_doc_route, load_app, pait
 from pait.app.tornado.grpc_route import GrpcGatewayRoute
 from pait.app.tornado.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
@@ -619,17 +623,22 @@ def create_app() -> Application:
     AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
     add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
 
-    from example.example_grpc.client import get_use_aio_channel_stub_list
-
-    GrpcGatewayRoute(
+    grpc_gateway_route: GrpcGatewayRoute = GrpcGatewayRoute(
         app,
-        *get_use_aio_channel_stub_list(init_new_event_loop=False),
+        user_pb2_grpc.UserStub,
+        social_pb2_grpc.BookSocialStub,
+        manager_pb2_grpc.BookManagerStub,
         prefix="/api",
         title="Grpc",
         grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
-        tornado_request_handler=MyHandler,
         parse_msg_desc="by_mypy",
     )
+    set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest
+
+    def _before_server_start() -> None:
+        grpc_gateway_route.init_channel(grpc.aio.insecure_channel("0.0.0.0:9000"))
+
+    app.settings["before_server_start"] = _before_server_start
     load_app(app, auto_load_route=True)
     return app
 
@@ -656,5 +665,7 @@ if __name__ == "__main__":
             apply_extra_openapi_model(ExtraModel, match_rule=MatchRule(key="!tag", target="grpc")),
         ]
     )
-    create_app().listen(8000)
+    app: Application = create_app()
+    app.listen(8000)
+    app.settings["before_server_start"]()
     IOLoop.instance().start()

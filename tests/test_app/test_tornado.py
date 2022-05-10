@@ -501,11 +501,13 @@ class TestTornado(BaseTestTornado):
 
 class TestTornadoGrpc(BaseTestTornado):
     def test_create_user(self) -> None:
+        self._app.settings["before_server_start"]()
+
         def _(request_dict: dict) -> None:
             body: bytes = self.fetch("/api/user/create", body=json.dumps(request_dict).encode(), method="POST").body
             assert body == b"{}"
 
-        grpc_test_create_user_request(_)
+        grpc_test_create_user_request(self._app, _)
 
     def test_grpc_openapi(self) -> None:
         from pait.app.tornado import load_app

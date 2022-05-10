@@ -470,7 +470,7 @@ class TestFlaskGrpc:
             body: bytes = client.post("/api/user/create", json=request_dict).data
             assert body == b"{}\n"
 
-        grpc_test_create_user_request(_)
+        grpc_test_create_user_request(client.application, _)
 
     def test_grpc_openapi(self, client: FlaskClient) -> None:
         from pait.app.flask import load_app

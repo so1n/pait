@@ -20,11 +20,12 @@ def tornado_make_response(_: Any, resp_dict: dict) -> dict:
 class GrpcGatewayRoute(BaseGrpcRouter):
     pait = tornado_pait
     make_response = tornado_make_response
+    is_async = True
 
     def __init__(
         self,
         app: Any,
-        *stub: Any,
+        *stub_list: Any,
         parse_msg_desc: Optional[str] = None,
         prefix: str = "",
         title: str = "",
@@ -41,7 +42,7 @@ class GrpcGatewayRoute(BaseGrpcRouter):
 
         super().__init__(
             app,
-            *stub,
+            *stub_list,
             parse_msg_desc=parse_msg_desc,
             prefix=prefix,
             title=title,
@@ -64,21 +65,18 @@ class GrpcGatewayRoute(BaseGrpcRouter):
         request_pydantic_model_class: Type[BaseModel] = self._gen_request_pydantic_class_from_grpc_model(grpc_model)
         pait: Pait = self._gen_pait_from_grpc_method(method_name, grpc_model, grpc_pait_model)
 
-        if not hasattr(grpc_model.func, "_loop"):
-            raise TypeError(f"grpc_model.func:{grpc_model.func} must be async function")
+        if not self.is_async:
+            raise RuntimeError("grpc_route must be async, please set is_async=True.")
         grpc_route: "GrpcGatewayRoute" = self
 
         async def _route(  # type: ignore
             self,  # type: ignore
             request_pydantic_model: request_pydantic_model_class,  # type: ignore
         ) -> None:
+            func: Callable = grpc_route.get_grpc_func(method_name)
             request_dict: dict = request_pydantic_model.dict()  # type: ignore
-            if grpc_route.parse_dict:
-                request_msg: Message = grpc_route.parse_dict(request_dict, grpc_model.request())
-            else:
-                request_msg = grpc_model.request(**request_dict)  # type: ignore
-
-            grpc_msg: Message = await grpc_model.func(request_msg)
+            request_msg: Message = grpc_route.get_msg_from_dict(grpc_model.request, request_dict)
+            grpc_msg: Message = await func(request_msg)
             resp_dict: dict = grpc_route._make_response(grpc_route.msg_to_dict(grpc_msg))  # type: ignore
             self.write(resp_dict)
 
@@ -105,9 +103,6 @@ class GrpcGatewayRoute(BaseGrpcRouter):
                 _route, grpc_pait_model = self._gen_route_func(method_name, grpc_model)
                 if not _route:
                     continue
-
-                if not hasattr(grpc_model.func, "_loop"):
-                    raise TypeError(f"grpc_model.func:{grpc_model.func} must be async function")
 
                 # grpc http method only POST
                 route_list.append((r"{}{}".format(prefix, self.url_handler(grpc_pait_model.url)), _route))

@@ -6,6 +6,7 @@ from tempfile import NamedTemporaryFile
 from typing import Any, AsyncContextManager, Dict, List, Optional, Tuple
 
 import aiofiles  # type: ignore
+import grpc
 from pydantic import ValidationError
 from redis.asyncio import Redis  # type: ignore
 from starlette.applications import Starlette
@@ -16,6 +17,8 @@ from starlette.responses import FileResponse, HTMLResponse, JSONResponse, PlainT
 from starlette.routing import Route
 from typing_extensions import TypedDict
 
+from example.example_grpc.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
+from example.example_grpc.python_example_proto_code.example_proto.user import user_pb2_grpc
 from example.param_verify import tag
 from example.param_verify.model import (
     FailRespModel,
@@ -36,6 +39,7 @@ from example.param_verify.model import (
     context_depend,
     demo_depend,
 )
+from pait.app import set_app_attribute
 from pait.app.starlette import AddDocRoute, Pait, add_doc_route, load_app, pait
 from pait.app.starlette.grpc_route import GrpcGatewayRoute
 from pait.app.starlette.plugin import AtMostOneOfPlugin
@@ -747,19 +751,26 @@ def create_app() -> Starlette:
         ]
     )
     CacheResponsePlugin.set_redis_to_app(app, redis=Redis(decode_responses=True))
-
-    # grpc will use the current channel directly when initializing the channel,
-    # so you need to initialize the event loop first and then initialize the grpc channel.
-    from example.example_grpc.client import get_use_aio_channel_stub_list
-
-    GrpcGatewayRoute(
+    grpc_gateway_route: GrpcGatewayRoute = GrpcGatewayRoute(
         app,
-        *get_use_aio_channel_stub_list(),
+        user_pb2_grpc.UserStub,
+        social_pb2_grpc.BookSocialStub,
+        manager_pb2_grpc.BookManagerStub,
         prefix="/api",
         title="Grpc",
         grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
         parse_msg_desc="by_mypy",
     )
+    set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest
+
+    def _before_server_start(*_: Any) -> None:
+        grpc_gateway_route.init_channel(grpc.aio.insecure_channel("0.0.0.0:9000"))
+
+    async def _after_server_stop(*_: Any) -> None:
+        await grpc_gateway_route.channel.close()
+
+    app.add_event_handler("startup", _before_server_start)
+    app.add_event_handler("shutdown", _after_server_stop)
     AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
     # prefix `/` route group must be behind other route group
     add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
@@ -772,12 +783,9 @@ def create_app() -> Starlette:
 
 
 if __name__ == "__main__":
-    import asyncio
 
     import uvicorn  # type: ignore
     from pydantic import BaseModel
-    from uvicorn.config import Config
-    from uvicorn.server import Server
 
     from pait.extra.config import apply_block_http_method_set, apply_extra_openapi_model
     from pait.g import config
@@ -793,13 +801,4 @@ if __name__ == "__main__":
         ]
     )
 
-    # grpc will use the current channel directly when initializing the channel,
-    # so you need to initialize the event loop first and then initialize the grpc channel.
-
-    async def main() -> None:
-        uvicorn_config: Config = Config(create_app(), log_level="debug")
-        await Server(uvicorn_config).serve()
-
-        uvicorn.run(create_app(), log_level="debug")
-
-    asyncio.run(main())
+    uvicorn.run(create_app(), log_level="debug")

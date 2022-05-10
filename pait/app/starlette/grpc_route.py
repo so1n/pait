@@ -15,6 +15,8 @@ def make_response(_: Any, resp_dict: dict) -> Response:
 class GrpcGatewayRoute(BaseGrpcRouter):
     pait = pait
     make_response: Callable = make_response
+    # starlette only call await request.json() get json
+    is_async: bool = True
 
     def _gen_route(self, app: Starlette) -> Any:
         route_list: List[Route] = []
@@ -24,9 +26,6 @@ class GrpcGatewayRoute(BaseGrpcRouter):
                 if not _route:
                     continue
 
-                # starlette only call await request.json() get json
-                if not hasattr(grpc_model.func, "_loop"):
-                    raise TypeError(f"grpc_model.func:{grpc_model.func} must be async function")
                 # grpc http method only POST
                 route_list.append(Route(self.url_handler(grpc_pait_model.url), _route, methods=["POST"]))
         app.routes.append(Mount(self.prefix, name=self.title, routes=route_list))

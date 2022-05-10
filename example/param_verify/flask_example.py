@@ -5,13 +5,15 @@ import time
 from tempfile import NamedTemporaryFile
 from typing import Any, Dict, List, Optional, Tuple
 
+import grpc
 from flask import Flask, Request, Response, make_response, send_from_directory
 from flask.views import MethodView
 from pydantic import ValidationError
 from redis import Redis  # type: ignore
 from typing_extensions import TypedDict
 
-from example.example_grpc.client import manager_stub, social_stub, user_stub
+from example.example_grpc.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
+from example.example_grpc.python_example_proto_code.example_proto.user import user_pb2_grpc
 from example.param_verify import tag
 from example.param_verify.model import (
     FailRespModel,
@@ -31,6 +33,7 @@ from example.param_verify.model import (
     context_depend,
     demo_depend,
 )
+from pait.app import set_app_attribute
 from pait.app.flask import AddDocRoute, Pait, add_doc_route, load_app, pait
 from pait.app.flask.grpc_route import GrpcGatewayRoute
 from pait.app.flask.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
@@ -536,16 +539,18 @@ def create_app() -> Flask:
     CacheResponsePlugin.set_redis_to_app(app, Redis(decode_responses=True))
     add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
     AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
-    GrpcGatewayRoute(
+    grpc_gateway_route: GrpcGatewayRoute = GrpcGatewayRoute(
         app,
-        user_stub,
-        social_stub,
-        manager_stub,
+        user_pb2_grpc.UserStub,
+        social_pb2_grpc.BookSocialStub,
+        manager_pb2_grpc.BookManagerStub,
         prefix="/api",
         title="Grpc",
         grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
         parse_msg_desc="by_mypy",
     )
+    grpc_gateway_route.init_channel(grpc.intercept_channel(grpc.insecure_channel("0.0.0.0:9000")))
+    set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest
     app.add_url_rule("/api/login", view_func=login_route, methods=["POST"])
     app.add_url_rule("/api/user", view_func=get_user_route, methods=["GET"])
     app.add_url_rule("/api/raise-tip", view_func=raise_tip_route, methods=["POST"])
@@ -597,4 +602,4 @@ if __name__ == "__main__":
             apply_extra_openapi_model(ExtraModel, match_rule=MatchRule(key="!tag", target="grpc")),
         ]
     )
-    create_app().run(port=8000, debug=True)
+    create_app().run(port=8080, debug=True)

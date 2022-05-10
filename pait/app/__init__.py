@@ -1,3 +1,4 @@
+from dataclasses import MISSING
 from importlib import import_module
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Type
 
@@ -126,6 +127,7 @@ def pait(
 def set_app_attribute(app: Any, key: str, value: Any) -> None:
     app_name: str = sniffing(app)
     if app_name == "flask":
+        app.config[key] = value
         from flask import g
 
         def _before_request() -> None:
@@ -143,6 +145,10 @@ def set_app_attribute(app: Any, key: str, value: Any) -> None:
 def get_app_attribute(app: Any, key: str) -> Any:
     app_name: str = sniffing(app)
     if app_name == "flask":
+        value: Any = app.config.get(key, MISSING)
+        if value is not MISSING:
+            return value
+
         from flask import g
 
         return getattr(g, key)

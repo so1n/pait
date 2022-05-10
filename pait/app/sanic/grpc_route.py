@@ -13,6 +13,7 @@ def make_response(_: Any, resp_dict: dict) -> HTTPResponse:
 class GrpcGatewayRoute(BaseGrpcRouter):
     pait = pait
     make_response: Callable = make_response
+    is_async: bool = True
 
     def _gen_route(self, app: Sanic) -> Any:
         for parse_stub in self.parse_stub_list:
@@ -22,8 +23,6 @@ class GrpcGatewayRoute(BaseGrpcRouter):
                 if not _route:
                     continue
 
-                if not hasattr(grpc_model.func, "_loop"):
-                    raise TypeError(f"grpc_model.func:{grpc_model.func} must be async function")
                 # grpc http method only POST
                 blueprint.add_route(_route, self.url_handler(grpc_pait_model.url), methods=["POST"])
             app.blueprint(blueprint)

@@ -1,11 +1,12 @@
 import asyncio
 from contextlib import contextmanager
 from queue import Queue
-from typing import TYPE_CHECKING, Any, Callable, Generator, List
+from typing import TYPE_CHECKING, Any, Callable, Generator, List, Optional, Tuple, Union
 
 import grpc
 
 from example.example_grpc.server import create_app
+from pait.app import sniffing
 from pait.extra.config import apply_block_http_method_set
 from pait.g import config
 from pait.plugin.base import PluginManager
@@ -38,39 +39,52 @@ def enable_plugin(route_handler: Callable, *plugin_manager_list: PluginManager) 
         pait_core_model._plugin_manager_list = raw_plugin_manager_list
 
 
-class GrpcTestHelperInterceptor(grpc.ServerInterceptor):
+GRPC_RESPONSE = Union[grpc.Call, grpc.Future]
+
+
+class ClientCallDetailsType(grpc.ClientCallDetails):
+    method: str
+    timeout: Optional[float]
+    metadata: Optional[List[Tuple[str, Union[str, bytes]]]]
+    credentials: Optional[grpc.CallCredentials]
+    wait_for_ready: Optional[bool]
+    compression: Optional[grpc.Compression]
+
+
+class GrpcClientInterceptor(grpc.UnaryUnaryClientInterceptor):
     def __init__(self, queue: Queue):
         self.queue: Queue = queue
 
-    def intercept_service(
+    def intercept_unary_unary(
         self,
-        continuation: Callable[[grpc.HandlerCallDetails], grpc.RpcMethodHandler],
-        handler_call_details: grpc.HandlerCallDetails,
-    ) -> grpc.RpcMethodHandler:
-        next_handler: grpc.RpcMethodHandler = continuation(handler_call_details)
+        continuation: Callable,
+        call_details: ClientCallDetailsType,
+        request: Any,
+    ) -> GRPC_RESPONSE:
+        self.queue.put(request)
+        return continuation(call_details, request)
 
-        if not next_handler.unary_unary:  # type: ignore
-            # only support unary unary
-            raise RuntimeError("RPC handler implementation does not exist")
 
-        def invoke(request_proto_message: Any, context: grpc.ServicerContext) -> Any:
-            self.queue.put(request_proto_message)
-            return next_handler.unary_unary(request_proto_message, context)
+class AioGrpcClientInterceptor(grpc.aio.UnaryUnaryClientInterceptor):
+    def __init__(self, queue: Queue):
+        self.queue: Queue = queue
 
-        return grpc.unary_unary_rpc_method_handler(
-            invoke,
-            request_deserializer=next_handler.request_deserializer,
-            response_serializer=next_handler.response_serializer,
-        )
+    def intercept_unary_unary(
+        self,
+        continuation: Callable,
+        call_details: ClientCallDetailsType,
+        request: Any,
+    ) -> GRPC_RESPONSE:
+        self.queue.put(request)
+        return continuation(call_details, request)
 
 
 @contextmanager
-def grpc_test_helper() -> Generator[Queue, None, None]:
-    msg_queue: Queue = Queue()
-    grpc_server: grpc.Server = create_app(interceptor_list=[GrpcTestHelperInterceptor(msg_queue)])
+def grpc_test_helper() -> Generator[None, None, None]:
+    grpc_server: grpc.Server = create_app()
     try:
         grpc_server.start()
-        yield msg_queue
+        yield None
     finally:
         grpc_server.stop(None)
 
@@ -102,11 +116,39 @@ def fixture_loop(mock_close_loop: bool = False) -> Generator[asyncio.AbstractEve
             loop.close = close_loop  # type: ignore
 
 
-def grpc_test_create_user_request(request_callable: Callable[[dict], None]) -> None:
+def grpc_test_create_user_request(app: Any, request_callable: Callable[[dict], None]) -> None:
     from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import CreateUserRequest
+    from pait.app import get_app_attribute
+    from pait.app.base.grpc_route import GrpcGatewayRoute
+
+    def reinit_channel(grpc_gateway_route: GrpcGatewayRoute, queue: Queue) -> None:
+        if grpc_gateway_route.is_async:
+            grpc_gateway_route.reinit_channel(
+                grpc.aio.insecure_channel("0.0.0.0:9000", interceptors=[AioGrpcClientInterceptor(queue)])
+            )
+        else:
+            grpc_gateway_route.reinit_channel(
+                grpc.intercept_channel(grpc.insecure_channel("0.0.0.0:9000"), GrpcClientInterceptor(queue)),
+            )
 
     request_dict: dict = {"uid": "10086", "user_name": "so1n", "pw": "123456", "sex": 0}
-    with grpc_test_helper() as queue:
+
+    with grpc_test_helper():
+        queue: Queue = Queue()
+        grpc_gateway_route: GrpcGatewayRoute = get_app_attribute(app, "grpc_gateway_route")
+        if sniffing(app) == "sanic":
+
+            def _before_server_start(*_: Any) -> None:
+                reinit_channel(grpc_gateway_route, queue)
+
+            async def _after_server_stop(*_: Any) -> None:
+                await grpc_gateway_route.channel.close()
+
+            app.before_server_start(_before_server_start)
+            app.after_server_stop(_after_server_stop)
+        else:
+            reinit_channel(grpc_gateway_route, queue)
+
         request_callable(request_dict)
         try:
             message: CreateUserRequest = queue.get(timeout=1)
@@ -114,10 +156,10 @@ def grpc_test_create_user_request(request_callable: Callable[[dict], None]) -> N
             assert message.user_name == "so1n"
             assert message.password == "123456"
             assert message.sex == 0
-        except Exception:
-            import warnings
-
-            warnings.warn("Can recv msg, Ignore for now")
+        finally:
+            if not grpc_gateway_route.is_async:
+                grpc_gateway_route.channel.close()
+                # For tornado, the channel cannot be reclaimed
 
 
 def grpc_test_openapi(pait_dict: dict) -> None:

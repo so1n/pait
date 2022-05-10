@@ -1,6 +1,7 @@
 import json
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
+import grpc
 from pydantic import BaseModel, Field
 
 from pait.core import Pait
@@ -36,13 +37,15 @@ def get_pait_info_from_grpc_desc(grpc_model: GrpcModel) -> GrpcPaitModel:
 
 
 class GrpcGatewayRoute(object):
+    is_async: bool
     pait: Pait
     make_response: Callable
+    channel: Union[grpc.Channel, grpc.aio.Channel]
 
     def __init__(
         self,
         app: Any,
-        *stub: Any,
+        *stub_list: Any,
         parse_msg_desc: Optional[str] = None,
         prefix: str = "",
         title: str = "",
@@ -56,7 +59,8 @@ class GrpcGatewayRoute(object):
     ):
         self.prefix: str = prefix
         self.title: str = title
-        self.parse_stub_list: List[ParseStub] = [ParseStub(i, parse_msg_desc=parse_msg_desc) for i in stub]
+        self.parse_stub_list: List[ParseStub] = [ParseStub(i, parse_msg_desc=parse_msg_desc) for i in stub_list]
+        self.stub_list: Tuple[Any, ...] = stub_list
         self.msg_to_dict: Callable = msg_to_dict
         self.parse_dict: Optional[Callable] = parse_dict
 
@@ -67,6 +71,7 @@ class GrpcGatewayRoute(object):
         self._make_response: Callable = make_response or self.make_response
         self._is_gen: bool = False
         self._tag_dict: Dict[str, Tag] = {}
+        self.method_func_dict: Dict[str, Callable] = {}
 
         self._gen_route(app)
 
@@ -103,6 +108,19 @@ class GrpcGatewayRoute(object):
             response_model_list=[CustomerJsonResponseModel],
         )
 
+    def get_grpc_func(self, method_name: str) -> Callable:
+        func: Optional[Callable] = self.method_func_dict.get(method_name, None)
+        if not func:
+            raise RuntimeError(f"{method_name}'s func is not found, Please call init_channel to register the channel")
+        return func
+
+    def get_msg_from_dict(self, msg: Type[Message], request_dict: dict) -> Message:
+        if self.parse_dict:
+            request_msg: Message = self.parse_dict(request_dict, msg)
+        else:
+            request_msg = msg(**request_dict)  # type: ignore
+        return request_msg
+
     def _gen_route_func(self, method_name: str, grpc_model: GrpcModel) -> Tuple[Optional[Callable], GrpcPaitModel]:
         grpc_pait_model: GrpcPaitModel = get_pait_info_from_grpc_desc(grpc_model)
         if grpc_pait_model.enable is False:
@@ -113,34 +131,30 @@ class GrpcGatewayRoute(object):
         request_pydantic_model_class: Type[BaseModel] = self._gen_request_pydantic_class_from_grpc_model(grpc_model)
         pait: Pait = self._gen_pait_from_grpc_method(method_name, grpc_model, grpc_pait_model)
 
-        if hasattr(grpc_model.func, "_loop"):
+        if self.is_async:
             import asyncio
 
             async def _route(request_pydantic_model: request_pydantic_model_class) -> Any:  # type: ignore
+                func: Callable = self.get_grpc_func(method_name)
                 request_dict: dict = request_pydantic_model.dict()  # type: ignore
-                if self.parse_dict:
-                    request_msg: Message = self.parse_dict(request_dict, grpc_model.request())
-                else:
-                    request_msg = grpc_model.request(**request_dict)  # type: ignore
+                request_msg: Message = self.get_msg_from_dict(grpc_model.request, request_dict)
                 loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-                if loop != grpc_model.func._loop:  # type: ignore
+                if loop != func._loop:  # type: ignore
                     raise RuntimeError(
                         "Loop is not same, "
                         "the grpc channel must be initialized after the event loop of the api server is initialized"
                     )
                 else:
-                    grpc_msg: Message = await grpc_model.func(request_msg)
+                    grpc_msg: Message = await func(request_msg)
                 return self._make_response(self.msg_to_dict(grpc_msg))
 
         else:
 
             def _route(request_pydantic_model: request_pydantic_model_class) -> Any:  # type: ignore
+                func: Callable = self.get_grpc_func(method_name)
                 request_dict: dict = request_pydantic_model.dict()  # type: ignore
-                if self.parse_dict:
-                    request_msg: Message = self.parse_dict(request_dict, grpc_model.request())
-                else:
-                    request_msg = grpc_model.request(**request_dict)  # type: ignore
-                grpc_msg: Message = grpc_model.func(request_msg)
+                request_msg: Message = self.get_msg_from_dict(grpc_model.request, request_dict)
+                grpc_msg: Message = func(request_msg)
                 return self._make_response(self.msg_to_dict(grpc_msg))
 
         # change route func name and qualname
@@ -152,3 +166,24 @@ class GrpcGatewayRoute(object):
 
     def _gen_route(self, app: Any) -> Any:  # type: ignore
         raise NotImplementedError()
+
+    def reinit_channel(
+        self, channel: Union[grpc.Channel, grpc.aio.Channel]
+    ) -> Union[grpc.Channel, grpc.aio.Channel, None]:
+        old_channel: Union[grpc.Channel, grpc.aio.Channel, None] = getattr(self, "channel", None)
+        self.init_channel(channel)
+        return old_channel
+
+    def init_channel(self, channel: Union[grpc.Channel, grpc.aio.Channel]) -> None:
+        self.channel: Union[grpc.Channel, grpc.aio.Channel] = channel
+        if isinstance(channel, grpc.Channel) and self.is_async:
+            raise RuntimeError("Channel is not supported, please use aio.Channel")
+        elif isinstance(channel, grpc.aio.Channel) and not self.is_async:
+            raise RuntimeError("Asyncio channel is not supported, please use channel")
+        for stub_class in self.stub_list:
+            stub = stub_class(channel)
+            for func in stub.__dict__.values():
+                method = func._method  # type: ignore
+                if isinstance(method, bytes):
+                    method = method.decode()
+                self.method_func_dict[method] = func

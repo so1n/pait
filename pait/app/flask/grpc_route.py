@@ -13,6 +13,7 @@ def make_response(_: Any, resp_dict: dict) -> Response:
 class GrpcGatewayRoute(BaseGrpcRouter):
     pait = pait
     make_response: Callable = make_response
+    is_async: bool = False
 
     def _gen_route(self, app: Flask) -> Any:
         for parse_stub in self.parse_stub_list:

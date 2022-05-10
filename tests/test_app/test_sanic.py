@@ -450,28 +450,13 @@ class TestSanic:
         assert get_app_attribute(client.app, key) == value
 
 
-def init_grpc_route(app: Sanic) -> None:
-    from example.example_grpc.client import get_use_aio_channel_stub_list
-
-    sanic_example.GrpcGatewayRoute(
-        app,
-        *get_use_aio_channel_stub_list(),
-        prefix="/api",
-        title="Grpc",
-        grpc_timestamp_handler_tuple=(int, sanic_example.grpc_timestamp_int_handler),
-        parse_msg_desc="by_mypy",
-    )
-
-
 class TestSanicGrpc:
     def test_create_user(self, client: SanicTestClient) -> None:
-        with fixture_loop():
+        def _(request_dict: dict) -> None:
+            request, response = client.post("/api/user/create", json=request_dict)
+            assert response.body == b"{}"
 
-            def _(request_dict: dict) -> None:
-                request, response = client.post("/api/user/create", json=request_dict)
-                assert response.body == b"{}"
-
-            grpc_test_create_user_request(_)
+        grpc_test_create_user_request(client.app, _)
 
     def test_grpc_openapi(self, client: SanicTestClient) -> None:
         from pait.app.sanic import load_app
