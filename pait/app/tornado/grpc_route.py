@@ -46,7 +46,7 @@ class GrpcGatewayRoute(BaseGrpcRouter):
             request_dict: dict = request_pydantic_model.dict()  # type: ignore
             request_msg: Message = grpc_route.get_msg_from_dict(grpc_model.request, request_dict)
             grpc_msg: Message = await func(request_msg)
-            resp_dict: dict = grpc_route._make_response(grpc_route.msg_to_dict(grpc_msg))  # type: ignore
+            resp_dict: dict = grpc_route._make_response(grpc_route.get_dict_from_msg(grpc_msg))  # type: ignore
             self.write(resp_dict)
 
         # change route func name and qualname

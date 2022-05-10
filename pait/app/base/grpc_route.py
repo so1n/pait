@@ -121,6 +121,9 @@ class GrpcGatewayRoute(object):
             request_msg = msg(**request_dict)  # type: ignore
         return request_msg
 
+    def get_dict_from_msg(self, msg: Message) -> dict:
+        return self.msg_to_dict(msg)
+
     def _gen_route_func(self, method_name: str, grpc_model: GrpcModel) -> Tuple[Optional[Callable], GrpcPaitModel]:
         grpc_pait_model: GrpcPaitModel = get_pait_info_from_grpc_desc(grpc_model)
         if grpc_pait_model.enable is False:
@@ -146,7 +149,7 @@ class GrpcGatewayRoute(object):
                     )
                 else:
                     grpc_msg: Message = await func(request_msg)
-                return self._make_response(self.msg_to_dict(grpc_msg))
+                return self._make_response(self.get_dict_from_msg(grpc_msg))
 
         else:
 
@@ -155,7 +158,7 @@ class GrpcGatewayRoute(object):
                 request_dict: dict = request_pydantic_model.dict()  # type: ignore
                 request_msg: Message = self.get_msg_from_dict(grpc_model.request, request_dict)
                 grpc_msg: Message = func(request_msg)
-                return self._make_response(self.msg_to_dict(grpc_msg))
+                return self._make_response(self.get_dict_from_msg(grpc_msg))
 
         # change route func name and qualname
         _route.__name__ = self.title + method_name.replace(".", "_")
