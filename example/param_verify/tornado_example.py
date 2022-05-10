@@ -633,6 +633,7 @@ def create_app() -> Application:
         grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
         parse_msg_desc="by_mypy",
     )
+    grpc_gateway_route.with_request(MyHandler)
     set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest
 
     def _before_server_start() -> None:
