@@ -2,10 +2,10 @@
 - 1 Add a user-friendly doc ui
 - 2 Plugin Panel
 
-### 0.7.7[Future]
-Add grpc gateway route
+### 0.7.7[Now]
+Add grpc gateway route, Automatically generate corresponding API requests based on Stub
 
-### 0.7.6[Now]
+### 0.7.6
 - Fix, fix not support cbv route attribute
 - Feature, support param_handle param
 - Feature, add cache response
