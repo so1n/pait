@@ -2,6 +2,8 @@ import inspect
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional, Type
 
+from typing_extensions import Self  # type: ignore
+
 from ._util import get_real_annotation
 
 __all__ = ["FuncSig", "get_func_sig", "is_bounded_func"]
@@ -32,6 +34,8 @@ def get_func_sig(func: Callable) -> FuncSig:
         #   The cbv func decorated in Pait is unbound, so it can get to self；
         #   Depend func must be bound func when it is used, so it cannot get self；
         if not (sig.parameters[key].annotation != sig.empty or sig.parameters[key].name == "self"):
+            continue
+        if sig.parameters[key].annotation == Self:
             continue
         parameter: inspect.Parameter = sig.parameters[key]
         setattr(parameter, "_annotation", get_real_annotation(parameter.annotation, func))

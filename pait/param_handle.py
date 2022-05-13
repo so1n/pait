@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, Callable, Coroutine, Dict, Generator, Lis
 
 from pydantic import BaseConfig, BaseModel
 from pydantic.fields import Undefined, UndefinedType
+from typing_extensions import Self  # type: ignore
 
 from pait import field
 from pait.app.base import BaseAppHelper
@@ -226,7 +227,9 @@ class BaseParamHandler(PluginProtocol):
         """
         if issubclass(parameter.annotation, BaseModel):
             return True
-        elif self.cbv_instance and not func_args and parameter.annotation == parameter.empty:
+        elif self.cbv_instance and (
+            parameter.annotation == Self or (not func_args and parameter.annotation == parameter.empty)
+        ):
             # first parma must self param, looking forward to the appearance of `self type
             func_args.append(self._app_helper.cbv_instance)
         elif self._app_helper.check_request_type(parameter.annotation):
