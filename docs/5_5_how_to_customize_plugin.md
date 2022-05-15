@@ -44,20 +44,20 @@ uvicorn.run(app)
 它不可能为每个函数定义一个单独的函数处理，这时候可以定制一个捕获异常的插件来解决这个问题，如下是一个单独针对这个接口定制的插件：
 ```py linenums="1"
 from typing import Any, Dict
-from pait.plugin.base import BaseAsyncPlugin
+from pait.plugin.base import BasePlugin
 from pait.model.core import PaitCoreModel
 from pydantic import ValidationError
 from pait.exceptions import PaitBaseException
 
 
-class DemoExceptionPlugin(BaseAsyncPlugin):
+class DemoExceptionPlugin(BasePlugin):
     is_pre_core: bool = True
 
     @classmethod
-    def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
+    def pre_check(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         if pait_core_model.func.__name__ != "demo":
             raise RuntimeError(f"The {cls.__name__} is only used for demo func")
-        return super().pre_load_hook(pait_core_model, kwargs)
+        return super().cls_hook_by_core_model(pait_core_model, kwargs)
 
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
         try:
@@ -67,22 +67,19 @@ class DemoExceptionPlugin(BaseAsyncPlugin):
 ```
 在这个示例插件中，需要注意的有几个地方：
 
-- 0.由于该路由函数是`async`的，所以该函数只能被基于`BaseAsyncPlugin`插件挂载。
+- 0.由于该路由函数是`async`的，所以`__call__`方法需要加上async。
 - 1.第9行的`is_pre_core = True`是设置该插件为前置插件，这样就能拦截`Pait`和路由函数的异常了。
-- 2.第12行的`pre_load_hook`方法会进行一些初始化的检查，该检查只会在初始化的时候运行，这个检查的逻辑是如果判定该插件并不是挂在`demo`函数上就会抛错，
+- 2.第12行的`pre_chec`方法会进行一些初始化的检查，该检查只会在初始化的时候运行，这个检查的逻辑是如果判定该插件并不是挂在`demo`函数上就会抛错，
 其中`pait_core_model`是`Pait`为路由函数生成的一些属性。
 - 3.第17行的`__call__`方法是该插件的主要处理逻辑，当有请求进来时，`Pait`会通过`__call__`方法调用插件，插件可以通过`call_next`来调用下一个插件，
 该插件通过`try...except`来捕获后续所有调用段异常，如果是符合条件的异常就会被捕获，并生成不一样的响应结果。
 
-编写完毕插件后，通过`PluginManager`托管挂载插件:
+编写完毕插件后，就可以直接使用了，对上面代码进行如下的小更改:
 ```python
-from pait.plugin import PluginManager
-
-
-@pait(plugin_list=[PluginManager(DemoExceptionPlugin)])
+@pait(plugin_list=[DemoExceptionPlugin.build])
 async def demo(...): pass
 ```
-最后重启程序并运行同样的请求，可以发现响应结果已经变为插件自己抛出的结果：
+然后重启程序并运行同样的请求，可以发现响应结果已经变为插件自己抛出的结果：
 ```bash
 ➜  ~ curl http://127.0.0.1:8000/api/demo
 {"plugin exc info":"File \"/home/so1n/demo.py\", line 48, in demo.\nerror:Can not found uid value"}

@@ -8,7 +8,7 @@ async def demo(
 ) -> JSONResponse:
     return JSONResponse({"a": a, "b": b})
 ```
-在`Pait`内部， 会认为该接口需要的是一个`Pydantic.BaseModel`:
+在`Pait`内部， 会认为该接口需要的是一个如下的`Pydantic.BaseModel`:
 ```Python
 from pydantic import BaseModel, Field
 
@@ -21,7 +21,7 @@ class Demo(BaseModel):
 ## 1.使用Pydantic.BaseModel
 在使用了`Pait`一段时间后，会发现有些接口的参数可能可以复用，这时可以采用`Type`为Pydantic.BaseModel的方案，把两个接口重复的参数抽象为一个pydantic.Basemodel
 
-示例代码如下， 首先是12行的`DemoModel`，它继承于`Pydantic.BaseModel`且有三个属性`uid`,`name`以及`age`，然后有两个不一样的接口，
+示例代码如下， 首先是12行的`DemoModel`，它继承于`Pydantic.BaseModel`且有三个属性分别为`uid`,`name`以及`age`，然后有两个不一样的接口，
 接口`demo`从Url中获取所有的值，并交给`DemoModel`进行校验，然后通过`.dict`方法生成dict并返回。接口`demo1`与接口`demo`很像， 只不过是从Json Body获取数据。
 ```py linenums="1" hl_lines="12-15 19 24"
 import uvicorn  # type: ignore
@@ -65,7 +65,7 @@ uvicorn.run(app)
 可以发现两个接口都能正常的工作，但是在这种用法下，Field的作用是限定于整个BaseModel的，无法为每一个属性使用单独的`field`，这时可以采用另外一种方法。
 ## 2.使用特殊的Pydantic.BaseModel
 由于`Pait`的`field`是继承于`pydantic.FieldInfo`，同时也内置了转变为`pydantic.FieldInfo`的方法， 所以在使用的时候可以把上个示例的DemoModel进行转变，
-比如对于接口`demo`，DemoModel可以变为:
+比如对于接口`demo`，DemoModel可以变为如下代码:
 ```Python
 from pait import field
 
@@ -75,8 +75,9 @@ class DemoModel(BaseModel):
     uid: str = field.Query.i(max_length=6, min_length=6, regex="^u")
     name: str = field.Query.i(min_length=4, max_length=10)
     age: int = field.Query.i(ge=0, le=100)
+    request_id: str = field.Header.i(default="")
 ```
-这样就可以为每个属性都使用不一样的`field`了，然后接口`demo`需要进行对应的更改，由于DemoModel已经带有了`pait.field`，
+这样就可以为每个属性都使用不一样的`field`了，同时还增加了一个`request_id`的属性，它会从Header获取数据，然后接口`demo`需要进行对应的更改，由于DemoModel已经带有了`pait.field`，
 所以接口参数不需要按照之前的格式， 可以直接省略`field`的填写， 变为:
 ```Python
 @pait()
@@ -84,7 +85,7 @@ async def demo(demo_model: DemoModel) -> JSONResponse:
     return JSONResponse(demo_model.dict())
 ```
 这样`Pait`也能够跟之前一样正确地识别并处理了，在考虑复用后实际的代码可以编写成这样：
-```py linenums="1" hl_lines="22-29 33 38"
+```py linenums="1" hl_lines="22-30 33 38"
 from typing import Type
 import uvicorn  # type: ignore
 from starlette.applications import Starlette
@@ -112,6 +113,7 @@ def create_demo_model(pait_field: Type[field.BaseField]) -> Type[BaseModel]:
         uid: str = pait_field.i(max_length=6, min_length=6, regex="^u")
         name: str = pait_field.i(min_length=4, max_length=10)
         age: int = pait_field.i(ge=0, le=100)
+        request_id: str = field.Header.i(default="")
 
     return DemoModel
 
@@ -132,13 +134,13 @@ app.add_exception_handler(Exception, api_exception)
 
 uvicorn.run(app)
 ```
-由于要支持复用，在22行使用函数`create_demo_model`来根据传入的`pait.field`创建DemoModel，然后33行和38行的接口函数进行对应的更改，
+由于要支持复用，在22行使用函数`create_demo_model`来根据传入的`pait.field`创建DemoModel，然后34行和39行的接口函数进行对应的更改，
 最后使用`curl`进行调用发现响应的结果是正常的：
 ```bash
 ➜  ~ curl "http://127.0.0.1:8000/api/demo?uid=u12345&name=so1n&age=10"
-{"uid":"u12345","name":"so1n","age":10}
+{"uid":"u12345","name":"so1n","age":10, "request_id": ""}
 ➜  ~ curl "http://127.0.0.1:8000/api/demo1" -X POST -d '{"uid": "u12345", "name": "so1n", "age": 10}' --header "Content-Type: application/json"
-{"uid":"u12345","name":"so1n","age":10}
+{"uid":"u12345","name":"so1n","age":10, "request_id": ""}
 ```
 而且这样编写的代码能针对每个属性进行单独地校验，比如传入了不合法的参数，`Pait`仍然可以把参数交给pydantic校验并把错误抛出来：
 ```bash
@@ -188,7 +190,7 @@ from starlette.requests import Request
 async def demo(request: Request):
     pass
 ```
-而在使用了`Pait`后会变为：
+而在使用了`Pait`后会变为如下代码：
 ```Python
 from pait.app.starlette import pait
 
@@ -197,8 +199,8 @@ from pait.app.starlette import pait
 async def demo():
     pass
 ```
-这时，如果你需要`Request`对象或者使用了`Sanic`框架，它不支持函数签名为空的路由函数，则任然可以使用框架原本的方法来获取`Request`对象，
-不过`Pait`会要求填写的`Type`必须是`Request`对象的`Type`，比如`starlette`获取`Request`对象的代码如下：
+这时，如果开发者需要`Request`对象或者使用了`Sanic`框架，它不支持函数签名为空的路由函数，则任然可以使用框架原本的方法来获取`Request`对象，
+不过`Pait`会要求填写的`Type`必须是`Request`对象的`Type`，才会正确的赋值对应的`Request`对象，比如在`starlette`框架获取`Request`对象的代码如下：
 ```Python
 from pait.app.starlette import pait
 from starlette.requests import Request
@@ -232,15 +234,14 @@ app = Starlette(routes=[Route("/api/demo", demo, methods=["GET"])])
 
 uvicorn.run(app)
 ```
-使用curl调用可以发现，`Pydantic`自动把时间转为datetime类型了，且时区是UTC时区：
+不过在运行代码后使用curl调用可以发现，`Pydantic`自动把时间转为datetime类型了，且时区是UTC时区：
 ```bash
 ➜  ~ curl "http://127.0.0.1:8000/api/demo?timestamp=1600000000"
 {"time":"2020-09-13T12:26:40+00:00"}
 ```
-这种处理方式是没问题的，但假设这个业务的数据库的服务器是位于某个非UTC时区，数据库与程序的时区都依赖于机器的时区，这样在每次获取数据后还需要再转化一次参数的时区，
-非常麻烦， 这时可以采用编写一个符合`Pydantic`校验的Type类来解决。
+这种处理方式是没问题的，但假设这个业务的数据库的服务器是位于某个非UTC时区，数据库与程序的时区都依赖于机器的时区，这样开发者在每次获取数据后还需要再转化一次参数的时区， 很麻烦， 这时可以采用编写一个符合`Pydantic`校验的Type类来解决。
 
-一个符合`Pydantic`校验方法的类必须满足带有`__get_validators__`类方法，且该方法是一个生成器，
+一个符合`Pydantic`校验方法的类必须满足带有`__get_validators__`类方法，且该方法返回一个生成器，
 于是可以自己这样实现一个时间戳的转换方法，使Pydantic在遇到时间戳时，能把时间转为`datetime`且该值得时区为服务器的时区：
 ```Python
 import datetime

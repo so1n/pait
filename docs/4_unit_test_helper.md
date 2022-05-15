@@ -21,7 +21,7 @@ async def post_route(
     return_dict.update({"content_type": content_type})
     return JSONResponse({"code": 0, "msg": "", "data": return_dict})
 ```
-这是一个被`Pait`装饰的函数的接口函数，接下来就可以通过如下调用，来完成一个测试用例：
+这段代码是一个被`Pait`装饰的函数的接口函数，接下来就可以通过如下调用，来完成一个测试用例：
 ```Python
 class TestStarlette:
     def test_post(self, client: TestClient) -> None:
@@ -48,8 +48,8 @@ class TestStarlette:
         ).json(method="post")
 ```
 
-此外，在编写测试用例时，可能会状态码，`Header`之类的数据进行校验，这时需要一个响应对象
-，`TestHelper`支持通过指定对应的Http请求方法名来调用，最后返回对应测试客户端的Response:
+此外，在编写测试用例时，可能对会状态码，`Header`之类的数据进行校验，这时需要一个响应对象
+，`TestHelper`支持通过指定对应的Http请求方法名来调用，最后返回对应测试客户端的响应对象`Response`:
 ```Python
 class TestStarlette:
     def test_post(self, client: TestClient) -> None:
@@ -61,11 +61,11 @@ class TestStarlette:
         ).post()
         response.json()
 ```
-虽然这种情况下使用`TestHelper`和对应的测试客户端没有太大的差别，但是`TestHelper`的内会在获取到路由函数的响应后
-把响应数据放入`Pait`装饰器中`response_model_list`填写的`response_model`进行校验，如果检查到HTTP状态码，Header，Body三者中有一个不符合条件就会抛出错误，中断测试用例。
+虽然这种情况下使用`TestHelper`和对应的测试客户端没有太大的差别，但是`TestHelper`的内会在获取到路由函数的响应后，
+把响应数据放入`Pait`装饰器中`response_model_list`填写的`response_model`进行校验，如果检查到HTTP状态码，Header，Body三者中有一个不符合条件就会抛出错误，中断测试用例（如果有多个`response_model`，则会智能的挑选最合适的一个）。
 
 ## 参数介绍
-`TestHelper`的参数分为初始化参数，请求参数，响应结果参数3种，初始化参数有3个，分别为：
+`TestHelper`的参数分为初始化参数，请求参数，响应结果参数3种。其中，初始化参数有3个，分别为：
 
 - client: 测试框架对应的客户端
 - func: 路由函数
@@ -101,7 +101,7 @@ b = {
 `TestHelper`检测到b变量多出来一个结构`b['b']['d']`，所以b变量并不是一个合法的响应体，`TestHelper`直接抛出错误，
 不过也可以设置参数`strict_inspection_check_json_content`的值为`False`，这样只会校验出现在`response_model`的字段的类型是否合法以及是否缺少对应的字段，不会检查多出的字段。
 
-`TestHelper`另外两个参数作用如下:
+除了参数`strict_inspection_check_json_content`外，`TestHelper`还有另外两个参数，它们的作用如下:
 
 - target_pait_response_class:
     该参数可以传入一个指定的`response_model`，这样`TestHelper`就会从`response_model_list`中筛选出一批符合条件的`response_model`来进行校验。

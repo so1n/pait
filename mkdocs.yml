@@ -3,7 +3,9 @@ site_description: Pait is a Python api tool. Pait enables your Python web framew
 
 theme:
     name: material
-    language: zh
+    language: en
+    logo: assets/logo.png
+    favicon: assets/images/favicon.png
     features:
         - navigation.top
         - content.code.annotate
@@ -14,23 +16,25 @@ edit_uri: ""
 
 
 nav:
-  - 介绍: 'index.md'
-  - 类型转换与参数校验:
-    - 介绍: '1_1_introduction.md'
-    - 如何使用Field: '1_2_how_to_use_field.md'
-    - 如何使用Type: '1_3_how_to_use_type.md'
+  - Introduction: 'index.md'
+  - Type conversion and parameter validation:
+    - Introduction: '1_1_introduction.md'
+    - How to use Field: '1_2_how_to_use_field.md'
+    - Hot to use Type: '1_3_how_to_use_type.md'
     - Depend: '1_4_depend.md'
-    - 异常提示: '1_5_exception.md'
-  - Pait的复用: '2_pait_multiplexing.md'
-  - API文档: '3_api_doc.md'
-  - 单元测试支持: '4_unit_test_helper.md'
-  - 插件:
-      - 介绍: '5_1_introduction.md'
-      - 参数检查插件: '5_2_param_check_plugin.md'
-      - Json响应插件: '5_3_json_response_plugin.md'
-      - Mock响应插件: '5_4_mock_json_response_check_plugin.md'
-      - 如何自定义插件: '5_5_how_tp_customize_the_plugin.md'
-  - 其它: "6_other.md"
+    - Exception: '1_5_exception.md'
+  - Pait multiplexing: '2_pait_multiplexing.md'
+  - API doc: '3_api_doc.md'
+  - Unit test helper: '4_unit_test_helper.md'
+  - Plugin:
+      - Introduction: '5_1_introduction.md'
+      - Param check plugin: '5_2_param_check_plugin.md'
+      - Json Response plugin: '5_3_json_response_plugin.md'
+      - Mock Response plugin: '5_4_mock_json_response_check_plugin.md'
+      - How to customize plugin: '5_5_how_to_customize_plugin.md'
+  - config: "6_config.md"
+  - gRPC Gateway: "7_gRPC_gateway.md"
+  - Other: "8_other.md"
 
 extra:
   version:

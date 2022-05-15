@@ -1,11 +1,12 @@
-`Pait`的`Depend`参考了[FastAPI](https://github.com/tiangolo/fastapi)，它的作用跟[FastAPI](https://github.com/tiangolo/fastapi)很像，
-用户通过`Pait`的`Depend`可以一些功能:
+`Pait`的`Depend`设计参考了[FastAPI](https://github.com/tiangolo/fastapi)，它的作用跟[FastAPI](https://github.com/tiangolo/fastapi)很像，
+用户通过`Pait`的`Depend`可以实现一些功能:
 
 - 共享一些相同的逻辑
 - 实现一些安全校验的功能
 - 与别的系统交互(如数据库)。
 
-> NOTE：示例代码都是使用`async def`语法，实际上也是支持`def`语法。
+!!! note ""
+    示例代码都是使用`async def`语法，实际上也是支持`def`语法。
 
 ## 1.使用Depend功能
 一般的后端系统中都带有用户Token校验业务，这个业务是非常符合Depend的使用场景。
@@ -15,8 +16,7 @@
 还会根据Token获取uid并传给路由函数的功能，但是这种实现方法比较动态，代码检测工具很难检测出来，而使用`Pait`的`Depend`可以解决这个问题。
 
 示例代码如下，其中第一段高亮是模仿数据库的调用方法，目前假设数据库只有token为"u12345"的值；第二段高亮是一个特殊的函数，这段函数可以被`Pait`的`Depend`使用，
-所以这个函数的参数填写规则与`Pait`装饰的路由函数一致，之前提到的任何写法都可以在这个函数中使用，而目前这个函数的功能就是从Header中获取Token，并校验Token是否存在，
-如果存在则返回用户，不存在则抛错。
+所以这个函数的参数填写规则与`Pait`装饰的路由函数一致，之前提到的任何写法都可以在这个函数中使用，而目前这个函数的功能就是从Header中获取Token，并校验Token是否存在，如果存在则返回用户，不存在则抛错。第三段高亮则是路由函数填写的Token参数，比较特殊的是这里通过`field.Depend`来裹住上面的`get_user_by_token`函数：
 ```py hl_lines="16 19-22 26"
 import uvicorn  # type: ignore
 from starlette.applications import Starlette
@@ -140,7 +140,7 @@ def demo() -> Generator[Any, Any, Any]:
 
     `ContextManager`的`Depend`函数除了参数外，其余的编写方法和官方的一致，具体可见[contextlib — Utilities for with-statement contexts](https://docs.python.org/3/library/contextlib.html)
 
-下面的代码是一个使用了`ContextManager`的`Depend`例子， 该例子假设每次调用请求时都会基于对应的uid创建一个Session，请求结束时会自动关闭：
+下面的代码是一个使用了`ContextManager`的`Depend`例子， 该例子假设每次调用请求时都会基于对应的uid创建一个Session，并在请求结束会自动关闭：
 ```py hl_lines="19-35 38-49 52-58"
 from contextlib import asynccontextmanager
 from typing import Any, AsyncGenerator
@@ -209,7 +209,7 @@ app.add_exception_handler(Exception, api_exception)
 uvicorn.run(app)
 ```
 代码中第一段高亮是模拟一个基于Uid的Session，第二段高亮则是一段带有`ContextManger`的Depends函数，并分别在`try`, `except`以及`finally`打印不同的内容，
-而第三块则是路由函数，它会依据参数`is_raise`是否为`True`来决定抛错还是正常返回。
+而第三块高亮则是路由函数，它会依据参数`is_raise`是否为`True`来决定抛错还是正常返回。
 
 现在运行代码并使用`curl`进行接口测试，发现第一个请求是通过的，但是第二个请求发生异常：
 ```bash
@@ -268,14 +268,14 @@ app.add_exception_handler(Exception, api_exception)
 
 uvicorn.run(app)
 ```
-如果这段代码是使用IDE进行编写的，那么高亮处的token变量会被打上下划线，如果使用`pyflake`进行代码检测，可能会检查不通过，这时可以把高亮处代码的token参数名改为`_`:
+如果这段代码是使用IDE进行编写的，那么高亮处的token变量会被打上下划线，如果使用`pyflake`进行代码检测，可能会检查不通过，这时可以把高亮处代码的token参数名改为`_`来解决问题，如下:
 ```python
 
 @pait()
 async def demo(_: str = field.Depends.i(get_user_by_token)) -> JSONResponse:
     return JSONResponse({"msg": "success"})
 ```
-来解决问题， 但是Python是不支持一个函数内出现相同名字的变量， 这意味着有多个类似的参数时，不能把他们变量名都改为`_`。
+但是Python是不支持一个函数内出现相同名字的变量， 这意味着有多个类似的参数时，不能把他们变量名都改为`_`。
 
 为此，`Pait`通过可选参数`pre_depend_list`来提供了`Pre-Depends`功能，用户只需要把函数传入到Pait的pre_depend_list可选参数即可，
 代码的逻辑和功能均不会被受到影响，这样修改后代码会变为如下：

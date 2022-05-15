@@ -5,7 +5,7 @@
 这样会增加前端的工作量，同时前端Mock的数据并不一定是我们想要的，这时可以使用`MockPlugin`插件来让接口提供Mock数据。
 
 `MockPlugin`插件使用非常简单，代码如下:
-```py hl_lines="16-19"
+```py hl_lines="15-18"
 from typing import Optional
 import uvicorn  # type: ignore
 from starlette.applications import Starlette
@@ -13,8 +13,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.routing import Route
 from pait.exceptions import TipException
-from pait.plugin import PluginManager
-from pait.app.starlette.plugin.mock_response import AsyncMockPlugin
+from pait.app.starlette.plugin.mock_response import MockPlugin
 from example.param_verify.model import UserSuccessRespModel3
 
 from pait.app.starlette import pait
@@ -23,7 +22,7 @@ from pait import field
 
 @pait(
     response_model_list=[UserSuccessRespModel3],
-    plugin_list=[PluginManager(AsyncMockPlugin)]
+    plugin_list=[MockPlugin.build()]
 )
 async def demo(
     uid: int = field.Query.i(description="user id", gt=10, lt=1000),
@@ -38,13 +37,13 @@ async def demo(
 app = Starlette(routes=[Route("/api/demo", demo, methods=["GET"])])
 uvicorn.run(app)
 ```
-这份代码中，开发者实现了一个路由函数签名，该函数没有任何逻辑，然后通过`pait`装饰器填写`AsyncMockPlugin`和ResponseModel，
+这份代码中，开发者实现了一个路由函数签名，该函数没有任何逻辑，然后通过`pait`装饰器填写`MockPlugin`和ResponseModel，
 如果有多个ResponseModel的话`MockPlugin`会默认使用第一个ResponseModel，运行这份代码后执行对应的请求命令可以得到默认的Mock响应：
 ```bash
 ➜  ~ curl http://127.0.0.1:8000/api/demo\?uid\=123\&user_name\=so1n\&age\=18\&display_age\=1
 {"code":0,"msg":"success","data":{"uid":0,"user_name":"","age":0,"email":""}}%
 ```
-这份默认的响应数据是`AsyncMockPlugin`通过调用`UserSuccessRespModel3.get_example_value`生成的，如果对于生成的默认值不满意，
+这份默认的响应数据是`MockPlugin`通过调用`UserSuccessRespModel3.get_example_value`生成的，如果对于生成的默认值不满意，
 可以通过`Field`的`example`来定义不同的响应值，比如把`UserSuccessRespModel3`改成下面的样子：
 ```py
 import random

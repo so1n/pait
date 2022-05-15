@@ -1,20 +1,20 @@
-`field`在`Pait`中起到了至关重要的作用， `Pait`除了使用`field`用于获取数据来源外， 还通过它实现了很多其它的功能， 在本章中只着重说明参数校验这一块。
+`field` plays a crucial role in `Pait`. In addition to using `field` to obtain data sources, `Pait` also uses it to achieve many other functions. In this chapter, only parameter validation is emphasized. this piece.
 
-## 1.Field的种类
+## 1.Kind of Field
 
-除了上文提到的Body外， `Field`还拥有其它的种类， 它们的名称和作用如下:
+In addition to the Body mentioned above, `Field` also has other types, their names and functions are as follows:
 
-- Body: 获取当前请求的Json数据
-- Cookie: 获取当前请求的Cookie数据(注意， 目前Cookie数据会被转化为一个Python字典， 这意味着Cookie的Key不能重复。同时， 在Field为Cookie时， type最好是str)
-- File：获取当前请求的file对象，该对象与原文Web框架的file对象一致
-- Form：获取当前请求的form数据，如果有多个重复Key，只会返回第一个值
-- Header: 获取当前请求的header数据
-- Path: 获取当前请求的path数据，如`/api/{version}/test`，则会获取到version的数据
-- Query: 获取当前请求的Url参数对应的数据，如果有多个重复Key，只会返回第一个值
-- MultiForm：获取当前请求的form数据， 返回Key对应的数据列表
-- MultiQuery：获取当前请求的Url参数对应的数据， 返回Key对应的数据列表
+- Body: Get the json data of the current request
+- Cookie: Get the cookie data of the current request (note that the current cookie data will be converted into a Python dictionary, which means that the key of the cookie cannot be repeated. At the same time, when the Field is a cookie, the type is preferably str)
+- File：Get the file object of the current request, which is consistent with the file object of the web framework
+- Form：Get the form data of the current request. If there are multiple duplicate Keys, only the first value will be returned
+- Header: Get the header data of the current request
+- Path: Get the path data of the current request, such as `/api/{version}/test`, will get the version data
+- Query: Get the data corresponding to the Url parameter of the current request. If there are multiple duplicate keys, only the first value will be returned
+- MultiForm：Get the form data of the current request, and return the data list corresponding to the Key
+- MultiQuery：Get the data corresponding to the Url parameter of the current request, and return the data list corresponding to the Key
 
-各个种类的具体使用方法很简单，只要填入`<name>:<type>=<default>`中的`default`位置即可，以这段代码为例子(为了确保能复制粘贴后运行，没有演示field.File):
+The specific usage of each type is very simple, just fill in the `default` position in `<name>:<type>=<default>`, take this code as an example (in order to ensure that it can be copied and pasted and run, no demo field.File):
 ```Python
 from typing import List, Optional
 import uvicorn  # type: ignore
@@ -67,8 +67,10 @@ app = Starlette(
 
 uvicorn.run(app)
 ```
-这段代码来自于[pait base field example](https://github.com/so1n/pait/blob/master/example/param_verify/starlette_example.py#L163), 并做了一些小改动，该接口的主要责任就是把参数通过json的格式返回给调用者。
-接下来使用`curl`命令进行一次请求测试， 通过输出结果可以发现，`Pait`都能通过`field`的种类准确的拿到对应的值， 并赋值到变量中。
+This code comes from[pait base field example](https://github.com/so1n/pait/blob/master/example/param_verify/starlette_example.py#L163),
+And made some small changes, the main responsibility of this interface is to return the parameters to the caller in json format.
+
+Next, use the `curl` command to perform a request test. Through the output results, it can be found that `Pait` can accurately get the corresponding value through the type of `field`, and assign it to the variable。
 ```bash
 curl -X 'POST' \
   'http://127.0.0.1:8000/api/demo/12?uid=99&user_name=so1n&multi_user_name=so1n' \
@@ -102,17 +104,17 @@ curl -X 'POST' \
     }
 }
 ```
-## 2.Field的功能
-从上面的例子可以看到， 请求中没有带上`email`参数， 但是该接口任然可以得到`email`的值`example@xxx.com`，
-这是因为在填写`email`的`field`时，我把`example@xxx.com`填写到default值中，这样`Pait`会在获取不到该变量的对应值的情况下，`也能把默认值赋给对应的变量。
+## 2.Field feature
+As can be seen from the above example, the `email` parameter is not included in the request, but the value of `email` in the response value returned by the interface is `example@xxx.com`，
+This is because when I fill in the `field` of `email`, I fill in `example@xxx.com` into the default value, so that `Pait` can not get the corresponding value of the variable, but also can The default value is assigned to the corresponding variable。
 
-除了默认值之外， `field`也有很多的功能，这些功能大部分来源于`field`所继承的`pydantic.Field`。
+In addition to default values, `field` also has many feature, most of which are derived from `pydantic.Field`, which `field` inherits.
 
 
 ### 2.1.default
-`Pait`通过该参数支持默认值， 如果没有默认值可以直接不填写该参数的值。
+`Pait` supports default value through this parameter. If there is no default value, you can simply leave the value of this parameter blank.
 
-示例代码如下，两个接口都直接返回获取到的值`demo_value`，其中`demo`接口带有默认值， 默认值为字符串123，而`demo1`接口没有默认值:
+The sample code is as follows, both interfaces directly return the obtained value `demo_value`, where the `demo` interface has a default value, the default value is string 123, and the `demo1` interface has no default value:
 ```py hl_lines="20 25"
 import uvicorn  # type: ignore
 from starlette.applications import Starlette
@@ -126,7 +128,7 @@ from pait.exceptions import TipException
 
 
 async def api_exception(request: Request, exc: Exception) -> PlainTextResponse:
-    """提取异常信息， 并以响应返回"""
+    """Extract exception information and return it as a response"""
     if isinstance(exc, TipException):
         exc = exc.exc
     return PlainTextResponse(str(exc))
@@ -152,24 +154,24 @@ app = Starlette(
 app.add_exception_handler(Exception, api_exception)
 uvicorn.run(app)
 ```
-使用`curl`调用可以发现，对于有默认值得接口`/api/demo`，当没有传参数demo_value时，默认返回123, 传参数456时，返回值是456:
+Using `curl` call, can find that for the interface `/api/demo` with a default value, when no parameter demo_value is passed, the default return value is 123, and when the parameter 456 is passed, the return value is 456:
 ```bash
 ➜  ~ curl "http://127.0.0.1:8000/api/demo"
 123
 ➜  ~ curl "http://127.0.0.1:8000/api/demo?demo_value=456"
 456
 ```
-而没有带参数的请求会看到有个报错， 提示没有找到`demo_value`的值:
+And the request without parameters will see an error, indicating that the value of `demo_value` is not found:
 ```bash
 ➜  curl "http://127.0.0.1:8000/api/demo1"
 Can not found demo_value value
 ```
 
 ### 2.2.default_factory
-该参数用于默认值是函数的情况，可以用来填写类似于`datetime.datetime.now`的默认值。
+This parameter is used when the default value is a function, and can be used to fill in a default value similar to `datetime.datetime.now` that is generated after receiving a request.
 
-示例代码如下，第一个接口的默认值是当前时间， 第二个接口的默认值是uuid，他们每次调用段返回值都是收到请求时生成的:
-```py hl_lines="14 20"
+The sample code is as follows. The default value of the first interface is the current time, and the default value of the second interface is uuid. The return value of each call is generated when the request is received.:
+```py hl_lines="14 21"
 import datetime
 import uuid
 import uvicorn  # type: ignore
@@ -189,7 +191,9 @@ async def demo(
 
 
 @pait()
-async def demo1(demo_value: str = field.Query.i(default_factory=lambda: uuid.uuid4().hex)) -> PlainTextResponse:
+async def demo1(
+    demo_value: str = field.Query.i(default_factory=lambda: uuid.uuid4().hex)
+) -> PlainTextResponse:
     return PlainTextResponse(demo_value)
 
 
@@ -202,7 +206,7 @@ app = Starlette(
 
 uvicorn.run(app)
 ```
-使用`curl`调用可以发现每次返回的结果都是不一样的:
+Using `curl` calls can find that the results returned each time are different:
 ```bash
 ➜  ~ curl "http://127.0.0.1:8000/api/demo"
 2022-02-07T14:54:29.127519
@@ -214,10 +218,10 @@ uvicorn.run(app)
 ef84f04fa9fc4ea9a8b44449c76146b8
 ```
 ### 2.3.alias
-参数的别名，一些参数可能被命名为`Content-Type`, 但是Python不支持这种命名方式， 此时可以使用别名。
+Aliases for parameters, some parameters may be named `Content-Type`, but Python does not support this naming method, you can use aliases in this case。
 
-示例代码如下:
-```py hl_lines="11"
+The sample code is as follows:
+```py hl_lines="12"
 import uvicorn  # type: ignore
 from starlette.applications import Starlette
 from starlette.responses import PlainTextResponse
@@ -228,7 +232,9 @@ from pait import field
 
 
 @pait()
-async def demo(content_type: str = field.Header.i(alias="Content-Type")) -> PlainTextResponse:
+async def demo(
+    content_type: str = field.Header.i(alias="Content-Type")
+) -> PlainTextResponse:
     return PlainTextResponse(content_type)
 
 
@@ -236,22 +242,22 @@ app = Starlette(routes=[Route("/api/demo", demo, methods=["GET"])])
 
 uvicorn.run(app)
 ```
-使用`curl`调用可以发现，`Pait`正常的从Header中提取`Content-Type`的值并赋给了content_type:
+Using the `curl` call, it can be found that `Pait` normally extracts the `Content-Type` value from the Header and assigns it to the content type:
 ```bash
 ➜  ~ curl "http://127.0.0.1:8000/api/demo" -H "Content-Type:123"
 123
 ```
 
-### 2.4.数字校验之gt，ge，lt，le，multiple_of
-这几个值都是校验数字是否合法，仅用于数值的类型，他们的作用各不相同：
+### 2.4.gt, ge, lt, le, multiple of digital check
+These values are all check digits for legality and are only used for numeric types, but their functions are different：
 
-- gt：仅用于数值的类型，会校验数值是否大于该值，同时也会在OpenAPI添加`exclusiveMinimum`属性。
-- ge：仅用于数值的类型，会校验数值是否大于等于该值，同时也会在OpenAPI添加`exclusiveMinimum`属性。
-- lt：仅用于数值的类型，会校验数值是否小于该值，同时也会在OpenAPI添加`exclusiveMaximum`属性。
-- le：仅用于数值的类型，会校验数值是否小于等于该值，同时也会在OpenAPI添加`exclusiveMaximum`属性。
-- multiple_of：仅用于数字， 会校验该数字是否是指定值得倍数。
+- gt：For numeric types only, it will check if the numeric value is greater than this value, and also add the `exclusiveMinimum` property in the Open API.
+- ge：Only used for numeric types, it will check whether the value is greater than or equal to this value, and also add the `exclusiveMinimum` attribute in the Open API。
+- lt：Only used for numeric types, it will check whether the value is less than this value, and also add the `exclusiveMaximum` attribute in the Open API。
+- le：Only used for numeric types, it will check whether the value is less than or equal to this value, and also add the `exclusiveMaximum` attribute in the Open API。
+- multiple_of：For numbers only, checks if the number is a multiple of the specified value.
 
-示例代码如下，这个示例代码只有一个接口，但是接受了三个参数`demo_value1`, `demo_value2`, `demo_value3`，他们分别只接收符合大于1小于10；等于1;3的倍数的三个数：
+The sample code is as follows, this sample code has only one interface, but accepts three parameters `demo_value1`, `demo_value2`, `demo_value3`, they only accept three numbers that are greater than 1 and less than 10; equal to 1 and a multiple of 3:
 ```py hl_lines="23-25"
 import uvicorn  # type: ignore
 from starlette.applications import Starlette
@@ -266,9 +272,9 @@ from pydantic import ValidationError
 
 
 async def api_exception(request: Request, exc: Exception) -> JSONResponse:
-    """提取异常信息， 并以响应返回"""
+    """Extract exception information and return it as a response"""
     if isinstance(exc, ValidationError):
-        # 解析Pydantic的抛错
+        # parsingPydanticSErrorThrow
         return JSONResponse({"data": exc.errors()})
     return JSONResponse({"data": str(exc)})
 
@@ -287,7 +293,7 @@ app.add_exception_handler(Exception, api_exception)
 
 uvicorn.run(app)
 ```
-使用`curl`调用可以发现第一个请求符合要求并得到了想要的响应结果，第二个请求则三个参数都错了，并返回`Pydantic.ValidationError`的错误信息，从错误信息可以简单的看出来三个参数都不符合接口设置的限定条件：
+Using the `curl` call, you can find that the first request meets the requirements and gets the desired response result. The second request has all three parameters wrong, and returns the error message of `Pydantic.ValidationError`. From the error message, you can It is simple to see that the three parameters do not meet the qualifications of the interface settings：
 ```bash
 ➜  ~ curl "http://127.0.0.1:8000/api/demo?demo_value1=2&demo_value2=1&demo_value3=3"
 {"data":[2,1,3]}
@@ -327,14 +333,14 @@ uvicorn.run(app)
     ]
 }
 ```
-### 2.5.数组校验之min_items，max_items
-这几个值都是校验数组是否合法，仅用于数组的类型，他们的作用各不相同：
+### 2.5. array check(min_items，max_items)
+These values are used to check whether the array is legal or not. They are only used for the type of the array. Their feature are different.：
 
-- min_items：仅用于数组类型，会校验字列表是否满足大于等于指定的值。
-- max_items： 仅用于数组类型，会校验字列表是否满足小于等于指定的值。
+- min_items：For array types only, it will check whether the word list is greater than or equal to the specified value.
+- max_items： Only for array types, it will check whether the word list is less than or equal to the specified value。
 
-示例代码如下，该接口通过`field.MultiQuery`从请求Url中获取参数`demo_value`的数组，并返回给调用端，其中数组的长度限定在大于等于1且小于等于2之间：
-```py hl_lines="24"
+The sample code is as follows, the interface obtains the array of parameter `demo value` from the request Url through `field.MultiQuery`, and returns it to the calling end, where the length of the array is limited to greater than or equal to 1 and less than or equal to 2：
+```py hl_lines="25"
 from typing import List
 import uvicorn  # type: ignore
 from starlette.applications import Starlette
@@ -349,7 +355,7 @@ from pydantic import ValidationError
 
 
 async def api_exception(request: Request, exc: Exception) -> JSONResponse:
-    """提取异常信息， 并以响应返回"""
+    """Extract exception information and return it as a response"""
     if isinstance(exc, TipException):
         exc = exc.exc
     if isinstance(exc, ValidationError):
@@ -358,7 +364,9 @@ async def api_exception(request: Request, exc: Exception) -> JSONResponse:
 
 
 @pait()
-async def demo(demo_value: List[int] = field.MultiQuery.i(min_items=1, max_items=2)) -> JSONResponse:
+async def demo(
+    demo_value: List[int] = field.MultiQuery.i(min_items=1, max_items=2)
+) -> JSONResponse:
     return JSONResponse({"data": demo_value})
 
 
@@ -367,7 +375,7 @@ app.add_exception_handler(Exception, api_exception)
 
 uvicorn.run(app)
 ```
-与2.4一样，通过`curl`调用可以发现合法的参数会放行，不合法的参数会抛错：
+As in 2.4, through the `curl` call, it can be found that the legal parameters will be released, and the illegal parameters will throw an error：
 ```bash
 ➜  ~ curl "http://127.0.0.1:8000/api/demo?demo_value=1"
 {"data":[1]}
@@ -389,15 +397,15 @@ uvicorn.run(app)
     ]
 }
 ```
-### 2.6.字符串校验之min_length，max_length，regex
-这几个值都是校验字符串是否合法，仅用于字符串的类型，他们的作用各不相同：
+### 2.6.String check(min_length，max_length，regex)
+These values are used to check whether the string is legal or not. They are only used for the type of string, and their feature are different:
 
-- min_length：仅用于字符串类型，会校验字符串的长度是否满足大于等于指定的值。
-- max_length：仅用于字符串类型，会校验字符串的长度是否满足小于等于指定的值。
-- regex：仅用于字符串类型，会校验字符串是否符合该正则表达式。
+- min_length：Only used for string type, it will check whether the length of the string is greater than or equal to the specified value。
+- max_length：For string type only, it will check whether the length of the string is less than or equal to the specified value.
+- regex：For string type only, it will check whether the string matches the regular expression.
 
-示例代码如下， 该接口需要从Url中获取一个值， 这个值得长度大小为6，且必须为英文字母u开头：
-```py hl_lines="23"
+The sample code is as follows, the interface needs to get a value from Url, the length of this value is 6, and it must start with the English letter u:
+```py hl_lines="24"
 import uvicorn  # type: ignore
 from starlette.applications import Starlette
 from starlette.requests import Request
@@ -411,7 +419,7 @@ from pydantic import ValidationError
 
 
 async def api_exception(request: Request, exc: Exception) -> JSONResponse:
-    """提取异常信息， 并以响应返回"""
+    """Extract exception information and return it as a response"""
     if isinstance(exc, TipException):
         exc = exc.exc
     if isinstance(exc, ValidationError):
@@ -420,7 +428,9 @@ async def api_exception(request: Request, exc: Exception) -> JSONResponse:
 
 
 @pait()
-async def demo(demo_value: str = field.Query.i(min_length=6, max_length=6, regex="^u")) -> JSONResponse:
+async def demo(
+    demo_value: str = field.Query.i(min_length=6, max_length=6, regex="^u")
+) -> JSONResponse:
     return JSONResponse({"data": demo_value})
 
 
@@ -429,7 +439,7 @@ app.add_exception_handler(Exception, api_exception)
 
 uvicorn.run(app)
 ```
-使用`curl`进行三次请求，第一次为正常数据，第二次为不符合正则表达式，第三次为长度不符合：
+Use `curl` to make three requests, the first is normal data, the second is not conforming to the regular expression, and the third is that the length does not conform：
 ```bash
 ➜  ~ curl "http://127.0.0.1:8000/api/demo?demo_value=u66666"
 {"data":"u66666"}
@@ -439,9 +449,9 @@ uvicorn.run(app)
 {"data":[{"loc":["demo_value"],"msg":"ensure this value has at least 6 characters","type":"value_error.any_str.min_length","ctx":{"limit_value":6}}]}
 ```
 ### 2.7.raw_return
-该参数的默认值为`False`，如果为`True`，则`Pait`不会根据参数名或者`alias`为key从请求数据获取值， 而是把整个请求值返回给对应的变量。
+The default value of this parameter is `False`. If it is `True`, `Pait` will not obtain the value from the request data according to the parameter name or `alias` as the key, but will return the entire request value to the corresponding variable。
 
-示例代码如下， 该接口为一个POST接口， 该接口需要两个值，第一个值为整个客户端传过来的Json参数， 而第二个值为客户端传过来的Json参数中Key为a的值：
+The sample code is as follows, the interface is a POST interface, it requires two values, the first value is the Json parameter passed by the entire client, and the second value is the value of Key in the Json parameter passed by the client:
 
 ```py hl_lines="12-13"
 import uvicorn  # type: ignore
@@ -468,17 +478,17 @@ app = Starlette(routes=[Route("/api/demo", demo, methods=["POST"])])
 
 uvicorn.run(app)
 ```
-使用`curl`调用， 可以发现结果符合预期：
+Called with `curl`, you can see that the result is as expected:
 ```bash
 ➜  ~ curl "http://127.0.0.1:8000/api/demo" -X POST -d '{"a": "1", "b": "2"}' --header "Content-Type: application/json"
 {"demo_value":{"a":"1","b":"2"},"a":"1"}
 ```
 
-### 2.8.其它功能
-除了上述功能外， `Pait`还有其它属性， 但是都只与OpenAPI有关， 所以本章只做简单介绍：
+### 2.8.Other Feature
+In addition to the above functions, `Pait` has other properties, but they are only related to OpenAPI, so this chapter only briefly introduces:
 
-- link：用于支持OpenApi的link功能。
-- media_type：Field对应的media_type，用于OpenAPI的Scheme的参数media type分类。
-- example：用于文档的示例值，以及Mock请求与响应等Mock功能，同时支持变量和可调用函数如`datetime.datetim.now`，推荐与[faker](https://github.com/joke2k/faker)一起使用。
-- openapi_serialization：用于该值在OpenAPI的Schema的序列化方式。
-- description: 用于OpenAPI的参数描述
+- link：The link feature used to support Open Api.
+- media_type：The media_type corresponding to Field is used for the parameter media type classification of OpenAPI Scheme.
+- example：Example values for documentation, and Mock features like Mock Request and Response, supporting both variables and callables, for example `datetime.datetim.now`. Recommended for use with [faker](https://github.com/joke2k/faker).
+- openapi_serialization：The serialization method used for this value in the Open API Schema。
+- description: Parameter description for Open API
