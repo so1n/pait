@@ -4,7 +4,7 @@ from starlette.applications import Starlette
 from starlette.responses import JSONResponse, Response
 from starlette.routing import Mount, Route
 
-from pait.app.base.grpc_route import GrpcGatewayRoute as BaseGrpcRouter
+from pait.app.base.grpc_route import AsyncGrpcGatewayRoute as BaseGrpcRouter
 from pait.app.starlette import pait
 
 
@@ -15,10 +15,8 @@ def make_response(_: Any, resp_dict: dict) -> Response:
 class GrpcGatewayRoute(BaseGrpcRouter):
     pait = pait
     make_response: Callable = make_response
-    # starlette only call await request.json() get json
-    is_async: bool = True
 
-    def _gen_route(self, app: Starlette) -> Any:
+    def _add_route(self, app: Starlette) -> Any:
         route_list: List[Route] = []
         for parse_stub in self.parse_stub_list:
             for method_name, grpc_model in parse_stub.method_dict.items():

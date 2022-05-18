@@ -1,4 +1,6 @@
+import asyncio
 import json
+from abc import ABCMeta
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 import grpc
@@ -11,8 +13,6 @@ from pait.model.tag import Tag
 from pait.util.grpc_inspect.message_to_pydantic import GRPC_TIMESTAMP_HANDLER_TUPLE_T, parse_msg_to_pydantic_model
 from pait.util.grpc_inspect.stub import GrpcModel, ParseStub
 from pait.util.grpc_inspect.types import Message, MessageToDict
-
-grpc_tag: Tag = Tag("grpc", desc="grpc route")
 
 
 class GrpcPaitModel(BaseModel):
@@ -36,8 +36,7 @@ def get_pait_info_from_grpc_desc(grpc_model: GrpcModel) -> GrpcPaitModel:
     return GrpcPaitModel(**pait_dict)
 
 
-class GrpcGatewayRoute(object):
-    is_async: bool
+class BaseGrpcGatewayRoute(object):
     pait: Pait
     make_response: Callable
     channel: Union[grpc.Channel, grpc.aio.Channel]
@@ -73,7 +72,8 @@ class GrpcGatewayRoute(object):
         self._tag_dict: Dict[str, Tag] = {}
         self.method_func_dict: Dict[str, Callable] = {}
 
-        self._gen_route(app)
+        self._grpc_tag: Tag = Tag("grpc", desc="grpc route")
+        self._add_route(app)
 
     def _gen_request_pydantic_class_from_grpc_model(self, grpc_model: GrpcModel) -> Type[BaseModel]:
         return parse_msg_to_pydantic_model(
@@ -86,7 +86,7 @@ class GrpcGatewayRoute(object):
     def _gen_pait_from_grpc_method(
         self, method_name: str, grpc_model: GrpcModel, grpc_pait_model: GrpcPaitModel
     ) -> Pait:
-        tag_tuple: Tuple[Tag, ...] = (grpc_tag,)
+        tag_tuple: Tuple[Tag, ...] = (self._grpc_tag,)
         for tag, desc in grpc_pait_model.tag + [("grpc" + "-" + method_name.split("/")[1].split(".")[0], "")]:
             if tag in self._tag_dict:
                 pait_tag: Tag = self._tag_dict[tag]
@@ -124,6 +124,9 @@ class GrpcGatewayRoute(object):
     def get_dict_from_msg(self, msg: Message) -> dict:
         return self.msg_to_dict(msg)
 
+    def gen_route(self, method: str, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]) -> Callable:
+        raise NotImplementedError()
+
     def _gen_route_func(self, method_name: str, grpc_model: GrpcModel) -> Tuple[Optional[Callable], GrpcPaitModel]:
         grpc_pait_model: GrpcPaitModel = get_pait_info_from_grpc_desc(grpc_model)
         if grpc_pait_model.enable is False:
@@ -134,40 +137,16 @@ class GrpcGatewayRoute(object):
         request_pydantic_model_class: Type[BaseModel] = self._gen_request_pydantic_class_from_grpc_model(grpc_model)
         pait: Pait = self._gen_pait_from_grpc_method(method_name, grpc_model, grpc_pait_model)
 
-        if self.is_async:
-            import asyncio
-
-            async def _route(request_pydantic_model: request_pydantic_model_class) -> Any:  # type: ignore
-                func: Callable = self.get_grpc_func(method_name)
-                request_dict: dict = request_pydantic_model.dict()  # type: ignore
-                request_msg: Message = self.get_msg_from_dict(grpc_model.request, request_dict)
-                loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-                if loop != func._loop:  # type: ignore
-                    raise RuntimeError(
-                        "Loop is not same, "
-                        "the grpc channel must be initialized after the event loop of the api server is initialized"
-                    )
-                else:
-                    grpc_msg: Message = await func(request_msg)
-                return self._make_response(self.get_dict_from_msg(grpc_msg))
-
-        else:
-
-            def _route(request_pydantic_model: request_pydantic_model_class) -> Any:  # type: ignore
-                func: Callable = self.get_grpc_func(method_name)
-                request_dict: dict = request_pydantic_model.dict()  # type: ignore
-                request_msg: Message = self.get_msg_from_dict(grpc_model.request, request_dict)
-                grpc_msg: Message = func(request_msg)
-                return self._make_response(self.get_dict_from_msg(grpc_msg))
+        _route = self.gen_route(method_name, grpc_model, request_pydantic_model_class)
 
         # change route func name and qualname
         _route.__name__ = self.title + method_name.replace(".", "_")
         _route.__qualname__ = _route.__qualname__.replace("._route", "." + _route.__name__)
 
-        _route = pait()(_route)
+        _route = pait(feature_code=grpc_model.method)(_route)
         return _route, grpc_pait_model
 
-    def _gen_route(self, app: Any) -> Any:  # type: ignore
+    def _add_route(self, app: Any) -> Any:  # type: ignore
         raise NotImplementedError()
 
     def reinit_channel(
@@ -177,12 +156,8 @@ class GrpcGatewayRoute(object):
         self.init_channel(channel)
         return old_channel
 
-    def init_channel(self, channel: Union[grpc.Channel, grpc.aio.Channel]) -> None:
+    def _init_channel(self, channel: Union[grpc.Channel, grpc.aio.Channel]) -> None:
         self.channel: Union[grpc.Channel, grpc.aio.Channel] = channel
-        if isinstance(channel, grpc.Channel) and self.is_async:
-            raise RuntimeError("Channel is not supported, please use aio.Channel")
-        elif isinstance(channel, grpc.aio.Channel) and not self.is_async:
-            raise RuntimeError("Asyncio channel is not supported, please use channel")
         for stub_class in self.stub_list:
             stub = stub_class(channel)
             for func in stub.__dict__.values():
@@ -190,3 +165,47 @@ class GrpcGatewayRoute(object):
                 if isinstance(method, bytes):
                     method = method.decode()
                 self.method_func_dict[method] = func
+
+    def init_channel(self, channel: Union[grpc.Channel, grpc.aio.Channel]) -> None:
+        raise NotImplementedError()
+
+
+class GrpcGatewayRoute(BaseGrpcGatewayRoute, metaclass=ABCMeta):
+    def gen_route(
+        self, method_name: str, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]
+    ) -> Callable:
+        def _route(request_pydantic_model: request_pydantic_model_class) -> Any:  # type: ignore
+            func: Callable = self.get_grpc_func(method_name)
+            request_dict: dict = request_pydantic_model.dict()  # type: ignore
+            request_msg: Message = self.get_msg_from_dict(grpc_model.request, request_dict)
+            grpc_msg: Message = func(request_msg)
+            return self._make_response(self.get_dict_from_msg(grpc_msg))
+
+        return _route
+
+    def init_channel(self, channel: grpc.Channel) -> None:
+        self._init_channel(channel)
+
+
+class AsyncGrpcGatewayRoute(BaseGrpcGatewayRoute, metaclass=ABCMeta):
+    def gen_route(
+        self, method_name: str, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]
+    ) -> Callable:
+        async def _route(request_pydantic_model: request_pydantic_model_class) -> Any:  # type: ignore
+            func: Callable = self.get_grpc_func(method_name)
+            request_dict: dict = request_pydantic_model.dict()  # type: ignore
+            request_msg: Message = self.get_msg_from_dict(grpc_model.request, request_dict)
+            loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
+            if loop != func._loop:  # type: ignore
+                raise RuntimeError(
+                    "Loop is not same, "
+                    "the grpc channel must be initialized after the event loop of the api server is initialized"
+                )
+            else:
+                grpc_msg: Message = await func(request_msg)
+            return self._make_response(self.get_dict_from_msg(grpc_msg))
+
+        return _route
+
+    def init_channel(self, channel: grpc.aio.Channel) -> None:
+        self._init_channel(channel)

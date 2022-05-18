@@ -119,10 +119,10 @@ def fixture_loop(mock_close_loop: bool = False) -> Generator[asyncio.AbstractEve
 def grpc_test_create_user_request(app: Any, request_callable: Callable[[dict], None]) -> None:
     from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import CreateUserRequest
     from pait.app import get_app_attribute
-    from pait.app.base.grpc_route import GrpcGatewayRoute
+    from pait.app.base.grpc_route import AsyncGrpcGatewayRoute, BaseGrpcGatewayRoute
 
-    def reinit_channel(grpc_gateway_route: GrpcGatewayRoute, queue: Queue) -> None:
-        if grpc_gateway_route.is_async:
+    def reinit_channel(grpc_gateway_route: BaseGrpcGatewayRoute, queue: Queue) -> None:
+        if isinstance(grpc_gateway_route, AsyncGrpcGatewayRoute):
             grpc_gateway_route.reinit_channel(
                 grpc.aio.insecure_channel("0.0.0.0:9000", interceptors=[AioGrpcClientInterceptor(queue)])
             )
@@ -135,7 +135,7 @@ def grpc_test_create_user_request(app: Any, request_callable: Callable[[dict], N
 
     with grpc_test_helper():
         queue: Queue = Queue()
-        grpc_gateway_route: GrpcGatewayRoute = get_app_attribute(app, "grpc_gateway_route")
+        grpc_gateway_route: BaseGrpcGatewayRoute = get_app_attribute(app, "grpc_gateway_route")
         if sniffing(app) == "sanic":
 
             def _before_server_start(*_: Any) -> None:
@@ -157,7 +157,7 @@ def grpc_test_create_user_request(app: Any, request_callable: Callable[[dict], N
             assert message.password == "123456"
             assert message.sex == 0
         finally:
-            if not grpc_gateway_route.is_async:
+            if not isinstance(grpc_gateway_route, AsyncGrpcGatewayRoute):
                 grpc_gateway_route.channel.close()
                 # For tornado, the channel cannot be reclaimed
 

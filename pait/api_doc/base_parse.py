@@ -256,7 +256,7 @@ class PaitBaseParse(object):
                 if not isinstance(pait_field, Depends) and pait_field.link:
                     pait_field.link.register(pait_model, parameter.name, pait_field)
 
-            elif issubclass(parameter.annotation, BaseModel):
+            elif inspect.isclass(parameter.annotation) and issubclass(parameter.annotation, BaseModel):
                 # def test(pait_model_route: PaitBaseModel)
                 self._parse_base_model_to_field_dict(field_dict, parameter.annotation)
 

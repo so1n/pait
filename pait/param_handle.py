@@ -182,6 +182,8 @@ class BaseParamHandler(PluginProtocol):
                 else:
                     # args param
                     # support model: model: ModelType
+                    if parameter.annotation == Self:
+                        continue
                     if not issubclass(parameter.annotation, BaseModel):
                         continue
                     # cache and get parameter_list
@@ -225,13 +227,13 @@ class BaseParamHandler(PluginProtocol):
 
         Sort by frequency of occurrence
         """
-        if issubclass(parameter.annotation, BaseModel):
-            return True
-        elif self.cbv_instance and (
+        if self.cbv_instance and (
             parameter.annotation == Self or (not func_args and parameter.annotation == parameter.empty)
         ):
             # first parma must self param, looking forward to the appearance of `self type
             func_args.append(self._app_helper.cbv_instance)
+        elif issubclass(parameter.annotation, BaseModel):
+            return True
         elif self._app_helper.check_request_type(parameter.annotation):
             # support request param(def handle(request: Request))
             func_args.append(self._app_helper.request)
