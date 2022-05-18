@@ -337,6 +337,7 @@ class TestSanic:
         assert exec_msg == "Pait Can not auto select method, please choice method in ['GET', 'POST']"
 
     def test_doc_route(self, client: SanicTestClient) -> None:
+        sanic_example.add_api_doc_route(client.app)
         assert client.get("/swagger")[1].status_code == 404
         assert client.get("/redoc")[1].status_code == 404
         assert client.get("/swagger?pin_code=6666")[1].text == get_swagger_ui_html(
@@ -452,6 +453,9 @@ class TestSanic:
 
 class TestSanicGrpc:
     def test_create_user(self, client: SanicTestClient) -> None:
+        sanic_example.add_grpc_gateway_route(client.app)
+        sanic_example.add_api_doc_route(client.app)
+
         def _(request_dict: dict) -> None:
             request, response = client.post("/api/user/create", json=request_dict)
             assert response.body == b"{}"
@@ -459,6 +463,8 @@ class TestSanicGrpc:
         grpc_test_create_user_request(client.app, _)
 
     def test_grpc_openapi(self, client: SanicTestClient) -> None:
+        sanic_example.add_grpc_gateway_route(client.app)
+
         from pait.app.sanic import load_app
 
         grpc_test_openapi(load_app(client.app))

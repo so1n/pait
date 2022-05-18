@@ -343,6 +343,7 @@ class TestFlask:
         assert exec_msg == "Pait Can not auto select method, please choice method in ['GET', 'POST']"
 
     def test_doc_route(self, client: FlaskClient) -> None:
+        flask_example.add_api_doc_route(client.application)
         assert client.get("/swagger").status_code == 404
         assert client.get("/redoc").status_code == 404
         assert client.get("/swagger?pin_code=6666").get_data().decode() == get_swagger_ui_html(
@@ -466,6 +467,9 @@ class TestFlask:
 
 class TestFlaskGrpc:
     def test_create_user(self, client: FlaskClient) -> None:
+        flask_example.add_grpc_gateway_route(client.application)
+        flask_example.add_api_doc_route(client.application)
+
         def _(request_dict: dict) -> None:
             body: bytes = client.post("/api/user/create", json=request_dict).data
             assert body == b"{}\n"
@@ -473,6 +477,8 @@ class TestFlaskGrpc:
         grpc_test_create_user_request(client.application, _)
 
     def test_grpc_openapi(self, client: FlaskClient) -> None:
+        flask_example.add_grpc_gateway_route(client.application)
+
         from pait.app.flask import load_app
 
         grpc_test_openapi(load_app(client.application))

@@ -710,6 +710,37 @@ async def async_check_json_plugin_route1(
     return return_dict  # type: ignore
 
 
+def add_grpc_gateway_route(app: Starlette) -> None:
+    """Split out to improve the speed of test cases"""
+    grpc_gateway_route: GrpcGatewayRoute = GrpcGatewayRoute(
+        app,
+        user_pb2_grpc.UserStub,
+        social_pb2_grpc.BookSocialStub,
+        manager_pb2_grpc.BookManagerStub,
+        prefix="/api",
+        title="Grpc",
+        grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
+        parse_msg_desc="by_mypy",
+    )
+    set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest
+
+    def _before_server_start(*_: Any) -> None:
+        grpc_gateway_route.init_channel(grpc.aio.insecure_channel("0.0.0.0:9000"))
+
+    async def _after_server_stop(*_: Any) -> None:
+        await grpc_gateway_route.channel.close()
+
+    app.add_event_handler("startup", _before_server_start)
+    app.add_event_handler("shutdown", _after_server_stop)
+
+
+def add_api_doc_route(app: Starlette) -> None:
+    """Split out to improve the speed of test cases"""
+    AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
+    # prefix `/` route group must be behind other route group
+    add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
+
+
 def create_app() -> Starlette:
 
     app: Starlette = Starlette(
@@ -751,29 +782,6 @@ def create_app() -> Starlette:
         ]
     )
     CacheResponsePlugin.set_redis_to_app(app, redis=Redis(decode_responses=True))
-    grpc_gateway_route: GrpcGatewayRoute = GrpcGatewayRoute(
-        app,
-        user_pb2_grpc.UserStub,
-        social_pb2_grpc.BookSocialStub,
-        manager_pb2_grpc.BookManagerStub,
-        prefix="/api",
-        title="Grpc",
-        grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
-        parse_msg_desc="by_mypy",
-    )
-    set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest
-
-    def _before_server_start(*_: Any) -> None:
-        grpc_gateway_route.init_channel(grpc.aio.insecure_channel("0.0.0.0:9000"))
-
-    async def _after_server_stop(*_: Any) -> None:
-        await grpc_gateway_route.channel.close()
-
-    app.add_event_handler("startup", _before_server_start)
-    app.add_event_handler("shutdown", _after_server_stop)
-    AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
-    # prefix `/` route group must be behind other route group
-    add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
 
     app.add_exception_handler(PaitBaseException, api_exception)
     app.add_exception_handler(ValidationError, api_exception)
@@ -800,5 +808,7 @@ if __name__ == "__main__":
             apply_extra_openapi_model(ExtraModel, match_rule=MatchRule(key="!tag", target="grpc")),
         ]
     )
-
-    uvicorn.run(create_app(), log_level="debug")
+    starltte_app: Starlette = create_app()
+    add_grpc_gateway_route(starltte_app)
+    add_api_doc_route(starltte_app)
+    uvicorn.run(starltte_app, log_level="debug")

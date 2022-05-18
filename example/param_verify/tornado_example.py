@@ -588,6 +588,33 @@ class CheckJsonPlugin1Handler(MyHandler):
         return return_dict  # type: ignore
 
 
+def add_grpc_gateway_route(app: Application) -> None:
+    """Split out to improve the speed of test cases"""
+    grpc_gateway_route: GrpcGatewayRoute = GrpcGatewayRoute(
+        app,
+        user_pb2_grpc.UserStub,
+        social_pb2_grpc.BookSocialStub,
+        manager_pb2_grpc.BookManagerStub,
+        prefix="/api",
+        title="Grpc",
+        grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
+        parse_msg_desc="by_mypy",
+    )
+    grpc_gateway_route.with_request(MyHandler)
+    set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest
+
+    def _before_server_start() -> None:
+        grpc_gateway_route.init_channel(grpc.aio.insecure_channel("0.0.0.0:9000"))
+
+    app.settings["before_server_start"] = _before_server_start
+
+
+def add_api_doc_route(app: Application) -> None:
+    """Split out to improve the speed of test cases"""
+    AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
+    add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
+
+
 def create_app() -> Application:
     app: Application = Application(
         [
@@ -620,26 +647,6 @@ def create_app() -> Application:
         ]
     )
     CacheResponsePlugin.set_redis_to_app(app, redis=Redis(decode_responses=True))
-    AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
-    add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
-
-    grpc_gateway_route: GrpcGatewayRoute = GrpcGatewayRoute(
-        app,
-        user_pb2_grpc.UserStub,
-        social_pb2_grpc.BookSocialStub,
-        manager_pb2_grpc.BookManagerStub,
-        prefix="/api",
-        title="Grpc",
-        grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
-        parse_msg_desc="by_mypy",
-    )
-    grpc_gateway_route.with_request(MyHandler)
-    set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest
-
-    def _before_server_start() -> None:
-        grpc_gateway_route.init_channel(grpc.aio.insecure_channel("0.0.0.0:9000"))
-
-    app.settings["before_server_start"] = _before_server_start
     load_app(app, auto_load_route=True)
     return app
 
@@ -667,6 +674,8 @@ if __name__ == "__main__":
         ]
     )
     app: Application = create_app()
+    add_grpc_gateway_route(app)
+    add_api_doc_route(app)
     app.listen(8000)
     app.settings["before_server_start"]()
     IOLoop.instance().start()

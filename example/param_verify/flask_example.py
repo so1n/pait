@@ -534,11 +534,8 @@ def check_json_plugin_route1(
     return return_dict  # type: ignore
 
 
-def create_app() -> Flask:
-    app: Flask = Flask(__name__)
-    CacheResponsePlugin.set_redis_to_app(app, Redis(decode_responses=True))
-    add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
-    AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
+def add_grpc_gateway_route(app: Flask) -> None:
+    """Split out to improve the speed of test cases"""
     grpc_gateway_route: GrpcGatewayRoute = GrpcGatewayRoute(
         app,
         user_pb2_grpc.UserStub,
@@ -551,6 +548,17 @@ def create_app() -> Flask:
     )
     grpc_gateway_route.init_channel(grpc.intercept_channel(grpc.insecure_channel("0.0.0.0:9000")))
     set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest
+
+
+def add_api_doc_route(app: Flask) -> None:
+    """Split out to improve the speed of test cases"""
+    add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
+    AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
+
+
+def create_app() -> Flask:
+    app: Flask = Flask(__name__)
+    CacheResponsePlugin.set_redis_to_app(app, Redis(decode_responses=True))
     app.add_url_rule("/api/login", view_func=login_route, methods=["POST"])
     app.add_url_rule("/api/user", view_func=get_user_route, methods=["GET"])
     app.add_url_rule("/api/raise-tip", view_func=raise_tip_route, methods=["POST"])
@@ -602,4 +610,7 @@ if __name__ == "__main__":
             apply_extra_openapi_model(ExtraModel, match_rule=MatchRule(key="!tag", target="grpc")),
         ]
     )
-    create_app().run(port=8080, debug=True)
+    flask_app: Flask = create_app()
+    add_grpc_gateway_route(flask_app)
+    add_api_doc_route(flask_app)
+    flask_app.run(port=8080, debug=True)

@@ -43,8 +43,7 @@ def client(mocker: MockFixture) -> Generator[TestClient, None, None]:
     #
     # mocker.patch("asyncio.get_event_loop").return_value = get_event_loop()
     asyncio.set_event_loop(asyncio.new_event_loop())
-    with TestClient(starlette_example.create_app()) as client:
-        yield client
+    yield TestClient(starlette_example.create_app())
 
 
 def response_test_helper(
@@ -394,6 +393,7 @@ class TestStarlette:
         assert exec_msg == "Pait Can not auto select method, please choice method in ['GET', 'POST']"
 
     def test_doc_route(self, client: TestClient) -> None:
+        starlette_example.add_api_doc_route(client.app)
         assert client.get("/swagger").status_code == 404
         assert client.get("/redoc").status_code == 404
         assert client.get("/swagger?pin_code=6666").text == get_swagger_ui_html(
@@ -515,15 +515,23 @@ class TestStarlette:
 
 class TestStarletteGrpc:
     def test_create_user(self, client: TestClient) -> None:
-        def _(request_dict: dict) -> None:
-            assert client.post("/api/user/create", json=request_dict).content == b"{}"
+        starlette_example.add_grpc_gateway_route(client.app)
+        starlette_example.add_api_doc_route(client.app)
 
-        grpc_test_create_user_request(client.app, _)
+        with client:
+
+            def _(request_dict: dict) -> None:
+                assert client.post("/api/user/create", json=request_dict).content == b"{}"
+
+            grpc_test_create_user_request(client.app, _)
 
     def test_grpc_openapi(self, client: TestClient) -> None:
+        starlette_example.add_grpc_gateway_route(client.app)
+
         from pait.app.starlette import load_app
 
-        grpc_test_openapi(load_app(client.app))
+        with client:
+            grpc_test_openapi(load_app(client.app))
 
     def test_grpc_openapi_by_protobuf_file(self, client: TestClient) -> None:
         import os

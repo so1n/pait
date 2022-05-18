@@ -576,10 +576,8 @@ async def check_json_plugin_route1(
     return return_dict  # type: ignore
 
 
-def create_app() -> Sanic:
-    app: Sanic = Sanic(name=__name__)
-    CacheResponsePlugin.set_redis_to_app(app, Redis(decode_responses=True))
-    add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
+def add_grpc_gateway_route(app: Sanic) -> None:
+    """Split out to improve the speed of test cases"""
     grpc_gateway_route: GrpcGatewayRoute = GrpcGatewayRoute(
         app,
         user_pb2_grpc.UserStub,
@@ -601,7 +599,17 @@ def create_app() -> Sanic:
     app.before_server_start(_before_server_start)
 
     app.after_server_stop(_after_server_stop)
+
+
+def add_api_doc_route(app: Sanic) -> None:
+    """Split out to improve the speed of test cases"""
+    add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
     AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
+
+
+def create_app() -> Sanic:
+    app: Sanic = Sanic(name=__name__)
+    CacheResponsePlugin.set_redis_to_app(app, Redis(decode_responses=True))
     app.add_route(login_route, "/api/login", methods={"POST"})
     app.add_route(get_user_route, "/api/user", methods={"GET"})
     app.add_route(raise_tip_route, "/api/raise_tip", methods={"POST"})
@@ -653,4 +661,7 @@ if __name__ == "__main__":
             apply_extra_openapi_model(ExtraModel, match_rule=MatchRule(key="!tag", target="grpc")),
         ]
     )
-    uvicorn.run(create_app(), log_level="debug")
+    sanic_app: Sanic = create_app()
+    add_grpc_gateway_route(sanic_app)
+    add_api_doc_route(sanic_app)
+    uvicorn.run(sanic_app, log_level="debug")

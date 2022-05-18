@@ -454,6 +454,7 @@ class TestTornado(BaseTestTornado):
             assert test_helper1.json() != test_helper2.json()
 
     def test_doc_route(self) -> None:
+        tornado_example.add_api_doc_route(self._app)
         assert self.fetch("/swagger").code == 404
         assert self.fetch("/redoc").code == 404
         assert self.fetch("/swagger?pin_code=6666").body.decode() == get_swagger_ui_html(
@@ -501,6 +502,9 @@ class TestTornado(BaseTestTornado):
 
 class TestTornadoGrpc(BaseTestTornado):
     def test_create_user(self) -> None:
+        tornado_example.add_grpc_gateway_route(self._app)
+        tornado_example.add_api_doc_route(self._app)
+
         self._app.settings["before_server_start"]()
 
         def _(request_dict: dict) -> None:
@@ -510,9 +514,11 @@ class TestTornadoGrpc(BaseTestTornado):
         grpc_test_create_user_request(self._app, _)
 
     def test_grpc_openapi(self) -> None:
+        tornado_example.add_grpc_gateway_route(self._app)
+
         from pait.app.tornado import load_app
 
-        grpc_test_openapi(load_app(self.get_app()))
+        grpc_test_openapi(load_app(self._app))
 
     def test_grpc_openapi_by_protobuf_file(self) -> None:
         import os
