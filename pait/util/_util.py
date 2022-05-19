@@ -209,7 +209,7 @@ def gen_example_dict_from_pydantic_base_model(
                     and inspect.isclass(sub_type)
                     and issubclass(sub_type, BaseModel)
                 ):
-                    gen_dict[key] = [gen_example_value_from_python(sub_type)]
+                    gen_dict[key] = [gen_example_dict_from_pydantic_base_model(sub_type)]
                 elif issubclass(real_type, Enum):
                     gen_dict[key] = [i for i in real_type.__members__.values()][0].value
                 else:

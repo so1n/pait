@@ -145,6 +145,25 @@ class UserSuccessRespModel2(PaitJsonResponseModel):
     response_data: Type[BaseModel] = ResponseModel
 
 
+class AutoCompleteRespModel(PaitJsonResponseModel):
+    is_core: bool = True
+
+    class ResponseModel(ResponseModel):  # type: ignore
+        class DataModel(BaseModel):
+            class MusicModel(BaseModel):
+                name: str = Field()
+                url: str = Field()
+                singer: str = Field()
+
+            uid: int = Field(description="user id", gt=10, lt=1000)
+            music_list: List[MusicModel] = Field(description="music list")
+
+        data: DataModel
+
+    description: str = "success response"
+    response_data: Type[BaseModel] = ResponseModel
+
+
 class UserSuccessRespModel3(PaitJsonResponseModel):
     is_core: bool = True
 

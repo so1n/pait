@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import grpc
 from flask import Flask, Request, Response, make_response, send_from_directory
 from flask.views import MethodView
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 from redis import Redis  # type: ignore
 from typing_extensions import TypedDict
 
@@ -16,6 +16,7 @@ from example.example_grpc.python_example_proto_code.example_proto.book import ma
 from example.example_grpc.python_example_proto_code.example_proto.user import user_pb2_grpc
 from example.param_verify import tag
 from example.param_verify.model import (
+    AutoCompleteRespModel,
     FailRespModel,
     FileRespModel,
     HtmlRespModel,
@@ -425,27 +426,28 @@ def get_user_route(
         return {"code": 1, "msg": ""}
 
 
-@plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[AutoCompleteJsonRespPlugin.build()])
-def auto_complete_json_route(
-    uid: int = Query.i(description="user id", gt=10, lt=1000),
-    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
-    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
-    age: int = Query.i(description="age", gt=1, lt=100),
-    display_age: int = Query.i(0, description="display_age"),
-) -> dict:
+@plugin_pait(response_model_list=[AutoCompleteRespModel], plugin_list=[AutoCompleteJsonRespPlugin.build()])
+def auto_complete_json_route() -> dict:
     """Test json plugin by resp type is dict"""
-    return_dict: dict = {
+    return {
         "code": 0,
         "msg": "",
+        # "uid": uid,
         "data": {
-            "uid": uid,
-            "user_name": user_name,
-            "email": email,
+            "music_list": [
+                {
+                    "name": "music1",
+                    "url": "http://music1.com",
+                    "singer": "singer1",
+                },
+                {
+                    # "name": "music1",
+                    "url": "http://music1.com",
+                    # "singer": "singer1",
+                },
+            ]
         },
     }
-    if display_age == 1:
-        return_dict["data"]["age"] = age
-    return return_dict
 
 
 @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[CheckJsonRespPlugin.build()])
@@ -607,8 +609,6 @@ def create_app() -> Flask:
 
 if __name__ == "__main__":
     import logging
-
-    from pydantic import BaseModel
 
     logging.basicConfig(
         format="[%(asctime)s %(levelname)s] %(message)s", datefmt="%y-%m-%d %H:%M:%S", level=logging.DEBUG

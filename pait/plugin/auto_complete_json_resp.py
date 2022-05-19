@@ -1,3 +1,4 @@
+import copy
 from typing import TYPE_CHECKING, Any, Dict, Type
 
 from pait.model.response import PaitBaseResponseModel, PaitJsonResponseModel
@@ -15,6 +16,12 @@ class AutoCompleteJsonRespPlugin(PluginProtocol):
         for key, value in source_dict.items():
             if isinstance(value, dict) and key in target_dict:
                 self.update(value, target_dict[key])
+            elif isinstance(value, list) and key in target_dict:
+                raw_value = value.pop()
+                for item in target_dict[key]:
+                    new_value = copy.deepcopy(raw_value)
+                    self.update(new_value, item)
+                    value.append(new_value)
             else:
                 source_dict[key] = target_dict.get(key, value)
 

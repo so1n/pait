@@ -1,3 +1,4 @@
+import copy
 from typing import Any, Dict, Optional, Tuple, Type, Union
 
 from pydantic import BaseModel
@@ -68,7 +69,7 @@ class PaitJsonResponseModel(PaitBaseResponseModel):
         if not default_dict:
             default_dict = gen_example_dict_from_pydantic_base_model(cls.response_data, use_example_value=False)
             setattr(cls.response_data, "PaitJsonResponseModel_default_dict", default_dict)
-        return default_dict
+        return copy.deepcopy(default_dict)
 
 
 class PaitResponseModel(PaitJsonResponseModel):
