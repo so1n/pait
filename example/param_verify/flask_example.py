@@ -491,10 +491,24 @@ _typed_dict = TypedDict(
 
 @plugin_pait(
     response_model_list=[PaitHtmlResponseModel],
-    post_plugin_list=[CacheResponsePlugin.build(redis=Redis(decode_responses=True), cache_time=10)],
+    post_plugin_list=[
+        CacheResponsePlugin.build(
+            redis=Redis(decode_responses=True),
+            cache_time=10,
+            include_exc=(RuntimeError,),
+            enable_cache_name_merge_param=True,
+        )
+    ],
 )
-def cache_response() -> Response:
-    return make_response(str(time.time()), 200)
+def cache_response(raise_exc: Optional[int] = Query.i(default=None)) -> Response:
+    timestamp_str = str(time.time())
+    if raise_exc:
+        if raise_exc == 1:
+            raise Exception(timestamp_str)
+        elif raise_exc == 2:
+            raise RuntimeError(timestamp_str)
+    else:
+        return make_response(timestamp_str, 200)
 
 
 @plugin_pait(
@@ -613,4 +627,4 @@ if __name__ == "__main__":
     flask_app: Flask = create_app()
     add_grpc_gateway_route(flask_app)
     add_api_doc_route(flask_app)
-    flask_app.run(port=8080, debug=True)
+    flask_app.run(port=8000, debug=True)

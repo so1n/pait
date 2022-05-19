@@ -1,5 +1,5 @@
 import pickle
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Tuple, Type, Union
 
 from redis import Redis  # type: ignore
 from redis.asyncio import Redis as AsyncioRedis  # type: ignore
@@ -21,6 +21,7 @@ class CacheResponsePlugin(PluginProtocol):
     is_pre_core: bool = False
     name: str
     lock_name: str
+    include_exc: Optional[Tuple[Type[Exception]]] = None
     redis: Union[Redis, AsyncioRedis, None] = None
     enable_cache_name_merge_param: bool
     cache_time: Optional[int]
@@ -89,17 +90,19 @@ class CacheResponsePlugin(PluginProtocol):
                 real_lock_key = f"{self.lock_name}:{':'.join(args_key_list)}"
         return real_key, real_lock_key
 
-    def _loads(self, response: Any, *args: Any, **kwargs: Any) -> Any:
+    def _loads(self, response: Any) -> Any:
         return pickle.loads(response.encode("latin1"))
 
-    def _dumps(self, response: Any, *args: Any, **kwargs: Any) -> Any:
+    def _dumps(self, response: Any) -> Any:
         return pickle.dumps(response).decode("latin1")
 
     async def _async_cache(self, func: Callable, *args: Any, **kwargs: Any) -> Any:
         real_key, real_lock_key = self._gen_key(*args, **kwargs)
         redis: AsyncioRedis = self._get_redis()
         result: Any = await redis.get(real_key)
-        if not result:
+        if result:
+            result = self._loads(result)
+        else:
             async with redis.lock(
                 real_lock_key,
                 timeout=self.timeout,
@@ -107,17 +110,29 @@ class CacheResponsePlugin(PluginProtocol):
                 blocking_timeout=self.blocking_timeout,
             ):
                 result = await redis.get(real_key)
-                if not result:
-                    result = await func(*args, **kwargs)
+                if result:
+                    result = self._loads(result)
+                else:
+                    try:
+                        result = await func(*args, **kwargs)
+                    except Exception as e:
+                        if self.include_exc and isinstance(e, self.include_exc):
+                            result = e
+                        else:
+                            raise e
                     await redis.set(real_key, self._dumps(result, *args, **kwargs), ex=self.cache_time)  # type: ignore
                     return result
-        return self._loads(result, *args, **kwargs)
+        if isinstance(result, Exception):
+            raise result
+        return result
 
     def _cache(self, func: Callable, *args: Any, **kwargs: Any) -> Any:
         real_key, real_lock_key = self._gen_key(*args, **kwargs)
         redis: AsyncioRedis = self._get_redis()
         result: Any = redis.get(real_key)
-        if not result:
+        if result:
+            result = self._loads(result)
+        else:
             with redis.lock(
                 real_lock_key,
                 timeout=self.timeout,
@@ -125,11 +140,20 @@ class CacheResponsePlugin(PluginProtocol):
                 blocking_timeout=self.blocking_timeout,
             ):
                 result = redis.get(real_key)
-                if not result:
-                    result = func(*args, **kwargs)
-                    redis.set(real_key, self._dumps(result, *args, **kwargs), ex=self.cache_time)
-                    return result
-        return self._loads(result, *args, **kwargs)
+                if result:
+                    result = self._loads(result)
+                else:
+                    try:
+                        result = func(*args, **kwargs)
+                    except Exception as e:
+                        if self.include_exc and isinstance(e, self.include_exc):
+                            result = e
+                        else:
+                            raise e
+                    redis.set(real_key, self._dumps(result), ex=self.cache_time)
+        if isinstance(result, Exception):
+            raise result
+        return result
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         if self._is_async_func:
@@ -142,6 +166,7 @@ class CacheResponsePlugin(PluginProtocol):
         cls,
         *,
         redis: Union[Redis, AsyncioRedis, None] = None,
+        include_exc: Optional[Tuple[Type[Exception]]] = None,
         name: str = "",
         enable_cache_name_merge_param: bool = False,
         cache_time: Optional[int] = None,
@@ -152,6 +177,7 @@ class CacheResponsePlugin(PluginProtocol):
         return super().build(
             name=name,
             redis=redis,
+            include_exc=include_exc,
             enable_cache_name_merge_param=enable_cache_name_merge_param,
             cache_time=cache_time or 5 * 60,
             timeout=timeout,
