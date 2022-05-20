@@ -19,9 +19,11 @@ class JsonProtocol(PluginProtocol):
         status_code: Optional[int] = None,
         headers: Optional[dict] = None,
         media_type: Optional[str] = None,
+        **kwargs: Any,
     ) -> "PluginManager":
         return super().build(
             status_code=status_code or 200,
             headers=headers or {},
             media_type=media_type,
+            **kwargs,
         )

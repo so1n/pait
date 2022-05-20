@@ -24,9 +24,11 @@ class JsonProtocol(PluginProtocol):
         status: Optional[int] = None,
         headers: Optional[Dict[str, str]] = None,
         content_type: Optional[str] = None,
+        **kwargs: Any,
     ) -> "PluginManager":
         return super().build(
             status=status or 200,
             headers=headers or {},
             content_type=content_type or "application/json",
+            **kwargs,
         )

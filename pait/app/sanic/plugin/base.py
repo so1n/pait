@@ -30,7 +30,8 @@ class JsonProtocol(PluginProtocol):
         headers: Optional[Dict[str, str]] = None,
         content_type: Optional[str] = None,
         dumps: Optional[Callable[..., str]] = None,
-        **json_kwargs: Any,
+        json_kwargs: Optional[dict] = None,
+        **kwargs: Any,
     ) -> "PluginManager":
         return super().build(
             status=status or 200,
@@ -38,4 +39,5 @@ class JsonProtocol(PluginProtocol):
             content_type=content_type or "application/json",
             dumps=dumps,
             json_kwargs=json_kwargs,
+            **kwargs,
         )

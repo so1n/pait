@@ -97,23 +97,14 @@ class TestTornado(BaseTestTornado):
                 assert resp["msg"] == "miss param: ['data', 'age']"
 
     def test_auto_complete_json_route(self) -> None:
-        def check_dict(source_dict: dict, target_dict: dict) -> None:
-            for key, value in source_dict.items():
-                if isinstance(value, dict) and key in target_dict:
-                    return check_dict(value, target_dict[key])
-                else:
-                    if key not in target_dict or not isinstance(value, type(target_dict[key])):
-                        raise RuntimeError("check error")
-
-        auto_complete_dict: dict = json.loads(
-            self.fetch("/api/auto-complete-json-plugin?uid=123&user_name=appl&sex=man&age=10").body.decode()
+        test_helper: _TestHelper = _TestHelper(
+            self,
+            tornado_example.AutoCompleteJsonHandler.get,
         )
-        real_dict: dict = json.loads(
-            self.fetch(
-                "/api/auto-complete-json-plugin?uid=123&user_name=appl&sex=man&age=10&display_age=1"
-            ).body.decode()
-        )
-        check_dict(auto_complete_dict, real_dict)
+        resp_dict: dict = test_helper.json()
+        assert resp_dict["data"]["uid"] == 100
+        assert resp_dict["data"]["music_list"][1]["name"] == ""
+        assert resp_dict["data"]["music_list"][1]["singer"] == ""
 
     def test_same_alias_name(self) -> None:
         assert (

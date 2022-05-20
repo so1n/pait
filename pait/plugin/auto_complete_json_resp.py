@@ -10,20 +10,25 @@ if TYPE_CHECKING:
 
 
 class AutoCompleteJsonRespPlugin(PluginProtocol):
-    pait_response_model: PaitJsonResponseModel
+    default_response_dict: dict
 
-    def update(self, source_dict: dict, target_dict: dict) -> None:
+    def _merge(self, source_dict: dict, target_dict: dict) -> None:
         for key, value in source_dict.items():
             if isinstance(value, dict) and key in target_dict:
-                self.update(value, target_dict[key])
+                self._merge(value, target_dict[key])
             elif isinstance(value, list) and key in target_dict:
                 raw_value = value.pop()
                 for item in target_dict[key]:
                     new_value = copy.deepcopy(raw_value)
-                    self.update(new_value, item)
+                    self._merge(new_value, item)
                     value.append(new_value)
             else:
                 source_dict[key] = target_dict.get(key, value)
+
+    def merge(self, response_dict: dict) -> dict:
+        default_response_dict: dict = copy.deepcopy(self.default_response_dict)
+        self._merge(default_response_dict, response_dict)
+        return default_response_dict
 
     @classmethod
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
@@ -39,20 +44,16 @@ class AutoCompleteJsonRespPlugin(PluginProtocol):
         )
         if not issubclass(pait_response_model, PaitJsonResponseModel):
             raise ValueError(f"pait_response_model must {PaitJsonResponseModel} not {pait_response_model}")
-        kwargs["pait_response_model"] = pait_response_model
+        kwargs["default_response_dict"] = pait_response_model.get_default_dict()
         return kwargs
 
     def _sync_call(self, *args: Any, **kwargs: Any) -> Any:
-        default_response_dict: dict = self.pait_response_model.get_default_dict()
         response_dict = self.call_next(*args, **kwargs)
-        self.update(default_response_dict, response_dict)
-        return default_response_dict
+        return self.merge(response_dict)
 
     async def _async_call(self, *args: Any, **kwargs: Any) -> Any:
-        default_response_dict: dict = self.pait_response_model.get_default_dict()
         response_dict: dict = await self.call_next(*args, **kwargs)
-        self.update(default_response_dict, response_dict)
-        return default_response_dict
+        return self.merge(response_dict)
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         if self._is_async_func:

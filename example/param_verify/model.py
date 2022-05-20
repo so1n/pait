@@ -155,7 +155,7 @@ class AutoCompleteRespModel(PaitJsonResponseModel):
                 url: str = Field()
                 singer: str = Field()
 
-            uid: int = Field(description="user id", gt=10, lt=1000)
+            uid: int = Field(100, description="user id", gt=10, lt=1000)
             music_list: List[MusicModel] = Field(description="music list")
 
         data: DataModel

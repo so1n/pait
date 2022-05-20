@@ -432,8 +432,8 @@ def auto_complete_json_route() -> dict:
     return {
         "code": 0,
         "msg": "",
-        # "uid": uid,
         "data": {
+            # "uid": 0,
             "music_list": [
                 {
                     "name": "music1",
