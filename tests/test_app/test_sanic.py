@@ -360,25 +360,40 @@ class TestSanic:
             > 0.95
         )
 
-    def test_cache_response_diff_loop(self, client: SanicTestClient) -> None:
-        with pytest.raises(RuntimeError):
-            # sanic will use a new event loop for each request,
-            # and Reids initialization regrets giving the current event loop, so the second request will report an error
-            _TestHelper(client, sanic_example.cache_response).text()
-            _TestHelper(client, sanic_example.cache_response).text()
-
     def test_cache_response(self, client: SanicTestClient) -> None:
+        def del_key(key: str) -> None:
+            redis: Redis = Redis()
+            for _key in redis.scan_iter(match=key + "*"):
+                redis.delete(_key)
 
         with fixture_loop(mock_close_loop=True):
-            for _ in range(3):
-                Redis().delete("cache_response")
-                Redis().delete("cache_response1")
-                result1: str = _TestHelper(client, sanic_example.cache_response1).text()
-                result2: str = _TestHelper(client, sanic_example.cache_response1).text()
-                assert result1 == result2
-                Redis().delete("cache_response")
-                Redis().delete("cache_response1")
-                assert result1 != _TestHelper(client, sanic_example.cache_response1).text()
+            # test not exc
+            del_key("cache_response")
+            result1: str = _TestHelper(client, sanic_example.cache_response).text()
+            result2: str = _TestHelper(client, sanic_example.cache_response).text()
+            result3: str = _TestHelper(client, sanic_example.cache_response1).text()
+            result4: str = _TestHelper(client, sanic_example.cache_response1).text()
+            assert result1 == result2
+            assert result3 == result4
+            assert result1 != result3
+            assert result2 != result4
+            del_key("cache_response")
+            assert result1 != _TestHelper(client, sanic_example.cache_response).text()
+            assert result3 != _TestHelper(client, sanic_example.cache_response1).text()
+
+            # test not include exc
+            del_key("cache_response")
+            with pytest.raises(RuntimeError) as e:
+                _TestHelper(client, sanic_example.cache_response, query_dict={"raise_exc": 1}).text()
+
+            exec_msg: str = e.value.args[0]
+            assert "'status_code': 500" in exec_msg
+
+            # test include exc
+            del_key("cache_response")
+            result_5 = _TestHelper(client, sanic_example.cache_response, query_dict={"raise_exc": 2}).text()
+            result_6 = _TestHelper(client, sanic_example.cache_response, query_dict={"raise_exc": 2}).text()
+            assert result_5 == result_6
 
     def test_cache_other_response_type(self, client: SanicTestClient) -> None:
         def _handler(_route_handler: Callable) -> Any:

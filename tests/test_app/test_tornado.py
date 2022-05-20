@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, Callable, Type
 from unittest import mock
 
 import pytest
+from redis import Redis  # type: ignore
 from tornado.testing import AsyncHTTPTestCase, HTTPResponse
 from tornado.web import Application
 
@@ -368,23 +369,38 @@ class TestTornado(BaseTestTornado):
         self.response_test_helper(tornado_example.FileResponseHanler.get, response.PaitFileResponseModel)
 
     def test_cache_response(self) -> None:
-        async def del_cache() -> None:
-            await tornado_example.Redis().delete("CacheResponseHandler.get")
-            await tornado_example.Redis().delete("CacheResponse1Handler.get")
+        def del_key(key: str) -> None:
+            redis: Redis = Redis()
+            for _key in redis.scan_iter(match=key + "*"):
+                redis.delete(_key)
 
-        for _ in range(3):
-            self.get_new_ioloop().run_sync(del_cache)
-            result1: str = _TestHelper(self, tornado_example.CacheResponseHandler.get).text()
-            result2: str = _TestHelper(self, tornado_example.CacheResponseHandler.get).text()
-            result3: str = _TestHelper(self, tornado_example.CacheResponse1Handler.get).text()
-            result4: str = _TestHelper(self, tornado_example.CacheResponse1Handler.get).text()
-            assert result1 == result2
-            assert result3 == result4
-            assert result1 != result3
-            assert result2 != result4
-            self.get_new_ioloop().run_sync(del_cache)
-            assert result1 != _TestHelper(self, tornado_example.CacheResponseHandler.get).text()
-            assert result3 != _TestHelper(self, tornado_example.CacheResponse1Handler.get).text()
+        # test not exc
+        del_key("CacheResponse")
+        result1: str = _TestHelper(self, tornado_example.CacheResponseHandler.get).text()
+        result2: str = _TestHelper(self, tornado_example.CacheResponseHandler.get).text()
+        result3: str = _TestHelper(self, tornado_example.CacheResponse1Handler.get).text()
+        result4: str = _TestHelper(self, tornado_example.CacheResponse1Handler.get).text()
+        assert result1 == result2
+        assert result3 == result4
+        assert result1 != result3
+        assert result2 != result4
+        del_key("CacheResponse")
+        assert result1 != _TestHelper(self, tornado_example.CacheResponseHandler.get).text()
+        assert result3 != _TestHelper(self, tornado_example.CacheResponse1Handler.get).text()
+
+        # test not include exc
+        # tornado exc handle exception
+        del_key("CacheResponse")
+        assert (
+            _TestHelper(self, tornado_example.CacheResponseHandler.get, query_dict={"raise_exc": 1}).json()["code"]
+            == -1
+        )
+
+        # test include exc
+        del_key("CacheResponse")
+        result_5 = _TestHelper(self, tornado_example.CacheResponseHandler.get, query_dict={"raise_exc": 2}).text()
+        result_6 = _TestHelper(self, tornado_example.CacheResponseHandler.get, query_dict={"raise_exc": 2}).text()
+        assert result_5 == result_6
 
     def test_cache_other_response_type(self) -> None:
         def _handler(_route_handler: Callable) -> Any:

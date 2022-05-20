@@ -90,10 +90,10 @@ class CacheResponsePlugin(PluginProtocol):
                 real_lock_key = f"{self.lock_name}:{':'.join(args_key_list)}"
         return real_key, real_lock_key
 
-    def _loads(self, response: Any) -> Any:
+    def _loads(self, response: Any, *args: Any, **kwargs: Any) -> Any:
         return pickle.loads(response.encode("latin1"))
 
-    def _dumps(self, response: Any) -> Any:
+    def _dumps(self, response: Any, *args: Any, **kwargs: Any) -> Any:
         return pickle.dumps(response).decode("latin1")
 
     async def _async_cache(self, func: Callable, *args: Any, **kwargs: Any) -> Any:
@@ -101,7 +101,7 @@ class CacheResponsePlugin(PluginProtocol):
         redis: AsyncioRedis = self._get_redis()
         result: Any = await redis.get(real_key)
         if result:
-            result = self._loads(result)
+            result = self._loads(result, *args, **kwargs)
         else:
             async with redis.lock(
                 real_lock_key,
@@ -111,7 +111,7 @@ class CacheResponsePlugin(PluginProtocol):
             ):
                 result = await redis.get(real_key)
                 if result:
-                    result = self._loads(result)
+                    result = self._loads(result, *args, **kwargs)
                 else:
                     try:
                         result = await func(*args, **kwargs)
@@ -121,17 +121,16 @@ class CacheResponsePlugin(PluginProtocol):
                         else:
                             raise e
                     await redis.set(real_key, self._dumps(result, *args, **kwargs), ex=self.cache_time)  # type: ignore
-                    return result
         if isinstance(result, Exception):
             raise result
         return result
 
     def _cache(self, func: Callable, *args: Any, **kwargs: Any) -> Any:
         real_key, real_lock_key = self._gen_key(*args, **kwargs)
-        redis: AsyncioRedis = self._get_redis()
+        redis: Redis = self._get_redis()
         result: Any = redis.get(real_key)
         if result:
-            result = self._loads(result)
+            result = self._loads(result, *args, **kwargs)
         else:
             with redis.lock(
                 real_lock_key,
@@ -141,7 +140,7 @@ class CacheResponsePlugin(PluginProtocol):
             ):
                 result = redis.get(real_key)
                 if result:
-                    result = self._loads(result)
+                    result = self._loads(result, *args, **kwargs)
                 else:
                     try:
                         result = func(*args, **kwargs)
@@ -150,7 +149,7 @@ class CacheResponsePlugin(PluginProtocol):
                             result = e
                         else:
                             raise e
-                    redis.set(real_key, self._dumps(result), ex=self.cache_time)
+                    redis.set(real_key, self._dumps(result, *args, **kwargs), ex=self.cache_time)
         if isinstance(result, Exception):
             raise result
         return result

@@ -584,11 +584,25 @@ def auto_complete_json_route() -> dict:
 
 
 @plugin_pait(
-    response_model_list=[PaitTextResponseModel],
-    post_plugin_list=[CacheResponsePlugin.build(redis=Redis(decode_responses=True), cache_time=10)],
+    response_model_list=[PaitTextResponseModel, FailRespModel],
+    post_plugin_list=[
+        CacheResponsePlugin.build(
+            redis=Redis(decode_responses=True),
+            cache_time=10,
+            include_exc=(RuntimeError,),
+            enable_cache_name_merge_param=True,
+        )
+    ],
 )
-async def cache_response() -> PlainTextResponse:
-    return PlainTextResponse(str(time.time()))
+async def cache_response(raise_exc: Optional[int] = Query.i(default=None)) -> PlainTextResponse:
+    timestamp_str = str(time.time())
+    if raise_exc:
+        if raise_exc == 1:
+            raise Exception(timestamp_str)
+        elif raise_exc == 2:
+            raise RuntimeError(timestamp_str)
+    else:
+        return PlainTextResponse(timestamp_str, 200)
 
 
 @plugin_pait(

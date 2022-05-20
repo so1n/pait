@@ -20,7 +20,7 @@ class JsonProtocol(PluginProtocol):
             headers=self.headers,
             content_type=self.content_type,
             dumps=self.dumps,
-            **self.json_kwargs,
+            **self.json_kwargs if self.json_kwargs else {},
         )
 
     @classmethod

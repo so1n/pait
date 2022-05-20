@@ -367,21 +367,38 @@ class TestFlask:
         )
 
     def test_cache_response(self, client: FlaskClient) -> None:
-        for _ in range(3):
-            flask_example.Redis().delete("cache_response")
-            flask_example.Redis().delete("cache_response1")
-            result1: str = _TestHelper(client, flask_example.cache_response).get().get_data()
-            result2: str = _TestHelper(client, flask_example.cache_response).get().get_data()
-            result3: str = _TestHelper(client, flask_example.cache_response1).get().get_data()
-            result4: str = _TestHelper(client, flask_example.cache_response1).get().get_data()
-            assert result1 == result2
-            assert result3 == result4
-            assert result1 != result3
-            assert result2 != result4
-            flask_example.Redis().delete("cache_response")
-            flask_example.Redis().delete("cache_response1")
-            assert result1 != _TestHelper(client, flask_example.cache_response).get().get_data()
-            assert result3 != _TestHelper(client, flask_example.cache_response1).get().get_data()
+        def del_key(key: str) -> None:
+            redis: flask_example.Redis = flask_example.Redis()
+            for _key in redis.scan_iter(match=key + "*"):
+                redis.delete(_key)
+
+        # test not exc
+        del_key("cache_response")
+        result1: str = _TestHelper(client, flask_example.cache_response).get().get_data()
+        result2: str = _TestHelper(client, flask_example.cache_response).get().get_data()
+        result3: str = _TestHelper(client, flask_example.cache_response1).get().get_data()
+        result4: str = _TestHelper(client, flask_example.cache_response1).get().get_data()
+        assert result1 == result2
+        assert result3 == result4
+        assert result1 != result3
+        assert result2 != result4
+        del_key("cache_response")
+        assert result1 != _TestHelper(client, flask_example.cache_response).get().get_data()
+        assert result3 != _TestHelper(client, flask_example.cache_response1).get().get_data()
+
+        # test not include exc
+        del_key("cache_response")
+        with pytest.raises(RuntimeError) as e:
+            _TestHelper(client, flask_example.cache_response, query_dict={"raise_exc": 1}).get().get_data()
+
+        exec_msg: str = e.value.args[0]
+        assert "'status_code': 500" in exec_msg
+
+        # test include exc
+        del_key("cache_response")
+        result_5 = _TestHelper(client, flask_example.cache_response, query_dict={"raise_exc": 2}).get().get_data()
+        result_6 = _TestHelper(client, flask_example.cache_response, query_dict={"raise_exc": 2}).get().get_data()
+        assert result_5 == result_6
 
     def test_cache_other_response_type(self, client: FlaskClient) -> None:
         def _handler(_route_handler: Callable) -> Any:

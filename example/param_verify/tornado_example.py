@@ -505,11 +505,25 @@ class AutoCompleteJsonHandler(MyHandler):
 
 class CacheResponseHandler(MyHandler):
     @plugin_pait(
-        response_model_list=[PaitHtmlResponseModel],
-        post_plugin_list=[CacheResponsePlugin.build(redis=Redis(decode_responses=True), cache_time=10)],
+        response_model_list=[PaitHtmlResponseModel, FailRespModel],
+        post_plugin_list=[
+            CacheResponsePlugin.build(
+                redis=Redis(decode_responses=True),
+                cache_time=10,
+                include_exc=(RuntimeError,),
+                enable_cache_name_merge_param=True,
+            )
+        ],
     )
-    async def get(self) -> None:
-        self.write(str(time.time()))
+    async def get(self, raise_exc: Optional[int] = Query.i(default=None)) -> None:
+        timestamp_str = str(time.time())
+        if raise_exc:
+            if raise_exc == 1:
+                raise Exception(timestamp_str)
+            elif raise_exc == 2:
+                raise RuntimeError(timestamp_str)
+        else:
+            self.write(timestamp_str)
 
 
 class CacheResponse1Handler(MyHandler):

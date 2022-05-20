@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 from tornado.web import RequestHandler
 
@@ -8,8 +8,13 @@ __all__ = ["CacheResponsePlugin"]
 
 
 class CacheResponsePlugin(_CacheResponsePlugin):
+    def _gen_key(self, *args: Any, **kwargs: Any) -> Tuple[str, str]:
+        return super()._gen_key(*args[1:], **kwargs)
+
     def _dumps(self, response: Any, *args: Any, **kwargs: Any) -> Any:
         tornado_handle: RequestHandler = args[0]
+        if isinstance(response, Exception):
+            return super()._dumps(response, *args, **kwargs)
         cache_dict: Dict[str, Any] = {
             "write_buffer": tornado_handle._write_buffer,
             "status_code": tornado_handle._status_code,
@@ -19,6 +24,8 @@ class CacheResponsePlugin(_CacheResponsePlugin):
 
     def _loads(self, response: Any, *args: Any, **kwargs: Any) -> Any:
         response = super()._loads(response, *args, **kwargs)
+        if isinstance(response, Exception):
+            return response
         tornado_handle: RequestHandler = args[0]
         tornado_handle._write_buffer = response["write_buffer"]
         tornado_handle._status_code = response["status_code"]

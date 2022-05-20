@@ -492,7 +492,7 @@ _typed_dict = TypedDict(
 
 
 @plugin_pait(
-    response_model_list=[PaitHtmlResponseModel],
+    response_model_list=[PaitHtmlResponseModel, FailRespModel],
     post_plugin_list=[
         CacheResponsePlugin.build(
             redis=Redis(decode_responses=True),
