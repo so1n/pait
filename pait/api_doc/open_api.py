@@ -233,6 +233,9 @@ class PaitOpenAPI(PaitBaseParse):
         for field_dict in field_dict_list:
             param_name: str = field_dict["raw"]["param_name"]
             required: bool = field_dict["default"] is Undefined
+            if required and field_dict["raw"]["field"].default_factory is not None:
+                # fix pydantic.BaseModel schema required is True, when default factory is not None
+                required = False
             # openapi description must not null, but Field().description value is None
             description: str = field_dict["description"] or ""
             if field_class == pait_field.Header:
@@ -244,7 +247,7 @@ class PaitOpenAPI(PaitBaseParse):
 
                 # param_name = self._header_keyword_dict.get(param_name, param_name)
             elif field_class == pait_field.Path and not required:
-                raise ValueError("That path parameters must have required: true, " "because they are always required")
+                raise ValueError("That path parameters must have required: true, because they are always required")
             elif field_class == pait_field.Cookie:
                 if field_dict["raw"]["field"].raw_return:
                     # fix swagger ui cookie type when pait_field.raw_return is True
