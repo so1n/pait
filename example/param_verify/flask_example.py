@@ -569,7 +569,7 @@ def add_grpc_gateway_route(app: Flask) -> None:
 def add_api_doc_route(app: Flask) -> None:
     """Split out to improve the speed of test cases"""
     add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
-    AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
+    AddDocRoute(prefix="/api-doc", title="Pait Api Doc", app=app)
 
 
 def create_app() -> Flask:

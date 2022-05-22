@@ -23,7 +23,7 @@ __all__ = ["AddDocRoute", "add_doc_route"]
 prefix_set_dict: Dict[Starlette, Set[str]] = {}
 
 
-class AddDocRoute(_AddDocRoute):
+class AddDocRoute(_AddDocRoute[Starlette]):
     not_found_exc: Exception = HTTPException(
         status_code=404,
         detail=(
@@ -125,4 +125,5 @@ def add_doc_route(
         title=title,
         open_api_tag_list=open_api_tag_list,
         project_name=project_name,
-    ).gen_route(app)
+        app=app,
+    )

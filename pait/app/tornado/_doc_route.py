@@ -22,10 +22,10 @@ class NotFound(Exception):
     pass
 
 
-class AddDocRoute(_AddDocRoute):
+class AddDocRoute(_AddDocRoute[Application]):
     not_found_exc: Exception = NotFound()
 
-    def _gen_route(self, app: Any) -> Any:
+    def _gen_route(self, app: Application) -> Any:
         doc_pait = self._get_doc_pait(Pait)
         doc_route_self: "AddDocRoute" = self
 
@@ -148,4 +148,5 @@ def add_doc_route(
         title=title,
         open_api_tag_list=open_api_tag_list,
         project_name=project_name,
-    ).gen_route(app)
+        app=app,
+    )

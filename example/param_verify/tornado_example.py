@@ -626,7 +626,7 @@ def add_grpc_gateway_route(app: Application) -> None:
 
 def add_api_doc_route(app: Application) -> None:
     """Split out to improve the speed of test cases"""
-    AddDocRoute(prefix="/api-doc", title="Pait Api Doc").gen_route(app)
+    AddDocRoute(prefix="/api-doc", title="Pait Api Doc", app=app)
     add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
 
 

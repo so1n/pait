@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Callable, Dict, List, Optional, Type
+from typing import Any, Callable, Dict, Generic, List, Optional, Type, TypeVar
 
 from pydantic import BaseModel
 
@@ -28,7 +28,10 @@ class OpenAPIRespModel(PaitJsonResponseModel):
     response_data: dict = {}  # type: ignore
 
 
-class AddDocRoute(object):
+APP_T = TypeVar("APP_T")
+
+
+class AddDocRoute(Generic[APP_T]):
     not_found_exc: Exception
 
     def __init__(
@@ -40,6 +43,7 @@ class AddDocRoute(object):
         title: str = "",
         open_api_tag_list: Optional[List[Dict[str, Any]]] = None,
         project_name: str = "",
+        app: APP_T = None,
     ):
         if pin_code:
             logging.info(f"doc route start pin code:{pin_code}")
@@ -51,6 +55,10 @@ class AddDocRoute(object):
         self.open_api_tag_list: Optional[List[Dict[str, Any]]] = open_api_tag_list
         self.project_name: str = project_name
         self._is_gen: bool = False
+
+        if app:
+            self._is_gen = True
+            self._gen_route(app)
 
     def _get_request_pin_code(self, r_pin_code: str = Query.i("", alias="pin_code")) -> Optional[str]:
         if self.pin_code:
@@ -87,10 +95,11 @@ class AddDocRoute(object):
             group="pait_doc",
         )
 
-    def _gen_route(self, app: Any) -> Any:  # type: ignore
+    def _gen_route(self, app: APP_T) -> Any:  # type: ignore
         raise NotImplementedError()
 
-    def gen_route(self, app: Any) -> Any:
+    def gen_route(self, app: APP_T) -> None:
+        """Will remove on version 1.0"""
         if self._is_gen:
             raise RuntimeError("Doc route has been generated")
         self._gen_route(app)

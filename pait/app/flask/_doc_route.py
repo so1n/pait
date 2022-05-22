@@ -19,7 +19,7 @@ from ._pait import Pait
 __all__ = ["add_doc_route", "AddDocRoute"]
 
 
-class AddDocRoute(_AddDocRoute):
+class AddDocRoute(_AddDocRoute[Flask]):
     not_found_exc: Exception = NotFound()
 
     def _gen_route(self, app: Flask) -> Any:
@@ -93,4 +93,5 @@ def add_doc_route(
         title=title,
         open_api_tag_list=open_api_tag_list,
         project_name=project_name,
-    ).gen_route(app)
+        app=app,
+    )
