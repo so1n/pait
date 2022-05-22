@@ -2,7 +2,19 @@
 - 1 Add a user-friendly doc ui
 - 2 Plugin Panel
 
-### 0.7.7[Now]
+### 0.7.8[Now]
+- Feature, cache response support cache exc
+- Feature, GrpcGateWay add gen route method
+- Feature, Change self logic
+- Fix, fix pydantic.BaseModel schema required is True, when default factory is not None
+- Fix, fix tornado cache response bug and add cache response test
+- Fix, fix auto complete not support dict in list
+- Test, merge app route unitest
+- Test, add customer grpc gateway route example&test
+- Test, Split out to improve the speed of test cases
+- Style, add typed file
+
+### 0.7.7
 Add grpc gateway route, Automatically generate corresponding API requests based on Stub
 
 ### 0.7.6

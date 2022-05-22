@@ -307,6 +307,19 @@ class TestStarletteGrpc:
             token_message: GetUidByTokenRequest = queue.get(timeout=1)
             assert token_message.token == "fail_token"
 
+    def test_login(self, client: TestClient) -> None:
+        from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
+
+        starlette_example.add_grpc_gateway_route(client.app)
+        starlette_example.add_api_doc_route(client.app)
+
+        with grpc_test_create_user_request(client.app) as queue:
+            body: bytes = client.post("/api/user/login", json={"uid": "10086", "password": "pw"}).content
+            assert body == b"{}"
+            message: LoginUserRequest = queue.get(timeout=1)
+            assert message.uid == "10086"
+            assert message.password == "pw"
+
     def test_logout(self, client: TestClient) -> None:
         from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import LogoutUserRequest
 

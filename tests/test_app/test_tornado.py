@@ -346,6 +346,19 @@ class TestTornadoGrpc(BaseTestTornado):
             token_message: GetUidByTokenRequest = queue.get(timeout=1)
             assert token_message.token == "fail_token"
 
+    def test_login(self) -> None:
+        from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
+
+        tornado_example.add_grpc_gateway_route(self._app)
+        tornado_example.add_api_doc_route(self._app)
+
+        with grpc_test_create_user_request(self._app) as queue:
+            body: bytes = self.fetch("/api/user/login", method="POST", body='{"uid": "10086", "password": "pw"}').body
+            assert body == b"{}"
+            message: LoginUserRequest = queue.get(timeout=1)
+            assert message.uid == "10086"
+            assert message.password == "pw"
+
     def test_logout(self) -> None:
         from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import LogoutUserRequest
 
