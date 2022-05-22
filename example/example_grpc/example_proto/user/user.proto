@@ -39,6 +39,7 @@ message LoginUserResult {
 // logout user
 message LogoutUserRequest {
   string uid = 1;
+  // pait: {"enable": false}
   string token = 2;
 }
 

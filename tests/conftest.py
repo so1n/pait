@@ -116,8 +116,8 @@ def fixture_loop(mock_close_loop: bool = False) -> Generator[asyncio.AbstractEve
             loop.close = close_loop  # type: ignore
 
 
-def grpc_test_create_user_request(app: Any, request_callable: Callable[[dict], None]) -> None:
-    from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import CreateUserRequest
+@contextmanager
+def grpc_test_create_user_request(app: Any) -> Generator[Queue, None, None]:
     from pait.app import get_app_attribute
     from pait.app.base.grpc_route import AsyncGrpcGatewayRoute, BaseGrpcGatewayRoute
 
@@ -130,8 +130,6 @@ def grpc_test_create_user_request(app: Any, request_callable: Callable[[dict], N
             grpc_gateway_route.reinit_channel(
                 grpc.intercept_channel(grpc.insecure_channel("0.0.0.0:9000"), GrpcClientInterceptor(queue)),
             )
-
-    request_dict: dict = {"uid": "10086", "user_name": "so1n", "pw": "123456", "sex": 0}
 
     with grpc_test_helper():
         queue: Queue = Queue()
@@ -149,13 +147,9 @@ def grpc_test_create_user_request(app: Any, request_callable: Callable[[dict], N
         else:
             reinit_channel(grpc_gateway_route, queue)
 
-        request_callable(request_dict)
         try:
-            message: CreateUserRequest = queue.get(timeout=1)
-            assert message.uid == "10086"
-            assert message.user_name == "so1n"
-            assert message.password == "123456"
-            assert message.sex == 0
+            yield queue
+
         finally:
             if not isinstance(grpc_gateway_route, AsyncGrpcGatewayRoute):
                 grpc_gateway_route.channel.close()

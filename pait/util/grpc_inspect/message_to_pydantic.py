@@ -34,6 +34,7 @@ GRPC_TIMESTAMP_HANDLER_TUPLE_T = Tuple[Any, Optional[Callable[[Any, Any], Timest
 
 
 class MessagePaitModel(BaseModel):
+    enable: bool = Field(True)
     miss_default: bool = Field(False)
     example: Any = Field(MISSING)
     alias: Optional[str] = Field(None)
@@ -137,6 +138,8 @@ def _parse_msg_to_pydantic_model(
             if name in field_doc_dict:
                 msg_pait_model: MessagePaitModel = get_pait_info_from_grpc_desc(field_doc_dict[name])
                 field_param_dict: dict = msg_pait_model.dict()
+                if not field_param_dict.pop("enable"):
+                    continue
                 if msg_pait_model.miss_default is not True:
                     field_param_dict["default"] = default
                 field_param_dict["default_factory"] = default_factory

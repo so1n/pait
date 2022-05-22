@@ -1,6 +1,6 @@
 import logging
 from concurrent import futures
-from typing import Any, List, Optional
+from typing import Any, Callable, List, Optional
 
 import grpc
 
@@ -30,11 +30,27 @@ def auto_gen_service_method(stub: Any, service: Any) -> None:
     for method, grpc_model in parser.method_dict.items():
         method_name: str = method.split("/")[-1]
 
-        def _func(self: Any, request: Any, context: Any) -> Any:
-            logger.info(f"{self.__class__.__name__} receive request:{request}")
-            return grpc_model.response()
+        def gen_func(response: Any) -> Callable:
+            if method_name == "get_uid_by_token":
 
-        setattr(service, method_name, _func)
+                def _func(self: Any, request: Any, context: Any) -> Any:
+                    logger.info(f"{self.__class__.__name__} receive request:{request}")
+                    token: str = request.token
+                    if token == "fail_token":
+                        # test not token
+                        return response()
+                    else:
+                        return response(uid=request.token)
+
+            else:
+
+                def _func(self: Any, request: Any, context: Any) -> Any:
+                    logger.info(f"{self.__class__.__name__} receive request:{request}")
+                    return response()
+
+            return _func
+
+        setattr(service, method_name, gen_func(grpc_model.response))
 
 
 auto_gen_service_method(user_service.UserStub, UserService)

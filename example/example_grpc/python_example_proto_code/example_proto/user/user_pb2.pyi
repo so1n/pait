@@ -108,6 +108,8 @@ class LogoutUserRequest(google.protobuf.message.Message):
     TOKEN_FIELD_NUMBER: builtins.int
     uid: typing.Text
     token: typing.Text
+    """pait: {"enable": false}"""
+
     def __init__(self,
         *,
         uid: typing.Text = ...,
