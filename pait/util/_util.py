@@ -29,11 +29,7 @@ from pydantic.fields import Undefined, UndefinedType
 
 from pait.field import BaseField, Depends, is_pait_field
 from pait.model.template import TemplateVar
-
-if sys.version_info >= (3, 10):
-    from typing import ParamSpec  # pragma: no cover
-else:
-    from typing_extensions import ParamSpec  # type: ignore
+from pait.types import ParamSpec
 
 from ._types import ParseTypeError, parse_typing
 

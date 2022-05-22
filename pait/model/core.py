@@ -1,6 +1,5 @@
 import inspect
 import logging
-import sys
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
 
@@ -10,13 +9,8 @@ from pait.model.response import PaitBaseResponseModel, PaitResponseModel
 from pait.model.status import PaitStatus
 from pait.param_handle import AsyncParamHandler, BaseParamHandler, ParamHandler
 from pait.plugin import PluginManager
+from pait.types import Literal
 from pait.util import ignore_pre_check
-
-if sys.version_info >= (3, 10):
-    from typing import Literal
-else:
-    from typing_extensions import Literal
-
 
 if TYPE_CHECKING:
     from pait.app.base import BaseAppHelper

@@ -1,6 +1,6 @@
 from typing import Any, List
 
-from typing_extensions import Literal
+from pait.types import Literal
 
 SupportAppLiteral = Literal["flask", "starlette", "sanic", "tornado"]
 support_app_list: List[SupportAppLiteral] = ["flask", "starlette", "sanic", "tornado"]
