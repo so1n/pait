@@ -1,0 +1,940 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Pait is a Python api tool. Pait enables your Python web framework to have type checking, parameter type conversion, interface document generation and can display your documents through Redoc or Swagger (power by inspect, pydantic)">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.8">
+    
+    
+      
+        <title>gRPC Gateway - Pait</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.644de097.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.e6a45f82.min.css">
+        
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-component="outdated" hidden>
+        <aside class="md-banner md-banner--warning">
+          
+        </aside>
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Pait" class="md-header__button md-logo" aria-label="Pait" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pait
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              gRPC Gateway
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <div class="md-header__option">
+        <div class="md-select">
+          
+          <button class="md-header__button md-icon" aria-label="Select language">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12m-2.62 7 1.62-4.33L19.12 17h-3.24z"/></svg>
+          </button>
+          <div class="md-select__inner">
+            <ul class="md-select__list">
+              
+                <li class="md-select__item">
+                  <a href="/pait/" hreflang="en" class="md-select__link">
+                    English
+                  </a>
+                </li>
+                
+                <li class="md-select__item">
+                  <a href="/pait-zh-doc/" hreflang="zh" class="md-select__link">
+                    中文
+                  </a>
+                </li>
+                
+            </ul>
+          </div>
+        </div>
+      </div>
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/so1n/pait" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    so1n/pait
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Pait" class="md-nav__button md-logo" aria-label="Pait" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    Pait
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/so1n/pait" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    so1n/pait
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Type conversion and parameter validation
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Type conversion and parameter validation" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Type conversion and parameter validation
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1_1_introduction/" class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1_2_how_to_use_field/" class="md-nav__link">
+        How to use Field
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1_3_how_to_use_type/" class="md-nav__link">
+        Hot to use Type
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1_4_depend/" class="md-nav__link">
+        Depend
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1_5_exception/" class="md-nav__link">
+        Exception
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2_pait_multiplexing/" class="md-nav__link">
+        Pait multiplexing
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3_api_doc/" class="md-nav__link">
+        API doc
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../4_unit_test_helper/" class="md-nav__link">
+        Unit test helper
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_6">
+          Plugin
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Plugin" data-md-level="1">
+        <label class="md-nav__title" for="__nav_6">
+          <span class="md-nav__icon md-icon"></span>
+          Plugin
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../5_1_introduction/" class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../5_2_param_check_plugin/" class="md-nav__link">
+        Param check plugin
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../5_3_json_response_plugin/" class="md-nav__link">
+        Json Response plugin
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../5_4_mock_json_response_check_plugin/" class="md-nav__link">
+        Mock Response plugin
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../5_5_how_to_customize_plugin/" class="md-nav__link">
+        How to customize plugin
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../6_config/" class="md-nav__link">
+        config
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          gRPC Gateway
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        gRPC Gateway
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    1.介绍
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    2.使用
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    3.参数介绍
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4protobuf" class="md-nav__link">
+    4.通过Protobuf文件注释定义路由的属性
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5protobufmessage" class="md-nav__link">
+    5.通过Protobuf文件注释定义Message的属性
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../8_other/" class="md-nav__link">
+        Other
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    1.介绍
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    2.使用
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    3.参数介绍
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4protobuf" class="md-nav__link">
+    4.通过Protobuf文件注释定义路由的属性
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5protobufmessage" class="md-nav__link">
+    5.通过Protobuf文件注释定义Message的属性
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+
+
+  <h1>gRPC Gateway</h1>
+
+<h2 id="1">1.介绍</h2>
+<p>gRPC基于HTTP/2.0进行通信，理论上很容易自动转换成一个RESTful接口，所以<code>Go gRPC</code>很容易的就能实现<code>gRPC GatwWay</code>功能，如<a href="https://github.com/grpc-ecosystem/grpc-gateway">grpc-gateway</a>。但是<code>Python gRPC</code>却很难做到，因为它不像<code>Go gRPC</code>一样是使用Go语言编写的库，而是用C语言编写的，同时<code>Python gRPC</code>提供的API比较少，所以<code>Python</code>要写一个转发HTTP请求到gRPC服务比较麻烦，而<code>Pait</code>提供的<code>gRPC GateWay</code>功能可以为开发者以最小的代码实现一个简单的<code>gRPC Gateway</code>。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>Pait</code>提供的<code>gRPC GateWay</code>功能实际上是类似一个代理服务，它会把HTTP客户端发送的请求转为对应的Msg对象，再通过channel发送给gRPC服务端，最后把gRPC服务端返回的Msg对象转为框架对应的Json响应返回给HTTP客户端。</p>
+</div>
+<h2 id="2">2.使用</h2>
+<p><code>gRPC GateWay</code>的使用非常简单， 代码例子如下：
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="kn">import</span> <span class="nn">grpc</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="kn">from</span> <span class="nn">pait.app.starlette.grpc_route</span> <span class="kn">import</span> <span class="n">GrpcGatewayRoute</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">AddDocRoute</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="kn">from</span> <span class="nn">pait.util.grpc_inspect.message_to_pydantic</span> <span class="kn">import</span> <span class="n">grpc_timestamp_int_handler</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7"></a>
+<a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="c1"># 引入根据Protobuf文件生成的对应代码</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="kn">from</span> <span class="nn">example.example_grpc.python_example_proto_code.example_proto.user</span> <span class="kn">import</span> <span class="n">user_pb2_grpc</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="kn">from</span> <span class="nn">example.example_grpc.python_example_proto_code.example_proto.book</span> <span class="kn">import</span> <span class="n">social_pb2_grpc</span><span class="p">,</span> <span class="n">manager_pb2_grpc</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11"></a>
+<a id="__codelineno-0-12" name="__codelineno-0-12"></a>
+<a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="k">def</span> <span class="nf">create_app</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Starlette</span><span class="p">:</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14"></a>    <span class="n">app</span><span class="p">:</span> <span class="n">Starlette</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">()</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15"></a>    <span class="c1"># 为app注册UserStub,BookSocialStub和BookManagerStub的路由函数</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16"></a>    <span class="n">grpc_gateway_route</span><span class="p">:</span> <span class="n">GrpcGatewayRoute</span> <span class="o">=</span> <span class="n">GrpcGatewayRoute</span><span class="p">(</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17"></a>        <span class="n">app</span><span class="p">,</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18"></a>        <span class="c1"># 传入对应的Stub类</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19"></a>        <span class="n">user_pb2_grpc</span><span class="o">.</span><span class="n">UserStub</span><span class="p">,</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20"></a>        <span class="n">social_pb2_grpc</span><span class="o">.</span><span class="n">BookSocialStub</span><span class="p">,</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21"></a>        <span class="n">manager_pb2_grpc</span><span class="o">.</span><span class="n">BookManagerStub</span><span class="p">,</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22"></a>        <span class="c1"># 指定url开头</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23"></a>        <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;/api&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24"></a>        <span class="c1"># 指定生成的路由函数名的开头</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25"></a>        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Grpc&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26"></a>        <span class="c1"># 指定Timestamp的解析方法</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27"></a>        <span class="n">grpc_timestamp_handler_tuple</span><span class="o">=</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">grpc_timestamp_int_handler</span><span class="p">),</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28"></a>        <span class="c1"># 见下面说明</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29"></a>        <span class="n">parse_msg_desc</span><span class="o">=</span><span class="s2">&quot;by_mypy&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30"></a>    <span class="p">)</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31"></a>    <span class="k">def</span> <span class="nf">_before_server_start</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32"></a>        <span class="c1"># 启动时注册对应的channel,这样注册的路由函数在接收请求时可以把参数通过grpc.channel传给grpc服务端</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33"></a>        <span class="n">grpc_gateway_route</span><span class="o">.</span><span class="n">init_channel</span><span class="p">(</span><span class="n">grpc</span><span class="o">.</span><span class="n">aio</span><span class="o">.</span><span class="n">insecure_channel</span><span class="p">(</span><span class="s2">&quot;0.0.0.0:9000&quot;</span><span class="p">))</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34"></a>
+<a id="__codelineno-0-35" name="__codelineno-0-35"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">_after_server_stop</span><span class="p">(</span><span class="o">*</span><span class="n">_</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36"></a>        <span class="c1"># 关闭时关闭建立的channel</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37"></a>        <span class="k">await</span> <span class="n">grpc_gateway_route</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38"></a>
+<a id="__codelineno-0-39" name="__codelineno-0-39"></a>    <span class="n">app</span><span class="o">.</span><span class="n">add_event_handler</span><span class="p">(</span><span class="s2">&quot;startup&quot;</span><span class="p">,</span> <span class="n">_before_server_start</span><span class="p">)</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40"></a>    <span class="n">app</span><span class="o">.</span><span class="n">add_event_handler</span><span class="p">(</span><span class="s2">&quot;shutdown&quot;</span><span class="p">,</span> <span class="n">_after_server_stop</span><span class="p">)</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41"></a>
+<a id="__codelineno-0-42" name="__codelineno-0-42"></a>    <span class="c1"># 注册文档路由，这样可以方便的看出GrpcGateWayRoute的路由函数是什么</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43"></a>    <span class="n">AddDocRoute</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;/api-doc&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Pait Api Doc&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">gen_route</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44"></a>    <span class="k">return</span> <span class="n">app</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45"></a>
+<a id="__codelineno-0-46" name="__codelineno-0-46"></a>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48"></a>
+<a id="__codelineno-0-49" name="__codelineno-0-49"></a>    <span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50"></a>    <span class="kn">from</span> <span class="nn">pait.extra.config</span> <span class="kn">import</span> <span class="n">apply_block_http_method_set</span>
+<a id="__codelineno-0-51" name="__codelineno-0-51"></a>    <span class="kn">from</span> <span class="nn">pait.g</span> <span class="kn">import</span> <span class="n">config</span>
+<a id="__codelineno-0-52" name="__codelineno-0-52"></a>
+<a id="__codelineno-0-53" name="__codelineno-0-53"></a>    <span class="n">config</span><span class="o">.</span><span class="n">init_config</span><span class="p">(</span>
+<a id="__codelineno-0-54" name="__codelineno-0-54"></a>        <span class="n">apply_func_list</span><span class="o">=</span><span class="p">[</span><span class="n">apply_block_http_method_set</span><span class="p">({</span><span class="s2">&quot;HEAD&quot;</span><span class="p">,</span> <span class="s2">&quot;OPTIONS&quot;</span><span class="p">})]</span>
+<a id="__codelineno-0-55" name="__codelineno-0-55"></a>    <span class="p">)</span>
+<a id="__codelineno-0-56" name="__codelineno-0-56"></a>
+<a id="__codelineno-0-57" name="__codelineno-0-57"></a>    <span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">create_app</span><span class="p">(),</span> <span class="n">log_level</span><span class="o">=</span><span class="s2">&quot;debug&quot;</span><span class="p">)</span>
+</code></pre></div>
+运行代码后，访问对应的链接<a href="http://127.0.0.1:8000/api-doc/swagge">http://127.0.0.1:8000/api-doc/swagge</a>就可以看到如下页面：
+<img alt="" src="https://cdn.jsdelivr.net/gh/so1n/so1n_blog_photo@master/blog_photo/16525440344511652544033702.png" /></p>
+<p>页面中的API都是<code>GrpcGatewayRoute</code>通过解析Protobuf生成的Stub类生成的，具体的Protobuf文件可以访问<a href="https://github.com/so1n/pait/tree/master/example/example_grpc/example_proto">example_proto</a>了解。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>需要注意的是，如果不通过<code>GrpcGatewayRoute</code>的<code>init_channel</code>方法指定grpc.channel，那么路由函数收到请求后无法把该请求转成grpc请求发送给对应的gRPC服务。</p>
+</div>
+<h2 id="3">3.参数介绍</h2>
+<p><code>GrpcGatewayRoute</code>提供的参数都会应用到所有Stub中，如果每个Stub需要应用不同的参数，则可以分开注册Stub，<code>GrpcGatewayRoute</code>支持的参数如下:</p>
+<ul>
+<li>app: 必填，且必须是对应的app实例，<code>GrpcGatewayRoute</code>会把Stub生成的路由函数注册到对应的app实例中。</li>
+<li>stub: 支持一个或多个的stub参数，需要注意的是，传入的Stub必须是由Protobuf生成的gRPC Stub类。</li>
+<li>prefix: 生成路由函数的URL前缀，假如<code>prefix</code>为<code>/api</code>，Stub类的一个gRPC方法对应的URL为<code>/user.User/get_uid_by_token</code>，那么生成的URL则是<code>/api/user.User/get_uid_by_token</code>。</li>
+<li>title: 生成路由函数名是由title以及一个gRPC方法的方法名决定的，如果一个app实例绑定过个相同的Stub类，则title必须不同。（对于<code>Tornado</code>，是通过title和gRPC方法名来定义对应Handler类的名称。）</li>
+<li>parse_msg_desc: 指定要解析msg注释的类型，如果填入的值为<code>by_mypy</code>，则会解析通过<code>mypy-protobuf</code>插件生成的pyi文件，如果填入的是一个路径，则会解析对应路径下的Protobuf文件。</li>
+<li>msg_to_dict: 默认为<code>google.protobuf.json_format.MessageToDict</code>。路由函数收到gRPC服务返回的Message对象后，会通过msg_to_dict转为Python的dict对象，再返回json到客户端。</li>
+<li>parse_dict: 默认为空，该参数仅支持<code>google.protobuf.json_format.ParseDict</code>以及它的变体。路由函数收到HTTP客户端的请求后会对数据进行校验，然后转为gRPC方法需要的Message对象。</li>
+<li>pait: 用于装饰路由函数的<code>pait</code>装饰器对象。</li>
+<li>make_response: 负责把路由函数返回的Dict对象转为对应Web框架的Json响应对象。</li>
+<li>url_handler: 用于更改gRPC自带的URL，默认会把gRPC方法的<code>.</code>改为<code>-</code>。</li>
+<li>request_param_field_dict: 指定一个参数名对应的field对象，需要注意的是，这是会应用到所有的Stub对象。</li>
+<li>grpc_timestamp_handler_tuple: 该方法支持传入一个(type, callback)的数组，type代表字段对应的类型，callback代表转换方法，字段的类型为Timestamp时会启用。因为gRPC的Timestamp默认情况下只支持字符串转换，所以提供了这个方法来支持其它类型转为gRPC Timestamp对象，比如把int类型转为Timestamp对象，则对应的callback可以写为:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="k">def</span> <span class="nf">grpc_timestamp_int_handler</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Timestamp</span><span class="p">:</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2"></a>    <span class="n">t</span><span class="p">:</span> <span class="n">Timestamp</span> <span class="o">=</span> <span class="n">Timestamp</span><span class="p">()</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4"></a>    <span class="k">if</span> <span class="n">v</span><span class="p">:</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5"></a>        <span class="n">t</span><span class="o">.</span><span class="n">FromDatetime</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6"></a>    <span class="k">return</span> <span class="n">t</span>
+</code></pre></div></li>
+</ul>
+<h2 id="4protobuf">4.通过Protobuf文件注释定义路由的属性</h2>
+<p>通过Swagger页面可以发现，UserStub相关的路由函数的url与其它Stub的路由函数不一样，这是因为在Protobuf中通过注释定义了UserStub生成路由函数的一些行为。比如UserStub对应的<a href="https://github.com/so1n/pait/blob/master/example/example_grpc/example_proto/user/user.proto">user.proto</a>文件的<code>service</code>块，这里通过注释定义了UserStub路由函数的行为，这些注释都是通过<code>pait:</code>开头，然后跟着的是一段json数据，具体如下：
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="c1">// 定义了整个User服务生成的路由函数的group都是user, tag都是grpc-user(后面跟着的grpc_user_service是对应的文档描述)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="c1">// pait: {&quot;group&quot;: &quot;user&quot;, &quot;tag&quot;: [[&quot;grpc-user&quot;, &quot;grpc_user_service&quot;]]}</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="kd">service</span> <span class="n">User</span> <span class="p">{</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4"></a>  <span class="c1">// 定义不要生成get_uid_by_token的路由函数</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5"></a>  <span class="c1">// pait: {&quot;enable&quot;: false}</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6"></a>  <span class="k">rpc</span> <span class="n">get_uid_by_token</span> <span class="p">(</span><span class="n">GetUidByTokenRequest</span><span class="p">)</span> <span class="k">returns</span> <span class="p">(</span><span class="n">GetUidByTokenResult</span><span class="p">);</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7"></a>  <span class="c1">// 定义logout_user 函数的summary和url</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8"></a>  <span class="c1">// pait: {&quot;summary&quot;: &quot;User exit from the system&quot;, &quot;url&quot;: &quot;/user/logout&quot;}</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9"></a>  <span class="k">rpc</span> <span class="n">logout_user</span> <span class="p">(</span><span class="n">LogoutUserRequest</span><span class="p">)</span> <span class="k">returns</span> <span class="p">(</span><span class="n">google.protobuf.Empty</span><span class="p">);</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10"></a>  <span class="c1">// pait: {&quot;summary&quot;: &quot;User login to system&quot;, &quot;url&quot;: &quot;/user/login&quot;}</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11"></a>  <span class="k">rpc</span> <span class="n">login_user</span><span class="p">(</span><span class="n">LoginUserRequest</span><span class="p">)</span> <span class="k">returns</span> <span class="p">(</span><span class="n">LoginUserResult</span><span class="p">);</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12"></a>  <span class="c1">// pait: {&quot;tag&quot;: [[&quot;grpc-user&quot;, &quot;grpc_user_service&quot;], [&quot;grpc-user-system&quot;, &quot;grpc_user_service&quot;]]}</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13"></a>  <span class="c1">// pait: {&quot;summary&quot;: &quot;Create users through the system&quot;, &quot;url&quot;: &quot;/user/create&quot;}</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14"></a>  <span class="k">rpc</span> <span class="n">create_user</span><span class="p">(</span><span class="n">CreateUserRequest</span><span class="p">)</span> <span class="k">returns</span> <span class="p">(</span><span class="n">google.protobuf.Empty</span><span class="p">);</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15"></a>  <span class="c1">// pait: {&quot;url&quot;: &quot;/user/delete&quot;, &quot;tag&quot;: [[&quot;grpc-user&quot;, &quot;grpc_user_service&quot;], [&quot;grpc-user-system&quot;, &quot;grpc_user_service&quot;]]}</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16"></a>  <span class="c1">// pait: {&quot;desc&quot;: &quot;This interface performs a logical delete, not a physical delete&quot;}</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17"></a>  <span class="k">rpc</span> <span class="n">delete_user</span><span class="p">(</span><span class="n">DeleteUserRequest</span><span class="p">)</span> <span class="k">returns</span> <span class="p">(</span><span class="n">google.protobuf.Empty</span><span class="p">);</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18"></a><span class="p">}</span>
+</code></pre></div>
+这份文件的注释都是通过<code>pait:</code>开头，然后跟着一段json数据，目前解析方法并不是非常的智能，所以不支持换行，如果定义的属性过多则需要另起一行注释，这行注释也需要以<code>pait:</code>开头，同时注释一定要写在对应方法的前面。如果service定义了对应的属性，而rpc方法没有定义，则在生产rpc方法对应的路由时会采用service定义的属性。</p>
+<p>目前支持的可定义的属性如下:</p>
+<ul>
+<li>name: 路由函数的名称，默认为空字符串</li>
+<li>tag: 路由函数对应的tag列表，列表内必须是一个元祖，分别为tag的名和tag的描述</li>
+<li>group：路由函数对应的group</li>
+<li>summary: 路由函数对应的描述</li>
+<li>url: 路由函数对应的url</li>
+<li>enable: 是否要生成对应方法的路由，默认为false</li>
+</ul>
+<h2 id="5protobufmessage">5.通过Protobuf文件注释定义Message的属性</h2>
+<p>在生成路由函数时，<code>GrpcGatewayRoute</code>会把方法对应的请求message和响应message解析为路由函数对应的请求和响应对象，这些对象的类型都为<code>pydantic.BaseModel</code>，之后<code>Pait</code>就可以通过对应的<code>pydantic.BaseModel</code>对象来生成文档或者做参数校验。</p>
+<p>目前也是通过注释来定义Message的每个字段对应的Field对象属性，不过<code>Python</code>的gRPC在通过Protobuf文件生成对应的Python对象时，并不会把对应的注释带过来，所以<code>GrpcGatewayRoute</code>需要通过<code>parse_msg_desc</code>参数来知道要解析的来源文件，不过这些来源文件的注释最终都是通过Protobuf文件的注释生成的，比如<a href="https://github.com/so1n/pait/blob/master/example/example_grpc/example_proto/user/user.proto">user.proto</a>文件的<code>CreateUserRequest</code>，它的注释如下：
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="kd">message</span> <span class="nc">CreateUserRequest</span> <span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2"></a>  <span class="c1">// 通常Protobuf的Message都有默认值，如果指定miss_default为true，则不会使用gRPC的默认值</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3"></a>  <span class="c1">// pait: {&quot;miss_default&quot;: true, &quot;example&quot;: &quot;10086&quot;, &quot;title&quot;: &quot;UID&quot;, &quot;description&quot;: &quot;user union id&quot;}</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4"></a>  <span class="kt">string</span> <span class="na">uid</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5"></a>  <span class="c1">// pait: {&quot;description&quot;: &quot;user name&quot;}</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6"></a>  <span class="c1">// pait: {&quot;default&quot;: &quot;&quot;, &quot;min_length&quot;: 1, &quot;max_length&quot;: &quot;10&quot;, &quot;example&quot;: &quot;so1n&quot;}</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7"></a>  <span class="kt">string</span> <span class="na">user_name</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8"></a>  <span class="c1">// pait: {&quot;description&quot;: &quot;user password&quot;}</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9"></a>  <span class="c1">// pait: {&quot;alias&quot;: &quot;pw&quot;, &quot;min_length&quot;: 6, &quot;max_length&quot;: 18, &quot;example&quot;: &quot;123456&quot;}</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10"></a>  <span class="kt">string</span> <span class="na">password</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11"></a>  <span class="n">SexType</span> <span class="na">sex</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12"></a><span class="p">}</span>
+</code></pre></div>
+之后生成的文档中关于<code>CreateUserRequest</code>的展示如下:
+<img alt="" src="https://cdn.jsdelivr.net/gh/so1n/so1n_blog_photo@master/blog_photo/16525495684371652549568021.png" /></p>
+<p>可以发现Message注释编写的方法与Service的一致，只不过是属性不同，Message支持的属性除了<code>miss_default</code>外，与<code>Pait</code>的Field对象一致，<code>miss_default</code>默认为false，如果为true,则代表该字段没有默认值，如果为false，则代表该字段的默认值为Protobuf对应属性的默认值。</p>
+<div class="admonition 支持的属性列表">
+<p class="admonition-title">支持的属性列表</p>
+<ul>
+<li>miss_default</li>
+<li>example</li>
+<li>alias</li>
+<li>title</li>
+<li>description</li>
+<li>const</li>
+<li>gt</li>
+<li>ge</li>
+<li>lt</li>
+<li>le</li>
+<li>min_length</li>
+<li>max_length</li>
+<li>min_items</li>
+<li>max_items</li>
+<li>multiple_of</li>
+<li>regex</li>
+<li>extra</li>
+</ul>
+</div>
+
+              
+            </article>
+          </div>
+        </div>
+        
+          <a href="#" class="md-top md-icon" data-md-component="top" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"/></svg>
+            Back to top
+          </a>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        
+        <a href="../6_config/" class="md-footer__link md-footer__link--prev" aria-label="Previous: config" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              config
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../8_other/" class="md-footer__link md-footer__link--next" aria-label="Next: Other" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Other
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+      
+      
+    
+    <a href="https://github.com/so1n" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "content.code.annotate"], "search": "../assets/javascripts/workers/search.5e67fbfe.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c44cc438.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,6 +1,6 @@
 
 <!doctype html>
-<html lang="zh" class="no-js">
+<html lang="en" class="no-js">
   <head>
     
       <meta charset="utf-8">
@@ -11,15 +11,15 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.7">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.8">
     
     
       
-        <title>如何使用Field - Pait</title>
+        <title>How to use Field - Pait</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.cd566b2a.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.644de097.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.e6a45f82.min.css">
@@ -30,8 +30,9 @@
     
       
         
+        
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
@@ -60,8 +61,8 @@
     <div data-md-component="skip">
       
         
-        <a href="#1field" class="md-skip">
-          跳转至
+        <a href="#1kind-of-field" class="md-skip">
+          Skip to content
         </a>
       
     </div>
@@ -79,11 +80,10 @@
       
 
 <header class="md-header" data-md-component="header">
-  <nav class="md-header__inner md-grid" aria-label="页眉">
+  <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="Pait" class="md-header__button md-logo" aria-label="Pait" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+  <img src="../assets/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -99,7 +99,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              如何使用Field
+              How to use Field
             
           </span>
         </div>
@@ -110,7 +110,7 @@
       <div class="md-header__option">
         <div class="md-select">
           
-          <button class="md-header__button md-icon" aria-label="选择当前语言">
+          <button class="md-header__button md-icon" aria-label="Select language">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12m-2.62 7 1.62-4.33L19.12 17h-3.24z"/></svg>
           </button>
           <div class="md-select__inner">
@@ -141,14 +141,14 @@
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
       </label>
-      <nav class="md-search__options" aria-label="查找">
+      <nav class="md-search__options" aria-label="Search">
         
-        <button type="reset" class="md-search__icon md-icon" aria-label="清空当前内容" tabindex="-1">
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
         </button>
       </nav>
@@ -158,7 +158,7 @@
       <div class="md-search__scrollwrap" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
-            正在初始化搜索引擎
+            Initializing search
           </div>
           <ol class="md-search-result__list"></ol>
         </div>
@@ -169,10 +169,10 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/so1n/pait" title="前往仓库" class="md-source" data-md-component="source">
+        <a href="https://github.com/so1n/pait" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     so1n/pait
@@ -202,22 +202,21 @@
                     
 
 
-<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="Pait" class="md-nav__button md-logo" aria-label="Pait" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+  <img src="../assets/logo.png" alt="logo">
 
     </a>
     Pait
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/so1n/pait" title="前往仓库" class="md-source" data-md-component="source">
+      <a href="https://github.com/so1n/pait" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     so1n/pait
@@ -236,7 +235,7 @@
   
     <li class="md-nav__item">
       <a href=".." class="md-nav__link">
-        介绍
+        Introduction
       </a>
     </li>
   
@@ -261,14 +260,14 @@
       
       
         <label class="md-nav__link" for="__nav_2">
-          类型转换与参数校验
+          Type conversion and parameter validation
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="类型转换与参数校验" data-md-level="1">
+      <nav class="md-nav" aria-label="Type conversion and parameter validation" data-md-level="1">
         <label class="md-nav__title" for="__nav_2">
           <span class="md-nav__icon md-icon"></span>
-          类型转换与参数校验
+          Type conversion and parameter validation
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -279,7 +278,7 @@
   
     <li class="md-nav__item">
       <a href="../1_1_introduction/" class="md-nav__link">
-        介绍
+        Introduction
       </a>
     </li>
   
@@ -300,40 +299,40 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          如何使用Field
+          How to use Field
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        如何使用Field
+        How to use Field
       </a>
       
         
 
-<nav class="md-nav md-nav--secondary" aria-label="目录">
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
   
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
-      目录
+      Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1field" class="md-nav__link">
-    1.Field的种类
+  <a href="#1kind-of-field" class="md-nav__link">
+    1.Kind of Field
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#2field" class="md-nav__link">
-    2.Field的功能
+  <a href="#2field-feature" class="md-nav__link">
+    2.Field feature
   </a>
   
-    <nav class="md-nav" aria-label="2.Field的功能">
+    <nav class="md-nav" aria-label="2.Field feature">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -358,22 +357,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#24gtgeltlemultiple_of" class="md-nav__link">
-    2.4.数字校验之gt，ge，lt，le，multiple_of
+  <a href="#24gt-ge-lt-le-multiple-of-digital-check" class="md-nav__link">
+    2.4.gt, ge, lt, le, multiple of digital check
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#25min_itemsmax_items" class="md-nav__link">
-    2.5.数组校验之min_items，max_items
+  <a href="#25-array-checkmin_itemsmax_items" class="md-nav__link">
+    2.5. array check(min_items，max_items)
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#26min_lengthmax_lengthregex" class="md-nav__link">
-    2.6.字符串校验之min_length，max_length，regex
+  <a href="#26string-checkmin_lengthmax_lengthregex" class="md-nav__link">
+    2.6.String check(min_length，max_length，regex)
   </a>
   
 </li>
@@ -386,8 +385,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#28" class="md-nav__link">
-    2.8.其它功能
+  <a href="#28other-feature" class="md-nav__link">
+    2.8.Other Feature
   </a>
   
 </li>
@@ -413,7 +412,7 @@
   
     <li class="md-nav__item">
       <a href="../1_3_how_to_use_type/" class="md-nav__link">
-        如何使用Type
+        Hot to use Type
       </a>
     </li>
   
@@ -441,7 +440,7 @@
   
     <li class="md-nav__item">
       <a href="../1_5_exception/" class="md-nav__link">
-        异常提示
+        Exception
       </a>
     </li>
   
@@ -463,7 +462,7 @@
   
     <li class="md-nav__item">
       <a href="../2_pait_multiplexing/" class="md-nav__link">
-        Pait的复用
+        Pait multiplexing
       </a>
     </li>
   
@@ -478,7 +477,7 @@
   
     <li class="md-nav__item">
       <a href="../3_api_doc/" class="md-nav__link">
-        API文档
+        API doc
       </a>
     </li>
   
@@ -493,7 +492,7 @@
   
     <li class="md-nav__item">
       <a href="../4_unit_test_helper/" class="md-nav__link">
-        单元测试支持
+        Unit test helper
       </a>
     </li>
   
@@ -516,14 +515,14 @@
       
       
         <label class="md-nav__link" for="__nav_6">
-          插件
+          Plugin
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" aria-label="插件" data-md-level="1">
+      <nav class="md-nav" aria-label="Plugin" data-md-level="1">
         <label class="md-nav__title" for="__nav_6">
           <span class="md-nav__icon md-icon"></span>
-          插件
+          Plugin
         </label>
         <ul class="md-nav__list" data-md-scrollfix>
           
@@ -534,7 +533,7 @@
   
     <li class="md-nav__item">
       <a href="../5_1_introduction/" class="md-nav__link">
-        介绍
+        Introduction
       </a>
     </li>
   
@@ -548,7 +547,7 @@
   
     <li class="md-nav__item">
       <a href="../5_2_param_check_plugin/" class="md-nav__link">
-        参数检查插件
+        Param check plugin
       </a>
     </li>
   
@@ -562,7 +561,7 @@
   
     <li class="md-nav__item">
       <a href="../5_3_json_response_plugin/" class="md-nav__link">
-        Json响应插件
+        Json Response plugin
       </a>
     </li>
   
@@ -576,7 +575,7 @@
   
     <li class="md-nav__item">
       <a href="../5_4_mock_json_response_check_plugin/" class="md-nav__link">
-        Mock响应插件
+        Mock Response plugin
       </a>
     </li>
   
@@ -589,8 +588,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../5_5_how_tp_customize_the_plugin/" class="md-nav__link">
-        如何自定义插件
+      <a href="../5_5_how_to_customize_plugin/" class="md-nav__link">
+        How to customize plugin
       </a>
     </li>
   
@@ -611,8 +610,38 @@
   
   
     <li class="md-nav__item">
-      <a href="../6_other/" class="md-nav__link">
-        其它
+      <a href="../6_config/" class="md-nav__link">
+        config
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../7_gRPC_gateway/" class="md-nav__link">
+        gRPC Gateway
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../8_other/" class="md-nav__link">
+        Other
       </a>
     </li>
   
@@ -631,30 +660,30 @@
                   <div class="md-sidebar__inner">
                     
 
-<nav class="md-nav md-nav--secondary" aria-label="目录">
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
   
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
-      目录
+      Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1field" class="md-nav__link">
-    1.Field的种类
+  <a href="#1kind-of-field" class="md-nav__link">
+    1.Kind of Field
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#2field" class="md-nav__link">
-    2.Field的功能
+  <a href="#2field-feature" class="md-nav__link">
+    2.Field feature
   </a>
   
-    <nav class="md-nav" aria-label="2.Field的功能">
+    <nav class="md-nav" aria-label="2.Field feature">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -679,22 +708,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#24gtgeltlemultiple_of" class="md-nav__link">
-    2.4.数字校验之gt，ge，lt，le，multiple_of
+  <a href="#24gt-ge-lt-le-multiple-of-digital-check" class="md-nav__link">
+    2.4.gt, ge, lt, le, multiple of digital check
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#25min_itemsmax_items" class="md-nav__link">
-    2.5.数组校验之min_items，max_items
+  <a href="#25-array-checkmin_itemsmax_items" class="md-nav__link">
+    2.5. array check(min_items，max_items)
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#26min_lengthmax_lengthregex" class="md-nav__link">
-    2.6.字符串校验之min_length，max_length，regex
+  <a href="#26string-checkmin_lengthmax_lengthregex" class="md-nav__link">
+    2.6.String check(min_length，max_length，regex)
   </a>
   
 </li>
@@ -707,8 +736,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#28" class="md-nav__link">
-    2.8.其它功能
+  <a href="#28other-feature" class="md-nav__link">
+    2.8.Other Feature
   </a>
   
 </li>
@@ -731,462 +760,472 @@
               
                 
 
-  <h1>如何使用Field</h1>
 
-<p><code>field</code>在<code>Pait</code>中起到了至关重要的作用， <code>Pait</code>除了使用<code>field</code>用于获取数据来源外， 还通过它实现了很多其它的功能， 在本章中只着重说明参数校验这一块。</p>
-<h2 id="1field">1.Field的种类</h2>
-<p>除了上文提到的Body外， <code>Field</code>还拥有其它的种类， 它们的名称和作用如下:</p>
+  <h1>How to use Field</h1>
+
+<p><code>field</code> plays a crucial role in <code>Pait</code>. In addition to using <code>field</code> to obtain data sources, <code>Pait</code> also uses it to achieve many other functions. In this chapter, only parameter validation is emphasized. this piece.</p>
+<h2 id="1kind-of-field">1.Kind of Field</h2>
+<p>In addition to the Body mentioned above, <code>Field</code> also has other types, their names and functions are as follows:</p>
 <ul>
-<li>Body: 获取当前请求的Json数据</li>
-<li>Cookie: 获取当前请求的Cookie数据(注意， 目前Cookie数据会被转化为一个Python字典， 这意味着Cookie的Key不能重复。同时， 在Field为Cookie时， type最好是str)</li>
-<li>File：获取当前请求的file对象，该对象与原文Web框架的file对象一致</li>
-<li>Form：获取当前请求的form数据，如果有多个重复Key，只会返回第一个值</li>
-<li>Header: 获取当前请求的header数据</li>
-<li>Path: 获取当前请求的path数据，如<code>/api/{version}/test</code>，则会获取到version的数据</li>
-<li>Query: 获取当前请求的Url参数对应的数据，如果有多个重复Key，只会返回第一个值</li>
-<li>MultiForm：获取当前请求的form数据， 返回Key对应的数据列表</li>
-<li>MultiQuery：获取当前请求的Url参数对应的数据， 返回Key对应的数据列表</li>
+<li>Body: Get the json data of the current request</li>
+<li>Cookie: Get the cookie data of the current request (note that the current cookie data will be converted into a Python dictionary, which means that the key of the cookie cannot be repeated. At the same time, when the Field is a cookie, the type is preferably str)</li>
+<li>File：Get the file object of the current request, which is consistent with the file object of the web framework</li>
+<li>Form：Get the form data of the current request. If there are multiple duplicate Keys, only the first value will be returned</li>
+<li>Header: Get the header data of the current request</li>
+<li>Path: Get the path data of the current request, such as <code>/api/{version}/test</code>, will get the version data</li>
+<li>Query: Get the data corresponding to the Url parameter of the current request. If there are multiple duplicate keys, only the first value will be returned</li>
+<li>MultiForm：Get the form data of the current request, and return the data list corresponding to the Key</li>
+<li>MultiQuery：Get the data corresponding to the Url parameter of the current request, and return the data list corresponding to the Key</li>
 </ul>
-<p>各个种类的具体使用方法很简单，只要填入<code>&lt;name&gt;:&lt;type&gt;=&lt;default&gt;</code>中的<code>default</code>位置即可，以这段代码为例子(为了确保能复制粘贴后运行，没有演示field.File):
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">JSONResponse</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">field</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="nd">@pait</span><span class="p">()</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">form_a</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Form</span><span class="o">.</span><span class="n">i</span><span class="p">(),</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">form_b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Form</span><span class="o">.</span><span class="n">i</span><span class="p">(),</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">multi_form_c</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">MultiForm</span><span class="o">.</span><span class="n">i</span><span class="p">(),</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="n">cookie</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Cookie</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">raw_return</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">multi_user_name</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">MultiQuery</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Path</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">gt</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">lt</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">gt</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">lt</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="n">user_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="n">email</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;example@xxx.com&quot;</span><span class="p">),</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="n">accept</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Header</span><span class="o">.</span><span class="n">i</span><span class="p">()</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="sd">&quot;&quot;&quot;Test the use of all BaseField-based&quot;&quot;&quot;</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">(</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>        <span class="p">{</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>            <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>            <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>            <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>                <span class="s2">&quot;accept&quot;</span><span class="p">:</span> <span class="n">accept</span><span class="p">,</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>                <span class="s2">&quot;form_a&quot;</span><span class="p">:</span> <span class="n">form_a</span><span class="p">,</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>                <span class="s2">&quot;form_b&quot;</span><span class="p">:</span> <span class="n">form_b</span><span class="p">,</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>                <span class="s2">&quot;form_c&quot;</span><span class="p">:</span> <span class="n">multi_form_c</span><span class="p">,</span>
-<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>                <span class="s2">&quot;cookie&quot;</span><span class="p">:</span> <span class="n">cookie</span><span class="p">,</span>
-<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>                <span class="s2">&quot;multi_user_name&quot;</span><span class="p">:</span> <span class="n">multi_user_name</span><span class="p">,</span>
-<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>                <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="n">age</span><span class="p">,</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>                <span class="s2">&quot;uid&quot;</span><span class="p">:</span> <span class="n">uid</span><span class="p">,</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>                <span class="s2">&quot;user_name&quot;</span><span class="p">:</span> <span class="n">user_name</span><span class="p">,</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>                <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">email</span><span class="p">,</span>
-<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>            <span class="p">},</span>
-<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>        <span class="p">}</span>
-<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>    <span class="p">)</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>
-<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span>
-<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>    <span class="n">routes</span><span class="o">=</span><span class="p">[</span>
-<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>        <span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo/</span><span class="si">{age}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">]),</span>
-<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>    <span class="p">]</span>
-<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a><span class="p">)</span>
-<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>
-<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>
-<a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<p>The specific usage of each type is very simple, just fill in the <code>default</code> position in <code>&lt;name&gt;:&lt;type&gt;=&lt;default&gt;</code>, take this code as an example (in order to ensure that it can be copied and pasted and run, no demo field.File):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">JSONResponse</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">field</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="nd">@pait</span><span class="p">()</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12"></a>    <span class="n">form_a</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Form</span><span class="o">.</span><span class="n">i</span><span class="p">(),</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13"></a>    <span class="n">form_b</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Form</span><span class="o">.</span><span class="n">i</span><span class="p">(),</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14"></a>    <span class="n">multi_form_c</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">MultiForm</span><span class="o">.</span><span class="n">i</span><span class="p">(),</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15"></a>    <span class="n">cookie</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Cookie</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">raw_return</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16"></a>    <span class="n">multi_user_name</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">MultiQuery</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17"></a>    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Path</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">gt</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">lt</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18"></a>    <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">gt</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">lt</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19"></a>    <span class="n">user_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20"></a>    <span class="n">email</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;example@xxx.com&quot;</span><span class="p">),</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21"></a>    <span class="n">accept</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Header</span><span class="o">.</span><span class="n">i</span><span class="p">()</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23"></a>    <span class="sd">&quot;&quot;&quot;Test the use of all BaseField-based&quot;&quot;&quot;</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">(</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25"></a>        <span class="p">{</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26"></a>            <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27"></a>            <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28"></a>            <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29"></a>                <span class="s2">&quot;accept&quot;</span><span class="p">:</span> <span class="n">accept</span><span class="p">,</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30"></a>                <span class="s2">&quot;form_a&quot;</span><span class="p">:</span> <span class="n">form_a</span><span class="p">,</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31"></a>                <span class="s2">&quot;form_b&quot;</span><span class="p">:</span> <span class="n">form_b</span><span class="p">,</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32"></a>                <span class="s2">&quot;form_c&quot;</span><span class="p">:</span> <span class="n">multi_form_c</span><span class="p">,</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33"></a>                <span class="s2">&quot;cookie&quot;</span><span class="p">:</span> <span class="n">cookie</span><span class="p">,</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34"></a>                <span class="s2">&quot;multi_user_name&quot;</span><span class="p">:</span> <span class="n">multi_user_name</span><span class="p">,</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35"></a>                <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="n">age</span><span class="p">,</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36"></a>                <span class="s2">&quot;uid&quot;</span><span class="p">:</span> <span class="n">uid</span><span class="p">,</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37"></a>                <span class="s2">&quot;user_name&quot;</span><span class="p">:</span> <span class="n">user_name</span><span class="p">,</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38"></a>                <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">email</span><span class="p">,</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39"></a>            <span class="p">},</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40"></a>        <span class="p">}</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41"></a>    <span class="p">)</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42"></a>
+<a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44"></a>    <span class="n">routes</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45"></a>        <span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo/</span><span class="si">{age}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">]),</span>
+<a id="__codelineno-0-46" name="__codelineno-0-46"></a>    <span class="p">]</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="p">)</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48"></a>
+<a id="__codelineno-0-49" name="__codelineno-0-49"></a>
+<a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 </code></pre></div>
-这段代码来自于<a href="https://github.com/so1n/pait/blob/master/example/param_verify/starlette_example.py#L163">pait base field example</a>, 并做了一些小改动，该接口的主要责任就是把参数通过json的格式返回给调用者。
-接下来使用<code>curl</code>命令进行一次请求测试， 通过输出结果可以发现，<code>Pait</code>都能通过<code>field</code>的种类准确的拿到对应的值， 并赋值到变量中。
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>curl -X <span class="s1">&#39;POST&#39;</span> <span class="se">\</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  <span class="s1">&#39;http://127.0.0.1:8000/api/demo/12?uid=99&amp;user_name=so1n&amp;multi_user_name=so1n&#39;</span> <span class="se">\</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  -H <span class="s1">&#39;accept: application/json&#39;</span> <span class="se">\</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  -H <span class="s1">&#39;Cookie: cookie=cookie=test cookie&#39;</span> <span class="se">\</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  -H <span class="s1">&#39;Content-Type: multipart/form-data&#39;</span> <span class="se">\</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>  -F <span class="s1">&#39;form_a=a&#39;</span> <span class="se">\</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  -F <span class="s1">&#39;form_b=b&#39;</span> <span class="se">\</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>  -F <span class="s1">&#39;multi_form_c=string,string&#39;</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="o">{</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="s2">&quot;code&quot;</span>: <span class="m">0</span>,
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="s2">&quot;msg&quot;</span>: <span class="s2">&quot;&quot;</span>,
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="s2">&quot;data&quot;</span>: <span class="o">{</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="s2">&quot;accept&quot;</span>: <span class="s2">&quot;application/json&quot;</span>,
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        <span class="s2">&quot;form_a&quot;</span>: <span class="s2">&quot;a&quot;</span>,
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>        <span class="s2">&quot;form_b&quot;</span>: <span class="s2">&quot;b&quot;</span>,
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>        <span class="s2">&quot;form_c&quot;</span>: <span class="o">[</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>            <span class="s2">&quot;string,string&quot;</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>        <span class="o">]</span>,
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>        <span class="s2">&quot;cookie&quot;</span>: <span class="o">{</span>
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>            <span class="s2">&quot;cookie&quot;</span>: <span class="s2">&quot;cookie=test cookie&quot;</span>
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>        <span class="o">}</span>,
-<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>        <span class="s2">&quot;multi_user_name&quot;</span>: <span class="o">[</span>
-<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>            <span class="s2">&quot;so1n&quot;</span>
-<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>        <span class="o">]</span>,
-<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>        <span class="s2">&quot;age&quot;</span>: <span class="m">12</span>,
-<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>        <span class="s2">&quot;uid&quot;</span>: <span class="m">99</span>,
-<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>        <span class="s2">&quot;user_name&quot;</span>: <span class="s2">&quot;so1n&quot;</span>,
-<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>        <span class="s2">&quot;email&quot;</span>: <span class="s2">&quot;example@xxx.com&quot;</span>
-<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>    <span class="o">}</span>
-<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="o">}</span>
+This code comes from<a href="https://github.com/so1n/pait/blob/master/example/param_verify/starlette_example.py#L163">pait base field example</a>,
+And made some small changes, the main responsibility of this interface is to return the parameters to the caller in json format.</p>
+<p>Next, use the <code>curl</code> command to perform a request test. Through the output results, it can be found that <code>Pait</code> can accurately get the corresponding value through the type of <code>field</code>, and assign it to the variable。
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a>curl -X <span class="s1">&#39;POST&#39;</span> <span class="se">\</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2"></a>  <span class="s1">&#39;http://127.0.0.1:8000/api/demo/12?uid=99&amp;user_name=so1n&amp;multi_user_name=so1n&#39;</span> <span class="se">\</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3"></a>  -H <span class="s1">&#39;accept: application/json&#39;</span> <span class="se">\</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4"></a>  -H <span class="s1">&#39;Cookie: cookie=cookie=test cookie&#39;</span> <span class="se">\</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5"></a>  -H <span class="s1">&#39;Content-Type: multipart/form-data&#39;</span> <span class="se">\</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6"></a>  -F <span class="s1">&#39;form_a=a&#39;</span> <span class="se">\</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7"></a>  -F <span class="s1">&#39;form_b=b&#39;</span> <span class="se">\</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8"></a>  -F <span class="s1">&#39;multi_form_c=string,string&#39;</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="o">{</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11"></a>    <span class="s2">&quot;code&quot;</span>: <span class="m">0</span>,
+<a id="__codelineno-1-12" name="__codelineno-1-12"></a>    <span class="s2">&quot;msg&quot;</span>: <span class="s2">&quot;&quot;</span>,
+<a id="__codelineno-1-13" name="__codelineno-1-13"></a>    <span class="s2">&quot;data&quot;</span>: <span class="o">{</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14"></a>        <span class="s2">&quot;accept&quot;</span>: <span class="s2">&quot;application/json&quot;</span>,
+<a id="__codelineno-1-15" name="__codelineno-1-15"></a>        <span class="s2">&quot;form_a&quot;</span>: <span class="s2">&quot;a&quot;</span>,
+<a id="__codelineno-1-16" name="__codelineno-1-16"></a>        <span class="s2">&quot;form_b&quot;</span>: <span class="s2">&quot;b&quot;</span>,
+<a id="__codelineno-1-17" name="__codelineno-1-17"></a>        <span class="s2">&quot;form_c&quot;</span>: <span class="o">[</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18"></a>            <span class="s2">&quot;string,string&quot;</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19"></a>        <span class="o">]</span>,
+<a id="__codelineno-1-20" name="__codelineno-1-20"></a>        <span class="s2">&quot;cookie&quot;</span>: <span class="o">{</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21"></a>            <span class="s2">&quot;cookie&quot;</span>: <span class="s2">&quot;cookie=test cookie&quot;</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22"></a>        <span class="o">}</span>,
+<a id="__codelineno-1-23" name="__codelineno-1-23"></a>        <span class="s2">&quot;multi_user_name&quot;</span>: <span class="o">[</span>
+<a id="__codelineno-1-24" name="__codelineno-1-24"></a>            <span class="s2">&quot;so1n&quot;</span>
+<a id="__codelineno-1-25" name="__codelineno-1-25"></a>        <span class="o">]</span>,
+<a id="__codelineno-1-26" name="__codelineno-1-26"></a>        <span class="s2">&quot;age&quot;</span>: <span class="m">12</span>,
+<a id="__codelineno-1-27" name="__codelineno-1-27"></a>        <span class="s2">&quot;uid&quot;</span>: <span class="m">99</span>,
+<a id="__codelineno-1-28" name="__codelineno-1-28"></a>        <span class="s2">&quot;user_name&quot;</span>: <span class="s2">&quot;so1n&quot;</span>,
+<a id="__codelineno-1-29" name="__codelineno-1-29"></a>        <span class="s2">&quot;email&quot;</span>: <span class="s2">&quot;example@xxx.com&quot;</span>
+<a id="__codelineno-1-30" name="__codelineno-1-30"></a>    <span class="o">}</span>
+<a id="__codelineno-1-31" name="__codelineno-1-31"></a><span class="o">}</span>
 </code></pre></div></p>
-<h2 id="2field">2.Field的功能</h2>
-<p>从上面的例子可以看到， 请求中没有带上<code>email</code>参数， 但是该接口任然可以得到<code>email</code>的值<code>example@xxx.com</code>，
-这是因为在填写<code>email</code>的<code>field</code>时，我把<code>example@xxx.com</code>填写到default值中，这样<code>Pait</code>会在获取不到该变量的对应值的情况下，`也能把默认值赋给对应的变量。</p>
-<p>除了默认值之外， <code>field</code>也有很多的功能，这些功能大部分来源于<code>field</code>所继承的<code>pydantic.Field</code>。</p>
+<h2 id="2field-feature">2.Field feature</h2>
+<p>As can be seen from the above example, the <code>email</code> parameter is not included in the request, but the value of <code>email</code> in the response value returned by the interface is <code>example@xxx.com</code>，
+This is because when I fill in the <code>field</code> of <code>email</code>, I fill in <code>example@xxx.com</code> into the default value, so that <code>Pait</code> can not get the corresponding value of the variable, but also can The default value is assigned to the corresponding variable。</p>
+<p>In addition to default values, <code>field</code> also has many feature, most of which are derived from <code>pydantic.Field</code>, which <code>field</code> inherits.</p>
 <h3 id="21default">2.1.default</h3>
-<p><code>Pait</code>通过该参数支持默认值， 如果没有默认值可以直接不填写该参数的值。</p>
-<p>示例代码如下，两个接口都直接返回获取到的值<code>demo_value</code>，其中<code>demo</code>接口带有默认值， 默认值为字符串123，而<code>demo1</code>接口没有默认值:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kn">from</span> <span class="nn">starlette.requests</span> <span class="kn">import</span> <span class="n">Request</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">PlainTextResponse</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">field</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="kn">from</span> <span class="nn">pait.exceptions</span> <span class="kn">import</span> <span class="n">TipException</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">api_exception</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlainTextResponse</span><span class="p">:</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    <span class="sd">&quot;&quot;&quot;提取异常信息， 并以响应返回&quot;&quot;&quot;</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">TipException</span><span class="p">):</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>        <span class="n">exc</span> <span class="o">=</span> <span class="n">exc</span><span class="o">.</span><span class="n">exc</span>
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>    <span class="k">return</span> <span class="n">PlainTextResponse</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="nd">@pait</span><span class="p">()</span>
-<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span><span class="n">demo_value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;123&quot;</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">PlainTextResponse</span><span class="p">:</span>
-</span><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>    <span class="k">return</span> <span class="n">PlainTextResponse</span><span class="p">(</span><span class="n">demo_value</span><span class="p">)</span>
-<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>
-<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>
-<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="nd">@pait</span><span class="p">()</span>
-<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">demo1</span><span class="p">(</span><span class="n">demo_value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="n">PlainTextResponse</span><span class="p">:</span>
-</span><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>    <span class="k">return</span> <span class="n">PlainTextResponse</span><span class="p">(</span><span class="n">demo_value</span><span class="p">)</span>
-<a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a>
-<a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>
-<a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span>
-<a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a>    <span class="n">routes</span><span class="o">=</span><span class="p">[</span>
-<a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>        <span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">]),</span>
-<a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a>        <span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo1&quot;</span><span class="p">,</span> <span class="n">demo1</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">]),</span>
-<a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a>    <span class="p">]</span>
-<a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a><span class="p">)</span>
-<a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a>
-<a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a><span class="n">app</span><span class="o">.</span><span class="n">add_exception_handler</span><span class="p">(</span><span class="ne">Exception</span><span class="p">,</span> <span class="n">api_exception</span><span class="p">)</span>
-<a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<p><code>Pait</code> supports default value through this parameter. If there is no default value, you can simply leave the value of this parameter blank.</p>
+<p>The sample code is as follows, both interfaces directly return the obtained value <code>demo_value</code>, where the <code>demo</code> interface has a default value, the default value is string 123, and the <code>demo1</code> interface has no default value:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="kn">from</span> <span class="nn">starlette.requests</span> <span class="kn">import</span> <span class="n">Request</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">PlainTextResponse</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">field</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9"></a><span class="kn">from</span> <span class="nn">pait.exceptions</span> <span class="kn">import</span> <span class="n">TipException</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10"></a>
+<a id="__codelineno-2-11" name="__codelineno-2-11"></a>
+<a id="__codelineno-2-12" name="__codelineno-2-12"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">api_exception</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlainTextResponse</span><span class="p">:</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13"></a>    <span class="sd">&quot;&quot;&quot;Extract exception information and return it as a response&quot;&quot;&quot;</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">TipException</span><span class="p">):</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15"></a>        <span class="n">exc</span> <span class="o">=</span> <span class="n">exc</span><span class="o">.</span><span class="n">exc</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16"></a>    <span class="k">return</span> <span class="n">PlainTextResponse</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17"></a>
+<a id="__codelineno-2-18" name="__codelineno-2-18"></a>
+<a id="__codelineno-2-19" name="__codelineno-2-19"></a><span class="nd">@pait</span><span class="p">()</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span><span class="n">demo_value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;123&quot;</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">PlainTextResponse</span><span class="p">:</span>
+</span><a id="__codelineno-2-21" name="__codelineno-2-21"></a>    <span class="k">return</span> <span class="n">PlainTextResponse</span><span class="p">(</span><span class="n">demo_value</span><span class="p">)</span>
+<a id="__codelineno-2-22" name="__codelineno-2-22"></a>
+<a id="__codelineno-2-23" name="__codelineno-2-23"></a>
+<a id="__codelineno-2-24" name="__codelineno-2-24"></a><span class="nd">@pait</span><span class="p">()</span>
+<a id="__codelineno-2-25" name="__codelineno-2-25"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">demo1</span><span class="p">(</span><span class="n">demo_value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="n">PlainTextResponse</span><span class="p">:</span>
+</span><a id="__codelineno-2-26" name="__codelineno-2-26"></a>    <span class="k">return</span> <span class="n">PlainTextResponse</span><span class="p">(</span><span class="n">demo_value</span><span class="p">)</span>
+<a id="__codelineno-2-27" name="__codelineno-2-27"></a>
+<a id="__codelineno-2-28" name="__codelineno-2-28"></a>
+<a id="__codelineno-2-29" name="__codelineno-2-29"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span>
+<a id="__codelineno-2-30" name="__codelineno-2-30"></a>    <span class="n">routes</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-2-31" name="__codelineno-2-31"></a>        <span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">]),</span>
+<a id="__codelineno-2-32" name="__codelineno-2-32"></a>        <span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo1&quot;</span><span class="p">,</span> <span class="n">demo1</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">]),</span>
+<a id="__codelineno-2-33" name="__codelineno-2-33"></a>    <span class="p">]</span>
+<a id="__codelineno-2-34" name="__codelineno-2-34"></a><span class="p">)</span>
+<a id="__codelineno-2-35" name="__codelineno-2-35"></a>
+<a id="__codelineno-2-36" name="__codelineno-2-36"></a><span class="n">app</span><span class="o">.</span><span class="n">add_exception_handler</span><span class="p">(</span><span class="ne">Exception</span><span class="p">,</span> <span class="n">api_exception</span><span class="p">)</span>
+<a id="__codelineno-2-37" name="__codelineno-2-37"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 </code></pre></div>
-使用<code>curl</code>调用可以发现，对于有默认值得接口<code>/api/demo</code>，当没有传参数demo_value时，默认返回123, 传参数456时，返回值是456:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo&quot;</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="m">123</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=456&quot;</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="m">456</span>
+Using <code>curl</code> call, can find that for the interface <code>/api/demo</code> with a default value, when no parameter demo_value is passed, the default return value is 123, and when the parameter 456 is passed, the return value is 456:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo&quot;</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="m">123</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=456&quot;</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="m">456</span>
 </code></pre></div>
-而没有带参数的请求会看到有个报错， 提示没有找到<code>demo_value</code>的值:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>➜  curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo1&quot;</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>Can not found demo_value value
+And the request without parameters will see an error, indicating that the value of <code>demo_value</code> is not found:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1"></a>➜  curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo1&quot;</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2"></a>Can not found demo_value value
 </code></pre></div></p>
 <h3 id="22default_factory">2.2.default_factory</h3>
-<p>该参数用于默认值是函数的情况，可以用来填写类似于<code>datetime.datetime.now</code>的默认值。</p>
-<p>示例代码如下，第一个接口的默认值是当前时间， 第二个接口的默认值是uuid，他们每次调用段返回值都是收到请求时生成的:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span> <span class="nn">datetime</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">import</span> <span class="nn">uuid</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">PlainTextResponse</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">field</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="nd">@pait</span><span class="p">()</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="hll">    <span class="n">now</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
-</span><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlainTextResponse</span><span class="p">:</span>
-<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>    <span class="k">return</span> <span class="n">PlainTextResponse</span><span class="p">(</span><span class="n">now</span><span class="p">)</span>
-<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>
-<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>
-<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="nd">@pait</span><span class="p">()</span>
-<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">demo1</span><span class="p">(</span><span class="n">demo_value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">PlainTextResponse</span><span class="p">:</span>
-</span><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>    <span class="k">return</span> <span class="n">PlainTextResponse</span><span class="p">(</span><span class="n">demo_value</span><span class="p">)</span>
-<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>
-<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>
-<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span>
-<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>    <span class="n">routes</span><span class="o">=</span><span class="p">[</span>
-<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>        <span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">]),</span>
-<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>        <span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo1&quot;</span><span class="p">,</span> <span class="n">demo1</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">]),</span>
-<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a>    <span class="p">]</span>
-<a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a><span class="p">)</span>
-<a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a>
-<a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<p>This parameter is used when the default value is a function, and can be used to fill in a default value similar to <code>datetime.datetime.now</code> that is generated after receiving a request.</p>
+<p>The sample code is as follows. The default value of the first interface is the current time, and the default value of the second interface is uuid. The return value of each call is generated when the request is received.:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="kn">import</span> <span class="nn">datetime</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="kn">import</span> <span class="nn">uuid</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">PlainTextResponse</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7"></a>
+<a id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">field</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10"></a>
+<a id="__codelineno-5-11" name="__codelineno-5-11"></a>
+<a id="__codelineno-5-12" name="__codelineno-5-12"></a><span class="nd">@pait</span><span class="p">()</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14"></a><span class="hll">    <span class="n">now</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
+</span><a id="__codelineno-5-15" name="__codelineno-5-15"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlainTextResponse</span><span class="p">:</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16"></a>    <span class="k">return</span> <span class="n">PlainTextResponse</span><span class="p">(</span><span class="n">now</span><span class="p">)</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17"></a>
+<a id="__codelineno-5-18" name="__codelineno-5-18"></a>
+<a id="__codelineno-5-19" name="__codelineno-5-19"></a><span class="nd">@pait</span><span class="p">()</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo1</span><span class="p">(</span>
+<a id="__codelineno-5-21" name="__codelineno-5-21"></a><span class="hll">    <span class="n">demo_value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">)</span>
+</span><a id="__codelineno-5-22" name="__codelineno-5-22"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlainTextResponse</span><span class="p">:</span>
+<a id="__codelineno-5-23" name="__codelineno-5-23"></a>    <span class="k">return</span> <span class="n">PlainTextResponse</span><span class="p">(</span><span class="n">demo_value</span><span class="p">)</span>
+<a id="__codelineno-5-24" name="__codelineno-5-24"></a>
+<a id="__codelineno-5-25" name="__codelineno-5-25"></a>
+<a id="__codelineno-5-26" name="__codelineno-5-26"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span>
+<a id="__codelineno-5-27" name="__codelineno-5-27"></a>    <span class="n">routes</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-5-28" name="__codelineno-5-28"></a>        <span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">]),</span>
+<a id="__codelineno-5-29" name="__codelineno-5-29"></a>        <span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo1&quot;</span><span class="p">,</span> <span class="n">demo1</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">]),</span>
+<a id="__codelineno-5-30" name="__codelineno-5-30"></a>    <span class="p">]</span>
+<a id="__codelineno-5-31" name="__codelineno-5-31"></a><span class="p">)</span>
+<a id="__codelineno-5-32" name="__codelineno-5-32"></a>
+<a id="__codelineno-5-33" name="__codelineno-5-33"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 </code></pre></div>
-使用<code>curl</code>调用可以发现每次返回的结果都是不一样的:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo&quot;</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="m">2022</span>-02-07T14:54:29.127519
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo&quot;</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="m">2022</span>-02-07T14:54:33.789994
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo1&quot;</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>7e4659e18103471da9db91ed4843d962
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo1&quot;</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>ef84f04fa9fc4ea9a8b44449c76146b8
+Using <code>curl</code> calls can find that the results returned each time are different:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo&quot;</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="m">2022</span>-02-07T14:54:29.127519
+<a id="__codelineno-6-3" name="__codelineno-6-3"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo&quot;</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="m">2022</span>-02-07T14:54:33.789994
+<a id="__codelineno-6-5" name="__codelineno-6-5"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo1&quot;</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6"></a>7e4659e18103471da9db91ed4843d962
+<a id="__codelineno-6-7" name="__codelineno-6-7"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo1&quot;</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8"></a>ef84f04fa9fc4ea9a8b44449c76146b8
 </code></pre></div></p>
 <h3 id="23alias">2.3.alias</h3>
-<p>参数的别名，一些参数可能被命名为<code>Content-Type</code>, 但是Python不支持这种命名方式， 此时可以使用别名。</p>
-<p>示例代码如下:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">PlainTextResponse</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">field</span>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="nd">@pait</span><span class="p">()</span>
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span><span class="n">content_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Header</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">PlainTextResponse</span><span class="p">:</span>
-</span><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>    <span class="k">return</span> <span class="n">PlainTextResponse</span><span class="p">(</span><span class="n">content_type</span><span class="p">)</span>
-<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>
-<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>
-<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span><span class="n">routes</span><span class="o">=</span><span class="p">[</span><span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])])</span>
-<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>
-<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<p>Aliases for parameters, some parameters may be named <code>Content-Type</code>, but Python does not support this naming method, you can use aliases in this case。</p>
+<p>The sample code is as follows:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">PlainTextResponse</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5"></a>
+<a id="__codelineno-7-6" name="__codelineno-7-6"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">field</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8"></a>
+<a id="__codelineno-7-9" name="__codelineno-7-9"></a>
+<a id="__codelineno-7-10" name="__codelineno-7-10"></a><span class="nd">@pait</span><span class="p">()</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12"></a><span class="hll">    <span class="n">content_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Header</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-7-13" name="__codelineno-7-13"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlainTextResponse</span><span class="p">:</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14"></a>    <span class="k">return</span> <span class="n">PlainTextResponse</span><span class="p">(</span><span class="n">content_type</span><span class="p">)</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15"></a>
+<a id="__codelineno-7-16" name="__codelineno-7-16"></a>
+<a id="__codelineno-7-17" name="__codelineno-7-17"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span><span class="n">routes</span><span class="o">=</span><span class="p">[</span><span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])])</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18"></a>
+<a id="__codelineno-7-19" name="__codelineno-7-19"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 </code></pre></div>
-使用<code>curl</code>调用可以发现，<code>Pait</code>正常的从Header中提取<code>Content-Type</code>的值并赋给了content_type:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo&quot;</span> -H <span class="s2">&quot;Content-Type:123&quot;</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="m">123</span>
+Using the <code>curl</code> call, it can be found that <code>Pait</code> normally extracts the <code>Content-Type</code> value from the Header and assigns it to the content type:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo&quot;</span> -H <span class="s2">&quot;Content-Type:123&quot;</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2"></a><span class="m">123</span>
 </code></pre></div></p>
-<h3 id="24gtgeltlemultiple_of">2.4.数字校验之gt，ge，lt，le，multiple_of</h3>
-<p>这几个值都是校验数字是否合法，仅用于数值的类型，他们的作用各不相同：</p>
+<h3 id="24gt-ge-lt-le-multiple-of-digital-check">2.4.gt, ge, lt, le, multiple of digital check</h3>
+<p>These values are all check digits for legality and are only used for numeric types, but their functions are different：</p>
 <ul>
-<li>gt：仅用于数值的类型，会校验数值是否大于该值，同时也会在OpenAPI添加<code>exclusiveMinimum</code>属性。</li>
-<li>ge：仅用于数值的类型，会校验数值是否大于等于该值，同时也会在OpenAPI添加<code>exclusiveMinimum</code>属性。</li>
-<li>lt：仅用于数值的类型，会校验数值是否小于该值，同时也会在OpenAPI添加<code>exclusiveMaximum</code>属性。</li>
-<li>le：仅用于数值的类型，会校验数值是否小于等于该值，同时也会在OpenAPI添加<code>exclusiveMaximum</code>属性。</li>
-<li>multiple_of：仅用于数字， 会校验该数字是否是指定值得倍数。</li>
+<li>gt：For numeric types only, it will check if the numeric value is greater than this value, and also add the <code>exclusiveMinimum</code> property in the Open API.</li>
+<li>ge：Only used for numeric types, it will check whether the value is greater than or equal to this value, and also add the <code>exclusiveMinimum</code> attribute in the Open API。</li>
+<li>lt：Only used for numeric types, it will check whether the value is less than this value, and also add the <code>exclusiveMaximum</code> attribute in the Open API。</li>
+<li>le：Only used for numeric types, it will check whether the value is less than or equal to this value, and also add the <code>exclusiveMaximum</code> attribute in the Open API。</li>
+<li>multiple_of：For numbers only, checks if the number is a multiple of the specified value.</li>
 </ul>
-<p>示例代码如下，这个示例代码只有一个接口，但是接受了三个参数<code>demo_value1</code>, <code>demo_value2</code>, <code>demo_value3</code>，他们分别只接收符合大于1小于10；等于1;3的倍数的三个数：
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="kn">from</span> <span class="nn">starlette.requests</span> <span class="kn">import</span> <span class="n">Request</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">JSONResponse</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">field</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="kn">from</span> <span class="nn">pait.exceptions</span> <span class="kn">import</span> <span class="n">TipException</span>
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span>
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>
-<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">api_exception</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
-<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>    <span class="sd">&quot;&quot;&quot;提取异常信息， 并以响应返回&quot;&quot;&quot;</span>
-<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">):</span>
-<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>        <span class="c1"># 解析Pydantic的抛错</span>
-<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>        <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">exc</span><span class="o">.</span><span class="n">errors</span><span class="p">()})</span>
-<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
-<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>
-<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>
-<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="nd">@pait</span><span class="p">()</span>
-<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span>
-<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a><span class="hll">    <span class="n">demo_value1</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">gt</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">lt</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
-</span><a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a><span class="hll">    <span class="n">demo_value2</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-</span><a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a><span class="hll">    <span class="n">demo_value3</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">multiple_of</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
-</span><a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
-<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">demo_value1</span><span class="p">,</span> <span class="n">demo_value2</span><span class="p">,</span> <span class="n">demo_value3</span><span class="p">]})</span>
-<a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>
-<a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a>
-<a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span><span class="n">routes</span><span class="o">=</span><span class="p">[</span><span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])])</span>
-<a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a><span class="n">app</span><span class="o">.</span><span class="n">add_exception_handler</span><span class="p">(</span><span class="ne">Exception</span><span class="p">,</span> <span class="n">api_exception</span><span class="p">)</span>
-<a id="__codelineno-9-32" name="__codelineno-9-32" href="#__codelineno-9-32"></a>
-<a id="__codelineno-9-33" name="__codelineno-9-33" href="#__codelineno-9-33"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<p>The sample code is as follows, this sample code has only one interface, but accepts three parameters <code>demo_value1</code>, <code>demo_value2</code>, <code>demo_value3</code>, they only accept three numbers that are greater than 1 and less than 10; equal to 1 and a multiple of 3:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1"></a><span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="kn">from</span> <span class="nn">starlette.requests</span> <span class="kn">import</span> <span class="n">Request</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">JSONResponse</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6"></a>
+<a id="__codelineno-9-7" name="__codelineno-9-7"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">field</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9"></a><span class="kn">from</span> <span class="nn">pait.exceptions</span> <span class="kn">import</span> <span class="n">TipException</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11"></a>
+<a id="__codelineno-9-12" name="__codelineno-9-12"></a>
+<a id="__codelineno-9-13" name="__codelineno-9-13"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">api_exception</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14"></a>    <span class="sd">&quot;&quot;&quot;Extract exception information and return it as a response&quot;&quot;&quot;</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">):</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16"></a>        <span class="c1"># parsingPydanticSErrorThrow</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17"></a>        <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">exc</span><span class="o">.</span><span class="n">errors</span><span class="p">()})</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+<a id="__codelineno-9-19" name="__codelineno-9-19"></a>
+<a id="__codelineno-9-20" name="__codelineno-9-20"></a>
+<a id="__codelineno-9-21" name="__codelineno-9-21"></a><span class="nd">@pait</span><span class="p">()</span>
+<a id="__codelineno-9-22" name="__codelineno-9-22"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span>
+<a id="__codelineno-9-23" name="__codelineno-9-23"></a><span class="hll">    <span class="n">demo_value1</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">gt</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">lt</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+</span><a id="__codelineno-9-24" name="__codelineno-9-24"></a><span class="hll">    <span class="n">demo_value2</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+</span><a id="__codelineno-9-25" name="__codelineno-9-25"></a><span class="hll">    <span class="n">demo_value3</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">multiple_of</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
+</span><a id="__codelineno-9-26" name="__codelineno-9-26"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
+<a id="__codelineno-9-27" name="__codelineno-9-27"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">demo_value1</span><span class="p">,</span> <span class="n">demo_value2</span><span class="p">,</span> <span class="n">demo_value3</span><span class="p">]})</span>
+<a id="__codelineno-9-28" name="__codelineno-9-28"></a>
+<a id="__codelineno-9-29" name="__codelineno-9-29"></a>
+<a id="__codelineno-9-30" name="__codelineno-9-30"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span><span class="n">routes</span><span class="o">=</span><span class="p">[</span><span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])])</span>
+<a id="__codelineno-9-31" name="__codelineno-9-31"></a><span class="n">app</span><span class="o">.</span><span class="n">add_exception_handler</span><span class="p">(</span><span class="ne">Exception</span><span class="p">,</span> <span class="n">api_exception</span><span class="p">)</span>
+<a id="__codelineno-9-32" name="__codelineno-9-32"></a>
+<a id="__codelineno-9-33" name="__codelineno-9-33"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 </code></pre></div>
-使用<code>curl</code>调用可以发现第一个请求符合要求并得到了想要的响应结果，第二个请求则三个参数都错了，并返回<code>Pydantic.ValidationError</code>的错误信息，从错误信息可以简单的看出来三个参数都不符合接口设置的限定条件：
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value1=2&amp;demo_value2=1&amp;demo_value3=3&quot;</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="o">{</span><span class="s2">&quot;data&quot;</span>:<span class="o">[</span><span class="m">2</span>,1,3<span class="o">]}</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value1=11&amp;demo_value2=2&amp;demo_value3=2&quot;</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="o">{</span>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="s2">&quot;data&quot;</span>: <span class="o">[</span>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>        <span class="o">{</span>
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>            <span class="s2">&quot;loc&quot;</span>: <span class="o">[</span>
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>                <span class="s2">&quot;demo_value1&quot;</span>
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>            <span class="o">]</span>,
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>            <span class="s2">&quot;msg&quot;</span>: <span class="s2">&quot;ensure this value is less than 10&quot;</span>,
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>            <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;value_error.number.not_lt&quot;</span>,
-<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>            <span class="s2">&quot;ctx&quot;</span>: <span class="o">{</span>
-<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>                <span class="s2">&quot;limit_value&quot;</span>: <span class="m">10</span>
-<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>            <span class="o">}</span>
-<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>        <span class="o">}</span>,
-<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>        <span class="o">{</span>
-<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>            <span class="s2">&quot;loc&quot;</span>: <span class="o">[</span>
-<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>                <span class="s2">&quot;demo_value2&quot;</span>
-<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>            <span class="o">]</span>,
-<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>            <span class="s2">&quot;msg&quot;</span>: <span class="s2">&quot;ensure this value is less than or equal to 1&quot;</span>,
-<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>            <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;value_error.number.not_le&quot;</span>,
-<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>            <span class="s2">&quot;ctx&quot;</span>: <span class="o">{</span>
-<a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>                <span class="s2">&quot;limit_value&quot;</span>: <span class="m">1</span>
-<a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>            <span class="o">}</span>
-<a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a>        <span class="o">}</span>,
-<a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a>        <span class="o">{</span>
-<a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a>            <span class="s2">&quot;loc&quot;</span>: <span class="o">[</span>
-<a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a>                <span class="s2">&quot;demo_value3&quot;</span>
-<a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a>            <span class="o">]</span>,
-<a id="__codelineno-10-30" name="__codelineno-10-30" href="#__codelineno-10-30"></a>            <span class="s2">&quot;msg&quot;</span>: <span class="s2">&quot;ensure this value is a multiple of 3&quot;</span>,
-<a id="__codelineno-10-31" name="__codelineno-10-31" href="#__codelineno-10-31"></a>            <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;value_error.number.not_multiple&quot;</span>,
-<a id="__codelineno-10-32" name="__codelineno-10-32" href="#__codelineno-10-32"></a>            <span class="s2">&quot;ctx&quot;</span>: <span class="o">{</span>
-<a id="__codelineno-10-33" name="__codelineno-10-33" href="#__codelineno-10-33"></a>                <span class="s2">&quot;multiple_of&quot;</span>: <span class="m">3</span>
-<a id="__codelineno-10-34" name="__codelineno-10-34" href="#__codelineno-10-34"></a>            <span class="o">}</span>
-<a id="__codelineno-10-35" name="__codelineno-10-35" href="#__codelineno-10-35"></a>        <span class="o">}</span>
-<a id="__codelineno-10-36" name="__codelineno-10-36" href="#__codelineno-10-36"></a>    <span class="o">]</span>
-<a id="__codelineno-10-37" name="__codelineno-10-37" href="#__codelineno-10-37"></a><span class="o">}</span>
+Using the <code>curl</code> call, you can find that the first request meets the requirements and gets the desired response result. The second request has all three parameters wrong, and returns the error message of <code>Pydantic.ValidationError</code>. From the error message, you can It is simple to see that the three parameters do not meet the qualifications of the interface settings：
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value1=2&amp;demo_value2=1&amp;demo_value3=3&quot;</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2"></a><span class="o">{</span><span class="s2">&quot;data&quot;</span>:<span class="o">[</span><span class="m">2</span>,1,3<span class="o">]}</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value1=11&amp;demo_value2=2&amp;demo_value3=2&quot;</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="o">{</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5"></a>    <span class="s2">&quot;data&quot;</span>: <span class="o">[</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6"></a>        <span class="o">{</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7"></a>            <span class="s2">&quot;loc&quot;</span>: <span class="o">[</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8"></a>                <span class="s2">&quot;demo_value1&quot;</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9"></a>            <span class="o">]</span>,
+<a id="__codelineno-10-10" name="__codelineno-10-10"></a>            <span class="s2">&quot;msg&quot;</span>: <span class="s2">&quot;ensure this value is less than 10&quot;</span>,
+<a id="__codelineno-10-11" name="__codelineno-10-11"></a>            <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;value_error.number.not_lt&quot;</span>,
+<a id="__codelineno-10-12" name="__codelineno-10-12"></a>            <span class="s2">&quot;ctx&quot;</span>: <span class="o">{</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13"></a>                <span class="s2">&quot;limit_value&quot;</span>: <span class="m">10</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14"></a>            <span class="o">}</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15"></a>        <span class="o">}</span>,
+<a id="__codelineno-10-16" name="__codelineno-10-16"></a>        <span class="o">{</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17"></a>            <span class="s2">&quot;loc&quot;</span>: <span class="o">[</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18"></a>                <span class="s2">&quot;demo_value2&quot;</span>
+<a id="__codelineno-10-19" name="__codelineno-10-19"></a>            <span class="o">]</span>,
+<a id="__codelineno-10-20" name="__codelineno-10-20"></a>            <span class="s2">&quot;msg&quot;</span>: <span class="s2">&quot;ensure this value is less than or equal to 1&quot;</span>,
+<a id="__codelineno-10-21" name="__codelineno-10-21"></a>            <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;value_error.number.not_le&quot;</span>,
+<a id="__codelineno-10-22" name="__codelineno-10-22"></a>            <span class="s2">&quot;ctx&quot;</span>: <span class="o">{</span>
+<a id="__codelineno-10-23" name="__codelineno-10-23"></a>                <span class="s2">&quot;limit_value&quot;</span>: <span class="m">1</span>
+<a id="__codelineno-10-24" name="__codelineno-10-24"></a>            <span class="o">}</span>
+<a id="__codelineno-10-25" name="__codelineno-10-25"></a>        <span class="o">}</span>,
+<a id="__codelineno-10-26" name="__codelineno-10-26"></a>        <span class="o">{</span>
+<a id="__codelineno-10-27" name="__codelineno-10-27"></a>            <span class="s2">&quot;loc&quot;</span>: <span class="o">[</span>
+<a id="__codelineno-10-28" name="__codelineno-10-28"></a>                <span class="s2">&quot;demo_value3&quot;</span>
+<a id="__codelineno-10-29" name="__codelineno-10-29"></a>            <span class="o">]</span>,
+<a id="__codelineno-10-30" name="__codelineno-10-30"></a>            <span class="s2">&quot;msg&quot;</span>: <span class="s2">&quot;ensure this value is a multiple of 3&quot;</span>,
+<a id="__codelineno-10-31" name="__codelineno-10-31"></a>            <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;value_error.number.not_multiple&quot;</span>,
+<a id="__codelineno-10-32" name="__codelineno-10-32"></a>            <span class="s2">&quot;ctx&quot;</span>: <span class="o">{</span>
+<a id="__codelineno-10-33" name="__codelineno-10-33"></a>                <span class="s2">&quot;multiple_of&quot;</span>: <span class="m">3</span>
+<a id="__codelineno-10-34" name="__codelineno-10-34"></a>            <span class="o">}</span>
+<a id="__codelineno-10-35" name="__codelineno-10-35"></a>        <span class="o">}</span>
+<a id="__codelineno-10-36" name="__codelineno-10-36"></a>    <span class="o">]</span>
+<a id="__codelineno-10-37" name="__codelineno-10-37"></a><span class="o">}</span>
 </code></pre></div></p>
-<h3 id="25min_itemsmax_items">2.5.数组校验之min_items，max_items</h3>
-<p>这几个值都是校验数组是否合法，仅用于数组的类型，他们的作用各不相同：</p>
+<h3 id="25-array-checkmin_itemsmax_items">2.5. array check(min_items，max_items)</h3>
+<p>These values are used to check whether the array is legal or not. They are only used for the type of the array. Their feature are different.：</p>
 <ul>
-<li>min_items：仅用于数组类型，会校验字列表是否满足大于等于指定的值。</li>
-<li>max_items： 仅用于数组类型，会校验字列表是否满足小于等于指定的值。</li>
+<li>min_items：For array types only, it will check whether the word list is greater than or equal to the specified value.</li>
+<li>max_items： Only for array types, it will check whether the word list is less than or equal to the specified value。</li>
 </ul>
-<p>示例代码如下，该接口通过<code>field.MultiQuery</code>从请求Url中获取参数<code>demo_value</code>的数组，并返回给调用端，其中数组的长度限定在大于等于1且小于等于2之间：
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="kn">from</span> <span class="nn">starlette.requests</span> <span class="kn">import</span> <span class="n">Request</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">JSONResponse</span>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
-<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">field</span>
-<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="kn">from</span> <span class="nn">pait.exceptions</span> <span class="kn">import</span> <span class="n">TipException</span>
-<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span>
-<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>
-<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>
-<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">api_exception</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
-<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>    <span class="sd">&quot;&quot;&quot;提取异常信息， 并以响应返回&quot;&quot;&quot;</span>
-<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">TipException</span><span class="p">):</span>
-<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>        <span class="n">exc</span> <span class="o">=</span> <span class="n">exc</span><span class="o">.</span><span class="n">exc</span>
-<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">):</span>
-<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>        <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">exc</span><span class="o">.</span><span class="n">errors</span><span class="p">()})</span>
-<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
-<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>
-<a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a>
-<a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a><span class="nd">@pait</span><span class="p">()</span>
-<a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span><span class="n">demo_value</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">MultiQuery</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">min_items</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_items</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
-</span><a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">demo_value</span><span class="p">})</span>
-<a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a>
-<a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a>
-<a id="__codelineno-11-28" name="__codelineno-11-28" href="#__codelineno-11-28"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span><span class="n">routes</span><span class="o">=</span><span class="p">[</span><span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])])</span>
-<a id="__codelineno-11-29" name="__codelineno-11-29" href="#__codelineno-11-29"></a><span class="n">app</span><span class="o">.</span><span class="n">add_exception_handler</span><span class="p">(</span><span class="ne">Exception</span><span class="p">,</span> <span class="n">api_exception</span><span class="p">)</span>
-<a id="__codelineno-11-30" name="__codelineno-11-30" href="#__codelineno-11-30"></a>
-<a id="__codelineno-11-31" name="__codelineno-11-31" href="#__codelineno-11-31"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<p>The sample code is as follows, the interface obtains the array of parameter <code>demo value</code> from the request Url through <code>field.MultiQuery</code>, and returns it to the calling end, where the length of the array is limited to greater than or equal to 1 and less than or equal to 2：
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="kn">from</span> <span class="nn">starlette.requests</span> <span class="kn">import</span> <span class="n">Request</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">JSONResponse</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7"></a>
+<a id="__codelineno-11-8" name="__codelineno-11-8"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">field</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10"></a><span class="kn">from</span> <span class="nn">pait.exceptions</span> <span class="kn">import</span> <span class="n">TipException</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12"></a>
+<a id="__codelineno-11-13" name="__codelineno-11-13"></a>
+<a id="__codelineno-11-14" name="__codelineno-11-14"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">api_exception</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
+<a id="__codelineno-11-15" name="__codelineno-11-15"></a>    <span class="sd">&quot;&quot;&quot;Extract exception information and return it as a response&quot;&quot;&quot;</span>
+<a id="__codelineno-11-16" name="__codelineno-11-16"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">TipException</span><span class="p">):</span>
+<a id="__codelineno-11-17" name="__codelineno-11-17"></a>        <span class="n">exc</span> <span class="o">=</span> <span class="n">exc</span><span class="o">.</span><span class="n">exc</span>
+<a id="__codelineno-11-18" name="__codelineno-11-18"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">):</span>
+<a id="__codelineno-11-19" name="__codelineno-11-19"></a>        <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">exc</span><span class="o">.</span><span class="n">errors</span><span class="p">()})</span>
+<a id="__codelineno-11-20" name="__codelineno-11-20"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+<a id="__codelineno-11-21" name="__codelineno-11-21"></a>
+<a id="__codelineno-11-22" name="__codelineno-11-22"></a>
+<a id="__codelineno-11-23" name="__codelineno-11-23"></a><span class="nd">@pait</span><span class="p">()</span>
+<a id="__codelineno-11-24" name="__codelineno-11-24"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span>
+<a id="__codelineno-11-25" name="__codelineno-11-25"></a><span class="hll">    <span class="n">demo_value</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">MultiQuery</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">min_items</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_items</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</span><a id="__codelineno-11-26" name="__codelineno-11-26"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
+<a id="__codelineno-11-27" name="__codelineno-11-27"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">demo_value</span><span class="p">})</span>
+<a id="__codelineno-11-28" name="__codelineno-11-28"></a>
+<a id="__codelineno-11-29" name="__codelineno-11-29"></a>
+<a id="__codelineno-11-30" name="__codelineno-11-30"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span><span class="n">routes</span><span class="o">=</span><span class="p">[</span><span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])])</span>
+<a id="__codelineno-11-31" name="__codelineno-11-31"></a><span class="n">app</span><span class="o">.</span><span class="n">add_exception_handler</span><span class="p">(</span><span class="ne">Exception</span><span class="p">,</span> <span class="n">api_exception</span><span class="p">)</span>
+<a id="__codelineno-11-32" name="__codelineno-11-32"></a>
+<a id="__codelineno-11-33" name="__codelineno-11-33"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 </code></pre></div>
-与2.4一样，通过<code>curl</code>调用可以发现合法的参数会放行，不合法的参数会抛错：
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=1&quot;</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="o">{</span><span class="s2">&quot;data&quot;</span>:<span class="o">[</span><span class="m">1</span><span class="o">]}</span>
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=1&amp;demo_value=2&quot;</span>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="o">{</span><span class="s2">&quot;data&quot;</span>:<span class="o">[</span><span class="m">1</span>,2<span class="o">]}</span>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=1&amp;demo_value=2&amp;demo_value=3&quot;</span>
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="o">{</span>
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    <span class="s2">&quot;data&quot;</span>: <span class="o">[</span>
-<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>        <span class="o">{</span>
-<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>            <span class="s2">&quot;loc&quot;</span>: <span class="o">[</span>
-<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>                <span class="s2">&quot;demo_value&quot;</span>
-<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>            <span class="o">]</span>,
-<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>            <span class="s2">&quot;msg&quot;</span>: <span class="s2">&quot;ensure this value has at most 2 items&quot;</span>,
-<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>            <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;value_error.list.max_items&quot;</span>,
-<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>            <span class="s2">&quot;ctx&quot;</span>: <span class="o">{</span>
-<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>                <span class="s2">&quot;limit_value&quot;</span>: <span class="m">2</span>
-<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>            <span class="o">}</span>
-<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>        <span class="o">}</span>
-<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>    <span class="o">]</span>
-<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="o">}</span>
+As in 2.4, through the <code>curl</code> call, it can be found that the legal parameters will be released, and the illegal parameters will throw an error：
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=1&quot;</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="o">{</span><span class="s2">&quot;data&quot;</span>:<span class="o">[</span><span class="m">1</span><span class="o">]}</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=1&amp;demo_value=2&quot;</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="o">{</span><span class="s2">&quot;data&quot;</span>:<span class="o">[</span><span class="m">1</span>,2<span class="o">]}</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=1&amp;demo_value=2&amp;demo_value=3&quot;</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6"></a><span class="o">{</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7"></a>    <span class="s2">&quot;data&quot;</span>: <span class="o">[</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8"></a>        <span class="o">{</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9"></a>            <span class="s2">&quot;loc&quot;</span>: <span class="o">[</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10"></a>                <span class="s2">&quot;demo_value&quot;</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11"></a>            <span class="o">]</span>,
+<a id="__codelineno-12-12" name="__codelineno-12-12"></a>            <span class="s2">&quot;msg&quot;</span>: <span class="s2">&quot;ensure this value has at most 2 items&quot;</span>,
+<a id="__codelineno-12-13" name="__codelineno-12-13"></a>            <span class="s2">&quot;type&quot;</span>: <span class="s2">&quot;value_error.list.max_items&quot;</span>,
+<a id="__codelineno-12-14" name="__codelineno-12-14"></a>            <span class="s2">&quot;ctx&quot;</span>: <span class="o">{</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15"></a>                <span class="s2">&quot;limit_value&quot;</span>: <span class="m">2</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16"></a>            <span class="o">}</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17"></a>        <span class="o">}</span>
+<a id="__codelineno-12-18" name="__codelineno-12-18"></a>    <span class="o">]</span>
+<a id="__codelineno-12-19" name="__codelineno-12-19"></a><span class="o">}</span>
 </code></pre></div></p>
-<h3 id="26min_lengthmax_lengthregex">2.6.字符串校验之min_length，max_length，regex</h3>
-<p>这几个值都是校验字符串是否合法，仅用于字符串的类型，他们的作用各不相同：</p>
+<h3 id="26string-checkmin_lengthmax_lengthregex">2.6.String check(min_length，max_length，regex)</h3>
+<p>These values are used to check whether the string is legal or not. They are only used for the type of string, and their feature are different:</p>
 <ul>
-<li>min_length：仅用于字符串类型，会校验字符串的长度是否满足大于等于指定的值。</li>
-<li>max_length：仅用于字符串类型，会校验字符串的长度是否满足小于等于指定的值。</li>
-<li>regex：仅用于字符串类型，会校验字符串是否符合该正则表达式。</li>
+<li>min_length：Only used for string type, it will check whether the length of the string is greater than or equal to the specified value。</li>
+<li>max_length：For string type only, it will check whether the length of the string is less than or equal to the specified value.</li>
+<li>regex：For string type only, it will check whether the string matches the regular expression.</li>
 </ul>
-<p>示例代码如下， 该接口需要从Url中获取一个值， 这个值得长度大小为6，且必须为英文字母u开头：
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="kn">from</span> <span class="nn">starlette.requests</span> <span class="kn">import</span> <span class="n">Request</span>
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">JSONResponse</span>
-<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
-<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>
-<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
-<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">field</span>
-<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="kn">from</span> <span class="nn">pait.exceptions</span> <span class="kn">import</span> <span class="n">TipException</span>
-<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span>
-<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>
-<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>
-<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">api_exception</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
-<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>    <span class="sd">&quot;&quot;&quot;提取异常信息， 并以响应返回&quot;&quot;&quot;</span>
-<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">TipException</span><span class="p">):</span>
-<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>        <span class="n">exc</span> <span class="o">=</span> <span class="n">exc</span><span class="o">.</span><span class="n">exc</span>
-<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">):</span>
-<a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>        <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">exc</span><span class="o">.</span><span class="n">errors</span><span class="p">()})</span>
-<a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
-<a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a>
-<a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a>
-<a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a><span class="nd">@pait</span><span class="p">()</span>
-<a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span><span class="n">demo_value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="s2">&quot;^u&quot;</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
-</span><a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">demo_value</span><span class="p">})</span>
-<a id="__codelineno-13-25" name="__codelineno-13-25" href="#__codelineno-13-25"></a>
-<a id="__codelineno-13-26" name="__codelineno-13-26" href="#__codelineno-13-26"></a>
-<a id="__codelineno-13-27" name="__codelineno-13-27" href="#__codelineno-13-27"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span><span class="n">routes</span><span class="o">=</span><span class="p">[</span><span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])])</span>
-<a id="__codelineno-13-28" name="__codelineno-13-28" href="#__codelineno-13-28"></a><span class="n">app</span><span class="o">.</span><span class="n">add_exception_handler</span><span class="p">(</span><span class="ne">Exception</span><span class="p">,</span> <span class="n">api_exception</span><span class="p">)</span>
-<a id="__codelineno-13-29" name="__codelineno-13-29" href="#__codelineno-13-29"></a>
-<a id="__codelineno-13-30" name="__codelineno-13-30" href="#__codelineno-13-30"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<p>The sample code is as follows, the interface needs to get a value from Url, the length of this value is 6, and it must start with the English letter u:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="kn">from</span> <span class="nn">starlette.requests</span> <span class="kn">import</span> <span class="n">Request</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">JSONResponse</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6"></a>
+<a id="__codelineno-13-7" name="__codelineno-13-7"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">field</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9"></a><span class="kn">from</span> <span class="nn">pait.exceptions</span> <span class="kn">import</span> <span class="n">TipException</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11"></a>
+<a id="__codelineno-13-12" name="__codelineno-13-12"></a>
+<a id="__codelineno-13-13" name="__codelineno-13-13"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">api_exception</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
+<a id="__codelineno-13-14" name="__codelineno-13-14"></a>    <span class="sd">&quot;&quot;&quot;Extract exception information and return it as a response&quot;&quot;&quot;</span>
+<a id="__codelineno-13-15" name="__codelineno-13-15"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">TipException</span><span class="p">):</span>
+<a id="__codelineno-13-16" name="__codelineno-13-16"></a>        <span class="n">exc</span> <span class="o">=</span> <span class="n">exc</span><span class="o">.</span><span class="n">exc</span>
+<a id="__codelineno-13-17" name="__codelineno-13-17"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">):</span>
+<a id="__codelineno-13-18" name="__codelineno-13-18"></a>        <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">exc</span><span class="o">.</span><span class="n">errors</span><span class="p">()})</span>
+<a id="__codelineno-13-19" name="__codelineno-13-19"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+<a id="__codelineno-13-20" name="__codelineno-13-20"></a>
+<a id="__codelineno-13-21" name="__codelineno-13-21"></a>
+<a id="__codelineno-13-22" name="__codelineno-13-22"></a><span class="nd">@pait</span><span class="p">()</span>
+<a id="__codelineno-13-23" name="__codelineno-13-23"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span>
+<a id="__codelineno-13-24" name="__codelineno-13-24"></a><span class="hll">    <span class="n">demo_value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">min_length</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="s2">&quot;^u&quot;</span><span class="p">)</span>
+</span><a id="__codelineno-13-25" name="__codelineno-13-25"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
+<a id="__codelineno-13-26" name="__codelineno-13-26"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">demo_value</span><span class="p">})</span>
+<a id="__codelineno-13-27" name="__codelineno-13-27"></a>
+<a id="__codelineno-13-28" name="__codelineno-13-28"></a>
+<a id="__codelineno-13-29" name="__codelineno-13-29"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span><span class="n">routes</span><span class="o">=</span><span class="p">[</span><span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])])</span>
+<a id="__codelineno-13-30" name="__codelineno-13-30"></a><span class="n">app</span><span class="o">.</span><span class="n">add_exception_handler</span><span class="p">(</span><span class="ne">Exception</span><span class="p">,</span> <span class="n">api_exception</span><span class="p">)</span>
+<a id="__codelineno-13-31" name="__codelineno-13-31"></a>
+<a id="__codelineno-13-32" name="__codelineno-13-32"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 </code></pre></div>
-使用<code>curl</code>进行三次请求，第一次为正常数据，第二次为不符合正则表达式，第三次为长度不符合：
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=u66666&quot;</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="o">{</span><span class="s2">&quot;data&quot;</span>:<span class="s2">&quot;u66666&quot;</span><span class="o">}</span>
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=666666&quot;</span>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="o">{</span><span class="s2">&quot;data&quot;</span>:<span class="o">[{</span><span class="s2">&quot;loc&quot;</span>:<span class="o">[</span><span class="s2">&quot;demo_value&quot;</span><span class="o">]</span>,<span class="s2">&quot;msg&quot;</span>:<span class="s2">&quot;string does not match regex \&quot;^u\&quot;&quot;</span>,<span class="s2">&quot;type&quot;</span>:<span class="s2">&quot;value_error.str.regex&quot;</span>,<span class="s2">&quot;ctx&quot;</span>:<span class="o">{</span><span class="s2">&quot;pattern&quot;</span>:<span class="s2">&quot;^u&quot;</span><span class="o">}}]}</span>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=1&quot;</span>
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="o">{</span><span class="s2">&quot;data&quot;</span>:<span class="o">[{</span><span class="s2">&quot;loc&quot;</span>:<span class="o">[</span><span class="s2">&quot;demo_value&quot;</span><span class="o">]</span>,<span class="s2">&quot;msg&quot;</span>:<span class="s2">&quot;ensure this value has at least 6 characters&quot;</span>,<span class="s2">&quot;type&quot;</span>:<span class="s2">&quot;value_error.any_str.min_length&quot;</span>,<span class="s2">&quot;ctx&quot;</span>:<span class="o">{</span><span class="s2">&quot;limit_value&quot;</span>:6<span class="o">}}]}</span>
+Use <code>curl</code> to make three requests, the first is normal data, the second is not conforming to the regular expression, and the third is that the length does not conform：
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=u66666&quot;</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="o">{</span><span class="s2">&quot;data&quot;</span>:<span class="s2">&quot;u66666&quot;</span><span class="o">}</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=666666&quot;</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4"></a><span class="o">{</span><span class="s2">&quot;data&quot;</span>:<span class="o">[{</span><span class="s2">&quot;loc&quot;</span>:<span class="o">[</span><span class="s2">&quot;demo_value&quot;</span><span class="o">]</span>,<span class="s2">&quot;msg&quot;</span>:<span class="s2">&quot;string does not match regex \&quot;^u\&quot;&quot;</span>,<span class="s2">&quot;type&quot;</span>:<span class="s2">&quot;value_error.str.regex&quot;</span>,<span class="s2">&quot;ctx&quot;</span>:<span class="o">{</span><span class="s2">&quot;pattern&quot;</span>:<span class="s2">&quot;^u&quot;</span><span class="o">}}]}</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=1&quot;</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6"></a><span class="o">{</span><span class="s2">&quot;data&quot;</span>:<span class="o">[{</span><span class="s2">&quot;loc&quot;</span>:<span class="o">[</span><span class="s2">&quot;demo_value&quot;</span><span class="o">]</span>,<span class="s2">&quot;msg&quot;</span>:<span class="s2">&quot;ensure this value has at least 6 characters&quot;</span>,<span class="s2">&quot;type&quot;</span>:<span class="s2">&quot;value_error.any_str.min_length&quot;</span>,<span class="s2">&quot;ctx&quot;</span>:<span class="o">{</span><span class="s2">&quot;limit_value&quot;</span>:6<span class="o">}}]}</span>
 </code></pre></div></p>
 <h3 id="27raw_return">2.7.raw_return</h3>
-<p>该参数的默认值为<code>False</code>，如果为<code>True</code>，则<code>Pait</code>不会根据参数名或者<code>alias</code>为key从请求数据获取值， 而是把整个请求值返回给对应的变量。</p>
-<p>示例代码如下， 该接口为一个POST接口， 该接口需要两个值，第一个值为整个客户端传过来的Json参数， 而第二个值为客户端传过来的Json参数中Key为a的值：</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">JSONResponse</span>
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>
-<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
-<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">field</span>
-<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>
-<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
-<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="nd">@pait</span><span class="p">()</span>
-<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span>
-<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="hll">    <span class="n">demo_value1</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Body</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">raw_return</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-</span><a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="hll">    <span class="n">a</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Body</span><span class="o">.</span><span class="n">i</span><span class="p">(),</span>
-</span><a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
-<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span>
-<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>        <span class="s2">&quot;demo_value&quot;</span><span class="p">:</span> <span class="n">demo_value1</span><span class="p">,</span>
-<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>        <span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="n">a</span>
-<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>    <span class="p">})</span>
-<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>
-<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>
-<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span><span class="n">routes</span><span class="o">=</span><span class="p">[</span><span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])])</span>
-<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a>
-<a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<p>The default value of this parameter is <code>False</code>. If it is <code>True</code>, <code>Pait</code> will not obtain the value from the request data according to the parameter name or <code>alias</code> as the key, but will return the entire request value to the corresponding variable。</p>
+<p>The sample code is as follows, the interface is a POST interface, it requires two values, the first value is the Json parameter passed by the entire client, and the second value is the value of Key in the Json parameter passed by the client:</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">JSONResponse</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5"></a>
+<a id="__codelineno-15-6" name="__codelineno-15-6"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">field</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8"></a>
+<a id="__codelineno-15-9" name="__codelineno-15-9"></a>
+<a id="__codelineno-15-10" name="__codelineno-15-10"></a><span class="nd">@pait</span><span class="p">()</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12"></a><span class="hll">    <span class="n">demo_value1</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Body</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">raw_return</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+</span><a id="__codelineno-15-13" name="__codelineno-15-13"></a><span class="hll">    <span class="n">a</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Body</span><span class="o">.</span><span class="n">i</span><span class="p">(),</span>
+</span><a id="__codelineno-15-14" name="__codelineno-15-14"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
+<a id="__codelineno-15-15" name="__codelineno-15-15"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span>
+<a id="__codelineno-15-16" name="__codelineno-15-16"></a>        <span class="s2">&quot;demo_value&quot;</span><span class="p">:</span> <span class="n">demo_value1</span><span class="p">,</span>
+<a id="__codelineno-15-17" name="__codelineno-15-17"></a>        <span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="n">a</span>
+<a id="__codelineno-15-18" name="__codelineno-15-18"></a>    <span class="p">})</span>
+<a id="__codelineno-15-19" name="__codelineno-15-19"></a>
+<a id="__codelineno-15-20" name="__codelineno-15-20"></a>
+<a id="__codelineno-15-21" name="__codelineno-15-21"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span><span class="n">routes</span><span class="o">=</span><span class="p">[</span><span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])])</span>
+<a id="__codelineno-15-22" name="__codelineno-15-22"></a>
+<a id="__codelineno-15-23" name="__codelineno-15-23"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 </code></pre></div>
-使用<code>curl</code>调用， 可以发现结果符合预期：
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo&quot;</span> -X POST -d <span class="s1">&#39;{&quot;a&quot;: &quot;1&quot;, &quot;b&quot;: &quot;2&quot;}&#39;</span> --header <span class="s2">&quot;Content-Type: application/json&quot;</span>
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="o">{</span><span class="s2">&quot;demo_value&quot;</span>:<span class="o">{</span><span class="s2">&quot;a&quot;</span>:<span class="s2">&quot;1&quot;</span>,<span class="s2">&quot;b&quot;</span>:<span class="s2">&quot;2&quot;</span><span class="o">}</span>,<span class="s2">&quot;a&quot;</span>:<span class="s2">&quot;1&quot;</span><span class="o">}</span>
+Called with <code>curl</code>, you can see that the result is as expected:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo&quot;</span> -X POST -d <span class="s1">&#39;{&quot;a&quot;: &quot;1&quot;, &quot;b&quot;: &quot;2&quot;}&#39;</span> --header <span class="s2">&quot;Content-Type: application/json&quot;</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2"></a><span class="o">{</span><span class="s2">&quot;demo_value&quot;</span>:<span class="o">{</span><span class="s2">&quot;a&quot;</span>:<span class="s2">&quot;1&quot;</span>,<span class="s2">&quot;b&quot;</span>:<span class="s2">&quot;2&quot;</span><span class="o">}</span>,<span class="s2">&quot;a&quot;</span>:<span class="s2">&quot;1&quot;</span><span class="o">}</span>
 </code></pre></div></p>
-<h3 id="28">2.8.其它功能</h3>
-<p>除了上述功能外， <code>Pait</code>还有其它属性， 但是都只与OpenAPI有关， 所以本章只做简单介绍：</p>
+<h3 id="28other-feature">2.8.Other Feature</h3>
+<p>In addition to the above functions, <code>Pait</code> has other properties, but they are only related to OpenAPI, so this chapter only briefly introduces:</p>
 <ul>
-<li>link：用于支持OpenApi的link功能。</li>
-<li>media_type：Field对应的media_type，用于OpenAPI的Scheme的参数media type分类。</li>
-<li>example：用于文档的示例值，以及Mock请求与响应等Mock功能，同时支持变量和可调用函数如<code>datetime.datetim.now</code>，推荐与<a href="https://github.com/joke2k/faker">faker</a>一起使用。</li>
-<li>openapi_serialization：用于该值在OpenAPI的Schema的序列化方式。</li>
-<li>description: 用于OpenAPI的参数描述</li>
+<li>link：The link feature used to support Open Api.</li>
+<li>media_type：The media_type corresponding to Field is used for the parameter media type classification of OpenAPI Scheme.</li>
+<li>example：Example values for documentation, and Mock features like Mock Request and Response, supporting both variables and callables, for example <code>datetime.datetim.now</code>. Recommended for use with <a href="https://github.com/joke2k/faker">faker</a>.</li>
+<li>openapi_serialization：The serialization method used for this value in the Open API Schema。</li>
+<li>description: Parameter description for Open API</li>
 </ul>
 
               
@@ -1196,39 +1235,39 @@
         
           <a href="#" class="md-top md-icon" data-md-component="top" data-md-state="hidden">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"/></svg>
-            回到页面顶部
+            Back to top
           </a>
         
       </main>
       
         <footer class="md-footer">
   
-    <nav class="md-footer__inner md-grid" aria-label="页脚">
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
       
         
-        <a href="../1_1_introduction/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 介绍" rel="prev">
+        <a href="../1_1_introduction/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Introduction" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
-                上一页
+                Previous
               </span>
-              介绍
+              Introduction
             </div>
           </div>
         </a>
       
       
         
-        <a href="../1_3_how_to_use_type/" class="md-footer__link md-footer__link--next" aria-label="下一页: 如何使用Type" rel="next">
+        <a href="../1_3_how_to_use_type/" class="md-footer__link md-footer__link--next" aria-label="Next: Hot to use Type" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
-                下一页
+                Next
               </span>
-              如何使用Type
+              Hot to use Type
             </div>
           </div>
           <div class="md-footer__button md-icon">
@@ -1258,7 +1297,7 @@
       
     
     <a href="https://github.com/so1n" target="_blank" rel="noopener" title="github.com" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
     </a>
   
 </div>
@@ -1271,10 +1310,10 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "content.code.annotate"], "translations": {"clipboard.copy": "\u590d\u5236", "clipboard.copied": "\u5df2\u590d\u5236", "search.config.lang": "ja", "search.config.pipeline": "trimmer, stemmer", "search.config.separator": "[\\uff0c\\u3002]+", "search.placeholder": "\u641c\u7d22", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.term.missing": "\u7f3a\u5c11", "select.version.title": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "search": "../assets/javascripts/workers/search.22074ed6.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "content.code.annotate"], "search": "../assets/javascripts/workers/search.5e67fbfe.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.01de222e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c44cc438.min.js"></script>
       
     
   </body>
