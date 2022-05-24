@@ -565,7 +565,9 @@ def add_grpc_gateway_route(app: Flask) -> None:
             self, method_name: str, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]
         ) -> Callable:
 
-            if method_name != "/user.User/login_user":
+            if method_name in ("/user.User/login_user", "/user.User/create_user"):
+                return super().gen_route(method_name, grpc_model, request_pydantic_model_class)
+            else:
 
                 def _route(
                     request_pydantic_model: request_pydantic_model_class,  # type: ignore
@@ -593,8 +595,6 @@ def add_grpc_gateway_route(app: Flask) -> None:
                 # so you need to inject request_pydantic_model_class into this module.
                 modules[_route.__module__].__dict__["request_pydantic_model_class"] = request_pydantic_model_class
                 return _route
-            else:
-                return super().gen_route(method_name, grpc_model, request_pydantic_model_class)
 
     grpc_gateway_route: CustomerGrpcGatewayRoute = CustomerGrpcGatewayRoute(
         app,

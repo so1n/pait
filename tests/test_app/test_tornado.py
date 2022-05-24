@@ -305,10 +305,7 @@ class TestTornadoGrpc(BaseTestTornado):
     #     grpc_test_create_user_request(self._app, _)
     #
     def test_create_user(self) -> None:
-        from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import (
-            CreateUserRequest,
-            GetUidByTokenRequest,
-        )
+        from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import CreateUserRequest
 
         tornado_example.add_grpc_gateway_route(self._app)
         tornado_example.add_api_doc_route(self._app)
@@ -321,30 +318,11 @@ class TestTornadoGrpc(BaseTestTornado):
                 headers={"token": "token"},
             ).body
             assert body == b"{}"
-            token_message: GetUidByTokenRequest = queue.get(timeout=1)
-            assert token_message.token == "token"
             message: CreateUserRequest = queue.get(timeout=1)
             assert message.uid == "10086"
             assert message.user_name == "so1n"
             assert message.password == "123456"
             assert message.sex == 0
-
-    def test_create_user_fail_token(self) -> None:
-        from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import GetUidByTokenRequest
-
-        tornado_example.add_grpc_gateway_route(self._app)
-        tornado_example.add_api_doc_route(self._app)
-
-        with grpc_test_create_user_request(self._app) as queue:
-            body: bytes = self.fetch(
-                "/api/user/create",
-                method="POST",
-                body='{"uid": "10086", "user_name": "so1n", "pw": "123456", "sex": 0}',
-                headers={"token": "fail_token"},
-            ).body
-            assert b"500: Internal Server Error" in body
-            token_message: GetUidByTokenRequest = queue.get(timeout=1)
-            assert token_message.token == "fail_token"
 
     def test_login(self) -> None:
         from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
@@ -373,6 +351,23 @@ class TestTornadoGrpc(BaseTestTornado):
             message: LogoutUserRequest = queue.get(timeout=1)
             assert message.uid == "10086"
             assert message.token == "token"
+
+    def test_delete_fail_token(self) -> None:
+        from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import GetUidByTokenRequest
+
+        tornado_example.add_grpc_gateway_route(self._app)
+        tornado_example.add_api_doc_route(self._app)
+
+        with grpc_test_create_user_request(self._app) as queue:
+            body: bytes = self.fetch(
+                "/api/user/delete",
+                method="POST",
+                body='{"uid": "10086"}',
+                headers={"token": "fail_token"},
+            ).body
+            assert b"500: Internal Server Error" in body
+            message: GetUidByTokenRequest = queue.get(timeout=1)
+            assert message.token == "fail_token"
 
     def test_grpc_openapi(self) -> None:
         tornado_example.add_grpc_gateway_route(self._app)
