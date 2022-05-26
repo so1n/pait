@@ -75,7 +75,7 @@ tornado==6.1; python_version >= "3.5"
 typed-ast==1.4.3; python_version >= "3.6"
 types-protobuf==3.19.18; python_version >= "3.6"
 typing-extensions==4.2.0; python_version >= "3.7"
-ujson==5.1.0; sys_platform != "win32" and implementation_name == "cpython" and python_version >= "3.7"
+ujson==5.2.0; sys_platform != "win32" and implementation_name == "cpython" and python_version >= "3.7"
 urllib3==1.26.8; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version < "4"
 uvicorn==0.13.4
 uvloop==0.16.0; sys_platform != "win32" and implementation_name == "cpython" and python_version >= "3.7"
