@@ -44,6 +44,10 @@ class AddDocRoute(Generic[APP_T]):
         open_api_tag_list: Optional[List[Dict[str, Any]]] = None,
         project_name: str = "",
         app: APP_T = None,
+        src_url: Optional[str] = None,
+        swagger_ui_url: Optional[str] = None,
+        swagger_ui_bundle: Optional[str] = None,
+        swagger_ui_standalone_preset: Optional[str] = None,
     ):
         if pin_code:
             logging.info(f"doc route start pin code:{pin_code}")
@@ -55,6 +59,10 @@ class AddDocRoute(Generic[APP_T]):
         self.open_api_tag_list: Optional[List[Dict[str, Any]]] = open_api_tag_list
         self.project_name: str = project_name
         self._is_gen: bool = False
+        self.redoc_src_url: Optional[str] = None
+        self.swagger_ui_url: Optional[str] = None
+        self.swagger_ui_bundle: Optional[str] = None
+        self.swagger_ui_standalone_preset: Optional[str] = None
 
         if app:
             self._is_gen = True

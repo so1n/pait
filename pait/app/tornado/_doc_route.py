@@ -64,7 +64,13 @@ class AddDocRoute(_AddDocRoute[Application]):
                 r_pin_code: str = Depends.i(doc_route_self._get_request_pin_code),
                 url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
             ) -> None:
-                self.write(_get_redoc_html(self._get_open_json_url(r_pin_code, url_dict), doc_route_self.title))
+                self.write(
+                    _get_redoc_html(
+                        self._get_open_json_url(r_pin_code, url_dict),
+                        src_url=doc_route_self.redoc_src_url,
+                        title=doc_route_self.title,
+                    )
+                )
 
         class GetSwaggerUiHtmlHandle(BaseHandle, ABC):
             @doc_pait()
@@ -73,7 +79,15 @@ class AddDocRoute(_AddDocRoute[Application]):
                 r_pin_code: str = Depends.i(doc_route_self._get_request_pin_code),
                 url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
             ) -> None:
-                self.write(_get_swagger_ui_html(self._get_open_json_url(r_pin_code, url_dict), doc_route_self.title))
+                self.write(
+                    _get_swagger_ui_html(
+                        self._get_open_json_url(r_pin_code, url_dict),
+                        title=doc_route_self.title,
+                        swagger_ui_bundle=doc_route_self.swagger_ui_bundle,
+                        swagger_ui_standalone_preset=doc_route_self.swagger_ui_standalone_preset,
+                        swagger_ui_url=doc_route_self.swagger_ui_url,
+                    )
+                )
 
         class OpenApiHandle(BaseHandle, ABC):
             @doc_pait(pre_depend_list=[doc_route_self._get_request_pin_code])

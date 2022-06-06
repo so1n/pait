@@ -122,10 +122,10 @@ class TestFlask:
         assert client.get("/swagger").status_code == 404
         assert client.get("/redoc").status_code == 404
         assert client.get("/swagger?pin_code=6666").get_data().decode() == get_swagger_ui_html(
-            "http://localhost/openapi.json?pin_code=6666", "Pait Api Doc(private)"
+            "http://localhost/openapi.json?pin_code=6666", title="Pait Api Doc(private)"
         )
         assert client.get("/redoc?pin_code=6666").get_data().decode() == get_redoc_html(
-            "http://localhost/openapi.json?pin_code=6666", "Pait Api Doc(private)"
+            "http://localhost/openapi.json?pin_code=6666", title="Pait Api Doc(private)"
         )
         assert (
             json.loads(client.get("/openapi.json?pin_code=6666&template-token=xxx").get_data().decode())["paths"][

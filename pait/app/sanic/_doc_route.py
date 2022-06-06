@@ -49,7 +49,13 @@ class AddDocRoute(_AddDocRoute[Sanic]):
             r_pin_code: str = Depends.i(self._get_request_pin_code),
             url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
         ) -> HTTPResponse:
-            return response.html(_get_redoc_html(_get_open_json_url(request, r_pin_code, url_dict), self.title))
+            return response.html(
+                _get_redoc_html(
+                    _get_open_json_url(request, r_pin_code, url_dict),
+                    src_url=self.redoc_src_url,
+                    title=self.title,
+                )
+            )
 
         @doc_pait(response_model_list=[DocHtmlRespModel])
         def get_swagger_ui_html(
@@ -57,7 +63,15 @@ class AddDocRoute(_AddDocRoute[Sanic]):
             r_pin_code: str = Depends.i(self._get_request_pin_code),
             url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
         ) -> HTTPResponse:
-            return response.html(_get_swagger_ui_html(_get_open_json_url(request, r_pin_code, url_dict), self.title))
+            return response.html(
+                _get_swagger_ui_html(
+                    _get_open_json_url(request, r_pin_code, url_dict),
+                    title=self.title,
+                    swagger_ui_bundle=self.swagger_ui_bundle,
+                    swagger_ui_standalone_preset=self.swagger_ui_standalone_preset,
+                    swagger_ui_url=self.swagger_ui_url,
+                )
+            )
 
         @doc_pait(pre_depend_list=[self._get_request_pin_code], response_model_list=[OpenAPIRespModel])
         def openapi_route(

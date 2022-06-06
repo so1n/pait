@@ -110,10 +110,10 @@ class TestTornado(BaseTestTornado):
         assert self.fetch("/swagger").code == 404
         assert self.fetch("/redoc").code == 404
         assert self.fetch("/swagger?pin_code=6666").body.decode() == get_swagger_ui_html(
-            self.get_url("/openapi.json?pin_code=6666"), "Pait Api Doc(private)"
+            self.get_url("/openapi.json?pin_code=6666"), title="Pait Api Doc(private)"
         )
         assert self.fetch("/redoc?pin_code=6666").body.decode() == get_redoc_html(
-            self.get_url("/openapi.json?pin_code=6666"), "Pait Api Doc(private)"
+            self.get_url("/openapi.json?pin_code=6666"), title="Pait Api Doc(private)"
         )
         assert (
             json.loads(self.fetch("/openapi.json?pin_code=6666&template-token=xxx").body.decode())["paths"][

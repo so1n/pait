@@ -2,7 +2,10 @@
 - 1 Add a user-friendly doc ui
 - 2 Plugin Panel
 
-### 0.7.8[Now]
+### 0.7.8.1[Now]
+- Feature, support custom Redoc and Swagger url
+
+### 0.7.8
 - Feature, cache response support cache exc
 - Feature, GrpcGateWay add gen route method
 - Feature, Change self logic
