@@ -1,6 +1,5 @@
 import inspect
 import re
-import sys
 from dataclasses import dataclass
 from pathlib import Path
 from types import ModuleType
@@ -33,8 +32,6 @@ class ParseStub(object):
         self._parse_msg_desc: Optional[str] = parse_msg_desc
         self.name: str = self._stub.__name__
         self._method_dict: Dict[str, GrpcModel] = {}
-        # self._grpc_invoke_dict: Dict[str, Callable] = self._stub.__dict__.copy()
-        self._sys_module_dict = sys.modules[stub.__module__].__dict__
         self._line_list: List[str] = inspect.getsource(stub).split("\n")
 
         class_module: Optional[ModuleType] = inspect.getmodule(stub)
@@ -143,25 +140,6 @@ class ParseStub(object):
         self._filename_desc_dict[filename] = message_field_dict
         return message_field_dict
 
-    # def _gen_rpc_metadate(self) -> None:
-    #     # proto file auto gen doc in *Service not in *Stub
-    #     service_class_name: str = self._stub.__class__.__name__.replace("Stub", "Servicer")
-    #     service_class: Type = getattr(self._class_module, service_class_name)
-    #
-    #     for invoke_name, value in self._grpc_invoke_dict.items():
-    #         if hasattr(value, "__wrapped__"):
-    #             value = value.__wrapped__  # type: ignore
-    #         method = value._method  # type: ignore
-    #         if isinstance(method, bytes):
-    #             method = method.decode()
-    #         self._method_dict[method] = GrpcModel(
-    #             invoke_name=invoke_name,
-    #             method=method,
-    #             func=value,
-    #             desc=service_class.__dict__[invoke_name].__doc__ or "",
-    #             service_desc=service_class.__doc__ or "",
-    #         )
-
     def _gen_message(self, line: str, match_str: str) -> Type[Message]:
         module_path: str = get_proto_msg_path(line, match_str)
         module_path_list: List[str] = module_path.split(".")
@@ -208,6 +186,8 @@ class ParseStub(object):
         for index, line in enumerate(line_list):
             if "self." not in line:
                 continue
+            if "channel.unary_unary" not in line:
+                continue
 
             invoke_name: str = line.split("=")[0].replace("self.", "").strip()
             method: str = line_list[index + 1].strip()[1:-2]
@@ -223,20 +203,3 @@ class ParseStub(object):
                 request=request,
                 response=response,
             )
-
-    # def _parse(self) -> None:
-    #     method_dict_iter: Iterable = iter(self._method_dict.items())
-    #     line_list: List[str] = self._line_list
-    #     for index, line in enumerate(line_list):
-    #         if "self." not in line:
-    #             continue
-    #         try:
-    #             method_name, grpc_model = next(method_dict_iter)  # type: ignore
-    #         except StopIteration:
-    #             continue
-    #
-    #         if method_name.split("/")[-1] not in line and method_name not in line_list[index + 1]:
-    #             continue
-    #
-    #         grpc_model.request = self._gen_message(line_list[index + 2], r"request_serializer=(.+).SerializeToString")
-    #         grpc_model.response = self._gen_message(line_list[index + 3], r"response_deserializer=(.+).FromString")
