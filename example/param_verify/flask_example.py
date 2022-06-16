@@ -33,6 +33,7 @@ from example.param_verify.model import (
     UserSuccessRespModel3,
     context_depend,
     demo_depend,
+    gen_response_model_handle,
 )
 from pait.app import set_app_attribute
 from pait.app.flask import AddDocRoute, Pait, add_doc_route, load_app, pait
@@ -588,7 +589,7 @@ def add_grpc_gateway_route(app: Flask) -> None:
                     request_msg: Message = self.get_msg_from_dict(grpc_model.request, request_dict)
                     # add req_id to request
                     grpc_msg: Message = func(request_msg, metadata=[("req_id", req_id)])
-                    return self._make_response(self.get_dict_from_msg(grpc_msg))
+                    return self._make_response({"code": 0, "msg": "", "data": self.get_dict_from_msg(grpc_msg)})
 
                 return _route
 
@@ -601,6 +602,7 @@ def add_grpc_gateway_route(app: Flask) -> None:
         title="Grpc",
         grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
         parse_msg_desc="by_mypy",
+        gen_response_model_handle=gen_response_model_handle,
     )
     grpc_gateway_route.init_channel(grpc.intercept_channel(grpc.insecure_channel("0.0.0.0:9000")))
     set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest

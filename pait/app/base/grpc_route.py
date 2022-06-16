@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 
 from pait.core import Pait
 from pait.field import BaseField, Body, Depends
-from pait.model.response import PaitJsonResponseModel
+from pait.model.response import PaitBaseResponseModel, PaitJsonResponseModel
 from pait.model.tag import Tag
 from pait.util.grpc_inspect.message_to_pydantic import GRPC_TIMESTAMP_HANDLER_TUPLE_T, parse_msg_to_pydantic_model
 from pait.util.grpc_inspect.stub import GrpcModel, ParseStub
@@ -38,6 +38,14 @@ def get_pait_info_from_grpc_desc(grpc_model: GrpcModel) -> GrpcPaitModel:
     return GrpcPaitModel(**pait_dict)
 
 
+def _gen_response_model_handle(grpc_model: GrpcModel) -> Type[PaitBaseResponseModel]:
+    class CustomerJsonResponseModel(PaitJsonResponseModel):
+        name: str = grpc_model.response.DESCRIPTOR.name
+        response_data: Type[BaseModel] = parse_msg_to_pydantic_model(grpc_model.response)
+
+    return CustomerJsonResponseModel
+
+
 class BaseGrpcGatewayRoute(object):
     pait: Pait
     make_response: Callable
@@ -59,6 +67,7 @@ class BaseGrpcGatewayRoute(object):
         url_handler: Callable[[str], str] = lambda x: x.replace(".", "-"),
         request_param_field_dict: Optional[Dict[str, Union[Type[BaseField], Depends]]] = None,
         grpc_timestamp_handler_tuple: Optional[GRPC_TIMESTAMP_HANDLER_TUPLE_T] = None,
+        gen_response_model_handle: Optional[Callable[[GrpcModel], Type[PaitBaseResponseModel]]] = None,
     ):
         self.prefix: str = prefix
         self.title: str = title
@@ -68,6 +77,9 @@ class BaseGrpcGatewayRoute(object):
         self.parse_dict: Optional[Callable] = parse_dict
 
         self.url_handler: Callable[[str], str] = url_handler
+        self._gen_response_model_handle: Callable[[GrpcModel], Type[PaitBaseResponseModel]] = (
+            gen_response_model_handle or _gen_response_model_handle
+        )
         self._request_param_field_dict: Optional[Dict[str, Union[Type[BaseField], Depends]]] = request_param_field_dict
         self._grpc_timestamp_handler_tuple: Optional[GRPC_TIMESTAMP_HANDLER_TUPLE_T] = grpc_timestamp_handler_tuple
         self._pait: Pait = pait or self.pait
@@ -98,17 +110,13 @@ class BaseGrpcGatewayRoute(object):
                 self._tag_dict[tag] = pait_tag
             tag_tuple += (pait_tag,)
 
-        class CustomerJsonResponseModel(PaitJsonResponseModel):
-            name: str = grpc_model.response.DESCRIPTOR.name
-            response_data: Type[BaseModel] = parse_msg_to_pydantic_model(grpc_model.response)
-
         return self._pait.create_sub_pait(
             name=grpc_pait_model.name,
             group=grpc_pait_model.group or method_name.split("/")[1],
             tag=tag_tuple,
             desc=grpc_pait_model.desc,
             summary=grpc_pait_model.summary,
-            response_model_list=[CustomerJsonResponseModel],
+            response_model_list=[self._gen_response_model_handle(grpc_model)],
         )
 
     def get_grpc_func(self, method_name: str) -> Callable:

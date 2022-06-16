@@ -5,6 +5,7 @@ import pytest
 from pytest_mock import MockFixture
 from redis import Redis  # type: ignore
 
+from example.param_verify.model import gen_response_model_handle
 from pait.app.base import BaseTestHelper
 from pait.app.base.grpc_route import BaseGrpcGatewayRoute
 from pait.model.response import PaitBaseResponseModel, PaitHtmlResponseModel, PaitTextResponseModel
@@ -365,5 +366,6 @@ class BaseTest(object):
             title="Grpc-test",
             grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
             parse_msg_desc=grpc_path,
+            gen_response_model_handle=gen_response_model_handle,
         )
         grpc_test_openapi(load_app(app), url_prefix=prefix)

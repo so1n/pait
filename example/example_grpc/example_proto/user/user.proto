@@ -31,8 +31,12 @@ message LoginUserRequest {
   string password = 2;
 }
 message LoginUserResult {
+  // pait: {"example": "10086", "title": "UID", "description": "user union id"}
   string uid = 1;
+  // pait: {"description": "user name"}
+  // pait: {"default": "", "min_length": 1, "max_length": "10", "example": "so1n"}
   string user_name = 2;
+  // pait: {"description": "user token"}
   string token = 3;
 }
 

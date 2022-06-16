@@ -347,7 +347,7 @@ class TestTornadoGrpc(BaseTestTornado):
             body: bytes = self.fetch(
                 "/api/user/logout", method="POST", body='{"uid": "10086"}', headers={"token": "token"}
             ).body
-            assert body == b"{}"
+            assert body == b'{"code": 0, "msg": "", "data": {}}'
             message: LogoutUserRequest = queue.get(timeout=1)
             assert message.uid == "10086"
             assert message.token == "token"

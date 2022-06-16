@@ -222,3 +222,7 @@ class Depends(object):
 
 def is_pait_field(pait_field: Any) -> bool:
     return isinstance(pait_field, (BaseField, Depends))
+
+
+def is_pait_field_class(pait_field: Any) -> bool:
+    return issubclass(pait_field, (BaseField, Depends))

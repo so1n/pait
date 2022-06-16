@@ -90,8 +90,16 @@ class LoginUserResult(google.protobuf.message.Message):
     USER_NAME_FIELD_NUMBER: builtins.int
     TOKEN_FIELD_NUMBER: builtins.int
     uid: typing.Text
+    """pait: {"example": "10086", "title": "UID", "description": "user union id"}"""
+
     user_name: typing.Text
+    """pait: {"description": "user name"}
+    pait: {"default": "", "min_length": 1, "max_length": "10", "example": "so1n"}
+    """
+
     token: typing.Text
+    """pait: {"description": "user token"}"""
+
     def __init__(self,
         *,
         uid: typing.Text = ...,

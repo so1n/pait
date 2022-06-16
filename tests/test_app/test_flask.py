@@ -281,7 +281,7 @@ class TestFlaskGrpc:
 
         with grpc_test_create_user_request(client.application) as queue:
             body: bytes = client.post("/api/user/logout", json={"uid": "10086"}, headers={"token": "token"}).data
-            assert body == b"{}\n"
+            assert body == b'{"code":0,"data":{},"msg":""}\n'
             message: LogoutUserRequest = queue.get(timeout=1)
             assert message.uid == "10086"
             assert message.token == "token"

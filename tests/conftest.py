@@ -207,6 +207,15 @@ def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api") -> None:
             assert path_dict["post"]["summary"] == "Create users through the system"
         elif url == f"{url_prefix}/user/login":
             assert path_dict["post"]["summary"] == "User login to system"
+            response_schema_key: str = path_dict["post"]["responses"][200]["content"]["application/json"]["schema"][
+                "$ref"
+            ]
+            response_schema: dict = pait_openapi.open_api_dict["components"]["schemas"][
+                response_schema_key.split("/")[-1]
+            ]
+            assert response_schema["title"] == "CustomerJsonResponseRespModel"
+            for column in ["code", "msg", "data"]:
+                assert column in response_schema["properties"]
         elif url == f"{url_prefix}/user/logout":
             assert path_dict["post"]["summary"] == "User exit from the system"
         else:

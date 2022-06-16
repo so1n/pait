@@ -307,7 +307,7 @@ class TestStarletteGrpc:
 
         with grpc_test_create_user_request(client.app) as queue:
             body: bytes = client.post("/api/user/logout", json={"uid": "10086"}, headers={"token": "token"}).content
-            assert body == b"{}"
+            assert body == b'{"code":0,"msg":"","data":{}}'
             message: LogoutUserRequest = queue.get(timeout=1)
             assert message.uid == "10086"
             assert message.token == "token"
