@@ -2,7 +2,10 @@
 - 1 Add a user-friendly doc ui
 - 2 Plugin Panel
 
-### 0.7.8.1[Now]
+### 0.7.8.2[Now]
+- Feature, support custom custom grpc route response model
+
+### 0.7.8.1
 - Feature, support custom Redoc and Swagger url
 
 ### 0.7.8
