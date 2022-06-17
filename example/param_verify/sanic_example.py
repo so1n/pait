@@ -602,6 +602,9 @@ def add_grpc_gateway_route(app: Sanic) -> None:
     from pait.util.grpc_inspect.stub import GrpcModel
     from pait.util.grpc_inspect.types import Message
 
+    def _make_response(resp_dict: dict) -> response.HTTPResponse:
+        return response.json({"code": 0, "msg": "", "data": resp_dict})
+
     class CustomerGrpcGatewayRoute(GrpcGatewayRoute):
         def gen_route(
             self, method_name: str, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]
@@ -631,7 +634,7 @@ def add_grpc_gateway_route(app: Sanic) -> None:
                     request_msg: Message = self.get_msg_from_dict(grpc_model.request, request_dict)
                     # add req_id to request
                     grpc_msg: Message = await func(request_msg, metadata=[("req_id", req_id)])
-                    return self._make_response({"code": 0, "msg": "", "data": self.get_dict_from_msg(grpc_msg)})
+                    return self._make_response(self.get_dict_from_msg(grpc_msg))
 
                 return _route
 
@@ -645,6 +648,7 @@ def add_grpc_gateway_route(app: Sanic) -> None:
         grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
         parse_msg_desc="by_mypy",
         gen_response_model_handle=gen_response_model_handle,
+        make_response=_make_response,
     )
     set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest
 

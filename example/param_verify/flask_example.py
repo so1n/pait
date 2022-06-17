@@ -556,9 +556,14 @@ def add_grpc_gateway_route(app: Flask) -> None:
     from typing import Callable, Type
     from uuid import uuid4
 
+    from flask import jsonify
+
     from example.example_grpc.python_example_proto_code.example_proto.user import user_pb2
     from pait.util.grpc_inspect.stub import GrpcModel
     from pait.util.grpc_inspect.types import Message
+
+    def _make_response(resp_dict: dict) -> Response:
+        return jsonify({"code": 0, "msg": "", "data": resp_dict})
 
     class CustomerGrpcGatewayRoute(GrpcGatewayRoute):
         def gen_route(
@@ -589,7 +594,7 @@ def add_grpc_gateway_route(app: Flask) -> None:
                     request_msg: Message = self.get_msg_from_dict(grpc_model.request, request_dict)
                     # add req_id to request
                     grpc_msg: Message = func(request_msg, metadata=[("req_id", req_id)])
-                    return self._make_response({"code": 0, "msg": "", "data": self.get_dict_from_msg(grpc_msg)})
+                    return self._make_response(self.get_dict_from_msg(grpc_msg))
 
                 return _route
 
@@ -603,6 +608,7 @@ def add_grpc_gateway_route(app: Flask) -> None:
         grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
         parse_msg_desc="by_mypy",
         gen_response_model_handle=gen_response_model_handle,
+        make_response=_make_response,
     )
     grpc_gateway_route.init_channel(grpc.intercept_channel(grpc.insecure_channel("0.0.0.0:9000")))
     set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest

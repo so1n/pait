@@ -253,7 +253,7 @@ class TestFlaskGrpc:
                 "/api/user/create",
                 json={"uid": "10086", "user_name": "so1n", "pw": "123456", "sex": 0},
             ).data
-            assert body == b"{}\n"
+            assert body == b'{"code":0,"data":{},"msg":""}\n'
             message: CreateUserRequest = queue.get(timeout=1)
             assert message.uid == "10086"
             assert message.user_name == "so1n"
@@ -268,7 +268,7 @@ class TestFlaskGrpc:
 
         with grpc_test_create_user_request(client.application) as queue:
             body: bytes = client.post("/api/user/login", json={"uid": "10086", "password": "pw"}).data
-            assert body == b"{}\n"
+            assert body == b'{"code":0,"data":{},"msg":""}\n'
             message: LoginUserRequest = queue.get(timeout=1)
             assert message.uid == "10086"
             assert message.password == "pw"

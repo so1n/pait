@@ -279,7 +279,7 @@ class TestStarletteGrpc:
                 json={"uid": "10086", "user_name": "so1n", "pw": "123456", "sex": 0},
                 headers={"token": "token"},
             ).content
-            assert body == b"{}"
+            assert body == b'{"code":0,"msg":"","data":{}}'
             message: CreateUserRequest = queue.get(timeout=1)
             assert message.uid == "10086"
             assert message.user_name == "so1n"
@@ -294,7 +294,7 @@ class TestStarletteGrpc:
 
         with grpc_test_create_user_request(client.app) as queue:
             body: bytes = client.post("/api/user/login", json={"uid": "10086", "password": "pw"}).content
-            assert body == b"{}"
+            assert body == b'{"code":0,"msg":"","data":{}}'
             message: LoginUserRequest = queue.get(timeout=1)
             assert message.uid == "10086"
             assert message.password == "pw"
