@@ -20,6 +20,7 @@ class BookSocialStub:
     get_book_like: grpc.UnaryUnaryMultiCallable[
         example_proto.book.social_pb2.GetBookLikesRequest,
         example_proto.book.social_pb2.GetBookLikesListResult]
+    """pait: {"http_method": "GET"}"""
 
     comment_book: grpc.UnaryUnaryMultiCallable[
         example_proto.book.social_pb2.CommentBookRequest,
@@ -47,7 +48,9 @@ class BookSocialServicer(metaclass=abc.ABCMeta):
     def get_book_like(self,
         request: example_proto.book.social_pb2.GetBookLikesRequest,
         context: grpc.ServicerContext,
-    ) -> example_proto.book.social_pb2.GetBookLikesListResult: ...
+    ) -> example_proto.book.social_pb2.GetBookLikesListResult:
+        """pait: {"http_method": "GET"}"""
+        pass
 
     @abc.abstractmethod
     def comment_book(self,

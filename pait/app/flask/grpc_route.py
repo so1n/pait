@@ -21,6 +21,7 @@ class GrpcGatewayRoute(BaseGrpcRouter):
                 _route, grpc_pait_model = self._gen_route_func(method_name, grpc_model)
                 if not _route:
                     continue
-                # grpc http method only POST
-                blueprint.add_url_rule(self.url_handler(grpc_pait_model.url), view_func=_route, methods=["POST"])
+                blueprint.add_url_rule(
+                    self.url_handler(grpc_pait_model.url), view_func=_route, methods=[grpc_pait_model.http_method]
+                )
             app.register_blueprint(blueprint)

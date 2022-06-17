@@ -55,9 +55,8 @@ class GrpcGatewayRoute(BaseGrpcRouter):
                     (self.request_handler,),
                     {"__model__": f"{__name__}.{self.__class__.__name__}.gen_route_func.<locals>"},
                 )
-                setattr(route_class, "post", _route)
+                setattr(route_class, grpc_pait_model.http_method.lower(), _route)
 
-                # grpc http method only POST
                 route_list.append((r"{}{}".format(prefix, self.url_handler(grpc_pait_model.url)), route_class))
 
         app.wildcard_router.add_rules(route_list)

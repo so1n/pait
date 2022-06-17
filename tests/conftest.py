@@ -190,23 +190,27 @@ def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api") -> None:
         path_dict: dict = pait_openapi.open_api_dict["paths"][url]
 
         # test method
-        assert "post" in path_dict
+        if url == f"{url_prefix}/book_social-BookSocial/get_book_like":
+            method: str = "get"
+        else:
+            method = "post"
+        assert method in path_dict
         # test tags
-        assert "grpc" in path_dict["post"]["tags"]
+        assert "grpc" in path_dict[method]["tags"]
         if url.startswith(f"{url_prefix}/user"):
-            assert "grpc-user" in path_dict["post"]["tags"]
+            assert "grpc-user" in path_dict[method]["tags"]
             if url.endswith("/create") or url.endswith("/delete"):
-                assert "grpc-user-system" in path_dict["post"]["tags"]
+                assert "grpc-user-system" in path_dict[method]["tags"]
         elif url.startswith(f"{url_prefix}/book_manager"):
-            assert "grpc-book_manager" in path_dict["post"]["tags"]
+            assert "grpc-book_manager" in path_dict[method]["tags"]
         elif url.startswith(f"{url_prefix}/book_social"):
-            assert "grpc-book_social" in path_dict["post"]["tags"]
+            assert "grpc-book_social" in path_dict[method]["tags"]
 
         # test summary
         if url == f"{url_prefix}/user/create":
-            assert path_dict["post"]["summary"] == "Create users through the system"
+            assert path_dict[method]["summary"] == "Create users through the system"
         elif url == f"{url_prefix}/user/login":
-            assert path_dict["post"]["summary"] == "User login to system"
+            assert path_dict[method]["summary"] == "User login to system"
             response_schema_key: str = path_dict["post"]["responses"][200]["content"]["application/json"]["schema"][
                 "$ref"
             ]
@@ -217,19 +221,19 @@ def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api") -> None:
             for column in ["code", "msg", "data"]:
                 assert column in response_schema["properties"]
         elif url == f"{url_prefix}/user/logout":
-            assert path_dict["post"]["summary"] == "User exit from the system"
+            assert path_dict[method]["summary"] == "User exit from the system"
         else:
-            assert path_dict["post"]["summary"] == ""
+            assert path_dict[method]["summary"] == ""
 
         # test description
         if url == f"{url_prefix}/user/delete":
-            assert path_dict["post"]["description"] == "This interface performs a logical delete, not a physical delete"
+            assert path_dict[method]["description"] == "This interface performs a logical delete, not a physical delete"
         else:
-            assert path_dict["post"]["description"] == ""
+            assert path_dict[method]["description"] == ""
 
         # test parse protobuf desc to request pydantic.BaseModel
         if url == f"{url_prefix}/user/create":
-            schema: dict = path_dict["post"]["requestBody"]["content"]["application/json"]["schema"]
+            schema: dict = path_dict[method]["requestBody"]["content"]["application/json"]["schema"]
             # test miss default
             assert schema["required"] == ["uid"]
 

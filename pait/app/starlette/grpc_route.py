@@ -24,6 +24,7 @@ class GrpcGatewayRoute(BaseGrpcRouter):
                 if not _route:
                     continue
 
-                # grpc http method only POST
-                route_list.append(Route(self.url_handler(grpc_pait_model.url), _route, methods=["POST"]))
+                route_list.append(
+                    Route(self.url_handler(grpc_pait_model.url), _route, methods=[grpc_pait_model.http_method])
+                )
         app.routes.append(Mount(self.prefix, name=self.title, routes=route_list))

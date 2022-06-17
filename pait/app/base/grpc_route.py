@@ -9,7 +9,7 @@ import grpc
 from pydantic import BaseModel, Field
 
 from pait.core import Pait
-from pait.field import BaseField, Body, Depends
+from pait.field import BaseField, Body, Depends, Query
 from pait.model.response import PaitBaseResponseModel, PaitJsonResponseModel
 from pait.model.tag import Tag
 from pait.util.grpc_inspect.message_to_pydantic import GRPC_TIMESTAMP_HANDLER_TUPLE_T, parse_msg_to_pydantic_model
@@ -25,6 +25,7 @@ class GrpcPaitModel(BaseModel):
     summary: str = Field("")
     url: str = Field("")
     enable: bool = Field(True)
+    http_method: str = Field("POST")
 
 
 def get_pait_info_from_grpc_desc(grpc_model: GrpcModel) -> GrpcPaitModel:
@@ -35,7 +36,9 @@ def get_pait_info_from_grpc_desc(grpc_model: GrpcModel) -> GrpcPaitModel:
             continue
         line = line.replace("pait:", "")
         pait_dict.update(json.loads(line))
-    return GrpcPaitModel(**pait_dict)
+    grpc_pait_model: GrpcPaitModel = GrpcPaitModel(**pait_dict)
+    grpc_pait_model.http_method = grpc_pait_model.http_method.upper()
+    return grpc_pait_model
 
 
 def _gen_response_model_handle(grpc_model: GrpcModel) -> Type[PaitBaseResponseModel]:
@@ -90,10 +93,16 @@ class BaseGrpcGatewayRoute(object):
 
         self._add_route(app)
 
-    def _gen_request_pydantic_class_from_grpc_model(self, grpc_model: GrpcModel) -> Type[BaseModel]:
+    def _gen_request_pydantic_class_from_grpc_model(self, grpc_model: GrpcModel, http_method: str) -> Type[BaseModel]:
+        if http_method == "GET":
+            default_field: Type[BaseField] = Query
+        elif http_method == "POST":
+            default_field = Body
+        else:
+            raise RuntimeError(f"{http_method} is not supported")
         return parse_msg_to_pydantic_model(
             grpc_model.request,
-            default_field=Body,
+            default_field=default_field,
             request_param_field_dict=self._request_param_field_dict,
             grpc_timestamp_handler_tuple=self._grpc_timestamp_handler_tuple,
         )
@@ -145,7 +154,9 @@ class BaseGrpcGatewayRoute(object):
         if not grpc_pait_model.url:
             grpc_pait_model.url = method_name
 
-        request_pydantic_model_class: Type[BaseModel] = self._gen_request_pydantic_class_from_grpc_model(grpc_model)
+        request_pydantic_model_class: Type[BaseModel] = self._gen_request_pydantic_class_from_grpc_model(
+            grpc_model, grpc_pait_model.http_method
+        )
         pait: Pait = self._gen_pait_from_grpc_method(method_name, grpc_model, grpc_pait_model)
 
         _route = self.gen_route(method_name, grpc_model, request_pydantic_model_class)
