@@ -113,7 +113,7 @@ class BaseGrpcGatewayRoute(object):
         return self._pait.create_sub_pait(
             name=grpc_pait_model.name,
             group=grpc_pait_model.group or method_name.split("/")[1],
-            tag=tag_tuple,
+            append_tag=tag_tuple,
             desc=grpc_pait_model.desc,
             summary=grpc_pait_model.summary,
             response_model_list=[self._gen_response_model_handle(grpc_model)],

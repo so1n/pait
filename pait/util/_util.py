@@ -293,7 +293,7 @@ def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:
                 continue
 
             # Optimize parsing speed
-            if not default.alias:
+            if getattr(default, "alias", None):
                 default.request_key = param_name
             parameter: "inspect.Parameter" = inspect.Parameter(
                 param_name,

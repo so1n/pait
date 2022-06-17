@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field, validator
 from pydantic.fields import FieldInfo, Undefined
 from pydantic.typing import NoArgAnyCallable
 
-from pait.field import Depends, is_pait_field_class
+from pait.field import Depends
 from pait.util import create_pydantic_model
 from pait.util.grpc_inspect.types import Descriptor, FieldDescriptor, Message, Timestamp
 
@@ -143,11 +143,10 @@ def _parse_msg_to_pydantic_model(
                 if msg_pait_model.miss_default is not True:
                     field_param_dict["default"] = default
                 field_param_dict["default_factory"] = default_factory
+                if field_param_dict.get("example").__class__ == MISSING.__class__:
+                    field_param_dict.pop("example")
             else:
                 field_param_dict = {"default": default, "default_factory": default_factory}
-            if not is_pait_field_class(field) and field_param_dict.get("example").__class__ == MISSING.__class__:
-                # support pydantic.FieldInfo example
-                field_param_dict["example"] = None
             use_field = field(**field_param_dict)
         annotation_dict[name] = (type_, use_field)
 

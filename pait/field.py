@@ -53,7 +53,7 @@ class BaseField(FieldInfo):
             self.request_value_handle = self.request_value_handle_by_default_factory  # type: ignore
 
         self.raw_return = raw_return
-        if example is not MISSING:
+        if getattr(example, "__class__", None) is not MISSING.__class__:
             extra["example"] = example
 
         if not link:
