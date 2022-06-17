@@ -44,7 +44,13 @@ def get_pait_info_from_grpc_desc(grpc_model: GrpcModel) -> GrpcPaitModel:
 def _gen_response_model_handle(grpc_model: GrpcModel) -> Type[PaitBaseResponseModel]:
     class CustomerJsonResponseModel(PaitJsonResponseModel):
         name: str = grpc_model.response.DESCRIPTOR.name
-        response_data: Type[BaseModel] = parse_msg_to_pydantic_model(grpc_model.response)
+        description: str = grpc_model.response.__doc__ or ""
+
+        # Rename it,
+        # otherwise it will overwrite the existing scheme with the same name when generating OpenAPI documents.
+        response_data: Type[BaseModel] = type(
+            f"{grpc_model.method}RespModel", (parse_msg_to_pydantic_model(grpc_model.response),), {}
+        )
 
     return CustomerJsonResponseModel
 
