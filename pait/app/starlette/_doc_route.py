@@ -7,8 +7,6 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, Response
 from starlette.routing import Mount, Route
 
-from pait.api_doc.html import get_redoc_html as _get_redoc_html
-from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenAPI
 from pait.app.base.doc_route import AddDocRoute as _AddDocRoute
 from pait.app.base.doc_route import DocHtmlRespModel, OpenAPIRespModel
@@ -67,14 +65,23 @@ class AddDocRoute(_AddDocRoute[Starlette]):
             r_pin_code: str = Depends.i(self._get_request_pin_code),
             url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
         ) -> HTMLResponse:
+            return HTMLResponse(self._get_redoc_html(_get_open_json_url(request, r_pin_code, url_dict)))
 
-            return HTMLResponse(
-                _get_redoc_html(
-                    _get_open_json_url(request, r_pin_code, url_dict),
-                    src_url=self.redoc_src_url,
-                    title=self.title,
-                )
-            )
+        @doc_pait(response_model_list=[DocHtmlRespModel])
+        def get_rapi_doc_html(
+            request: Request,
+            r_pin_code: str = Depends.i(self._get_request_pin_code),
+            url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
+        ) -> HTMLResponse:
+            return HTMLResponse(self._get_rapidoc_html(_get_open_json_url(request, r_pin_code, url_dict)))
+
+        @doc_pait(response_model_list=[DocHtmlRespModel])
+        def get_rapi_pdf_html(
+            request: Request,
+            r_pin_code: str = Depends.i(self._get_request_pin_code),
+            url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
+        ) -> HTMLResponse:
+            return HTMLResponse(self._get_rapipdf_html(_get_open_json_url(request, r_pin_code, url_dict)))
 
         @doc_pait(response_model_list=[DocHtmlRespModel])
         def get_swagger_ui_html(
@@ -82,15 +89,7 @@ class AddDocRoute(_AddDocRoute[Starlette]):
             r_pin_code: str = Depends.i(self._get_request_pin_code),
             url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
         ) -> HTMLResponse:
-            return HTMLResponse(
-                _get_swagger_ui_html(
-                    _get_open_json_url(request, r_pin_code, url_dict),
-                    title=self.title,
-                    swagger_ui_bundle=self.swagger_ui_bundle,
-                    swagger_ui_standalone_preset=self.swagger_ui_standalone_preset,
-                    swagger_ui_url=self.swagger_ui_url,
-                )
-            )
+            return HTMLResponse(self._get_swagger_ui_html(_get_open_json_url(request, r_pin_code, url_dict)))
 
         @doc_pait(pre_depend_list=[self._get_request_pin_code], response_model_list=[OpenAPIRespModel])
         def openapi_route(
@@ -116,6 +115,8 @@ class AddDocRoute(_AddDocRoute[Starlette]):
             routes=[
                 Route("/redoc", get_redoc_html, methods=["GET"]),
                 Route("/swagger", get_swagger_ui_html, methods=["GET"]),
+                Route("/rapidoc", get_rapi_doc_html, methods=["GET"]),
+                Route("/rapipdf", get_rapi_pdf_html, methods=["GET"]),
                 Route("/openapi.json", openapi_route, methods=["GET"]),
             ],
         )

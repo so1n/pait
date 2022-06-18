@@ -3,6 +3,10 @@ from typing import Any, Callable, Dict, Generic, List, Optional, Type, TypeVar
 
 from pydantic import BaseModel
 
+from pait.api_doc.html import get_rapidoc_html as _get_rapidoc_html
+from pait.api_doc.html import get_rapipdf_html as _get_rapipdf_html
+from pait.api_doc.html import get_redoc_html as _get_redoc_html
+from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.core import Pait
 from pait.field import Query
 from pait.g import config
@@ -47,7 +51,6 @@ class AddDocRoute(Generic[APP_T]):
         src_url: Optional[str] = None,
         swagger_ui_url: Optional[str] = None,
         swagger_ui_bundle: Optional[str] = None,
-        swagger_ui_standalone_preset: Optional[str] = None,
     ):
         if pin_code:
             logging.info(f"doc route start pin code:{pin_code}")
@@ -59,10 +62,9 @@ class AddDocRoute(Generic[APP_T]):
         self.open_api_tag_list: Optional[List[Dict[str, Any]]] = open_api_tag_list
         self.project_name: str = project_name
         self._is_gen: bool = False
-        self.redoc_src_url: Optional[str] = None
-        self.swagger_ui_url: Optional[str] = None
-        self.swagger_ui_bundle: Optional[str] = None
-        self.swagger_ui_standalone_preset: Optional[str] = None
+        self.src_url: Optional[str] = src_url
+        self.swagger_ui_url: Optional[str] = swagger_ui_url
+        self.swagger_ui_bundle: Optional[str] = swagger_ui_bundle
 
         if app:
             self._is_gen = True
@@ -101,6 +103,33 @@ class AddDocRoute(Generic[APP_T]):
             status=config.status or PaitStatus.release,
             tag=(Tag("pait_doc", desc="pait default doc route"),),
             group="pait_doc",
+        )
+
+    def _get_redoc_html(self, url: str) -> str:
+        return _get_redoc_html(
+            url,
+            src_url=self.src_url,
+            title=self.title,
+        )
+
+    def _get_rapipdf_html(self, url: str) -> str:
+        return _get_rapipdf_html(
+            url,
+            src_url=self.src_url,
+        )
+
+    def _get_rapidoc_html(self, url: str) -> str:
+        return _get_rapidoc_html(
+            url,
+            src_url=self.src_url,
+        )
+
+    def _get_swagger_ui_html(self, url: str) -> str:
+        return _get_swagger_ui_html(
+            url,
+            title=self.title,
+            swagger_ui_bundle=self.swagger_ui_bundle,
+            swagger_ui_url=self.swagger_ui_url,
         )
 
     def _gen_route(self, app: APP_T) -> Any:  # type: ignore

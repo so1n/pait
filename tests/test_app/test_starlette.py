@@ -13,7 +13,7 @@ from starlette.applications import Starlette
 from starlette.testclient import TestClient
 
 from example.param_verify import starlette_example
-from pait.api_doc.html import get_redoc_html, get_swagger_ui_html
+from pait.api_doc.html import get_rapidoc_html, get_rapipdf_html, get_redoc_html, get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenAPI
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.starlette import TestHelper as _TestHelper
@@ -156,11 +156,19 @@ class TestStarlette:
         starlette_example.add_api_doc_route(client.app)
         assert client.get("/swagger").status_code == 404
         assert client.get("/redoc").status_code == 404
+        assert client.get("/rapidoc").status_code == 404
+        assert client.get("/rapipdf").status_code == 404
         assert client.get("/swagger?pin_code=6666").text == get_swagger_ui_html(
             f"{client.base_url}/openapi.json?pin_code=6666", title="Pait Api Doc(private)"
         )
         assert client.get("/redoc?pin_code=6666").text == get_redoc_html(
             f"{client.base_url}/openapi.json?pin_code=6666", title="Pait Api Doc(private)"
+        )
+        assert client.get("/rapidoc?pin_code=6666").text == get_rapidoc_html(
+            f"{client.base_url}/openapi.json?pin_code=6666"
+        )
+        assert client.get("/rapipdf?pin_code=6666").text == get_rapipdf_html(
+            f"{client.base_url}/openapi.json?pin_code=6666"
         )
         assert (
             json.loads(client.get("/openapi.json?pin_code=6666&template-token=xxx").text)["paths"]["/api/user"]["get"][

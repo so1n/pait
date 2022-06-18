@@ -124,8 +124,7 @@ class BaseGrpcGatewayRoute(object):
                 self._tag_dict[tag] = pait_tag
             tag_list.append(pait_tag)
 
-        response_model_list: List[Type[PaitBaseResponseModel]] = []
-        response_model_list.append(self._gen_response_model_handle(grpc_model))
+        response_model_list: List[Type[PaitBaseResponseModel]] = [self._gen_response_model_handle(grpc_model)]
         if self._pait._response_model_list:
             response_model_list.extend(self._pait._response_model_list)
 

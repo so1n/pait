@@ -12,7 +12,7 @@ from tornado.testing import AsyncHTTPTestCase, HTTPResponse
 from tornado.web import Application
 
 from example.param_verify import tornado_example
-from pait.api_doc.html import get_redoc_html, get_swagger_ui_html
+from pait.api_doc.html import get_rapidoc_html, get_rapipdf_html, get_redoc_html, get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenAPI
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.tornado import TestHelper as _TestHelper
@@ -109,11 +109,19 @@ class TestTornado(BaseTestTornado):
         tornado_example.add_api_doc_route(self._app)
         assert self.fetch("/swagger").code == 404
         assert self.fetch("/redoc").code == 404
+        assert self.fetch("/rapidoc").code == 404
+        assert self.fetch("/rapipdf").code == 404
         assert self.fetch("/swagger?pin_code=6666").body.decode() == get_swagger_ui_html(
             self.get_url("/openapi.json?pin_code=6666"), title="Pait Api Doc(private)"
         )
         assert self.fetch("/redoc?pin_code=6666").body.decode() == get_redoc_html(
             self.get_url("/openapi.json?pin_code=6666"), title="Pait Api Doc(private)"
+        )
+        assert self.fetch("/rapidoc?pin_code=6666").body.decode() == get_rapidoc_html(
+            self.get_url("/openapi.json?pin_code=6666")
+        )
+        assert self.fetch("/rapipdf?pin_code=6666").body.decode() == get_rapipdf_html(
+            self.get_url("/openapi.json?pin_code=6666")
         )
         assert (
             json.loads(self.fetch("/openapi.json?pin_code=6666&template-token=xxx").body.decode())["paths"][

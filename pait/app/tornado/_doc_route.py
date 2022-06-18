@@ -4,8 +4,6 @@ from urllib.parse import urlencode
 
 from tornado.web import Application, RequestHandler
 
-from pait.api_doc.html import get_redoc_html as _get_redoc_html
-from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenAPI
 from pait.app.base.doc_route import AddDocRoute as _AddDocRoute
 from pait.field import Depends
@@ -64,13 +62,25 @@ class AddDocRoute(_AddDocRoute[Application]):
                 r_pin_code: str = Depends.i(doc_route_self._get_request_pin_code),
                 url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
             ) -> None:
-                self.write(
-                    _get_redoc_html(
-                        self._get_open_json_url(r_pin_code, url_dict),
-                        src_url=doc_route_self.redoc_src_url,
-                        title=doc_route_self.title,
-                    )
-                )
+                self.write(doc_route_self._get_redoc_html(self._get_open_json_url(r_pin_code, url_dict)))
+
+        class GetRapiDocHtmlHandle(BaseHandle, ABC):
+            @doc_pait()
+            async def get(
+                self,
+                r_pin_code: str = Depends.i(self._get_request_pin_code),
+                url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
+            ) -> None:
+                self.write(doc_route_self._get_rapidoc_html(self._get_open_json_url(r_pin_code, url_dict)))
+
+        class GetRapiPdfHtmlHandle(BaseHandle, ABC):
+            @doc_pait()
+            async def get(
+                self,
+                r_pin_code: str = Depends.i(self._get_request_pin_code),
+                url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
+            ) -> None:
+                self.write(doc_route_self._get_rapipdf_html(self._get_open_json_url(r_pin_code, url_dict)))
 
         class GetSwaggerUiHtmlHandle(BaseHandle, ABC):
             @doc_pait()
@@ -79,15 +89,7 @@ class AddDocRoute(_AddDocRoute[Application]):
                 r_pin_code: str = Depends.i(doc_route_self._get_request_pin_code),
                 url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
             ) -> None:
-                self.write(
-                    _get_swagger_ui_html(
-                        self._get_open_json_url(r_pin_code, url_dict),
-                        title=doc_route_self.title,
-                        swagger_ui_bundle=doc_route_self.swagger_ui_bundle,
-                        swagger_ui_standalone_preset=doc_route_self.swagger_ui_standalone_preset,
-                        swagger_ui_url=doc_route_self.swagger_ui_url,
-                    )
-                )
+                self.write(doc_route_self._get_swagger_ui_html(self._get_open_json_url(r_pin_code, url_dict)))
 
         class OpenApiHandle(BaseHandle, ABC):
             @doc_pait(pre_depend_list=[doc_route_self._get_request_pin_code])
@@ -136,6 +138,8 @@ class AddDocRoute(_AddDocRoute[Application]):
             [
                 (r"{}redoc".format(prefix), GetRedocHtmlHandle),
                 (r"{}swagger".format(prefix), GetSwaggerUiHtmlHandle),
+                (r"{}rapidoc".format(prefix), GetRapiDocHtmlHandle),
+                (r"{}rapipdf".format(prefix), GetRapiPdfHtmlHandle),
                 (r"{}openapi.json".format(prefix), OpenApiHandle),
             ]
         )

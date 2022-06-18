@@ -10,8 +10,6 @@ from sanic.request import Request
 from sanic.response import HTTPResponse
 from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
 
-from pait.api_doc.html import get_redoc_html as _get_redoc_html
-from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenAPI
 from pait.app.base.doc_route import AddDocRoute as _AddDocRoute
 from pait.app.base.doc_route import DocHtmlRespModel, OpenAPIRespModel
@@ -49,13 +47,23 @@ class AddDocRoute(_AddDocRoute[Sanic]):
             r_pin_code: str = Depends.i(self._get_request_pin_code),
             url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
         ) -> HTTPResponse:
-            return response.html(
-                _get_redoc_html(
-                    _get_open_json_url(request, r_pin_code, url_dict),
-                    src_url=self.redoc_src_url,
-                    title=self.title,
-                )
-            )
+            return response.html(self._get_redoc_html(_get_open_json_url(request, r_pin_code, url_dict)))
+
+        @doc_pait(response_model_list=[DocHtmlRespModel])
+        def get_rapi_doc_html(
+            request: Request,
+            r_pin_code: str = Depends.i(self._get_request_pin_code),
+            url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
+        ) -> HTTPResponse:
+            return response.html(self._get_rapidoc_html(_get_open_json_url(request, r_pin_code, url_dict)))
+
+        @doc_pait(response_model_list=[DocHtmlRespModel])
+        def get_rapi_pdf_html(
+            request: Request,
+            r_pin_code: str = Depends.i(self._get_request_pin_code),
+            url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
+        ) -> HTTPResponse:
+            return response.html(self._get_rapipdf_html(_get_open_json_url(request, r_pin_code, url_dict)))
 
         @doc_pait(response_model_list=[DocHtmlRespModel])
         def get_swagger_ui_html(
@@ -63,15 +71,7 @@ class AddDocRoute(_AddDocRoute[Sanic]):
             r_pin_code: str = Depends.i(self._get_request_pin_code),
             url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
         ) -> HTTPResponse:
-            return response.html(
-                _get_swagger_ui_html(
-                    _get_open_json_url(request, r_pin_code, url_dict),
-                    title=self.title,
-                    swagger_ui_bundle=self.swagger_ui_bundle,
-                    swagger_ui_standalone_preset=self.swagger_ui_standalone_preset,
-                    swagger_ui_url=self.swagger_ui_url,
-                )
-            )
+            return response.html(self._get_swagger_ui_html(_get_open_json_url(request, r_pin_code, url_dict)))
 
         @doc_pait(pre_depend_list=[self._get_request_pin_code], response_model_list=[OpenAPIRespModel])
         def openapi_route(
@@ -91,6 +91,9 @@ class AddDocRoute(_AddDocRoute[Sanic]):
         blueprint: Blueprint = Blueprint(self.title, self.prefix)
         blueprint.add_route(get_redoc_html, "/redoc", methods={"GET"})
         blueprint.add_route(get_swagger_ui_html, "/swagger", methods={"GET"})
+        blueprint.add_route(get_rapi_doc_html, "/rapidoc", methods={"GET"})
+        blueprint.add_route(get_rapi_pdf_html, "/rapipdf", methods={"GET"})
+        blueprint.add_route(openapi_route, "/openapi", methods={"GET"})
         blueprint.add_route(openapi_route, "/openapi.json", methods={"GET"})
         app.blueprint(blueprint)
 
