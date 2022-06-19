@@ -191,6 +191,7 @@ def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api") -> None:
 
         # test method
         if url == f"{url_prefix}/book_social-BookSocial/get_book_like":
+            # test get_book_like method
             method: str = "get"
         else:
             method = "post"
@@ -248,3 +249,11 @@ def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api") -> None:
 
             assert "password" not in schema["properties"]  # test alias
             assert schema["properties"]["sex"]["default"] == 0  # test enum default
+
+        # test customer field
+        if url == f"{url_prefix}/book_manager-BookManager/get_book":
+            for item in path_dict["post"]["parameters"]:
+                if item["name"] == "isbn":
+                    assert item["in"] == "query"
+                else:
+                    assert item["in"] == "header"

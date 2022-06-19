@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field, validator
 from pydantic.fields import FieldInfo, Undefined
 from pydantic.typing import NoArgAnyCallable
 
-from pait.field import Depends
+from pait import field as pait_field
 from pait.util import create_pydantic_model
 from pait.util.grpc_inspect.types import Descriptor, FieldDescriptor, Message, Timestamp
 
@@ -34,6 +34,7 @@ GRPC_TIMESTAMP_HANDLER_TUPLE_T = Tuple[Any, Optional[Callable[[Any, Any], Timest
 
 
 class MessagePaitModel(BaseModel):
+    field: Optional[Type[pait_field.BaseField]] = Field(None)
     enable: bool = Field(True)
     miss_default: bool = Field(False)
     example: Any = Field(MISSING)
@@ -62,6 +63,12 @@ def get_pait_info_from_grpc_desc(desc: str) -> MessagePaitModel:
             continue
         line = line.replace("pait:", "")
         pait_dict.update(json.loads(line))
+    field_name: str = pait_dict.pop("field", "")
+    if field_name:
+        field = getattr(pait_field, field_name, None)
+        if not field or not issubclass(field, pait_field.FieldInfo):
+            raise ValueError(f"{field_name} is not a valid pait field")
+        pait_dict["field"] = field
     return MessagePaitModel(**pait_dict)
 
 
@@ -78,7 +85,7 @@ def _parse_msg_to_pydantic_model(
     grpc_timestamp_handler_tuple: GRPC_TIMESTAMP_HANDLER_TUPLE_T,
     field_doc_dict: Dict[str, str],
     default_field: Type[FieldInfo] = FieldInfo,
-    request_param_field_dict: Optional[Dict[str, Union[Type[FieldInfo], Depends]]] = None,
+    request_param_field_dict: Optional[Dict[str, Union[Type[FieldInfo], pait_field.Depends]]] = None,
 ) -> Type[BaseModel]:
     request_param_field_dict = request_param_field_dict or {}
     annotation_dict: Dict[str, Tuple[Type, Any]] = {}
@@ -87,7 +94,7 @@ def _parse_msg_to_pydantic_model(
     timestamp_type, _grpc_timestamp_handler = grpc_timestamp_handler_tuple
 
     for column in descriptor.fields:
-        field: Union[Type[FieldInfo], Depends] = request_param_field_dict.get(column.name, default_field)
+        field: Union[Type[FieldInfo], pait_field.Depends] = request_param_field_dict.get(column.name, default_field)
 
         type_: Any = type_dict.get(column.type, None)
         name: str = column.name
@@ -132,7 +139,7 @@ def _parse_msg_to_pydantic_model(
             else:
                 default = column.default_value
 
-        if isinstance(field, Depends):
+        if isinstance(field, pait_field.Depends):
             use_field: Any = field
         else:
             if name in field_doc_dict:
@@ -145,9 +152,11 @@ def _parse_msg_to_pydantic_model(
                 field_param_dict["default_factory"] = default_factory
                 if field_param_dict.get("example").__class__ == MISSING.__class__:
                     field_param_dict.pop("example")
+                if field_param_dict["field"]:
+                    field = field_param_dict.pop("field")
             else:
                 field_param_dict = {"default": default, "default_factory": default_factory}
-            use_field = field(**field_param_dict)
+            use_field = field(**field_param_dict)  # type: ignore
         annotation_dict[name] = (type_, use_field)
 
     if timestamp_handler_field_silt and _grpc_timestamp_handler:
@@ -163,7 +172,7 @@ def _parse_msg_to_pydantic_model(
 def parse_msg_to_pydantic_model(
     msg: Union[Type[Message], Descriptor],
     default_field: Type[FieldInfo] = FieldInfo,
-    request_param_field_dict: Optional[Dict[str, Union[Type[FieldInfo], Depends]]] = None,
+    request_param_field_dict: Optional[Dict[str, Union[Type[FieldInfo], pait_field.Depends]]] = None,
     grpc_timestamp_handler_tuple: Optional[GRPC_TIMESTAMP_HANDLER_TUPLE_T] = None,
 ) -> Type[BaseModel]:
     """

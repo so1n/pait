@@ -20,7 +20,7 @@ message DeleteBookRequest {
 
 // get book by user
 message GetBookRequest {
-  string isbn = 1;
+  string isbn = 1; // pait: {"field": "Query"}
 }
 
 message GetBookResult {
