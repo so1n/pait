@@ -169,12 +169,13 @@ class AutoCompleteRespModel(PaitJsonResponseModel):
     class ResponseModel(ResponseModel):  # type: ignore
         class DataModel(BaseModel):
             class MusicModel(BaseModel):
-                name: str = Field()
+                name: str = Field("")
                 url: str = Field()
-                singer: str = Field()
+                singer: str = Field("")
 
             uid: int = Field(100, description="user id", gt=10, lt=1000)
             music_list: List[MusicModel] = Field(description="music list")
+            image_list: List[dict] = Field(description="music list")
 
         data: DataModel
 

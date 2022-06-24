@@ -435,6 +435,10 @@ def auto_complete_json_route() -> dict:
         "msg": "",
         "data": {
             # "uid": 0,
+            "image_list": [
+                {"aaa": 10},
+                {"aaa": "123"},
+            ],
             "music_list": [
                 {
                     "name": "music1",
@@ -446,7 +450,7 @@ def auto_complete_json_route() -> dict:
                     "url": "http://music1.com",
                     # "singer": "singer1",
                 },
-            ]
+            ],
         },
     }
 

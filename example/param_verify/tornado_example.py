@@ -487,6 +487,10 @@ class AutoCompleteJsonHandler(MyHandler):
             "code": 0,
             "msg": "",
             "data": {
+                "image_list": [
+                    {"aaa": 10},
+                    {"aaa": "123"},
+                ],
                 # "uid": 0,
                 "music_list": [
                     {
@@ -499,7 +503,7 @@ class AutoCompleteJsonHandler(MyHandler):
                         "url": "http://music1.com",
                         # "singer": "singer1",
                     },
-                ]
+                ],
             },
         }
 
