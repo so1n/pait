@@ -4,6 +4,9 @@
 </p>
 
 ---
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d4946f0f6ce34daeb55694ad53c7fd37)](https://app.codacy.com/gh/so1n/pait?utm_source=github.com&utm_medium=referral&utm_content=so1n/pait&utm_campaign=Badge_Grade_Settings)
+
 **Documentation**: [https://so1n.me/pait/](https://so1n.me/pait/)
 
 **中文文档**: [https://so1n.me/pait-zh-doc/](https://so1n.me/pait-zh-doc/)
