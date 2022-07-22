@@ -191,7 +191,7 @@ class BaseParamHandler(PluginProtocol):
                     for _parameter in param_list:
                         cls.check_param_field_by_parameter(_parameter)
             except PaitBaseException as e:
-                raise gen_tip_exc(_object, e, parameter)
+                raise gen_tip_exc(_object, e, parameter) from e
 
     @classmethod
     def pre_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:

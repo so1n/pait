@@ -8,6 +8,7 @@ from decimal import Decimal
 from enum import Enum
 from functools import wraps
 from json import JSONEncoder
+from typing import _eval_type  # type: ignore
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -104,17 +105,18 @@ def example_value_handle(example_value: Any) -> Any:
 
 
 def get_real_annotation(annotation: Union[Type, str], target_obj: Any) -> Type:
+    global_dict = sys.modules[target_obj.__module__].__dict__
     if not isinstance(annotation, str):
-        return annotation
+        return _eval_type(annotation, global_dict, None)
     if inspect.isclass(target_obj) and annotation in target_obj.__dict__:
         new_annotation: Type = target_obj.__dict__[annotation]
     else:
         # get real type
         value: ForwardRef = ForwardRef(annotation, is_argument=False)
-        new_annotation = value._evaluate(sys.modules[target_obj.__module__].__dict__, None)  # type: ignore
+        new_annotation = value._evaluate(global_dict, None)  # type: ignore
         if not new_annotation:
             raise RuntimeError(f"get real annotation from {target_obj} fail")  # pragma: no cover
-    return new_annotation
+    return _eval_type(new_annotation, global_dict, None)
 
 
 def get_pydantic_annotation(key: str, pydantic_base_model: Type[BaseModel]) -> Type:
