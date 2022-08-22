@@ -1,8 +1,8 @@
 syntax = "proto3";
-package user;
+package user_by_option;
 import "google/protobuf/empty.proto";
 import "example_proto_by_option/common/p2p_validate.proto";
-import "pait/api.proto";
+import "example_proto_by_option/common/api.proto";
 
 enum SexType {
   man = 0;
@@ -75,7 +75,7 @@ service User {
   // The interface should not be exposed for external use
   rpc get_uid_by_token (GetUidByTokenRequest) returns (GetUidByTokenResult) {
     option (pait.api.http) = {
-      enable: false,
+      not_enable: true,
       group: "user",
       tag: [{name: "grpc-user", desc: "grpc_user_service"}]
     };

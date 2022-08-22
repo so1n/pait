@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager, contextmanager
 from enum import Enum
 from typing import Any, AsyncGenerator, Generator, List, Tuple, Type
 
+from protobuf_to_pydantic import msg_to_pydantic_model
 from pydantic import BaseModel, Field
 
 from pait.field import Body, Depends, Header, Query
@@ -14,7 +15,6 @@ from pait.model.response import (
     PaitResponseModel,
     PaitTextResponseModel,
 )
-from pait.util.grpc_inspect.message_to_pydantic import parse_msg_to_pydantic_model
 from pait.util.grpc_inspect.stub import GrpcModel
 
 
@@ -23,9 +23,7 @@ def gen_response_model_handle(grpc_model: GrpcModel) -> Type[PaitBaseResponseMod
         class CustomerJsonResponseRespModel(BaseModel):
             code: int = Field(0, description="api code")
             msg: str = Field("success", description="api status msg")
-            data: parse_msg_to_pydantic_model(grpc_model.response) = Field(  # type: ignore
-                description="api response data"
-            )
+            data: msg_to_pydantic_model(grpc_model.response) = Field(description="api response data")  # type: ignore
 
         name: str = grpc_model.response.DESCRIPTOR.name
         response_data: Type[BaseModel] = CustomerJsonResponseRespModel

@@ -1,8 +1,8 @@
 syntax = "proto3";
-package book_social;
+package book_social_by_option;
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
-import "pait/api.proto";
+import "example_proto_by_option/common/api.proto";
 
 // user upvote&unlike book
 message LikeBookRequest {

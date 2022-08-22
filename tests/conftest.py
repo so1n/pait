@@ -156,7 +156,7 @@ def grpc_test_create_user_request(app: Any) -> Generator[Queue, None, None]:
                 # For tornado, the channel cannot be reclaimed
 
 
-def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api") -> None:
+def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api", option_str: str = "") -> None:
     from pait.api_doc.open_api import PaitOpenAPI
 
     url_list: List[str] = [
@@ -164,15 +164,15 @@ def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api") -> None:
         f"{url_prefix}/user/delete",
         f"{url_prefix}/user/login",
         f"{url_prefix}/user/logout",
-        f"{url_prefix}/book_manager-BookManager/get_book_list",
-        f"{url_prefix}/book_manager-BookManager/create_book",
-        f"{url_prefix}/book_manager-BookManager/delete_book",
-        f"{url_prefix}/book_manager-BookManager/get_book",
-        f"{url_prefix}/book_social-BookSocial/get_book_comment",
-        f"{url_prefix}/book_social-BookSocial/like_multi_book",
-        f"{url_prefix}/book_social-BookSocial/get_book_like",
-        f"{url_prefix}/book_social-BookSocial/comment_book",
-        f"{url_prefix}/book_social-BookSocial/like_book",
+        f"{url_prefix}/book_manager{option_str}-BookManager/get_book_list",
+        f"{url_prefix}/book_manager{option_str}-BookManager/create_book",
+        f"{url_prefix}/book_manager{option_str}-BookManager/delete_book",
+        f"{url_prefix}/book_manager{option_str}-BookManager/get_book",
+        f"{url_prefix}/book_social{option_str}-BookSocial/get_book_comment",
+        f"{url_prefix}/book_social{option_str}-BookSocial/like_multi_book",
+        f"{url_prefix}/book_social{option_str}-BookSocial/get_book_like",
+        f"{url_prefix}/book_social{option_str}-BookSocial/comment_book",
+        f"{url_prefix}/book_social{option_str}-BookSocial/like_book",
     ]
     pait_openapi: PaitOpenAPI = PaitOpenAPI(pait_dict, title="test")
 
@@ -190,7 +190,7 @@ def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api") -> None:
         path_dict: dict = pait_openapi.open_api_dict["paths"][url]
 
         # test method
-        if url == f"{url_prefix}/book_social-BookSocial/get_book_like":
+        if url == f"{url_prefix}/book_social{option_str}-BookSocial/get_book_like":
             # test get_book_like method
             method: str = "get"
         else:
@@ -203,9 +203,9 @@ def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api") -> None:
             if url.endswith("/create") or url.endswith("/delete"):
                 assert "grpc-user-system" in path_dict[method]["tags"]
         elif url.startswith(f"{url_prefix}/book_manager"):
-            assert "grpc-book_manager" in path_dict[method]["tags"]
+            assert f"grpc-book_manager{option_str}" in path_dict[method]["tags"]
         elif url.startswith(f"{url_prefix}/book_social"):
-            assert "grpc-book_social" in path_dict[method]["tags"]
+            assert f"grpc-book_social{option_str}" in path_dict[method]["tags"]
 
         # test summary
         if url == f"{url_prefix}/user/create":
@@ -251,7 +251,7 @@ def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api") -> None:
             assert schema["properties"]["sex"]["default"] == 0  # test enum default
 
         # test customer field
-        if url == f"{url_prefix}/book_manager-BookManager/get_book":
+        if url == f"{url_prefix}/book_manager{option_str}-BookManager/get_book":
             for item in path_dict["post"]["parameters"]:
                 if item["name"] == "isbn":
                     assert item["in"] == "query"

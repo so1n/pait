@@ -1,5 +1,5 @@
 syntax = "proto3";
-package book_manager;
+package book_manager_by_option;
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "example_proto_by_option/common/p2p_validate.proto";
@@ -21,7 +21,7 @@ message DeleteBookRequest {
 
 // get book by user
 message GetBookRequest {
-  string isbn = 1 [(p2p_validate.rules).string.field = "p2p@local|Query"];
+  string isbn = 1 [(p2p_validate.rules).string.field = "pait@import|pait.field|Query"];
 }
 
 message GetBookResult {

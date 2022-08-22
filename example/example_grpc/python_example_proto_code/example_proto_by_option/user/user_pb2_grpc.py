@@ -16,27 +16,27 @@ class UserStub(object):
             channel: A grpc.Channel.
         """
         self.get_uid_by_token = channel.unary_unary(
-                '/user.User/get_uid_by_token',
+                '/user_by_option.User/get_uid_by_token',
                 request_serializer=example__proto__by__option_dot_user_dot_user__pb2.GetUidByTokenRequest.SerializeToString,
                 response_deserializer=example__proto__by__option_dot_user_dot_user__pb2.GetUidByTokenResult.FromString,
                 )
         self.logout_user = channel.unary_unary(
-                '/user.User/logout_user',
+                '/user_by_option.User/logout_user',
                 request_serializer=example__proto__by__option_dot_user_dot_user__pb2.LogoutUserRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.login_user = channel.unary_unary(
-                '/user.User/login_user',
+                '/user_by_option.User/login_user',
                 request_serializer=example__proto__by__option_dot_user_dot_user__pb2.LoginUserRequest.SerializeToString,
                 response_deserializer=example__proto__by__option_dot_user_dot_user__pb2.LoginUserResult.FromString,
                 )
         self.create_user = channel.unary_unary(
-                '/user.User/create_user',
+                '/user_by_option.User/create_user',
                 request_serializer=example__proto__by__option_dot_user_dot_user__pb2.CreateUserRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.delete_user = channel.unary_unary(
-                '/user.User/delete_user',
+                '/user_by_option.User/delete_user',
                 request_serializer=example__proto__by__option_dot_user_dot_user__pb2.DeleteUserRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
@@ -106,7 +106,7 @@ def add_UserServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'user.User', rpc_method_handlers)
+            'user_by_option.User', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -125,7 +125,7 @@ class User(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/user.User/get_uid_by_token',
+        return grpc.experimental.unary_unary(request, target, '/user_by_option.User/get_uid_by_token',
             example__proto__by__option_dot_user_dot_user__pb2.GetUidByTokenRequest.SerializeToString,
             example__proto__by__option_dot_user_dot_user__pb2.GetUidByTokenResult.FromString,
             options, channel_credentials,
@@ -142,7 +142,7 @@ class User(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/user.User/logout_user',
+        return grpc.experimental.unary_unary(request, target, '/user_by_option.User/logout_user',
             example__proto__by__option_dot_user_dot_user__pb2.LogoutUserRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
@@ -159,7 +159,7 @@ class User(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/user.User/login_user',
+        return grpc.experimental.unary_unary(request, target, '/user_by_option.User/login_user',
             example__proto__by__option_dot_user_dot_user__pb2.LoginUserRequest.SerializeToString,
             example__proto__by__option_dot_user_dot_user__pb2.LoginUserResult.FromString,
             options, channel_credentials,
@@ -176,7 +176,7 @@ class User(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/user.User/create_user',
+        return grpc.experimental.unary_unary(request, target, '/user_by_option.User/create_user',
             example__proto__by__option_dot_user_dot_user__pb2.CreateUserRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
@@ -193,7 +193,7 @@ class User(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/user.User/delete_user',
+        return grpc.experimental.unary_unary(request, target, '/user_by_option.User/delete_user',
             example__proto__by__option_dot_user_dot_user__pb2.DeleteUserRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,

@@ -322,3 +322,9 @@ class TestFlaskGrpc:
         from pait.app.flask.grpc_route import GrpcGatewayRoute
 
         base_test.grpc_openapi_by_protobuf_file(base_test.client.application, GrpcGatewayRoute, load_app)
+
+    def test_grpc_openapi_by_option(self, base_test: BaseTest) -> None:
+        from pait.app.flask import load_app
+        from pait.app.flask.grpc_route import GrpcGatewayRoute
+
+        base_test.grpc_openapi_by_option(base_test.client.application, GrpcGatewayRoute, load_app)

@@ -16,27 +16,27 @@ class BookSocialStub(object):
             channel: A grpc.Channel.
         """
         self.like_book = channel.unary_unary(
-                '/book_social.BookSocial/like_book',
+                '/book_social_by_option.BookSocial/like_book',
                 request_serializer=example__proto__by__option_dot_book_dot_social__pb2.LikeBookRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.like_multi_book = channel.unary_unary(
-                '/book_social.BookSocial/like_multi_book',
+                '/book_social_by_option.BookSocial/like_multi_book',
                 request_serializer=example__proto__by__option_dot_book_dot_social__pb2.LikeBookMapRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.get_book_like = channel.unary_unary(
-                '/book_social.BookSocial/get_book_like',
+                '/book_social_by_option.BookSocial/get_book_like',
                 request_serializer=example__proto__by__option_dot_book_dot_social__pb2.GetBookLikesRequest.SerializeToString,
                 response_deserializer=example__proto__by__option_dot_book_dot_social__pb2.GetBookLikesListResult.FromString,
                 )
         self.comment_book = channel.unary_unary(
-                '/book_social.BookSocial/comment_book',
+                '/book_social_by_option.BookSocial/comment_book',
                 request_serializer=example__proto__by__option_dot_book_dot_social__pb2.CommentBookRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.get_book_comment = channel.unary_unary(
-                '/book_social.BookSocial/get_book_comment',
+                '/book_social_by_option.BookSocial/get_book_comment',
                 request_serializer=example__proto__by__option_dot_book_dot_social__pb2.GetBookCommentRequest.SerializeToString,
                 response_deserializer=example__proto__by__option_dot_book_dot_social__pb2.GetBookCommentListResult.FromString,
                 )
@@ -105,7 +105,7 @@ def add_BookSocialServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'book_social.BookSocial', rpc_method_handlers)
+            'book_social_by_option.BookSocial', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -124,7 +124,7 @@ class BookSocial(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/book_social.BookSocial/like_book',
+        return grpc.experimental.unary_unary(request, target, '/book_social_by_option.BookSocial/like_book',
             example__proto__by__option_dot_book_dot_social__pb2.LikeBookRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
@@ -141,7 +141,7 @@ class BookSocial(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/book_social.BookSocial/like_multi_book',
+        return grpc.experimental.unary_unary(request, target, '/book_social_by_option.BookSocial/like_multi_book',
             example__proto__by__option_dot_book_dot_social__pb2.LikeBookMapRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
@@ -158,7 +158,7 @@ class BookSocial(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/book_social.BookSocial/get_book_like',
+        return grpc.experimental.unary_unary(request, target, '/book_social_by_option.BookSocial/get_book_like',
             example__proto__by__option_dot_book_dot_social__pb2.GetBookLikesRequest.SerializeToString,
             example__proto__by__option_dot_book_dot_social__pb2.GetBookLikesListResult.FromString,
             options, channel_credentials,
@@ -175,7 +175,7 @@ class BookSocial(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/book_social.BookSocial/comment_book',
+        return grpc.experimental.unary_unary(request, target, '/book_social_by_option.BookSocial/comment_book',
             example__proto__by__option_dot_book_dot_social__pb2.CommentBookRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
@@ -192,7 +192,7 @@ class BookSocial(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/book_social.BookSocial/get_book_comment',
+        return grpc.experimental.unary_unary(request, target, '/book_social_by_option.BookSocial/get_book_comment',
             example__proto__by__option_dot_book_dot_social__pb2.GetBookCommentRequest.SerializeToString,
             example__proto__by__option_dot_book_dot_social__pb2.GetBookCommentListResult.FromString,
             options, channel_credentials,

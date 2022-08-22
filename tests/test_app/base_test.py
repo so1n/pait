@@ -280,7 +280,7 @@ class BaseTest(object):
                 exec_msg: str = e.value.args[0]
                 assert "'status_code': 500" in exec_msg
         elif app == "starlette":
-            with pytest.raises(Exception) as e:
+            with pytest.raises(Exception):
                 self.test_helper(self.client, cache_response, query_dict={"raise_exc": 1}).text()
         elif app == "tornado":
             assert self.test_helper(self.client, cache_response, query_dict={"raise_exc": 1}).json()["code"] == -1
@@ -367,3 +367,24 @@ class BaseTest(object):
             gen_response_model_handle=gen_response_model_handle,
         )
         grpc_test_openapi(load_app(app), url_prefix=prefix)
+
+    @staticmethod
+    def grpc_openapi_by_option(app: Any, grpc_gateway_route: Type[BaseGrpcGatewayRoute], load_app: Callable) -> None:
+        from example.example_grpc.python_example_proto_code.example_proto_by_option.book import (
+            manager_pb2_grpc,
+            social_pb2_grpc,
+        )
+        from example.example_grpc.python_example_proto_code.example_proto_by_option.user import user_pb2_grpc
+
+        prefix: str = "/api-test-by-option"
+
+        grpc_gateway_route(
+            app,
+            user_pb2_grpc.UserStub,
+            social_pb2_grpc.BookSocialStub,
+            manager_pb2_grpc.BookManagerStub,
+            prefix=prefix + "/",
+            title="Grpc-test",
+            gen_response_model_handle=gen_response_model_handle,
+        )
+        grpc_test_openapi(load_app(app), url_prefix=prefix, option_str="_by_option")

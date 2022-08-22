@@ -29,7 +29,6 @@ do
     --grpc_python_out=./$target_p \
     --mypy_grpc_out=./$target_p \
     --mypy_out=./$target_p \
-    --proto_path="../.." \
     -I. \
     $source_p/"$service"/*.proto
 

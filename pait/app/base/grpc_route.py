@@ -1,44 +1,18 @@
 import asyncio
-import json
 from abc import ABCMeta
 from sys import modules
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 import grpc
 from protobuf_to_pydantic import msg_to_pydantic_model
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from pait.core import Pait
 from pait.field import BaseField, Body, Query
 from pait.model.response import PaitBaseResponseModel, PaitJsonResponseModel
 from pait.model.tag import Tag
-from pait.util.grpc_inspect.message_to_pydantic import parse_msg_to_pydantic_model
-from pait.util.grpc_inspect.stub import GrpcModel, ParseStub
+from pait.util.grpc_inspect.stub import GrpcModel, GrpcServiceModel, ParseStub
 from pait.util.grpc_inspect.types import Message, MessageToDict
-
-
-class GrpcPaitModel(BaseModel):
-    name: str = Field("")
-    tag: List[Tuple[str, str]] = Field(default_factory=list)
-    group: str = Field("")
-    desc: str = Field("")
-    summary: str = Field("")
-    url: str = Field("")
-    enable: bool = Field(True)
-    http_method: str = Field("POST")
-
-
-def get_pait_info_from_grpc_desc(grpc_model: GrpcModel) -> GrpcPaitModel:
-    pait_dict: dict = {}
-    for line in grpc_model.service_desc.split("\n") + grpc_model.desc.split("\n"):
-        line = line.strip()
-        if not line.startswith("pait: {"):
-            continue
-        line = line.replace("pait:", "")
-        pait_dict.update(json.loads(line))
-    grpc_pait_model: GrpcPaitModel = GrpcPaitModel(**pait_dict)
-    grpc_pait_model.http_method = grpc_pait_model.http_method.upper()
-    return grpc_pait_model
 
 
 def _gen_response_model_handle(grpc_model: GrpcModel) -> Type[PaitBaseResponseModel]:
@@ -49,7 +23,7 @@ def _gen_response_model_handle(grpc_model: GrpcModel) -> Type[PaitBaseResponseMo
         # Rename it,
         # otherwise it will overwrite the existing scheme with the same name when generating OpenAPI documents.
         response_data: Type[BaseModel] = type(
-            f"{grpc_model.method}RespModel", (parse_msg_to_pydantic_model(grpc_model.response),), {}
+            f"{grpc_model.method}RespModel", (msg_to_pydantic_model(grpc_model.response),), {}
         )
 
     return CustomerJsonResponseModel
@@ -112,11 +86,11 @@ class BaseGrpcGatewayRoute(object):
             else self._parse_msg_desc,
         )
 
-    def _gen_pait_from_grpc_method(
-        self, method_name: str, grpc_model: GrpcModel, grpc_pait_model: GrpcPaitModel
-    ) -> Pait:
+    def _gen_pait_from_grpc_method(self, method_name: str, grpc_model: GrpcModel) -> Pait:
         tag_list: List[Tag] = [self._grpc_tag]
-        for tag, desc in grpc_pait_model.tag + [("grpc" + "-" + method_name.split("/")[1].split(".")[0], "")]:
+        for tag, desc in grpc_model.grpc_service_model.tag + [
+            ("grpc" + "-" + method_name.split("/")[1].split(".")[0], "")
+        ]:
             if tag in self._tag_dict:
                 pait_tag: Tag = self._tag_dict[tag]
             else:
@@ -129,11 +103,11 @@ class BaseGrpcGatewayRoute(object):
             response_model_list.extend(self._pait._response_model_list)
 
         return self._pait.create_sub_pait(
-            name=grpc_pait_model.name,
-            group=grpc_pait_model.group or method_name.split("/")[1],
+            name=grpc_model.grpc_service_model.name,
+            group=grpc_model.grpc_service_model.group or method_name.split("/")[1],
             append_tag=tuple(tag_list),
-            desc=grpc_pait_model.desc,
-            summary=grpc_pait_model.summary,
+            desc=grpc_model.grpc_service_model.desc,
+            summary=grpc_model.grpc_service_model.summary,
             response_model_list=response_model_list,
         )
 
@@ -156,17 +130,17 @@ class BaseGrpcGatewayRoute(object):
     def gen_route(self, method: str, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]) -> Callable:
         raise NotImplementedError()
 
-    def _gen_route_func(self, method_name: str, grpc_model: GrpcModel) -> Tuple[Optional[Callable], GrpcPaitModel]:
-        grpc_pait_model: GrpcPaitModel = get_pait_info_from_grpc_desc(grpc_model)
-        if grpc_pait_model.enable is False:
-            return None, grpc_pait_model
-        if not grpc_pait_model.url:
-            grpc_pait_model.url = method_name
+    def _gen_route_func(self, method_name: str, grpc_model: GrpcModel) -> Tuple[Optional[Callable], GrpcServiceModel]:
+        grpc_service_model: GrpcServiceModel = grpc_model.grpc_service_model
+        if grpc_service_model.enable is False:
+            return None, grpc_service_model
+        if not grpc_service_model.url:
+            grpc_service_model.url = method_name
 
         request_pydantic_model_class: Type[BaseModel] = self._gen_request_pydantic_class_from_grpc_model(
-            grpc_model, grpc_pait_model.http_method
+            grpc_model, grpc_service_model.http_method
         )
-        pait: Pait = self._gen_pait_from_grpc_method(method_name, grpc_model, grpc_pait_model)
+        pait: Pait = self._gen_pait_from_grpc_method(method_name, grpc_model)
 
         _route = self.gen_route(method_name, grpc_model, request_pydantic_model_class)
         # request_pydantic_model_class is not generated by this module,
@@ -177,7 +151,7 @@ class BaseGrpcGatewayRoute(object):
         _route.__qualname__ = _route.__qualname__.replace("._route", "." + _route.__name__)
 
         _route = pait(feature_code=grpc_model.method)(_route)
-        return _route, grpc_pait_model
+        return _route, grpc_service_model
 
     def _add_route(self, app: Any) -> Any:  # type: ignore
         raise NotImplementedError()

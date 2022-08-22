@@ -16,22 +16,22 @@ class BookManagerStub(object):
             channel: A grpc.Channel.
         """
         self.create_book = channel.unary_unary(
-                '/book_manager.BookManager/create_book',
+                '/book_manager_by_option.BookManager/create_book',
                 request_serializer=example__proto__by__option_dot_book_dot_manager__pb2.CreateBookRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.delete_book = channel.unary_unary(
-                '/book_manager.BookManager/delete_book',
+                '/book_manager_by_option.BookManager/delete_book',
                 request_serializer=example__proto__by__option_dot_book_dot_manager__pb2.DeleteBookRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.get_book = channel.unary_unary(
-                '/book_manager.BookManager/get_book',
+                '/book_manager_by_option.BookManager/get_book',
                 request_serializer=example__proto__by__option_dot_book_dot_manager__pb2.GetBookRequest.SerializeToString,
                 response_deserializer=example__proto__by__option_dot_book_dot_manager__pb2.GetBookResult.FromString,
                 )
         self.get_book_list = channel.unary_unary(
-                '/book_manager.BookManager/get_book_list',
+                '/book_manager_by_option.BookManager/get_book_list',
                 request_serializer=example__proto__by__option_dot_book_dot_manager__pb2.GetBookListRequest.SerializeToString,
                 response_deserializer=example__proto__by__option_dot_book_dot_manager__pb2.GetBookListResult.FromString,
                 )
@@ -89,7 +89,7 @@ def add_BookManagerServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'book_manager.BookManager', rpc_method_handlers)
+            'book_manager_by_option.BookManager', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -108,7 +108,7 @@ class BookManager(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/book_manager.BookManager/create_book',
+        return grpc.experimental.unary_unary(request, target, '/book_manager_by_option.BookManager/create_book',
             example__proto__by__option_dot_book_dot_manager__pb2.CreateBookRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
@@ -125,7 +125,7 @@ class BookManager(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/book_manager.BookManager/delete_book',
+        return grpc.experimental.unary_unary(request, target, '/book_manager_by_option.BookManager/delete_book',
             example__proto__by__option_dot_book_dot_manager__pb2.DeleteBookRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
@@ -142,7 +142,7 @@ class BookManager(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/book_manager.BookManager/get_book',
+        return grpc.experimental.unary_unary(request, target, '/book_manager_by_option.BookManager/get_book',
             example__proto__by__option_dot_book_dot_manager__pb2.GetBookRequest.SerializeToString,
             example__proto__by__option_dot_book_dot_manager__pb2.GetBookResult.FromString,
             options, channel_credentials,
@@ -159,7 +159,7 @@ class BookManager(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/book_manager.BookManager/get_book_list',
+        return grpc.experimental.unary_unary(request, target, '/book_manager_by_option.BookManager/get_book_list',
             example__proto__by__option_dot_book_dot_manager__pb2.GetBookListRequest.SerializeToString,
             example__proto__by__option_dot_book_dot_manager__pb2.GetBookListResult.FromString,
             options, channel_credentials,

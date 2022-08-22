@@ -12,7 +12,6 @@ import grpc
 from starlette.applications import Starlette
 from pait.app.starlette.grpc_route import GrpcGatewayRoute
 from pait.app.starlette import AddDocRoute
-from pait.util.grpc_inspect.message_to_pydantic import grpc_timestamp_int_handler
 
 # 引入根据Protobuf文件生成的对应代码
 from example.example_grpc.python_example_proto_code.example_proto.user import user_pb2_grpc
@@ -32,8 +31,6 @@ def create_app() -> Starlette:
         prefix="/api",
         # 指定生成的路由函数名的开头
         title="Grpc",
-        # 指定Timestamp的解析方法
-        grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
         # 见下面说明
         parse_msg_desc="by_mypy",
     )
