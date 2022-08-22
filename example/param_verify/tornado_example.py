@@ -53,7 +53,6 @@ from pait.model.status import PaitStatus
 from pait.model.template import TemplateVar
 from pait.plugin.at_most_one_of import AtMostOneOfPlugin
 from pait.plugin.required import RequiredPlugin
-from pait.util.grpc_inspect.message_to_pydantic import grpc_timestamp_int_handler
 
 global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
 
@@ -666,7 +665,6 @@ def add_grpc_gateway_route(app: Application) -> None:
         manager_pb2_grpc.BookManagerStub,
         prefix="/api",
         title="Grpc",
-        grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
         parse_msg_desc="by_mypy",
         gen_response_model_handle=gen_response_model_handle,
         make_response=_tornado_make_response,

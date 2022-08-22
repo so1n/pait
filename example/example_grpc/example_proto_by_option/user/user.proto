@@ -1,0 +1,117 @@
+syntax = "proto3";
+package user;
+import "google/protobuf/empty.proto";
+import "example_proto_by_option/common/p2p_validate.proto";
+import "pait/api.proto";
+
+enum SexType {
+  man = 0;
+  women = 1;
+}
+
+// create user
+message CreateUserRequest {
+  string uid = 1 [
+    (p2p_validate.rules).string.miss_default = true,
+    (p2p_validate.rules).string.example = "10086",
+    (p2p_validate.rules).string.title = "UID",
+    (p2p_validate.rules).string.description = "user union id"
+  ];
+  string user_name = 2 [
+    (p2p_validate.rules).string.description = "user name",
+    (p2p_validate.rules).string.min_length = 1,
+    (p2p_validate.rules).string.max_length = 10,
+    (p2p_validate.rules).string.example = "so1n"
+  ];
+  string password = 3 [
+    (p2p_validate.rules).string.description = "user password",
+    (p2p_validate.rules).string.alias = "pw",
+    (p2p_validate.rules).string.min_length = 6,
+    (p2p_validate.rules).string.max_length = 18,
+    (p2p_validate.rules).string.example = "123456"
+  ];
+  SexType sex = 4;
+}
+
+// delete user
+message DeleteUserRequest {
+  string uid = 1;
+}
+
+// login user
+message LoginUserRequest {
+  string uid = 1;
+  string password = 2;
+}
+message LoginUserResult {
+  string uid = 1 [
+    (p2p_validate.rules).string.example = "10086",
+    (p2p_validate.rules).string.title = "UID",
+    (p2p_validate.rules).string.description = "user union id"
+  ];
+  string user_name = 2 [
+    (p2p_validate.rules).string.description = "user name",
+    (p2p_validate.rules).string.min_length = 1,
+    (p2p_validate.rules).string.max_length = 10,
+    (p2p_validate.rules).string.example = "so1n"
+  ];
+  string token = 3 [(p2p_validate.rules).string.description = "user token"];
+}
+
+// logout user
+message LogoutUserRequest {
+  string uid = 1;
+  string token = 2 [(p2p_validate.rules).string.enable = false];
+}
+
+message GetUidByTokenRequest {
+  string token = 1;
+}
+message GetUidByTokenResult {
+  string uid = 1;
+}
+
+service User {
+  // The interface should not be exposed for external use
+  rpc get_uid_by_token (GetUidByTokenRequest) returns (GetUidByTokenResult) {
+    option (pait.api.http) = {
+      enable: false,
+      group: "user",
+      tag: [{name: "grpc-user", desc: "grpc_user_service"}]
+    };
+  };
+  rpc logout_user (LogoutUserRequest) returns (google.protobuf.Empty) {
+    option (pait.api.http) = {
+      summary: "User exit from the system",
+      any: {url: "/user/logout"},
+      tag: [{name: "grpc-user", desc: "grpc_user_service"}]
+    };
+  };
+  rpc login_user(LoginUserRequest) returns (LoginUserResult) {
+    option (pait.api.http) = {
+      summary: "User login to system",
+      any: {url: "/user/login"},
+      tag: [{name: "grpc-user", desc: "grpc_user_service"}]
+    };
+  };
+  rpc create_user(CreateUserRequest) returns (google.protobuf.Empty) {
+    option (pait.api.http) = {
+      summary: "Create users through the system",
+      any: {url: "/user/create"},
+      tag: [
+        {name: "grpc-user", desc: "grpc_user_service"},
+        {name: "grpc-user-system", desc: "grpc_user_service"}
+      ]
+    };
+  };
+  rpc delete_user(DeleteUserRequest) returns (google.protobuf.Empty) {
+    option (pait.api.http) = {
+      desc: "This interface performs a logical delete, not a physical delete",
+      any: {url: "/user/delete"},
+      tag: [
+        {name: "grpc-user", desc: "grpc_user_service"},
+        {name: "grpc-user-system", desc: "grpc_user_service"}
+      ]
+    };
+  };
+}

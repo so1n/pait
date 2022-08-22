@@ -2,7 +2,13 @@
 - 1 Add a user-friendly doc ui
 - 2 Plugin Panel
 
-### 0.7.8.2[Now]
+### 0.7.9[now]
+- Feature, Support for unregulated typing usage
+- Fix, fix auto complete json bug
+- Feature, gRPC Gateway route param support custom pait.field
+- Feature, add rapidoc and rapipdf api doc html
+- Fix, gRpc Gateway generates a schema of the same name
+### 0.7.8.2
 - Feature, support custom custom grpc route response model
 
 ### 0.7.8.1

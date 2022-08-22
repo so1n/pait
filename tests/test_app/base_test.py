@@ -346,7 +346,6 @@ class BaseTest(object):
 
         from example.example_grpc.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
         from example.example_grpc.python_example_proto_code.example_proto.user import user_pb2_grpc
-        from pait.util.grpc_inspect.message_to_pydantic import grpc_timestamp_int_handler
 
         project_path: str = os.getcwd().split("pait/")[0]
         if project_path.endswith("pait"):
@@ -364,7 +363,6 @@ class BaseTest(object):
             manager_pb2_grpc.BookManagerStub,
             prefix=prefix + "/",
             title="Grpc-test",
-            grpc_timestamp_handler_tuple=(int, grpc_timestamp_int_handler),
             parse_msg_desc=grpc_path,
             gen_response_model_handle=gen_response_model_handle,
         )

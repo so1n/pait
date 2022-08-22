@@ -5,13 +5,14 @@ from sys import modules
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 import grpc
+from protobuf_to_pydantic import msg_to_pydantic_model
 from pydantic import BaseModel, Field
 
 from pait.core import Pait
-from pait.field import BaseField, Body, Depends, Query
+from pait.field import BaseField, Body, Query
 from pait.model.response import PaitBaseResponseModel, PaitJsonResponseModel
 from pait.model.tag import Tag
-from pait.util.grpc_inspect.message_to_pydantic import GRPC_TIMESTAMP_HANDLER_TUPLE_T, parse_msg_to_pydantic_model
+from pait.util.grpc_inspect.message_to_pydantic import parse_msg_to_pydantic_model
 from pait.util.grpc_inspect.stub import GrpcModel, ParseStub
 from pait.util.grpc_inspect.types import Message, MessageToDict
 
@@ -73,13 +74,12 @@ class BaseGrpcGatewayRoute(object):
         pait: Optional[Pait] = None,
         make_response: Optional[Callable] = None,
         url_handler: Callable[[str], str] = lambda x: x.replace(".", "-"),
-        request_param_field_dict: Optional[Dict[str, Union[Type[BaseField], Depends]]] = None,
-        grpc_timestamp_handler_tuple: Optional[GRPC_TIMESTAMP_HANDLER_TUPLE_T] = None,
         gen_response_model_handle: Optional[Callable[[GrpcModel], Type[PaitBaseResponseModel]]] = None,
     ):
         self.prefix: str = prefix
         self.title: str = title
-        self.parse_stub_list: List[ParseStub] = [ParseStub(i, parse_msg_desc=parse_msg_desc) for i in stub_list]
+        self._parse_msg_desc: Optional[str] = parse_msg_desc
+        self.parse_stub_list: List[ParseStub] = [ParseStub(i) for i in stub_list]
         self.stub_list: Tuple[Any, ...] = stub_list
         self.msg_to_dict: Callable = msg_to_dict
         self.parse_dict: Optional[Callable] = parse_dict
@@ -88,8 +88,6 @@ class BaseGrpcGatewayRoute(object):
         self._gen_response_model_handle: Callable[[GrpcModel], Type[PaitBaseResponseModel]] = (
             gen_response_model_handle or _gen_response_model_handle
         )
-        self._request_param_field_dict: Optional[Dict[str, Union[Type[BaseField], Depends]]] = request_param_field_dict
-        self._grpc_timestamp_handler_tuple: Optional[GRPC_TIMESTAMP_HANDLER_TUPLE_T] = grpc_timestamp_handler_tuple
         self._pait: Pait = pait or self.pait
         self._make_response: Callable = make_response or self.make_response
         self._is_gen: bool = False
@@ -105,11 +103,13 @@ class BaseGrpcGatewayRoute(object):
             default_field = Body
         else:
             raise RuntimeError(f"{http_method} is not supported")
-        return parse_msg_to_pydantic_model(
+        return msg_to_pydantic_model(
             grpc_model.request,
             default_field=default_field,
-            request_param_field_dict=self._request_param_field_dict,
-            grpc_timestamp_handler_tuple=self._grpc_timestamp_handler_tuple,
+            comment_prefix="pait",
+            parse_msg_desc_method=getattr(grpc_model.request, "_message_module")
+            if self._parse_msg_desc == "by_mypy"
+            else self._parse_msg_desc,
         )
 
     def _gen_pait_from_grpc_method(

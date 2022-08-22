@@ -2,6 +2,7 @@ syntax = "proto3";
 package book_social;
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+import "pait/api.proto";
 
 // user upvote&unlike book
 message LikeBookRequest {
@@ -39,8 +40,8 @@ message CommentBookRequest {
 // get book comment
 message GetBookCommentRequest {
   string isbn = 1;
-  google.protobuf.Timestamp next_create_time = 2;
-  int32 limit = 3;
+  optional google.protobuf.Timestamp next_create_time = 2;
+  optional int32 limit = 3;
 }
 
 message GetBookCommentResult {
@@ -57,8 +58,11 @@ message GetBookCommentListResult {
 service BookSocial {
   rpc like_book (LikeBookRequest) returns (google.protobuf.Empty);
   rpc like_multi_book (LikeBookMapRequest) returns (google.protobuf.Empty);
-  // pait: {"http_method": "GET"}
-  rpc get_book_like (GetBookLikesRequest) returns (GetBookLikesListResult);
+  rpc get_book_like (GetBookLikesRequest) returns (GetBookLikesListResult) {
+    option (pait.api.http) = {
+      get: {default: true}
+    };
+  };
   rpc comment_book (CommentBookRequest) returns (google.protobuf.Empty);
   rpc get_book_comment (GetBookCommentRequest) returns (GetBookCommentListResult);
 

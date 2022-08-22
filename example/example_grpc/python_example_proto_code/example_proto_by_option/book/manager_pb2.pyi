@@ -53,8 +53,6 @@ class GetBookRequest(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
     ISBN_FIELD_NUMBER: builtins.int
     isbn: typing.Text
-    """pait: {"field": "pait@import|pait.field|Query"}"""
-
     def __init__(self,
         *,
         isbn: typing.Text = ...,
@@ -107,8 +105,9 @@ class GetBookListRequest(google.protobuf.message.Message):
         next_create_time: typing.Optional[google.protobuf.timestamp_pb2.Timestamp] = ...,
         limit: builtins.int = ...,
         ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["next_create_time",b"next_create_time"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["limit",b"limit","next_create_time",b"next_create_time"]) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["_next_create_time",b"_next_create_time","next_create_time",b"next_create_time"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["_next_create_time",b"_next_create_time","limit",b"limit","next_create_time",b"next_create_time"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["_next_create_time",b"_next_create_time"]) -> typing.Optional[typing_extensions.Literal["next_create_time"]]: ...
 global___GetBookListRequest = GetBookListRequest
 
 class GetBookListResult(google.protobuf.message.Message):
