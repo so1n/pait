@@ -45,7 +45,7 @@ class GrpcGatewayRoute(BaseGrpcRouter):
         for parse_stub in self.parse_stub_list:
             for _, grpc_model_list in parse_stub.method_list_dict.items():
                 for grpc_model in grpc_model_list:
-                    _route, grpc_pait_model = self._gen_route_func(grpc_model)
+                    _route = self._gen_route_func(grpc_model)
                     if not _route:
                         continue
 
@@ -54,9 +54,11 @@ class GrpcGatewayRoute(BaseGrpcRouter):
                         (self.request_handler,),
                         {"__model__": f"{__name__}.{self.__class__.__name__}.gen_route_func.<locals>"},
                     )
-                    setattr(route_class, grpc_pait_model.http_method.lower(), _route)
+                    setattr(route_class, grpc_model.grpc_service_model.http_method.lower(), _route)
 
-                    route_list.append((r"{}{}".format(prefix, self.url_handler(grpc_pait_model.url)), route_class))
+                    route_list.append(
+                        (r"{}{}".format(prefix, self.url_handler(grpc_model.grpc_service_model.url)), route_class)
+                    )
 
         app.wildcard_router.add_rules(route_list)
         from tornado.web import AnyMatches, Rule, _ApplicationRouter

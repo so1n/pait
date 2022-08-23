@@ -11,7 +11,7 @@ from pait.core import Pait
 from pait.field import BaseField, Body, Query
 from pait.model.response import PaitBaseResponseModel, PaitJsonResponseModel
 from pait.model.tag import Tag
-from pait.util.grpc_inspect.stub import GrpcModel, GrpcServiceModel, ParseStub
+from pait.util.grpc_inspect.stub import GrpcModel, ParseStub
 from pait.util.grpc_inspect.types import Message, MessageToDict
 
 
@@ -50,6 +50,21 @@ class BaseGrpcGatewayRoute(object):
         url_handler: Callable[[str], str] = lambda x: x.replace(".", "-"),
         gen_response_model_handle: Optional[Callable[[GrpcModel], Type[PaitBaseResponseModel]]] = None,
     ):
+        """
+        :param app: Instance object of the web framework
+        :param stub_list: gRPC Stub List
+        :param parse_msg_desc: The way to parse protobuf message, see the specific usage method：
+            https://github.com/so1n/protobuf_to_pydantic#22parameter-verification
+        :param prefix: url prefix
+        :param title: Title of gRPC Gateway, if there are multiple gRPC Gateways in the same Stub,
+            you need to ensure that the title of each gRPC Gateway is different
+        :param msg_to_dict: protobuf.json_format.msg_to_dict func
+        :param parse_dict: protobuf.json_format.parse_dict func
+        :param pait: instance of pait
+        :param make_response: The method of converting Message to Response object
+        :param url_handler: url processing function, the default symbol: `.` is converted to `-`
+        :param gen_response_model_handle: Methods for generating Open API response objects
+        """
         self.prefix: str = prefix
         self.title: str = title
         self._parse_msg_desc: Optional[str] = parse_msg_desc
@@ -70,7 +85,8 @@ class BaseGrpcGatewayRoute(object):
 
         self._add_route(app)
 
-    def _gen_request_pydantic_class_from_grpc_model(self, grpc_model: GrpcModel, http_method: str) -> Type[BaseModel]:
+    def _gen_request_pydantic_class_from_message(self, message: Type[Message], http_method: str) -> Type[BaseModel]:
+        """Generate the corresponding request body according to the grpc message(pydantic request)"""
         if http_method == "GET":
             default_field: Type[BaseField] = Query
         elif http_method == "POST":
@@ -78,15 +94,16 @@ class BaseGrpcGatewayRoute(object):
         else:
             raise RuntimeError(f"{http_method} is not supported")
         return msg_to_pydantic_model(
-            grpc_model.request,
+            message,
             default_field=default_field,
             comment_prefix="pait",
-            parse_msg_desc_method=getattr(grpc_model.request, "_message_module")
+            parse_msg_desc_method=getattr(message, "_message_module")
             if self._parse_msg_desc == "by_mypy"
             else self._parse_msg_desc,
         )
 
-    def _gen_pait_from_grpc_method(self, grpc_model: GrpcModel) -> Pait:
+    def _gen_pait_from_grpc_model(self, grpc_model: GrpcModel) -> Pait:
+        """Generate the corresponding pait instance according to the object of the grpc calling method"""
         tag_list: List[Tag] = [self._grpc_tag]
         for tag, desc in grpc_model.grpc_service_model.tag + [
             ("grpc" + "-" + grpc_model.method.split("/")[1].split(".")[0], "")
@@ -112,12 +129,14 @@ class BaseGrpcGatewayRoute(object):
         )
 
     def get_grpc_func(self, method_name: str) -> Callable:
+        """Get grpc invoke func"""
         func: Optional[Callable] = self.method_func_dict.get(method_name, None)
         if not func:
             raise RuntimeError(f"{method_name}'s func is not found, Please call init_channel to register the channel")
         return func
 
     def get_msg_from_dict(self, msg: Type[Message], request_dict: dict) -> Message:
+        """Convert the Json data to the corresponding grpc Message object"""
         if self.parse_dict:
             request_msg: Message = self.parse_dict(request_dict, msg)
         else:
@@ -125,22 +144,21 @@ class BaseGrpcGatewayRoute(object):
         return request_msg
 
     def get_dict_from_msg(self, msg: Message) -> dict:
+        """Convert the value of the Message object to Json data"""
         return self.msg_to_dict(msg)
 
     def gen_route(self, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]) -> Callable:
+        """Generate the routing function corresponding to grpc invoke fun"""
         raise NotImplementedError()
 
-    def _gen_route_func(self, grpc_model: GrpcModel) -> Tuple[Optional[Callable], GrpcServiceModel]:
-        grpc_service_model: GrpcServiceModel = grpc_model.grpc_service_model
-        if grpc_service_model.enable is False:
-            return None, grpc_service_model
-        if not grpc_service_model.url:
-            grpc_service_model.url = grpc_model.method
+    def _gen_route_func(self, grpc_model: GrpcModel) -> Optional[Callable]:
+        if grpc_model.grpc_service_model.enable is False:
+            return None
 
-        request_pydantic_model_class: Type[BaseModel] = self._gen_request_pydantic_class_from_grpc_model(
-            grpc_model, grpc_service_model.http_method
+        request_pydantic_model_class: Type[BaseModel] = self._gen_request_pydantic_class_from_message(
+            grpc_model.request, grpc_model.grpc_service_model.http_method
         )
-        pait: Pait = self._gen_pait_from_grpc_method(grpc_model)
+        pait: Pait = self._gen_pait_from_grpc_model(grpc_model)
 
         _route = self.gen_route(grpc_model, request_pydantic_model_class)
         # request_pydantic_model_class is not generated by this module,
@@ -151,19 +169,22 @@ class BaseGrpcGatewayRoute(object):
         _route.__qualname__ = _route.__qualname__.replace("._route", "." + _route.__name__)
 
         _route = pait(feature_code=grpc_model.method)(_route)
-        return _route, grpc_service_model
+        return _route
 
     def _add_route(self, app: Any) -> Any:  # type: ignore
+        """Add the generated routing function to the corresponding web framework instance"""
         raise NotImplementedError()
 
     def reinit_channel(
         self, channel: Union[grpc.Channel, grpc.aio.Channel]
     ) -> Union[grpc.Channel, grpc.aio.Channel, None]:
+        """reload grpc channel"""
         old_channel: Union[grpc.Channel, grpc.aio.Channel, None] = getattr(self, "channel", None)
         self.init_channel(channel)
         return old_channel
 
     def _init_channel(self, channel: Union[grpc.Channel, grpc.aio.Channel]) -> None:
+        """init grpc channel"""
         self.channel: Union[grpc.Channel, grpc.aio.Channel] = channel
         for stub_class in self.stub_list:
             stub = stub_class(channel)

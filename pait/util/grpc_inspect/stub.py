@@ -78,8 +78,37 @@ class ParseStub(object):
 
         return message_model
 
-    @staticmethod
-    def get_service_by_message(input_message: Type[Message], out_message: Type[Message]) -> Optional[GrpcServiceModel]:
+    def get_grpc_service_model_from_option_message(self, option_message: Message) -> List[GrpcServiceModel]:
+        grpc_service_model_list: List[GrpcServiceModel] = []
+        pait_dict: dict = {}
+        for rule_filed, value in option_message.ListFields():
+            key: str = rule_filed.name
+            if key == "tag":
+                pait_dict[key] = [(tag.name, tag.desc) for tag in value]
+            elif key == "not_enable":
+                pait_dict["enable"] = not value
+            elif rule_filed.containing_oneof:
+                if value.url:
+                    pait_dict["url"] = value.url
+                if key != "any":
+                    pait_dict["http_method"] = key
+                if key == "custom":
+                    logging.warning(f"Not support column:{key}")
+            elif key in ("body", "response_body"):
+                logging.warning(f"Not support column:{key}")
+            elif key == "additional_bindings":
+                for item in value:
+                    grpc_service_model_list.extend(self.get_grpc_service_model_from_option_message(item))
+            else:
+                pait_dict[key] = value
+        grpc_service_model: GrpcServiceModel = GrpcServiceModel(**pait_dict)
+        grpc_service_model.http_method = grpc_service_model.http_method.upper()
+        grpc_service_model_list.append(grpc_service_model)
+        return grpc_service_model_list
+
+    def get_service_by_message(
+        self, input_message: Type[Message], out_message: Type[Message]
+    ) -> List[GrpcServiceModel]:
         for message in [input_message, out_message]:
             message_module: ModuleType = getattr(message, "_message_module")
             server_list: List[ServiceDescriptor] = message_module.DESCRIPTOR.services_by_name.values()  # type: ignore
@@ -92,31 +121,11 @@ class ParseStub(object):
                         continue
                     if not method.GetOptions().ListFields():
                         continue
-                    pait_dict: dict = {}
                     for filed, option_message in method.GetOptions().ListFields():
                         if not filed.full_name.endswith("api.http"):
                             continue
-                        for rule_filed, value in option_message.ListFields():
-                            key: str = rule_filed.name
-                            if key == "tag":
-                                pait_dict[key] = [(tag.name, tag.desc) for tag in value]
-                            elif key == "not_enable":
-                                pait_dict["enable"] = not value
-                            elif rule_filed.containing_oneof:
-                                if value.url:
-                                    pait_dict["url"] = value.url
-                                if key != "any":
-                                    pait_dict["http_method"] = key
-                                if key == "custom":
-                                    logging.warning(f"Not support column:{key}")
-                            elif key in ("body", "response_body"):
-                                logging.warning(f"Not support column:{key}")
-                            else:
-                                pait_dict[key] = value
-                    grpc_pait_model: GrpcServiceModel = GrpcServiceModel(**pait_dict)
-                    grpc_pait_model.http_method = grpc_pait_model.http_method.upper()
-                    return grpc_pait_model
-        return None
+                        return self.get_grpc_service_model_from_option_message(option_message)
+        return []
 
     def _parse(self) -> None:
         line_list: List[str] = inspect.getsource(self._stub).split("\n")
@@ -144,17 +153,22 @@ class ParseStub(object):
             )
             service_desc: str = service_class.__doc__ or ""
             desc: str = service_class.__dict__[invoke_name].__doc__ or ""
-            grpc_service_model: Optional[GrpcServiceModel] = self.get_service_by_message(request, response)
-            if not grpc_service_model:
-                grpc_service_model = get_pait_info_from_grpc_desc(desc, service_desc)
-            self._method_list_dict[method] = [
-                GrpcModel(
-                    invoke_name=invoke_name,
-                    method=method,
-                    alias_method=method,
-                    grpc_service_model=grpc_service_model,
-                    desc=service_class.__dict__[invoke_name].__doc__ or "",
-                    request=request,
-                    response=response,
+            grpc_service_model_list: List[GrpcServiceModel] = self.get_service_by_message(request, response)
+            if not grpc_service_model_list:
+                grpc_service_model_list = [get_pait_info_from_grpc_desc(desc, service_desc)]
+            grpc_model_list: List[GrpcModel] = []
+            for model_index, grpc_service_model in enumerate(grpc_service_model_list):
+                if not grpc_service_model.url:
+                    grpc_service_model.url = method
+                grpc_model_list.append(
+                    GrpcModel(
+                        invoke_name=invoke_name,
+                        method=method,
+                        alias_method=method + str(model_index),
+                        grpc_service_model=grpc_service_model,
+                        desc=service_class.__dict__[invoke_name].__doc__ or "",
+                        request=request,
+                        response=response,
+                    )
                 )
-            ]
+            self._method_list_dict[method] = grpc_model_list

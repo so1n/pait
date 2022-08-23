@@ -21,11 +21,15 @@ class GrpcGatewayRoute(BaseGrpcRouter):
         for parse_stub in self.parse_stub_list:
             for _, grpc_model_list in parse_stub.method_list_dict.items():
                 for grpc_model in grpc_model_list:
-                    _route, grpc_pait_model = self._gen_route_func(grpc_model)
+                    _route = self._gen_route_func(grpc_model)
                     if not _route:
                         continue
 
                     route_list.append(
-                        Route(self.url_handler(grpc_pait_model.url), _route, methods=[grpc_pait_model.http_method])
+                        Route(
+                            self.url_handler(grpc_model.grpc_service_model.url),
+                            _route,
+                            methods=[grpc_model.grpc_service_model.http_method],
+                        )
                     )
         app.routes.append(Mount(self.prefix, name=self.title, routes=route_list))

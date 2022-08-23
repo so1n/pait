@@ -19,11 +19,13 @@ class GrpcGatewayRoute(BaseGrpcRouter):
             blueprint: Blueprint = Blueprint(self.title + parse_stub.name, self.prefix)
             for _, grpc_model_list in parse_stub.method_list_dict.items():
                 for grpc_model in grpc_model_list:
-                    _route, grpc_pait_model = self._gen_route_func(grpc_model)
+                    _route = self._gen_route_func(grpc_model)
                     if not _route:
                         continue
 
                     blueprint.add_route(
-                        _route, self.url_handler(grpc_pait_model.url), methods=[grpc_pait_model.http_method]
+                        _route,
+                        self.url_handler(grpc_model.grpc_service_model.url),
+                        methods=[grpc_model.grpc_service_model.http_method],
                     )
             app.blueprint(blueprint)
