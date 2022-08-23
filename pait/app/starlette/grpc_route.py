@@ -19,12 +19,13 @@ class GrpcGatewayRoute(BaseGrpcRouter):
     def _add_route(self, app: Starlette) -> Any:
         route_list: List[Route] = []
         for parse_stub in self.parse_stub_list:
-            for method_name, grpc_model in parse_stub.method_dict.items():
-                _route, grpc_pait_model = self._gen_route_func(method_name, grpc_model)
-                if not _route:
-                    continue
+            for _, grpc_model_list in parse_stub.method_list_dict.items():
+                for grpc_model in grpc_model_list:
+                    _route, grpc_pait_model = self._gen_route_func(grpc_model)
+                    if not _route:
+                        continue
 
-                route_list.append(
-                    Route(self.url_handler(grpc_pait_model.url), _route, methods=[grpc_pait_model.http_method])
-                )
+                    route_list.append(
+                        Route(self.url_handler(grpc_pait_model.url), _route, methods=[grpc_pait_model.http_method])
+                    )
         app.routes.append(Mount(self.prefix, name=self.title, routes=route_list))

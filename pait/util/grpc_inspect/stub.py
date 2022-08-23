@@ -1,5 +1,6 @@
 import inspect
 import json
+import logging
 import re
 from dataclasses import dataclass
 from types import ModuleType
@@ -9,13 +10,6 @@ from google.protobuf.descriptor import MethodDescriptor, ServiceDescriptor  # ty
 from pydantic import BaseModel, Field
 
 from pait.util.grpc_inspect.types import Message
-
-
-def get_proto_msg_path(line: str, re_str: str) -> str:
-    module_path_find_list = re.findall(re_str, line)
-    if len(module_path_find_list) != 1:
-        raise ValueError("module path not found")
-    return module_path_find_list[0]
 
 
 class GrpcServiceModel(BaseModel):
@@ -33,6 +27,7 @@ class GrpcServiceModel(BaseModel):
 class GrpcModel(object):
     invoke_name: str
     method: str
+    alias_method: str
     grpc_service_model: GrpcServiceModel
     # func: Callable
     request: Type[Message] = Message
@@ -57,19 +52,22 @@ class ParseStub(object):
     def __init__(self, stub: Any):
         self._stub: Any = stub
         self.name: str = self._stub.__name__
-        self._method_dict: Dict[str, GrpcModel] = {}
+        self._method_list_dict: Dict[str, List[GrpcModel]] = {}
 
         self._filename_desc_dict: Dict[str, Dict[str, Dict[str, str]]] = {}
 
         self._parse()
 
     @property
-    def method_dict(self) -> Dict[str, GrpcModel]:
-        return self._method_dict
+    def method_list_dict(self) -> Dict[str, List[GrpcModel]]:
+        return self._method_list_dict
 
     @staticmethod
     def _gen_message(line: str, match_str: str, class_module: ModuleType) -> Type[Message]:
-        module_path: str = get_proto_msg_path(line, match_str)
+        module_path_find_list = re.findall(match_str, line)
+        if len(module_path_find_list) != 1:
+            raise ValueError("module path not found")
+        module_path: str = module_path_find_list[0]
         module_path_list: List[str] = module_path.split(".")
         message_module: ModuleType = getattr(class_module, module_path_list[0])
         message_model: Type[Message] = getattr(message_module, module_path_list[1])
@@ -109,6 +107,10 @@ class ParseStub(object):
                                     pait_dict["url"] = value.url
                                 if key != "any":
                                     pait_dict["http_method"] = key
+                                if key == "custom":
+                                    logging.warning(f"Not support column:{key}")
+                            elif key in ("body", "response_body"):
+                                logging.warning(f"Not support column:{key}")
                             else:
                                 pait_dict[key] = value
                     grpc_pait_model: GrpcServiceModel = GrpcServiceModel(**pait_dict)
@@ -145,11 +147,14 @@ class ParseStub(object):
             grpc_service_model: Optional[GrpcServiceModel] = self.get_service_by_message(request, response)
             if not grpc_service_model:
                 grpc_service_model = get_pait_info_from_grpc_desc(desc, service_desc)
-            self._method_dict[method] = GrpcModel(
-                invoke_name=invoke_name,
-                method=method,
-                grpc_service_model=grpc_service_model,
-                desc=service_class.__dict__[invoke_name].__doc__ or "",
-                request=request,
-                response=response,
-            )
+            self._method_list_dict[method] = [
+                GrpcModel(
+                    invoke_name=invoke_name,
+                    method=method,
+                    alias_method=method,
+                    grpc_service_model=grpc_service_model,
+                    desc=service_class.__dict__[invoke_name].__doc__ or "",
+                    request=request,
+                    response=response,
+                )
+            ]

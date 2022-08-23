@@ -14,7 +14,7 @@ pydantic = "^1.7.3"
 typing-extensions = "^4.1.1"
 redis = { version = "^4.2.2", optional = true }
 grpcio-tools = { version = "^1.45.0", optional = true }
-protobuf-to-pydantic = "^0.1.1"
+protobuf-to-pydantic = {git = "git@github.com:so1n/protobuf_to_pydantic.git", tag = "v0.1.4"}
 
 [tool.poetry.extras]
 redis = ["redis"]
@@ -43,6 +43,7 @@ aiofiles = "0.8.0"
 mkdocs-material = "^8.1.7"
 starlette = "0.14.1"
 mypy-protobuf = "^3.2.0"
+lark = "^1.1.2"
 
 [tool.black]
 line-length = 120

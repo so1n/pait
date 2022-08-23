@@ -744,12 +744,10 @@ def add_grpc_gateway_route(app: Starlette) -> None:
         return JSONResponse({"code": 0, "msg": "", "data": resp_dict})
 
     class CustomerGrpcGatewayRoute(GrpcGatewayRoute):
-        def gen_route(
-            self, method_name: str, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]
-        ) -> Callable:
+        def gen_route(self, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]) -> Callable:
 
-            if method_name in ("/user.User/login_user", "/user.User/create_user"):
-                return super().gen_route(method_name, grpc_model, request_pydantic_model_class)
+            if grpc_model.method in ("/user.User/login_user", "/user.User/create_user"):
+                return super().gen_route(grpc_model, request_pydantic_model_class)
             else:
 
                 async def _route(
@@ -757,9 +755,9 @@ def add_grpc_gateway_route(app: Starlette) -> None:
                     token: str = Header.i(description="User Token"),
                     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
                 ) -> Any:
-                    func: Callable = self.get_grpc_func(method_name)
+                    func: Callable = self.get_grpc_func(grpc_model.method)
                     request_dict: dict = request_pydantic_model.dict()  # type: ignore
-                    if method_name == "/user.User/logout_user":
+                    if grpc_model.method == "/user.User/logout_user":
                         # logout user need token param
                         request_dict["token"] = token
                     else:

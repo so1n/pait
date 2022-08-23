@@ -23,14 +23,12 @@ class GrpcGatewayRoute(BaseGrpcRouter):
     def with_request(self, request: Type[RequestHandler]) -> None:
         self.request_handler = request
 
-    def gen_route(
-        self, method_name: str, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]
-    ) -> Callable:
+    def gen_route(self, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]) -> Callable:
         async def _route(
             route_self: Self,
             request_pydantic_model: request_pydantic_model_class,  # type: ignore
         ) -> None:
-            func: Callable = self.get_grpc_func(method_name)
+            func: Callable = self.get_grpc_func(grpc_model.method)
             request_dict: dict = request_pydantic_model.dict()  # type: ignore
             request_msg: Message = self.get_msg_from_dict(grpc_model.request, request_dict)
             grpc_msg: Message = await func(request_msg)
@@ -45,19 +43,20 @@ class GrpcGatewayRoute(BaseGrpcRouter):
             prefix = prefix[:-1]
         route_list: List = []
         for parse_stub in self.parse_stub_list:
-            for method_name, grpc_model in parse_stub.method_dict.items():
-                _route, grpc_pait_model = self._gen_route_func(method_name, grpc_model)
-                if not _route:
-                    continue
+            for _, grpc_model_list in parse_stub.method_list_dict.items():
+                for grpc_model in grpc_model_list:
+                    _route, grpc_pait_model = self._gen_route_func(grpc_model)
+                    if not _route:
+                        continue
 
-                route_class = type(
-                    grpc_model.method.split(".")[-1],
-                    (self.request_handler,),
-                    {"__model__": f"{__name__}.{self.__class__.__name__}.gen_route_func.<locals>"},
-                )
-                setattr(route_class, grpc_pait_model.http_method.lower(), _route)
+                    route_class = type(
+                        grpc_model.method.split(".")[-1],
+                        (self.request_handler,),
+                        {"__model__": f"{__name__}.{self.__class__.__name__}.gen_route_func.<locals>"},
+                    )
+                    setattr(route_class, grpc_pait_model.http_method.lower(), _route)
 
-                route_list.append((r"{}{}".format(prefix, self.url_handler(grpc_pait_model.url)), route_class))
+                    route_list.append((r"{}{}".format(prefix, self.url_handler(grpc_pait_model.url)), route_class))
 
         app.wildcard_router.add_rules(route_list)
         from tornado.web import AnyMatches, Rule, _ApplicationRouter

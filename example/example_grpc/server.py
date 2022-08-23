@@ -27,30 +27,31 @@ class SocialService(social_service.BookSocialServicer):
 def auto_gen_service_method(stub: Any, service: Any) -> None:
     """auto return response"""
     parser: ParseStub = ParseStub(stub)
-    for method, grpc_model in parser.method_dict.items():
-        method_name: str = method.split("/")[-1]
+    for method, grpc_model_list in parser.method_list_dict.items():
+        for grpc_model in grpc_model_list:
+            method_name: str = method.split("/")[-1]
 
-        def gen_func(response: Any) -> Callable:
-            if method_name == "get_uid_by_token":
+            def gen_func(response: Any) -> Callable:
+                if method_name == "get_uid_by_token":
 
-                def _func(self: Any, request: Any, context: Any) -> Any:
-                    logger.info(f"{self.__class__.__name__} receive request:{request}")
-                    token: str = request.token
-                    if token == "fail_token":
-                        # test not token
+                    def _func(self: Any, request: Any, context: Any) -> Any:
+                        logger.info(f"{self.__class__.__name__} receive request:{request}")
+                        token: str = request.token
+                        if token == "fail_token":
+                            # test not token
+                            return response()
+                        else:
+                            return response(uid=request.token)
+
+                else:
+
+                    def _func(self: Any, request: Any, context: Any) -> Any:
+                        logger.info(f"{self.__class__.__name__} receive request:{request}")
                         return response()
-                    else:
-                        return response(uid=request.token)
 
-            else:
+                return _func
 
-                def _func(self: Any, request: Any, context: Any) -> Any:
-                    logger.info(f"{self.__class__.__name__} receive request:{request}")
-                    return response()
-
-            return _func
-
-        setattr(service, method_name, gen_func(grpc_model.response))
+            setattr(service, method_name, gen_func(grpc_model.response))
 
 
 auto_gen_service_method(user_service.UserStub, UserService)
