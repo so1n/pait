@@ -35,19 +35,6 @@ class GrpcModel(object):
     desc: str = ""
 
 
-def get_pait_info_from_grpc_desc(desc: str, service_desc: str) -> GrpcServiceModel:
-    pait_dict: dict = {}
-    for line in service_desc.split("\n") + desc.split("\n"):
-        line = line.strip()
-        if not line.startswith("pait: {"):
-            continue
-        line = line.replace("pait:", "")
-        pait_dict.update(json.loads(line))
-    grpc_pait_model: GrpcServiceModel = GrpcServiceModel(**pait_dict)
-    grpc_pait_model.http_method = grpc_pait_model.http_method.upper()
-    return grpc_pait_model
-
-
 class ParseStub(object):
     def __init__(self, stub: Any):
         self._stub: Any = stub
@@ -90,10 +77,10 @@ class ParseStub(object):
             elif rule_filed.containing_oneof:
                 if value.url:
                     pait_dict["url"] = value.url
-                if key != "any":
-                    pait_dict["http_method"] = key
                 if key == "custom":
                     logging.warning(f"Not support column:{key}")
+                elif key != "any":
+                    pait_dict["http_method"] = key
             elif key in ("body", "response_body"):
                 logging.warning(f"Not support column:{key}")
             elif key == "additional_bindings":
@@ -127,6 +114,19 @@ class ParseStub(object):
                         return self.get_grpc_service_model_from_option_message(option_message)
         return []
 
+    @staticmethod
+    def get_pait_info_from_grpc_desc(desc: str, service_desc: str) -> GrpcServiceModel:
+        pait_dict: dict = {}
+        for line in service_desc.split("\n") + desc.split("\n"):
+            line = line.strip()
+            if not line.startswith("pait: {"):
+                continue
+            line = line.replace("pait:", "")
+            pait_dict.update(json.loads(line))
+        grpc_pait_model: GrpcServiceModel = GrpcServiceModel(**pait_dict)
+        grpc_pait_model.http_method = grpc_pait_model.http_method.upper()
+        return grpc_pait_model
+
     def _parse(self) -> None:
         line_list: List[str] = inspect.getsource(self._stub).split("\n")
 
@@ -155,7 +155,7 @@ class ParseStub(object):
             desc: str = service_class.__dict__[invoke_name].__doc__ or ""
             grpc_service_model_list: List[GrpcServiceModel] = self.get_service_by_message(request, response)
             if not grpc_service_model_list:
-                grpc_service_model_list = [get_pait_info_from_grpc_desc(desc, service_desc)]
+                grpc_service_model_list = [self.get_pait_info_from_grpc_desc(desc, service_desc)]
             grpc_model_list: List[GrpcModel] = []
             for model_index, grpc_service_model in enumerate(grpc_service_model_list):
                 if not grpc_service_model.url:
