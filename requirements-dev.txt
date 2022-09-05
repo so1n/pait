@@ -16,6 +16,8 @@ flake8==3.9.2; (python_version >= "2.7" and python_full_version < "3.0.0") or (p
 flask==1.1.2; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.5.0")
 ghp-import==2.0.2; python_version >= "3.6"
 gprof2dot==2021.2.21
+grpcio-tools==1.48.0; python_version >= "3.6"
+grpcio==1.48.1; python_version >= "3.6"
 h11==0.12.0; python_version >= "3.6"
 httpcore==0.12.3; python_version >= "3.6"
 httptools==0.3.0; python_full_version >= "3.5.0" and python_version >= "3.7"
@@ -27,6 +29,7 @@ iniconfig==1.1.1; python_version >= "3.5"
 isort==5.6.4; python_version >= "3.6" and python_version < "4.0"
 itsdangerous==1.1.0; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0"
 jinja2==2.11.3; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
+lark==1.1.2
 markdown==3.3.6; python_version >= "3.6"
 markupsafe==2.0.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 mccabe==0.6.1; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0"
@@ -44,10 +47,11 @@ pathspec==0.9.0; python_version >= "3.6" and python_full_version < "3.0.0" or py
 platformdirs==2.4.1; python_version >= "3.7" and python_full_version >= "3.6.1"
 pluggy==0.13.1; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.5"
 pre-commit==2.14.0; python_full_version >= "3.6.1"
-protobuf==3.20.1; python_version >= "3.7"
+protobuf-to-pydantic @ git+ssh://git@github.com/so1n/protobuf_to_pydantic.git@v0.1.4 ; python_version >= "3.7" and python_version < "4.0"
+protobuf==3.20.1; python_version >= "3.7" and python_version < "4.0"
 py==1.11.0; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.5"
 pycodestyle==2.7.0; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0"
-pydantic==1.9.0; python_full_version >= "3.6.1"
+pydantic==1.9.2; python_full_version >= "3.6.1"
 pyflakes==2.3.1; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0"
 pygments==2.11.2; python_version >= "3.6"
 pymdown-extensions==9.1; python_version >= "3.6"
@@ -67,7 +71,7 @@ rfc3986==1.5.0; python_version >= "3.6"
 sanic-routing==21.12.0; python_version >= "3.7"
 sanic-testing==0.3.0
 sanic==21.3.4; python_version >= "3.7"
-six==1.16.0; python_full_version >= "3.6.1" and python_version >= "3.6"
+six==1.16.0; python_full_version >= "3.6.1" and python_version >= "3.6" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.6")
 sniffio==1.2.0; python_version >= "3.6"
 starlette==0.14.1; python_version >= "3.6"
 toml==0.10.2; python_full_version >= "3.6.1" and python_version >= "3.6" and (python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.5")
