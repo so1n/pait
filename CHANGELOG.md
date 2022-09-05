@@ -1,8 +1,13 @@
 ### 0.8.x[Future]
+Rewrite some old methods to increase the extensibility of the corresponding modules
+
 - 1 Add a user-friendly doc ui
 - 2 Plugin Panel
 
-### 0.7.9[now]
+### 0.8.0[now]
+Rewrite part of the implementation of gRPC Gateway, and transfer some functions to[protobuf_to_pydantic](https://github.com/so1n/protobuf_to_pydantic)
+
+### 0.7.9
 - Feature, Support for unregulated typing usage
 - Fix, fix auto complete json bug
 - Feature, gRPC Gateway route param support custom pait.field

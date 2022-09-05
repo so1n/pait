@@ -47,7 +47,7 @@ pathspec==0.9.0; python_version >= "3.6" and python_full_version < "3.0.0" or py
 platformdirs==2.4.1; python_version >= "3.7" and python_full_version >= "3.6.1"
 pluggy==0.13.1; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.5"
 pre-commit==2.14.0; python_full_version >= "3.6.1"
-protobuf-to-pydantic @ git+ssh://git@github.com/so1n/protobuf_to_pydantic.git@v0.1.4 ; python_version >= "3.7" and python_version < "4.0"
+protobuf-to-pydantic==0.1.4; python_version >= "3.7" and python_version < "4.0"
 protobuf==3.20.1; python_version >= "3.7" and python_version < "4.0"
 py==1.11.0; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.5"
 pycodestyle==2.7.0; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0"
@@ -71,7 +71,7 @@ rfc3986==1.5.0; python_version >= "3.6"
 sanic-routing==21.12.0; python_version >= "3.7"
 sanic-testing==0.3.0
 sanic==21.3.4; python_version >= "3.7"
-six==1.16.0; python_full_version >= "3.6.1" and python_version >= "3.6" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.6")
+six==1.16.0; python_version >= "3.7" and python_version < "4.0" and python_full_version >= "3.6.1" and (python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.6")
 sniffio==1.2.0; python_version >= "3.6"
 starlette==0.14.1; python_version >= "3.6"
 toml==0.10.2; python_full_version >= "3.6.1" and python_version >= "3.6" and (python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.3.0" and python_version >= "3.5")
