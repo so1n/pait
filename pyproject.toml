@@ -12,12 +12,13 @@ homepage = "https://github.com/so1n/pait"
 python = "^3.7"
 pydantic = "^1.7.3"
 typing-extensions = "^4.1.1"
-protobuf-to-pydantic = "^0.1.4"
+protobuf-to-pydantic = { version="^0.1.4", optional = true}
 redis = { version = "^4.2.2", optional = true }
-grpcio-tools = { version = "^1.45.0", optional = true }
 
 [tool.poetry.extras]
 redis = ["redis"]
+protobuf = ["protobuf-to-pydantic"]
+all = ["redis", "protobuf-to-pydantic"]
 
 [tool.poetry.dev-dependencies]
 black = "20.8b1"
@@ -44,6 +45,7 @@ mkdocs-material = "^8.1.7"
 starlette = "0.14.1"
 mypy-protobuf = "^3.2.0"
 lark = "^1.1.2"
+# redis = "^4.2.2"
 grpcio = "^1.48.1"
 
 [tool.black]
