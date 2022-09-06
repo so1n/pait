@@ -1,3 +1,4 @@
+import re
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
 
 from pydantic import BaseConfig, BaseModel
@@ -49,9 +50,9 @@ class MatchRule(object):
         result: bool = self._match(pait_core_model)
         for method, match_rule in self._match_rule_list:
             if method == "or":
-                result = result or match_rule._match(pait_core_model)
+                result = result or match_rule.match(pait_core_model)
             elif method == "and":
-                result = result and match_rule._match(pait_core_model)
+                result = result and match_rule.match(pait_core_model)
         return result
 
     def _match(self, pait_core_model: "PaitCoreModel") -> bool:
@@ -76,7 +77,7 @@ class MatchRule(object):
         elif key in ("tag", "method_list"):
             result = target in value
         elif key == "path":
-            result = value.startswith(target)
+            result = bool(re.match(target, value))
         else:
             raise KeyError(f"Not support key:{key}")
 
@@ -92,6 +93,9 @@ class MatchRule(object):
     def __and__(self, other: "MatchRule") -> "MatchRule":
         self._match_rule_list.append(("and", other))
         return self
+
+    def __repr__(self) -> str:
+        return f"<MatchRule object; key={self.key}, target={self.target} match_rule_list={self._match_rule_list}>"
 
 
 def _is_match(pait_core_model: "PaitCoreModel", match_rule: Optional["MatchRule"]) -> bool:

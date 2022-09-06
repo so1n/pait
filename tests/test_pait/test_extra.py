@@ -29,7 +29,7 @@ class TestApplyFun:
     test_group_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper, group="test")
     test_tag_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper, tag=("test",))
     test_path_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper)
-    test_method_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper)
+    test_method_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper, tag=("test",))
 
     core_model_list: List[PaitCoreModel] = [
         test_status_core_model,
@@ -43,6 +43,7 @@ class TestApplyFun:
         i.path = "/api/test"
 
     test_path_core_model.path = "/api/oktest"
+    test_method_core_model.path = "/api/method-test"
     test_method_core_model.method_list = ["GET", "POST", "OPTIONS"]
 
     def test_apply_func_match(self) -> None:
@@ -120,6 +121,43 @@ class TestApplyFun:
                 # reset value
                 for i in self.core_model_list:
                     config.apply_default_pydantic_model_config(BaseConfig)(i)
+
+    def test_multi_apply_func_match_priority(self) -> None:
+        class DemoConfig(BaseConfig):
+            title = "test"
+
+        for i in self.core_model_list:
+            config.apply_default_pydantic_model_config(
+                DemoConfig,
+                config.MatchRule(key="method_list", target="POST")
+                & (config.MatchRule(key="group", target="test") | config.MatchRule(key="tag", target="test")),
+            )(i)
+
+        for i in self.core_model_list:
+            if i is self.test_method_core_model:
+                assert i.pydantic_model_config == DemoConfig
+            else:
+                assert i.pydantic_model_config != DemoConfig
+
+        # reset value
+        for i in self.core_model_list:
+            config.apply_default_pydantic_model_config(BaseConfig)(i)
+
+        for i in self.core_model_list:
+            config.apply_default_pydantic_model_config(
+                DemoConfig,
+                (config.MatchRule(key="method_list", target="POST") | config.MatchRule(key="group", target="test"))
+                & (config.MatchRule(key="method_list", target="POST") | config.MatchRule(key="tag", target="test")),
+            )(i)
+
+        for i in self.core_model_list:
+            if i is self.test_method_core_model:
+                assert i.pydantic_model_config == DemoConfig
+            else:
+                assert i.pydantic_model_config != DemoConfig
+            # reset value
+        for i in self.core_model_list:
+            config.apply_default_pydantic_model_config(BaseConfig)(i)
 
     def test_apply_extra_openapi_model(self) -> None:
         class DemoModel(BaseModel):
