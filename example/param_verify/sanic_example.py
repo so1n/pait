@@ -46,8 +46,8 @@ from pait.app.sanic.plugin.cache_resonse import CacheResponsePlugin
 from pait.app.sanic.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.sanic.plugin.mock_response import MockPlugin
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
+from pait.extra.config import MatchRule
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
-from pait.model.core import MatchRule
 from pait.model.links import LinksModel
 from pait.model.response import PaitTextResponseModel
 from pait.model.status import PaitStatus

@@ -5,7 +5,7 @@ from pydantic import BaseConfig, BaseModel, Field
 
 from pait.app.base import BaseAppHelper
 from pait.extra import config
-from pait.model.core import MatchKeyLiteral, MatchRule, PaitCoreModel
+from pait.model.core import PaitCoreModel
 from pait.model.response import PaitBaseResponseModel, PaitJsonResponseModel
 from pait.model.status import PaitStatus
 from pait.plugin.at_most_one_of import AtMostOneOfPlugin
@@ -59,10 +59,10 @@ class TestApplyFun:
             ("method_list", "OPTIONS", self.test_method_core_model),
         ]:
             for is_reverse in [True, False]:
-                key: MatchKeyLiteral = _key if is_reverse is False else "!" + _key  # type: ignore
+                key: config.MatchKeyLiteral = _key if is_reverse is False else "!" + _key  # type: ignore
 
                 for i in self.core_model_list:
-                    config.apply_default_pydantic_model_config(DemoConfig, MatchRule(key=key, target=target))(i)
+                    config.apply_default_pydantic_model_config(DemoConfig, config.MatchRule(key=key, target=target))(i)
 
                 if not is_reverse:
                     assert core_model.pydantic_model_config == DemoConfig
@@ -76,6 +76,46 @@ class TestApplyFun:
                         if i is core_model:
                             continue
                         assert i.pydantic_model_config == DemoConfig
+
+                # reset value
+                for i in self.core_model_list:
+                    config.apply_default_pydantic_model_config(BaseConfig)(i)
+
+    def test_multi_apply_func_match(self) -> None:
+        class DemoConfig(BaseConfig):
+            title = "test"
+
+        for key, target, core_model in [
+            ("status", PaitStatus.test, self.test_status_core_model),
+            ("group", "test", self.test_group_core_model),
+            ("tag", "test", self.test_tag_core_model),
+            ("path", "/api/oktest", self.test_path_core_model),
+            ("method_list", "OPTIONS", self.test_method_core_model),
+        ]:
+            for is_and in [True, False]:
+
+                for i in self.core_model_list:
+                    if is_and:
+                        config.apply_default_pydantic_model_config(
+                            DemoConfig,
+                            config.MatchRule(key=key, target=target)  # type: ignore
+                            & config.MatchRule(key="method_list", target="DELETE"),  # type: ignore
+                        )(i)
+                    else:
+                        config.apply_default_pydantic_model_config(
+                            DemoConfig,
+                            config.MatchRule(key=key, target=target)  # type: ignore
+                            | config.MatchRule(key="method_list", target="DELETE"),  # type: ignore
+                        )(i)
+                if not is_and:
+                    assert core_model.pydantic_model_config == DemoConfig
+                    for i in self.core_model_list:
+                        if i is core_model:
+                            continue
+                        assert i.pydantic_model_config != DemoConfig
+                else:
+                    for i in self.core_model_list:
+                        assert i.pydantic_model_config != DemoConfig
 
                 # reset value
                 for i in self.core_model_list:

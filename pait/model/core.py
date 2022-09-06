@@ -9,33 +9,14 @@ from pait.model.response import PaitBaseResponseModel, PaitResponseModel
 from pait.model.status import PaitStatus
 from pait.param_handle import AsyncParamHandler, BaseParamHandler, ParamHandler
 from pait.plugin import PluginManager
-from pait.types import Literal
 from pait.util import ignore_pre_check
 
 if TYPE_CHECKING:
     from pait.app.base import BaseAppHelper
 
+from pait.extra.config import MatchKeyLiteral, MatchRule
 
-__all__ = ["PaitCoreModel", "MatchRule", "MatchKeyLiteral", "ContextModel"]
-MatchKeyLiteral = Literal[
-    "all",
-    "status",
-    "group",
-    "tag",
-    "method_list",
-    "path",
-    "!status",
-    "!group",
-    "!tag",
-    "!method_list",
-    "!path",
-]
-
-
-@dataclass
-class MatchRule(object):
-    key: MatchKeyLiteral = "all"
-    target: Any = None
+__all__ = ["PaitCoreModel", "ContextModel", "MatchRule", "MatchKeyLiteral"]
 
 
 @dataclass
@@ -173,40 +154,6 @@ class PaitCoreModel(object):
     @property
     def plugin_list(self) -> List[PluginManager]:
         return self._plugin_manager_list
-
-    def match(self, match_rule: Optional[MatchRule] = None) -> bool:
-        """By different attributes to determine whether to match with pait_core_model,
-        if the key is `all` then match
-        if the key is prefixed with ! then the result will be reversed
-        """
-        if not match_rule:
-            match_rule = MatchRule()
-
-        key: MatchKeyLiteral = match_rule.key
-        target: Any = match_rule.target
-        if key == "all":
-            return True
-        is_reverse: bool = False
-        if key.startswith("!"):
-            key = key[1:]  # type: ignore
-            is_reverse = True
-
-        value: Any = getattr(self, key, ...)
-        if value is ...:
-            raise KeyError(f"match fail, not found key:{key}")
-        if key in ("status", "group"):
-            result: bool = value is target
-        elif key in ("tag", "method_list"):
-            result = target in value
-        elif key == "path":
-            result = value.startswith(target)
-        else:
-            raise KeyError(f"Not support key:{key}")
-
-        if is_reverse:
-            return not result
-        else:
-            return result
 
     def add_plugin(
         self, plugin_list: Optional[List[PluginManager]], post_plugin_list: Optional[List[PluginManager]]

@@ -1,14 +1,15 @@
-from typing import TYPE_CHECKING, Callable, List, Optional, Set, Type
+from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
 
 from pydantic import BaseConfig, BaseModel
 
 from pait.model.response import PaitBaseResponseModel
 from pait.plugin.base import PluginManager
+from pait.types import Literal
 from pait.util import http_method_tuple
 
 if TYPE_CHECKING:
     from pait.model.config import APPLY_FN
-    from pait.model.core import MatchRule, PaitCoreModel
+    from pait.model.core import PaitCoreModel
     from pait.param_handle import BaseParamHandler
 
 
@@ -19,7 +20,82 @@ __all__ = [
     "apply_default_pydantic_model_config",
     "apply_block_http_method_set",
     "apply_pre_depend",
+    "MatchRule",
 ]
+
+
+MatchKeyLiteral = Literal[
+    "all",
+    "status",
+    "group",
+    "tag",
+    "method_list",
+    "path",
+    "!status",
+    "!group",
+    "!tag",
+    "!method_list",
+    "!path",
+]
+
+
+class MatchRule(object):
+    def __init__(self, key: MatchKeyLiteral = "all", target: Any = None):
+        self.key: MatchKeyLiteral = key
+        self.target: Any = target
+        self._match_rule_list: List[Tuple[str, "MatchRule"]] = []
+
+    def match(self, pait_core_model: "PaitCoreModel") -> bool:
+        result: bool = self._match(pait_core_model)
+        for method, match_rule in self._match_rule_list:
+            if method == "or":
+                result = result or match_rule._match(pait_core_model)
+            elif method == "and":
+                result = result and match_rule._match(pait_core_model)
+        return result
+
+    def _match(self, pait_core_model: "PaitCoreModel") -> bool:
+        """By different attributes to determine whether to match with pait_core_model,
+        if the key is `all` then match
+        if the key is prefixed with ! then the result will be reversed
+        """
+        key: MatchKeyLiteral = self.key
+        target: Any = self.target
+        if key == "all":
+            return True
+        is_reverse: bool = False
+        if key.startswith("!"):
+            key = key[1:]  # type: ignore
+            is_reverse = True
+
+        value: Any = getattr(pait_core_model, key, ...)
+        if value is ...:
+            raise KeyError(f"match fail, not found key:{key}")
+        if key in ("status", "group"):
+            result: bool = value is target
+        elif key in ("tag", "method_list"):
+            result = target in value
+        elif key == "path":
+            result = value.startswith(target)
+        else:
+            raise KeyError(f"Not support key:{key}")
+
+        if is_reverse:
+            return not result
+        else:
+            return result
+
+    def __or__(self, other: "MatchRule") -> "MatchRule":
+        self._match_rule_list.append(("or", other))
+        return self
+
+    def __and__(self, other: "MatchRule") -> "MatchRule":
+        self._match_rule_list.append(("and", other))
+        return self
+
+
+def _is_match(pait_core_model: "PaitCoreModel", match_rule: Optional["MatchRule"]) -> bool:
+    return not match_rule or match_rule.match(pait_core_model)
 
 
 def apply_extra_openapi_model(
@@ -30,7 +106,7 @@ def apply_extra_openapi_model(
     """
 
     def _apply(pait_core_model: "PaitCoreModel") -> None:
-        if pait_core_model.match(match_rule):
+        if _is_match(pait_core_model, match_rule):
             pait_core_model.extra_openapi_model_list = [extra_openapi_model]
 
     return _apply
@@ -47,7 +123,7 @@ def apply_response_model(
             raise ValueError(f"{response_model} is core response model can not set to default_response_model_list")
 
     def _apply(pait_core_model: "PaitCoreModel") -> None:
-        if pait_core_model.match(match_rule):
+        if _is_match(pait_core_model, match_rule):
             pait_core_model.add_response_model_list(response_model_list)
 
     return _apply
@@ -59,7 +135,7 @@ def apply_default_pydantic_model_config(
     """pait route gen pydantic model default config"""
 
     def _apply(pait_core_model: "PaitCoreModel") -> None:
-        if pait_core_model.match(match_rule):
+        if _is_match(pait_core_model, match_rule):
             pait_core_model.pydantic_model_config = pydantic_model_config
 
     return _apply
@@ -79,7 +155,7 @@ def apply_block_http_method_set(
             raise ValueError(f"Error http method: {block_http_method}")
 
     def _apply(pait_core_model: "PaitCoreModel") -> None:
-        if pait_core_model.match(match_rule):
+        if _is_match(pait_core_model, match_rule):
             pait_core_model.block_http_method_set = block_http_method_set
             pait_core_model.method_list = pait_core_model.method_list
 
@@ -90,7 +166,7 @@ def apply_multi_plugin(
     plugin_manager_fn_list: List[Callable[[], PluginManager]], match_rule: Optional["MatchRule"] = None
 ) -> "APPLY_FN":
     def _apply(pait_core_model: "PaitCoreModel") -> None:
-        if pait_core_model.match(match_rule):
+        if _is_match(pait_core_model, match_rule):
             pre_plugin_manager_list: List[PluginManager] = []
             post_plugin_manager_list: List[PluginManager] = []
             for plugin_manager_fn in plugin_manager_fn_list:
@@ -106,7 +182,7 @@ def apply_multi_plugin(
 
 def apply_pre_depend(pre_depend: Callable, match_rule: Optional["MatchRule"] = None) -> "APPLY_FN":
     def _apply(pait_core_model: "PaitCoreModel") -> None:
-        if pait_core_model.match(match_rule):
+        if _is_match(pait_core_model, match_rule):
             pait_core_model.pre_depend_list.append(pre_depend)
 
     return _apply
@@ -116,7 +192,7 @@ def apply_param_handler(
     param_handler_plugin: "Type[BaseParamHandler]", match_rule: Optional["MatchRule"] = None
 ) -> "APPLY_FN":
     def _apply(pait_core_model: "PaitCoreModel") -> None:
-        if pait_core_model.match(match_rule):
+        if _is_match(pait_core_model, match_rule):
             pait_core_model.param_handler_plugin = param_handler_plugin
 
     return _apply
