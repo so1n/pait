@@ -154,13 +154,9 @@ class Pait(object):
 
     @staticmethod
     def init_context(pait_core_model: "PaitCoreModel", args: Any, kwargs: Any) -> None:
-        # cbv handle
-        cbv_instance: Optional[Any] = None
-        if args and args[0].__class__.__name__ in pait_core_model.func.__qualname__:
-            cbv_instance = args[0]
-
-        app_helper: BaseAppHelper = pait_core_model.app_helper_class(cbv_instance, args, kwargs)
-        pait_context.set(ContextModel(cbv_instance=cbv_instance, app_helper=app_helper))
+        """Inject App Helper into context"""
+        app_helper: BaseAppHelper = pait_core_model.app_helper_class(args, kwargs)
+        pait_context.set(ContextModel(cbv_instance=app_helper.cbv_instance, app_helper=app_helper))
 
     def __call__(
         self,

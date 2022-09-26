@@ -1,6 +1,6 @@
 import logging
 from dataclasses import MISSING
-from typing import Any, Generic, List, Mapping, TypeVar
+from typing import Any, Generic, List, Mapping, Type, TypeVar
 
 RequestT = TypeVar("RequestT")
 
@@ -28,18 +28,23 @@ RequestExtendT = TypeVar("RequestExtendT", bound=BaseRequestExtend)
 class BaseAppHelper(Generic[RequestT, RequestExtendT]):
     """Provide a unified framework call interface for pait"""
 
+    # The class that defines the request object corresponding to the framework (consistent with Request T)
     RequestType = type(None)
-    FormType = type(None)
-    FileType = type(None)
-    HeaderType = type(None)
-    app_name: str = "BaseAppHelper"
+    FormType = type(None)  # The class that defines the form object corresponding to the framework
+    FileType = type(None)  # The class that defines the file object corresponding to the framework
+    HeaderType = type(None)  # The class that defines the header object corresponding to the framework
+    CbvType: tuple = (Type,)  # The class that defines the cbv object corresponding to the framework
+    app_name: str = "BaseAppHelper"  # Define the name corresponding to the framework
 
-    def __init__(self, class_: Any, args: List[Any], kwargs: Mapping[str, Any]):
+    def __init__(self, args: List[Any], kwargs: Mapping[str, Any]):
         """
         Extract the required data from the passed parameters,
         such as the self parameter in cvb mode, the request parameter in starletter
         """
-        self.cbv_instance: Any = class_
+        if args and isinstance(args[0], *self.CbvType):
+            self.cbv_instance: Any = args[0]
+        else:
+            self.cbv_instance = None
 
         request = None
         new_args: List[Any] = []
@@ -57,7 +62,7 @@ class BaseAppHelper(Generic[RequestT, RequestExtendT]):
                 break
             new_args.append(param)
 
-        # 除了flask框架外，这里的request都是取到值的
+        # Except for the flask framework, the requests here are all values
         self.request: RequestT = request  # type: ignore
         self.request_args: List[Any] = new_args
         self.request_kwargs: Mapping[str, Any] = kwargs

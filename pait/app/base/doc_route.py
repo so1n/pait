@@ -204,7 +204,7 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
         return _swagger_html_route
 
     def _get_openapi_route(self, app: APP_T) -> Callable:
-        @self._doc_pait(pre_depend_list=[self._get_request_pin_code], response_model_list=[DocHtmlRespModel])
+        @self._doc_pait(pre_depend_list=[self._get_request_pin_code], response_model_list=[OpenAPIRespModel])
         def _openapi_route(
             url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map(extra_key=True)),
         ) -> ResponseT:

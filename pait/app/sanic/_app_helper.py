@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Mapping
 
 from sanic.headers import HeaderIterable
 from sanic.request import File, Request, RequestParameters
+from sanic.views import CompositionView, HTTPMethodView
 from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
 
 from pait.app.base import BaseAppHelper, BaseRequestExtend
@@ -30,6 +31,7 @@ class AppHelper(BaseAppHelper[Request, RequestExtend]):
     FormType = RequestParameters
     FileType = File
     HeaderType = HeaderIterable
+    CbvType = (HTTPMethodView, CompositionView)
     app_name = "sanic"
 
     def get_attributes(self, key: str, default: Any = MISSING) -> Any:

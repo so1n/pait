@@ -2,6 +2,7 @@ from dataclasses import MISSING
 from typing import Any, Coroutine, Dict, List, Mapping, Optional
 
 from starlette.datastructures import FormData, Headers, UploadFile
+from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request
 
 from pait.app.base import BaseAppHelper, BaseRequestExtend
@@ -31,10 +32,11 @@ class AppHelper(BaseAppHelper[Request, RequestExtend]):
     FormType = FormData
     FileType = UploadFile
     HeaderType = Headers
+    CbvType = (HTTPEndpoint,)
     app_name = "starlette"
 
-    def __init__(self, class_: Any, args: List[Any], kwargs: Mapping[str, Any]):
-        super().__init__(class_, args, kwargs)
+    def __init__(self, args: List[Any], kwargs: Mapping[str, Any]):
+        super().__init__(args, kwargs)
         self._form: Optional[FormData] = None
 
     def get_attributes(self, key: str, default: Any = MISSING) -> Any:

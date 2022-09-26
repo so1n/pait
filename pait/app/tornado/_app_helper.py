@@ -30,15 +30,13 @@ class AppHelper(BaseAppHelper[HTTPServerRequest, RequestExtend]):
     FormType = dict
     FileType = dict
     HeaderType = dict
+    CbvType = (RequestHandler,)
     app_name = "tornado"
 
-    def __init__(self, class_: Any, args: List[Any], kwargs: Mapping[str, Any]):
-        super().__init__(class_, args, kwargs)
+    def __init__(self, args: List[Any], kwargs: Mapping[str, Any]):
+        super().__init__(args, kwargs)
         if not self.cbv_instance:
-            if isinstance(args[0], RequestHandler):
-                self.cbv_instance = args[0]
-            else:
-                raise RuntimeError("Can not load Tornado handle")  # pragma: no cover
+            raise RuntimeError("Can not load Tornado handle")  # pragma: no cover
 
         self.request = self.cbv_instance.request
         self.path_kwargs: Dict[str, Any] = self.cbv_instance.path_kwargs

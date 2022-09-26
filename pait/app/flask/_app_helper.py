@@ -2,6 +2,7 @@ from dataclasses import MISSING
 from typing import Any, Dict, List, Mapping
 
 from flask import Request, g, request
+from flask.views import View
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 
 from pait.app.base import BaseAppHelper, BaseRequestExtend
@@ -30,10 +31,11 @@ class AppHelper(BaseAppHelper[Request, RequestExtend]):
     FormType = ImmutableMultiDict
     FileType = Request.files
     HeaderType = EnvironHeaders
+    CbvType = (View,)
     app_name = "flask"
 
-    def __init__(self, class_: Any, args: List[Any], kwargs: Mapping[str, Any]):
-        super().__init__(class_, args, kwargs)
+    def __init__(self, args: List[Any], kwargs: Mapping[str, Any]):
+        super().__init__(args, kwargs)
 
         self.request = request
 
