@@ -129,17 +129,16 @@ class TestTornado(BaseTestTornado):
             ]["get"]["parameters"][0]["schema"]["example"]
             == "xxx"
         )
+
         assert (
             difflib.SequenceMatcher(
                 None,
-                str(json.loads(self.fetch("/openapi.json?pin_code=6666").body.decode())),
-                str(
-                    PaitOpenAPI(
-                        load_app(self.get_app()),
-                        title="Pait Api Doc(private)",
-                        open_api_server_list=[{"url": "http://localhost", "description": ""}],
-                    ).open_api_dict
-                ),
+                self.fetch("/openapi.json?pin_code=6666").body.decode(),
+                PaitOpenAPI(
+                    load_app(self._app),
+                    title="Pait Api Doc(private)",
+                    open_api_server_list=[{"url": "http://localhost", "description": ""}],
+                ).content,
             ).quick_ratio()
             > 0.95
         )

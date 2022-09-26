@@ -4,13 +4,29 @@ from typing import Any, Coroutine, Dict, List, Mapping, Optional
 from starlette.datastructures import FormData, Headers, UploadFile
 from starlette.requests import Request
 
-from pait.app.base import BaseAppHelper
+from pait.app.base import BaseAppHelper, BaseRequestExtend
 from pait.util import LazyProperty
 
-__all__ = ["AppHelper"]
+__all__ = ["AppHelper", "RequestExtend"]
 
 
-class AppHelper(BaseAppHelper):
+class RequestExtend(BaseRequestExtend[Request]):
+    @property
+    def scheme(self) -> str:
+        return self.request.url.scheme
+
+    @property
+    def path(self) -> str:
+        return self.request.url.path
+
+    @property
+    def hostname(self) -> str:
+        if self.request.url.port:
+            return f"{self.request.url.hostname}:{self.request.url.port}"
+        return self.request.url.hostname
+
+
+class AppHelper(BaseAppHelper[Request, RequestExtend]):
     RequestType = Request
     FormType = FormData
     FileType = UploadFile
@@ -27,7 +43,10 @@ class AppHelper(BaseAppHelper):
         else:
             return getattr(self.request.app.state, key, default)
 
-    def body(self) -> dict:
+    def request_extend(self) -> RequestExtend:
+        return RequestExtend(self.request)
+
+    def body(self) -> Coroutine[Any, Any, dict]:
         return self.request.json()
 
     def cookie(self) -> dict:

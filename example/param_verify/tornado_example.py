@@ -8,7 +8,7 @@ import aiofiles  # type: ignore
 import grpc
 from pydantic import ValidationError
 from redis.asyncio import Redis  # type: ignore
-from tornado.httputil import RequestStartLine
+from tornado.httputil import HTTPServerRequest
 from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
 from typing_extensions import TypedDict
@@ -133,7 +133,7 @@ class DependHandler(MyHandler):
     )
     async def post(
         self,
-        request: RequestStartLine,
+        request: HTTPServerRequest,
         depend_tuple: Tuple[str, int] = Depends.i(demo_depend),
     ) -> None:
         """Test Method:Post request, Pydantic Model"""

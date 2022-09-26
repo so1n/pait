@@ -4,13 +4,27 @@ from typing import Any, Dict, List, Mapping
 from flask import Request, g, request
 from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 
-from pait.app.base import BaseAppHelper
+from pait.app.base import BaseAppHelper, BaseRequestExtend
 from pait.util import LazyProperty
 
-__all__ = ["AppHelper"]
+__all__ = ["AppHelper", "RequestExtend"]
 
 
-class AppHelper(BaseAppHelper):
+class RequestExtend(BaseRequestExtend[Request]):
+    @property
+    def scheme(self) -> str:
+        return request.scheme
+
+    @property
+    def path(self) -> str:
+        return request.path
+
+    @property
+    def hostname(self) -> str:
+        return request.host
+
+
+class AppHelper(BaseAppHelper[Request, RequestExtend]):
 
     RequestType = Request
     FormType = ImmutableMultiDict
@@ -27,6 +41,9 @@ class AppHelper(BaseAppHelper):
         if default is MISSING:
             return getattr(g, key)
         return getattr(g, key, default)
+
+    def request_extend(self) -> RequestExtend:
+        return RequestExtend(self.request)
 
     def body(self) -> dict:
         return request.json

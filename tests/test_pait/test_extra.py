@@ -27,9 +27,9 @@ class TestApplyFun:
 
     test_status_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper, status=PaitStatus.test)
     test_group_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper, group="test")
-    test_tag_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper, tag=("test",))
+    test_tag_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper, tag=("test", "test_priority"))
     test_path_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper)
-    test_method_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper, tag=("test",))
+    test_method_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper, tag=("test_priority",))
 
     core_model_list: List[PaitCoreModel] = [
         test_status_core_model,
@@ -130,7 +130,7 @@ class TestApplyFun:
             config.apply_default_pydantic_model_config(
                 DemoConfig,
                 config.MatchRule(key="method_list", target="POST")
-                & (config.MatchRule(key="group", target="test") | config.MatchRule(key="tag", target="test")),
+                & (config.MatchRule(key="group", target="test") | config.MatchRule(key="tag", target="test_priority")),
             )(i)
 
         for i in self.core_model_list:

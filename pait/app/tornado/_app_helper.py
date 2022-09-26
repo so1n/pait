@@ -2,16 +2,31 @@ import json
 from dataclasses import MISSING
 from typing import Any, Dict, List, Mapping
 
-from tornado.httputil import RequestStartLine
+from tornado.httputil import HTTPHeaders, HTTPServerRequest
+from tornado.web import RequestHandler
 
-from pait.app.base import BaseAppHelper
+from pait.app.base import BaseAppHelper, BaseRequestExtend
 from pait.util import LazyProperty
 
-__all__ = ["AppHelper"]
+__all__ = ["AppHelper", "RequestExtend"]
 
 
-class AppHelper(BaseAppHelper):
-    RequestType = RequestStartLine
+class RequestExtend(BaseRequestExtend[HTTPServerRequest]):
+    @property
+    def scheme(self) -> str:
+        return self.request.protocol
+
+    @property
+    def path(self) -> str:
+        return self.request.path
+
+    @property
+    def hostname(self) -> str:
+        return self.request.host
+
+
+class AppHelper(BaseAppHelper[HTTPServerRequest, RequestExtend]):
+    RequestType = HTTPServerRequest
     FormType = dict
     FileType = dict
     HeaderType = dict
@@ -20,7 +35,10 @@ class AppHelper(BaseAppHelper):
     def __init__(self, class_: Any, args: List[Any], kwargs: Mapping[str, Any]):
         super().__init__(class_, args, kwargs)
         if not self.cbv_instance:
-            raise RuntimeError("Can not load Tornado handle")  # pragma: no cover
+            if isinstance(args[0], RequestHandler):
+                self.cbv_instance = args[0]
+            else:
+                raise RuntimeError("Can not load Tornado handle")  # pragma: no cover
 
         self.request = self.cbv_instance.request
         self.path_kwargs: Dict[str, Any] = self.cbv_instance.path_kwargs
@@ -30,6 +48,9 @@ class AppHelper(BaseAppHelper):
             return self.cbv_instance.application.settings[key]
         else:
             return self.cbv_instance.application.settings.get(key, default)
+
+    def request_extend(self) -> RequestExtend:
+        return RequestExtend(self.request)
 
     def body(self) -> dict:
         return json.loads(self.request.body.decode())
@@ -48,7 +69,7 @@ class AppHelper(BaseAppHelper):
             form_dict = json.loads(self.request.body.decode())  # pragma: no cover
         return {key: value[0] for key, value in form_dict.items()}
 
-    def header(self) -> dict:
+    def header(self) -> HTTPHeaders:
         return self.request.headers
 
     def path(self) -> dict:

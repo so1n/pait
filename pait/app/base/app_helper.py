@@ -1,9 +1,31 @@
 import logging
 from dataclasses import MISSING
-from typing import Any, List, Mapping
+from typing import Any, Generic, List, Mapping, TypeVar
+
+RequestT = TypeVar("RequestT")
 
 
-class BaseAppHelper(object):
+class BaseRequestExtend(Generic[RequestT]):
+    def __init__(self, request: RequestT) -> None:
+        self.request: RequestT = request
+
+    @property
+    def scheme(self) -> str:
+        raise NotImplementedError
+
+    @property
+    def path(self) -> str:
+        raise NotImplementedError
+
+    @property
+    def hostname(self) -> str:
+        raise NotImplementedError
+
+
+RequestExtendT = TypeVar("RequestExtendT", bound=BaseRequestExtend)
+
+
+class BaseAppHelper(Generic[RequestT, RequestExtendT]):
     """Provide a unified framework call interface for pait"""
 
     RequestType = type(None)
@@ -31,15 +53,19 @@ class BaseAppHelper(object):
             else:
                 # In cbv, parameter like self, request, {other param}
                 # Now, not support other param
-                logging.warning("Pait only support self and request args param")
+                logging.warning(f"Pait only support self and request args param not {param}")
                 break
             new_args.append(param)
 
-        self.request: Any = request
+        # 除了flask框架外，这里的request都是取到值的
+        self.request: RequestT = request  # type: ignore
         self.request_args: List[Any] = new_args
         self.request_kwargs: Mapping[str, Any] = kwargs
 
     def get_attributes(self, key: str, default: Any = MISSING) -> Any:
+        raise NotImplementedError
+
+    def request_extend(self) -> BaseRequestExtend[RequestT]:
         raise NotImplementedError
 
     def cookie(self) -> Any:

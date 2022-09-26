@@ -5,13 +5,27 @@ from sanic.headers import HeaderIterable
 from sanic.request import File, Request, RequestParameters
 from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
 
-from pait.app.base import BaseAppHelper
+from pait.app.base import BaseAppHelper, BaseRequestExtend
 from pait.util import LazyProperty
 
-__all__ = ["AppHelper"]
+__all__ = ["AppHelper", "RequestExtend"]
 
 
-class AppHelper(BaseAppHelper):
+class RequestExtend(BaseRequestExtend[Request]):
+    @property
+    def scheme(self) -> str:
+        return self.request.scheme
+
+    @property
+    def path(self) -> str:
+        return self.request.path
+
+    @property
+    def hostname(self) -> str:
+        return self.request.host
+
+
+class AppHelper(BaseAppHelper[Request, RequestExtend]):
     RequestType = Request
     FormType = RequestParameters
     FileType = File
@@ -22,6 +36,9 @@ class AppHelper(BaseAppHelper):
         if default is MISSING:
             return getattr(self.request.app.ctx, key)
         return getattr(self.request.app.ctx, key, default)
+
+    def request_extend(self) -> RequestExtend:
+        return RequestExtend(self.request)
 
     def body(self) -> dict:
         return self.request.json

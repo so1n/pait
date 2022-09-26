@@ -179,13 +179,13 @@ class TestStarlette:
         assert (
             difflib.SequenceMatcher(
                 None,
-                str(client.get("/openapi.json?pin_code=6666").json()),
+                str(client.get("/openapi.json?pin_code=6666").text),
                 str(
                     PaitOpenAPI(
                         load_app(client.app),  # type: ignore
                         title="Pait Doc",
                         open_api_server_list=[{"url": "http://localhost", "description": ""}],
-                    ).open_api_dict
+                    ).content
                 ),
             ).quick_ratio()
             > 0.95

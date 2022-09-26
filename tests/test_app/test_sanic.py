@@ -132,13 +132,13 @@ class TestSanic:
         assert (
             difflib.SequenceMatcher(
                 None,
-                str(client.get("/openapi.json?pin_code=6666")[1].json),
+                str(client.get("/openapi.json?pin_code=6666")[1].text),
                 str(
                     PaitOpenAPI(
                         load_app(client.app),
                         title="Pait Doc",
                         open_api_server_list=[{"url": "http://localhost", "description": ""}],
-                    ).open_api_dict
+                    ).content
                 ),
             ).quick_ratio()
             > 0.95
