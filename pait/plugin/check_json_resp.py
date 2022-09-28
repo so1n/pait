@@ -12,6 +12,8 @@ if TYPE_CHECKING:
 
 
 class CheckJsonRespPlugin(PluginProtocol):
+    """Check if the json response result is legal"""
+
     check_resp_fn: Callable
 
     @classmethod

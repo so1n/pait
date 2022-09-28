@@ -35,6 +35,8 @@ def get_func_sig(func: Callable) -> FuncSig:
         #   Depend func must be bound func when it is used, so it cannot get self；
         if not (sig.parameters[key].annotation != sig.empty or sig.parameters[key].name == "self"):
             if sig.parameters[key].annotation != Self:
+                # If the name of the self variable is not self and the annotation is not Self,
+                # it will be ignored directly
                 continue
         parameter: inspect.Parameter = sig.parameters[key]
         setattr(parameter, "_annotation", get_real_annotation(parameter.annotation, func))

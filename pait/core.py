@@ -40,10 +40,27 @@ class Pait(object):
         group: Optional[str] = None,
         tag: Optional[Tuple[TagT, ...]] = None,
         response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
+        # plugin
         plugin_list: Optional[List[PluginManager]] = None,
         post_plugin_list: Optional[List[PluginManager]] = None,
         param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
     ):
+        """
+        :param pydantic_model_config: pydantic.BaseConfig
+        :param pre_depend_list:  List of depend functions to execute before route functions
+        :param author:  The author who wrote this routing function
+        :param desc:  Description of the routing function
+        :param summary:  Introduction to Routing Functions
+        :param name:  The name of the routing function, defaults to the function name
+        :param status:  The state of the routing function
+        :param group:  The group to which the routing function belongs
+        :param tag:  A collection of labels for routing functions
+        :param response_model_list: The response object of the route function
+        :param plugin_list: pre plugin for routing functions
+        :param post_plugin_list: post plugin list for routing functions
+        :param param_handler_plugin: The param handler plugin of the routing function,
+            the default is pait.param_handler.x
+        """
 
         check_cls_param_list: List[str] = ["app_helper_class"]
         for cls_param in check_cls_param_list:
@@ -70,6 +87,7 @@ class Pait(object):
         self._group: Optional[str] = group
         self._tag: Optional[Tuple[TagT, ...]] = tag
         self._response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = response_model_list
+        # plugin
         self._plugin_list: Optional[List[PluginManager]] = plugin_list
         self._post_plugin_list: Optional[List[PluginManager]] = post_plugin_list
         self._param_handler_plugin: Optional[Type["BaseParamHandler"]] = param_handler_plugin
@@ -81,7 +99,7 @@ class Pait(object):
         self_container: Optional[_AppendT],
     ) -> Optional[_AppendT]:
         if append_container:
-            return append_container + (self_container or append_container.__class__())
+            return (self_container or append_container.__class__()) + append_container
         else:
             return target_container or self_container
 
@@ -109,6 +127,34 @@ class Pait(object):
         append_post_plugin_list: Optional[List[PluginManager]] = None,
         param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
     ) -> _PaitT:
+        """
+        :param pydantic_model_config: pydantic.BaseConfig
+        :param pre_depend_list:  List of depend functions to execute before route functions(
+            Do not use the pre depend value specified when Pait is initialized)
+        :param append_pre_depend_list: Append some author when creating child Pait
+        :param author:  The author who wrote this routing function(
+            Do not use the author value specified when Pait is initialized)
+        :param append_author: Append some author when creating child Pait
+        :param desc:  Description of the routing function
+        :param summary:  Introduction to Routing Functions
+        :param name:  The name of the routing function, defaults to the function name
+        :param status:  The state of the routing function
+        :param group:  The group to which the routing function belongs
+        :param tag:  A collection of labels for routing functions(
+            Do not use the tag value specified when Pait is initialized)
+        :param append_tag: Append some tags when creating child Pait
+        :param response_model_list: The response object of the route function(
+            Do not use the response model value specified when Pait is initialized)
+        :param append_response_model_list: Append some response object when creating child Pait
+        :param plugin_list: pre plugin for routing functions(
+            Do not use the pre plugin value specified when Pait is initialized)
+        :param append_plugin_list: Append some pre plugin when creating child Pait
+        :param post_plugin_list: post plugin list for routing functions(
+            Do not use the post plugin value specified when Pait is initialized)
+        :param append_post_plugin_list:  Append some post plugin when creating child Pait
+        :param param_handler_plugin: The param handler plugin of the routing function,
+         the default is pait.param_handler.x
+        """
         pre_depend_list = self._append_data(pre_depend_list, append_pre_depend_list, self._pre_depend_list)
         author = self._append_data(author, append_author, self._author)
         tag = self._append_data(tag, append_tag, self._tag)
@@ -176,6 +222,7 @@ class Pait(object):
         append_tag: Optional[Tuple[TagT, ...]] = None,
         response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
         append_response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
+        # plugin
         plugin_list: Optional[List[PluginManager]] = None,
         append_plugin_list: Optional[List[PluginManager]] = None,
         post_plugin_list: Optional[List[PluginManager]] = None,
@@ -183,6 +230,34 @@ class Pait(object):
         param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
         feature_code: str = "",
     ) -> Callable:
+        """
+        :param pydantic_model_config: pydantic.BaseConfig
+        :param pre_depend_list:  List of depend functions to execute before route functions
+        :param author:  The author who wrote this routing function
+        :param desc:  Description of the routing function
+        :param summary:  Introduction to Routing Functions
+        :param name:  The name of the routing function, defaults to the function name
+        :param status:  The state of the routing function
+        :param group:  The group to which the routing function belongs
+        :param tag:  A collection of labels for routing functions(
+            Do not use the tag value specified when Pait is initialized)
+        :param append_tag: Append some tags to the routing function
+        :param response_model_list: The response object of the route function(
+            Do not use the response_model_list value specified when Pait is initialized)
+        :param append_response_model_list: Append some response object to the routing function
+        :param plugin_list: pre plugin for routing functions
+        :param append_plugin_list: Append some pre plugin to the routing function (
+            Do not use the pre plugin value specified when Pait is initialized)
+        :param post_plugin_list: post plugin list for routing functions
+        :param append_post_plugin_list:  Append some post plugin  to the routing function (
+            Do not use the post plugin value specified when Pait is initialized)
+        :param param_handler_plugin: The param handler plugin of the routing function,
+            the default is pait.param_handler.x
+        :param feature_code: Specify the prefix of the pait id corresponding to the generated routing function.
+            Usually, the pait_id is equal to md5(func), but during dynamic generation,
+            there may be multiple different routing functions generated by the same func.
+            In this case, different feature_code is needed to generate different pait_id(feature_code + md5(func))
+        """
         app_name: str = self.app_helper_class.app_name
         pydantic_model_config = pydantic_model_config or self._pydantic_model_config
         desc = desc or self._desc

@@ -11,6 +11,8 @@ if TYPE_CHECKING:
 
 
 class AutoCompleteJsonRespPlugin(PluginProtocol):
+    """According to the response object, automatically fill in the missing value of json"""
+
     response_data_model: Type[BaseModel]
 
     def merge(self, response_dict: dict) -> dict:

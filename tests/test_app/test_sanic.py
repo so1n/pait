@@ -41,12 +41,12 @@ def base_test() -> Generator[BaseTest, None, None]:
 def response_test_helper(
     client: SanicTestClient, route_handler: Callable, pait_response: Type[response.PaitBaseResponseModel]
 ) -> None:
-    from pait.app.sanic.plugin.mock_response import AsyncMockPlugin
+    from pait.app.sanic.plugin.mock_response import MockPlugin
 
     test_helper: _TestHelper = _TestHelper(client, route_handler)
     test_helper.get()
 
-    with enable_plugin(route_handler, AsyncMockPlugin.build()):
+    with enable_plugin(route_handler, MockPlugin.build()):
         resp: Response = test_helper.get()
         for key, value in pait_response.header.items():
             assert resp.headers[key] == value

@@ -135,34 +135,35 @@ class BaseParamHandler(PluginProtocol):
         elif isinstance(parameter.default, field.BaseField):
             if not parameter.default.alias:
                 parameter.default.request_key = parameter.name
-            if not ignore_pre_check:
-                if parameter.default.alias and not isinstance(parameter.default.alias, str):
-                    raise FieldValueTypeException(
-                        parameter.name,
-                        f"{parameter.name}'s Field.alias type must str. value: {parameter.default.alias}",
-                    )
-                try:
+            if ignore_pre_check:
+                return
+            if parameter.default.alias and not isinstance(parameter.default.alias, str):
+                raise FieldValueTypeException(
+                    parameter.name,
+                    f"{parameter.name}'s Field.alias type must str. value: {parameter.default.alias}",
+                )
+            try:
+                cls.check_field_type(
+                    parameter.default.default,
+                    parameter.annotation,
+                    f"{parameter.name}'s Field.default type must {parameter.annotation}."
+                    f" value:{parameter.default.default}",
+                )
+                if parameter.default.default_factory:
                     cls.check_field_type(
-                        parameter.default.default,
+                        parameter.default.default_factory(),
                         parameter.annotation,
-                        f"{parameter.name}'s Field.default type must {parameter.annotation}."
-                        f" value:{parameter.default.default}",
+                        f"{parameter.name}'s Field.default_factory type must {parameter.annotation}."
+                        f" value:{parameter.default.default_factory()}",
                     )
-                    if parameter.default.default_factory:
-                        cls.check_field_type(
-                            parameter.default.default_factory(),
-                            parameter.annotation,
-                            f"{parameter.name}'s Field.default_factory type must {parameter.annotation}."
-                            f" value:{parameter.default.default_factory()}",
-                        )
-                    example_value: Any = parameter.default.extra.get("example", Undefined)
-                    cls.check_field_type(
-                        example_value_handle(example_value),
-                        parameter.annotation,
-                        f"{parameter.name}'s Field.example type must {parameter.annotation} not {example_value}",
-                    )
-                except ParseTypeError as e:
-                    raise FieldValueTypeException(parameter.name, str(e))
+                example_value: Any = parameter.default.extra.get("example", Undefined)
+                cls.check_field_type(
+                    example_value_handle(example_value),
+                    parameter.annotation,
+                    f"{parameter.name}'s Field.example type must {parameter.annotation} not {example_value}",
+                )
+            except ParseTypeError as e:
+                raise FieldValueTypeException(parameter.name, str(e))
         else:
             raise NotFoundFieldException(parameter.name, f"{parameter.name}'s Field not found")  # pragma: no cover
 
@@ -456,13 +457,12 @@ class AsyncParamHandler(BaseParamHandler):
             await asyncio.gather(*[_param_handle(parameter) for parameter in param_list])
         # support field: def demo(demo_param: int = pait.field.BaseField())
         if single_field_dict:
-            if single_field_dict:
-                if pydantic_model:
-                    self.valid_and_merge_kwargs_by_pydantic_model(
-                        single_field_dict, kwargs_param_dict, pydantic_model, _object
-                    )
-                else:
-                    self.valid_and_merge_kwargs_by_single_field_dict(single_field_dict, kwargs_param_dict, _object)
+            if pydantic_model:
+                self.valid_and_merge_kwargs_by_pydantic_model(
+                    single_field_dict, kwargs_param_dict, pydantic_model, _object
+                )
+            else:
+                self.valid_and_merge_kwargs_by_single_field_dict(single_field_dict, kwargs_param_dict, _object)
         return args_param_list, kwargs_param_dict
 
     async def set_parameter_value_to_args(

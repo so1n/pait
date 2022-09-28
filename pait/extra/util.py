@@ -9,6 +9,7 @@ __all__ = ["sync_config_data_to_pait_core_model"]
 
 
 def sync_config_data_to_pait_core_model(config: "Config", pait_core_model: "PaitCoreModel", **kwargs: Any) -> None:
+    """Synchronize the config data to the corresponding pait core model"""
     if not pait_core_model.author:
         pait_core_model.author = config.author
     if not pait_core_model.status:

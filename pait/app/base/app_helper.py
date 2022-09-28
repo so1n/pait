@@ -41,7 +41,7 @@ class BaseAppHelper(Generic[RequestT, RequestExtendT]):
         Extract the required data from the passed parameters,
         such as the self parameter in cvb mode, the request parameter in starletter
         """
-        if args and isinstance(args[0], *self.CbvType):
+        if args and isinstance(args[0], self.CbvType):
             self.cbv_instance: Any = args[0]
         else:
             self.cbv_instance = None

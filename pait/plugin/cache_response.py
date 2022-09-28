@@ -52,9 +52,6 @@ class CacheResponsePlugin(PluginProtocol):
                 f"Not use {cls.__name__} in {pait_core_model.func.__name__}, "
                 f"{cls.__name__} not support {PaitFileResponseModel.__class__.__name__}"
             )
-        if "pait_response_model" in kwargs:
-            raise RuntimeError("Please use response_model_list param")  # pragma: no cover
-
         if kwargs.get("redis", None) is not None:
             cls.check_redis(kwargs["redis"])
 
@@ -64,7 +61,6 @@ class CacheResponsePlugin(PluginProtocol):
         name: str = kwargs.get("name", "")
         if not name:
             kwargs["name"] = pait_core_model.func.__qualname__
-        kwargs["pait_response_model"] = pait_core_model.response_model_list[0]
         return kwargs
 
     def _get_redis(self) -> Union[Redis, AsyncioRedis]:
@@ -173,6 +169,17 @@ class CacheResponsePlugin(PluginProtocol):
         sleep: Optional[float] = None,
         blocking_timeout: Optional[float] = None,
     ) -> "PluginManager":  # type: ignore
+        """
+        :param redis: redis client
+        :param include_exc: Exception types that support caching
+        :param name: cache key name
+        :param enable_cache_name_merge_param:
+            Whether to distinguish between different caches by the parameters received by the routing function
+        :param cache_time: cache time
+        :param timeout: redis lock timeout param
+        :param sleep: redis lock sleep param
+        :param blocking_timeout: redis lock blocking_timeout param
+        """
         return super().build(
             name=name,
             redis=redis,

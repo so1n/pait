@@ -42,12 +42,12 @@ class TestTornado(BaseTestTornado):
     def response_test_helper(
         self, route_handler: Callable, pait_response: Type[response.PaitBaseResponseModel]
     ) -> None:
-        from pait.app.tornado.plugin.mock_response import AsyncMockPlugin
+        from pait.app.tornado.plugin.mock_response import MockPlugin
 
         test_helper: _TestHelper = _TestHelper(self, route_handler)
         test_helper.get()
 
-        with enable_plugin(route_handler, AsyncMockPlugin.build()):
+        with enable_plugin(route_handler, MockPlugin.build()):
             resp: HTTPResponse = test_helper.get()
             for key, value in pait_response.header.items():
                 assert resp.headers[key] == value

@@ -129,27 +129,27 @@ class TestStarlette:
                 assert resp["msg"] == "miss param: ['data', 'age']"
 
     def test_text_response(self, client: TestClient) -> None:
-        from pait.app.starlette.plugin.mock_response import AsyncMockPlugin, MockPlugin
+        from pait.app.starlette.plugin.mock_response import MockPlugin
 
         response_test_helper(client, starlette_example.text_response_route, response.PaitTextResponseModel, MockPlugin)
         response_test_helper(
-            client, starlette_example.async_text_response_route, response.PaitTextResponseModel, AsyncMockPlugin
+            client, starlette_example.async_text_response_route, response.PaitTextResponseModel, MockPlugin
         )
 
     def test_html_response(self, client: TestClient) -> None:
-        from pait.app.starlette.plugin.mock_response import AsyncMockPlugin, MockPlugin
+        from pait.app.starlette.plugin.mock_response import MockPlugin
 
         response_test_helper(client, starlette_example.html_response_route, response.PaitHtmlResponseModel, MockPlugin)
         response_test_helper(
-            client, starlette_example.async_html_response_route, response.PaitHtmlResponseModel, AsyncMockPlugin
+            client, starlette_example.async_html_response_route, response.PaitHtmlResponseModel, MockPlugin
         )
 
     def test_file_response(self, client: TestClient) -> None:
-        from pait.app.starlette.plugin.mock_response import AsyncMockPlugin, MockPlugin
+        from pait.app.starlette.plugin.mock_response import MockPlugin
 
         response_test_helper(client, starlette_example.file_response_route, response.PaitFileResponseModel, MockPlugin)
         response_test_helper(
-            client, starlette_example.async_file_response_route, response.PaitFileResponseModel, AsyncMockPlugin
+            client, starlette_example.async_file_response_route, response.PaitFileResponseModel, MockPlugin
         )
 
     def test_doc_route(self, client: TestClient) -> None:

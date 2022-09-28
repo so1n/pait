@@ -10,6 +10,10 @@ if TYPE_CHECKING:
 
 
 class MockPluginProtocol(PluginProtocol):
+    """Automatically return a json response with sample values based on the response object
+    Note: the code logic of the routing function will not be executed
+    """
+
     pait_response_model: Type[PaitBaseResponseModel]
 
     @classmethod
