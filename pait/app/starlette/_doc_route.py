@@ -44,11 +44,8 @@ class AddDocRoute(_AddDocRoute[Starlette, Response]):
             self.prefix,
             name=self.title,
             routes=[
-                Route("/redoc", self._get_redoc_html_route(), methods=["GET"]),
-                Route("/swagger", self._get_swagger_html_route(), methods=["GET"]),
-                Route("/rapidoc", self._get_rapidoc_html_route(), methods=["GET"]),
-                Route("/rapipdf", self._get_rapipdf_html_route(), methods=["GET"]),
                 Route("/openapi.json", self._get_openapi_route(app), methods=["GET"]),
+                Route("/{route_path}", self._get_doc_route(), methods=["GET"]),
             ],
         )
         app.routes.append(route)
@@ -66,7 +63,7 @@ def add_doc_route(
 ) -> None:
     AddDocRoute(
         scheme=scheme,
-        open_json_url_only_path=open_json_url_only_path,
+        openapi_json_url_only_path=open_json_url_only_path,
         prefix=prefix,
         pin_code=pin_code,
         title=title,

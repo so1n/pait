@@ -3,6 +3,7 @@ from typing import Optional
 
 def get_rapidoc_html(
     open_api_json_url: str,
+    title: str = "",
     src_url: Optional[str] = None,
 ) -> str:
     """
@@ -30,6 +31,7 @@ def get_rapidoc_html(
 
 def get_rapipdf_html(
     open_api_json_url: str,
+    title: str = "",
     src_url: Optional[str] = None,
 ) -> str:
     if not src_url:

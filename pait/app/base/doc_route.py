@@ -1,7 +1,9 @@
 import json
 import logging
+from enum import Enum
 from typing import Any, Callable, Dict, Generic, List, Optional, Type, TypeVar
 from urllib.parse import urlencode
+from warnings import warn
 
 from pydantic import BaseModel
 
@@ -12,7 +14,7 @@ from pait.api_doc.html import get_redoc_html as _get_redoc_html
 from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenAPI
 from pait.core import Pait, PluginManager
-from pait.field import Depends, Query
+from pait.field import Depends, Path, Query
 from pait.g import config, pait_context
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitHtmlResponseModel, PaitJsonResponseModel
@@ -21,7 +23,7 @@ from pait.model.tag import Tag
 from pait.model.template import TemplateContext
 
 logger: logging.Logger = logging.getLogger(__name__)
-__all__ = ["DocHtmlRespModel", "OpenAPIRespModel", "AddDocRoute"]
+__all__ = ["DocHtmlRespModel", "OpenAPIRespModel", "AddDocRoute", "default_doc_fn_dict"]
 
 
 class DocHtmlRespModel(PaitHtmlResponseModel):
@@ -42,6 +44,19 @@ APP_T = TypeVar("APP_T")
 ResponseT = TypeVar("ResponseT")
 
 
+default_doc_fn_dict: Dict[str, Callable] = {
+    "redoc": _get_redoc_html,
+    "swagger": _get_swagger_ui_html,
+    "rapidoc": _get_rapidoc_html,
+    "rapipdf": _get_rapipdf_html,
+    "elements": _get_elements_html,
+}
+
+
+class DocEnum(str, Enum):
+    pass
+
+
 class AddDocRoute(Generic[APP_T, ResponseT]):
     not_found_exc: Exception
     html_response: staticmethod
@@ -52,30 +67,48 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
     def __init__(
         self,
         scheme: Optional[str] = None,
-        open_json_url_only_path: bool = False,
+        openapi_json_url_only_path: bool = False,
         prefix: str = "",
         pin_code: str = "",
         title: str = "",
         open_api_tag_list: Optional[List[Dict[str, Any]]] = None,
         project_name: str = "",
+        doc_fn_dict: Optional[Dict[str, Callable]] = None,
         app: APP_T = None,
-        src_url: Optional[str] = None,
-        swagger_ui_url: Optional[str] = None,
-        swagger_ui_bundle: Optional[str] = None,
     ):
+        """
+        :param scheme: The scheme of the specified url, if the value is empty,
+            it will be automatically selected according to the request
+
+            Note: If the deployment is HTTP and the site configured by Nginx is HTTPS,
+                then need to force the specified scheme to be HTTPS
+        :param openapi_json_url_only_path: If True, openapi json url does not include HTTP scheme, hostname and port
+            Example:
+                openapi_json_url_only_path=True,  url: `/api/path`
+                openapi_json_url_only_path=False, url: `http://127.0.0.1:8080/api/path`
+        :param prefix: Doc route path prefix
+        :param pin_code: If pin_code is set, the pin code parameter needs to be added when requesting doc route
+            Example:
+                pin_code: None, url `http://127.0.0.1:8080/api/path`
+                pin_code: 6666, url `http://127.0.0.1:8080/api/path?pin-code=6666`
+        :param title: Doc route group name,
+            the title of multiple doc routes registered for the same app instance must be different
+        :param open_api_tag_list: Doc route group open api tag
+        :param project_name: see `pait.app.{web framework}._load_app.load_app`
+        :param doc_fn_dict: doc ui dict, default `pait.app.base.doc_route.default_doc_fn_dict`
+        :param app: The app instance to which the doc route is bound
+        """
         if pin_code:
             logging.info(f"doc route start pin code:{pin_code}")
         self.scheme: Optional[str] = scheme
-        self.open_json_url_only_path: bool = open_json_url_only_path
+        self.openapi_json_url_only_path: bool = openapi_json_url_only_path
         self.prefix: str = prefix or "/"
         self.pin_code: str = pin_code
         self.title: str = title or "Pait Doc"
         self.open_api_tag_list: Optional[List[Dict[str, Any]]] = open_api_tag_list
         self.project_name: str = project_name
         self._is_gen: bool = False
-        self.src_url: Optional[str] = src_url
-        self.swagger_ui_url: Optional[str] = swagger_ui_url
-        self.swagger_ui_bundle: Optional[str] = swagger_ui_bundle
+        self._doc_fn_dict: Dict[str, Callable] = doc_fn_dict or default_doc_fn_dict
         self._doc_pait: Pait = self.pait_class(
             author=config.author or ("so1n",),
             status=config.status or PaitStatus.release,
@@ -87,11 +120,21 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
             self._is_gen = True
             self._gen_route(app)
 
-    def _get_request_pin_code(self, r_pin_code: str = Query.i("", alias="pin_code")) -> Optional[str]:
+    def _get_request_pin_code(
+        self,
+        r_pin_code: str = Query.i("", alias="pin-code"),
+        old_r_pin_code: str = Query.i(
+            "",
+            alias="pin_code",
+            description="This parameter is used for legacy functionality and will be deprecated later",
+        ),
+    ) -> Optional[str]:
         if self.pin_code:
-            if r_pin_code != self.pin_code:
+            if old_r_pin_code != "":
+                warn("Param `pin_code` will be deprecated, please use `pin-code`")
+            if r_pin_code != self.pin_code and old_r_pin_code != self.pin_code:
                 raise self.not_found_exc
-        return r_pin_code
+        return r_pin_code or old_r_pin_code
 
     @staticmethod
     def _get_request_template_map(extra_key: bool = False) -> Callable:
@@ -114,13 +157,13 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
         return _get_request_template_map
 
     def _gen_url_fn(self) -> Callable:
-        def _get_open_json_url(
+        def _get_openapi_json_url(
             r_pin_code: str = Depends.i(self._get_request_pin_code),
             url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
         ) -> str:
             re = pait_context.get().app_helper.request_extend()
             _scheme: str = self.scheme or re.scheme
-            if self.open_json_url_only_path:
+            if self.openapi_json_url_only_path:
                 openapi_json_url: str = f"{'/'.join(re.path.split('/')[:-1])}/openapi.json"
             else:
                 openapi_json_url = f"{_scheme}://{re.hostname}{'/'.join(re.path.split('/')[:-1])}/openapi.json"
@@ -129,7 +172,7 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
             openapi_json_url += "?" + urlencode(url_dict)
             return openapi_json_url
 
-        return _get_open_json_url
+        return _get_openapi_json_url
 
     @staticmethod
     def _get_doc_pait(
@@ -146,76 +189,36 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
             post_plugin_list=post_plugin_list,
         )
 
-    def _get_elements_html(self, url: str) -> str:
-        return _get_elements_html(url, title=self.title)
-
-    def _get_redoc_html(self, url: str) -> str:
-        return _get_redoc_html(
-            url,
-            src_url=self.src_url,
-            title=self.title,
-        )
-
-    def _get_rapipdf_html(self, url: str) -> str:
-        return _get_rapipdf_html(
-            url,
-            src_url=self.src_url,
-        )
-
-    def _get_rapidoc_html(self, url: str) -> str:
-        return _get_rapidoc_html(
-            url,
-            src_url=self.src_url,
-        )
-
-    def _get_swagger_ui_html(self, url: str) -> str:
-        return _get_swagger_ui_html(
-            url,
-            title=self.title,
-            swagger_ui_bundle=self.swagger_ui_bundle,
-            swagger_ui_url=self.swagger_ui_url,
-        )
-
     def _gen_route(self, app: APP_T) -> Any:  # type: ignore
         raise NotImplementedError()
 
-    def _get_elements_html_route(self) -> Callable:
-        @self._doc_pait(response_model_list=[DocHtmlRespModel])
-        def _elements_html_route(url: str = Depends.i(self._gen_url_fn())) -> ResponseT:
-            return self.html_response(self._get_elements_html(url))
+    def _get_doc_route(self) -> Callable:
+        dynamic_enum_class: Type[Enum] = DocEnum(  # type: ignore
+            "DynamicEnum", {key: key for key in self._doc_fn_dict.keys()}
+        )
 
-        return _elements_html_route
+        @self._doc_pait(
+            pre_depend_list=[self._get_request_pin_code],
+            response_model_list=[DocHtmlRespModel],
+            feature_code=self.title,
+        )
+        def _doc_route(
+            route_path: dynamic_enum_class = Path.i(description="doc ui html"),  # type: ignore
+            url: str = Depends.i(self._gen_url_fn()),
+        ) -> ResponseT:
+            get_doc_route: Callable = self._doc_fn_dict[route_path.value]  # type: ignore
+            return self.html_response(get_doc_route(url, title=self.title))
 
-    def _get_redoc_html_route(self) -> Callable:
-        @self._doc_pait(response_model_list=[DocHtmlRespModel])
-        def _redoc_html_route(url: str = Depends.i(self._gen_url_fn())) -> ResponseT:
-            return self.html_response(self._get_redoc_html(url))
-
-        return _redoc_html_route
-
-    def _get_rapidoc_html_route(self) -> Callable:
-        @self._doc_pait(response_model_list=[DocHtmlRespModel])
-        def _rapidoc_html_route(url: str = Depends.i(self._gen_url_fn())) -> ResponseT:
-            return self.html_response(self._get_rapidoc_html(url))
-
-        return _rapidoc_html_route
-
-    def _get_rapipdf_html_route(self) -> Callable:
-        @self._doc_pait(response_model_list=[DocHtmlRespModel])
-        def _rapipdf_html_route(url: str = Depends.i(self._gen_url_fn())) -> ResponseT:
-            return self.html_response(self._get_rapipdf_html(url))
-
-        return _rapipdf_html_route
-
-    def _get_swagger_html_route(self) -> Callable:
-        @self._doc_pait(response_model_list=[DocHtmlRespModel])
-        def _swagger_html_route(url: str = Depends.i(self._gen_url_fn())) -> ResponseT:
-            return self.html_response(self._get_swagger_ui_html(url))
-
-        return _swagger_html_route
+        _doc_route.__name__ = self.title + "doc_route"
+        _doc_route.__qualname__ = _doc_route.__qualname__.replace("._doc_route", "." + _doc_route.__name__)
+        return _doc_route
 
     def _get_openapi_route(self, app: APP_T) -> Callable:
-        @self._doc_pait(pre_depend_list=[self._get_request_pin_code], response_model_list=[OpenAPIRespModel])
+        @self._doc_pait(
+            pre_depend_list=[self._get_request_pin_code],
+            response_model_list=[OpenAPIRespModel],
+            feature_code=self.title,
+        )
         def _openapi_route(
             url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map(extra_key=True)),
         ) -> ResponseT:

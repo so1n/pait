@@ -14,9 +14,9 @@ from sanic_testing.testing import SanicTestClient
 from sanic_testing.testing import TestingResponse as Response  # type: ignore
 
 from example.param_verify import sanic_example
-from pait.api_doc.html import get_rapidoc_html, get_rapipdf_html, get_redoc_html, get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenAPI
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
+from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.sanic import TestHelper as _TestHelper
 from pait.app.sanic import load_app
 from pait.model import response
@@ -107,22 +107,15 @@ class TestSanic:
 
     def test_doc_route(self, client: SanicTestClient) -> None:
         sanic_example.add_api_doc_route(client.app)
-        assert client.get("/swagger")[1].status_code == 404
-        assert client.get("/redoc")[1].status_code == 404
-        assert client.get("/rapidoc")[1].status_code == 404
-        assert client.get("/rapipdf")[1].status_code == 404
-        assert client.get("/swagger?pin_code=6666")[1].text == get_swagger_ui_html(
-            f"http://{client.host}:{client.port}/openapi.json?pin_code=6666", title="Pait Api Doc(private)"
-        )
-        assert client.get("/redoc?pin_code=6666")[1].text == get_redoc_html(
-            f"http://{client.host}:{client.port}/openapi.json?pin_code=6666", title="Pait Api Doc(private)"
-        )
-        assert client.get("/rapidoc?pin_code=6666")[1].text == get_rapidoc_html(
-            f"http://{client.host}:{client.port}/openapi.json?pin_code=6666"
-        )
-        assert client.get("/rapipdf?pin_code=6666")[1].text == get_rapipdf_html(
-            f"http://{client.host}:{client.port}/openapi.json?pin_code=6666"
-        )
+        for doc_route_path in default_doc_fn_dict.keys():
+            assert client.get(f"/{doc_route_path}")[1].status_code == 404
+            assert client.get(f"/api-doc/{doc_route_path}")[1].status_code == 200
+
+        for doc_route_path, fn in default_doc_fn_dict.items():
+            assert client.get(f"/{doc_route_path}?pin_code=6666")[1].text == fn(
+                f"http://{client.host}:{client.port}/openapi.json?pin_code=6666", title="Pait Api Doc(private)"
+            )
+
         assert (
             json.loads(client.get("/openapi.json?pin_code=6666&template-token=xxx")[1].text)["paths"]["/api/user"][
                 "get"

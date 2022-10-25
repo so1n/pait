@@ -55,17 +55,8 @@ class AddDocRoute(_AddDocRoute[Application, None]):
                     self.set_status(500)  # pragma: no cover
                     self.finish()  # pragma: no cover
 
-        class GetRedocHtmlHandle(BaseHandle, ABC):
-            get = self._get_redoc_html_route()
-
-        class GetRapiDocHtmlHandle(BaseHandle, ABC):
-            get = self._get_rapidoc_html_route()
-
-        class GetRapiPdfHtmlHandle(BaseHandle, ABC):
-            get = self._get_rapipdf_html_route()
-
-        class GetSwaggerUiHtmlHandle(BaseHandle, ABC):
-            get = self._get_swagger_html_route()
+        class GetdocHtmlHandle(BaseHandle, ABC):
+            get = self._get_doc_route()
 
         class OpenApiHandle(BaseHandle, ABC):
             get = self._get_openapi_route(app)
@@ -96,11 +87,8 @@ class AddDocRoute(_AddDocRoute[Application, None]):
         # Method 3
         app.wildcard_router.add_rules(
             [
-                (r"{}redoc".format(prefix), GetRedocHtmlHandle),
-                (r"{}swagger".format(prefix), GetSwaggerUiHtmlHandle),
-                (r"{}rapidoc".format(prefix), GetRapiDocHtmlHandle),
-                (r"{}rapipdf".format(prefix), GetRapiPdfHtmlHandle),
                 (r"{}openapi.json".format(prefix), OpenApiHandle),
+                (r"{}(?P<route_path>\w+)".format(prefix), GetdocHtmlHandle),
             ]
         )
         from tornado.web import AnyMatches, Rule, _ApplicationRouter
@@ -111,7 +99,7 @@ class AddDocRoute(_AddDocRoute[Application, None]):
 def add_doc_route(
     app: Application,
     scheme: Optional[str] = None,
-    open_json_url_only_path: bool = False,
+    openapi_json_url_only_path: bool = False,
     prefix: str = "",
     pin_code: str = "",
     title: str = "",
@@ -120,7 +108,7 @@ def add_doc_route(
 ) -> None:
     AddDocRoute(
         scheme=scheme,
-        open_json_url_only_path=open_json_url_only_path,
+        openapi_json_url_only_path=openapi_json_url_only_path,
         prefix=prefix,
         pin_code=pin_code,
         title=title,

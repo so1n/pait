@@ -20,11 +20,7 @@ class AddDocRoute(_AddDocRoute[Flask, Response]):
 
     def _gen_route(self, app: Flask) -> Any:
         blueprint: Blueprint = Blueprint(self.title, __name__, url_prefix=self.prefix)
-        blueprint.add_url_rule("/redoc", view_func=self._get_redoc_html_route(), methods=["GET"])
-        blueprint.add_url_rule("/swagger", view_func=self._get_swagger_html_route(), methods=["GET"])
-        blueprint.add_url_rule("/rapidoc", view_func=self._get_rapidoc_html_route(), methods=["GET"])
-        blueprint.add_url_rule("/rapipdf", view_func=self._get_rapipdf_html_route(), methods=["GET"])
-        blueprint.add_url_rule("/elements", view_func=self._get_elements_html_route(), methods=["GET"])
+        blueprint.add_url_rule("/<path:route_path>", "doc ui route", view_func=self._get_doc_route(), methods=["GET"])
         blueprint.add_url_rule("/openapi.json", view_func=self._get_openapi_route(app), methods=["GET"])
         app.register_blueprint(blueprint)
 
@@ -32,7 +28,7 @@ class AddDocRoute(_AddDocRoute[Flask, Response]):
 def add_doc_route(
     app: Flask,
     scheme: Optional[str] = None,
-    open_json_url_only_path: bool = False,
+    openapi_json_url_only_path: bool = False,
     prefix: str = "",
     pin_code: str = "",
     title: str = "",
@@ -41,7 +37,7 @@ def add_doc_route(
 ) -> None:
     AddDocRoute(
         scheme=scheme,
-        open_json_url_only_path=open_json_url_only_path,
+        openapi_json_url_only_path=openapi_json_url_only_path,
         prefix=prefix,
         pin_code=pin_code,
         title=title,

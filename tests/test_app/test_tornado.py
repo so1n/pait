@@ -12,9 +12,9 @@ from tornado.testing import AsyncHTTPTestCase, HTTPResponse
 from tornado.web import Application
 
 from example.param_verify import tornado_example
-from pait.api_doc.html import get_rapidoc_html, get_rapipdf_html, get_redoc_html, get_swagger_ui_html
 from pait.api_doc.open_api import PaitOpenAPI
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
+from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.tornado import TestHelper as _TestHelper
 from pait.app.tornado import load_app
 from pait.model import response
@@ -107,28 +107,14 @@ class TestTornado(BaseTestTornado):
 
     def test_doc_route(self) -> None:
         tornado_example.add_api_doc_route(self._app)
-        assert self.fetch("/swagger").code == 404
-        assert self.fetch("/redoc").code == 404
-        assert self.fetch("/rapidoc").code == 404
-        assert self.fetch("/rapipdf").code == 404
-        assert self.fetch("/swagger?pin_code=6666").body.decode() == get_swagger_ui_html(
-            self.get_url("/openapi.json?pin_code=6666"), title="Pait Api Doc(private)"
-        )
-        assert self.fetch("/redoc?pin_code=6666").body.decode() == get_redoc_html(
-            self.get_url("/openapi.json?pin_code=6666"), title="Pait Api Doc(private)"
-        )
-        assert self.fetch("/rapidoc?pin_code=6666").body.decode() == get_rapidoc_html(
-            self.get_url("/openapi.json?pin_code=6666")
-        )
-        assert self.fetch("/rapipdf?pin_code=6666").body.decode() == get_rapipdf_html(
-            self.get_url("/openapi.json?pin_code=6666")
-        )
-        assert (
-            json.loads(self.fetch("/openapi.json?pin_code=6666&template-token=xxx").body.decode())["paths"][
-                "/api/user"
-            ]["get"]["parameters"][0]["schema"]["example"]
-            == "xxx"
-        )
+        for doc_route_path in default_doc_fn_dict.keys():
+            assert self.fetch(f"/{doc_route_path}").code == 404
+            assert self.fetch(f"/api-doc/{doc_route_path}").code == 200
+
+        for doc_route_path, fn in default_doc_fn_dict.items():
+            assert self.fetch(f"/{doc_route_path}?pin_code=6666").body.decode() == fn(
+                self.get_url("/openapi.json?pin_code=6666"), title="Pait Api Doc(private)"
+            )
 
         assert (
             difflib.SequenceMatcher(

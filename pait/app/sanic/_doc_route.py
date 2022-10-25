@@ -24,10 +24,7 @@ class AddDocRoute(_AddDocRoute[Sanic, HTTPResponse]):
 
     def _gen_route(self, app: Sanic) -> Any:
         blueprint: Blueprint = Blueprint(self.title, self.prefix)
-        blueprint.add_route(self._get_redoc_html_route(), "/redoc", methods={"GET"})
-        blueprint.add_route(self._get_swagger_html_route(), "/swagger", methods={"GET"})
-        blueprint.add_route(self._get_rapidoc_html_route(), "/rapidoc", methods={"GET"})
-        blueprint.add_route(self._get_rapipdf_html_route(), "/rapipdf", methods={"GET"})
+        blueprint.add_route(self._get_doc_route(), "/<route_path>", methods={"GET"})
         blueprint.add_route(self._get_openapi_route(app), "/openapi.json", methods={"GET"})
         app.blueprint(blueprint)
 
@@ -35,7 +32,7 @@ class AddDocRoute(_AddDocRoute[Sanic, HTTPResponse]):
 def add_doc_route(
     app: Sanic,
     scheme: Optional[str] = None,
-    open_json_url_only_path: bool = False,
+    openapi_json_url_only_path: bool = False,
     prefix: str = "",
     pin_code: str = "",
     title: str = "",
@@ -44,7 +41,7 @@ def add_doc_route(
 ) -> None:
     AddDocRoute(
         scheme=scheme,
-        open_json_url_only_path=open_json_url_only_path,
+        openapi_json_url_only_path=openapi_json_url_only_path,
         prefix=prefix,
         pin_code=pin_code,
         title=title,

@@ -246,7 +246,7 @@ class PaitOpenAPI(PaitBaseParse):
                 #   https://swagger.io/docs/specification/describing-parameters/
 
                 # param_name = self._header_keyword_dict.get(param_name, param_name)
-            elif field_class == pait_field.Path and not required:
+            elif field_class == pait_field.Path and not required and field_dict.get("type", "") != "enum":
                 raise ValueError("That path parameters must have required: true, because they are always required")
             elif field_class == pait_field.Cookie:
                 if field_dict["raw"]["field"].raw_return:
