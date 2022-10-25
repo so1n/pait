@@ -24,6 +24,7 @@ class AddDocRoute(_AddDocRoute[Flask, Response]):
         blueprint.add_url_rule("/swagger", view_func=self._get_swagger_html_route(), methods=["GET"])
         blueprint.add_url_rule("/rapidoc", view_func=self._get_rapidoc_html_route(), methods=["GET"])
         blueprint.add_url_rule("/rapipdf", view_func=self._get_rapipdf_html_route(), methods=["GET"])
+        blueprint.add_url_rule("/elements", view_func=self._get_elements_html_route(), methods=["GET"])
         blueprint.add_url_rule("/openapi.json", view_func=self._get_openapi_route(app), methods=["GET"])
         app.register_blueprint(blueprint)
 

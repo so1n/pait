@@ -5,6 +5,7 @@ from urllib.parse import urlencode
 
 from pydantic import BaseModel
 
+from pait.api_doc.html import get_elements_html as _get_elements_html
 from pait.api_doc.html import get_rapidoc_html as _get_rapidoc_html
 from pait.api_doc.html import get_rapipdf_html as _get_rapipdf_html
 from pait.api_doc.html import get_redoc_html as _get_redoc_html
@@ -145,6 +146,9 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
             post_plugin_list=post_plugin_list,
         )
 
+    def _get_elements_html(self, url: str) -> str:
+        return _get_elements_html(url, title=self.title)
+
     def _get_redoc_html(self, url: str) -> str:
         return _get_redoc_html(
             url,
@@ -174,6 +178,13 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
 
     def _gen_route(self, app: APP_T) -> Any:  # type: ignore
         raise NotImplementedError()
+
+    def _get_elements_html_route(self) -> Callable:
+        @self._doc_pait(response_model_list=[DocHtmlRespModel])
+        def _elements_html_route(url: str = Depends.i(self._gen_url_fn())) -> ResponseT:
+            return self.html_response(self._get_elements_html(url))
+
+        return _elements_html_route
 
     def _get_redoc_html_route(self) -> Callable:
         @self._doc_pait(response_model_list=[DocHtmlRespModel])
