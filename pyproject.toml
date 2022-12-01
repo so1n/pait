@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pait"
-version = "0.8.0"
+version = "0.8.0.1"
 description = "Pait is a Python api tool. Pait enables your Python web framework to have type checking, parameter type conversion, interface document generation and can display your documents through Redoc or Swagger (power by inspect, pydantic)"
 authors = ["So1n <so1n897046026@gmail.com>"]
 license = "Apache Software License"
@@ -12,7 +12,7 @@ homepage = "https://github.com/so1n/pait"
 python = "^3.7"
 pydantic = "^1.7.3"
 typing-extensions = "^4.1.1"
-protobuf-to-pydantic = { version="^0.1.4", optional = true}
+protobuf-to-pydantic = { version="^0.1.5", optional = true}
 redis = { version = "^4.2.2", optional = true }
 
 [tool.poetry.extras]
