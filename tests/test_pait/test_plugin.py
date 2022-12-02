@@ -141,7 +141,7 @@ class TestAutoCompleteJsonPlugin:
                     demo,
                     BaseAppHelper,
                 ),
-                {"pait_response_model": ""},
+                {"default_response_dict": ""},
             )
 
         exec_msg: str = e.value.args[0]

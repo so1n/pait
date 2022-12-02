@@ -1,6 +1,5 @@
+import copy
 from typing import TYPE_CHECKING, Any, Dict, Type
-
-from pydantic import BaseModel
 
 from pait.model.response import PaitBaseResponseModel, PaitJsonResponseModel
 from pait.plugin.base import PluginProtocol
@@ -11,17 +10,30 @@ if TYPE_CHECKING:
 
 
 class AutoCompleteJsonRespPlugin(PluginProtocol):
-    """According to the response object, automatically fill in the missing value of json"""
+    default_response_dict: dict
 
-    response_data_model: Type[BaseModel]
+    def _merge(self, source_dict: dict, target_dict: dict) -> None:
+        for key, value in source_dict.items():
+            if isinstance(value, dict) and key in target_dict:
+                self._merge(value, target_dict[key])
+            elif value and isinstance(value, list) and key in target_dict:
+                raw_value = value.pop()
+                for item in target_dict[key]:
+                    new_value = copy.deepcopy(raw_value)
+                    self._merge(new_value, item)
+                    value.append(new_value)
+            else:
+                source_dict[key] = target_dict.get(key, value)
 
     def merge(self, response_dict: dict) -> dict:
-        return self.response_data_model(**response_dict).dict()
+        default_response_dict: dict = copy.deepcopy(self.default_response_dict)
+        self._merge(default_response_dict, response_dict)
+        return default_response_dict
 
     @classmethod
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
         super().pre_check_hook(pait_core_model, kwargs)
-        if "pait_response_model" in kwargs:
+        if "default_response_dict" in kwargs:
             raise RuntimeError("Please use response_model_list param")
 
     @classmethod
@@ -32,7 +44,7 @@ class AutoCompleteJsonRespPlugin(PluginProtocol):
         )
         if not issubclass(pait_response_model, PaitJsonResponseModel):
             raise ValueError(f"pait_response_model must {PaitJsonResponseModel} not {pait_response_model}")
-        kwargs["response_data_model"] = pait_response_model.response_data
+        kwargs["default_response_dict"] = pait_response_model.get_default_dict()
         return kwargs
 
     def _sync_call(self, *args: Any, **kwargs: Any) -> Any:
