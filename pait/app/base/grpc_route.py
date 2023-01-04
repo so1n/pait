@@ -9,13 +9,13 @@ from pydantic import BaseModel
 
 from pait.core import Pait
 from pait.field import BaseField, Body, Query
-from pait.model.response import PaitBaseResponseModel, PaitJsonResponseModel
+from pait.model.response import BaseResponseModel, PaitJsonResponseModel
 from pait.model.tag import Tag
 from pait.util.grpc_inspect.stub import GrpcModel, ParseStub
 from pait.util.grpc_inspect.types import Message, MessageToDict
 
 
-def _gen_response_model_handle(grpc_model: GrpcModel) -> Type[PaitBaseResponseModel]:
+def _gen_response_model_handle(grpc_model: GrpcModel) -> Type[BaseResponseModel]:
     class CustomerJsonResponseModel(PaitJsonResponseModel):
         name: str = grpc_model.response.DESCRIPTOR.name
         description: str = grpc_model.response.__doc__ or ""
@@ -48,7 +48,7 @@ class BaseGrpcGatewayRoute(object):
         pait: Optional[Pait] = None,
         make_response: Optional[Callable] = None,
         url_handler: Callable[[str], str] = lambda x: x.replace(".", "-"),
-        gen_response_model_handle: Optional[Callable[[GrpcModel], Type[PaitBaseResponseModel]]] = None,
+        gen_response_model_handle: Optional[Callable[[GrpcModel], Type[BaseResponseModel]]] = None,
     ):
         """
         :param app: Instance object of the web framework
@@ -74,7 +74,7 @@ class BaseGrpcGatewayRoute(object):
         self.parse_dict: Optional[Callable] = parse_dict
 
         self.url_handler: Callable[[str], str] = url_handler
-        self._gen_response_model_handle: Callable[[GrpcModel], Type[PaitBaseResponseModel]] = (
+        self._gen_response_model_handle: Callable[[GrpcModel], Type[BaseResponseModel]] = (
             gen_response_model_handle or _gen_response_model_handle
         )
         self._pait: Pait = pait or self.pait
@@ -115,7 +115,7 @@ class BaseGrpcGatewayRoute(object):
                 self._tag_dict[tag] = pait_tag
             tag_list.append(pait_tag)
 
-        response_model_list: List[Type[PaitBaseResponseModel]] = [self._gen_response_model_handle(grpc_model)]
+        response_model_list: List[Type[BaseResponseModel]] = [self._gen_response_model_handle(grpc_model)]
         if self._pait._response_model_list:
             response_model_list.extend(self._pait._response_model_list)
 

@@ -10,7 +10,7 @@ from pait import field as pait_field
 from pait.api_doc.base_parse import PaitBaseParse
 from pait.g import config
 from pait.model.core import PaitCoreModel
-from pait.model.response import PaitBaseResponseModel
+from pait.model.response import BaseResponseModel
 from pait.model.status import PaitStatus
 from pait.util import create_pydantic_model, get_model_global_name, pait_model_schema
 
@@ -157,7 +157,7 @@ class PaitOpenAPI(PaitBaseParse):
         openapi_response_dict: dict = openapi_method_dict.setdefault("responses", {})
         response_schema_dict: Dict[tuple, List[Dict[str, str]]] = {}
         for resp_model_class in pait_model.response_model_list:
-            resp_model: PaitBaseResponseModel = resp_model_class()
+            resp_model: BaseResponseModel = resp_model_class()
             global_model_name: str = ""
             if (
                 getattr(resp_model, "response_data", None)
@@ -179,11 +179,11 @@ class PaitOpenAPI(PaitBaseParse):
                     if resp_model.description:
                         openapi_response_dict[_status_code]["description"] += f"|{resp_model.description}"
                     if resp_model.header:
-                        openapi_response_dict[_status_code]["headers"].update(resp_model.header)
+                        openapi_response_dict[_status_code]["headers"].update(resp_model.get_header_example_dict())
                 else:
                     openapi_response_dict[_status_code] = {
                         "description": resp_model.description or "",
-                        "headers": resp_model.header,
+                        "headers": resp_model.get_header_example_dict(),
                     }
                 if _status_code == 204:
                     # 204 No Content, have no body.
@@ -191,8 +191,8 @@ class PaitOpenAPI(PaitBaseParse):
                     continue
 
                 openapi_response_dict[_status_code]["content"] = {}
-                if resp_model.links_schema_dict:
-                    openapi_response_dict[_status_code]["links"] = resp_model.links_schema_dict
+                # if resp_model.links_schema_dict:
+                #    openapi_response_dict[_status_code]["links"] = resp_model.links_schema_dict
 
                 if global_model_name:
                     openapi_schema_dict: dict = {"$ref": f"#/components/schemas/{global_model_name}"}

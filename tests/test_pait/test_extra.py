@@ -6,7 +6,7 @@ from pydantic import BaseConfig, BaseModel, Field
 from pait.app.base import BaseAppHelper
 from pait.extra import config
 from pait.model.core import PaitCoreModel
-from pait.model.response import PaitBaseResponseModel, PaitJsonResponseModel
+from pait.model.response import BaseResponseModel, PaitJsonResponseModel
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
 from pait.plugin.at_most_one_of import AtMostOneOfPlugin
@@ -176,7 +176,7 @@ class TestApplyFun:
             assert i.extra_openapi_model_list == [DemoModel]
 
     def test_apply_response_model(self) -> None:
-        class CoreResponseModel(PaitBaseResponseModel):
+        class CoreResponseModel(BaseResponseModel):
             is_core: bool = True
 
         for i in self.core_model_list:

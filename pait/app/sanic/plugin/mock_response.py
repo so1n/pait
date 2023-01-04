@@ -38,7 +38,7 @@ class MockPlugin(BaseAsyncMockPlugin):
                 raise NotImplementedError(f"make_mock_response not support {self.pait_response_model}")
             resp.status = self.pait_response_model.status_code[0]
             if self.pait_response_model.header:
-                resp.headers.update(self.pait_response_model.header)
+                resp.headers.update(self.pait_response_model.get_header_example_dict())
             return resp
 
         return make_mock_response()

@@ -10,6 +10,31 @@ Note: This version will have syntax changes that are not backward compatible, an
 Function Changes:
 
 API Changes:
+- `@pait` tag parameter type only supports the Tag class. e.g:
+   ```python
+   from pait.app.starlette import pait
+   from pait import Tag
+
+   @pait(tag=Tag("Demo"))
+   def demo() -> None:
+       pass
+   ```
+- `pait.model.response.PaitBaseResponseModel`change name to`BaseResponseModel`
+   ```python
+   from pait.model.response import BaseResponseModel
+   ```
+- `ResponseModel.header` param type only support `pydantic.BaseModel`. e.g:
+   ```python
+   from pait import HtmlResponseModel
+   from pydantic import BaseModel, Field
+
+   class HtmlRespModel(HtmlResponseModel):
+       class HeaderModel(BaseModel):
+           x_example_type: str = Field(default="html", alias="X-Example-Type")
+
+       header: BaseModel = HeaderModel
+       description: str = "html response"
+   ```
 
 ### 0.8.0
 Rewrite part of the implementation of gRPC Gateway, and transfer some functions to [protobuf_to_pydantic](https://github.com/so1n/protobuf_to_pydantic)

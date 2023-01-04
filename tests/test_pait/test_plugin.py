@@ -197,7 +197,7 @@ class TestMockPlugin:
         def demo() -> None:
             pass
 
-        def filter_response(pait_response: Type[response.PaitBaseResponseModel]) -> bool:
+        def filter_response(pait_response: Type[response.BaseResponseModel]) -> bool:
             if issubclass(pait_response, response.PaitTextResponseModel):
                 return True
             else:

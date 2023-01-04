@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from pait import field
 
     from .core import PaitCoreModel
-    from .response import PaitBaseResponseModel
+    from .response import BaseResponseModel
 
 
 __all__ = ["LinksModel"]
@@ -19,7 +19,7 @@ class LinksModel(object):
     operation_id: str
     parameters_dict: dict
 
-    def __init__(self, pait_response_model: "Type[PaitBaseResponseModel]", openapi_runtime_expr: str, desc: str = ""):
+    def __init__(self, pait_response_model: "Type[BaseResponseModel]", openapi_runtime_expr: str, desc: str = ""):
         """
         doc: https://swagger.io/docs/specification/links/
         :param pait_response_model: pait response model
@@ -29,14 +29,14 @@ class LinksModel(object):
         :param desc: links desc
         """
         self.openapi_runtime_expr: str = openapi_runtime_expr
-        self.pait_response_model: "Type[PaitBaseResponseModel]" = pait_response_model
+        self.pait_response_model: "Type[BaseResponseModel]" = pait_response_model
         self.desc: str = desc
         self._cache: dict = {}
 
     def _check_openapi_runtime_expr(self) -> None:
         if self.openapi_runtime_expr.startswith("$response.header."):
             header_key: str = self.openapi_runtime_expr.replace("$response.header.", "")
-            if header_key not in self.pait_response_model.header:
+            if header_key not in self.pait_response_model.get_header_example_dict():
                 raise KeyError(f"Can not found header key:{header_key} from {self.pait_response_model}")
         elif self.openapi_runtime_expr.startswith("$response.body#"):
             if not self.pait_response_model.is_base_model_response_data():

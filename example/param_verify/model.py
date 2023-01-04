@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 
 from pait.field import Body, Depends, Header, Query
 from pait.model.response import (
-    PaitBaseResponseModel,
+    BaseResponseModel,
     PaitFileResponseModel,
     PaitHtmlResponseModel,
     PaitJsonResponseModel,
@@ -18,7 +18,7 @@ from pait.model.response import (
 from pait.util.grpc_inspect.stub import GrpcModel
 
 
-def gen_response_model_handle(grpc_model: GrpcModel) -> Type[PaitBaseResponseModel]:
+def gen_response_model_handle(grpc_model: GrpcModel) -> Type[BaseResponseModel]:
     class CustomerJsonResponseModel(PaitJsonResponseModel):
         class CustomerJsonResponseRespModel(BaseModel):
             code: int = Field(0, description="api code")
@@ -218,17 +218,26 @@ class SimpleRespModel(PaitJsonResponseModel):
 
 
 class TextRespModel(PaitTextResponseModel):
-    header: dict = {"X-Example-Type": "text"}
+    class HeaderModel(BaseModel):
+        x_example_type: str = Field(default="text", alias="X-Example-Type")
+
+    header: BaseModel = HeaderModel
     description: str = "text response"
 
 
 class HtmlRespModel(PaitHtmlResponseModel):
-    header: dict = {"X-Example-Type": "html"}
+    class HeaderModel(BaseModel):
+        x_example_type: str = Field(default="html", alias="X-Example-Type")
+
+    header: BaseModel = HeaderModel
     description: str = "html response"
 
 
 class FileRespModel(PaitFileResponseModel):
-    header: dict = {"X-Example-Type": "file"}
+    class HeaderModel(BaseModel):
+        x_example_type: str = Field(default="file", alias="X-Example-Type")
+
+    header: BaseModel = HeaderModel
     description: str = "file response"
 
 

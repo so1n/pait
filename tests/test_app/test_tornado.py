@@ -39,9 +39,7 @@ class BaseTestTornado(AsyncHTTPTestCase):
 
 
 class TestTornado(BaseTestTornado):
-    def response_test_helper(
-        self, route_handler: Callable, pait_response: Type[response.PaitBaseResponseModel]
-    ) -> None:
+    def response_test_helper(self, route_handler: Callable, pait_response: Type[response.BaseResponseModel]) -> None:
         from pait.app.tornado.plugin.mock_response import MockPlugin
 
         test_helper: _TestHelper = _TestHelper(self, route_handler)
@@ -49,7 +47,7 @@ class TestTornado(BaseTestTornado):
 
         with enable_plugin(route_handler, MockPlugin.build()):
             resp: HTTPResponse = test_helper.get()
-            for key, value in pait_response.header.items():
+            for key, value in pait_response.get_header_example_dict().items():
                 assert resp.headers[key] == value
             if issubclass(pait_response, response.PaitHtmlResponseModel) or issubclass(
                 pait_response, response.PaitTextResponseModel

@@ -29,7 +29,7 @@ class BaseTestHelper(Generic[RESP_T]):
         query_dict: Optional[dict] = None,
         strict_inspection_check_json_content: bool = True,
         find_coro_response_model: bool = False,
-        target_pait_response_class: Optional[Type["response.PaitBaseResponseModel"]] = None,
+        target_pait_response_class: Optional[Type["response.BaseResponseModel"]] = None,
     ):
         """
         :param client:  test client
@@ -87,7 +87,7 @@ class BaseTestHelper(Generic[RESP_T]):
             self.path = "/" + self.path
 
         self.find_coro_response_model: bool = find_coro_response_model
-        self.target_pait_response_class: Optional[Type["response.PaitBaseResponseModel"]] = target_pait_response_class
+        self.target_pait_response_class: Optional[Type["response.BaseResponseModel"]] = target_pait_response_class
         self._app_init_field()
 
     def _app_init_field(self) -> None:
@@ -159,10 +159,10 @@ class BaseTestHelper(Generic[RESP_T]):
         if not self.pait_core_model.response_model_list:
             return
 
-        real_response_model: Optional[Type[response.PaitBaseResponseModel]] = None
+        real_response_model: Optional[Type[response.BaseResponseModel]] = None
         max_quick_ratio: float = 0.0
-        model_check_msg_dict: Dict[Type[response.PaitBaseResponseModel], List[str]] = {}
-        response_model_list: List[Type[response.PaitBaseResponseModel]] = (
+        model_check_msg_dict: Dict[Type[response.BaseResponseModel], List[str]] = {}
+        response_model_list: List[Type[response.BaseResponseModel]] = (
             self.pait_core_model.response_model_list
             if not self.find_coro_response_model
             else [
@@ -192,14 +192,14 @@ class BaseTestHelper(Generic[RESP_T]):
                 )
 
             resp_header: Mapping = self._get_headers(resp)
-            for key, _ in response_model.header.items():
+            for key, _ in response_model.get_header_example_dict().items():
                 if key not in resp_header:
                     error_msg_list.append(
                         f"check header error. Can not found header:{key} in {str(resp_header).strip()}"
                     )
 
             # check content
-            if issubclass(response_model, response.PaitJsonResponseModel):
+            if issubclass(response_model, response.JsonResponseModel):
                 response_data_model: Type[BaseModel] = response_model.response_data
                 resp_dict: Optional[dict] = self._get_json(resp)
                 if not resp_dict:
@@ -223,13 +223,13 @@ class BaseTestHelper(Generic[RESP_T]):
                 except (ValidationError, RuntimeError) as e:
                     error_msg_list.append(f"check json content error, exec: {e}")
 
-            elif issubclass(response_model, response.PaitHtmlResponseModel) or issubclass(
-                response_model, response.PaitTextResponseModel
+            elif issubclass(response_model, response.HtmlResponseModel) or issubclass(
+                response_model, response.TextResponseModel
             ):
                 real_response_model = response_model
                 if not isinstance(self._get_text(resp), type(response_model.response_data)):
                     error_msg_list.append("check text content type error")  # pragma: no cover
-            elif issubclass(response_model, response.PaitFileResponseModel):
+            elif issubclass(response_model, response.FileResponseModel):
                 real_response_model = response_model
                 if not isinstance(self._get_bytes(resp), type(response_model.response_data)):
                     error_msg_list.append("check bytes content type error")  # pragma: no cover

@@ -49,7 +49,7 @@ def base_test() -> Generator[BaseTest, None, None]:
 
 
 def response_test_helper(
-    client: FlaskClient, route_handler: Callable, pait_response: Type[response.PaitBaseResponseModel]
+    client: FlaskClient, route_handler: Callable, pait_response: Type[response.BaseResponseModel]
 ) -> None:
     from pait.app.flask.plugin.mock_response import MockPlugin
 
@@ -58,7 +58,8 @@ def response_test_helper(
 
     with enable_plugin(route_handler, MockPlugin.build()):
         resp: Response = test_helper.get()
-        for key, value in pait_response.header.items():
+
+        for key, value in pait_response.get_header_example_dict().items():
             assert resp.headers[key] == value
         if issubclass(pait_response, response.PaitHtmlResponseModel) or issubclass(
             pait_response, response.PaitTextResponseModel

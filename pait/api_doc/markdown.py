@@ -1,6 +1,6 @@
 import json
 from types import CodeType
-from typing import Dict, List, Type
+from typing import Dict, List, Type, Union
 
 from pydantic import BaseModel
 from pydantic.fields import Undefined
@@ -167,19 +167,18 @@ class PaitMd(PaitBaseParse):
                         )
                         if resp_model.header:
                             markdown_text += f"{' ' * 8}- Header\n"
-                            markdown_text += f"{' ' * 12}{resp_model.header}\n"
+                            markdown_text += f"{' ' * 12}{resp_model.get_header_example_dict()}\n"
 
-                        if isinstance(resp_model.response_data, type) and issubclass(
-                            resp_model.response_data, BaseModel
-                        ):
+                        response_data: Union[Type[BaseModel], str, bytes, None] = resp_model.response_data
+                        if isinstance(response_data, type) and issubclass(response_data, BaseModel):
                             markdown_text += f"{' ' * 8}- {join_i18n([I18n.Response, I18n.Data])}\n\n"
-                            field_dict_list = self._parse_schema(resp_model.response_data.schema())
+                            field_dict_list = self._parse_schema(response_data.schema())
                             # field_dict: FieldDictType = {}
                             markdown_text += self.gen_md_param_table(field_dict_list, blank_num=12)
                             markdown_text += (
                                 f"{' ' * 8}- " f"{join_i18n([I18n.Example, I18n.Response, 'Json', I18n.Data])} \n\n"
                             )
-                            example_dict: dict = gen_example_dict_from_schema(resp_model.response_data.schema())
+                            example_dict: dict = gen_example_dict_from_schema(response_data.schema())
                             blank_num_str: str = " " * 12
                             json_str: str = "\n".join(
                                 [blank_num_str + i for i in json.dumps(example_dict, indent=2).split("\n")]

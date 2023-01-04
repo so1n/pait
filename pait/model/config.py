@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, Tupl
 
 from pydantic import BaseConfig
 
-from pait.model.response import PaitBaseResponseModel
+from pait.model.response import BaseResponseModel
 from pait.model.status import PaitStatus
 from pait.util import CustomJSONEncoder, I18nTypedDict, change_local
 from pait.util import i18n_config_dict as pait_i18n_config_dict
@@ -31,7 +31,7 @@ class Config(object):
         self.author: Tuple[str, ...] = ("",)
         self.status: PaitStatus = PaitStatus.undefined
         self.block_http_method_set: Set[str] = set()
-        self.default_response_model_list: List[Type[PaitBaseResponseModel]] = []
+        self.default_response_model_list: List[Type[BaseResponseModel]] = []
         self.json_encoder: Type[JSONEncoder] = CustomJSONEncoder
         self.default_pydantic_model_config: Type[BaseConfig] = BaseConfig
         self.tag_dict: Dict[str, str] = {}

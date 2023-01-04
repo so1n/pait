@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 from decimal import Decimal
-from typing import Type
+from typing import Type, Union
 
 import pytest
 from pydantic import BaseModel, Field
@@ -50,7 +50,7 @@ class TestConfigModel:
 
 class TestLinksModel:
     def test_links_model(self) -> None:
-        class DemoResponseModel(response.PaitBaseResponseModel):
+        class DemoResponseModel(response.BaseResponseModel):
             response_data = ""
 
         # not found header
@@ -85,11 +85,13 @@ class TestTagModel:
 
 
 class TestResponseModel:
-    def test_json_response_model(self) -> None:
+    def _test_dict_response_model(
+        self, parent_response_class: Union[Type[response.JsonResponseModel], Type[response.XmlResponseModel]]
+    ) -> None:
         def factory_value() -> str:
             return "mock"
 
-        class DemoJsonResponseModel(response.PaitJsonResponseModel):
+        class DemoResponseModel(parent_response_class):  # type: ignore
             class DataModel(BaseModel):
                 class SubModel(BaseModel):
                     normal_str_value: str = Field()
@@ -107,11 +109,11 @@ class TestResponseModel:
                 default_factory_value: str = Field(default_factory=factory_value)
                 example_value: str = Field(example="example_value")
                 example_factory_value: str = Field(example=factory_value)
-                sub_data: "SubModel"
+                sub_data: SubModel
 
             response_data: Type[BaseModel] = DataModel
 
-        assert DemoJsonResponseModel.get_default_dict() == {
+        assert DemoResponseModel.get_default_dict() == {
             "default_value": "default",
             "default_factory_value": factory_value(),
             "example_value": "",
@@ -129,7 +131,7 @@ class TestResponseModel:
                 "normal_enum_value": SexEnum.man.value,  # type: ignore
             },
         }
-        assert DemoJsonResponseModel.get_example_value() == {
+        assert DemoResponseModel.get_example_value() == {
             "default_value": "default",
             "default_factory_value": factory_value(),
             "example_value": "example_value",
@@ -147,3 +149,11 @@ class TestResponseModel:
                 "normal_enum_value": SexEnum.man.value,  # type: ignore
             },
         }
+
+    def test_json_response_model(self) -> None:
+        for i in [response.JsonResponseModel, response.PaitJsonResponseModel]:
+            self._test_dict_response_model(i)  # type: ignore
+
+    def test_xml_response_model(self) -> None:
+        for i in [response.XmlResponseModel, response.PaitXmlResponseModel]:
+            self._test_dict_response_model(i)  # type: ignore

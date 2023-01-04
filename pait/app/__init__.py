@@ -8,7 +8,7 @@ from pait.core import PluginManager, Tag
 from pait.model.status import PaitStatus
 
 from ..model.core import PaitCoreModel  # type: ignore
-from ..model.response import PaitBaseResponseModel  # type: ignore
+from ..model.response import BaseResponseModel  # type: ignore
 from .auto_load_app import auto_load_app_class  # type: ignore
 from .base.util import sniffing
 
@@ -87,8 +87,8 @@ def pait(
     group: Optional[str] = None,
     tag: Optional[Tuple[Tag, ...]] = None,
     append_tag: Optional[Tuple[str, ...]] = None,
-    response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
-    append_response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
+    response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
+    append_response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
     plugin_list: Optional[List[PluginManager]] = None,
     append_plugin_list: Optional[List[PluginManager]] = None,
     param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,

@@ -52,7 +52,7 @@ def base_test() -> Generator[BaseTest, None, None]:
 def response_test_helper(
     client: TestClient,
     route_handler: Callable,
-    pait_response: Type[response.PaitBaseResponseModel],
+    pait_response: Type[response.BaseResponseModel],
     plugin: Type[Union[BaseMockPlugin, BaseAsyncMockPlugin]],
 ) -> None:
 
@@ -61,7 +61,7 @@ def response_test_helper(
 
     with enable_plugin(route_handler, plugin.build()):
         resp: Response = test_helper.get()
-        for key, value in pait_response.header.items():
+        for key, value in pait_response.get_header_example_dict().items():
             assert resp.headers[key] == value
         if issubclass(pait_response, response.PaitHtmlResponseModel) or issubclass(
             pait_response, response.PaitTextResponseModel

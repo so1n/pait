@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, Generic, List, Optional, Type, TypeVar
 from urllib.parse import urlencode
 from warnings import warn
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from pait.api_doc.html import get_elements_html as _get_elements_html
 from pait.api_doc.html import get_rapidoc_html as _get_rapidoc_html
@@ -17,7 +17,7 @@ from pait.core import Pait, PluginManager
 from pait.field import Depends, Path, Query
 from pait.g import config, pait_context
 from pait.model.core import PaitCoreModel
-from pait.model.response import PaitHtmlResponseModel, PaitJsonResponseModel
+from pait.model.response import HtmlResponseModel, JsonResponseModel
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
 from pait.model.template import TemplateContext
@@ -26,12 +26,15 @@ logger: logging.Logger = logging.getLogger(__name__)
 __all__ = ["DocHtmlRespModel", "OpenAPIRespModel", "AddDocRoute", "default_doc_fn_dict"]
 
 
-class DocHtmlRespModel(PaitHtmlResponseModel):
-    header: dict = {"X-Example-Type": "html"}
+class DocHtmlRespModel(HtmlResponseModel):
+    class HeaderModel(BaseModel):
+        x_example_type: str = Field(default="html", alias="X-Example-Type")
+
+    header: BaseModel = HeaderModel
     description: str = "doc html response"
 
 
-class OpenAPIRespModel(PaitJsonResponseModel):
+class OpenAPIRespModel(JsonResponseModel):
     class OpenAPIResponseModel(BaseModel):
         pass
 

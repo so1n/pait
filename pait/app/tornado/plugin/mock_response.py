@@ -13,7 +13,7 @@ class MockPlugin(BaseMockPlugin):
     def mock_response(self) -> Any:
         async def make_mock_response() -> Any:
             self.tornado_handle.set_status(self.pait_response_model.status_code[0])
-            for key, value in self.pait_response_model.header.items():
+            for key, value in self.pait_response_model.get_header_example_dict().items():
                 self.tornado_handle.set_header(key, value)
             self.tornado_handle.set_header("Content-Type", self.pait_response_model.media_type)
             if issubclass(self.pait_response_model, response.PaitJsonResponseModel):

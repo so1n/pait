@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Typ
 
 from pydantic import BaseConfig, BaseModel
 
-from pait.model.response import PaitBaseResponseModel
+from pait.model.response import BaseResponseModel
 from pait.plugin.base import PluginManager
 from pait.types import Literal
 from pait.util import http_method_tuple
@@ -117,7 +117,7 @@ def apply_extra_openapi_model(
 
 
 def apply_response_model(
-    response_model_list: List[Type[PaitBaseResponseModel]], match_rule: Optional["MatchRule"] = None
+    response_model_list: List[Type[BaseResponseModel]], match_rule: Optional["MatchRule"] = None
 ) -> "APPLY_FN":
     """
     Add a default response structure for routing handles

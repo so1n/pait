@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Typ
 
 from pydantic import BaseConfig, BaseModel
 
-from pait.model.response import PaitBaseResponseModel, PaitResponseModel
+from pait.model.response import BaseResponseModel, PaitResponseModel
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
 from pait.param_handle import AsyncParamHandler, BaseParamHandler, ParamHandler
@@ -45,7 +45,7 @@ class PaitCoreModel(object):
         status: Optional[PaitStatus] = None,
         group: Optional[str] = None,
         tag: Optional[Tuple[Tag, ...]] = None,
-        response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
+        response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
         plugin_list: Optional[List[PluginManager]] = None,
         post_plugin_list: Optional[List[PluginManager]] = None,
@@ -81,7 +81,7 @@ class PaitCoreModel(object):
         self.tag: Tuple[Tag, ...] = tag or (Tag(name="default"),)  # Interface tag
         self._extra_openapi_model_list: List[Type[BaseModel]] = []
 
-        self._response_model_list: List[Type[PaitBaseResponseModel]] = []
+        self._response_model_list: List[Type[BaseResponseModel]] = []
         if response_model_list:
             self.add_response_model_list(response_model_list)
 
@@ -130,17 +130,16 @@ class PaitCoreModel(object):
         self._method_list = list(set(self._method_list) | set(method_list))
 
     @property
-    def response_model_list(self) -> List[Type[PaitBaseResponseModel]]:
+    def response_model_list(self) -> List[Type[BaseResponseModel]]:
         return self._response_model_list
 
-    def add_response_model_list(self, response_model_list: List[Type[PaitBaseResponseModel]]) -> None:
+    def add_response_model_list(self, response_model_list: List[Type[BaseResponseModel]]) -> None:
         for response_model in response_model_list:
             if response_model in self._response_model_list:
                 continue
             if issubclass(response_model, PaitResponseModel):
                 logging.warning(
-                    f"Please replace {self.operation_id}'s response model {response_model}"
-                    f" with {PaitBaseResponseModel}"
+                    f"Please replace {self.operation_id}'s response model {response_model}" f" with {BaseResponseModel}"
                 )
             self._response_model_list.append(response_model)
 

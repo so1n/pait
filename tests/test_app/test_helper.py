@@ -5,7 +5,7 @@ from flask import Flask, Response, make_response
 from flask.ctx import AppContext
 from flask.json import jsonify
 from flask.testing import FlaskClient
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from example.param_verify import flask_example
 from pait.app.flask import FlaskTestHelper, pait
@@ -63,7 +63,7 @@ class TestPaitTestHelper:
         assert "check json content error, exec: Can not found key from model" in exec_msg
 
     def test_error_response(self, client: FlaskClient) -> None:
-        class DemoResponse(response.PaitBaseResponseModel):
+        class DemoResponse(response.BaseResponseModel):
             media_type = response.PaitJsonResponseModel.media_type
             status_code = response.PaitJsonResponseModel.status_code
 
@@ -81,7 +81,11 @@ class TestPaitTestHelper:
     def test_status_code_and_media_type_and_header_error(self, client: FlaskClient) -> None:
         class DemoResponse(response.PaitTextResponseModel):
             status_code: Tuple[int] = (999,)
-            header: dict = {"faker-header": ""}
+
+            class HeaderModel(BaseModel):
+                faker_header: str = Field(default="", alias="faker-header")
+
+            header: BaseModel = HeaderModel
 
         @pait(response_model_list=[DemoResponse])
         def demo() -> Response:

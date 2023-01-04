@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Type
 
 import pydantic
 
-from pait.model.response import PaitBaseResponseModel, PaitJsonResponseModel
+from pait.model.response import BaseResponseModel, PaitJsonResponseModel
 from pait.plugin.base import PluginProtocol
 from pait.types import is_typeddict
 from pait.util import gen_example_dict_from_pydantic_base_model, get_pait_response_model, get_real_annotation
@@ -25,7 +25,7 @@ class CheckJsonRespPlugin(PluginProtocol):
     @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         kwargs = super().pre_load_hook(pait_core_model, kwargs)
-        pait_response_model: Type[PaitBaseResponseModel] = get_pait_response_model(
+        pait_response_model: Type[BaseResponseModel] = get_pait_response_model(
             pait_core_model.response_model_list, find_core_response_model=True
         )
         if not issubclass(pait_response_model, PaitJsonResponseModel):

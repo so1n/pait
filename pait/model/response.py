@@ -1,100 +1,84 @@
 import copy
-from typing import Any, Dict, Optional, Tuple, Type, Union
+from typing import Any
 
-from pydantic import BaseModel
+from any_api.openapi.model.response_model import BaseResponseModel, FileResponseModel, HtmlResponseModel
+from any_api.openapi.model.response_model import JsonResponseModel as _JsonResponseModel
+from any_api.openapi.model.response_model import TextResponseModel
+from any_api.openapi.model.response_model import XmlResponseModel as _XmlResponseModel
 
 from pait.util import gen_example_dict_from_pydantic_base_model
 
 __all__ = [
+    "ResponseModel",
     "PaitResponseModel",
-    "PaitBaseResponseModel",
+    "BaseResponseModel",
+    "HtmlResponseModel",
     "PaitHtmlResponseModel",
+    "JsonResponseModel",
     "PaitJsonResponseModel",
+    "FileResponseModel",
     "PaitFileResponseModel",
+    "TextResponseModel",
     "PaitTextResponseModel",
+    "XmlResponseModel",
+    "PaitXmlResponseModel",
 ]
 
 
-class PaitBaseResponseModel(object):
-    """response model https://swagger.io/docs/specification/describing-responses/"""
-
-    # Used for mock response and response checking to determine if the response model is the core response model
-    is_core: bool = False
-
-    # response data
-    response_data: Union[Type[BaseModel], str, bytes]
-    # response media type
-    media_type: str = "*/*"
-
-    # response name
-    name: Optional[str] = None
-    # response description
-    description: Optional[str] = None
-    # response header
-    header: dict = {}
-    # response status code
-    status_code: Tuple[int] = (200,)
-
-    # The value of this response in openapi.schema
-    # if value is empty, pait will auto gen response model and set to openapi.schema
-    openapi_schema: Optional[dict] = None
-
-    # links model
-    links_schema_dict: Dict[str, dict] = {}
-
-    @classmethod
-    def is_base_model_response_data(cls) -> bool:
-        return isinstance(cls.response_data, type) and issubclass(cls.response_data, BaseModel)
-
-    @classmethod
-    def get_example_value(cls, **extra: Any) -> Any:
-        return cls.response_data
-
-    @classmethod
-    def register_link_schema(cls, link_schema: dict) -> None:
-        cls.links_schema_dict.update(link_schema)
-
-
-class PaitJsonResponseModel(PaitBaseResponseModel):
-    response_data: Type[BaseModel]
-    media_type: str = "application/json"
-
+class JsonResponseModel(_JsonResponseModel):
     @classmethod
     def get_example_value(cls, **extra: Any) -> dict:
         return gen_example_dict_from_pydantic_base_model(cls.response_data)
 
     @classmethod
     def get_default_dict(cls, **extra: Any) -> dict:
-        default_dict: dict = getattr(cls.response_data, "PaitJsonResponseModel_default_dict", {})
+        default_dict: dict = getattr(cls.response_data, "JsonResponseModel_default_dict", {})
         if not default_dict:
             default_dict = gen_example_dict_from_pydantic_base_model(cls.response_data, use_example_value=False)
-            setattr(cls.response_data, "PaitJsonResponseModel_default_dict", default_dict)
+            setattr(cls.response_data, "JsonResponseModel_default_dict", default_dict)
         return copy.deepcopy(default_dict)
 
 
-class PaitResponseModel(PaitJsonResponseModel):
-    """
-    PaitJsonResponseModel alias
-    Compatible versions below 0.7
-    """
+class XmlResponseModel(_XmlResponseModel):
+    @classmethod
+    def get_example_value(cls, **extra: Any) -> dict:
+        return gen_example_dict_from_pydantic_base_model(cls.response_data)
+
+    @classmethod
+    def get_default_dict(cls, **extra: Any) -> dict:
+        default_dict: dict = getattr(cls.response_data, "XmlResponseModel_default_dict", {})
+        if not default_dict:
+            default_dict = gen_example_dict_from_pydantic_base_model(cls.response_data, use_example_value=False)
+            setattr(cls.response_data, "XmlJsonResponseModel_default_dict", default_dict)
+        return copy.deepcopy(default_dict)
 
 
-class PaitTextResponseModel(PaitBaseResponseModel):
-    response_data: str = "pait example data"
-    media_type: str = "text/plain"
-
-    openapi_schema: dict = {"type": "string", "example": response_data}
-
-
-class PaitHtmlResponseModel(PaitBaseResponseModel):
-    response_data: str = "<h1>Pait example html</h1>"
-    media_type: str = "text/html"
-
-    openapi_schema: dict = {"type": "string", "example": response_data}
+###################################
+# Compatible with old version API #
+###################################
+class PaitJsonResponseModel(JsonResponseModel):
+    pass
 
 
-class PaitFileResponseModel(PaitBaseResponseModel):
-    response_data: bytes = b"pait example bytes"
-    media_type: str = "application/octet-stream"
+class ResponseModel(JsonResponseModel):
+    pass
 
-    openapi_schema: dict = {"type": "string", "format": "binary"}
+
+class PaitResponseModel(JsonResponseModel):
+    """PaitJsonResponseModel alias Compatible versions below 0.7"""
+
+
+class PaitTextResponseModel(TextResponseModel):
+    pass
+
+
+class PaitHtmlResponseModel(HtmlResponseModel):
+    pass
+
+
+class PaitXmlResponseModel(XmlResponseModel):
+    pass
+
+
+class PaitFileResponseModel(FileResponseModel):
+    pass

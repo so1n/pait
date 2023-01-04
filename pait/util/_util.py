@@ -35,7 +35,7 @@ from pait.types import ParamSpec
 from ._types import ParseTypeError, parse_typing
 
 if TYPE_CHECKING:
-    from pait.model.response import PaitBaseResponseModel
+    from pait.model.response import BaseResponseModel
 
 __all__ = [
     "gen_example_dict_from_pydantic_base_model",
@@ -137,12 +137,12 @@ def get_pydantic_annotation(key: str, pydantic_base_model: Type[BaseModel]) -> T
 
 
 def get_pait_response_model(
-    response_model_list: List[Type["PaitBaseResponseModel"]],
-    target_pait_response_class: Optional[Type["PaitBaseResponseModel"]] = None,
+    response_model_list: List[Type["BaseResponseModel"]],
+    target_pait_response_class: Optional[Type["BaseResponseModel"]] = None,
     find_core_response_model: bool = False,
-) -> Type["PaitBaseResponseModel"]:
+) -> Type["BaseResponseModel"]:
     if target_pait_response_class:
-        core_response_list: List[Type["PaitBaseResponseModel"]] = [
+        core_response_list: List[Type["BaseResponseModel"]] = [
             i for i in response_model_list if i.is_core and issubclass(i, target_pait_response_class)
         ]
     else:
@@ -186,7 +186,9 @@ def gen_example_dict_from_pydantic_base_model(
             annotation: Type = get_pydantic_annotation(key, pydantic_base_model)
 
             if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
-                gen_dict[key] = gen_example_dict_from_pydantic_base_model(annotation)
+                gen_dict[key] = gen_example_dict_from_pydantic_base_model(
+                    annotation, use_example_value=use_example_value
+                )
             else:
                 sub_type: Optional[Type] = None
                 try:
@@ -207,7 +209,9 @@ def gen_example_dict_from_pydantic_base_model(
                     and inspect.isclass(sub_type)
                     and issubclass(sub_type, BaseModel)
                 ):
-                    gen_dict[key] = [gen_example_dict_from_pydantic_base_model(sub_type)]
+                    gen_dict[key] = [
+                        gen_example_dict_from_pydantic_base_model(sub_type, use_example_value=use_example_value)
+                    ]
                 elif issubclass(real_type, Enum):
                     gen_dict[key] = [i for i in real_type.__members__.values()][0].value
                 else:

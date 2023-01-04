@@ -11,17 +11,17 @@ from pait.plugin.base_mock_response import BaseMockPlugin
 
 class MockPlugin(BaseMockPlugin):
     def _sync_mock_response(self) -> Any:
-        if issubclass(self.pait_response_model, response.PaitJsonResponseModel):
+        if issubclass(self.pait_response_model, response.JsonResponseModel):
             resp: Response = JSONResponse(self.pait_response_model.get_example_value())
-        elif issubclass(self.pait_response_model, response.PaitTextResponseModel):
+        elif issubclass(self.pait_response_model, response.TextResponseModel):
             resp = PlainTextResponse(
                 self.pait_response_model.get_example_value(), media_type=self.pait_response_model.media_type
             )
-        elif issubclass(self.pait_response_model, response.PaitHtmlResponseModel):
+        elif issubclass(self.pait_response_model, response.HtmlResponseModel):
             resp = HTMLResponse(
                 self.pait_response_model.get_example_value(), media_type=self.pait_response_model.media_type
             )
-        elif issubclass(self.pait_response_model, response.PaitFileResponseModel):
+        elif issubclass(self.pait_response_model, response.FileResponseModel):
             named_temporary_file: IO = NamedTemporaryFile(delete=True)
             f: Any = named_temporary_file.__enter__()
             f.write(self.pait_response_model.get_example_value())
@@ -37,22 +37,22 @@ class MockPlugin(BaseMockPlugin):
             raise NotImplementedError(f"make_mock_response not support {self.pait_response_model}")
         resp.status_code = self.pait_response_model.status_code[0]
         if self.pait_response_model.header:
-            resp.headers.update(self.pait_response_model.header)
+            resp.headers.update(self.pait_response_model.get_header_example_dict())
         return resp
 
     def _async_mock_response(self) -> Any:
         async def make_mock_response() -> Response:
-            if issubclass(self.pait_response_model, response.PaitJsonResponseModel):
+            if issubclass(self.pait_response_model, response.JsonResponseModel):
                 resp: Response = JSONResponse(self.pait_response_model.get_example_value())
-            elif issubclass(self.pait_response_model, response.PaitTextResponseModel):
+            elif issubclass(self.pait_response_model, response.TextResponseModel):
                 resp = PlainTextResponse(
                     self.pait_response_model.get_example_value(), media_type=self.pait_response_model.media_type
                 )
-            elif issubclass(self.pait_response_model, response.PaitHtmlResponseModel):
+            elif issubclass(self.pait_response_model, response.HtmlResponseModel):
                 resp = HTMLResponse(
                     self.pait_response_model.get_example_value(), media_type=self.pait_response_model.media_type
                 )
-            elif issubclass(self.pait_response_model, response.PaitFileResponseModel):
+            elif issubclass(self.pait_response_model, response.FileResponseModel):
                 named_temporary_file: AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()  # type: ignore
                 f: Any = await named_temporary_file.__aenter__()
                 await f.write(self.pait_response_model.get_example_value())
@@ -68,7 +68,7 @@ class MockPlugin(BaseMockPlugin):
                 raise NotImplementedError(f"make_mock_response not support {self.pait_response_model}")
             resp.status_code = self.pait_response_model.status_code[0]
             if self.pait_response_model.header:
-                resp.headers.update(self.pait_response_model.header)
+                resp.headers.update(self.pait_response_model.get_header_example_dict())
             return resp
 
         return make_mock_response()

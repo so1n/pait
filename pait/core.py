@@ -8,7 +8,7 @@ from pait.app.base import BaseAppHelper
 from pait.extra.util import sync_config_data_to_pait_core_model
 from pait.g import config, pait_context, pait_data
 from pait.model.core import ContextModel, PaitCoreModel
-from pait.model.response import PaitBaseResponseModel
+from pait.model.response import BaseResponseModel
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
 from pait.plugin.base import PluginManager, PluginProtocol
@@ -37,7 +37,7 @@ class Pait(object):
         status: Optional[PaitStatus] = None,
         group: Optional[str] = None,
         tag: Optional[Tuple[Tag, ...]] = None,
-        response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
+        response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
         # plugin
         plugin_list: Optional[List[PluginManager]] = None,
         post_plugin_list: Optional[List[PluginManager]] = None,
@@ -84,7 +84,7 @@ class Pait(object):
         self._status: Optional[PaitStatus] = status
         self._group: Optional[str] = group
         self._tag: Optional[Tuple[Tag, ...]] = tag
-        self._response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = response_model_list
+        self._response_model_list: Optional[List[Type[BaseResponseModel]]] = response_model_list
         # plugin
         self._plugin_list: Optional[List[PluginManager]] = plugin_list
         self._post_plugin_list: Optional[List[PluginManager]] = post_plugin_list
@@ -117,8 +117,8 @@ class Pait(object):
         group: Optional[str] = None,
         tag: Optional[Tuple[Tag, ...]] = None,
         append_tag: Optional[Tuple[Tag, ...]] = None,
-        response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
-        append_response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
+        response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
+        append_response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
         plugin_list: Optional[List[PluginManager]] = None,
         append_plugin_list: Optional[List[PluginManager]] = None,
         post_plugin_list: Optional[List[PluginManager]] = None,
@@ -218,8 +218,8 @@ class Pait(object):
         group: Optional[str] = None,
         tag: Optional[Tuple[Tag, ...]] = None,
         append_tag: Optional[Tuple[Tag, ...]] = None,
-        response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
-        append_response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
+        response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
+        append_response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
         # plugin
         plugin_list: Optional[List[PluginManager]] = None,
         append_plugin_list: Optional[List[PluginManager]] = None,

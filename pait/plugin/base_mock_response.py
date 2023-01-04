@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Type
 
-from pait.model.response import PaitBaseResponseModel
+from pait.model.response import BaseResponseModel
 from pait.plugin.base import PluginManager, PluginProtocol
 from pait.util import get_pait_response_model
 
@@ -14,7 +14,7 @@ class MockPluginProtocol(PluginProtocol):
     Note: the code logic of the routing function will not be executed
     """
 
-    pait_response_model: Type[PaitBaseResponseModel]
+    pait_response_model: Type[BaseResponseModel]
 
     @classmethod
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
@@ -27,7 +27,7 @@ class MockPluginProtocol(PluginProtocol):
     @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         kwargs = super().pre_load_hook(pait_core_model, kwargs)
-        pait_response: Optional[Type[PaitBaseResponseModel]] = None
+        pait_response: Optional[Type[BaseResponseModel]] = None
         enable_mock_response_filter_fn: Optional[Callable] = kwargs.pop("enable_mock_response_filter_fn", None)
         if enable_mock_response_filter_fn and pait_core_model.response_model_list:
             for _pait_response in pait_core_model.response_model_list:
@@ -51,7 +51,7 @@ class MockPluginProtocol(PluginProtocol):
     def build(  # type: ignore
         cls,  # type: ignore
         enable_mock_response_filter_fn: Optional[Callable] = None,  # type: ignore
-        target_pait_response_class: Optional[Type["PaitBaseResponseModel"]] = None,  # type: ignore
+        target_pait_response_class: Optional[Type["BaseResponseModel"]] = None,  # type: ignore
         find_core_response_model: bool = False,  # type: ignore
     ) -> "PluginManager":  # type: ignore
         return super().build(
