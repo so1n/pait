@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Ty
 
 from pydantic import BaseConfig
 
-from pait.core import PluginManager, TagT
+from pait.core import PluginManager, Tag
 from pait.model.status import PaitStatus
 
 from ..model.core import PaitCoreModel  # type: ignore
@@ -85,7 +85,7 @@ def pait(
     name: Optional[str] = None,
     status: Optional[PaitStatus] = None,
     group: Optional[str] = None,
-    tag: Optional[Tuple[TagT, ...]] = None,
+    tag: Optional[Tuple[Tag, ...]] = None,
     append_tag: Optional[Tuple[str, ...]] = None,
     response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
     append_response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,

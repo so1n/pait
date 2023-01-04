@@ -1,7 +1,6 @@
 import inspect
-import logging
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Tuple, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, List, Optional, Tuple, Type, TypeVar
 
 from pydantic import BaseConfig
 
@@ -20,7 +19,6 @@ if TYPE_CHECKING:
 _AppendT = TypeVar("_AppendT", list, tuple)
 _PaitT = TypeVar("_PaitT", bound="Pait")
 _PluginT = TypeVar("_PluginT", bound="PluginProtocol")
-TagT = Union[str, Tag]
 
 
 class Pait(object):
@@ -38,7 +36,7 @@ class Pait(object):
         name: Optional[str] = None,
         status: Optional[PaitStatus] = None,
         group: Optional[str] = None,
-        tag: Optional[Tuple[TagT, ...]] = None,
+        tag: Optional[Tuple[Tag, ...]] = None,
         response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
         # plugin
         plugin_list: Optional[List[PluginManager]] = None,
@@ -85,7 +83,7 @@ class Pait(object):
         self._name: Optional[str] = name
         self._status: Optional[PaitStatus] = status
         self._group: Optional[str] = group
-        self._tag: Optional[Tuple[TagT, ...]] = tag
+        self._tag: Optional[Tuple[Tag, ...]] = tag
         self._response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = response_model_list
         # plugin
         self._plugin_list: Optional[List[PluginManager]] = plugin_list
@@ -117,8 +115,8 @@ class Pait(object):
         name: Optional[str] = None,
         status: Optional[PaitStatus] = None,
         group: Optional[str] = None,
-        tag: Optional[Tuple[TagT, ...]] = None,
-        append_tag: Optional[Tuple[TagT, ...]] = None,
+        tag: Optional[Tuple[Tag, ...]] = None,
+        append_tag: Optional[Tuple[Tag, ...]] = None,
         response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
         append_response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
         plugin_list: Optional[List[PluginManager]] = None,
@@ -218,8 +216,8 @@ class Pait(object):
         name: Optional[str] = None,
         status: Optional[PaitStatus] = None,
         group: Optional[str] = None,
-        tag: Optional[Tuple[TagT, ...]] = None,
-        append_tag: Optional[Tuple[TagT, ...]] = None,
+        tag: Optional[Tuple[Tag, ...]] = None,
+        append_tag: Optional[Tuple[Tag, ...]] = None,
         response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
         append_response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
         # plugin
@@ -274,20 +272,6 @@ class Pait(object):
         plugin_list = self._append_data(plugin_list, append_plugin_list, self._plugin_list)
         post_plugin_list = self._append_data(post_plugin_list, append_post_plugin_list, self._post_plugin_list)
 
-        ###############
-        # tag handler #
-        ###############
-        new_tag: List[str] = []
-        if tag:
-            for _tag in tag:
-                if isinstance(_tag, Tag):
-                    _tag = _tag.name
-                else:
-                    logging.warning(
-                        "In later versions tag only supports Tag class, and does not support str type"
-                    )  # pragma: no cover
-                new_tag.append(_tag)
-
         def wrapper(func: Callable) -> Callable:
             # Pre-parsing function signatures
             get_func_sig(func)
@@ -301,7 +285,7 @@ class Pait(object):
                 func_name=name,
                 status=status,
                 group=group,
-                tag=tuple(new_tag),
+                tag=tag,
                 response_model_list=response_model_list,
                 pre_depend_list=pre_depend_list,
                 pydantic_model_config=pydantic_model_config,

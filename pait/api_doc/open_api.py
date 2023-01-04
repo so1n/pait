@@ -370,20 +370,15 @@ class PaitOpenAPI(PaitBaseParse):
                     # Documentation for each route
                     openapi_method_dict: dict = openapi_path_dict.setdefault(method.lower(), {})
                     if pait_model.tag:
-                        openapi_method_dict["tags"] = list(pait_model.tag)
+                        openapi_method_dict["tags"] = [i.name for i in pait_model.tag]
                         # Additional labeling instructions
                         for tag in pait_model.tag:
-                            if tag not in {tag_dict["name"] for tag_dict in self.open_api_dict["tags"]}:
+                            if tag.name not in {tag_dict["name"] for tag_dict in self.open_api_dict["tags"]}:
                                 logging.warning(
                                     f"Can not found tag:{tag} description, set default description, "
                                     f"you can use pait.model.tag.Tag({tag}, desc='')"
                                 )
-                                self.open_api_dict["tags"].append(
-                                    {
-                                        "name": tag,
-                                        "description": "",
-                                    }
-                                )
+                                self.open_api_dict["tags"].append(tag.to_tag_model().dict())
                     if pait_model.status in (
                         PaitStatus.abnormal,
                         PaitStatus.maintenance,

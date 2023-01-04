@@ -8,6 +8,7 @@ from pait.extra import config
 from pait.model.core import PaitCoreModel
 from pait.model.response import PaitBaseResponseModel, PaitJsonResponseModel
 from pait.model.status import PaitStatus
+from pait.model.tag import Tag
 from pait.plugin.at_most_one_of import AtMostOneOfPlugin
 from pait.plugin.base import PluginManager
 
@@ -27,9 +28,11 @@ class TestApplyFun:
 
     test_status_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper, status=PaitStatus.test)
     test_group_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper, group="test")
-    test_tag_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper, tag=("test", "test_priority"))
+    test_tag_core_model: PaitCoreModel = PaitCoreModel(
+        _demo_func, FakeAppHelper, tag=(Tag("test"), Tag("test_priority"))
+    )
     test_path_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper)
-    test_method_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper, tag=("test_priority",))
+    test_method_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper, tag=(Tag("test_priority"),))
 
     core_model_list: List[PaitCoreModel] = [
         test_status_core_model,
@@ -55,7 +58,7 @@ class TestApplyFun:
         for _key, target, core_model in [
             ("status", PaitStatus.test, self.test_status_core_model),
             ("group", "test", self.test_group_core_model),
-            ("tag", "test", self.test_tag_core_model),
+            ("tag", Tag("test"), self.test_tag_core_model),
             ("path", "/api/oktest", self.test_path_core_model),
             ("method_list", "OPTIONS", self.test_method_core_model),
         ]:
@@ -89,7 +92,7 @@ class TestApplyFun:
         for key, target, core_model in [
             ("status", PaitStatus.test, self.test_status_core_model),
             ("group", "test", self.test_group_core_model),
-            ("tag", "test", self.test_tag_core_model),
+            ("tag", Tag("test"), self.test_tag_core_model),
             ("path", "/api/oktest", self.test_path_core_model),
             ("method_list", "OPTIONS", self.test_method_core_model),
         ]:
@@ -130,7 +133,10 @@ class TestApplyFun:
             config.apply_default_pydantic_model_config(
                 DemoConfig,
                 config.MatchRule(key="method_list", target="POST")
-                & (config.MatchRule(key="group", target="test") | config.MatchRule(key="tag", target="test_priority")),
+                & (
+                    config.MatchRule(key="group", target="test")
+                    | config.MatchRule(key="tag", target=Tag("test_priority"))
+                ),
             )(i)
 
         for i in self.core_model_list:

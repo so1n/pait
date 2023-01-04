@@ -7,6 +7,7 @@ from pydantic import BaseConfig, BaseModel
 
 from pait.model.response import PaitBaseResponseModel, PaitResponseModel
 from pait.model.status import PaitStatus
+from pait.model.tag import Tag
 from pait.param_handle import AsyncParamHandler, BaseParamHandler, ParamHandler
 from pait.plugin import PluginManager
 from pait.util import ignore_pre_check
@@ -43,7 +44,7 @@ class PaitCoreModel(object):
         desc: Optional[str] = None,
         status: Optional[PaitStatus] = None,
         group: Optional[str] = None,
-        tag: Optional[Tuple[str, ...]] = None,
+        tag: Optional[Tuple[Tag, ...]] = None,
         response_model_list: Optional[List[Type[PaitBaseResponseModel]]] = None,
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
         plugin_list: Optional[List[PluginManager]] = None,
@@ -77,7 +78,7 @@ class PaitCoreModel(object):
         self.desc: str = desc or func.__doc__ or ""  # desc of this func
         self.status: PaitStatus = status or PaitStatus.undefined
         self.group: str = group or "root"  # Which group this interface belongs to
-        self.tag: Tuple[str, ...] = tag or ("default",)  # Interface tag
+        self.tag: Tuple[Tag, ...] = tag or (Tag(name="default"),)  # Interface tag
         self._extra_openapi_model_list: List[Type[BaseModel]] = []
 
         self._response_model_list: List[Type[PaitBaseResponseModel]] = []
