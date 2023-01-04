@@ -11,7 +11,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 358">text_response_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 378">text_response_route</abbr>|    |
 - 路径: /api/text-resp
 - 方法: GET
 - 请求:
@@ -37,7 +37,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 367">html_response_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 387">html_response_route</abbr>|    |
 - 路径: /api/html-resp
 - 方法: GET
 - 请求:
@@ -63,7 +63,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 376">file_response_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 396">file_response_route</abbr>|    |
 - 路径: /api/file-resp
 - 方法: GET
 - 请求:
@@ -87,7 +87,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 389">login_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 409">login_route</abbr>|    |
 - 路径: /api/login
 - 方法: POST
 - 请求:
@@ -132,7 +132,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 398">get_user_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 418">get_user_route</abbr>|    |
 - 路径: /api/user
 - 方法: GET
 - 请求:
@@ -140,7 +140,7 @@
 
         |参数名称|类型|默认|示例|描述|其它|
         |---|---|---|---|---|---|
-        |token|string| |<pait.model.template.TemplateVar object at 0x7efc89981470>|token||
+        |token|string| |<pait.model.template.TemplateVar object at 0x7f2823cae4e0>|token||
 - 响应:
 
     - SuccessRespModel
@@ -174,7 +174,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 291">pre_depend_contextmanager_route</abbr>|    |
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 301">pre_depend_contextmanager_route</abbr>|    |
 - 路径: /api/pre-depend-contextmanager
 - 方法: GET
 - 请求:
@@ -237,7 +237,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 284">depend_contextmanager_route</abbr>|    |
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 294">depend_contextmanager_route</abbr>|    |
 - 路径: /api/depend-contextmanager
 - 方法: GET
 - 请求:
@@ -304,7 +304,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 125">same_alias_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 135">same_alias_route</abbr>|    |
 - 路径: /api/same-alias
 - 方法: GET
 - 请求:
@@ -377,7 +377,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 278">pait_model_route</abbr>|    |
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 288">pait_model_route</abbr>|    |
 - 路径: /api/pait-model
 - 方法: POST
 - 请求:
@@ -455,7 +455,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#DC143C>abandoned</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 79">raise_tip_route</abbr>|    |
+    |so1n    |<font color=#DC143C>abandoned</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 89">raise_tip_route</abbr>|    |
 - 路径: /api/raise-tip
 - 方法: POST
 - 请求:
@@ -523,7 +523,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 111">depend_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 121">depend_route</abbr>|    |
 - 路径: /api/depend
 - 方法: POST
 - 请求:
@@ -586,88 +586,6 @@
             ```
 
 
-</details><details><summary>组: pait_doc</summary>
-
-### 名称: Pait Api Doc(private).openapi_route
-
-- API信息
-
-    |作者|状态|函数|摘要|
-    |---|---|---|---|
-    |    |<font color=#DC143C>undefined</font>    |<abbr title="file:example;line: 54">AddDocRoute._gen_route.<locals>.openapi_route</abbr>|    |
-- 路径: /openapi.json
-- 方法: GET
-- 请求:
-    - Query 参数
-
-        |参数名称|类型|默认|示例|描述|其它|
-        |---|---|---|---|---|---|
-        |pin_code|string| | | ||
-        |url_dict|object|**`必填`**| |Set the template variable, for example, there is a template parameter token, then the requested parameter is template-token=xxx||
-- 响应:
-
-    - OpenAPIRespModel
-
-        - 响应信息
-
-            |状态码|媒体类型|描述|
-            |---|---|---|
-            |200|application/json|open api json response|
-
-### 名称: Pait Api Doc(private).get_swagger_ui_html
-
-- API信息
-
-    |作者|状态|函数|摘要|
-    |---|---|---|---|
-    |    |<font color=#DC143C>undefined</font>    |<abbr title="file:example;line: 47">AddDocRoute._gen_route.<locals>.get_swagger_ui_html</abbr>|    |
-- 路径: /swagger
-- 方法: GET
-- 请求:
-    - Query 参数
-
-        |参数名称|类型|默认|示例|描述|其它|
-        |---|---|---|---|---|---|
-        |url_dict|object|**`必填`**| |Set the template variable, for example, there is a template parameter token, then the requested parameter is template-token=xxx||
-- 响应:
-
-    - DocHtmlRespModel
-
-        - 响应信息
-
-            |状态码|媒体类型|描述|
-            |---|---|---|
-            |200|text/html|doc html response|
-        - Header
-            {'X-Example-Type': 'html'}
-
-### 名称: Pait Api Doc(private).get_redoc_html
-
-- API信息
-
-    |作者|状态|函数|摘要|
-    |---|---|---|---|
-    |    |<font color=#DC143C>undefined</font>    |<abbr title="file:example;line: 40">AddDocRoute._gen_route.<locals>.get_redoc_html</abbr>|    |
-- 路径: /redoc
-- 方法: GET
-- 请求:
-    - Query 参数
-
-        |参数名称|类型|默认|示例|描述|其它|
-        |---|---|---|---|---|---|
-        |url_dict|object|**`必填`**| |Set the template variable, for example, there is a template parameter token, then the requested parameter is template-token=xxx||
-- 响应:
-
-    - DocHtmlRespModel
-
-        - 响应信息
-
-            |状态码|媒体类型|描述|
-            |---|---|---|
-            |200|text/html|doc html response|
-        - Header
-            {'X-Example-Type': 'html'}
-
 </details><details><summary>组: plugin</summary>
 
 ### 名称: auto_complete_json_route
@@ -680,22 +598,13 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 408">auto_complete_json_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 428">auto_complete_json_route</abbr>|    |
 - 路径: /api/auto-complete-json-plugin
 - 方法: GET
 - 请求:
-    - Query 参数
-
-        |参数名称|类型|默认|示例|描述|其它|
-        |---|---|---|---|---|---|
-        |age|integer|**`必填`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
-        |display_age|integer| | |display_age||
-        |email|string|example@xxx.com| |user email||
-        |uid|integer|**`必填`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
-        |user_name|string|**`必填`**| |user name|[`maxLength:4`], [`minLength:2`]|
 - 响应:
 
-    - UserSuccessRespModel3
+    - AutoCompleteRespModel
 
         - 响应信息
 
@@ -707,10 +616,11 @@
             |参数名称|类型|默认|示例|描述|其它|
             |---|---|---|---|---|---|
             |code|integer| | |api code||
-            |data.age|integer|**`必填`**| |age|[`exclusiveMinimum:1`], [`exclusiveMaximum:100`]|
-            |data.email|string|**`必填`**| |user email||
-            |data.uid|integer|**`必填`**| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
-            |data.user_name|string|**`必填`**| |user name|[`maxLength:4`], [`minLength:2`]|
+            |data.image_list|array|**`必填`**| |music list|[`items:{'type': 'object'}`]|
+            |data.music_list.name|string| | | ||
+            |data.music_list.singer|string| | | ||
+            |data.music_list.url|string|**`必填`**| | ||
+            |data.uid|integer|100| |user id|[`exclusiveMinimum:10`], [`exclusiveMaximum:1000`]|
             |msg|string|success| |api status msg||
         - 示例响应Json数据
 
@@ -719,10 +629,15 @@
               "code": 0,
               "msg": "success",
               "data": {
-                "uid": 0,
-                "user_name": "",
-                "age": 0,
-                "email": ""
+                "uid": 100,
+                "music_list": [
+                  {
+                    "name": "",
+                    "url": "",
+                    "singer": ""
+                  }
+                ],
+                "image_list": []
               }
             }
             ```
@@ -738,7 +653,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 472">check_json_plugin_route1</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 533">check_json_plugin_route1</abbr>|    |
 - 路径: /api/check-json-plugin-1
 - 方法: GET
 - 请求:
@@ -796,7 +711,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 431">check_json_plugin_route</abbr>|    |
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 456">check_json_plugin_route</abbr>|    |
 - 路径: /api/check-json-plugin
 - 方法: GET
 - 请求:
@@ -844,6 +759,129 @@
             ```
 
 
+### 名称: cache_response1
+
+- API信息
+
+    |作者|状态|函数|摘要|
+    |---|---|---|---|
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 519">cache_response1</abbr>|    |
+- 路径: /api/cache-response-1
+- 方法: GET
+- 请求:
+- 响应:
+
+    - PaitHtmlResponseModel
+
+        - 响应信息
+
+            |状态码|媒体类型|描述|
+            |---|---|---|
+            |200|text/html|None|
+
+### 名称: cache_response
+
+- API信息
+
+    |作者|状态|函数|摘要|
+    |---|---|---|---|
+    |so1n    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 497">cache_response</abbr>|    |
+- 路径: /api/cache-response
+- 方法: GET
+- 请求:
+    - Query 参数
+
+        |参数名称|类型|默认|示例|描述|其它|
+        |---|---|---|---|---|---|
+        |raise_exc|integer| | | ||
+- 响应:
+
+    - PaitHtmlResponseModel
+
+        - 响应信息
+
+            |状态码|媒体类型|描述|
+            |---|---|---|
+            |200|text/html|None|
+    - FailRespModel
+
+        - 响应信息
+
+            |状态码|媒体类型|描述|
+            |---|---|---|
+            |200|application/json|fail response|
+        - 响应数据
+
+            |参数名称|类型|默认|示例|描述|其它|
+            |---|---|---|---|---|---|
+            |code|integer|1| |api code||
+            |msg|string|fail| |api status msg||
+        - 示例响应Json数据
+
+            ```json
+            {
+              "code": 1,
+              "msg": "fail"
+            }
+            ```
+
+
+</details><details><summary>组: root</summary>
+
+### 名称: NotPaitRoute.post
+
+- API信息
+
+    |作者|状态|函数|摘要|
+    |---|---|---|---|
+    |    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 374">NotPaitCbvRoute.post</abbr>|    |
+- 路径: /api/not-pait-cbv
+- 方法: post
+- 请求:
+    - Query 参数
+
+        |参数名称|类型|默认|示例|描述|其它|
+        |---|---|---|---|---|---|
+        |user_name|string|**`必填`**| | ||
+- 响应:
+
+
+### 名称: NotPaitRoute.get
+
+- API信息
+
+    |作者|状态|函数|摘要|
+    |---|---|---|---|
+    |    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 371">NotPaitCbvRoute.get</abbr>|    |
+- 路径: /api/not-pait-cbv
+- 方法: get
+- 请求:
+    - Query 参数
+
+        |参数名称|类型|默认|示例|描述|其它|
+        |---|---|---|---|---|---|
+        |user_name|string|**`必填`**| | ||
+- 响应:
+
+
+### 名称: not_pait_route
+
+- API信息
+
+    |作者|状态|函数|摘要|
+    |---|---|---|---|
+    |    |<font color=#DC143C>undefined</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 527">not_pait_route</abbr>|    |
+- 路径: /api/not-pait
+- 方法: GET
+- 请求:
+    - Query 参数
+
+        |参数名称|类型|默认|示例|描述|其它|
+        |---|---|---|---|---|---|
+        |user_name|string|**`必填`**| | ||
+- 响应:
+
+
 </details><details><summary>组: user</summary>
 
 ### 名称: field_default_factory_route
@@ -852,7 +890,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 137">field_default_factory_route</abbr>|    |
+    |so1n    |<font color=#00BFFF>test</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 147">field_default_factory_route</abbr>|    |
 - 路径: /api/field-default-factory
 - 方法: POST
 - 请求:
@@ -922,7 +960,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 189">check_param_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 199">check_param_route</abbr>|    |
 - 路径: /api/check-param
 - 方法: GET
 - 请求:
@@ -996,7 +1034,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 222">check_response_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 232">check_response_route</abbr>|    |
 - 路径: /api/check-resp
 - 方法: GET
 - 请求:
@@ -1076,7 +1114,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 92">post_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 102">post_route</abbr>|    |
 - 路径: /api/post
 - 方法: POST
 - 请求:
@@ -1161,7 +1199,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 331">CbvRoute.post</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 341">CbvRoute.post</abbr>|    |
 - 路径: /api/cbv
 - 方法: post
 - 请求:
@@ -1246,7 +1284,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 306">CbvRoute.get</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 316">CbvRoute.get</abbr>|    |
 - 路径: /api/cbv
 - 方法: get
 - 请求:
@@ -1331,7 +1369,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 150">pait_base_field_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 160">pait_base_field_route</abbr>|    |
 - 路径: /api/pait-base-field/<age>
 - 方法: POST
 - 请求:
@@ -1433,7 +1471,7 @@
 
     |作者|状态|函数|摘要|
     |---|---|---|---|
-    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 249">mock_route</abbr>|    |
+    |so1n    |<font color=#32CD32>release</font>    |<abbr title="file:example/param_verify/flask_example.py;line: 259">mock_route</abbr>|    |
 - 路径: /api/mock/<age>
 - 方法: GET
 - 请求:

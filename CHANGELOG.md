@@ -5,7 +5,7 @@ Rewrite some old methods to increase the extensibility of the corresponding modu
 - 2 Plugin Panel
 
 ### 0.8.0[now]
-Rewrite part of the implementation of gRPC Gateway, and transfer some functions to[protobuf_to_pydantic](https://github.com/so1n/protobuf_to_pydantic)
+Rewrite part of the implementation of gRPC Gateway, and transfer some functions to [protobuf_to_pydantic](https://github.com/so1n/protobuf_to_pydantic)
 
 ### 0.7.9
 - Feature, Support for unregulated typing usage
