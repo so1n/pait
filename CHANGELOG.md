@@ -10,7 +10,7 @@ Note: This version will have syntax changes that are not backward compatible, an
 Function Changes:
 
 API Changes:
-- `@pait` tag parameter type only supports the Tag class. e.g:
+- `@pait` The tag parameter type no longer supports String, only `Tag` is supported. e.g:
    ```python
    from pait.app.starlette import pait
    from pait import Tag
@@ -23,7 +23,7 @@ API Changes:
    ```python
    from pait.model.response import BaseResponseModel
    ```
-- `ResponseModel.header` param type only support `pydantic.BaseModel`. e.g:
+- The `ResponseModel.header` parameter type no longer supports dict, only support `pydantic.BaseModel`. e.g:
    ```python
    from pait import HtmlResponseModel
    from pydantic import BaseModel, Field

@@ -170,6 +170,8 @@ def gen_example_dict_from_pydantic_base_model(
 ) -> dict:
     gen_dict: Dict[str, Any] = {}
     for key, model_field in pydantic_base_model.__fields__.items():
+        if model_field.alias:
+            key = model_field.alias
         if use_example_value:
             example_value: Any = model_field.field_info.extra.get("example", Undefined)
             if not isinstance(example_value, UndefinedType):

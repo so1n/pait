@@ -1,10 +1,13 @@
 import copy
-from typing import Any
+from typing import Any, Type
 
-from any_api.openapi.model.response_model import BaseResponseModel, FileResponseModel, HtmlResponseModel
+from any_api.openapi.model.response_model import BaseResponseModel
+from any_api.openapi.model.response_model import FileResponseModel as _FileResponseModel
+from any_api.openapi.model.response_model import HtmlResponseModel as _HtmlResponseModel
 from any_api.openapi.model.response_model import JsonResponseModel as _JsonResponseModel
-from any_api.openapi.model.response_model import TextResponseModel
+from any_api.openapi.model.response_model import TextResponseModel as _TextResponseModel
 from any_api.openapi.model.response_model import XmlResponseModel as _XmlResponseModel
+from pydantic import BaseModel
 
 from pait.util import gen_example_dict_from_pydantic_base_model
 
@@ -27,8 +30,8 @@ __all__ = [
 
 class JsonResponseModel(_JsonResponseModel):
     @classmethod
-    def get_example_value(cls, **extra: Any) -> dict:
-        return gen_example_dict_from_pydantic_base_model(cls.response_data)
+    def _get_example_dict(cls, model: Type[BaseModel]) -> dict:
+        return gen_example_dict_from_pydantic_base_model(model)
 
     @classmethod
     def get_default_dict(cls, **extra: Any) -> dict:
@@ -41,8 +44,8 @@ class JsonResponseModel(_JsonResponseModel):
 
 class XmlResponseModel(_XmlResponseModel):
     @classmethod
-    def get_example_value(cls, **extra: Any) -> dict:
-        return gen_example_dict_from_pydantic_base_model(cls.response_data)
+    def _get_example_dict(cls, model: Type[BaseModel]) -> dict:
+        return gen_example_dict_from_pydantic_base_model(model)
 
     @classmethod
     def get_default_dict(cls, **extra: Any) -> dict:
@@ -51,6 +54,24 @@ class XmlResponseModel(_XmlResponseModel):
             default_dict = gen_example_dict_from_pydantic_base_model(cls.response_data, use_example_value=False)
             setattr(cls.response_data, "XmlJsonResponseModel_default_dict", default_dict)
         return copy.deepcopy(default_dict)
+
+
+class TextResponseModel(_TextResponseModel):
+    @classmethod
+    def _get_example_dict(cls, model: Type[BaseModel]) -> dict:
+        return gen_example_dict_from_pydantic_base_model(model)
+
+
+class HtmlResponseModel(_HtmlResponseModel):
+    @classmethod
+    def _get_example_dict(cls, model: Type[BaseModel]) -> dict:
+        return gen_example_dict_from_pydantic_base_model(model)
+
+
+class FileResponseModel(_FileResponseModel):
+    @classmethod
+    def _get_example_dict(cls, model: Type[BaseModel]) -> dict:
+        return gen_example_dict_from_pydantic_base_model(model)
 
 
 ###################################
