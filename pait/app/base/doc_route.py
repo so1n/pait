@@ -12,7 +12,7 @@ from pait.api_doc.html import get_rapidoc_html as _get_rapidoc_html
 from pait.api_doc.html import get_rapipdf_html as _get_rapipdf_html
 from pait.api_doc.html import get_redoc_html as _get_redoc_html
 from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
-from pait.api_doc.open_api import PaitOpenAPI
+from pait.api_doc.openapi import InfoModel, OpenAPI, ServerModel
 from pait.core import Pait, PluginManager
 from pait.field import Depends, Path, Query
 from pait.g import config, pait_context
@@ -23,7 +23,15 @@ from pait.model.tag import Tag
 from pait.model.template import TemplateContext
 
 logger: logging.Logger = logging.getLogger(__name__)
-__all__ = ["DocHtmlRespModel", "OpenAPIRespModel", "AddDocRoute", "default_doc_fn_dict"]
+__all__ = [
+    "DocHtmlRespModel",
+    "OpenAPIRespModel",
+    "AddDocRoute",
+    "default_doc_fn_dict",
+    "OpenAPI",
+    "InfoModel",
+    "ServerModel",
+]
 
 
 class DocHtmlRespModel(HtmlResponseModel):
@@ -74,10 +82,10 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
         prefix: str = "",
         pin_code: str = "",
         title: str = "",
-        open_api_tag_list: Optional[List[Dict[str, Any]]] = None,
         project_name: str = "",
         doc_fn_dict: Optional[Dict[str, Callable]] = None,
         app: APP_T = None,
+        openapi: Optional[Type[OpenAPI]] = None,
     ):
         """
         :param scheme: The scheme of the specified url, if the value is empty,
@@ -96,7 +104,7 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
                 pin_code: 6666, url `http://127.0.0.1:8080/api/path?pin-code=6666`
         :param title: Doc route group name,
             the title of multiple doc routes registered for the same app instance must be different
-        :param open_api_tag_list: Doc route group open api tag
+        :param openapi: OpenAPI class
         :param project_name: see `pait.app.{web framework}._load_app.load_app`
         :param doc_fn_dict: doc ui dict, default `pait.app.base.doc_route.default_doc_fn_dict`
         :param app: The app instance to which the doc route is bound
@@ -108,7 +116,7 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
         self.prefix: str = prefix or "/"
         self.pin_code: str = pin_code
         self.title: str = title or "Pait Doc"
-        self.open_api_tag_list: Optional[List[Dict[str, Any]]] = open_api_tag_list
+        self.openapi: Type[OpenAPI] = openapi or OpenAPI
         self.project_name: str = project_name
         self._is_gen: bool = False
         self._doc_fn_dict: Dict[str, Callable] = doc_fn_dict or default_doc_fn_dict
@@ -229,13 +237,12 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
             _scheme: str = self.scheme or re.scheme
             pait_dict: Dict[str, PaitCoreModel] = self.load_app(app, project_name=self.project_name)
             with TemplateContext(url_dict):
-                pait_openapi: PaitOpenAPI = PaitOpenAPI(
+                pait_openapi: OpenAPI = OpenAPI(
                     pait_dict,
-                    title=self.title,
-                    open_api_server_list=[{"url": f"{_scheme}://{re.hostname}", "description": ""}],
-                    open_api_tag_list=self.open_api_tag_list,
+                    openapi_info_model=InfoModel(title=self.title),
+                    server_model_list=[ServerModel(url=f"{_scheme}://{re.hostname}")],
                 )
-                response: ResponseT = self.json_response(json.loads(pait_openapi.content))
+                response: ResponseT = self.json_response(json.loads(pait_openapi.content()))
             return response
 
         return _openapi_route

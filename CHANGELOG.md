@@ -35,6 +35,8 @@ API Changes:
        header: BaseModel = HeaderModel
        description: str = "html response"
    ```
+- `pait.api_doc` All APIs of the module have undergone drastic changes, please refer to the document changes
+- The `AddDocRoute` and `add_doc_route` function signatures of the `pait.xxx.doc_route` module have been changed, the `openapi` parameter has been added, and the `open_api_tag_list` parameter has been removed
 
 ### 0.8.0
 Rewrite part of the implementation of gRPC Gateway, and transfer some functions to [protobuf_to_pydantic](https://github.com/so1n/protobuf_to_pydantic)

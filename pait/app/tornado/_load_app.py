@@ -1,7 +1,7 @@
 import logging
 from typing import Callable, Dict, Optional
 
-from tornado.web import Application
+from tornado.web import Application, RequestHandler
 
 from pait.g import pait_data
 from pait.model.core import PaitCoreModel
@@ -40,6 +40,8 @@ def load_app(app: Application, project_name: str = "", auto_load_route: bool = F
         for method in ["get", "post", "head", "options", "delete", "put", "trace", "patch"]:
             handler: Optional[Callable] = getattr(rule.target, method, None)
             if not handler:
+                continue
+            if handler is RequestHandler:
                 continue
             route_name: str = f"{base_name}.{method}"
             pait_id: str = getattr(handler, "_pait_id", "")

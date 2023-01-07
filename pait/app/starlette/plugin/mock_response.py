@@ -1,12 +1,12 @@
 from tempfile import NamedTemporaryFile
-from typing import IO, Any, AsyncContextManager
+from typing import IO, Any, AsyncContextManager, Type
 
 import aiofiles  # type: ignore
 from starlette.background import BackgroundTask
 from starlette.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse, Response
 
 from pait.model import response
-from pait.plugin.base_mock_response import BaseMockPlugin
+from pait.plugin.base_mock_response import BaseMockPlugin, BaseResponseModel
 
 
 class MockPlugin(BaseMockPlugin):
@@ -35,9 +35,11 @@ class MockPlugin(BaseMockPlugin):
             )
         else:
             raise NotImplementedError(f"make_mock_response not support {self.pait_response_model}")
-        resp.status_code = self.pait_response_model.status_code[0]
-        if self.pait_response_model.header:
-            resp.headers.update(self.pait_response_model.get_header_example_dict())
+        # I don't know why mypy checks out the type here is Type[Object]
+        _pait_response_model: Type[BaseResponseModel] = self.pait_response_model
+        resp.status_code = _pait_response_model.status_code[0]
+        if _pait_response_model.header:
+            resp.headers.update(_pait_response_model.get_header_example_dict())
         return resp
 
     def _async_mock_response(self) -> Any:
@@ -66,9 +68,11 @@ class MockPlugin(BaseMockPlugin):
                 )
             else:
                 raise NotImplementedError(f"make_mock_response not support {self.pait_response_model}")
-            resp.status_code = self.pait_response_model.status_code[0]
-            if self.pait_response_model.header:
-                resp.headers.update(self.pait_response_model.get_header_example_dict())
+            # I don't know why mypy checks out the type here is Type[Object]
+            _pait_response_model: Type[BaseResponseModel] = self.pait_response_model
+            resp.status_code = _pait_response_model.status_code[0]
+            if _pait_response_model.header:
+                resp.headers.update(_pait_response_model.get_header_example_dict())
             return resp
 
         return make_mock_response()

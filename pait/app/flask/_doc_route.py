@@ -1,9 +1,10 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional, Type
 
 from flask import Blueprint, Flask, Response, jsonify
 from werkzeug.exceptions import NotFound
 
 from pait.app.base.doc_route import AddDocRoute as _AddDocRoute
+from pait.app.base.doc_route import OpenAPI
 
 from ._load_app import load_app
 from ._pait import Pait
@@ -32,7 +33,7 @@ def add_doc_route(
     prefix: str = "",
     pin_code: str = "",
     title: str = "",
-    open_api_tag_list: Optional[List[Dict[str, Any]]] = None,
+    openapi: Optional[Type[OpenAPI]] = None,
     project_name: str = "",
 ) -> None:
     AddDocRoute(
@@ -41,7 +42,7 @@ def add_doc_route(
         prefix=prefix,
         pin_code=pin_code,
         title=title,
-        open_api_tag_list=open_api_tag_list,
         project_name=project_name,
         app=app,
+        openapi=openapi,
     )

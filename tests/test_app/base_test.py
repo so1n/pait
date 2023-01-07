@@ -389,13 +389,12 @@ class BaseTest(object):
         )
         grpc_test_openapi(load_app(app), url_prefix=prefix, option_str="_by_option")
 
-        from pait.api_doc.open_api import PaitOpenAPI
+        from pait.api_doc.openapi import OpenAPI
 
-        pait_openapi: PaitOpenAPI = PaitOpenAPI(load_app(app), title="test")
-        path_dict: dict = pait_openapi.open_api_dict["paths"]
+        pait_openapi: OpenAPI = OpenAPI(load_app(app))
         assert (
-            path_dict["/api-test-by-option/book/get-book-like"]["post"]["pait_info"]["md5"]
-            == path_dict["/api-test-by-option/book_social_by_option-BookSocial/get_book_like"]["get"]["pait_info"][
-                "md5"
-            ]
+            pait_openapi.dict["paths"]["/api-test-by-option/book/get-book-like"]["post"]["pait_info"]["md5"]
+            == pait_openapi.dict["paths"]["/api-test-by-option/book_social_by_option-BookSocial/get_book_like"]["get"][
+                "pait_info"
+            ]["md5"]
         )

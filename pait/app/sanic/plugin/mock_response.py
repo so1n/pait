@@ -12,15 +12,15 @@ from pait.plugin.base_mock_response import BaseAsyncMockPlugin
 class MockPlugin(BaseAsyncMockPlugin):
     def mock_response(self) -> Any:
         async def make_mock_response() -> sanic_response.BaseHTTPResponse:
-            if issubclass(self.pait_response_model, response.PaitJsonResponseModel):
+            if issubclass(self.pait_response_model, response.JsonResponseModel):
                 resp: sanic_response.BaseHTTPResponse = resp_json(self.pait_response_model.get_example_value())
-            elif issubclass(self.pait_response_model, response.PaitTextResponseModel) or issubclass(
-                self.pait_response_model, response.PaitHtmlResponseModel
+            elif issubclass(self.pait_response_model, response.TextResponseModel) or issubclass(
+                self.pait_response_model, response.HtmlResponseModel
             ):
                 resp = sanic_response.text(
                     self.pait_response_model.get_example_value(), content_type=self.pait_response_model.media_type
                 )
-            elif issubclass(self.pait_response_model, response.PaitFileResponseModel):
+            elif issubclass(self.pait_response_model, response.FileResponseModel):
                 named_temporary_file: AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()  # type: ignore
                 f: Any = await named_temporary_file.__aenter__()
                 await f.write(self.pait_response_model.get_example_value())

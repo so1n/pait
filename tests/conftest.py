@@ -157,7 +157,7 @@ def grpc_test_create_user_request(app: Any) -> Generator[Queue, None, None]:
 
 
 def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api", option_str: str = "") -> None:
-    from pait.api_doc.open_api import PaitOpenAPI
+    from pait.api_doc.openapi import OpenAPI
 
     url_list: List[str] = [
         f"{url_prefix}/user/create",
@@ -174,20 +174,20 @@ def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api", option_str: str
         f"{url_prefix}/book_social{option_str}-BookSocial/comment_book",
         f"{url_prefix}/book_social{option_str}-BookSocial/like_book",
     ]
-    pait_openapi: PaitOpenAPI = PaitOpenAPI(pait_dict, title="test")
+    pait_openapi: OpenAPI = OpenAPI(pait_dict)
 
     # test not enable grpc method
-    for url in pait_openapi.open_api_dict["paths"]:
+    for url in pait_openapi.model.paths:
         assert "get_uid_by_token" not in url
 
     for url in url_list:
-        is_grpc_route: bool = url in pait_openapi.open_api_dict["paths"]
+        is_grpc_route: bool = url in pait_openapi.model.paths
         # test url
         assert is_grpc_route
 
         if not is_grpc_route:
             continue
-        path_dict: dict = pait_openapi.open_api_dict["paths"][url]
+        path_dict: dict = pait_openapi.dict["paths"][url]
 
         # test method
         if url == f"{url_prefix}/book_social{option_str}-BookSocial/get_book_like":
@@ -212,13 +212,11 @@ def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api", option_str: str
             assert path_dict[method]["summary"] == "Create users through the system"
         elif url == f"{url_prefix}/user/login":
             assert path_dict[method]["summary"] == "User login to system"
-            response_schema_key: str = path_dict["post"]["responses"][200]["content"]["application/json"]["schema"][
+            response_schema_key: str = path_dict["post"]["responses"]["200"]["content"]["application/json"]["schema"][
                 "$ref"
             ]
-            response_schema: dict = pait_openapi.open_api_dict["components"]["schemas"][
-                response_schema_key.split("/")[-1]
-            ]
-            assert response_schema["title"] == "CustomerJsonResponseRespModel"
+            response_schema: dict = pait_openapi.dict["components"]["schemas"][response_schema_key.split("/")[-1]]
+            assert response_schema["title"] == "LoginUserResult"
             for column in ["code", "msg", "data"]:
                 assert column in response_schema["properties"]
         elif url == f"{url_prefix}/user/logout":
@@ -235,6 +233,9 @@ def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api", option_str: str
         # test parse protobuf desc to request pydantic.BaseModel
         if url == f"{url_prefix}/user/create":
             schema: dict = path_dict[method]["requestBody"]["content"]["application/json"]["schema"]
+            if "$ref" in schema and len(schema) == 1:
+                _, _, schema_key, key = schema["$ref"].split("/")
+                schema = pait_openapi.dict["components"][schema_key][key]
             # test miss default
             assert schema["required"] == ["uid"]
 

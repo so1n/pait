@@ -12,7 +12,7 @@ from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 
 from example.param_verify import flask_example
-from pait.api_doc.open_api import PaitOpenAPI
+from pait.api_doc.openapi import InfoModel, OpenAPI, ServerModel
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.flask import TestHelper as _TestHelper
@@ -140,11 +140,11 @@ class TestFlask:
                 None,
                 str(client.get("/openapi.json?pin_code=6666").get_data().decode()),
                 str(
-                    PaitOpenAPI(
+                    OpenAPI(
                         load_app(client.application),
-                        title="Pait Doc",
-                        open_api_server_list=[{"url": "http://localhost", "description": ""}],
-                    ).content
+                        openapi_info_model=InfoModel(title="Pait Doc"),
+                        server_model_list=[ServerModel(url="http://localhost")],
+                    ).content()
                 ),
             ).quick_ratio()
             > 0.95

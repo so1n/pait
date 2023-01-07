@@ -82,19 +82,20 @@ async def demo_post(
 
 app = Starlette(routes=[Route('/api', demo_post, methods=['POST'])])
 
-from pait.api_doc.open_api import PaitOpenAPI
+from pait.api_doc.openapi import OpenAPI
 from pait.app.starlette import load_app
 
 # 提取路由信息到pait的数据模块
 pait_dict = load_app(app)
 # 根据数据模块的数据生成路由的OpenAPI
-PaitOpenAPI(pait_dict)
+OpenAPI(pait_dict).content()
 ```
 通过改代码就可以自动生成一个OpenAPI的文件，不过一般情况下都很少直接使用生成的OpenAPI文件，如果单纯的需要一份API文档，那么可以使用自带的`markdown`模块来生成接口对应的`markdown`文档，代码如下：
 ```Python
-from pait.api_doc.markdown import PaitMd
+from any_api.openapi.to.markdown import Markdown
+from pait.api_doc.openapi import OpenAPI
 
-PaitMd(pait_dict).content
+print(Markdown(OpenAPI(pait_dict)).content)
 ```
 
 ## 3.OpenAPI路由

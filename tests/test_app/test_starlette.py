@@ -13,7 +13,7 @@ from starlette.applications import Starlette
 from starlette.testclient import TestClient
 
 from example.param_verify import starlette_example
-from pait.api_doc.open_api import PaitOpenAPI
+from pait.api_doc.openapi import InfoModel, OpenAPI, ServerModel
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.starlette import TestHelper as _TestHelper
@@ -174,11 +174,11 @@ class TestStarlette:
                 None,
                 str(client.get("/openapi.json?pin_code=6666").text),
                 str(
-                    PaitOpenAPI(
+                    OpenAPI(
                         load_app(client.app),  # type: ignore
-                        title="Pait Doc",
-                        open_api_server_list=[{"url": "http://localhost", "description": ""}],
-                    ).content
+                        openapi_info_model=InfoModel(title="Pait Doc"),
+                        server_model_list=[ServerModel(url="http://localhost")],
+                    ).content()
                 ),
             ).quick_ratio()
             > 0.95
