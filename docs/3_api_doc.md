@@ -146,7 +146,7 @@ add_doc_route(app, prefix='/doc')
 # 通常挂在Nginx后面的应用程序可能无法知道当前请求的scheme是https还是http，可以通过scheme指定请求点scheme
 add_doc_route(app, scheme='https')
 # 通常不适合把接口文档暴露给外面的用户使用，目前支持`pin_code`参数来增加一点点安全性，
-# 比如如下定义后，只能通过http://127.0.0.1/swagger?pin_code=6666才能成功访问Swagger页面
+# 比如如下定义后，只能通过http://127.0.0.1/swagger?pin-code=6666才能成功访问Swagger页面
 add_doc_route(app, pin_code='6666')
 
 if __name__ == "__main__":

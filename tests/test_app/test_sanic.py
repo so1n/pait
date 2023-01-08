@@ -112,12 +112,12 @@ class TestSanic:
             assert client.get(f"/api-doc/{doc_route_path}")[1].status_code == 200
 
         for doc_route_path, fn in default_doc_fn_dict.items():
-            assert client.get(f"/{doc_route_path}?pin_code=6666")[1].text == fn(
-                f"http://{client.host}:{client.port}/openapi.json?pin_code=6666", title="Pait Api Doc(private)"
+            assert client.get(f"/{doc_route_path}?pin-code=6666")[1].text == fn(
+                f"http://{client.host}:{client.port}/openapi.json?pin-code=6666", title="Pait Api Doc(private)"
             )
 
         assert (
-            json.loads(client.get("/openapi.json?pin_code=6666&template-token=xxx")[1].text)["paths"]["/api/user"][
+            json.loads(client.get("/openapi.json?pin-code=6666&template-token=xxx")[1].text)["paths"]["/api/user"][
                 "get"
             ]["parameters"][0]["schema"]["example"]
             == "xxx"
@@ -125,7 +125,7 @@ class TestSanic:
         assert (
             difflib.SequenceMatcher(
                 None,
-                str(client.get("/openapi.json?pin_code=6666")[1].text),
+                str(client.get("/openapi.json?pin-code=6666")[1].text),
                 str(
                     OpenAPI(
                         load_app(client.app),

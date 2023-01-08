@@ -125,12 +125,12 @@ class TestFlask:
             assert client.get(f"/api-doc/{doc_route_path}").status_code == 200
 
         for doc_route_path, fn in default_doc_fn_dict.items():
-            assert client.get(f"/{doc_route_path}?pin_code=6666").get_data().decode() == fn(
-                "http://localhost/openapi.json?pin_code=6666", title="Pait Api Doc(private)"
+            assert client.get(f"/{doc_route_path}?pin-code=6666").get_data().decode() == fn(
+                "http://localhost/openapi.json?pin-code=6666", title="Pait Api Doc(private)"
             )
 
         assert (
-            json.loads(client.get("/openapi.json?pin_code=6666&template-token=xxx").get_data().decode())["paths"][
+            json.loads(client.get("/openapi.json?pin-code=6666&template-token=xxx").get_data().decode())["paths"][
                 "/api/user"
             ]["get"]["parameters"][0]["schema"]["example"]
             == "xxx"
@@ -138,7 +138,7 @@ class TestFlask:
         assert (
             difflib.SequenceMatcher(
                 None,
-                str(client.get("/openapi.json?pin_code=6666").get_data().decode()),
+                str(client.get("/openapi.json?pin-code=6666").get_data().decode()),
                 str(
                     OpenAPI(
                         load_app(client.application),

@@ -159,12 +159,12 @@ class TestStarlette:
             assert client.get(f"/api-doc/{doc_route_path}").status_code == 200
 
         for doc_route_path, fn in default_doc_fn_dict.items():
-            assert client.get(f"/{doc_route_path}?pin_code=6666").text == fn(
-                f"{client.base_url}/openapi.json?pin_code=6666", title="Pait Api Doc(private)"
+            assert client.get(f"/{doc_route_path}?pin-code=6666").text == fn(
+                f"{client.base_url}/openapi.json?pin-code=6666", title="Pait Api Doc(private)"
             )
 
         assert (
-            json.loads(client.get("/openapi.json?pin_code=6666&template-token=xxx").text)["paths"]["/api/user"]["get"][
+            json.loads(client.get("/openapi.json?pin-code=6666&template-token=xxx").text)["paths"]["/api/user"]["get"][
                 "parameters"
             ][0]["schema"]["example"]
             == "xxx"
@@ -172,7 +172,7 @@ class TestStarlette:
         assert (
             difflib.SequenceMatcher(
                 None,
-                str(client.get("/openapi.json?pin_code=6666").text),
+                str(client.get("/openapi.json?pin-code=6666").text),
                 str(
                     OpenAPI(
                         load_app(client.app),  # type: ignore

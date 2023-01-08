@@ -3,7 +3,6 @@ import logging
 from enum import Enum
 from typing import Any, Callable, Dict, Generic, List, Optional, Type, TypeVar
 from urllib.parse import urlencode
-from warnings import warn
 
 from pydantic import BaseModel, Field
 
@@ -134,18 +133,10 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
     def _get_request_pin_code(
         self,
         r_pin_code: str = Query.i("", alias="pin-code"),
-        old_r_pin_code: str = Query.i(
-            "",
-            alias="pin_code",
-            description="This parameter is used for legacy functionality and will be deprecated later",
-        ),
     ) -> Optional[str]:
-        if self.pin_code:
-            if old_r_pin_code != "":
-                warn("Param `pin_code` will be deprecated, please use `pin-code`")
-            if r_pin_code != self.pin_code and old_r_pin_code != self.pin_code:
-                raise self.not_found_exc
-        return r_pin_code or old_r_pin_code
+        if self.pin_code and r_pin_code != self.pin_code:
+            raise self.not_found_exc
+        return r_pin_code
 
     @staticmethod
     def _get_request_template_map(extra_key: bool = False) -> Callable:
@@ -179,7 +170,7 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
             else:
                 openapi_json_url = f"{_scheme}://{re.hostname}{'/'.join(re.path.split('/')[:-1])}/openapi.json"
             if r_pin_code:
-                url_dict["pin_code"] = r_pin_code
+                url_dict["pin-code"] = r_pin_code
             openapi_json_url += "?" + urlencode(url_dict)
             return openapi_json_url
 

@@ -110,14 +110,14 @@ class TestTornado(BaseTestTornado):
             assert self.fetch(f"/api-doc/{doc_route_path}").code == 200
 
         for doc_route_path, fn in default_doc_fn_dict.items():
-            assert self.fetch(f"/{doc_route_path}?pin_code=6666").body.decode() == fn(
-                self.get_url("/openapi.json?pin_code=6666"), title="Pait Api Doc(private)"
+            assert self.fetch(f"/{doc_route_path}?pin-code=6666").body.decode() == fn(
+                self.get_url("/openapi.json?pin-code=6666"), title="Pait Api Doc(private)"
             )
 
         assert (
             difflib.SequenceMatcher(
                 None,
-                self.fetch("/openapi.json?pin_code=6666").body.decode(),
+                self.fetch("/openapi.json?pin-code=6666").body.decode(),
                 OpenAPI(
                     load_app(self._app),
                     openapi_info_model=InfoModel(title="Pait Doc"),

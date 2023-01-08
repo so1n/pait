@@ -65,7 +65,7 @@ class TestLinksModel:
             links.LinksModel(DemoResponseModel, "$response.body#")._check_openapi_runtime_expr()
 
         exec_msg = e.value.args[0]
-        assert "pait_response_model.response_data type is pydantic.Basemodel" in exec_msg
+        assert "response_data type is pydantic.Basemodel" in exec_msg
 
         # not support expr
         with pytest.raises(ValueError) as e:  # type: ignore

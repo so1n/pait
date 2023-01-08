@@ -58,7 +58,6 @@ class BaseField(FieldInfo):
 
         if link:
             extra["links"] = link
-            print(id(extra), id(self), link)
 
         self.media_type = media_type or self.__class__.media_type
         # if not alias, pait will set the key name to request_key in the preload phase
