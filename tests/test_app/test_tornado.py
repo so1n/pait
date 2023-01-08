@@ -49,8 +49,8 @@ class TestTornado(BaseTestTornado):
             resp: HTTPResponse = test_helper.get()
             for key, value in pait_response.get_header_example_dict().items():
                 assert resp.headers[key] == value
-            if issubclass(pait_response, response.PaitHtmlResponseModel) or issubclass(
-                pait_response, response.PaitTextResponseModel
+            if issubclass(pait_response, response.HtmlResponseModel) or issubclass(
+                pait_response, response.TextResponseModel
             ):
                 assert resp.body.decode() == pait_response.get_example_value()
             else:
@@ -95,13 +95,13 @@ class TestTornado(BaseTestTornado):
                 assert resp["msg"] == "miss param: ['data', 'age']"
 
     def test_text_response(self) -> None:
-        self.response_test_helper(tornado_example.TextResponseHanler.get, response.PaitTextResponseModel)
+        self.response_test_helper(tornado_example.TextResponseHanler.get, response.TextResponseModel)
 
     def test_html_response(self) -> None:
-        self.response_test_helper(tornado_example.HtmlResponseHanler.get, response.PaitHtmlResponseModel)
+        self.response_test_helper(tornado_example.HtmlResponseHanler.get, response.HtmlResponseModel)
 
     def test_file_response(self) -> None:
-        self.response_test_helper(tornado_example.FileResponseHanler.get, response.PaitFileResponseModel)
+        self.response_test_helper(tornado_example.FileResponseHanler.get, response.FileResponseModel)
 
     def test_doc_route(self) -> None:
         tornado_example.add_api_doc_route(self._app)

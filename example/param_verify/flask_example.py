@@ -47,7 +47,7 @@ from pait.extra.config import MatchRule, apply_block_http_method_set, apply_extr
 from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
 from pait.g import config
 from pait.model.links import LinksModel
-from pait.model.response import PaitHtmlResponseModel
+from pait.model.response import HtmlResponseModel
 from pait.model.status import PaitStatus
 from pait.model.template import TemplateVar
 from pait.plugin.at_most_one_of import AtMostOneOfPlugin
@@ -495,7 +495,7 @@ _typed_dict = TypedDict(
 
 
 @plugin_pait(
-    response_model_list=[PaitHtmlResponseModel, FailRespModel],
+    response_model_list=[HtmlResponseModel, FailRespModel],
     post_plugin_list=[
         CacheResponsePlugin.build(
             redis=Redis(decode_responses=True),
@@ -517,7 +517,7 @@ def cache_response(raise_exc: Optional[int] = Query.i(default=None)) -> Response
 
 
 @plugin_pait(
-    response_model_list=[PaitHtmlResponseModel],
+    response_model_list=[HtmlResponseModel],
     post_plugin_list=[CacheResponsePlugin.build(cache_time=10)],
 )
 def cache_response1() -> Response:

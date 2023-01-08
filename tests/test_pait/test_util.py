@@ -92,14 +92,14 @@ class TestUtil:
 
     def test_get_pait_response_model(self) -> None:
         from example.param_verify.model import TextRespModel, UserSuccessRespModel2, UserSuccessRespModel3
-        from pait.model.response import PaitJsonResponseModel
+        from pait.model.response import JsonResponseModel
 
         class CoreTestRespModel(TextRespModel):
             is_core: bool = True
 
         # Find target pait response class
         assert UserSuccessRespModel3 == util.get_pait_response_model(
-            [UserSuccessRespModel2, CoreTestRespModel, UserSuccessRespModel3], PaitJsonResponseModel
+            [UserSuccessRespModel2, CoreTestRespModel, UserSuccessRespModel3], JsonResponseModel
         )
         # Find two core pait response class
         with pytest.raises(RuntimeError):

@@ -63,8 +63,8 @@ def response_test_helper(
         resp: Response = test_helper.get()
         for key, value in pait_response.get_header_example_dict().items():
             assert resp.headers[key] == value
-        if issubclass(pait_response, response.PaitHtmlResponseModel) or issubclass(
-            pait_response, response.PaitTextResponseModel
+        if issubclass(pait_response, response.HtmlResponseModel) or issubclass(
+            pait_response, response.TextResponseModel
         ):
             assert resp.text == pait_response.get_example_value()
         else:
@@ -131,25 +131,25 @@ class TestStarlette:
     def test_text_response(self, client: TestClient) -> None:
         from pait.app.starlette.plugin.mock_response import MockPlugin
 
-        response_test_helper(client, starlette_example.text_response_route, response.PaitTextResponseModel, MockPlugin)
+        response_test_helper(client, starlette_example.text_response_route, response.TextResponseModel, MockPlugin)
         response_test_helper(
-            client, starlette_example.async_text_response_route, response.PaitTextResponseModel, MockPlugin
+            client, starlette_example.async_text_response_route, response.TextResponseModel, MockPlugin
         )
 
     def test_html_response(self, client: TestClient) -> None:
         from pait.app.starlette.plugin.mock_response import MockPlugin
 
-        response_test_helper(client, starlette_example.html_response_route, response.PaitHtmlResponseModel, MockPlugin)
+        response_test_helper(client, starlette_example.html_response_route, response.HtmlResponseModel, MockPlugin)
         response_test_helper(
-            client, starlette_example.async_html_response_route, response.PaitHtmlResponseModel, MockPlugin
+            client, starlette_example.async_html_response_route, response.HtmlResponseModel, MockPlugin
         )
 
     def test_file_response(self, client: TestClient) -> None:
         from pait.app.starlette.plugin.mock_response import MockPlugin
 
-        response_test_helper(client, starlette_example.file_response_route, response.PaitFileResponseModel, MockPlugin)
+        response_test_helper(client, starlette_example.file_response_route, response.FileResponseModel, MockPlugin)
         response_test_helper(
-            client, starlette_example.async_file_response_route, response.PaitFileResponseModel, MockPlugin
+            client, starlette_example.async_file_response_route, response.FileResponseModel, MockPlugin
         )
 
     def test_doc_route(self, client: TestClient) -> None:

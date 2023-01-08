@@ -9,14 +9,14 @@ from pydantic import BaseModel
 
 from pait.core import Pait
 from pait.field import BaseField, Body, Query
-from pait.model.response import BaseResponseModel, PaitJsonResponseModel
+from pait.model.response import BaseResponseModel, JsonResponseModel
 from pait.model.tag import Tag
 from pait.util.grpc_inspect.stub import GrpcModel, ParseStub
 from pait.util.grpc_inspect.types import Message, MessageToDict
 
 
 def _gen_response_model_handle(grpc_model: GrpcModel) -> Type[BaseResponseModel]:
-    class CustomerJsonResponseModel(PaitJsonResponseModel):
+    class CustomerJsonResponseModel(JsonResponseModel):
         name: str = grpc_model.response.DESCRIPTOR.name
         description: str = grpc_model.response.__doc__ or ""
 

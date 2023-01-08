@@ -45,7 +45,7 @@ class TestPaitTestHelper:
         assert FlaskTestHelper(client, demo).get().status_code == 400
 
     def test_check_diff_resp_dict(self, client: FlaskClient) -> None:
-        class DemoResponse(response.PaitJsonResponseModel):
+        class DemoResponse(response.JsonResponseModel):
             class DataModel(BaseModel):
                 a: str
 
@@ -64,8 +64,8 @@ class TestPaitTestHelper:
 
     def test_error_response(self, client: FlaskClient) -> None:
         class DemoResponse(response.BaseResponseModel):
-            media_type = response.PaitJsonResponseModel.media_type
-            status_code = response.PaitJsonResponseModel.status_code
+            media_type = response.JsonResponseModel.media_type
+            status_code = response.JsonResponseModel.status_code
 
         @pait(response_model_list=[DemoResponse])
         def demo() -> Response:
@@ -79,7 +79,7 @@ class TestPaitTestHelper:
         assert "Pait not support response model" in exec_msg
 
     def test_status_code_and_media_type_and_header_error(self, client: FlaskClient) -> None:
-        class DemoResponse(response.PaitTextResponseModel):
+        class DemoResponse(response.TextResponseModel):
             status_code: Tuple[int] = (999,)
 
             class HeaderModel(BaseModel):

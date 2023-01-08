@@ -23,6 +23,9 @@ HttpParamTypeDictType = Dict[HttpParamTypeLiteral, List[RequestModel]]
 class ApiModel(_ApiModel):
     pait_core_model: PaitCoreModel = Field()
 
+    class Config:
+        arbitrary_types_allowed = True
+
     def add_to_operation_model(self, _openapi_model: openapi_model.OperationModel) -> None:
         # Not an openapi standard parameter
         _openapi_model.pait_info = {

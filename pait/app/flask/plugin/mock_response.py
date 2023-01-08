@@ -10,14 +10,14 @@ __all__ = ["MockPlugin"]
 
 class MockPlugin(BaseMockPlugin):
     def mock_response(self) -> Response:
-        if issubclass(self.pait_response_model, response.PaitJsonResponseModel):
+        if issubclass(self.pait_response_model, response.JsonResponseModel):
             resp: Response = jsonify(self.pait_response_model.get_example_value())
-        elif issubclass(self.pait_response_model, response.PaitTextResponseModel) or issubclass(
-            self.pait_response_model, response.PaitHtmlResponseModel
+        elif issubclass(self.pait_response_model, response.TextResponseModel) or issubclass(
+            self.pait_response_model, response.HtmlResponseModel
         ):
             resp = make_response(self.pait_response_model.get_example_value())
             resp.mimetype = self.pait_response_model.media_type
-        elif issubclass(self.pait_response_model, response.PaitFileResponseModel):
+        elif issubclass(self.pait_response_model, response.FileResponseModel):
             with NamedTemporaryFile(delete=True) as temporary_file:
                 temporary_file.write(self.pait_response_model.get_example_value())
                 temporary_file.seek(0)

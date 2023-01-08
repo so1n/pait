@@ -50,8 +50,8 @@ def response_test_helper(
         resp: Response = test_helper.get()
         for key, value in pait_response.get_header_example_dict().items():
             assert resp.headers[key] == value
-        if issubclass(pait_response, response.PaitHtmlResponseModel) or issubclass(
-            pait_response, response.PaitTextResponseModel
+        if issubclass(pait_response, response.HtmlResponseModel) or issubclass(
+            pait_response, response.TextResponseModel
         ):
             assert resp.text == pait_response.get_example_value()
         else:
@@ -138,13 +138,13 @@ class TestSanic:
         )
 
     def test_text_response(self, client: SanicTestClient) -> None:
-        response_test_helper(client, sanic_example.text_response_route, response.PaitTextResponseModel)
+        response_test_helper(client, sanic_example.text_response_route, response.TextResponseModel)
 
     def test_html_response(self, client: SanicTestClient) -> None:
-        response_test_helper(client, sanic_example.html_response_route, response.PaitHtmlResponseModel)
+        response_test_helper(client, sanic_example.html_response_route, response.HtmlResponseModel)
 
     def test_file_response(self, client: SanicTestClient) -> None:
-        response_test_helper(client, sanic_example.file_response_route, response.PaitFileResponseModel)
+        response_test_helper(client, sanic_example.file_response_route, response.FileResponseModel)
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:

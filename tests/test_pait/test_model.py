@@ -151,9 +151,9 @@ class TestResponseModel:
         }
 
     def test_json_response_model(self) -> None:
-        for i in [response.JsonResponseModel, response.PaitJsonResponseModel]:
+        for i in [response.JsonResponseModel, response.JsonResponseModel]:
             self._test_dict_response_model(i)  # type: ignore
 
     def test_xml_response_model(self) -> None:
-        for i in [response.XmlResponseModel, response.PaitXmlResponseModel]:
+        for i in [response.XmlResponseModel, response.XmlResponseModel]:
             self._test_dict_response_model(i)  # type: ignore

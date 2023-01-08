@@ -7,19 +7,14 @@ from protobuf_to_pydantic import msg_to_pydantic_model
 from pydantic import BaseModel, Field
 
 from pait.field import Body, Depends, Header, Query
-from pait.model.response import (
-    BaseResponseModel,
-    PaitFileResponseModel,
-    PaitHtmlResponseModel,
-    PaitJsonResponseModel,
-    PaitResponseModel,
-    PaitTextResponseModel,
-)
+from pait.model.response import BaseResponseModel, FileResponseModel, HtmlResponseModel, JsonResponseModel
+from pait.model.response import ResponseModel as PaitResponseModel
+from pait.model.response import TextResponseModel
 from pait.util.grpc_inspect.stub import GrpcModel
 
 
 def gen_response_model_handle(grpc_model: GrpcModel) -> Type[BaseResponseModel]:
-    class CustomerJsonResponseModel(PaitJsonResponseModel):
+    class CustomerJsonResponseModel(JsonResponseModel):
         class CustomerJsonResponseRespModel(BaseModel):
             code: int = Field(0, description="api code")
             msg: str = Field("success", description="api status msg")
@@ -140,7 +135,7 @@ class UserSuccessRespModel(PaitResponseModel):
     response_data: Type[BaseModel] = ResponseModel
 
 
-class UserSuccessRespModel2(PaitJsonResponseModel):
+class UserSuccessRespModel2(JsonResponseModel):
     class ResponseModel(ResponseModel):  # type: ignore
         class DataModel(BaseModel):
             uid: int = Field(description="user id", gt=10, lt=1000, example=666)
@@ -161,7 +156,7 @@ class UserSuccessRespModel2(PaitJsonResponseModel):
     response_data: Type[BaseModel] = ResponseModel
 
 
-class AutoCompleteRespModel(PaitJsonResponseModel):
+class AutoCompleteRespModel(JsonResponseModel):
     is_core: bool = True
 
     class ResponseModel(ResponseModel):  # type: ignore
@@ -181,7 +176,7 @@ class AutoCompleteRespModel(PaitJsonResponseModel):
     response_data: Type[BaseModel] = ResponseModel
 
 
-class UserSuccessRespModel3(PaitJsonResponseModel):
+class UserSuccessRespModel3(JsonResponseModel):
     is_core: bool = True
 
     class ResponseModel(ResponseModel):  # type: ignore
@@ -197,17 +192,17 @@ class UserSuccessRespModel3(PaitJsonResponseModel):
     response_data: Type[BaseModel] = ResponseModel
 
 
-class FailRespModel(PaitJsonResponseModel):
+class FailRespModel(JsonResponseModel):
     description: str = "fail response"
     response_data: Type[BaseModel] = ResponseFailModel
 
 
-class SuccessRespModel(PaitJsonResponseModel):
+class SuccessRespModel(JsonResponseModel):
     description: str = "success response"
     response_data: Type[BaseModel] = ResponseModel
 
 
-class SimpleRespModel(PaitJsonResponseModel):
+class SimpleRespModel(JsonResponseModel):
     class ResponseModel(BaseModel):
         code: int = Field(0, description="api code")
         msg: str = Field("success", description="api status msg")
@@ -217,7 +212,7 @@ class SimpleRespModel(PaitJsonResponseModel):
     response_data: Type[BaseModel] = ResponseModel
 
 
-class TextRespModel(PaitTextResponseModel):
+class TextRespModel(TextResponseModel):
     class HeaderModel(BaseModel):
         x_example_type: str = Field(default="text", alias="X-Example-Type")
 
@@ -225,7 +220,7 @@ class TextRespModel(PaitTextResponseModel):
     description: str = "text response"
 
 
-class HtmlRespModel(PaitHtmlResponseModel):
+class HtmlRespModel(HtmlResponseModel):
     class HeaderModel(BaseModel):
         x_example_type: str = Field(default="html", alias="X-Example-Type")
 
@@ -233,7 +228,7 @@ class HtmlRespModel(PaitHtmlResponseModel):
     description: str = "html response"
 
 
-class FileRespModel(PaitFileResponseModel):
+class FileRespModel(FileResponseModel):
     class HeaderModel(BaseModel):
         x_example_type: str = Field(default="file", alias="X-Example-Type")
 
@@ -241,7 +236,7 @@ class FileRespModel(PaitFileResponseModel):
     description: str = "file response"
 
 
-class LoginRespModel(PaitJsonResponseModel):
+class LoginRespModel(JsonResponseModel):
     class ResponseModel(BaseModel):  # type: ignore
         class DataModel(BaseModel):
             token: str

@@ -77,14 +77,14 @@ config.init_config(apply_func_list=[apply_extra_openapi_model(DemoModel)])
 ```
 ### apply_response_model
 与apply_extra_openapi_model一样，在使用中间件限制版本号小于1的时候，可能返回的是一个内部的响应，这时候可以使用apply_response_model来添加一个默认的响应，需要注意点是，添加的这个默认响应模型的`is_core`属性必须为False，使用方法如下：
+
 ```Python
 from pait.extra.config import apply_response_model
 from pait.g import config
-from pait.model.response import PaitHtmlResponseModel
+from pait.model.response import HtmlResponseModel
 
 
-
-class DefaultResponseModel(PaitHtmlResponseModel):
+class DefaultResponseModel(HtmlResponseModel):
     is_core = False
 
 

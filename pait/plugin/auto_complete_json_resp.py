@@ -1,7 +1,7 @@
 import copy
 from typing import TYPE_CHECKING, Any, Dict, Type
 
-from pait.model.response import BaseResponseModel, PaitJsonResponseModel
+from pait.model.response import BaseResponseModel, JsonResponseModel
 from pait.plugin.base import PluginProtocol
 from pait.util import get_pait_response_model
 
@@ -42,8 +42,8 @@ class AutoCompleteJsonRespPlugin(PluginProtocol):
         pait_response_model: Type[BaseResponseModel] = get_pait_response_model(
             pait_core_model.response_model_list, find_core_response_model=True
         )
-        if not issubclass(pait_response_model, PaitJsonResponseModel):
-            raise ValueError(f"pait_response_model must {PaitJsonResponseModel} not {pait_response_model}")
+        if not issubclass(pait_response_model, JsonResponseModel):
+            raise ValueError(f"pait_response_model must {JsonResponseModel} not {pait_response_model}")
         kwargs["default_response_dict"] = pait_response_model.get_default_dict()
         return kwargs
 

@@ -61,8 +61,8 @@ def response_test_helper(
 
         for key, value in pait_response.get_header_example_dict().items():
             assert resp.headers[key] == value
-        if issubclass(pait_response, response.PaitHtmlResponseModel) or issubclass(
-            pait_response, response.PaitTextResponseModel
+        if issubclass(pait_response, response.HtmlResponseModel) or issubclass(
+            pait_response, response.TextResponseModel
         ):
             assert resp.get_data().decode() == pait_response.get_example_value()
         else:
@@ -176,13 +176,13 @@ class TestFlask:
         assert is_call
 
     def test_text_response(self, client: FlaskClient) -> None:
-        response_test_helper(client, flask_example.text_response_route, response.PaitTextResponseModel)
+        response_test_helper(client, flask_example.text_response_route, response.TextResponseModel)
 
     def test_html_response(self, client: FlaskClient) -> None:
-        response_test_helper(client, flask_example.html_response_route, response.PaitHtmlResponseModel)
+        response_test_helper(client, flask_example.html_response_route, response.HtmlResponseModel)
 
     def test_file_response(self, client: FlaskClient) -> None:
-        response_test_helper(client, flask_example.file_response_route, response.PaitFileResponseModel)
+        response_test_helper(client, flask_example.file_response_route, response.FileResponseModel)
 
     def test_raise_tip_route(self, base_test: BaseTest) -> None:
         base_test.raise_tip_route(flask_example.raise_tip_route)

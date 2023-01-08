@@ -6,7 +6,7 @@ from redis.asyncio import Redis as AsyncioRedis  # type: ignore
 
 from pait.app import set_app_attribute
 from pait.g import pait_context
-from pait.model.response import PaitFileResponseModel
+from pait.model.response import FileResponseModel
 from pait.plugin.base import PluginProtocol
 
 if TYPE_CHECKING:
@@ -47,10 +47,10 @@ class CacheResponsePlugin(PluginProtocol):
         super().pre_check_hook(pait_core_model, kwargs)
         if not pait_core_model.response_model_list:
             raise RuntimeError(f"{pait_core_model.func} can not found response model")
-        if issubclass(pait_core_model.response_model_list[0], PaitFileResponseModel):
+        if issubclass(pait_core_model.response_model_list[0], FileResponseModel):
             raise RuntimeError(
                 f"Not use {cls.__name__} in {pait_core_model.func.__name__}, "
-                f"{cls.__name__} not support {PaitFileResponseModel.__class__.__name__}"
+                f"{cls.__name__} not support {FileResponseModel.__class__.__name__}"
             )
         if kwargs.get("redis", None) is not None:
             cls.check_redis(kwargs["redis"])

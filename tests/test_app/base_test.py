@@ -8,7 +8,7 @@ from redis import Redis  # type: ignore
 from example.param_verify.model import gen_response_model_handle
 from pait.app.base import BaseTestHelper
 from pait.app.base.grpc_route import BaseGrpcGatewayRoute
-from pait.model.response import BaseResponseModel, PaitHtmlResponseModel, PaitTextResponseModel
+from pait.model.response import BaseResponseModel, HtmlResponseModel, TextResponseModel
 from pait.plugin.cache_response import CacheResponsePlugin
 from tests.conftest import enable_plugin, grpc_test_openapi
 
@@ -297,7 +297,7 @@ class BaseTest(object):
         def _handler(_route_handler: Callable) -> Any:
             pait_core_model: "PaitCoreModel" = getattr(_route_handler, "pait_core_model")
             pait_response: Type[BaseResponseModel] = pait_core_model.response_model_list[0]
-            if issubclass(pait_response, PaitHtmlResponseModel) or issubclass(pait_response, PaitTextResponseModel):
+            if issubclass(pait_response, HtmlResponseModel) or issubclass(pait_response, TextResponseModel):
                 return self.test_helper(self.client, _route_handler).text("get")
             else:
                 return self.test_helper(self.client, _route_handler).text("get")

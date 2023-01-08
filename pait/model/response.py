@@ -16,15 +16,15 @@ __all__ = [
     "PaitResponseModel",
     "BaseResponseModel",
     "HtmlResponseModel",
-    "PaitHtmlResponseModel",
+    "HtmlResponseModel",
     "JsonResponseModel",
-    "PaitJsonResponseModel",
+    "JsonResponseModel",
     "FileResponseModel",
-    "PaitFileResponseModel",
+    "FileResponseModel",
     "TextResponseModel",
-    "PaitTextResponseModel",
+    "TextResponseModel",
     "XmlResponseModel",
-    "PaitXmlResponseModel",
+    "XmlResponseModel",
 ]
 
 
@@ -86,7 +86,7 @@ class ResponseModel(JsonResponseModel):
 
 
 class PaitResponseModel(JsonResponseModel):
-    """PaitJsonResponseModel alias Compatible versions below 0.7"""
+    """JsonResponseModel alias Compatible versions below 0.7"""
 
 
 class PaitTextResponseModel(TextResponseModel):

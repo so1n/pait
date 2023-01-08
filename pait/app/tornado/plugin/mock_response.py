@@ -16,13 +16,13 @@ class MockPlugin(BaseMockPlugin):
             for key, value in self.pait_response_model.get_header_example_dict().items():
                 self.tornado_handle.set_header(key, value)
             self.tornado_handle.set_header("Content-Type", self.pait_response_model.media_type)
-            if issubclass(self.pait_response_model, response.PaitJsonResponseModel):
+            if issubclass(self.pait_response_model, response.JsonResponseModel):
                 self.tornado_handle.write(self.pait_response_model.get_example_value())
-            elif issubclass(self.pait_response_model, response.PaitTextResponseModel) or issubclass(
-                self.pait_response_model, response.PaitHtmlResponseModel
+            elif issubclass(self.pait_response_model, response.TextResponseModel) or issubclass(
+                self.pait_response_model, response.HtmlResponseModel
             ):
                 self.tornado_handle.write(self.pait_response_model.get_example_value())
-            elif issubclass(self.pait_response_model, response.PaitFileResponseModel):
+            elif issubclass(self.pait_response_model, response.FileResponseModel):
                 async with aiofiles.tempfile.NamedTemporaryFile() as f:  # type: ignore
                     await f.write(self.pait_response_model.get_example_value())
                     await f.seek(0)

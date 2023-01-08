@@ -6,7 +6,7 @@ from pydantic import BaseConfig, BaseModel, Field
 from pait.app.base import BaseAppHelper
 from pait.extra import config
 from pait.model.core import PaitCoreModel
-from pait.model.response import BaseResponseModel, PaitJsonResponseModel
+from pait.model.response import BaseResponseModel, JsonResponseModel
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
 from pait.plugin.at_most_one_of import AtMostOneOfPlugin
@@ -181,8 +181,8 @@ class TestApplyFun:
 
         for i in self.core_model_list:
             assert i.response_model_list == []
-            config.apply_response_model([PaitJsonResponseModel])(i)
-            assert i.response_model_list == [PaitJsonResponseModel]
+            config.apply_response_model([JsonResponseModel])(i)
+            assert i.response_model_list == [JsonResponseModel]
 
         for i in self.core_model_list:
             with pytest.raises(ValueError):

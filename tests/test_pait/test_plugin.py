@@ -85,7 +85,7 @@ class TestJsonPlugin:
         assert "Please use response_model_list param" in exec_msg
 
     def test_response_model_is_not_json_resp(self) -> None:
-        class DemoCoreTestResponseModel(response.PaitTextResponseModel):
+        class DemoCoreTestResponseModel(response.TextResponseModel):
             is_core = True
 
         def demo() -> None:
@@ -100,7 +100,7 @@ class TestJsonPlugin:
         assert "pait_response_model must " in exec_msg
 
     def test_fun_not_return_type(self) -> None:
-        class DemoCoreJsonResponseModel(response.PaitJsonResponseModel):
+        class DemoCoreJsonResponseModel(response.JsonResponseModel):
             is_core = True
 
         def demo() -> None:
@@ -115,7 +115,7 @@ class TestJsonPlugin:
         assert "Can not found return type by func" in exec_msg
 
     def test_fun_return_type_is_not_dict_and_typed_dict(self) -> None:
-        class DemoCoreJsonResponseModel(response.PaitJsonResponseModel):
+        class DemoCoreJsonResponseModel(response.JsonResponseModel):
             is_core = True
 
         def demo() -> int:
@@ -148,7 +148,7 @@ class TestAutoCompleteJsonPlugin:
         assert "Please use response_model_list param" in exec_msg
 
     def test_response_model_is_not_json_resp(self) -> None:
-        class DemoCoreTestResponseModel(response.PaitTextResponseModel):
+        class DemoCoreTestResponseModel(response.TextResponseModel):
             is_core = True
 
         def demo() -> None:
@@ -186,7 +186,7 @@ class TestMockPlugin:
 
         with pytest.raises(RuntimeError) as e:
             BaseMockPlugin.pre_check_hook(
-                PaitCoreModel(demo, BaseAppHelper, response_model_list=[response.PaitJsonResponseModel]),
+                PaitCoreModel(demo, BaseAppHelper, response_model_list=[response.JsonResponseModel]),
                 {"pait_response_model": ""},
             )
 
@@ -198,7 +198,7 @@ class TestMockPlugin:
             pass
 
         def filter_response(pait_response: Type[response.BaseResponseModel]) -> bool:
-            if issubclass(pait_response, response.PaitTextResponseModel):
+            if issubclass(pait_response, response.TextResponseModel):
                 return True
             else:
                 return False
@@ -207,11 +207,11 @@ class TestMockPlugin:
             PaitCoreModel(
                 demo,
                 BaseAppHelper,
-                response_model_list=[response.PaitJsonResponseModel, response.PaitTextResponseModel],
+                response_model_list=[response.JsonResponseModel, response.TextResponseModel],
             ),
             {"enable_mock_response_filter_fn": filter_response},
         )
-        assert kwargs["pait_response_model"] == response.PaitTextResponseModel
+        assert kwargs["pait_response_model"] == response.TextResponseModel
 
     def test_get_pait_response_model(self) -> None:
         def demo() -> None:
@@ -221,11 +221,11 @@ class TestMockPlugin:
             PaitCoreModel(
                 demo,
                 BaseAppHelper,
-                response_model_list=[response.PaitJsonResponseModel, response.PaitTextResponseModel],
+                response_model_list=[response.JsonResponseModel, response.TextResponseModel],
             ),
             {},
         )
-        assert kwargs["pait_response_model"] == response.PaitJsonResponseModel
+        assert kwargs["pait_response_model"] == response.JsonResponseModel
 
 
 class TestParamPlugin:
@@ -238,7 +238,7 @@ class TestParamPlugin:
                 PaitCoreModel(
                     demo,
                     BaseAppHelper,
-                    response_model_list=[response.PaitJsonResponseModel, response.PaitTextResponseModel],
+                    response_model_list=[response.JsonResponseModel, response.TextResponseModel],
                 ),
                 {},
             )
@@ -255,7 +255,7 @@ class TestParamPlugin:
                 PaitCoreModel(
                     demo,
                     BaseAppHelper,
-                    response_model_list=[response.PaitJsonResponseModel, response.PaitTextResponseModel],
+                    response_model_list=[response.JsonResponseModel, response.TextResponseModel],
                 ),
                 {},
             )
@@ -272,7 +272,7 @@ class TestParamPlugin:
                 PaitCoreModel(
                     demo,
                     BaseAppHelper,
-                    response_model_list=[response.PaitJsonResponseModel, response.PaitTextResponseModel],
+                    response_model_list=[response.JsonResponseModel, response.TextResponseModel],
                 ),
                 {},
             )
@@ -288,7 +288,7 @@ class TestParamPlugin:
                 PaitCoreModel(
                     demo1,
                     BaseAppHelper,
-                    response_model_list=[response.PaitJsonResponseModel, response.PaitTextResponseModel],
+                    response_model_list=[response.JsonResponseModel, response.TextResponseModel],
                 ),
                 {},
             )
@@ -319,7 +319,7 @@ class TestCacheResponsePlugin:
 
         with pytest.raises(RuntimeError) as e:
             CacheResponsePlugin.build(redis=Redis()).pre_check_hook(
-                PaitCoreModel(demo, BaseAppHelper, response_model_list=[response.PaitFileResponseModel]),
+                PaitCoreModel(demo, BaseAppHelper, response_model_list=[response.FileResponseModel]),
             )
 
         exec_msg = e.value.args[0]
@@ -334,7 +334,7 @@ class TestCacheResponsePlugin:
                 PaitCoreModel(
                     demo,
                     BaseAppHelper,
-                    response_model_list=[response.PaitJsonResponseModel, response.PaitTextResponseModel],
+                    response_model_list=[response.JsonResponseModel, response.TextResponseModel],
                 ),
             )
         exec_msg = e.value.args[0]
