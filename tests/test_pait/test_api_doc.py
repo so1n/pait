@@ -12,14 +12,9 @@ class TestApiDoc:
         for app_name in app_list:
             module = importlib.import_module(f"example.api_doc.{app_name}_example")  # type: ignore
             pait_dict: Dict[str, PaitCoreModel] = module.load_app(module.create_app(), project_name="")  # type: ignore
-            module.PaitMd(pait_dict, use_html_details=True)  # type: ignore
-            for i in ("json", "yaml"):
-                module.PaitOpenAPI(  # type: ignore
-                    pait_dict,
-                    title="Pait Doc",
-                    open_api_tag_list=[
-                        {"name": "test", "description": "test api"},
-                        {"name": "user", "description": "user api"},
-                    ],
-                    type_=i,
-                )
+
+            for i18n_lang in ("zh-cn", "en"):
+                module.Markdown(module.OpenAPI(pait_dict), i18n_lang=i18n_lang).content  # type: ignore
+
+            module.OpenAPI(pait_dict).content()  # type: ignore
+            module.OpenAPI(pait_dict).content(serialization_callback=module.my_serialization)  # type: ignore

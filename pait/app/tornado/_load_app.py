@@ -41,7 +41,7 @@ def load_app(app: Application, project_name: str = "", auto_load_route: bool = F
             handler: Optional[Callable] = getattr(rule.target, method, None)
             if not handler:
                 continue
-            if handler is RequestHandler:
+            if handler is RequestHandler._unimplemented_method:
                 continue
             route_name: str = f"{base_name}.{method}"
             pait_id: str = getattr(handler, "_pait_id", "")
