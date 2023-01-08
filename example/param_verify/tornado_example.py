@@ -464,13 +464,16 @@ class LoginHanlder(MyHandler):
         )
 
 
-token_links_Model = LinksModel(LoginRespModel, "$response.body#/data/token", desc="test links model")
-
-
 class GetUserHandler(MyHandler):
     @link_pait(response_model_list=[SuccessRespModel])
     def get(
-        self, token: str = Header.i("", description="token", link=token_links_Model, example=TemplateVar("token"))
+        self,
+        token: str = Header.i(
+            "",
+            description="token",
+            link=LinksModel(LoginRespModel, "$response.body#/data/token", desc="test links model"),
+            example=TemplateVar("token"),
+        ),
     ) -> None:
         if token:
             self.write({"code": 0, "msg": ""})

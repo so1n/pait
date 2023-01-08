@@ -412,12 +412,14 @@ def login_route(uid: str = Body.i(description="user id"), password: str = Body.i
     return {"code": 0, "msg": "", "data": {"token": hashlib.sha256((uid + password).encode("utf-8")).hexdigest()}}
 
 
-token_links_Model = LinksModel(LoginRespModel, "$response.body#/data/token", desc="test links model")
-
-
 @link_pait(response_model_list=[SuccessRespModel])
 def get_user_route(
-    token: str = Header.i("", description="token", link=token_links_Model, example=TemplateVar("token"))
+    token: str = Header.i(
+        "",
+        description="token",
+        link=LinksModel(LoginRespModel, "$response.body#/data/token", desc="test links model"),
+        example=TemplateVar("token"),
+    )
 ) -> dict:
     if token:
         return {"code": 0, "msg": ""}

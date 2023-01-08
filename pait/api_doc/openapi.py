@@ -55,9 +55,10 @@ class OpenAPI(object):
             external_docs=external_docs,
             security_dict=security_dict,
         )
+        api_model_list: List[ApiModel] = []
         for pait_id, pait_model in pait_dict.items():
             http_param_type_dict: HttpParamTypeDictType = self._parse_pait_model_to_http_param_type_dict(pait_model)
-            self._openapi.add_api_model(
+            api_model_list.append(
                 ApiModel(
                     path=pait_model.openapi_path,
                     http_method_list=pait_model.openapi_method_list,
@@ -77,6 +78,8 @@ class OpenAPI(object):
                     pait_core_model=pait_model,
                 )
             )
+        # In order to be compatible with the link, it must be imported in batches
+        self._openapi.add_api_model(*api_model_list)
 
     #########################
     # proxy openapi feature #

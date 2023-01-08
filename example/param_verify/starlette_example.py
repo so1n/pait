@@ -522,12 +522,14 @@ def login_route(
     )
 
 
-token_links_Model = LinksModel(LoginRespModel, "$response.body#/data/token", desc="test links model")
-
-
 @link_pait(response_model_list=[SuccessRespModel])
 def get_user_route(
-    token: str = Header.i("", description="token", link=token_links_Model, example=TemplateVar("token"))
+    token: str = Header.i(
+        "",
+        description="token",
+        link=LinksModel(LoginRespModel, "$response.body#/data/token", desc="test links model"),
+        example=TemplateVar("token"),
+    )
 ) -> JSONResponse:
     if token:
         return JSONResponse({"code": 0, "msg": ""})

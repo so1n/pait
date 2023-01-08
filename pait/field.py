@@ -56,9 +56,9 @@ class BaseField(FieldInfo):
         if getattr(example, "__class__", None) is not MISSING.__class__:
             extra["example"] = example
 
-        if not link:
-            link = extra.pop("link", None)
-        self.link: "Optional[LinksModel]" = link
+        if link:
+            extra["links"] = link
+            print(id(extra), id(self), link)
 
         self.media_type = media_type or self.__class__.media_type
         # if not alias, pait will set the key name to request_key in the preload phase
@@ -92,6 +92,10 @@ class BaseField(FieldInfo):
 
     def request_value_handle_by_default_factory(self, request_value: Mapping) -> Any:
         return request_value.get(self.request_key, self.default_factory())
+
+    @property
+    def links(self) -> "Optional[LinksModel]":
+        return self.extra.get("links", None)
 
     @classmethod
     def get_field_name(cls) -> str:
