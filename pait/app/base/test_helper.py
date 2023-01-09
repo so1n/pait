@@ -12,6 +12,25 @@ from pait.util import gen_example_dict_from_schema, gen_example_value_from_pytho
 RESP_T = TypeVar("RESP_T")
 
 
+class CheckResponseException(Exception):
+    def __init__(
+        self,
+        status_code: Optional[int] = None,
+        media_type: Optional[str] = None,
+        headers: Optional[Mapping] = None,
+        resp: Any = None,
+        func: Optional[Callable] = None,
+        message: Optional[str] = None,
+    ):
+        self.status_code: Optional[int] = status_code
+        self.media_type: Optional[str] = media_type
+        self.headers: Optional[Mapping] = headers
+        self.resp: Any = resp
+        self.func: Optional[Callable] = func
+        self.message: Optional[str] = message
+        super().__init__(self.message)
+
+
 class BaseTestHelper(Generic[RESP_T]):
     client: Any
 
@@ -201,7 +220,12 @@ class BaseTestHelper(Generic[RESP_T]):
             # check content
             if issubclass(response_model, response.JsonResponseModel):
                 response_data_model: Type[BaseModel] = response_model.response_data
-                resp_dict: Optional[dict] = self._get_json(resp)
+                resp_dict: Optional[dict] = None
+                try:
+                    resp_dict = self._get_json(resp)
+                except Exception:
+                    pass
+
                 if not resp_dict:
                     continue
                 response_data_default_dict: dict = gen_example_dict_from_schema(response_data_model.schema())
@@ -239,33 +263,35 @@ class BaseTestHelper(Generic[RESP_T]):
                 return
             else:
                 model_check_msg_dict[response_model] = error_msg_list
-        response_dict: dict = {
-            "status_code": self._get_status_code(resp),
-            "media_type": self._get_content_type(resp),
-            "headers": self._get_headers(resp),
-            "obj": resp,
-        }
         if real_response_model in model_check_msg_dict:
             error_str: str = "\n    ".join(model_check_msg_dict[real_response_model])
-            raise RuntimeError(
-                f"Check {self.func} Response Error.\n"
-                " maybe error result: \n"
-                f"    {error_str}\n\n"
-                f" by response model:{real_response_model}\n"
-                f" response info: {response_dict}"
+            raise CheckResponseException(
+                status_code=self._get_status_code(resp),
+                media_type=self._get_content_type(resp),
+                headers=self._get_headers(resp),
+                resp=resp,
+                func=self.func,
+                message=(
+                    " maybe error result: \n" f"    {error_str}\n\n" f" by response model:{real_response_model}\n"
+                ),
             )
+
         error_str = ""
         for k, v in model_check_msg_dict.items():
             error_str += str(k)
             error_str += ":\n"
             error_str += "    \n".join(v)
-
-        raise RuntimeError(
-            f"Check {self.func} Response Error. \n"
-            f"response error result:{error_str} \n"
-            f"total response model:{self.pait_core_model.response_model_list}. \n"
-            f"response info: {response_dict} "
-        )  # pragma: no cover
+        raise CheckResponseException(
+            status_code=self._get_status_code(resp),
+            media_type=self._get_content_type(resp),
+            headers=self._get_headers(resp),
+            resp=resp,
+            func=self.func,
+            message=(
+                f"response error result:{error_str} \n"
+                f"by response model list:{self.pait_core_model.response_model_list}. \n"
+            ),
+        )
 
     def _replace_path(self, path_str: str) -> Optional[str]:
         raise NotImplementedError()
