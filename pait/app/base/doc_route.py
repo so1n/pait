@@ -4,13 +4,9 @@ from enum import Enum
 from typing import Any, Callable, Dict, Generic, List, Optional, Type, TypeVar
 from urllib.parse import urlencode
 
+from any_api.openapi import web_ui
 from pydantic import BaseModel, Field
 
-from pait.api_doc.html import get_elements_html as _get_elements_html
-from pait.api_doc.html import get_rapidoc_html as _get_rapidoc_html
-from pait.api_doc.html import get_rapipdf_html as _get_rapipdf_html
-from pait.api_doc.html import get_redoc_html as _get_redoc_html
-from pait.api_doc.html import get_swagger_ui_html as _get_swagger_ui_html
 from pait.api_doc.openapi import InfoModel, OpenAPI, ServerModel
 from pait.core import Pait, PluginManager
 from pait.field import Depends, Path, Query
@@ -54,13 +50,7 @@ APP_T = TypeVar("APP_T")
 ResponseT = TypeVar("ResponseT")
 
 
-default_doc_fn_dict: Dict[str, Callable] = {
-    "redoc": _get_redoc_html,
-    "swagger": _get_swagger_ui_html,
-    "rapidoc": _get_rapidoc_html,
-    "rapipdf": _get_rapipdf_html,
-    "elements": _get_elements_html,
-}
+default_doc_fn_dict: Dict[str, Callable] = {key.split("_")[1]: getattr(web_ui, key) for key in web_ui.__all__}
 
 
 class DocEnum(str, Enum):
