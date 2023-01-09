@@ -9,6 +9,8 @@ Note: This version will have syntax changes that are not backward compatible, an
 
 Function Changes:
 - Depend enhances support for class instances
+- add OpenAPI APIKey Feature
+- Field adds the parameter `not_authenticated_exc`, which allows developers to specify that the error value cannot be found
 
 API Changes:
 - `@pait` The tag parameter type no longer supports String, only `Tag` is supported. e.g:

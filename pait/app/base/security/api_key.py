@@ -24,6 +24,8 @@ def api_key(
     verify_api_key_callable: Callable[[str], bool],
     security_name: Optional[str] = None,
 ) -> APIkey:
+    not_authenticated_exc: Exception = api_key_class.get_exception(status_code=403, message="Not authenticated")
+
     class _APIKey(api_key_class):  # type: ignore
         def __init__(self) -> None:
             field_name: str = field.get_field_name()
@@ -36,12 +38,14 @@ def api_key(
 
         def __call__(
             self,
-            api_key: str = field.i(
-                default="", alias=name, example="This value is a placeholder, please use the Authorize"
+            api_key_: str = field.i(
+                alias=name,
+                example="This value is a placeholder, please use the Authorize",
+                not_value_exception=not_authenticated_exc,
             ),
         ) -> Optional[str]:
-            if not verify_api_key_callable(api_key):
-                raise self.get_exception(status_code=403, message="Not authenticated")
-            return api_key
+            if not verify_api_key_callable(api_key_):
+                raise not_authenticated_exc
+            return api_key_
 
     return _APIKey()

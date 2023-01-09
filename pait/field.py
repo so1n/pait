@@ -24,6 +24,7 @@ class BaseField(FieldInfo):
         openapi_serialization: Any = None,
         raw_return: bool = False,
         example: Any = MISSING,
+        not_value_exception: Optional[Exception] = None,
         default_factory: Optional[NoArgAnyCallable] = None,
         alias: str = None,
         title: str = None,
@@ -58,6 +59,7 @@ class BaseField(FieldInfo):
         if link:
             extra["links"] = link
 
+        self.not_value_exception: Optional[Exception] = not_value_exception
         self.media_type = media_type or self.__class__.media_type
         # if not alias, pait will set the key name to request_key in the preload phase
         self.request_key: Optional[str] = alias
@@ -109,6 +111,7 @@ class BaseField(FieldInfo):
         media_type: str = "",
         example: Any = MISSING,
         openapi_serialization: Any = None,
+        not_value_exception: Optional[Exception] = None,
         default_factory: Optional[NoArgAnyCallable] = None,
         alias: str = None,
         title: str = None,
@@ -134,6 +137,7 @@ class BaseField(FieldInfo):
             example=example,
             media_type=media_type,
             openapi_serialization=openapi_serialization,
+            not_value_exception=not_value_exception,
             default_factory=default_factory,
             alias=alias,
             title=title,

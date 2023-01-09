@@ -250,9 +250,11 @@ class BaseParamHandler(PluginProtocol):
         parameter_value_dict: Dict["inspect.Parameter", Any],
     ) -> None:
         """parse request_value and set to base_model_dict or parameter_value_dict"""
-        if request_value is None:
-            raise NotFoundValueException(parameter.name, f"Can not found {parameter.name} value")
         pait_field: BaseField = parameter.default
+        if request_value is None:
+            if pait_field.not_value_exception:
+                raise pait_field.not_value_exception
+            raise NotFoundValueException(parameter.name, f"Can not found {parameter.name} value")
         annotation: Type[BaseModel] = parameter.annotation
 
         # some type like dict, but not isinstance Mapping, e.g: werkzeug.datastructures.EnvironHeaders
@@ -261,6 +263,8 @@ class BaseParamHandler(PluginProtocol):
 
             request_value = pait_field.request_value_handle(request_value)
             if request_value is Undefined:
+                if pait_field.not_value_exception:
+                    raise pait_field.not_value_exception
                 raise NotFoundValueException(parameter.name, f"Can not found {parameter.name} value")
 
         if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
