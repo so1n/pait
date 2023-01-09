@@ -14,6 +14,7 @@ from sanic_testing.testing import SanicTestClient
 from sanic_testing.testing import TestingResponse as Response  # type: ignore
 
 from example.param_verify import sanic_example
+from example.param_verify.common import response_model
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.sanic import TestHelper as _TestHelper
@@ -185,7 +186,7 @@ class TestSanic:
         base_test.check_response(sanic_example.check_response_route)
 
     def test_mock_route(self, base_test: BaseTest) -> None:
-        base_test.mock_route(sanic_example.mock_route, sanic_example.UserSuccessRespModel2)
+        base_test.mock_route(sanic_example.mock_route, response_model.UserSuccessRespModel2)
 
     def test_pait_model(self, base_test: BaseTest) -> None:
         base_test.pait_model(sanic_example.pait_model_route)

@@ -13,6 +13,7 @@ from starlette.applications import Starlette
 from starlette.testclient import TestClient
 
 from example.param_verify import starlette_example
+from example.param_verify.common import response_model
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.starlette import TestHelper as _TestHelper
@@ -223,10 +224,10 @@ class TestStarlette:
         base_test.check_response(starlette_example.check_response_route)
 
     def test_mock_route(self, base_test: BaseTest) -> None:
-        base_test.mock_route(starlette_example.mock_route, starlette_example.UserSuccessRespModel2)
+        base_test.mock_route(starlette_example.mock_route, response_model.UserSuccessRespModel2)
 
     def test_async_mock_route(self, base_test: BaseTest) -> None:
-        base_test.mock_route(starlette_example.async_mock_route, starlette_example.UserSuccessRespModel2)
+        base_test.mock_route(starlette_example.async_mock_route, response_model.UserSuccessRespModel2)
 
     def test_pait_model(self, base_test: BaseTest) -> None:
         base_test.pait_model(starlette_example.pait_model_route)

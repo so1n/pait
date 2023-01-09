@@ -1,15 +1,13 @@
-import logging
-from contextlib import asynccontextmanager, contextmanager
-from enum import Enum
-from typing import Any, AsyncGenerator, Generator, List, Tuple, Type
+from typing import List, Type
 
+from any_api.openapi import BaseResponseModel
 from protobuf_to_pydantic import msg_to_pydantic_model
 from pydantic import BaseModel, Field
 
-from pait.field import Body, Depends, Header, Query
-from pait.model.response import BaseResponseModel, FileResponseModel, HtmlResponseModel, JsonResponseModel
-from pait.model.response import ResponseModel as PaitResponseModel
-from pait.model.response import TextResponseModel
+from example.param_verify.common.request_model import SexEnum
+from pait import FileResponseModel, HtmlResponseModel, JsonResponseModel
+from pait import ResponseModel as PaitResponseModel
+from pait import TextResponseModel
 from pait.util.grpc_inspect.stub import GrpcModel
 
 
@@ -26,87 +24,6 @@ def gen_response_model_handle(grpc_model: GrpcModel) -> Type[BaseResponseModel]:
     return CustomerJsonResponseModel
 
 
-class _DemoSession(object):
-    def __init__(self, uid: int) -> None:
-        self._uid: int = uid
-        self._status: bool = False
-
-    @property
-    def uid(self) -> int:
-        if self._status:
-            return self._uid
-        else:
-            raise RuntimeError("Session is close")
-
-    def create(self) -> None:
-        self._status = True
-
-    def close(self) -> None:
-        self._status = False
-
-
-class TestPaitModel(BaseModel):
-    class UserInfo(BaseModel):
-        user_name: str = Field(description="user name", min_length=2, max_length=4)
-        age: int = Field(description="age", gt=1, lt=100)
-
-    uid: int = Query.i(description="user id", gt=10, lt=1000)
-    user_agent: str = Header.i(alias="user-agent", description="user agent")
-    user_info: UserInfo = Body.i()
-
-
-class UserModel(BaseModel):
-    uid: int = Field(description="user id", gt=10, lt=1000, example="123")
-    user_name: str = Field(description="user name", min_length=2, max_length=4, example="so1n")
-
-
-class UserOtherModel(BaseModel):
-    age: int = Field(description="age", gt=1, lt=100, example=25)
-
-
-class SexEnum(str, Enum):
-    man: str = "man"
-    woman: str = "woman"
-
-
-def demo_sub_depend(
-    user_agent: str = Header.i(alias="user-agent", description="user agent"),
-    age: int = Body.i(description="age", gt=1, lt=100),
-) -> Tuple[str, int]:
-    return user_agent, age
-
-
-def demo_depend(depend_tuple: Tuple[str, int] = Depends.i(demo_sub_depend)) -> Tuple[str, int]:
-    return depend_tuple
-
-
-@contextmanager
-def context_depend(uid: int = Query.i(description="user id", gt=10, lt=1000)) -> Generator[int, Any, Any]:
-    session: _DemoSession = _DemoSession(uid)
-    try:
-        session.create()
-        yield session.uid
-    except Exception:
-        logging.error("context_depend error")
-    finally:
-        logging.info("context_depend exit")
-        session.close()
-
-
-@asynccontextmanager
-async def async_context_depend(uid: int = Query.i(description="user id", gt=10, lt=1000)) -> AsyncGenerator[int, Any]:
-    session: _DemoSession = _DemoSession(uid)
-    try:
-        session.create()
-        yield session.uid
-    except Exception:
-        logging.error("context_depend error")
-    finally:
-        logging.info("context_depend exit")
-        session.close()
-
-
-# response model
 class ResponseModel(BaseModel):
     code: int = Field(0, description="api code")
     msg: str = Field("success", description="api status msg")

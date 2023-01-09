@@ -12,6 +12,7 @@ from tornado.testing import AsyncHTTPTestCase, HTTPResponse
 from tornado.web import Application
 
 from example.param_verify import tornado_example
+from example.param_verify.common import response_model
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.tornado import TestHelper as _TestHelper
@@ -208,7 +209,7 @@ class TestTornado(BaseTestTornado):
         self.base_test.check_response(tornado_example.CheckRespHandler.get)
 
     def test_mock_route(self) -> None:
-        self.base_test.mock_route(tornado_example.MockHandler.get, tornado_example.UserSuccessRespModel2)
+        self.base_test.mock_route(tornado_example.MockHandler.get, response_model.UserSuccessRespModel2)
 
     def test_pait_model(self) -> None:
         self.base_test.pait_model(tornado_example.PaitModelHanler.post)
@@ -216,8 +217,8 @@ class TestTornado(BaseTestTornado):
     def test_depend_route(self) -> None:
         self.base_test.depend_route(tornado_example.DependHandler.post)
 
-    @mock.patch("example.param_verify.model.logging.error")
-    @mock.patch("example.param_verify.model.logging.info")
+    @mock.patch("example.param_verify.common.depend.logging.error")
+    @mock.patch("example.param_verify.common.depend.logging.info")
     def test_depend_contextmanager(self, info_logger: Any, error_logger: Any) -> None:
         self.base_test.depend_contextmanager(
             tornado_example.DependContextmanagerHanler.get,
@@ -225,8 +226,8 @@ class TestTornado(BaseTestTornado):
             error_logger=error_logger,
         )
 
-    @mock.patch("example.param_verify.model.logging.error")
-    @mock.patch("example.param_verify.model.logging.info")
+    @mock.patch("example.param_verify.common.depend.logging.error")
+    @mock.patch("example.param_verify.common.depend.logging.info")
     def test_depend_async_contextmanager(self, info_logger: Any, error_logger: Any) -> None:
         self.base_test.depend_contextmanager(
             tornado_example.DependAsyncContextmanagerHanler.get,
@@ -234,8 +235,8 @@ class TestTornado(BaseTestTornado):
             error_logger=error_logger,
         )
 
-    @mock.patch("example.param_verify.model.logging.error")
-    @mock.patch("example.param_verify.model.logging.info")
+    @mock.patch("example.param_verify.common.depend.logging.error")
+    @mock.patch("example.param_verify.common.depend.logging.info")
     def test_pre_depend_contextmanager(self, info_logger: Any, error_logger: Any) -> None:
         self.base_test.pre_depend_contextmanager(
             tornado_example.PreDependContextmanagerHanler.get,
@@ -243,8 +244,8 @@ class TestTornado(BaseTestTornado):
             error_logger=error_logger,
         )
 
-    @mock.patch("example.param_verify.model.logging.error")
-    @mock.patch("example.param_verify.model.logging.info")
+    @mock.patch("example.param_verify.common.depend.logging.error")
+    @mock.patch("example.param_verify.common.depend.logging.info")
     def test_pre_depend_async_contextmanager(self, info_logger: Any, error_logger: Any) -> None:
         self.base_test.pre_depend_contextmanager(
             tornado_example.PreDependAsyncContextmanagerHanler.get,

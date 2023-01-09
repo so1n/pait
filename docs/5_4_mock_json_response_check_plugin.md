@@ -5,6 +5,7 @@
 这样会增加前端的工作量，同时前端Mock的数据并不一定是我们想要的，这时可以使用`MockPlugin`插件来让接口提供Mock数据。
 
 `MockPlugin`插件使用非常简单，代码如下:
+
 ```py hl_lines="15-18"
 from typing import Optional
 import uvicorn  # type: ignore
@@ -14,7 +15,7 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route
 from pait.exceptions import TipException
 from pait.app.starlette.plugin.mock_response import MockPlugin
-from example.param_verify.model import UserSuccessRespModel3
+from example.param_verify.common.response_model import UserSuccessRespModel3
 
 from pait.app.starlette import pait
 from pait import field
@@ -25,11 +26,11 @@ from pait import field
     plugin_list=[MockPlugin.build()]
 )
 async def demo(
-    uid: int = field.Query.i(description="user id", gt=10, lt=1000),
-    email: Optional[str] = field.Query.i(default="example@xxx.com", description="user email"),
-    user_name: str = field.Query.i(description="user name", min_length=2, max_length=4),
-    age: int = field.Query.i(description="age", gt=1, lt=100),
-    display_age: int = field.Query.i(0, description="display_age"),
+        uid: int = field.Query.i(description="user id", gt=10, lt=1000),
+        email: Optional[str] = field.Query.i(default="example@xxx.com", description="user email"),
+        user_name: str = field.Query.i(description="user name", min_length=2, max_length=4),
+        age: int = field.Query.i(description="age", gt=1, lt=100),
+        display_age: int = field.Query.i(0, description="display_age"),
 ) -> dict:
     pass
 

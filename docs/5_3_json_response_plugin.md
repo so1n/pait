@@ -8,6 +8,7 @@
 ## 校验Json响应结果插件
 校验Json响应结果插件的主要功能是在收到返回响应结果时，对响应结果进行校验，如果校验成功，才会返回响应，否则就会报错。
 以[example.param_verify.starlette_example.async_check_json_plugin_route](https://github.com/so1n/pait/blob/master/example/param_verify/starlette_example.py#L590)为例子：
+
 ```py linenums="1"
 from typing import Optional
 from typing_extensions import TypedDict  # 对于Python3.8以下的只能通过typing_extensions引入
@@ -18,7 +19,7 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route
 from pait.exceptions import TipException
 from pait.app.starlette.plugin.check_json_resp import CheckJsonRespPlugin
-from example.param_verify.model import UserSuccessRespModel3
+from example.param_verify.common.response import UserSuccessRespModel3
 
 from pait.app.starlette import pait
 from pait import field
@@ -51,11 +52,11 @@ _typed_dict = TypedDict(
 
 @pait(response_model_list=[UserSuccessRespModel3], plugin_list=[CheckJsonRespPlugin.build()])
 async def demo(
-    uid: int = field.Query.i(description="user id", gt=10, lt=1000),
-    email: Optional[str] = field.Query.i(default="example@xxx.com", description="user email"),
-    user_name: str = field.Query.i(description="user name", min_length=2, max_length=4),
-    age: int = field.Query.i(description="age", gt=1, lt=100),
-    display_age: int = field.Query.i(0, description="display_age"),
+        uid: int = field.Query.i(description="user id", gt=10, lt=1000),
+        email: Optional[str] = field.Query.i(default="example@xxx.com", description="user email"),
+        user_name: str = field.Query.i(description="user name", min_length=2, max_length=4),
+        age: int = field.Query.i(description="age", gt=1, lt=100),
+        display_age: int = field.Query.i(0, description="display_age"),
 ) -> _typed_dict:
     """Test json plugin by resp type is typed dict"""
     return_dict: dict = {
@@ -97,6 +98,7 @@ uvicorn.run(app)
 在编写API接口的时候，接口返回的响应结果应该会与文档描述的保持一致，但可能会因为一些筛选条件的不同经常导致返回的响应结果是定义响应模型的子集，这种情况下如果客户端没有做特殊处理就会抛出异常，这时可以采用自动补全Json响应结果插件，自动为那些缺少的字段补上默认值。
 
 以上面的代码为例子，去掉变量`_typed_dict`，再把插件`CheckJsonRespPlugin`替换为`AutoCompleteJsonRespPlugin`，代码如下:
+
 ```py hl_lines="22-25"
 from typing import Optional
 import uvicorn  # type: ignore
@@ -106,7 +108,7 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route
 from pait.exceptions import TipException
 from pait.app.starlette.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
-from example.param_verify.model import UserSuccessRespModel3
+from example.param_verify.common.response_model import UserSuccessRespModel3
 
 from pait.app.starlette import pait
 from pait import field
@@ -124,11 +126,11 @@ async def api_exception(request: Request, exc: Exception) -> JSONResponse:
     plugin_list=[AutoCompleteJsonRespPlugin.build()]
 )
 async def demo(
-    uid: int = field.Query.i(description="user id", gt=10, lt=1000),
-    email: Optional[str] = field.Query.i(default="example@xxx.com", description="user email"),
-    user_name: str = field.Query.i(description="user name", min_length=2, max_length=4),
-    age: int = field.Query.i(description="age", gt=1, lt=100),
-    display_age: int = field.Query.i(0, description="display_age"),
+        uid: int = field.Query.i(description="user id", gt=10, lt=1000),
+        email: Optional[str] = field.Query.i(default="example@xxx.com", description="user email"),
+        user_name: str = field.Query.i(description="user name", min_length=2, max_length=4),
+        age: int = field.Query.i(description="age", gt=1, lt=100),
+        display_age: int = field.Query.i(0, description="display_age"),
 ) -> dict:
     """Test json plugin by resp type is typed dict"""
     return_dict: dict = {

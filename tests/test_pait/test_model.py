@@ -6,7 +6,7 @@ from typing import Type, Union
 import pytest
 from pydantic import BaseModel, Field
 
-from example.param_verify.model import SexEnum
+from example.param_verify.common.request_model import SexEnum
 from pait.model import links, response, tag
 from pait.model.config import Config
 

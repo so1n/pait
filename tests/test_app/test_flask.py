@@ -12,6 +12,7 @@ from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 
 from example.param_verify import flask_example
+from example.param_verify.common import response_model
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.flask import TestHelper as _TestHelper
@@ -209,7 +210,7 @@ class TestFlask:
         base_test.check_response(flask_example.check_response_route)
 
     def test_mock_route(self, base_test: BaseTest) -> None:
-        base_test.mock_route(flask_example.mock_route, flask_example.UserSuccessRespModel2)
+        base_test.mock_route(flask_example.mock_route, response_model.UserSuccessRespModel2)
 
     def test_pait_model(self, base_test: BaseTest) -> None:
         base_test.pait_model(flask_example.pait_model_route)

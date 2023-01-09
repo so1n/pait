@@ -5,7 +5,7 @@ import pytest
 from pytest_mock import MockFixture
 from redis import Redis  # type: ignore
 
-from example.param_verify.model import gen_response_model_handle
+from example.param_verify.common.response_model import gen_response_model_handle
 from pait.app.base import BaseTestHelper
 from pait.app.base.grpc_route import BaseGrpcGatewayRoute
 from pait.model.response import BaseResponseModel, HtmlResponseModel, TextResponseModel
@@ -181,8 +181,8 @@ class BaseTest(object):
         self, route: Callable, mocker: Optional[MockFixture] = None, error_logger: Any = None, info_logger: Any = None
     ) -> None:
         if mocker:
-            error_logger = mocker.patch("example.param_verify.model.logging.error")
-            info_logger = mocker.patch("example.param_verify.model.logging.info")
+            error_logger = mocker.patch("example.param_verify.common.depend.logging.error")
+            info_logger = mocker.patch("example.param_verify.common.depend.logging.info")
         else:
             if not error_logger or not info_logger:
                 raise RuntimeError("mocker or error_logger and info_logger must be not None")
@@ -203,8 +203,8 @@ class BaseTest(object):
         self, route: Callable, mocker: Optional[MockFixture] = None, error_logger: Any = None, info_logger: Any = None
     ) -> None:
         if mocker:
-            error_logger = mocker.patch("example.param_verify.model.logging.error")
-            info_logger = mocker.patch("example.param_verify.model.logging.info")
+            error_logger = mocker.patch("example.param_verify.common.depend.logging.error")
+            info_logger = mocker.patch("example.param_verify.common.depend.logging.info")
         else:
             if not error_logger or not info_logger:
                 raise RuntimeError("mocker or error_logger and info_logger must be not None")
