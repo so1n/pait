@@ -35,11 +35,23 @@ class BaseTest(object):
         assert resp_dict["data"]["music_list"][1]["singer"] == ""
 
     def depend_route(self, route: Callable) -> None:
-        assert {"code": 0, "msg": "", "data": {"age": 2, "user_agent": "customer_agent"}} == self.test_helper(
+        assert {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "age": 2,
+                "user_agent": "customer_agent",
+                "user_info": {
+                    "uid": 100,
+                    "user_name": "so1n",
+                },
+            },
+        } == self.test_helper(
             self.client,
             route,
             header_dict={"user-agent": "customer_agent"},
             body_dict={"age": 2},
+            query_dict={"uid": 100, "user_name": "so1n"},
             strict_inspection_check_json_content=False,
         ).json()
 

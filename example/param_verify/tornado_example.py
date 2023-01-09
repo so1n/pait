@@ -16,7 +16,7 @@ from typing_extensions import TypedDict
 from example.example_grpc.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
 from example.example_grpc.python_example_proto_code.example_proto.user import user_pb2_grpc
 from example.param_verify.common import tag
-from example.param_verify.common.depend import async_context_depend, context_depend, demo_depend
+from example.param_verify.common.depend import AsyncGetUserDepend, async_context_depend, context_depend, demo_depend
 from example.param_verify.common.request_model import SexEnum, TestPaitModel, UserModel, UserOtherModel
 from example.param_verify.common.response_model import (
     AutoCompleteRespModel,
@@ -130,10 +130,17 @@ class DependHandler(MyHandler):
         self,
         request: HTTPServerRequest,
         depend_tuple: Tuple[str, int] = Depends.i(demo_depend),
+        user_model: UserModel = Depends.i(AsyncGetUserDepend()),
     ) -> None:
         """Test Method:Post request, Pydantic Model"""
         assert request is not None, "Not found request"
-        self.write({"code": 0, "msg": "", "data": {"user_agent": depend_tuple[0], "age": depend_tuple[1]}})
+        self.write(
+            {
+                "code": 0,
+                "msg": "",
+                "data": {"user_agent": depend_tuple[0], "age": depend_tuple[1], "user_info": user_model.dict()},
+            }
+        )
 
 
 class SameAliasHandler(MyHandler):

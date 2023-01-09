@@ -8,6 +8,7 @@ Rewrite some old methods to increase the extensibility of the corresponding modu
 Note: This version will have syntax changes that are not backward compatible, and the library status will change from alpha to beta
 
 Function Changes:
+- Depend enhances support for class instances
 
 API Changes:
 - `@pait` The tag parameter type no longer supports String, only `Tag` is supported. e.g:

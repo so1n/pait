@@ -364,7 +364,12 @@ class ParamHandler(BaseParamHandler):
         # Data has been validated or is from a trusted source
         func_args.append(_pait_model.construct(**kwargs))
 
-    def _depend_handle(self, func: Callable) -> Any:
+    def _depend_handle(self, func: Any) -> Any:
+        class_: Optional[type] = getattr(func, "__class__", None)
+        if class_ and not inspect.isfunction(func):
+            _, kwargs = self.param_handle(func.__class__, get_parameter_list_from_class(func.__class__))
+            func.__dict__.update(kwargs)
+
         func_sig: FuncSig = get_func_sig(func)
         _func_args, _func_kwargs = self.param_handle(func_sig, func_sig.param_list)
         func_result: Any = func(*_func_args, **_func_kwargs)
@@ -478,7 +483,12 @@ class AsyncParamHandler(BaseParamHandler):
         )
         func_args.append(_pait_model.construct(**kwargs))
 
-    async def _depend_handle(self, func: Callable) -> Any:
+    async def _depend_handle(self, func: Any) -> Any:
+        class_: Optional[type] = getattr(func, "__class__", None)
+        if class_ and not inspect.isfunction(func):
+            _, kwargs = await self.param_handle(func.__class__, get_parameter_list_from_class(func.__class__))
+            func.__dict__.update(kwargs)
+
         func_sig: FuncSig = get_func_sig(func)
         _func_args, _func_kwargs = await self.param_handle(func_sig, func_sig.param_list)
         func_result: Any = func(*_func_args, **_func_kwargs)

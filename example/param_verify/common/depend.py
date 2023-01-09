@@ -2,6 +2,7 @@ import logging
 from contextlib import asynccontextmanager, contextmanager
 from typing import Any, AsyncGenerator, Generator, Tuple
 
+from example.param_verify.common.request_model import UserModel
 from pait.field import Body, Depends, Header, Query
 
 
@@ -59,3 +60,17 @@ def demo_sub_depend(
 
 def demo_depend(depend_tuple: Tuple[str, int] = Depends.i(demo_sub_depend)) -> Tuple[str, int]:
     return depend_tuple
+
+
+class GetUserDepend(object):
+    user_name: str = Query.i()
+
+    def __call__(self, uid: int = Query.i()) -> UserModel:
+        return UserModel(uid=uid, user_name=self.user_name)
+
+
+class AsyncGetUserDepend(object):
+    user_name: str = Query.i()
+
+    async def __call__(self, uid: int = Query.i()) -> UserModel:
+        return UserModel(uid=uid, user_name=self.user_name)

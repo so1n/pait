@@ -193,8 +193,13 @@ class OpenAPI(object):
         func_sig: FuncSig = get_func_sig(func)
         single_field_list: List[Tuple[str, "inspect.Parameter"]] = []
 
-        qualname = func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0]
-        class_ = getattr(inspect.getmodule(func), qualname)
+        qualname: str = getattr(func, "__qualname__", "")
+        if not qualname:
+            class_ = func.__class__  # type: ignore
+        else:
+            qualname = qualname.split(".<locals>", 1)[0].rsplit(".", 1)[0]
+            class_ = getattr(inspect.getmodule(func), qualname)
+
         if inspect.isclass(class_):
             parameter_list: List["inspect.Parameter"] = get_parameter_list_from_class(class_)
             self.parameter_list_handle(parameter_list, http_param_type_dict, single_field_list, pait_model)

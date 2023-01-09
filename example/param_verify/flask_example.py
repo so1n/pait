@@ -15,7 +15,7 @@ from typing_extensions import TypedDict
 from example.example_grpc.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
 from example.example_grpc.python_example_proto_code.example_proto.user import user_pb2_grpc
 from example.param_verify.common import tag
-from example.param_verify.common.depend import context_depend, demo_depend
+from example.param_verify.common.depend import GetUserDepend, context_depend, demo_depend
 from example.param_verify.common.request_model import SexEnum, TestPaitModel, UserModel, UserOtherModel
 from example.param_verify.common.response_model import (
     AutoCompleteRespModel,
@@ -122,10 +122,15 @@ def post_route(
 def depend_route(
     request: Request,
     depend_tuple: Tuple[str, int] = Depends.i(demo_depend),
+    user_model: UserModel = Depends.i(GetUserDepend()),
 ) -> dict:
     """Testing depend and using request parameters"""
     assert request is not None, "Not found request"
-    return {"code": 0, "msg": "", "data": {"user_agent": depend_tuple[0], "age": depend_tuple[1]}}
+    return {
+        "code": 0,
+        "msg": "",
+        "data": {"user_agent": depend_tuple[0], "age": depend_tuple[1], "user_info": user_model.dict()},
+    }
 
 
 @other_pait(
