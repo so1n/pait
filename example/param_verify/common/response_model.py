@@ -164,3 +164,13 @@ class LoginRespModel(JsonResponseModel):
 
     description: str = "login response"
     response_data: Type[BaseModel] = ResponseModel
+
+
+class NotAuthenticatedRespModel(HtmlResponseModel):
+    status_code = (403,)
+    response_data = "Not authenticated"
+
+
+class NotAuthenticatedTextRespModel(TextResponseModel):
+    status_code = (403,)
+    response_data = "Not authenticated"

@@ -253,6 +253,9 @@ class TestTornado(BaseTestTornado):
             error_logger=error_logger,
         )
 
+    def test_api_key_route(self) -> None:
+        self.base_test.api_key_route(tornado_example.APIKeyHanler.get)
+
     def test_get_cbv(self) -> None:
         self.base_test.get_cbv(tornado_example.CbvHandler.get)
 

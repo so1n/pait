@@ -10,6 +10,7 @@ from pydantic import ValidationError
 from redis.asyncio import Redis  # type: ignore
 from sanic import response
 from sanic.app import Sanic
+from sanic.exceptions import SanicException
 from sanic.request import Request
 from sanic.views import HTTPMethodView
 from typing_extensions import TypedDict
@@ -25,6 +26,7 @@ from example.param_verify.common.response_model import (
     FileRespModel,
     HtmlRespModel,
     LoginRespModel,
+    NotAuthenticatedRespModel,
     SimpleRespModel,
     SuccessRespModel,
     TextRespModel,
@@ -40,6 +42,7 @@ from pait.app.sanic.plugin.auto_complete_json_resp import AutoCompleteJsonRespPl
 from pait.app.sanic.plugin.cache_resonse import CacheResponsePlugin
 from pait.app.sanic.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.sanic.plugin.mock_response import MockPlugin
+from pait.app.sanic.security.api_key import api_key
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
 from pait.extra.config import MatchRule
 from pait.field import Cookie, Depends, File, Form, Header, Json, MultiForm, MultiQuery, Path, Query
@@ -82,6 +85,8 @@ async def api_exception(request: Request, exc: Exception) -> response.HTTPRespon
         for i in exc.errors():
             error_param_list.extend(i["loc"])
         return response.json({"code": -1, "msg": f"miss param: {error_param_list}"})
+    elif isinstance(exc, SanicException):
+        raise exc
     return response.json({"code": -1, "msg": str(exc)})
 
 
@@ -600,6 +605,15 @@ async def check_json_plugin_route1(
     return return_dict  # type: ignore
 
 
+@other_pait(
+    status=PaitStatus.test, tag=(tag.depend_tag,), response_model_list=[SuccessRespModel, NotAuthenticatedRespModel]
+)
+def api_key_route(
+    token: str = Depends.i(api_key(name="token", field=Header, verify_api_key_callable=lambda x: x == "my-token"))
+) -> response.HTTPResponse:
+    return response.json({"token": token})
+
+
 def add_grpc_gateway_route(app: Sanic) -> None:
     """Split out to improve the speed of test cases"""
     from typing import Callable, Type
@@ -703,6 +717,7 @@ def create_app() -> Sanic:
     app.add_route(pre_depend_contextmanager_route, "/api/check-pre-depend-contextmanager", methods={"GET"})
     app.add_route(depend_async_contextmanager_route, "/api/check-depend-async-contextmanager", methods={"GET"})
     app.add_route(pre_depend_async_contextmanager_route, "/api/check-pre-depend-async-contextmanager", methods={"GET"})
+    app.add_route(api_key_route, "/api/security/api-key", methods={"GET"})
     app.exception(PaitBaseException)(api_exception)
     app.exception(ValidationError)(api_exception)
     app.exception(RuntimeError)(api_exception)

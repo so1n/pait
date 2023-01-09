@@ -11,6 +11,7 @@ from flask.views import MethodView
 from pydantic import BaseModel, ValidationError
 from redis import Redis  # type: ignore
 from typing_extensions import TypedDict
+from werkzeug.exceptions import HTTPException
 
 from example.example_grpc.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
 from example.example_grpc.python_example_proto_code.example_proto.user import user_pb2_grpc
@@ -23,6 +24,7 @@ from example.param_verify.common.response_model import (
     FileRespModel,
     HtmlRespModel,
     LoginRespModel,
+    NotAuthenticatedRespModel,
     SimpleRespModel,
     SuccessRespModel,
     TextRespModel,
@@ -38,6 +40,7 @@ from pait.app.flask.plugin.auto_complete_json_resp import AutoCompleteJsonRespPl
 from pait.app.flask.plugin.cache_resonse import CacheResponsePlugin
 from pait.app.flask.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.flask.plugin.mock_response import MockPlugin
+from pait.app.flask.security.api_key import api_key
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
 from pait.extra.config import MatchRule, apply_block_http_method_set, apply_extra_openapi_model
 from pait.field import Cookie, Depends, File, Form, Header, Json, MultiForm, MultiQuery, Path, Query
@@ -79,6 +82,8 @@ def api_exception(exc: Exception) -> Dict[str, Any]:
         for i in exc.errors():
             error_param_list.extend(i["loc"])
         return {"code": -1, "msg": f"miss param: {error_param_list}"}
+    elif isinstance(exc, HTTPException):
+        raise exc
     return {"code": -1, "msg": str(exc)}
 
 
@@ -556,6 +561,15 @@ def check_json_plugin_route1(
     return return_dict  # type: ignore
 
 
+@other_pait(
+    status=PaitStatus.test, tag=(tag.depend_tag,), response_model_list=[SuccessRespModel, NotAuthenticatedRespModel]
+)
+def api_key_route(
+    token: str = Depends.i(api_key(name="token", field=Header, verify_api_key_callable=lambda x: x == "my-token"))
+) -> dict:
+    return {"token": token}
+
+
 def add_grpc_gateway_route(app: Flask) -> None:
     """Split out to improve the speed of test cases"""
     from typing import Callable, Type
@@ -650,6 +664,7 @@ def create_app() -> Flask:
     app.add_url_rule("/api/auto-complete-json-plugin", view_func=auto_complete_json_route, methods=["GET"])
     app.add_url_rule("/api/depend-contextmanager", view_func=depend_contextmanager_route, methods=["GET"])
     app.add_url_rule("/api/pre-depend-contextmanager", view_func=pre_depend_contextmanager_route, methods=["GET"])
+    app.add_url_rule("/api/security/api-key", view_func=api_key_route, methods=["GET"])
     app.errorhandler(PaitBaseException)(api_exception)
     app.errorhandler(ValidationError)(api_exception)
     app.errorhandler(RuntimeError)(api_exception)

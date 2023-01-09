@@ -12,6 +12,7 @@ from redis.asyncio import Redis  # type: ignore
 from starlette.applications import Starlette
 from starlette.background import BackgroundTask
 from starlette.endpoints import HTTPEndpoint
+from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse, Response
 from starlette.routing import Route
@@ -28,6 +29,7 @@ from example.param_verify.common.response_model import (
     FileRespModel,
     HtmlRespModel,
     LoginRespModel,
+    NotAuthenticatedTextRespModel,
     SimpleRespModel,
     SuccessRespModel,
     TextRespModel,
@@ -44,6 +46,7 @@ from pait.app.starlette.plugin.auto_complete_json_resp import AutoCompleteJsonRe
 from pait.app.starlette.plugin.cache_resonse import CacheResponsePlugin
 from pait.app.starlette.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.starlette.plugin.mock_response import MockPlugin
+from pait.app.starlette.security.api_key import api_key
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
 from pait.extra.config import MatchRule
 from pait.field import Cookie, Depends, File, Form, Header, Json, MultiForm, MultiQuery, Path, Query
@@ -83,6 +86,8 @@ async def api_exception(request: Request, exc: Exception) -> JSONResponse:
         for i in exc.errors():
             error_param_list.extend(i["loc"])
         return JSONResponse({"code": -1, "msg": f"miss param: {error_param_list}"})
+    elif isinstance(exc, HTTPException):
+        raise exc
     return JSONResponse({"code": -1, "msg": str(exc)})
 
 
@@ -735,6 +740,15 @@ async def async_check_json_plugin_route1(
     return return_dict  # type: ignore
 
 
+@other_pait(
+    status=PaitStatus.test, tag=(tag.depend_tag,), response_model_list=[SuccessRespModel, NotAuthenticatedTextRespModel]
+)
+def api_key_route(
+    token: str = Depends.i(api_key(name="token", field=Header, verify_api_key_callable=lambda x: x == "my-token"))
+) -> JSONResponse:
+    return JSONResponse({"token": token})
+
+
 def add_grpc_gateway_route(app: Starlette) -> None:
     """Split out to improve the speed of test cases"""
     from typing import Callable, Type
@@ -846,6 +860,7 @@ def create_app() -> Starlette:
             Route("/api/check_depend_async_contextmanager", depend_async_contextmanager_route, methods=["GET"]),
             Route("/api/check_pre_depend_contextmanager", pre_depend_contextmanager_route, methods=["GET"]),
             Route("/api/check_pre_depend_async_contextmanager", pre_depend_async_contextmanager_route, methods=["GET"]),
+            Route("/api/security/api-key", api_key_route, methods=["GET"]),
         ]
     )
     CacheResponsePlugin.set_redis_to_app(app, redis=Redis(decode_responses=True))

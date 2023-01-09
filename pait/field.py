@@ -1,8 +1,10 @@
 from dataclasses import MISSING
-from typing import TYPE_CHECKING, Any, Callable, Mapping, Optional
+from typing import TYPE_CHECKING, Any, Mapping, Optional
 
 from pydantic.fields import FieldInfo, Undefined
 from pydantic.typing import NoArgAnyCallable
+
+from pait.types import CallType
 
 if TYPE_CHECKING:
     from pait.model.links import LinksModel
@@ -217,11 +219,11 @@ class MultiQuery(BaseField):
 
 
 class Depends(object):
-    def __init__(self, func: Callable):
-        self.func: Callable = func
+    def __init__(self, func: CallType):
+        self.func: CallType = func
 
     @classmethod
-    def i(cls, func: Callable) -> Any:
+    def i(cls, func: CallType) -> Any:
         return cls(func)
 
 

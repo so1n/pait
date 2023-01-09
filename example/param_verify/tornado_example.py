@@ -10,7 +10,7 @@ from pydantic import ValidationError
 from redis.asyncio import Redis  # type: ignore
 from tornado.httputil import HTTPServerRequest
 from tornado.ioloop import IOLoop
-from tornado.web import Application, RequestHandler
+from tornado.web import Application, HTTPError, RequestHandler
 from typing_extensions import TypedDict
 
 from example.example_grpc.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
@@ -24,6 +24,7 @@ from example.param_verify.common.response_model import (
     FileRespModel,
     HtmlRespModel,
     LoginRespModel,
+    NotAuthenticatedRespModel,
     SimpleRespModel,
     SuccessRespModel,
     TextRespModel,
@@ -39,6 +40,7 @@ from pait.app.tornado.plugin.auto_complete_json_resp import AutoCompleteJsonResp
 from pait.app.tornado.plugin.cache_resonse import CacheResponsePlugin
 from pait.app.tornado.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.tornado.plugin.mock_response import MockPlugin
+from pait.app.tornado.security.api_key import api_key
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
 from pait.extra.config import MatchRule
 from pait.field import Cookie, Depends, File, Form, Header, Json, MultiForm, MultiQuery, Path, Query
@@ -79,6 +81,10 @@ class MyHandler(RequestHandler):
             for i in exc.errors():
                 error_param_list.extend(i["loc"])
             self.write({"code": -1, "msg": f"miss param: {error_param_list}"})
+        elif isinstance(exc, HTTPError):
+            self.set_status(exc.status_code, exc.reason)
+            self.write_error(exc.status_code)
+            return
         else:
             self.write({"code": -1, "msg": str(exc)})
         self.finish()
@@ -357,6 +363,18 @@ class PreDependAsyncContextmanagerHanler(MyHandler):
         if is_raise:
             raise RuntimeError()
         self.write({"code": 0, "msg": ""})
+
+
+class APIKeyHanler(MyHandler):
+    @other_pait(
+        tag=(tag.depend_tag,),
+        response_model_list=[SuccessRespModel, NotAuthenticatedRespModel],
+    )
+    async def get(
+        self,
+        token: str = Depends.i(api_key(name="token", field=Header, verify_api_key_callable=lambda x: x == "my-token")),
+    ) -> None:
+        self.write({"token": token})
 
 
 class CbvHandler(MyHandler):
@@ -716,6 +734,7 @@ def create_app() -> Application:
             (r"/api/check-depend-async-contextmanager", DependAsyncContextmanagerHanler),
             (r"/api/check-pre-depend-contextmanager", PreDependContextmanagerHanler),
             (r"/api/check-pre-depend-async-contextmanager", PreDependAsyncContextmanagerHanler),
+            (r"/api/security/api-key", APIKeyHanler),
         ]
     )
     CacheResponsePlugin.set_redis_to_app(app, redis=Redis(decode_responses=True))

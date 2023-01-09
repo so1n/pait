@@ -221,6 +221,9 @@ class TestFlask:
     def test_pre_depend_contextmanager(self, base_test: BaseTest, mocker: MockFixture) -> None:
         base_test.pre_depend_contextmanager(flask_example.pre_depend_contextmanager_route, mocker)
 
+    def test_api_key_route(self, base_test: BaseTest) -> None:
+        base_test.api_key_route(flask_example.api_key_route)
+
     def test_get_cbv(self, base_test: BaseTest) -> None:
         base_test.get_cbv(flask_example.CbvRoute.get)
 

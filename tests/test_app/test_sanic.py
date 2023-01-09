@@ -203,6 +203,9 @@ class TestSanic:
     def test_pre_depend_async_contextmanager(self, base_test: BaseTest, mocker: MockFixture) -> None:
         base_test.pre_depend_contextmanager(sanic_example.pre_depend_async_contextmanager_route, mocker)
 
+    def test_api_key_route(self, base_test: BaseTest) -> None:
+        base_test.api_key_route(sanic_example.api_key_route)
+
     def test_get_cbv(self, base_test: BaseTest) -> None:
         base_test.get_cbv(sanic_example.CbvRoute.get)
 

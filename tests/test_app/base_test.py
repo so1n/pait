@@ -6,7 +6,7 @@ from pytest_mock import MockFixture
 from redis import Redis  # type: ignore
 
 from example.param_verify.common.response_model import gen_response_model_handle
-from pait.app.base import BaseTestHelper
+from pait.app.base import BaseTestHelper, CheckResponseException
 from pait.app.base.grpc_route import BaseGrpcGatewayRoute
 from pait.model.response import BaseResponseModel, HtmlResponseModel, TextResponseModel
 from pait.plugin.cache_response import CacheResponsePlugin
@@ -151,7 +151,7 @@ class BaseTest(object):
             route,
             query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10},
         )
-        with pytest.raises(RuntimeError):
+        with pytest.raises(CheckResponseException):
             test_helper.json()
         test_helper = self.test_helper(
             self.client,
@@ -233,6 +233,19 @@ class BaseTest(object):
         ).get()
         error_logger.assert_called_once_with("context_depend error")
 
+    def api_key_route(self, route: Callable) -> None:
+        assert self.test_helper(
+            self.client, route, header_dict={"token": "my-token"}, strict_inspection_check_json_content=False
+        ).json() == {"token": "my-token"}
+
+        test_helper = self.test_helper(
+            self.client,
+            route,
+        )
+        resp = test_helper.get()
+        assert 403 == test_helper._get_status_code(resp)
+        assert "Not authenticated" in test_helper._get_text(resp)
+
     def get_cbv(self, route: Callable) -> None:
         assert {
             "code": 0,
@@ -286,11 +299,9 @@ class BaseTest(object):
         # test not include exc
         del_key(key)
         if not app:
-            with pytest.raises(RuntimeError) as e:
+            with pytest.raises(CheckResponseException) as e:
                 self.test_helper(self.client, cache_response, query_dict={"raise_exc": 1}).text()
-
-                exec_msg: str = e.value.args[0]
-                assert "'status_code': 500" in exec_msg
+                assert e.value.status_code == 500
         elif app == "starlette":
             with pytest.raises(Exception):
                 self.test_helper(self.client, cache_response, query_dict={"raise_exc": 1}).text()

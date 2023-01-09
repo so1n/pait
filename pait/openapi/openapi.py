@@ -11,10 +11,12 @@ from any_api.openapi.model.request_model import RequestModel
 from pydantic import BaseModel, Field
 from pydantic.fields import FieldInfo, Undefined
 
+from pait.app.base.security.base import BaseSecurity
 from pait.field import BaseField, Depends
 from pait.g import config
 from pait.model.core import PaitCoreModel
 from pait.model.status import PaitStatus
+from pait.types import CallType
 from pait.util import FuncSig, create_pydantic_model, get_func_sig, get_parameter_list_from_class
 
 HttpParamTypeDictType = Dict[HttpParamTypeLiteral, List[RequestModel]]
@@ -36,70 +38,13 @@ class ApiModel(_ApiModel):
         }
 
 
-class OpenAPI(object):
-    def __init__(
-        self,
-        pait_dict: Dict[str, PaitCoreModel],
-        undefined: Any = Undefined,
-        openapi_info_model: Optional[InfoModel] = None,
-        server_model_list: Optional[List[ServerModel]] = None,
-        tag_model_list: Optional[List[TagModel]] = None,
-        external_docs: Optional[ExternalDocumentationModel] = None,
-        security_dict: Optional[Dict[str, SecurityModelType]] = None,
-    ):
-        self._undefined: Any = undefined
-        self._openapi: _OpenAPI = _OpenAPI(
-            openapi_info_model=openapi_info_model,
-            server_model_list=server_model_list,
-            tag_model_list=tag_model_list,
-            external_docs=external_docs,
-            security_dict=security_dict,
-        )
-        api_model_list: List[ApiModel] = []
-        for pait_id, pait_model in pait_dict.items():
-            http_param_type_dict: HttpParamTypeDictType = self._parse_pait_model_to_http_param_type_dict(pait_model)
-            api_model_list.append(
-                ApiModel(
-                    path=pait_model.openapi_path,
-                    http_method_list=pait_model.openapi_method_list,
-                    tags=[i.to_tag_model() for i in pait_model.tag],
-                    operation_id=pait_model.operation_id,
-                    summary=pait_model.summary,
-                    request_dict=http_param_type_dict,
-                    response_list=pait_model.response_model_list,
-                    description=pait_model.desc,
-                    deprecated=pait_model.status
-                    in (
-                        PaitStatus.abnormal,
-                        PaitStatus.maintenance,
-                        PaitStatus.archive,
-                        PaitStatus.abandoned,
-                    ),
-                    pait_core_model=pait_model,
-                )
-            )
-        # In order to be compatible with the link, it must be imported in batches
-        self._openapi.add_api_model(*api_model_list)
+class ParsePaitModel(object):
+    def __init__(self, pait_model: PaitCoreModel) -> None:
+        self.http_param_type_dict: HttpParamTypeDictType = {}
+        self.security_dict: Dict[str, openapi_model.security.SecurityModelType] = {}
+        self._parse_pait_model(pait_model)
 
-    #########################
-    # proxy openapi feature #
-    #########################
-    @property
-    def model(self) -> OpenAPIModel:
-        return self._openapi.model
-
-    @property
-    def dict(self) -> dict:
-        return self._openapi.dict
-
-    def content(self, serialization_callback: Callable = json.dumps, **kwargs: Any) -> str:
-        if serialization_callback is json.dumps and "cls" not in kwargs:
-            kwargs["cls"] = config.json_encoder
-        return self._openapi.content(serialization_callback, **kwargs)
-
-    def _parse_base_model_to_http_param_type_dict(
-        self, http_param_type_dict: HttpParamTypeDictType, _pydantic_model: Type[BaseModel]
-    ) -> None:
+    def _parse_base_model_to_http_param_type_dict(self, _pydantic_model: Type[BaseModel]) -> None:
         param_field_dict: Dict[str, BaseField] = {}
         http_param_type_annotation_dict: Dict[HttpParamTypeLiteral, Dict[str, Tuple[Type, FieldInfo]]] = {}
         from typing import get_type_hints
@@ -118,9 +63,9 @@ class OpenAPI(object):
             param_field_dict[http_param_type] = field
 
         for http_param_type, annotation_dict in http_param_type_annotation_dict.items():
-            if http_param_type not in http_param_type_dict:
-                http_param_type_dict[http_param_type] = []
-            http_param_type_dict[http_param_type].append(
+            if http_param_type not in self.http_param_type_dict:
+                self.http_param_type_dict[http_param_type] = []
+            self.http_param_type_dict[http_param_type].append(
                 RequestModel(
                     description="",
                     media_type_list=[param_field_dict[http_param_type].media_type],
@@ -132,7 +77,6 @@ class OpenAPI(object):
     def parameter_list_handle(
         self,
         parameter_list: List["inspect.Parameter"],
-        http_param_type_dict: HttpParamTypeDictType,
         single_field_list: List[Tuple[str, "inspect.Parameter"]],
         pait_model: PaitCoreModel,
     ) -> None:
@@ -169,41 +113,43 @@ class OpenAPI(object):
                         if not pait_field.raw_return
                         else annotation,
                     )
-                    if http_param_type not in http_param_type_dict:
-                        http_param_type_dict[http_param_type] = []
-                    http_param_type_dict[http_param_type].append(request_model)
+                    if http_param_type not in self.http_param_type_dict:
+                        self.http_param_type_dict[http_param_type] = []
+                    self.http_param_type_dict[http_param_type].append(request_model)
                 else:
                     # def test(pait_model_route: int = Body())
                     if isinstance(pait_field, Depends):
-                        http_param_type_dict.update(
-                            self._parse_func_param_to_http_param_type_dict(pait_field.func, pait_model)
-                        )
+                        self._parse_call_type(pait_field.func, pait_model)
                     else:
                         field_name: str = pait_field.__class__.__name__.lower()
                         single_field_list.append((field_name, parameter))
 
             elif inspect.isclass(parameter.annotation) and issubclass(parameter.annotation, BaseModel):
                 # def test(pait_model_route: PaitBaseModel)
-                self._parse_base_model_to_http_param_type_dict(http_param_type_dict, parameter.annotation)
+                self._parse_base_model_to_http_param_type_dict(parameter.annotation)
 
-    def _parse_func_param_to_http_param_type_dict(
-        self, func: Callable, pait_model: PaitCoreModel
-    ) -> HttpParamTypeDictType:
-        http_param_type_dict: HttpParamTypeDictType = {}
-        func_sig: FuncSig = get_func_sig(func)
+    def _parse_call_type(self, call_type: CallType, pait_model: PaitCoreModel) -> None:
+        if isinstance(call_type, BaseSecurity):
+            if self.security_dict.get(call_type.security_name, None) not in (call_type.model, None):
+                raise ValueError(
+                    f"{call_type.security_name}Already exists, "
+                    f"but the Security Model is inconsistent with {call_type.model}"
+                )
+            self.security_dict[call_type.security_name] = call_type.model
+        func_type_sig: FuncSig = get_func_sig(call_type)
         single_field_list: List[Tuple[str, "inspect.Parameter"]] = []
 
-        qualname: str = getattr(func, "__qualname__", "")
+        qualname: str = getattr(call_type, "__qualname__", "")
         if not qualname:
-            class_ = func.__class__  # type: ignore
+            class_ = call_type.__class__  # type: ignore
         else:
             qualname = qualname.split(".<locals>", 1)[0].rsplit(".", 1)[0]
-            class_ = getattr(inspect.getmodule(func), qualname)
+            class_ = getattr(inspect.getmodule(call_type), qualname)
 
         if inspect.isclass(class_):
             parameter_list: List["inspect.Parameter"] = get_parameter_list_from_class(class_)
-            self.parameter_list_handle(parameter_list, http_param_type_dict, single_field_list, pait_model)
-        self.parameter_list_handle(func_sig.param_list, http_param_type_dict, single_field_list, pait_model)
+            self.parameter_list_handle(parameter_list, single_field_list, pait_model)
+        self.parameter_list_handle(func_type_sig.param_list, single_field_list, pait_model)
 
         if single_field_list:
             annotation_dict: Dict[str, Tuple[Type, Any]] = {}
@@ -224,7 +170,7 @@ class OpenAPI(object):
                             f"{pait_model.func_name.title()}{parameter.name.title()}{pait_model.pait_id.title()}"
                         ),
                     )
-                    self._parse_base_model_to_http_param_type_dict(http_param_type_dict, _pydantic_model)
+                    self._parse_base_model_to_http_param_type_dict(_pydantic_model)
                 else:
                     _column_name_set.add(key)
                     annotation_dict[parameter.name] = (parameter.annotation, field)
@@ -232,23 +178,76 @@ class OpenAPI(object):
             _pydantic_model = create_pydantic_model(
                 annotation_dict, class_name=f"{pait_model.func_name.title()}{pait_model.pait_id.title()}"
             )
-            self._parse_base_model_to_http_param_type_dict(http_param_type_dict, _pydantic_model)
+            self._parse_base_model_to_http_param_type_dict(_pydantic_model)
 
         for extra_openapi_model in pait_model.extra_openapi_model_list:
-            self._parse_base_model_to_http_param_type_dict(http_param_type_dict, extra_openapi_model)
-        return http_param_type_dict
+            self._parse_base_model_to_http_param_type_dict(extra_openapi_model)
 
-    def _parse_pait_model_to_http_param_type_dict(self, pait_model: PaitCoreModel) -> HttpParamTypeDictType:
+    def _parse_pait_model(self, pait_model: PaitCoreModel) -> None:
         """Extracting request and response information through routing functions"""
-        http_param_type_dict: HttpParamTypeDictType = self._parse_func_param_to_http_param_type_dict(
-            pait_model.func, pait_model
-        )
+        self._parse_call_type(pait_model.func, pait_model)
         for pre_depend in pait_model.pre_depend_list:
-            for http_param_type, request_model_list in self._parse_func_param_to_http_param_type_dict(
-                pre_depend, pait_model
-            ).items():
-                if http_param_type not in http_param_type_dict:
-                    http_param_type_dict[http_param_type] = request_model_list
-                else:
-                    http_param_type_dict[http_param_type].extend(request_model_list)
-        return http_param_type_dict
+            self._parse_call_type(pre_depend, pait_model)
+
+
+class OpenAPI(object):
+    def __init__(
+        self,
+        pait_dict: Dict[str, PaitCoreModel],
+        undefined: Any = Undefined,
+        openapi_info_model: Optional[InfoModel] = None,
+        server_model_list: Optional[List[ServerModel]] = None,
+        tag_model_list: Optional[List[TagModel]] = None,
+        external_docs: Optional[ExternalDocumentationModel] = None,
+        security_dict: Optional[Dict[str, SecurityModelType]] = None,
+    ):
+        self._undefined: Any = undefined
+        self._openapi: _OpenAPI = _OpenAPI(
+            openapi_info_model=openapi_info_model,
+            server_model_list=server_model_list,
+            tag_model_list=tag_model_list,
+            external_docs=external_docs,
+            security_dict=security_dict,
+        )
+        api_model_list: List[ApiModel] = []
+        for pait_id, pait_model in pait_dict.items():
+            parse_pait_model: ParsePaitModel = ParsePaitModel(pait_model)
+            api_model_list.append(
+                ApiModel(
+                    path=pait_model.openapi_path,
+                    http_method_list=pait_model.openapi_method_list,
+                    tags=[i.to_tag_model() for i in pait_model.tag],
+                    operation_id=pait_model.operation_id,
+                    summary=pait_model.summary,
+                    request_dict=parse_pait_model.http_param_type_dict,
+                    response_list=pait_model.response_model_list,
+                    description=pait_model.desc,
+                    deprecated=pait_model.status
+                    in (
+                        PaitStatus.abnormal,
+                        PaitStatus.maintenance,
+                        PaitStatus.archive,
+                        PaitStatus.abandoned,
+                    ),
+                    pait_core_model=pait_model,
+                    security=parse_pait_model.security_dict,
+                )
+            )
+        # In order to be compatible with the link, it must be imported in batches
+        self._openapi.add_api_model(*api_model_list)
+
+    #########################
+    # proxy openapi feature #
+    #########################
+    @property
+    def model(self) -> OpenAPIModel:
+        return self._openapi.model
+
+    @property
+    def dict(self) -> dict:
+        return self._openapi.dict
+
+    def content(self, serialization_callback: Callable = json.dumps, **kwargs: Any) -> str:
+        if serialization_callback is json.dumps and "cls" not in kwargs:
+            kwargs["cls"] = config.json_encoder
+        return self._openapi.content(serialization_callback, **kwargs)

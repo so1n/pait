@@ -241,6 +241,9 @@ class TestStarlette:
     def test_pre_depend_async_contextmanager(self, base_test: BaseTest, mocker: MockFixture) -> None:
         base_test.pre_depend_contextmanager(starlette_example.pre_depend_async_contextmanager_route, mocker)
 
+    def test_api_key_route(self, base_test: BaseTest) -> None:
+        base_test.api_key_route(starlette_example.api_key_route)
+
     def test_get_cbv(self, base_test: BaseTest) -> None:
         base_test.get_cbv(starlette_example.CbvRoute.get)
 

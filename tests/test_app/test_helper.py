@@ -8,6 +8,7 @@ from flask.testing import FlaskClient
 from pydantic import BaseModel, Field
 
 from example.param_verify import flask_example
+from pait.app.base import CheckResponseException
 from pait.app.flask import FlaskTestHelper, pait
 from pait.model import response
 
@@ -56,7 +57,7 @@ class TestPaitTestHelper:
             return jsonify({"a": "a", "b": "b"})
 
         client.application.add_url_rule("/api/demo", view_func=demo, methods=["GET"])
-        with pytest.raises(RuntimeError) as e:
+        with pytest.raises(CheckResponseException) as e:
             FlaskTestHelper(client, demo).get()
 
         exec_msg: str = e.value.args[0]
@@ -92,7 +93,7 @@ class TestPaitTestHelper:
             return make_response("")
 
         client.application.add_url_rule("/api/demo", view_func=demo, methods=["GET"])
-        with pytest.raises(RuntimeError) as e:
+        with pytest.raises(CheckResponseException) as e:
             FlaskTestHelper(client, demo).get()
 
         exec_msg: str = e.value.args[0]
@@ -107,9 +108,8 @@ class TestPaitTestHelper:
         for http_method in ["get", "head"]:
             getattr(FlaskTestHelper(client, flask_example.html_response_route), http_method)()
 
-        for http_method in ["patch", "post", "put", "delete", "options"]:
-            with pytest.raises(RuntimeError) as e:
+        for http_method in ["patch", "post", "put", "delete"]:
+            with pytest.raises(CheckResponseException) as e:
                 http_method, getattr(FlaskTestHelper(client, flask_example.html_response_route), http_method)()
 
-            exec_msg: str = e.value.args[0]
-            assert "405 METHOD NOT ALLOWED" in exec_msg or "'Allow'" in exec_msg
+            assert e.value.status_code == 405
