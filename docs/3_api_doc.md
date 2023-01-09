@@ -53,6 +53,7 @@ def demo() -> None:
 - filename: 输出文件名, 如果为空则输出到终端
 
 以下是OpenAPI文档输出的示例代码:
+
 ```Python
 from pydantic import BaseModel, conint, constr
 from starlette.applications import Starlette
@@ -72,9 +73,9 @@ class PydanticModel(BaseModel):
 # 使用pait装饰器装饰函数
 @pait()
 async def demo_post(
-    # pait通过Body()知道当前需要从请求中获取body的值,并赋值到model中,
-    # 而这个model的结构正是上面的PydanticModel,他会根据我们定义的字段自动获取值并进行转换和判断
-    model: PydanticModel = Body.i()
+        # pait通过Body()知道当前需要从请求中获取body的值,并赋值到model中,
+        # 而这个model的结构正是上面的PydanticModel,他会根据我们定义的字段自动获取值并进行转换和判断
+        model: PydanticModel = Body.i()
 ):
     # 获取对应的值进行返回
     return JSONResponse({'result': model.dict()})
@@ -82,7 +83,7 @@ async def demo_post(
 
 app = Starlette(routes=[Route('/api', demo_post, methods=['POST'])])
 
-from pait.api_doc.openapi import OpenAPI
+from pait.openapi.openapi import OpenAPI
 from pait.app.starlette import load_app
 
 # 提取路由信息到pait的数据模块
@@ -91,9 +92,10 @@ pait_dict = load_app(app)
 OpenAPI(pait_dict).content()
 ```
 通过改代码就可以自动生成一个OpenAPI的文件，不过一般情况下都很少直接使用生成的OpenAPI文件，如果单纯的需要一份API文档，那么可以使用自带的`markdown`模块来生成接口对应的`markdown`文档，代码如下：
+
 ```Python
 from any_api.openapi.to.markdown import Markdown
-from pait.api_doc.openapi import OpenAPI
+from pait.openapi.openapi import OpenAPI
 
 print(Markdown(OpenAPI(pait_dict)).content)
 ```

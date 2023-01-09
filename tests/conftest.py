@@ -157,7 +157,7 @@ def grpc_test_create_user_request(app: Any) -> Generator[Queue, None, None]:
 
 
 def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api", option_str: str = "") -> None:
-    from pait.api_doc.openapi import OpenAPI
+    from pait.openapi.openapi import OpenAPI
 
     url_list: List[str] = [
         f"{url_prefix}/user/create",

@@ -13,12 +13,12 @@ from starlette.applications import Starlette
 from starlette.testclient import TestClient
 
 from example.param_verify import starlette_example
-from pait.api_doc.openapi import InfoModel, OpenAPI, ServerModel
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.starlette import TestHelper as _TestHelper
 from pait.app.starlette import load_app
 from pait.model import response
+from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from pait.plugin.base_mock_response import BaseAsyncMockPlugin, BaseMockPlugin
 from tests.conftest import enable_plugin, grpc_test_create_user_request, grpc_test_openapi
 from tests.test_app.base_test import BaseTest

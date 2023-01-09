@@ -14,12 +14,12 @@ from sanic_testing.testing import SanicTestClient
 from sanic_testing.testing import TestingResponse as Response  # type: ignore
 
 from example.param_verify import sanic_example
-from pait.api_doc.openapi import InfoModel, OpenAPI, ServerModel
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.sanic import TestHelper as _TestHelper
 from pait.app.sanic import load_app
 from pait.model import response
+from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin, fixture_loop, grpc_test_create_user_request, grpc_test_openapi
 from tests.test_app.base_test import BaseTest
 

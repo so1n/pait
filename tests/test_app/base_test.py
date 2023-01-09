@@ -389,7 +389,7 @@ class BaseTest(object):
         )
         grpc_test_openapi(load_app(app), url_prefix=prefix, option_str="_by_option")
 
-        from pait.api_doc.openapi import OpenAPI
+        from pait.openapi.openapi import OpenAPI
 
         pait_openapi: OpenAPI = OpenAPI(load_app(app))
         assert (

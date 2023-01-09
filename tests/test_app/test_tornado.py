@@ -12,12 +12,12 @@ from tornado.testing import AsyncHTTPTestCase, HTTPResponse
 from tornado.web import Application
 
 from example.param_verify import tornado_example
-from pait.api_doc.openapi import InfoModel, OpenAPI, ServerModel
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.tornado import TestHelper as _TestHelper
 from pait.app.tornado import load_app
 from pait.model import response
+from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin, grpc_test_create_user_request, grpc_test_openapi
 from tests.test_app.base_test import BaseTest
 
