@@ -39,9 +39,6 @@ class BaseField(FieldInfo):
         regex: str = None,
         **extra: Any,
     ):
-        if self.__class__.__mro__[2] != FieldInfo:
-            raise RuntimeError("Only classes that inherit BaseField can be used")
-
         # Same checks as pydantic, checked in advance here
         if default is not Undefined and default_factory is not None:
             raise ValueError("cannot specify both default and default_factory")  # pragma: no cover
@@ -177,8 +174,13 @@ class BaseField(FieldInfo):
         )
 
 
-class Body(BaseField):
+class Json(BaseField):
     media_type: str = "application/json"
+    field_name = "body"
+
+
+class Body(Json):
+    """Compatible with the old interface, it may be removed in the future"""
 
 
 class Cookie(BaseField):

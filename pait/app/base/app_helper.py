@@ -85,6 +85,9 @@ class BaseAppHelper(Generic[RequestT, RequestExtendT]):
     def query(self) -> Any:
         raise NotImplementedError
 
+    def json(self) -> dict:
+        return self.body()
+
     def body(self) -> Any:
         raise NotImplementedError
 

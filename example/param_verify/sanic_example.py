@@ -47,7 +47,7 @@ from pait.app.sanic.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.sanic.plugin.mock_response import MockPlugin
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
 from pait.extra.config import MatchRule
-from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
+from pait.field import Cookie, Depends, File, Form, Header, Json, MultiForm, MultiQuery, Path, Query
 from pait.model.links import LinksModel
 from pait.model.response import TextResponseModel
 from pait.model.status import PaitStatus
@@ -109,9 +109,9 @@ async def raise_tip_route(
     response_model_list=[UserSuccessRespModel, FailRespModel],
 )
 async def post_route(
-    model: UserModel = Body.i(raw_return=True),
-    other_model: UserOtherModel = Body.i(raw_return=True),
-    sex: SexEnum = Body.i(description="sex"),
+    model: UserModel = Json.i(raw_return=True),
+    other_model: UserOtherModel = Json.i(raw_return=True),
+    sex: SexEnum = Json.i(description="sex"),
     content_type: str = Header.i(alias="Content-Type", description="Content-Type"),
 ) -> response.HTTPResponse:
     """Test Method:Post Pydantic Model"""
@@ -152,9 +152,9 @@ def same_alias_route(
     response_model_list=[SimpleRespModel, FailRespModel],
 )
 async def field_default_factory_route(
-    demo_value: int = Body.i(description="Json body value not empty"),
-    data_list: List[str] = Body.i(default_factory=list, description="test default factory"),
-    data_dict: Dict[str, Any] = Body.i(default_factory=dict, description="test default factory"),
+    demo_value: int = Json.i(description="Json body value not empty"),
+    data_list: List[str] = Json.i(default_factory=list, description="test default factory"),
+    data_dict: Dict[str, Any] = Json.i(default_factory=dict, description="test default factory"),
 ) -> response.HTTPResponse:
     return response.json(
         {"code": 0, "msg": "", "data": {"demo_value": demo_value, "data_list": data_list, "data_dict": data_dict}}
@@ -381,10 +381,10 @@ class CbvRoute(HTTPMethodView):
     )
     async def post(
         self,
-        uid: int = Body.i(description="user id", gt=10, lt=1000),
-        user_name: str = Body.i(description="user name", min_length=2, max_length=4),
-        sex: SexEnum = Body.i(description="sex"),
-        model: UserOtherModel = Body.i(raw_return=True),
+        uid: int = Json.i(description="user id", gt=10, lt=1000),
+        user_name: str = Json.i(description="user name", min_length=2, max_length=4),
+        sex: SexEnum = Json.i(description="sex"),
+        model: UserOtherModel = Json.i(raw_return=True),
     ) -> response.HTTPResponse:
         """Text cbv route post"""
         return response.json(
@@ -447,7 +447,7 @@ async def file_response_route(request: Request) -> response.StreamingHTTPRespons
 
 @link_pait(response_model_list=[LoginRespModel])
 def login_route(
-    uid: str = Body.i(description="user id"), password: str = Body.i(description="password")
+    uid: str = Json.i(description="user id"), password: str = Json.i(description="password")
 ) -> response.HTTPResponse:
     # only use test
     return response.json(

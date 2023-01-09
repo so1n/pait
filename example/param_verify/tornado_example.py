@@ -46,7 +46,7 @@ from pait.app.tornado.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.tornado.plugin.mock_response import MockPlugin
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
 from pait.extra.config import MatchRule
-from pait.field import Body, Cookie, Depends, File, Form, Header, MultiForm, MultiQuery, Path, Query
+from pait.field import Cookie, Depends, File, Form, Header, Json, MultiForm, MultiQuery, Path, Query
 from pait.model.links import LinksModel
 from pait.model.response import HtmlResponseModel
 from pait.model.status import PaitStatus
@@ -112,9 +112,9 @@ class PostHandler(MyHandler):
     )
     async def post(
         self,
-        model: UserModel = Body.i(raw_return=True),
-        other_model: UserOtherModel = Body.i(raw_return=True),
-        sex: SexEnum = Body.i(description="sex"),
+        model: UserModel = Json.i(raw_return=True),
+        other_model: UserOtherModel = Json.i(raw_return=True),
+        sex: SexEnum = Json.i(description="sex"),
         content_type: str = Header.i(alias="Content-Type", description="content-type"),
     ) -> None:
         """Test Method:Post Pydantic Model"""
@@ -161,9 +161,9 @@ class FieldDefaultFactoryHandler(MyHandler):
     )
     async def post(
         self,
-        demo_value: int = Body.i(description="Json body value not empty"),
-        data_list: List[str] = Body.i(default_factory=list, description="test default factory"),
-        data_dict: Dict[str, Any] = Body.i(default_factory=dict, description="test default factory"),
+        demo_value: int = Json.i(description="Json body value not empty"),
+        data_list: List[str] = Json.i(default_factory=list, description="test default factory"),
+        data_dict: Dict[str, Any] = Json.i(default_factory=dict, description="test default factory"),
     ) -> None:
         self.write(
             {"code": 0, "msg": "", "data": {"demo_value": demo_value, "data_list": data_list, "data_dict": data_dict}}
@@ -395,10 +395,10 @@ class CbvHandler(MyHandler):
     )
     async def post(
         self,
-        uid: int = Body.i(description="user id", gt=10, lt=1000),
-        user_name: str = Body.i(description="user name", min_length=2, max_length=4),
-        sex: SexEnum = Body.i(description="sex"),
-        model: UserOtherModel = Body.i(raw_return=True),
+        uid: int = Json.i(description="user id", gt=10, lt=1000),
+        user_name: str = Json.i(description="user name", min_length=2, max_length=4),
+        sex: SexEnum = Json.i(description="sex"),
+        model: UserOtherModel = Json.i(raw_return=True),
     ) -> None:
         self.write(
             {
@@ -457,7 +457,7 @@ class FileResponseHanler(MyHandler):
 class LoginHanlder(MyHandler):
     @link_pait(response_model_list=[LoginRespModel])
     async def post(
-        self, uid: str = Body.i(description="user id"), password: str = Body.i(description="password")
+        self, uid: str = Json.i(description="user id"), password: str = Json.i(description="password")
     ) -> None:
         self.write(
             {"code": 0, "msg": "", "data": {"token": hashlib.sha256((uid + password).encode("utf-8")).hexdigest()}}
