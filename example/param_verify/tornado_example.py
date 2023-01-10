@@ -375,9 +375,8 @@ class APIKeyHanler(MyHandler):
         token: str = Depends.i(
             api_key(
                 name="token",
-                field=Header,
+                field=Header(links=link_login_token_model, openapi_include=False),
                 verify_api_key_callable=lambda x: x == "my-token",
-                links=link_login_token_model,
             )
         ),
     ) -> None:
@@ -498,7 +497,7 @@ class GetUserHandler(MyHandler):
         token: str = Header.i(
             "",
             description="token",
-            link=link_login_token_model,
+            links=link_login_token_model,
             example=TemplateVar("token"),
         ),
     ) -> None:

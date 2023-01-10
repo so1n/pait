@@ -89,6 +89,10 @@ class BaseField(FieldInfo):
             **extra,
         )
 
+    def set_alias(self, value: Optional[str]) -> None:
+        self.alias = value
+        self.request_key = value
+
     def request_value_handle(self, request_value: Mapping) -> Any:
         return request_value.get(self.request_key, Undefined)
 

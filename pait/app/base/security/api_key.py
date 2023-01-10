@@ -4,11 +4,10 @@ from typing import Callable, Optional, Type, Union
 from any_api.openapi.model.openapi import security
 
 from pait.field import Cookie, Header, Query
-from pait.model.links import LinksModel
 
 from .base import BaseSecurity
 
-APIKEY_FIELD_TYPE = Type[Union[Query, Header, Cookie]]
+APIKEY_FIELD_TYPE = Union[Query, Header, Cookie]
 
 
 class APIkey(BaseSecurity, metaclass=ABCMeta):
@@ -24,9 +23,14 @@ def api_key(
     field: APIKEY_FIELD_TYPE,
     verify_api_key_callable: Callable[[str], bool],
     security_name: Optional[str] = None,
-    links: "Optional[LinksModel]" = None,
 ) -> APIkey:
     not_authenticated_exc: Exception = api_key_class.get_exception(status_code=403, message="Not authenticated")
+    if field.alias is not None:
+        raise ValueError("Custom alias parameters are not allowed")
+    if field.not_value_exception is not None:
+        raise ValueError("Custom not_value_exception parameters are not allowed")
+    field.set_alias(name)
+    field.not_value_exception = not_authenticated_exc
 
     class _APIKey(api_key_class):  # type: ignore
         def __init__(self) -> None:
@@ -40,12 +44,7 @@ def api_key(
 
         def __call__(
             self,
-            api_key_: str = field.i(
-                alias=name,
-                example="This value is a placeholder, please use the Authorize",
-                not_value_exception=not_authenticated_exc,
-                links=links,
-            ),
+            api_key_: str = field,
         ) -> Optional[str]:
             if not verify_api_key_callable(api_key_):
                 raise not_authenticated_exc

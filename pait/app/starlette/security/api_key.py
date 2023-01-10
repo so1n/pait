@@ -5,7 +5,6 @@ from starlette.exceptions import HTTPException
 
 from pait.app.base.security.api_key import APIKEY_FIELD_TYPE
 from pait.app.base.security.api_key import APIkey as BaseAPIKey
-from pait.app.base.security.api_key import LinksModel
 from pait.app.base.security.api_key import api_key as _api_key
 
 
@@ -22,13 +21,11 @@ def api_key(
     verify_api_key_callable: Callable[[str], bool],
     security_name: Optional[str] = None,
     api_key_class: Type[BaseAPIKey] = APIkey,
-    links: "Optional[LinksModel]" = None,
 ) -> BaseAPIKey:
     return _api_key(
         name=name,
         api_key_class=api_key_class,
         field=field,
-        links=links,
         verify_api_key_callable=verify_api_key_callable,
         security_name=security_name,
     )
