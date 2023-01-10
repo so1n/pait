@@ -11,8 +11,8 @@ from flask.ctx import AppContext
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
 
-from example.param_verify import flask_example
-from example.param_verify.common import response_model
+from example.common import response_model
+from example.flask_example import grpc_route, main_example
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.flask import TestHelper as _TestHelper
@@ -27,7 +27,7 @@ from tests.test_app.base_test import BaseTest
 def client() -> Generator[FlaskClient, None, None]:
     # Flask provides a way to test your application by exposing the Werkzeug test Client
     # and handling the context locals for you.
-    app: Flask = flask_example.create_app()
+    app: Flask = main_example.create_app()
     client: FlaskClient = app.test_client()
     # Establish an application context before running the tests.
     ctx: AppContext = app.app_context()
@@ -40,7 +40,7 @@ def client() -> Generator[FlaskClient, None, None]:
 def base_test() -> Generator[BaseTest, None, None]:
     # Flask provides a way to test your application by exposing the Werkzeug test Client
     # and handling the context locals for you.
-    app: Flask = flask_example.create_app()
+    app: Flask = main_example.create_app()
     client: FlaskClient = app.test_client()
     # Establish an application context before running the tests.
     ctx: AppContext = app.app_context()
@@ -74,14 +74,14 @@ class TestFlask:
     def test_post(self, client: FlaskClient) -> None:
         flask_test_helper: _TestHelper = _TestHelper(
             client,
-            flask_example.post_route,
+            main_example.post_route,
             body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
             header_dict={"user-agent": "customer_agent"},
         )
         for resp in [
             flask_test_helper.json(),
             client.post(
-                "/api/post",
+                "/api/field/post",
                 headers={"user-agent": "customer_agent"},
                 json={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
             ).get_json(),
@@ -98,12 +98,12 @@ class TestFlask:
     def test_check_json_route(self, client: FlaskClient) -> None:
         for url, api_code in [
             (
-                "/api/check-json-plugin?uid=123&user_name=appl&sex=man&age=10",
+                "/api/plugin/check-json-plugin?uid=123&user_name=appl&sex=man&age=10",
                 -1,
             ),
-            ("/api/check-json-plugin?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
-            ("/api/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10", -1),
-            ("/api/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
+            ("/api/plugin/check-json-plugin?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
+            ("/api/plugin/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10", -1),
+            ("/api/plugin/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
         ]:
             resp: dict = client.get(url).get_json()
             assert resp["code"] == api_code
@@ -112,15 +112,15 @@ class TestFlask:
 
     def test_test_helper_not_support_mutil_method(self, client: FlaskClient) -> None:
         client.application.add_url_rule(
-            "/api/text-resp", view_func=flask_example.text_response_route, methods=["GET", "POST"]
+            "/api/plugin/text-resp", view_func=main_example.text_response_route, methods=["GET", "POST"]
         )
         with pytest.raises(RuntimeError) as e:
-            _TestHelper(client, flask_example.text_response_route).request()
+            _TestHelper(client, main_example.text_response_route).request()
         exec_msg: str = e.value.args[0]
         assert exec_msg == "Pait Can not auto select method, please choice method in ['GET', 'POST']"
 
     def test_doc_route(self, client: FlaskClient) -> None:
-        flask_example.add_api_doc_route(client.application)
+        main_example.add_api_doc_route(client.application)
         for doc_route_path in default_doc_fn_dict.keys():
             assert client.get(f"/{doc_route_path}").status_code == 404
             assert client.get(f"/api-doc/{doc_route_path}").status_code == 200
@@ -177,82 +177,82 @@ class TestFlask:
         assert is_call
 
     def test_text_response(self, client: FlaskClient) -> None:
-        response_test_helper(client, flask_example.text_response_route, response.TextResponseModel)
+        response_test_helper(client, main_example.text_response_route, response.TextResponseModel)
 
     def test_html_response(self, client: FlaskClient) -> None:
-        response_test_helper(client, flask_example.html_response_route, response.HtmlResponseModel)
+        response_test_helper(client, main_example.html_response_route, response.HtmlResponseModel)
 
     def test_file_response(self, client: FlaskClient) -> None:
-        response_test_helper(client, flask_example.file_response_route, response.FileResponseModel)
+        response_test_helper(client, main_example.file_response_route, response.FileResponseModel)
 
     def test_raise_tip_route(self, base_test: BaseTest) -> None:
-        base_test.raise_tip_route(flask_example.raise_tip_route)
+        base_test.raise_tip_route(main_example.raise_tip_route)
 
     def test_auto_complete_json_route(self, base_test: BaseTest) -> None:
-        base_test.auto_complete_json_route(flask_example.auto_complete_json_route)
+        base_test.auto_complete_json_route(main_example.auto_complete_json_route)
 
     def test_depend_route(self, base_test: BaseTest) -> None:
-        base_test.depend_route(flask_example.depend_route)
+        base_test.depend_route(main_example.depend_route)
 
     def test_same_alias_name(self, base_test: BaseTest) -> None:
-        base_test.same_alias_name(flask_example.same_alias_route)
+        base_test.same_alias_name(main_example.same_alias_route)
 
     def test_field_default_factory_route(self, base_test: BaseTest) -> None:
-        base_test.field_default_factory_route(flask_example.field_default_factory_route)
+        base_test.field_default_factory_route(main_example.field_default_factory_route)
 
     def test_pait_base_field_route(self, base_test: BaseTest) -> None:
-        base_test.pait_base_field_route(flask_example.pait_base_field_route, ignore_path=False)
+        base_test.pait_base_field_route(main_example.pait_base_field_route, ignore_path=False)
 
     def test_check_param(self, base_test: BaseTest) -> None:
-        base_test.check_param(flask_example.check_param_route)
+        base_test.check_param(main_example.check_param_route)
 
     def test_check_response(self, base_test: BaseTest) -> None:
-        base_test.check_response(flask_example.check_response_route)
+        base_test.check_response(main_example.check_response_route)
 
     def test_mock_route(self, base_test: BaseTest) -> None:
-        base_test.mock_route(flask_example.mock_route, response_model.UserSuccessRespModel2)
+        base_test.mock_route(main_example.mock_route, response_model.UserSuccessRespModel2)
 
     def test_pait_model(self, base_test: BaseTest) -> None:
-        base_test.pait_model(flask_example.pait_model_route)
+        base_test.pait_model(main_example.pait_model_route)
 
     def test_depend_contextmanager(self, base_test: BaseTest, mocker: MockFixture) -> None:
-        base_test.depend_contextmanager(flask_example.depend_contextmanager_route, mocker)
+        base_test.depend_contextmanager(main_example.depend_contextmanager_route, mocker)
 
     def test_pre_depend_contextmanager(self, base_test: BaseTest, mocker: MockFixture) -> None:
-        base_test.pre_depend_contextmanager(flask_example.pre_depend_contextmanager_route, mocker)
+        base_test.pre_depend_contextmanager(main_example.pre_depend_contextmanager_route, mocker)
 
     def test_api_key_route(self, base_test: BaseTest) -> None:
-        base_test.api_key_route(flask_example.api_key_route)
+        base_test.api_key_route(main_example.api_key_route)
 
     def test_get_cbv(self, base_test: BaseTest) -> None:
-        base_test.get_cbv(flask_example.CbvRoute.get)
+        base_test.get_cbv(main_example.CbvRoute.get)
 
     def test_post_cbv(self, base_test: BaseTest) -> None:
-        base_test.post_cbv(flask_example.CbvRoute.post)
+        base_test.post_cbv(main_example.CbvRoute.post)
 
     def test_cache_response(self, base_test: BaseTest) -> None:
-        base_test.cache_response(flask_example.cache_response, flask_example.cache_response1)
+        base_test.cache_response(main_example.cache_response, main_example.cache_response1)
 
     def test_cache_other_response_type(self, base_test: BaseTest) -> None:
-        flask_example.CacheResponsePlugin.set_redis_to_app(
-            base_test.client.application, flask_example.Redis(decode_responses=True)
+        main_example.CacheResponsePlugin.set_redis_to_app(
+            base_test.client.application, main_example.Redis(decode_responses=True)
         )
         base_test.cache_other_response_type(
-            flask_example.text_response_route, flask_example.html_response_route, flask_example.CacheResponsePlugin
+            main_example.text_response_route, main_example.html_response_route, main_example.CacheResponsePlugin
         )
 
     def test_cache_response_param_name(self, base_test: BaseTest) -> None:
         base_test.cache_response_param_name(
-            flask_example.post_route, flask_example.CacheResponsePlugin, flask_example.Redis(decode_responses=True)
+            main_example.post_route, main_example.CacheResponsePlugin, main_example.Redis(decode_responses=True)
         )
 
 
 class TestFlaskGrpc:
     def test_create_user(self, client: FlaskClient) -> None:
-        from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import CreateUserRequest
+        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import CreateUserRequest
 
-        flask_example.add_grpc_gateway_route(client.application)
-        flask_example.add_api_doc_route(client.application)
+        grpc_route.add_grpc_gateway_route(client.application)
+        main_example.add_api_doc_route(client.application)
 
         with grpc_test_create_user_request(client.application) as queue:
             body: bytes = client.post(
@@ -267,10 +267,10 @@ class TestFlaskGrpc:
             assert message.sex == 0
 
     def test_login(self, client: FlaskClient) -> None:
-        from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
+        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
 
-        flask_example.add_grpc_gateway_route(client.application)
-        flask_example.add_api_doc_route(client.application)
+        grpc_route.add_grpc_gateway_route(client.application)
+        main_example.add_api_doc_route(client.application)
 
         with grpc_test_create_user_request(client.application) as queue:
             body: bytes = client.post("/api/user/login", json={"uid": "10086", "password": "pw"}).data
@@ -280,10 +280,10 @@ class TestFlaskGrpc:
             assert message.password == "pw"
 
     def test_logout(self, client: FlaskClient) -> None:
-        from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import LogoutUserRequest
+        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LogoutUserRequest
 
-        flask_example.add_grpc_gateway_route(client.application)
-        flask_example.add_api_doc_route(client.application)
+        grpc_route.add_grpc_gateway_route(client.application)
+        main_example.add_api_doc_route(client.application)
 
         with grpc_test_create_user_request(client.application) as queue:
             body: bytes = client.post("/api/user/logout", json={"uid": "10086"}, headers={"token": "token"}).data
@@ -293,10 +293,10 @@ class TestFlaskGrpc:
             assert message.token == "token"
 
     def test_delete_fail_token(self, client: FlaskClient) -> None:
-        from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import GetUidByTokenRequest
+        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import GetUidByTokenRequest
 
-        flask_example.add_grpc_gateway_route(client.application)
-        flask_example.add_api_doc_route(client.application)
+        grpc_route.add_grpc_gateway_route(client.application)
+        main_example.add_api_doc_route(client.application)
 
         with grpc_test_create_user_request(client.application) as queue:
             body: bytes = client.post(
@@ -309,7 +309,7 @@ class TestFlaskGrpc:
             assert message.token == "fail_token"
 
     def test_grpc_openapi(self, client: FlaskClient) -> None:
-        flask_example.add_grpc_gateway_route(client.application)
+        grpc_route.add_grpc_gateway_route(client.application)
 
         from pait.app.flask import load_app
 

@@ -7,7 +7,7 @@ from flask.ctx import AppContext
 from flask.testing import FlaskClient
 from redis import Redis  # type: ignore
 
-from example.param_verify import flask_example
+from example.flask_example import main_example
 from pait import field
 from pait.app.base.app_helper import BaseAppHelper
 from pait.exceptions import TipException
@@ -26,7 +26,7 @@ from pait.plugin.check_json_resp import CheckJsonRespPlugin
 def client() -> Generator[FlaskClient, None, None]:
     # Flask provides a way to test your application by exposing the Werkzeug test Client
     # and handling the context locals for you.
-    app: Flask = flask_example.create_app()
+    app: Flask = main_example.create_app()
     client: FlaskClient = app.test_client()
     # Establish an application context before running the tests.
     ctx: AppContext = app.app_context()

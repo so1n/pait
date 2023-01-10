@@ -18,7 +18,7 @@ class TestApp:
     def test_load_app(self, mocker: MockFixture) -> None:
         for i in app.auto_load_app.app_list:
             patch = mocker.patch(f"pait.app.{i}.load_app")
-            app.load_app(importlib.import_module(f"example.param_verify.{i}_example").create_app())  # type: ignore
+            app.load_app(importlib.import_module(f"example.{i}_example.main_example").create_app())  # type: ignore
             patch.assert_called_once()
 
         class Demo:
@@ -33,7 +33,7 @@ class TestApp:
     def test_add_doc_route(self, mocker: MockFixture) -> None:
         for i in app.auto_load_app.app_list:
             patch = mocker.patch(f"pait.app.{i}.add_doc_route")
-            app.add_doc_route(importlib.import_module(f"example.param_verify.{i}_example").create_app())  # type: ignore
+            app.add_doc_route(importlib.import_module(f"example.{i}_example.main_example").create_app())  # type: ignore
             patch.assert_called()
 
         class Demo:

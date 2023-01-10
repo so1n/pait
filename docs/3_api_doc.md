@@ -2,7 +2,7 @@
 `Pait`会在运行时自动捕获路由函数的请求参数和url，method等信息自动生成OpenAPI数据, 不过单靠函数的信息还不够，还需要开发者手动标注一些相关信息, 如下面的例子:
 
 ```Python
-from example.param_verify.common.response_model import FailRespModel, UserSuccessRespModel
+from example.common import FailRespModel, UserSuccessRespModel
 from pait.app.starlette import pait
 from pait.model.status import PaitStatus
 

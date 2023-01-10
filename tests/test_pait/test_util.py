@@ -91,11 +91,7 @@ class TestUtil:
         demo2()
 
     def test_get_pait_response_model(self) -> None:
-        from example.param_verify.common.response_model import (
-            TextRespModel,
-            UserSuccessRespModel2,
-            UserSuccessRespModel3,
-        )
+        from example.common.response_model import TextRespModel, UserSuccessRespModel2, UserSuccessRespModel3
         from pait.model.response import JsonResponseModel
 
         class CoreTestRespModel(TextRespModel):

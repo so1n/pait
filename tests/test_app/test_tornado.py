@@ -11,8 +11,8 @@ from redis import Redis  # type: ignore
 from tornado.testing import AsyncHTTPTestCase, HTTPResponse
 from tornado.web import Application
 
-from example.param_verify import tornado_example
-from example.param_verify.common import response_model
+from example.common import response_model
+from example.tornado_example import main_example
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.tornado import TestHelper as _TestHelper
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
 class BaseTestTornado(AsyncHTTPTestCase):
     def get_app(self) -> Application:
-        return tornado_example.create_app()
+        return main_example.create_app()
 
     @property
     def base_test(self) -> BaseTest:
@@ -60,12 +60,12 @@ class TestTornado(BaseTestTornado):
     def test_post(self) -> None:
         test_helper: _TestHelper = _TestHelper(
             self,
-            tornado_example.PostHandler.post,
+            main_example.PostHandler.post,
             body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
             header_dict={"user-agent": "customer_agent"},
         )
         response: HTTPResponse = self.fetch(
-            "/api/post",
+            "/api/field/post",
             headers={"user-agent": "customer_agent"},
             method="POST",
             body='{"uid": 123, "user_name": "appl", "age": 2, "sex": "man"}',
@@ -83,12 +83,12 @@ class TestTornado(BaseTestTornado):
     def test_check_json_route(self) -> None:
         for url, api_code in [
             (
-                "/api/check-json-plugin?uid=123&user_name=appl&sex=man&age=10",
+                "/api/plugin/check-json-plugin?uid=123&user_name=appl&sex=man&age=10",
                 -1,
             ),
-            ("/api/check-json-plugin?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
-            ("/api/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10", -1),
-            ("/api/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
+            ("/api/plugin/check-json-plugin?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
+            ("/api/plugin/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10", -1),
+            ("/api/plugin/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
         ]:
             resp: dict = json.loads(self.fetch(url).body.decode())
             assert resp["code"] == api_code
@@ -96,16 +96,16 @@ class TestTornado(BaseTestTornado):
                 assert resp["msg"] == "miss param: ['data', 'age']"
 
     def test_text_response(self) -> None:
-        self.response_test_helper(tornado_example.TextResponseHanler.get, response.TextResponseModel)
+        self.response_test_helper(main_example.TextResponseHanler.get, response.TextResponseModel)
 
     def test_html_response(self) -> None:
-        self.response_test_helper(tornado_example.HtmlResponseHanler.get, response.HtmlResponseModel)
+        self.response_test_helper(main_example.HtmlResponseHanler.get, response.HtmlResponseModel)
 
     def test_file_response(self) -> None:
-        self.response_test_helper(tornado_example.FileResponseHanler.get, response.FileResponseModel)
+        self.response_test_helper(main_example.FileResponseHanler.get, response.FileResponseModel)
 
     def test_doc_route(self) -> None:
-        tornado_example.add_api_doc_route(self._app)
+        main_example.add_api_doc_route(self._app)
         for doc_route_path in default_doc_fn_dict.keys():
             assert self.fetch(f"/{doc_route_path}").code == 404
             assert self.fetch(f"/api-doc/{doc_route_path}").code == 200
@@ -168,7 +168,7 @@ class TestTornado(BaseTestTornado):
                 "msg": "",
             } == _TestHelper(
                 self,
-                tornado_example.PaitBaseFieldHandler.post,
+                main_example.PaitBaseFieldHandler.post,
                 file_dict={f1.name: f1.read()},
                 form_dict={"a": "1", "b": "2", "c": "3"},
                 cookie_dict={"abcd": "abcd"},
@@ -181,7 +181,7 @@ class TestTornado(BaseTestTornado):
             with pytest.raises(RuntimeError):
                 _TestHelper(
                     self,
-                    tornado_example.PaitBaseFieldHandler.post,
+                    main_example.PaitBaseFieldHandler.post,
                     file_dict={f1.name: f1.read()},
                     form_dict={"a": "1", "b": "2", "c": "3"},
                     cookie_dict={"cookie": "abcd=abcd;"},
@@ -191,105 +191,105 @@ class TestTornado(BaseTestTornado):
                 ).get()
 
     def test_raise_tip_route(self) -> None:
-        self.base_test.raise_tip_route(tornado_example.RaiseTipHandler.post)
+        self.base_test.raise_tip_route(main_example.RaiseTipHandler.post)
 
     def test_auto_complete_json_route(self) -> None:
-        self.base_test.auto_complete_json_route(tornado_example.AutoCompleteJsonHandler.get)
+        self.base_test.auto_complete_json_route(main_example.AutoCompleteJsonHandler.get)
 
     def test_same_alias_name(self) -> None:
-        self.base_test.same_alias_name(tornado_example.SameAliasHandler.get)
+        self.base_test.same_alias_name(main_example.SameAliasHandler.get)
 
     def test_field_default_factory_route(self) -> None:
-        self.base_test.field_default_factory_route(tornado_example.FieldDefaultFactoryHandler.post)
+        self.base_test.field_default_factory_route(main_example.FieldDefaultFactoryHandler.post)
 
     def test_check_param(self) -> None:
-        self.base_test.check_param(tornado_example.CheckParamHandler.get)
+        self.base_test.check_param(main_example.CheckParamHandler.get)
 
     def test_check_response(self) -> None:
-        self.base_test.check_response(tornado_example.CheckRespHandler.get)
+        self.base_test.check_response(main_example.CheckRespHandler.get)
 
     def test_mock_route(self) -> None:
-        self.base_test.mock_route(tornado_example.MockHandler.get, response_model.UserSuccessRespModel2)
+        self.base_test.mock_route(main_example.MockHandler.get, response_model.UserSuccessRespModel2)
 
     def test_pait_model(self) -> None:
-        self.base_test.pait_model(tornado_example.PaitModelHanler.post)
+        self.base_test.pait_model(main_example.PaitModelHanler.post)
 
     def test_depend_route(self) -> None:
-        self.base_test.depend_route(tornado_example.DependHandler.post)
+        self.base_test.depend_route(main_example.DependHandler.post)
 
-    @mock.patch("example.param_verify.common.depend.logging.error")
-    @mock.patch("example.param_verify.common.depend.logging.info")
+    @mock.patch("example.common.depend.logging.error")
+    @mock.patch("example.common.depend.logging.info")
     def test_depend_contextmanager(self, info_logger: Any, error_logger: Any) -> None:
         self.base_test.depend_contextmanager(
-            tornado_example.DependContextmanagerHanler.get,
+            main_example.DependContextmanagerHanler.get,
             info_logger=info_logger,
             error_logger=error_logger,
         )
 
-    @mock.patch("example.param_verify.common.depend.logging.error")
-    @mock.patch("example.param_verify.common.depend.logging.info")
+    @mock.patch("example.common.depend.logging.error")
+    @mock.patch("example.common.depend.logging.info")
     def test_depend_async_contextmanager(self, info_logger: Any, error_logger: Any) -> None:
         self.base_test.depend_contextmanager(
-            tornado_example.DependAsyncContextmanagerHanler.get,
+            main_example.DependAsyncContextmanagerHanler.get,
             info_logger=info_logger,
             error_logger=error_logger,
         )
 
-    @mock.patch("example.param_verify.common.depend.logging.error")
-    @mock.patch("example.param_verify.common.depend.logging.info")
+    @mock.patch("example.common.depend.logging.error")
+    @mock.patch("example.common.depend.logging.info")
     def test_pre_depend_contextmanager(self, info_logger: Any, error_logger: Any) -> None:
         self.base_test.pre_depend_contextmanager(
-            tornado_example.PreDependContextmanagerHanler.get,
+            main_example.PreDependContextmanagerHanler.get,
             info_logger=info_logger,
             error_logger=error_logger,
         )
 
-    @mock.patch("example.param_verify.common.depend.logging.error")
-    @mock.patch("example.param_verify.common.depend.logging.info")
+    @mock.patch("example.common.depend.logging.error")
+    @mock.patch("example.common.depend.logging.info")
     def test_pre_depend_async_contextmanager(self, info_logger: Any, error_logger: Any) -> None:
         self.base_test.pre_depend_contextmanager(
-            tornado_example.PreDependAsyncContextmanagerHanler.get,
+            main_example.PreDependAsyncContextmanagerHanler.get,
             info_logger=info_logger,
             error_logger=error_logger,
         )
 
     def test_api_key_route(self) -> None:
-        self.base_test.api_key_route(tornado_example.APIKeyHanler.get)
+        self.base_test.api_key_route(main_example.APIKeyHanler.get)
 
     def test_get_cbv(self) -> None:
-        self.base_test.get_cbv(tornado_example.CbvHandler.get)
+        self.base_test.get_cbv(main_example.CbvHandler.get)
 
     def test_post_cbv(self) -> None:
-        self.base_test.post_cbv(tornado_example.CbvHandler.post)
+        self.base_test.post_cbv(main_example.CbvHandler.post)
 
     def test_cache_response(self) -> None:
         self.base_test.cache_response(
-            tornado_example.CacheResponseHandler.get,
-            tornado_example.CacheResponse1Handler.get,
+            main_example.CacheResponseHandler.get,
+            main_example.CacheResponse1Handler.get,
             key="CacheResponse",
             app="tornado",
         )
 
     def test_cache_other_response_type(self) -> None:
-        tornado_example.CacheResponsePlugin.set_redis_to_app(self._app, tornado_example.Redis(decode_responses=True))
+        main_example.CacheResponsePlugin.set_redis_to_app(self._app, main_example.Redis(decode_responses=True))
         self.base_test.cache_other_response_type(
-            tornado_example.TextResponseHanler.get,
-            tornado_example.HtmlResponseHanler.get,
-            tornado_example.CacheResponsePlugin,
+            main_example.TextResponseHanler.get,
+            main_example.HtmlResponseHanler.get,
+            main_example.CacheResponsePlugin,
         )
 
     def test_cache_response_param_name(self) -> None:
         self.base_test.cache_response_param_name(
-            tornado_example.PostHandler.post,
-            tornado_example.CacheResponsePlugin,
-            tornado_example.Redis(decode_responses=True),
+            main_example.PostHandler.post,
+            main_example.CacheResponsePlugin,
+            main_example.Redis(decode_responses=True),
         )
 
 
 class TestTornadoGrpc(BaseTestTornado):
     # def test_create_user(self) -> None:
-    #     tornado_example.add_grpc_gateway_route(self._app)
-    #     tornado_example.add_api_doc_route(self._app)
+    #     main_example.add_grpc_gateway_route(self._app)
+    #     main_example.add_api_doc_route(self._app)
     #
     #     self._app.settings["before_server_start"]()
     #
@@ -300,10 +300,10 @@ class TestTornadoGrpc(BaseTestTornado):
     #     grpc_test_create_user_request(self._app, _)
     #
     def test_create_user(self) -> None:
-        from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import CreateUserRequest
+        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import CreateUserRequest
 
-        tornado_example.add_grpc_gateway_route(self._app)
-        tornado_example.add_api_doc_route(self._app)
+        main_example.add_grpc_gateway_route(self._app)
+        main_example.add_api_doc_route(self._app)
 
         with grpc_test_create_user_request(self._app) as queue:
             body: bytes = self.fetch(
@@ -320,10 +320,10 @@ class TestTornadoGrpc(BaseTestTornado):
             assert message.sex == 0
 
     def test_login(self) -> None:
-        from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
+        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
 
-        tornado_example.add_grpc_gateway_route(self._app)
-        tornado_example.add_api_doc_route(self._app)
+        main_example.add_grpc_gateway_route(self._app)
+        main_example.add_api_doc_route(self._app)
 
         with grpc_test_create_user_request(self._app) as queue:
             body: bytes = self.fetch("/api/user/login", method="POST", body='{"uid": "10086", "password": "pw"}').body
@@ -333,10 +333,10 @@ class TestTornadoGrpc(BaseTestTornado):
             assert message.password == "pw"
 
     def test_logout(self) -> None:
-        from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import LogoutUserRequest
+        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LogoutUserRequest
 
-        tornado_example.add_grpc_gateway_route(self._app)
-        tornado_example.add_api_doc_route(self._app)
+        main_example.add_grpc_gateway_route(self._app)
+        main_example.add_api_doc_route(self._app)
 
         with grpc_test_create_user_request(self._app) as queue:
             body: bytes = self.fetch(
@@ -348,10 +348,10 @@ class TestTornadoGrpc(BaseTestTornado):
             assert message.token == "token"
 
     def test_delete_fail_token(self) -> None:
-        from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import GetUidByTokenRequest
+        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import GetUidByTokenRequest
 
-        tornado_example.add_grpc_gateway_route(self._app)
-        tornado_example.add_api_doc_route(self._app)
+        main_example.add_grpc_gateway_route(self._app)
+        main_example.add_api_doc_route(self._app)
 
         with grpc_test_create_user_request(self._app) as queue:
             body: bytes = self.fetch(
@@ -365,7 +365,7 @@ class TestTornadoGrpc(BaseTestTornado):
             assert message.token == "fail_token"
 
     def test_grpc_openapi(self) -> None:
-        tornado_example.add_grpc_gateway_route(self._app)
+        main_example.add_grpc_gateway_route(self._app)
 
         from pait.app.tornado import load_app
 

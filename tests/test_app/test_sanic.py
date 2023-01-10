@@ -13,8 +13,8 @@ from sanic_testing import TestManager as SanicTestManager  # type: ignore
 from sanic_testing.testing import SanicTestClient
 from sanic_testing.testing import TestingResponse as Response  # type: ignore
 
-from example.param_verify import sanic_example
-from example.param_verify.common import response_model
+from example.common import response_model
+from example.sanic_example import main_example
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.sanic import TestHelper as _TestHelper
@@ -27,14 +27,14 @@ from tests.test_app.base_test import BaseTest
 
 @pytest.fixture
 def client() -> Generator[SanicTestClient, None, None]:
-    app: Sanic = sanic_example.create_app()
+    app: Sanic = main_example.create_app()
     SanicTestManager(app)
     yield app.test_client
 
 
 @pytest.fixture
 def base_test() -> Generator[BaseTest, None, None]:
-    app: Sanic = sanic_example.create_app()
+    app: Sanic = main_example.create_app()
     SanicTestManager(app)
     yield BaseTest(app.test_client, _TestHelper)
 
@@ -63,14 +63,14 @@ class TestSanic:
     def test_post(self, client: SanicTestClient) -> None:
         test_helper: _TestHelper = _TestHelper(
             client,
-            sanic_example.post_route,
+            main_example.post_route,
             body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
             header_dict={"user-agent": "customer_agent"},
         )
         for resp in [
             test_helper.json(),
             client.post(
-                "/api/post",
+                "/api/field/post",
                 headers={"user-agent": "customer_agent"},
                 json={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
             )[1].json,
@@ -87,12 +87,12 @@ class TestSanic:
     def test_check_json_route(self, client: SanicTestClient) -> None:
         for url, api_code in [
             (
-                "/api/check-json-plugin?uid=123&user_name=appl&sex=man&age=10",
+                "/api/plugin/check-json-plugin?uid=123&user_name=appl&sex=man&age=10",
                 -1,
             ),
-            ("/api/check-json-plugin?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
-            ("/api/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10", -1),
-            ("/api/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
+            ("/api/plugin/check-json-plugin?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
+            ("/api/plugin/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10", -1),
+            ("/api/plugin/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
         ]:
             resp: dict = client.get(url)[1].json
             assert resp["code"] == api_code
@@ -100,14 +100,14 @@ class TestSanic:
                 assert resp["msg"] == "miss param: ['data', 'age']"
 
     def test_test_helper_not_support_mutil_method(self, client: SanicTestClient) -> None:
-        client.app.add_route(sanic_example.text_response_route, "/api/new-text-resp", methods={"GET", "POST"})
+        client.app.add_route(main_example.text_response_route, "/api/new-text-resp", methods={"GET", "POST"})
         with pytest.raises(RuntimeError) as e:
-            _TestHelper(client, sanic_example.text_response_route).request()
+            _TestHelper(client, main_example.text_response_route).request()
         exec_msg: str = e.value.args[0]
         assert exec_msg == "Pait Can not auto select method, please choice method in ['GET', 'POST']"
 
     def test_doc_route(self, client: SanicTestClient) -> None:
-        sanic_example.add_api_doc_route(client.app)
+        main_example.add_api_doc_route(client.app)
         for doc_route_path in default_doc_fn_dict.keys():
             assert client.get(f"/{doc_route_path}")[1].status_code == 404
             assert client.get(f"/api-doc/{doc_route_path}")[1].status_code == 200
@@ -139,13 +139,13 @@ class TestSanic:
         )
 
     def test_text_response(self, client: SanicTestClient) -> None:
-        response_test_helper(client, sanic_example.text_response_route, response.TextResponseModel)
+        response_test_helper(client, main_example.text_response_route, response.TextResponseModel)
 
     def test_html_response(self, client: SanicTestClient) -> None:
-        response_test_helper(client, sanic_example.html_response_route, response.HtmlResponseModel)
+        response_test_helper(client, main_example.html_response_route, response.HtmlResponseModel)
 
     def test_file_response(self, client: SanicTestClient) -> None:
-        response_test_helper(client, sanic_example.file_response_route, response.FileResponseModel)
+        response_test_helper(client, main_example.file_response_route, response.FileResponseModel)
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:
@@ -162,82 +162,82 @@ class TestSanic:
         assert get_app_attribute(client.app, key) == value
 
     def test_raise_tip_route(self, base_test: BaseTest) -> None:
-        base_test.raise_tip_route(sanic_example.raise_tip_route)
+        base_test.raise_tip_route(main_example.raise_tip_route)
 
     def test_auto_complete_json_route(self, base_test: BaseTest) -> None:
-        base_test.auto_complete_json_route(sanic_example.auto_complete_json_route)
+        base_test.auto_complete_json_route(main_example.auto_complete_json_route)
 
     def test_depend_route(self, base_test: BaseTest) -> None:
-        base_test.depend_route(sanic_example.depend_route)
+        base_test.depend_route(main_example.depend_route)
 
     def test_same_alias_name(self, base_test: BaseTest) -> None:
-        base_test.same_alias_name(sanic_example.same_alias_route)
+        base_test.same_alias_name(main_example.same_alias_route)
 
     def test_field_default_factory_route(self, base_test: BaseTest) -> None:
-        base_test.field_default_factory_route(sanic_example.field_default_factory_route)
+        base_test.field_default_factory_route(main_example.field_default_factory_route)
 
     def test_pait_base_field_route(self, base_test: BaseTest) -> None:
-        base_test.pait_base_field_route(sanic_example.pait_base_field_route)
+        base_test.pait_base_field_route(main_example.pait_base_field_route)
 
     def test_check_param(self, base_test: BaseTest) -> None:
-        base_test.check_param(sanic_example.check_param_route)
+        base_test.check_param(main_example.check_param_route)
 
     def test_check_response(self, base_test: BaseTest) -> None:
-        base_test.check_response(sanic_example.check_response_route)
+        base_test.check_response(main_example.check_response_route)
 
     def test_mock_route(self, base_test: BaseTest) -> None:
-        base_test.mock_route(sanic_example.mock_route, response_model.UserSuccessRespModel2)
+        base_test.mock_route(main_example.mock_route, response_model.UserSuccessRespModel2)
 
     def test_pait_model(self, base_test: BaseTest) -> None:
-        base_test.pait_model(sanic_example.pait_model_route)
+        base_test.pait_model(main_example.pait_model_route)
 
     def test_depend_contextmanager(self, base_test: BaseTest, mocker: MockFixture) -> None:
-        base_test.depend_contextmanager(sanic_example.depend_contextmanager_route, mocker)
+        base_test.depend_contextmanager(main_example.depend_contextmanager_route, mocker)
 
     def test_pre_depend_contextmanager(self, base_test: BaseTest, mocker: MockFixture) -> None:
-        base_test.pre_depend_contextmanager(sanic_example.pre_depend_contextmanager_route, mocker)
+        base_test.pre_depend_contextmanager(main_example.pre_depend_contextmanager_route, mocker)
 
     def test_depend_async_contextmanager(self, base_test: BaseTest, mocker: MockFixture) -> None:
-        base_test.depend_contextmanager(sanic_example.depend_async_contextmanager_route, mocker)
+        base_test.depend_contextmanager(main_example.depend_async_contextmanager_route, mocker)
 
     def test_pre_depend_async_contextmanager(self, base_test: BaseTest, mocker: MockFixture) -> None:
-        base_test.pre_depend_contextmanager(sanic_example.pre_depend_async_contextmanager_route, mocker)
+        base_test.pre_depend_contextmanager(main_example.pre_depend_async_contextmanager_route, mocker)
 
     def test_api_key_route(self, base_test: BaseTest) -> None:
-        base_test.api_key_route(sanic_example.api_key_route)
+        base_test.api_key_route(main_example.api_key_route)
 
     def test_get_cbv(self, base_test: BaseTest) -> None:
-        base_test.get_cbv(sanic_example.CbvRoute.get)
+        base_test.get_cbv(main_example.CbvRoute.get)
 
     def test_post_cbv(self, base_test: BaseTest) -> None:
-        base_test.post_cbv(sanic_example.CbvRoute.post)
+        base_test.post_cbv(main_example.CbvRoute.post)
 
     def test_cache_response(self, base_test: BaseTest) -> None:
         with fixture_loop(mock_close_loop=True):
-            base_test.cache_response(sanic_example.cache_response, sanic_example.cache_response1)
+            base_test.cache_response(main_example.cache_response, main_example.cache_response1)
 
     def test_cache_other_response_type(self, base_test: BaseTest) -> None:
         with fixture_loop(mock_close_loop=True):
-            sanic_example.CacheResponsePlugin.set_redis_to_app(
-                base_test.client.app, sanic_example.Redis(decode_responses=True)
+            main_example.CacheResponsePlugin.set_redis_to_app(
+                base_test.client.app, main_example.Redis(decode_responses=True)
             )
             base_test.cache_other_response_type(
-                sanic_example.text_response_route, sanic_example.html_response_route, sanic_example.CacheResponsePlugin
+                main_example.text_response_route, main_example.html_response_route, main_example.CacheResponsePlugin
             )
 
     def test_cache_response_param_name(self, base_test: BaseTest) -> None:
         with fixture_loop(mock_close_loop=True):
             base_test.cache_response_param_name(
-                sanic_example.post_route, sanic_example.CacheResponsePlugin, sanic_example.Redis(decode_responses=True)
+                main_example.post_route, main_example.CacheResponsePlugin, main_example.Redis(decode_responses=True)
             )
 
 
 class TestSanicGrpc:
     def test_create_user(self, client: SanicTestClient) -> None:
-        from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import CreateUserRequest
+        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import CreateUserRequest
 
-        sanic_example.add_grpc_gateway_route(client.app)
-        sanic_example.add_api_doc_route(client.app)
+        main_example.add_grpc_gateway_route(client.app)
+        main_example.add_api_doc_route(client.app)
 
         with grpc_test_create_user_request(client.app) as queue:
             request, response = client.post(
@@ -253,10 +253,10 @@ class TestSanicGrpc:
             assert message.sex == 0
 
     def test_login(self, client: SanicTestClient) -> None:
-        from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
+        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
 
-        sanic_example.add_grpc_gateway_route(client.app)
-        sanic_example.add_api_doc_route(client.app)
+        main_example.add_grpc_gateway_route(client.app)
+        main_example.add_api_doc_route(client.app)
 
         with grpc_test_create_user_request(client.app) as queue:
             request, response = client.post("/api/user/login", json={"uid": "10086", "password": "pw"})
@@ -266,10 +266,10 @@ class TestSanicGrpc:
             assert message.password == "pw"
 
     def test_logout(self, client: SanicTestClient) -> None:
-        from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import LogoutUserRequest
+        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LogoutUserRequest
 
-        sanic_example.add_grpc_gateway_route(client.app)
-        sanic_example.add_api_doc_route(client.app)
+        main_example.add_grpc_gateway_route(client.app)
+        main_example.add_api_doc_route(client.app)
 
         with grpc_test_create_user_request(client.app) as queue:
             request, response = client.post("/api/user/logout", json={"uid": "10086"}, headers={"token": "token"})
@@ -279,10 +279,10 @@ class TestSanicGrpc:
             assert message.token == "token"
 
     def test_delete_fail_token(self, client: SanicTestClient) -> None:
-        from example.example_grpc.python_example_proto_code.example_proto.user.user_pb2 import GetUidByTokenRequest
+        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import GetUidByTokenRequest
 
-        sanic_example.add_grpc_gateway_route(client.app)
-        sanic_example.add_api_doc_route(client.app)
+        main_example.add_grpc_gateway_route(client.app)
+        main_example.add_api_doc_route(client.app)
 
         with grpc_test_create_user_request(client.app) as queue:
             request, response = client.post(
@@ -295,7 +295,7 @@ class TestSanicGrpc:
             assert message.token == "fail_token"
 
     def test_grpc_openapi(self, client: SanicTestClient) -> None:
-        sanic_example.add_grpc_gateway_route(client.app)
+        main_example.add_grpc_gateway_route(client.app)
 
         from pait.app.sanic import load_app
 

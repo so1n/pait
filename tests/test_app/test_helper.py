@@ -7,7 +7,7 @@ from flask.json import jsonify
 from flask.testing import FlaskClient
 from pydantic import BaseModel, Field
 
-from example.param_verify import flask_example
+from example.flask_example import main_example
 from pait.app.base import CheckResponseException
 from pait.app.flask import FlaskTestHelper, pait
 from pait.model import response
@@ -17,7 +17,7 @@ from pait.model import response
 def client() -> Generator[FlaskClient, None, None]:
     # Flask provides a way to test your application by exposing the Werkzeug test Client
     # and handling the context locals for you.
-    app: Flask = flask_example.create_app()
+    app: Flask = main_example.create_app()
     client: FlaskClient = app.test_client()
     # Establish an application context before running the tests.
     ctx: AppContext = app.app_context()
@@ -106,10 +106,10 @@ class TestPaitTestHelper:
 
     def test_http_method_call(self, client: FlaskClient) -> None:
         for http_method in ["get", "head"]:
-            getattr(FlaskTestHelper(client, flask_example.html_response_route), http_method)()
+            getattr(FlaskTestHelper(client, main_example.html_response_route), http_method)()
 
         for http_method in ["patch", "post", "put", "delete"]:
             with pytest.raises(CheckResponseException) as e:
-                http_method, getattr(FlaskTestHelper(client, flask_example.html_response_route), http_method)()
+                http_method, getattr(FlaskTestHelper(client, main_example.html_response_route), http_method)()
 
             assert e.value.status_code == 405

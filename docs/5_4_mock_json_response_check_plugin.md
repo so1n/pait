@@ -15,7 +15,7 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route
 from pait.exceptions import TipException
 from pait.app.starlette.plugin.mock_response import MockPlugin
-from example.param_verify.common.response_model import UserSuccessRespModel3
+from example.common import UserSuccessRespModel3
 
 from pait.app.starlette import pait
 from pait import field

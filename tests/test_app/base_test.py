@@ -5,7 +5,7 @@ import pytest
 from pytest_mock import MockFixture
 from redis import Redis  # type: ignore
 
-from example.param_verify.common.response_model import gen_response_model_handle
+from example.common.response_model import gen_response_model_handle
 from pait.app.base import BaseTestHelper, CheckResponseException
 from pait.app.base.grpc_route import BaseGrpcGatewayRoute
 from pait.model.response import BaseResponseModel, HtmlResponseModel, TextResponseModel
@@ -193,8 +193,8 @@ class BaseTest(object):
         self, route: Callable, mocker: Optional[MockFixture] = None, error_logger: Any = None, info_logger: Any = None
     ) -> None:
         if mocker:
-            error_logger = mocker.patch("example.param_verify.common.depend.logging.error")
-            info_logger = mocker.patch("example.param_verify.common.depend.logging.info")
+            error_logger = mocker.patch("example.common.depend.logging.error")
+            info_logger = mocker.patch("example.common.depend.logging.info")
         else:
             if not error_logger or not info_logger:
                 raise RuntimeError("mocker or error_logger and info_logger must be not None")
@@ -215,8 +215,8 @@ class BaseTest(object):
         self, route: Callable, mocker: Optional[MockFixture] = None, error_logger: Any = None, info_logger: Any = None
     ) -> None:
         if mocker:
-            error_logger = mocker.patch("example.param_verify.common.depend.logging.error")
-            info_logger = mocker.patch("example.param_verify.common.depend.logging.info")
+            error_logger = mocker.patch("example.common.depend.logging.error")
+            info_logger = mocker.patch("example.common.depend.logging.info")
         else:
             if not error_logger or not info_logger:
                 raise RuntimeError("mocker or error_logger and info_logger must be not None")
@@ -367,15 +367,15 @@ class BaseTest(object):
     ) -> None:
         import os
 
-        from example.example_grpc.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
-        from example.example_grpc.python_example_proto_code.example_proto.user import user_pb2_grpc
+        from example.grpc_common.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
+        from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2_grpc
 
         project_path: str = os.getcwd().split("pait/")[0]
         if project_path.endswith("pait"):
             project_path += "/"
         elif not project_path.endswith("pait/"):
             project_path = os.path.join(project_path, "pait/")
-        grpc_path: str = project_path + "example/example_grpc/"
+        grpc_path: str = project_path + "example/grpc_common/"
 
         prefix: str = "/api-test"
 
@@ -393,11 +393,11 @@ class BaseTest(object):
 
     @staticmethod
     def grpc_openapi_by_option(app: Any, grpc_gateway_route: Type[BaseGrpcGatewayRoute], load_app: Callable) -> None:
-        from example.example_grpc.python_example_proto_code.example_proto_by_option.book import (
+        from example.grpc_common.python_example_proto_code.example_proto_by_option.book import (
             manager_pb2_grpc,
             social_pb2_grpc,
         )
-        from example.example_grpc.python_example_proto_code.example_proto_by_option.user import user_pb2_grpc
+        from example.grpc_common.python_example_proto_code.example_proto_by_option.user import user_pb2_grpc
 
         prefix: str = "/api-test-by-option"
 

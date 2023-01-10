@@ -1,8 +1,8 @@
 import pickle
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Tuple, Type, Union
 
-from redis import Redis  # type: ignore
-from redis.asyncio import Redis as AsyncioRedis  # type: ignore
+from redis.asyncio import Redis  # type: ignore
+from redis.asyncio import Redis as AsyncioRedis
 
 from pait.app import set_app_attribute
 from pait.g import pait_context

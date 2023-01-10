@@ -6,6 +6,7 @@ gRPC基于HTTP/2.0进行通信，理论上很容易自动转换成一个RESTful�
 
 ## 2.使用
 `gRPC GateWay`的使用非常简单， 代码例子如下：
+
 ```py
 from typing import Any
 import grpc
@@ -14,8 +15,8 @@ from pait.app.starlette.grpc_route import GrpcGatewayRoute
 from pait.app.starlette import AddDocRoute
 
 # 引入根据Protobuf文件生成的对应代码
-from example.example_grpc.python_example_proto_code.example_proto.user import user_pb2_grpc
-from example.example_grpc.python_example_proto_code.example_proto.book import social_pb2_grpc, manager_pb2_grpc
+from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2_grpc
+from example.grpc_common.python_example_proto_code.example_proto.book import social_pb2_grpc, manager_pb2_grpc
 
 
 def create_app() -> Starlette:
@@ -34,6 +35,7 @@ def create_app() -> Starlette:
         # 见下面说明
         parse_msg_desc="by_mypy",
     )
+
     def _before_server_start(*_: Any) -> None:
         # 启动时注册对应的channel,这样注册的路由函数在接收请求时可以把参数通过grpc.channel传给grpc服务端
         grpc_gateway_route.init_channel(grpc.aio.insecure_channel("0.0.0.0:9000"))
@@ -51,7 +53,6 @@ def create_app() -> Starlette:
 
 
 if __name__ == "__main__":
-
     import uvicorn  # type: ignore
     from pait.extra.config import apply_block_http_method_set
     from pait.g import config

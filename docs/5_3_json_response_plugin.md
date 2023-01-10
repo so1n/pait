@@ -19,7 +19,7 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route
 from pait.exceptions import TipException
 from pait.app.starlette.plugin.check_json_resp import CheckJsonRespPlugin
-from example.param_verify.common.response import UserSuccessRespModel3
+from example.common import UserSuccessRespModel3
 
 from pait.app.starlette import pait
 from pait import field
@@ -108,7 +108,7 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route
 from pait.exceptions import TipException
 from pait.app.starlette.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
-from example.param_verify.common.response_model import UserSuccessRespModel3
+from example.common import UserSuccessRespModel3
 
 from pait.app.starlette import pait
 from pait import field
