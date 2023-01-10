@@ -32,6 +32,7 @@ from example.param_verify.common.response_model import (
     UserSuccessRespModel2,
     UserSuccessRespModel3,
     gen_response_model_handle,
+    link_login_token_model,
 )
 from pait.app import set_app_attribute
 from pait.app.tornado import AddDocRoute, Pait, add_doc_route, load_app, pait
@@ -44,7 +45,6 @@ from pait.app.tornado.security.api_key import api_key
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
 from pait.extra.config import MatchRule
 from pait.field import Cookie, Depends, File, Form, Header, Json, MultiForm, MultiQuery, Path, Query
-from pait.model.links import LinksModel
 from pait.model.response import HtmlResponseModel
 from pait.model.status import PaitStatus
 from pait.model.template import TemplateVar
@@ -372,7 +372,14 @@ class APIKeyHanler(MyHandler):
     )
     async def get(
         self,
-        token: str = Depends.i(api_key(name="token", field=Header, verify_api_key_callable=lambda x: x == "my-token")),
+        token: str = Depends.i(
+            api_key(
+                name="token",
+                field=Header,
+                verify_api_key_callable=lambda x: x == "my-token",
+                links=link_login_token_model,
+            )
+        ),
     ) -> None:
         self.write({"token": token})
 
@@ -491,7 +498,7 @@ class GetUserHandler(MyHandler):
         token: str = Header.i(
             "",
             description="token",
-            link=LinksModel(LoginRespModel, "$response.body#/data/token", desc="test links model"),
+            link=link_login_token_model,
             example=TemplateVar("token"),
         ),
     ) -> None:

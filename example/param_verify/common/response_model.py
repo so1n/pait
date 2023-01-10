@@ -8,6 +8,7 @@ from example.param_verify.common.request_model import SexEnum
 from pait import FileResponseModel, HtmlResponseModel, JsonResponseModel
 from pait import ResponseModel as PaitResponseModel
 from pait import TextResponseModel
+from pait.model.links import LinksModel
 from pait.util.grpc_inspect.stub import GrpcModel
 
 
@@ -164,6 +165,9 @@ class LoginRespModel(JsonResponseModel):
 
     description: str = "login response"
     response_data: Type[BaseModel] = ResponseModel
+
+
+link_login_token_model: LinksModel = LinksModel(LoginRespModel, "$response.body#/data/token", desc="test links model")
 
 
 class NotAuthenticatedRespModel(HtmlResponseModel):

@@ -4,6 +4,7 @@ from typing import Callable, Optional, Type, Union
 from any_api.openapi.model.openapi import security
 
 from pait.field import Cookie, Header, Query
+from pait.model.links import LinksModel
 
 from .base import BaseSecurity
 
@@ -23,6 +24,7 @@ def api_key(
     field: APIKEY_FIELD_TYPE,
     verify_api_key_callable: Callable[[str], bool],
     security_name: Optional[str] = None,
+    links: "Optional[LinksModel]" = None,
 ) -> APIkey:
     not_authenticated_exc: Exception = api_key_class.get_exception(status_code=403, message="Not authenticated")
 
@@ -42,6 +44,7 @@ def api_key(
                 alias=name,
                 example="This value is a placeholder, please use the Authorize",
                 not_value_exception=not_authenticated_exc,
+                links=links,
             ),
         ) -> Optional[str]:
             if not verify_api_key_callable(api_key_):

@@ -19,7 +19,7 @@ class BaseField(FieldInfo):
         self,
         default: Any = Undefined,
         *,
-        link: "Optional[LinksModel]" = None,
+        links: "Optional[LinksModel]" = None,
         media_type: str = "",
         openapi_serialization: Any = None,
         raw_return: bool = False,
@@ -56,8 +56,8 @@ class BaseField(FieldInfo):
         if getattr(example, "__class__", None) is not MISSING.__class__:
             extra["example"] = example
 
-        if link:
-            extra["links"] = link
+        if links:
+            extra["links"] = links
 
         self.not_value_exception: Optional[Exception] = not_value_exception
         self.media_type = media_type or self.__class__.media_type
@@ -106,7 +106,7 @@ class BaseField(FieldInfo):
         cls,
         default: Any = Undefined,
         *,
-        link: "Optional[LinksModel]" = None,
+        links: "Optional[LinksModel]" = None,
         raw_return: bool = False,
         media_type: str = "",
         example: Any = MISSING,
@@ -133,7 +133,7 @@ class BaseField(FieldInfo):
         return cls(
             default,
             raw_return=raw_return,
-            link=link,
+            links=links,
             example=example,
             media_type=media_type,
             openapi_serialization=openapi_serialization,
