@@ -42,9 +42,12 @@ class ParsePaitModel(object):
     def __init__(self, pait_model: PaitCoreModel) -> None:
         self.http_param_type_dict: HttpParamTypeDictType = {}
         self.security_dict: Dict[str, openapi_model.security.SecurityModelType] = {}
-        self._parse_pait_model(pait_model)
 
-    def _parse_base_model_to_http_param_type_dict(self, _pydantic_model: Type[BaseModel]) -> None:
+        self._parse_call_type(pait_model.func, pait_model)
+        for pre_depend in pait_model.pre_depend_list:
+            self._parse_call_type(pre_depend, pait_model)
+
+    def _parse_base_model(self, _pydantic_model: Type[BaseModel]) -> None:
         param_field_dict: Dict[str, BaseField] = {}
         http_param_type_annotation_dict: Dict[HttpParamTypeLiteral, Dict[str, Tuple[Type, FieldInfo]]] = {}
         from typing import get_type_hints
@@ -53,6 +56,8 @@ class ParsePaitModel(object):
             param_annotation = get_type_hints(_pydantic_model)[field_name]
             field = model_field.field_info
             if not isinstance(field, BaseField):
+                continue
+            if not field.openapi_include:
                 continue
             if isinstance(field, BaseField) and field.alias:
                 field_name = field.alias
@@ -91,6 +96,8 @@ class ParsePaitModel(object):
                     and not isinstance(pait_field, Depends)
                 ):
                     # support def test(pait_model_route: BaseModel = Body())
+                    if not pait_field.openapi_include:
+                        continue
                     http_param_type: HttpParamTypeLiteral = pait_field.get_field_name()  # type: ignore
                     required: bool = True
                     if pait_field.default is not Undefined:
@@ -121,12 +128,14 @@ class ParsePaitModel(object):
                     if isinstance(pait_field, Depends):
                         self._parse_call_type(pait_field.func, pait_model)
                     else:
+                        if not pait_field.openapi_include:
+                            continue
                         field_name: str = pait_field.__class__.__name__.lower()
                         single_field_list.append((field_name, parameter))
 
             elif inspect.isclass(parameter.annotation) and issubclass(parameter.annotation, BaseModel):
                 # def test(pait_model_route: PaitBaseModel)
-                self._parse_base_model_to_http_param_type_dict(parameter.annotation)
+                self._parse_base_model(parameter.annotation)
 
     def _parse_call_type(self, call_type: CallType, pait_model: PaitCoreModel) -> None:
         if isinstance(call_type, BaseSecurity):
@@ -170,7 +179,7 @@ class ParsePaitModel(object):
                             f"{pait_model.func_name.title()}{parameter.name.title()}{pait_model.pait_id.title()}"
                         ),
                     )
-                    self._parse_base_model_to_http_param_type_dict(_pydantic_model)
+                    self._parse_base_model(_pydantic_model)
                 else:
                     _column_name_set.add(key)
                     annotation_dict[parameter.name] = (parameter.annotation, field)
@@ -178,16 +187,10 @@ class ParsePaitModel(object):
             _pydantic_model = create_pydantic_model(
                 annotation_dict, class_name=f"{pait_model.func_name.title()}{pait_model.pait_id.title()}"
             )
-            self._parse_base_model_to_http_param_type_dict(_pydantic_model)
+            self._parse_base_model(_pydantic_model)
 
         for extra_openapi_model in pait_model.extra_openapi_model_list:
-            self._parse_base_model_to_http_param_type_dict(extra_openapi_model)
-
-    def _parse_pait_model(self, pait_model: PaitCoreModel) -> None:
-        """Extracting request and response information through routing functions"""
-        self._parse_call_type(pait_model.func, pait_model)
-        for pre_depend in pait_model.pre_depend_list:
-            self._parse_call_type(pre_depend, pait_model)
+            self._parse_base_model(extra_openapi_model)
 
 
 class OpenAPI(object):

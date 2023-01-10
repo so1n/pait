@@ -25,6 +25,7 @@ class BaseField(FieldInfo):
         raw_return: bool = False,
         example: Any = MISSING,
         not_value_exception: Optional[Exception] = None,
+        openapi_include: bool = True,
         default_factory: Optional[NoArgAnyCallable] = None,
         alias: str = None,
         title: str = None,
@@ -52,18 +53,22 @@ class BaseField(FieldInfo):
         elif default_factory is not None:
             self.request_value_handle = self.request_value_handle_by_default_factory  # type: ignore
 
-        self.raw_return = raw_return
         if getattr(example, "__class__", None) is not MISSING.__class__:
             extra["example"] = example
-
         if links:
             extra["links"] = links
 
+        #######################################################
+        # These parameters will not be used in pydantic.Field #
+        #######################################################
+        self.openapi_include: bool = openapi_include
+        self.raw_return = raw_return
         self.not_value_exception: Optional[Exception] = not_value_exception
         self.media_type = media_type or self.__class__.media_type
         # if not alias, pait will set the key name to request_key in the preload phase
         self.request_key: Optional[str] = alias
         self.openapi_serialization = openapi_serialization or self.__class__.openapi_serialization
+
         super().__init__(
             default,
             default_factory=default_factory,
@@ -112,6 +117,7 @@ class BaseField(FieldInfo):
         example: Any = MISSING,
         openapi_serialization: Any = None,
         not_value_exception: Optional[Exception] = None,
+        openapi_include: bool = True,
         default_factory: Optional[NoArgAnyCallable] = None,
         alias: str = None,
         title: str = None,
@@ -138,6 +144,7 @@ class BaseField(FieldInfo):
             media_type=media_type,
             openapi_serialization=openapi_serialization,
             not_value_exception=not_value_exception,
+            openapi_include=openapi_include,
             default_factory=default_factory,
             alias=alias,
             title=title,

@@ -5,12 +5,14 @@ Rewrite some old methods to increase the extensibility of the corresponding modu
 - 2 Plugin Panel
 
 ### 0.9.0[now]
-Note: This version will have syntax changes that are not backward compatible, and the library status will change from alpha to beta
+Improve Open API related functions and refactor some APIs that affect performance
+> Note: This version will have syntax changes that are not backward compatible, and the library status will change from alpha to beta
 
 Function Changes:
 - Depend enhances support for class instances
-- add OpenAPI APIKey Feature
+- Add OpenAPI APIKey Feature
 - Field adds the parameter `not_authenticated_exc`, which allows developers to specify that the error value cannot be found
+- Field adds the parameter `openapi_include`, determines whether the field can be resolved to the Open API.
 
 API Changes:
 - `@pait` The tag parameter type no longer supports String, only `Tag` is supported. e.g:
