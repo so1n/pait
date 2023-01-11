@@ -42,7 +42,7 @@ class ParsePaitModel(object):
     def __init__(self, pait_model: PaitCoreModel) -> None:
         self.http_param_type_dict: HttpParamTypeDictType = {}
         self.security_dict: Dict[str, openapi_model.security.SecurityModelType] = {}
-
+        self.http_param_type_alias_dict: Dict[str, HttpParamTypeLiteral] = {"multiquery": "query"}
         self._parse_call_type(pait_model.func, pait_model)
         for pre_depend in pait_model.pre_depend_list:
             self._parse_call_type(pre_depend, pait_model)
@@ -62,12 +62,14 @@ class ParsePaitModel(object):
             if isinstance(field, BaseField) and field.alias:
                 field_name = field.alias
             http_param_type: HttpParamTypeLiteral = field.get_field_name()  # type: ignore
+            http_param_type = self.http_param_type_alias_dict.get(http_param_type, http_param_type)
             if http_param_type not in http_param_type_annotation_dict:
                 http_param_type_annotation_dict[http_param_type] = {}
             http_param_type_annotation_dict[http_param_type][field_name] = (param_annotation, field)
             param_field_dict[http_param_type] = field
 
         for http_param_type, annotation_dict in http_param_type_annotation_dict.items():
+            http_param_type = self.http_param_type_alias_dict.get(http_param_type, http_param_type)
             if http_param_type not in self.http_param_type_dict:
                 self.http_param_type_dict[http_param_type] = []
             self.http_param_type_dict[http_param_type].append(
@@ -99,6 +101,7 @@ class ParsePaitModel(object):
                     if not pait_field.openapi_include:
                         continue
                     http_param_type: HttpParamTypeLiteral = pait_field.get_field_name()  # type: ignore
+                    http_param_type = self.http_param_type_alias_dict.get(http_param_type, http_param_type)
                     required: bool = True
                     if pait_field.default is not Undefined:
                         required = True
