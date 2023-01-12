@@ -190,8 +190,11 @@ class TestStarlette:
         set_app_attribute(client.app, key, value)
         assert get_app_attribute(client.app, key) == value
 
-    def test_raise_tip_route(self, base_test: BaseTest) -> None:
-        base_test.raise_tip_route(main_example.raise_tip_route)
+    def test_raise_tip_route(self, base_test: BaseTest, mocker: MockFixture) -> None:
+        base_test.raise_tip_route(main_example.raise_tip_route, mocker=mocker)
+
+    def test_raise_not_tip_route(self, base_test: BaseTest, mocker: MockFixture) -> None:
+        base_test.raise_tip_route(main_example.raise_not_tip_route, mocker=mocker, is_raise=False)
 
     def test_auto_complete_json_route(self, base_test: BaseTest) -> None:
         base_test.auto_complete_json_route(main_example.auto_complete_json_route)

@@ -19,6 +19,7 @@ from example.common.response_model import (
     UserSuccessRespModel,
     link_login_token_model,
 )
+from example.common.utils import NotTipAsyncParamHandler
 from example.starlette_example.depend_route import (
     depend_async_contextmanager_route,
     depend_contextmanager_route,
@@ -82,6 +83,20 @@ other_pait: Pait = pait.create_sub_pait(author=("so1n",), status=PaitStatus.test
     response_model_list=[SimpleRespModel, FailRespModel],
 )
 async def raise_tip_route(
+    content__type: str = Header.i(description="Content-Type"),  # in flask, Content-Type's key is content_type
+) -> JSONResponse:
+    """Prompted error from pait when test does not find value"""
+    return JSONResponse({"code": 0, "msg": "", "data": {"content_type": content__type}})
+
+
+@other_pait(
+    desc="test pait raise tip",
+    status=PaitStatus.abandoned,
+    tag=(tag.raise_tag,),
+    response_model_list=[SimpleRespModel, FailRespModel],
+    param_handler_plugin=NotTipAsyncParamHandler,
+)
+async def raise_not_tip_route(
     content__type: str = Header.i(description="Content-Type"),  # in flask, Content-Type's key is content_type
 ) -> JSONResponse:
     """Prompted error from pait when test does not find value"""
@@ -200,6 +215,7 @@ def create_app() -> Starlette:
             Route("/api/login", login_route, methods=["POST"]),
             Route("/api/user", get_user_route, methods=["GET"]),
             Route("/api/raise-tip", raise_tip_route, methods=["POST"]),
+            Route("/api/raise-not-tip", raise_not_tip_route, methods=["POST"]),
             Route("/api/cbv", CbvRoute),
             Route("/api/not-pait-route", not_pait_route, methods=["GET"]),
             Route("/api/not-pait-cbv", NotPaitCbvRoute),

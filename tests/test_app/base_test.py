@@ -21,7 +21,23 @@ class BaseTest(object):
         self.client: Any = client
         self.test_helper: Type[BaseTestHelper] = test_helper
 
-    def raise_tip_route(self, route: Callable) -> None:
+    def raise_tip_route(
+        self, route: Callable, is_raise: bool = True, mocker: Optional[MockFixture] = None, debug_logger: Any = None
+    ) -> None:
+        if mocker:
+            debug_logger = mocker.patch("pait.util._gen_tip.logging.debug")
+        if not debug_logger:
+            raise RuntimeError("mocker or debug_logger must be not None")
+        msg: str = self.test_helper(
+            self.client, route, header_dict={"Content-Type": "test"}, body_dict={"temp": None}
+        ).json()["msg"]
+        assert msg == "error param:content__type, Can not found content__type value"
+        if is_raise:
+            assert "<-- error" in debug_logger.call_args[0][0]
+        else:
+            debug_logger.assert_not_called()
+
+    def raise_not_tip_route(self, route: Callable) -> None:
         msg: str = self.test_helper(
             self.client, route, header_dict={"Content-Type": "test"}, body_dict={"temp": None}
         ).json()["msg"]
