@@ -13,12 +13,16 @@ _indent: str = 4 * " "
 __all__ = ["gen_tip_exc"]
 
 
-def gen_tip_exc(_object: Any, exception: "Exception", parameter: Optional[inspect.Parameter] = None) -> Exception:
+def gen_tip_exc(
+    _object: Any,
+    exception: "Exception",
+    parameter: Optional[inspect.Parameter] = None,
+    tip_exception_class: Optional[Type[TipException]] = TipException,
+) -> Exception:
     """Help users understand which parameter is wrong"""
-    if _object is None:
+    if _object is None or tip_exception_class is None or isinstance(exception, TipException):
         return exception
-    if isinstance(exception, TipException):
-        return exception
+
     if parameter:
         param_value: BaseField = parameter.default
         annotation: Type[BaseModel] = parameter.annotation
@@ -70,4 +74,4 @@ def gen_tip_exc(_object: Any, exception: "Exception", parameter: Optional[inspec
         f" line {line},"
         f" in {error_object_name}."
     )
-    return TipException(exc_msg, exception)
+    return tip_exception_class(exc_msg, exception)

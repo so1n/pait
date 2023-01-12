@@ -17,6 +17,7 @@ from example.common.response_model import (
     UserSuccessRespModel,
     link_login_token_model,
 )
+from example.common.utils import NotTipParamHandler
 from example.flask_example.depend_route import (
     depend_contextmanager_route,
     depend_route,
@@ -72,6 +73,20 @@ other_pait: Pait = pait.create_sub_pait(author=("so1n",), status=PaitStatus.test
     response_model_list=[SimpleRespModel, FailRespModel],
 )
 def raise_tip_route(
+    content__type: str = Header.i(description="Content-Type"),  # in flask, Content-Type's key is content_type
+) -> dict:
+    """Prompted error from pait when test does not find value"""
+    return {"code": 0, "msg": "", "data": {"content_type": content__type}}
+
+
+@other_pait(
+    desc="test pait raise tip",
+    status=PaitStatus.abandoned,
+    tag=(tag.raise_tag,),
+    response_model_list=[SimpleRespModel, FailRespModel],
+    param_handler_plugin=NotTipParamHandler,
+)
+def raise_not_tip_route(
     content__type: str = Header.i(description="Content-Type"),  # in flask, Content-Type's key is content_type
 ) -> dict:
     """Prompted error from pait when test does not find value"""
@@ -177,6 +192,7 @@ def create_app() -> Flask:
     app.add_url_rule("/api/login", view_func=login_route, methods=["POST"])
     app.add_url_rule("/api/user", view_func=get_user_route, methods=["GET"])
     app.add_url_rule("/api/raise-tip", view_func=raise_tip_route, methods=["POST"])
+    app.add_url_rule("/api/raise-not-tip", view_func=raise_not_tip_route, methods=["POST"])
     app.add_url_rule("/api/not-pait", view_func=not_pait_route, methods=["GET"])
     app.add_url_rule("/api/not-pait-cbv", view_func=NotPaitCbvRoute.as_view("NotPaitRoute"))
     app.add_url_rule("/api/cbv", view_func=CbvRoute.as_view("test_cbv"))

@@ -17,6 +17,7 @@ from example.common.response_model import (
     UserSuccessRespModel,
     link_login_token_model,
 )
+from example.common.utils import NotTipAsyncParamHandler
 from example.tornado_example.depend_route import (
     DependAsyncContextmanagerHanler,
     DependContextmanagerHanler,
@@ -71,6 +72,22 @@ class RaiseTipHandler(MyHandler):
         status=PaitStatus.abandoned,
         tag=(tag.raise_tag,),
         response_model_list=[SimpleRespModel, FailRespModel],
+    )
+    async def post(
+        self,
+        content__type: str = Header.i(description="content-type"),
+    ) -> None:
+        """Test Method: error tip"""
+        self.write({"code": 0, "msg": "", "data": {"content_type": content__type}})
+
+
+class RaiseNotTipHandler(MyHandler):
+    @other_pait(
+        desc="test pait raise tip",
+        status=PaitStatus.abandoned,
+        tag=(tag.raise_tag,),
+        response_model_list=[SimpleRespModel, FailRespModel],
+        param_handler_plugin=NotTipAsyncParamHandler,
     )
     async def post(
         self,
@@ -187,6 +204,7 @@ def create_app() -> Application:
             (r"/api/login", LoginHanlder),
             (r"/api/user", GetUserHandler),
             (r"/api/raise-tip", RaiseTipHandler),
+            (r"/api/raise-not-tip", RaiseNotTipHandler),
             (r"/api/cbv", CbvHandler),
             (r"/api/not-pait-cbv", NotPaitCbvHandler),
             (r"/api/field/post", PostHandler),

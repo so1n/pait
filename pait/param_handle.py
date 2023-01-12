@@ -10,13 +10,13 @@ from pydantic.fields import Undefined, UndefinedType
 from typing_extensions import Self  # type: ignore
 
 from pait import field
-from pait.app.base import BaseAppHelper
 from pait.exceptions import (
     FieldValueTypeException,
     NotFoundFieldException,
     NotFoundValueException,
     PaitBaseException,
     ParseTypeError,
+    TipException,
 )
 from pait.field import BaseField
 from pait.g import pait_context
@@ -34,6 +34,7 @@ from pait.util import (
 )
 
 if TYPE_CHECKING:
+    from pait.app.base import BaseAppHelper
     from pait.model.core import ContextModel, PaitCoreModel
 
 
@@ -88,13 +89,15 @@ def parameter_2_dict(
 
 
 class BaseParamHandler(PluginProtocol):
+    tip_exception_class: Optional[Type[TipException]] = TipException
+
     def __post_init__(self, pait_core_model: "PaitCoreModel", args: tuple, kwargs: dict) -> None:
         super(BaseParamHandler, self).__post_init__(pait_core_model, args, kwargs)
 
         # cbv handle
         context_model: ContextModel = pait_context.get()
         self.cbv_instance: Optional[Any] = context_model.cbv_instance
-        self._app_helper: BaseAppHelper = context_model.app_helper
+        self._app_helper: "BaseAppHelper" = context_model.app_helper
         self.cbv_type: Optional[Type] = None
 
         if self.cbv_instance:
@@ -192,7 +195,7 @@ class BaseParamHandler(PluginProtocol):
                     for _parameter in param_list:
                         cls.check_param_field_by_parameter(_parameter)
             except PaitBaseException as e:
-                raise gen_tip_exc(_object, e, parameter) from e
+                raise gen_tip_exc(_object, e, parameter, tip_exception_class=cls.tip_exception_class) from e
 
     @classmethod
     def pre_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
@@ -292,11 +295,8 @@ class BaseParamHandler(PluginProtocol):
         kwargs_param_dict: Dict[str, Any],
         _object: Union[FuncSig, Type, None],
     ) -> None:
-        try:
-            for parse_dict in parameter_2_dict(single_field_dict, self.pydantic_model_config):
-                kwargs_param_dict.update(parse_dict)
-        except Exception as e:
-            raise e from gen_tip_exc(_object, e)
+        for parse_dict in parameter_2_dict(single_field_dict, self.pydantic_model_config):
+            kwargs_param_dict.update(parse_dict)
 
     @staticmethod
     def valid_and_merge_kwargs_by_pydantic_model(
@@ -305,13 +305,10 @@ class BaseParamHandler(PluginProtocol):
         pydantic_model: Type[BaseModel],
         _object: Union[FuncSig, Type, None],
     ) -> None:
-        try:
-            request_dict: Dict[str, Any] = kwargs_param_dict.copy()
-            for k, v in single_field_dict.items():
-                request_dict[k.default.request_key] = v
-            kwargs_param_dict.update(pydantic_model(**request_dict))
-        except Exception as e:
-            raise e from gen_tip_exc(_object, e)
+        request_dict: Dict[str, Any] = kwargs_param_dict.copy()
+        for k, v in single_field_dict.items():
+            request_dict[k.default.request_key] = v
+        kwargs_param_dict.update(pydantic_model(**request_dict))
 
 
 class ParamHandler(BaseParamHandler):
@@ -345,7 +342,7 @@ class ParamHandler(BaseParamHandler):
                     # support model: model: ModelType
                     self.set_parameter_value_to_args(parameter, args_param_list)
             except PaitBaseException as e:
-                raise gen_tip_exc(_object, e, parameter)
+                raise gen_tip_exc(_object, e, parameter, tip_exception_class=self.tip_exception_class)
         # support field: def demo(demo_param: int = pait.field.BaseField())
         if single_field_dict:
             if pydantic_model:
@@ -399,11 +396,8 @@ class ParamHandler(BaseParamHandler):
         return None
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        try:
-            with self:
-                return self.call_next(*self.args, **self.kwargs)
-        except Exception as e:
-            raise e from gen_tip_exc(self.call_next, e)
+        with self:
+            return self.call_next(*self.args, **self.kwargs)
 
     def __enter__(self) -> "ParamHandler":
         self._gen_param()
@@ -460,7 +454,7 @@ class AsyncParamHandler(BaseParamHandler):
                     # support model: model: ModelType
                     await self.set_parameter_value_to_args(_object, parameter, args_param_list)
             except PaitBaseException as closer_e:
-                raise gen_tip_exc(_object, closer_e, parameter)
+                raise gen_tip_exc(_object, closer_e, parameter, tip_exception_class=self.tip_exception_class)
 
         if param_list:
             await asyncio.gather(*[_param_handle(parameter) for parameter in param_list])
@@ -527,11 +521,8 @@ class AsyncParamHandler(BaseParamHandler):
             return await self.call_next(*self.args, **self.kwargs)
 
     async def __aenter__(self) -> "AsyncParamHandler":
-        try:
-            await self._gen_param()
-            return self
-        except Exception as e:
-            raise e from gen_tip_exc(self.call_next, e)
+        await self._gen_param()
+        return self
 
     async def __aexit__(
         self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[TracebackType]

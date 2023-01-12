@@ -1,13 +1,15 @@
 import copy
 import difflib
-from typing import Any, Callable, Dict, Generic, List, Mapping, Optional, Type, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, List, Mapping, Optional, Type, TypeVar
 from urllib.parse import urlencode
 
 from pydantic import BaseModel, ValidationError
 
 from pait.model import response
-from pait.model.core import PaitCoreModel
 from pait.util import gen_example_dict_from_schema, gen_example_value_from_python, get_pait_response_model
+
+if TYPE_CHECKING:
+    from pait.model.core import PaitCoreModel
 
 RESP_T = TypeVar("RESP_T")
 
@@ -38,7 +40,7 @@ class BaseTestHelper(Generic[RESP_T]):
         self,
         client: Any,
         func: Callable,
-        pait_dict: Optional[Dict[str, PaitCoreModel]] = None,
+        pait_dict: Optional[Dict[str, "PaitCoreModel"]] = None,
         body_dict: Optional[dict] = None,
         cookie_dict: Optional[dict] = None,
         file_dict: Optional[dict] = None,
@@ -70,10 +72,10 @@ class BaseTestHelper(Generic[RESP_T]):
         self.func: Callable = func
         # pait dict handle
         if pait_dict:
-            self.pait_dict: Dict[str, PaitCoreModel] = pait_dict
+            self.pait_dict: Dict[str, "PaitCoreModel"] = pait_dict
         else:
             self.pait_dict = self._gen_pait_dict()
-        self.pait_core_model: PaitCoreModel = self.pait_dict[pait_id]
+        self.pait_core_model: "PaitCoreModel" = self.pait_dict[pait_id]
 
         self.body_dict: Optional[dict] = body_dict
         self.cookie_dict: Optional[dict] = cookie_dict
@@ -113,7 +115,7 @@ class BaseTestHelper(Generic[RESP_T]):
         """init request param by application framework"""
         raise NotImplementedError()
 
-    def _gen_pait_dict(self) -> Dict[str, PaitCoreModel]:
+    def _gen_pait_dict(self) -> Dict[str, "PaitCoreModel"]:
         """load pait dict"""
         raise NotImplementedError()
 
