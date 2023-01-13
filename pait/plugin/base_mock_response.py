@@ -1,7 +1,11 @@
-from abc import ABC
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Type
+import sys
+from tempfile import NamedTemporaryFile
+from typing import IO, TYPE_CHECKING, Any, Callable, Dict, Generic, Optional, Type, TypeVar
 
-from pait.model.response import BaseResponseModel
+import aiofiles  # type: ignore
+from typing_extensions import Literal
+
+from pait.model import response
 from pait.plugin.base import PluginManager, PluginProtocol
 from pait.util import get_pait_response_model
 
@@ -9,12 +13,16 @@ if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
 
 
-class MockPluginProtocol(PluginProtocol):
+RESP_T = TypeVar("RESP_T")
+
+
+class MockPluginProtocol(PluginProtocol, Generic[RESP_T]):
     """Automatically return a json response with sample values based on the response object
     Note: the code logic of the routing function will not be executed
     """
 
-    pait_response_model: Type[BaseResponseModel]
+    pait_response_model: Type[response.BaseResponseModel]
+    example_column_name: Literal["example", "mock"]
 
     @classmethod
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
@@ -27,7 +35,7 @@ class MockPluginProtocol(PluginProtocol):
     @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         kwargs = super().pre_load_hook(pait_core_model, kwargs)
-        pait_response: Optional[Type[BaseResponseModel]] = None
+        pait_response: Optional[Type[response.BaseResponseModel]] = None
         enable_mock_response_filter_fn: Optional[Callable] = kwargs.pop("enable_mock_response_filter_fn", None)
         if enable_mock_response_filter_fn and pait_core_model.response_model_list:
             for _pait_response in pait_core_model.response_model_list:
@@ -44,29 +52,83 @@ class MockPluginProtocol(PluginProtocol):
         kwargs["pait_response_model"] = pait_response
         return kwargs
 
-    def mock_response(self) -> Any:
+    def get_json_response(self) -> RESP_T:
         raise NotImplementedError()
+
+    def get_html_response(self) -> RESP_T:
+        raise NotImplementedError()
+
+    def get_text_response(self) -> RESP_T:
+        raise NotImplementedError()
+
+    def get_file_response(self, temporary_file: IO[bytes], f: Any) -> RESP_T:
+        pass
+
+    async def async_get_file_response(self, temporary_file: Any, f: Any) -> RESP_T:
+        pass
+
+    def set_info_to_response(self, resp: RESP_T) -> None:
+        raise NotImplementedError()
+
+    def mock_response(self) -> RESP_T:
+        if issubclass(self.pait_response_model, response.JsonResponseModel):
+            resp: RESP_T = self.get_json_response()
+        elif issubclass(self.pait_response_model, response.TextResponseModel):
+            resp = self.get_text_response()
+        elif issubclass(self.pait_response_model, response.HtmlResponseModel):
+            resp = self.get_html_response()
+        elif issubclass(self.pait_response_model, response.FileResponseModel):
+            named_temporary_file: IO[bytes] = NamedTemporaryFile()
+            f: Any = named_temporary_file.__enter__()
+            try:
+                resp = self.get_file_response(named_temporary_file, f)
+            except Exception as e:
+                exc_type, exc_val, exc_tb = sys.exc_info()
+                named_temporary_file.__exit__(exc_type, exc_val, exc_tb)
+                raise e
+        else:
+            raise NotImplementedError(f"make_mock_response not support {self.pait_response_model}")
+        self.set_info_to_response(resp)
+        return resp
+
+    async def async_mock_response(self) -> RESP_T:
+        if issubclass(self.pait_response_model, response.JsonResponseModel):
+            resp: RESP_T = self.get_json_response()
+        elif issubclass(self.pait_response_model, response.TextResponseModel):
+            resp = self.get_text_response()
+        elif issubclass(self.pait_response_model, response.HtmlResponseModel):
+            resp = self.get_html_response()
+        elif issubclass(self.pait_response_model, response.FileResponseModel):
+            tf: aiofiles.tempfile.AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()  # type: ignore
+            f: Any = await tf.__aenter__()
+            try:
+                resp = await self.async_get_file_response(tf, f)
+            except Exception as e:
+                exc_type, exc_val, exc_tb = sys.exc_info()
+                await tf.__aexit__(exc_type, exc_val, exc_tb)
+                raise e
+        else:
+            raise NotImplementedError(f"make_mock_response not support {self.pait_response_model}")
+        self.set_info_to_response(resp)
+        return resp
 
     @classmethod
     def build(  # type: ignore
         cls,  # type: ignore
         enable_mock_response_filter_fn: Optional[Callable] = None,  # type: ignore
-        target_pait_response_class: Optional[Type["BaseResponseModel"]] = None,  # type: ignore
+        target_pait_response_class: Optional[Type["response.BaseResponseModel"]] = None,  # type: ignore
         find_core_response_model: bool = False,  # type: ignore
+        example_column_name: Literal["example", "mock"] = "example",  # type: ignore
     ) -> "PluginManager":  # type: ignore
         return super().build(
             enable_mock_response_filter_fn=enable_mock_response_filter_fn,
             target_pait_response_class=target_pait_response_class,
             find_core_response_model=find_core_response_model,
+            example_column_name=example_column_name,
         )
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        return self.mock_response()
-
-
-class BaseMockPlugin(MockPluginProtocol, ABC):
-    """"""
-
-
-class BaseAsyncMockPlugin(MockPluginProtocol, ABC):
-    """"""
+        if self._is_async_func:
+            return self.async_mock_response()
+        else:
+            return self.mock_response()

@@ -8,11 +8,13 @@ Rewrite some old methods to increase the extensibility of the corresponding modu
 Improve Open API related functions and refactor some APIs that affect performance
 > Note: This version will have syntax changes that are not backward compatible, and the library status will change from alpha to beta
 
-Function Changes:
+Function Changes List:
 - Depend enhances support for class instances
 - Add OpenAPI APIKey Feature
 - Field adds the parameter `not_authenticated_exc`, which allows developers to specify that the error value cannot be found
 - Field adds the parameter `openapi_include`, determines whether the field can be resolved to the Open API.
+- The Mock plugin adds a new parameter example_column_name to specify the value of the Field from which the mock data is to be retrieved
+- Refactor the Mock plugin's API to reduce duplicate code
 
 API Changes:
 - `@pait` The tag parameter type no longer supports String, only `Tag` is supported. e.g:

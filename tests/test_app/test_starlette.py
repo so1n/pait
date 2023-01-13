@@ -18,9 +18,9 @@ from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.starlette import TestHelper as _TestHelper
 from pait.app.starlette import load_app
+from pait.app.starlette.plugin.mock_response import AsyncMockPlugin, MockPlugin
 from pait.model import response
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
-from pait.plugin.base_mock_response import BaseAsyncMockPlugin, BaseMockPlugin
 from tests.conftest import enable_plugin, grpc_test_create_user_request, grpc_test_openapi
 from tests.test_app.base_test import BaseTest
 
@@ -54,7 +54,7 @@ def response_test_helper(
     client: TestClient,
     route_handler: Callable,
     pait_response: Type[response.BaseResponseModel],
-    plugin: Type[Union[BaseMockPlugin, BaseAsyncMockPlugin]],
+    plugin: Type[Union[MockPlugin, AsyncMockPlugin]],
 ) -> None:
 
     test_helper: _TestHelper = _TestHelper(client, route_handler)
