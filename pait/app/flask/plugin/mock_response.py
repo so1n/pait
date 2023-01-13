@@ -10,12 +10,14 @@ __all__ = ["MockPlugin"]
 
 class MockPlugin(MockPluginProtocol[Response]):
     def _set_str_response(self) -> Response:
-        resp: Response = make_response(self.pait_response_model.get_example_value())
+        resp: Response = make_response(
+            self.pait_response_model.get_example_value(example_column_name=self.example_column_name)
+        )
         resp.mimetype = self.pait_response_model.media_type
         return resp
 
     def get_json_response(self) -> Response:
-        return jsonify(self.pait_response_model.get_example_value())
+        return jsonify(self.pait_response_model.get_example_value(example_column_name=self.example_column_name))
 
     def get_html_response(self) -> Response:
         return self._set_str_response()
@@ -25,6 +27,8 @@ class MockPlugin(MockPluginProtocol[Response]):
 
     def get_file_response(self, temporary_file: IO[bytes], f: Any) -> Response:
         try:
+            f.write(self.pait_response_model.get_example_value(example_column_name=self.example_column_name))
+            f.seek(0)
             _, f_path, f_filename = temporary_file.name.split("/")
             return send_from_directory("/" + f_path, f_filename, mimetype=self.pait_response_model.media_type)
         finally:

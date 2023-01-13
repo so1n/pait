@@ -10,13 +10,19 @@ class MockPlugin(MockPluginProtocol[None]):
     tornado_handle: RequestHandler
 
     def get_json_response(self) -> None:
-        self.tornado_handle.write(self.pait_response_model.get_example_value())
+        self.tornado_handle.write(
+            self.pait_response_model.get_example_value(example_column_name=self.example_column_name)
+        )
 
     def get_html_response(self) -> None:
-        self.tornado_handle.write(self.pait_response_model.get_example_value())
+        self.tornado_handle.write(
+            self.pait_response_model.get_example_value(example_column_name=self.example_column_name)
+        )
 
     def get_text_response(self) -> None:
-        self.tornado_handle.write(self.pait_response_model.get_example_value())
+        self.tornado_handle.write(
+            self.pait_response_model.get_example_value(example_column_name=self.example_column_name)
+        )
 
     def set_info_to_response(self, resp: None) -> None:
         self.tornado_handle.set_status(self.pait_response_model.status_code[0])
@@ -25,7 +31,7 @@ class MockPlugin(MockPluginProtocol[None]):
         self.tornado_handle.set_header("Content-Type", self.pait_response_model.media_type)
 
     async def async_get_file_response(self, temporary_file: Any, f: Any) -> None:
-        await f.write(self.pait_response_model.get_example_value())
+        await f.write(self.pait_response_model.get_example_value(example_column_name=self.example_column_name))
         await f.seek(0)
         async for line in f:
             self.tornado_handle.write(line)

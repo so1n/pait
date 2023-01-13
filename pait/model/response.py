@@ -30,48 +30,48 @@ __all__ = [
 
 class JsonResponseModel(_JsonResponseModel):
     @classmethod
-    def _get_example_dict(cls, model: Type[BaseModel]) -> dict:
-        return gen_example_dict_from_pydantic_base_model(model)
+    def _get_example_dict(cls, model: Type[BaseModel], **kwargs: Any) -> dict:
+        return gen_example_dict_from_pydantic_base_model(model, **kwargs)
 
     @classmethod
     def get_default_dict(cls, **extra: Any) -> dict:
         default_dict: dict = getattr(cls.response_data, "JsonResponseModel_default_dict", {})
         if not default_dict:
-            default_dict = gen_example_dict_from_pydantic_base_model(cls.response_data, use_example_value=False)
+            default_dict = gen_example_dict_from_pydantic_base_model(cls.response_data, example_column_name=None)
             setattr(cls.response_data, "JsonResponseModel_default_dict", default_dict)
         return copy.deepcopy(default_dict)
 
 
 class XmlResponseModel(_XmlResponseModel):
     @classmethod
-    def _get_example_dict(cls, model: Type[BaseModel]) -> dict:
-        return gen_example_dict_from_pydantic_base_model(model)
+    def _get_example_dict(cls, model: Type[BaseModel], **kwargs: Any) -> dict:
+        return gen_example_dict_from_pydantic_base_model(model, **kwargs)
 
     @classmethod
     def get_default_dict(cls, **extra: Any) -> dict:
         default_dict: dict = getattr(cls.response_data, "XmlResponseModel_default_dict", {})
         if not default_dict:
-            default_dict = gen_example_dict_from_pydantic_base_model(cls.response_data, use_example_value=False)
+            default_dict = gen_example_dict_from_pydantic_base_model(cls.response_data, example_column_name=None)
             setattr(cls.response_data, "XmlJsonResponseModel_default_dict", default_dict)
         return copy.deepcopy(default_dict)
 
 
 class TextResponseModel(_TextResponseModel):
     @classmethod
-    def _get_example_dict(cls, model: Type[BaseModel]) -> dict:
-        return gen_example_dict_from_pydantic_base_model(model)
+    def _get_example_dict(cls, model: Type[BaseModel], **extra: Any) -> dict:
+        return gen_example_dict_from_pydantic_base_model(model, **extra)
 
 
 class HtmlResponseModel(_HtmlResponseModel):
     @classmethod
-    def _get_example_dict(cls, model: Type[BaseModel]) -> dict:
-        return gen_example_dict_from_pydantic_base_model(model)
+    def _get_example_dict(cls, model: Type[BaseModel], **extra: Any) -> dict:
+        return gen_example_dict_from_pydantic_base_model(model, **extra)
 
 
 class FileResponseModel(_FileResponseModel):
     @classmethod
-    def _get_example_dict(cls, model: Type[BaseModel]) -> dict:
-        return gen_example_dict_from_pydantic_base_model(model)
+    def _get_example_dict(cls, model: Type[BaseModel], **extra: Any) -> dict:
+        return gen_example_dict_from_pydantic_base_model(model, **extra)
 
 
 ###################################

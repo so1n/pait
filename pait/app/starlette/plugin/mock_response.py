@@ -9,20 +9,22 @@ from pait.plugin.base_mock_response import RESP_T, MockPluginProtocol
 
 class MockPlugin(MockPluginProtocol[Response]):
     def get_json_response(self) -> Response:
-        return JSONResponse(self.pait_response_model.get_example_value())
+        return JSONResponse(self.pait_response_model.get_example_value(example_column_name=self.example_column_name))
 
     def get_html_response(self) -> Response:
         return PlainTextResponse(
-            self.pait_response_model.get_example_value(), media_type=self.pait_response_model.media_type
+            self.pait_response_model.get_example_value(example_column_name=self.example_column_name),
+            media_type=self.pait_response_model.media_type,
         )
 
     def get_text_response(self) -> Response:
         return PlainTextResponse(
-            self.pait_response_model.get_example_value(), media_type=self.pait_response_model.media_type
+            self.pait_response_model.get_example_value(example_column_name=self.example_column_name),
+            media_type=self.pait_response_model.media_type,
         )
 
     def get_file_response(self, temporary_file: IO[bytes], f: Any) -> RESP_T:
-        f.write(self.pait_response_model.get_example_value())
+        f.write(self.pait_response_model.get_example_value(example_column_name=self.example_column_name))
         f.seek(0)
 
         def close_file() -> None:
@@ -33,7 +35,7 @@ class MockPlugin(MockPluginProtocol[Response]):
         )
 
     async def async_get_file_response(self, temporary_file: Any, f: Any) -> RESP_T:
-        await f.write(self.pait_response_model.get_example_value())
+        await f.write(self.pait_response_model.get_example_value(example_column_name=self.example_column_name))
         await f.seek(0)
 
         async def close_file() -> None:

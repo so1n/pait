@@ -3,6 +3,7 @@ from tempfile import NamedTemporaryFile
 from typing import IO, TYPE_CHECKING, Any, Callable, Dict, Generic, Optional, Type, TypeVar
 
 import aiofiles  # type: ignore
+from typing_extensions import Literal
 
 from pait.model import response
 from pait.plugin.base import PluginManager, PluginProtocol
@@ -21,6 +22,7 @@ class MockPluginProtocol(PluginProtocol, Generic[RESP_T]):
     """
 
     pait_response_model: Type[response.BaseResponseModel]
+    example_column_name: Literal["example", "mock"]
 
     @classmethod
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
@@ -78,8 +80,6 @@ class MockPluginProtocol(PluginProtocol, Generic[RESP_T]):
         elif issubclass(self.pait_response_model, response.FileResponseModel):
             named_temporary_file: IO[bytes] = NamedTemporaryFile()
             f: Any = named_temporary_file.__enter__()
-            f.write(self.pait_response_model.get_example_value())
-            f.seek(0)
             try:
                 resp = self.get_file_response(named_temporary_file, f)
             except Exception as e:
@@ -118,11 +118,13 @@ class MockPluginProtocol(PluginProtocol, Generic[RESP_T]):
         enable_mock_response_filter_fn: Optional[Callable] = None,  # type: ignore
         target_pait_response_class: Optional[Type["response.BaseResponseModel"]] = None,  # type: ignore
         find_core_response_model: bool = False,  # type: ignore
+        example_column_name: Literal["example", "mock"] = "example",  # type: ignore
     ) -> "PluginManager":  # type: ignore
         return super().build(
             enable_mock_response_filter_fn=enable_mock_response_filter_fn,
             target_pait_response_class=target_pait_response_class,
             find_core_response_model=find_core_response_model,
+            example_column_name=example_column_name,
         )
 
     def __call__(self, *args: Any, **kwargs: Any) -> Any:

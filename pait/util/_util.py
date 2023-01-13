@@ -166,14 +166,14 @@ def gen_example_value_from_python(obj: Any) -> Any:
 
 
 def gen_example_dict_from_pydantic_base_model(
-    pydantic_base_model: Type[BaseModel], use_example_value: bool = True
+    pydantic_base_model: Type[BaseModel], example_column_name: Optional[str] = "example"
 ) -> dict:
     gen_dict: Dict[str, Any] = {}
     for key, model_field in pydantic_base_model.__fields__.items():
         if model_field.alias:
             key = model_field.alias
-        if use_example_value:
-            example_value: Any = model_field.field_info.extra.get("example", Undefined)
+        if example_column_name:
+            example_value: Any = model_field.field_info.extra.get(example_column_name, Undefined)
             if not isinstance(example_value, UndefinedType):
                 gen_dict[key] = example_value_handle(example_value)
                 continue
@@ -189,7 +189,7 @@ def gen_example_dict_from_pydantic_base_model(
 
             if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
                 gen_dict[key] = gen_example_dict_from_pydantic_base_model(
-                    annotation, use_example_value=use_example_value
+                    annotation, example_column_name=example_column_name
                 )
             else:
                 sub_type: Optional[Type] = None
@@ -212,7 +212,7 @@ def gen_example_dict_from_pydantic_base_model(
                     and issubclass(sub_type, BaseModel)
                 ):
                     gen_dict[key] = [
-                        gen_example_dict_from_pydantic_base_model(sub_type, use_example_value=use_example_value)
+                        gen_example_dict_from_pydantic_base_model(sub_type, example_column_name=example_column_name)
                     ]
                 elif issubclass(real_type, Enum):
                     gen_dict[key] = [i for i in real_type.__members__.values()][0].value

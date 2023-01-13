@@ -10,20 +10,22 @@ from pait.plugin.base_mock_response import MockPluginProtocol
 
 class MockPlugin(MockPluginProtocol[sanic_response.BaseHTTPResponse]):
     def get_json_response(self) -> sanic_response.BaseHTTPResponse:
-        return resp_json(self.pait_response_model.get_example_value())
+        return resp_json(self.pait_response_model.get_example_value(example_column_name=self.example_column_name))
 
     def get_html_response(self) -> sanic_response.BaseHTTPResponse:
         return sanic_response.text(
-            self.pait_response_model.get_example_value(), content_type=self.pait_response_model.media_type
+            self.pait_response_model.get_example_value(example_column_name=self.example_column_name),
+            content_type=self.pait_response_model.media_type,
         )
 
     def get_text_response(self) -> sanic_response.BaseHTTPResponse:
         return sanic_response.text(
-            self.pait_response_model.get_example_value(), content_type=self.pait_response_model.media_type
+            self.pait_response_model.get_example_value(example_column_name=self.example_column_name),
+            content_type=self.pait_response_model.media_type,
         )
 
     async def async_get_file_response(self, temporary_file: Any, f: Any) -> sanic_response.BaseHTTPResponse:
-        await f.write(self.pait_response_model.get_example_value())
+        await f.write(self.pait_response_model.get_example_value(example_column_name=self.example_column_name))
         await f.seek(0)
         resp = await sanic_response.file_stream(f.name, mime_type=self.pait_response_model.media_type)
 
