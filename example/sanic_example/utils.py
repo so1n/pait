@@ -1,5 +1,8 @@
+from contextlib import contextmanager
+from typing import Iterator
+
 from pydantic import ValidationError
-from sanic import Request, response
+from sanic import Request, Sanic, response
 from sanic.exceptions import SanicException
 
 from pait.app.sanic import Pait
@@ -25,3 +28,17 @@ async def api_exception(request: Request, exc: Exception) -> response.HTTPRespon
     elif isinstance(exc, SanicException):
         raise exc
     return response.json({"code": -1, "msg": str(exc)})
+
+
+@contextmanager
+def create_app(name: str) -> Iterator[Sanic]:
+    from pait.app.sanic import add_doc_route
+    from pait.extra.config import apply_block_http_method_set
+    from pait.g import config
+
+    config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
+
+    app: Sanic = Sanic(name)
+    yield app
+    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
+    app.run(port=8000, debug=True)

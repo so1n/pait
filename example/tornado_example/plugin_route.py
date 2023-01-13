@@ -13,7 +13,7 @@ from example.common.response_model import (
     UserSuccessRespModel2,
     UserSuccessRespModel3,
 )
-from example.tornado_example.utils import MyHandler, global_pait
+from example.tornado_example.utils import MyHandler, create_app, global_pait
 from pait.app.tornado import Pait
 from pait.app.tornado.plugin import AtMostOneOfPlugin, RequiredPlugin
 from pait.app.tornado.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
@@ -230,26 +230,15 @@ class CheckParamHandler(MyHandler):
 
 
 if __name__ == "__main__":
-    from tornado.ioloop import IOLoop
-    from tornado.web import Application
-
-    from pait.app.tornado import add_doc_route
-    from pait.extra.config import apply_block_http_method_set
-    from pait.g import config
-
-    config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
-
-    app: Application = Application(
-        [
-            (r"/api/check-param", CheckParamHandler),
-            (r"/api/auto-complete-json-plugin", AutoCompleteJsonHandler),
-            (r"/api/cache-response", CacheResponseHandler),
-            (r"/api/cache-response1", CacheResponse1Handler),
-            (r"/api/check-json-plugin", CheckJsonPluginHandler),
-            (r"/api/check-json-plugin-1", CheckJsonPlugin1Handler),
-            (r"/api/mock/(?P<age>\w+)", MockHandler),
-        ]
-    )
-    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
-    app.listen(8000)
-    IOLoop.instance().start()
+    with create_app() as app:
+        app.add_route(
+            [
+                (r"/api/check-param", CheckParamHandler),
+                (r"/api/auto-complete-json-plugin", AutoCompleteJsonHandler),
+                (r"/api/cache-response", CacheResponseHandler),
+                (r"/api/cache-response1", CacheResponse1Handler),
+                (r"/api/check-json-plugin", CheckJsonPluginHandler),
+                (r"/api/check-json-plugin-1", CheckJsonPlugin1Handler),
+                (r"/api/mock/(?P<age>\w+)", MockHandler),
+            ]
+        )

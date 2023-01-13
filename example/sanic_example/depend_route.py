@@ -5,7 +5,7 @@ from sanic import Request, response
 from example.common import depend, tag
 from example.common.request_model import UserModel
 from example.common.response_model import FailRespModel, SimpleRespModel
-from example.sanic_example.utils import api_exception, global_pait
+from example.sanic_example.utils import create_app, global_pait
 from pait.app.sanic import Pait
 from pait.field import Depends, Query
 from pait.model.status import PaitStatus
@@ -68,21 +68,11 @@ async def pre_depend_async_contextmanager_route(is_raise: bool = Query.i(default
 
 
 if __name__ == "__main__":
-    from sanic import Sanic
-
-    from pait.app.sanic import add_doc_route
-    from pait.extra.config import apply_block_http_method_set
-    from pait.g import config
-
-    config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
-
-    app: Sanic = Sanic(__name__)
-    app.add_route(depend_route, "/api/depend", methods={"POST"})
-    app.add_route(depend_contextmanager_route, "/api/check-depend-contextmanager", methods={"GET"})
-    app.add_route(pre_depend_contextmanager_route, "/api/check-pre-depend-contextmanager", methods={"GET"})
-    app.add_route(depend_async_contextmanager_route, "/api/check-depend-async-contextmanager", methods={"GET"})
-    app.add_route(pre_depend_async_contextmanager_route, "/api/check-pre-depend-async-contextmanager", methods={"GET"})
-    app.exception(Exception)(api_exception)
-
-    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
-    app.run(port=8000, debug=True)
+    with create_app(__name__) as app:
+        app.add_route(depend_route, "/api/depend", methods={"POST"})
+        app.add_route(depend_contextmanager_route, "/api/check-depend-contextmanager", methods={"GET"})
+        app.add_route(pre_depend_contextmanager_route, "/api/check-pre-depend-contextmanager", methods={"GET"})
+        app.add_route(depend_async_contextmanager_route, "/api/check-depend-async-contextmanager", methods={"GET"})
+        app.add_route(
+            pre_depend_async_contextmanager_route, "/api/check-pre-depend-async-contextmanager", methods={"GET"}
+        )

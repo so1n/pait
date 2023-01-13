@@ -5,7 +5,7 @@ import aiofiles  # type: ignore
 from sanic import Request, response
 
 from example.common import response_model, tag
-from example.sanic_example.utils import api_exception, global_pait
+from example.sanic_example.utils import create_app, global_pait
 from pait.app.sanic import Pait
 from pait.field import Query
 from pait.model.status import PaitStatus
@@ -74,22 +74,8 @@ async def check_response_route(
 
 
 if __name__ == "__main__":
-    from sanic import Sanic
-
-    from pait.app.sanic import add_doc_route
-    from pait.extra.config import apply_block_http_method_set
-    from pait.g import config
-
-    config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
-
-    app: Sanic = Sanic(__name__)
-
-    app.add_route(check_response_route, "/api/check-resp", methods={"GET"})
-    app.add_route(text_response_route, "/api/text-resp", methods={"GET"})
-    app.add_route(html_response_route, "/api/html-resp", methods={"GET"})
-    app.add_route(file_response_route, "/api/file-resp", methods={"GET"})
-
-    app.exception(Exception)(api_exception)
-
-    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
-    app.run(port=8000, debug=True)
+    with create_app(__name__) as app:
+        app.add_route(check_response_route, "/api/check-resp", methods={"GET"})
+        app.add_route(text_response_route, "/api/text-resp", methods={"GET"})
+        app.add_route(html_response_route, "/api/html-resp", methods={"GET"})
+        app.add_route(file_response_route, "/api/file-resp", methods={"GET"})

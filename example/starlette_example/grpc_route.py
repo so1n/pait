@@ -4,12 +4,13 @@ from typing import Any
 
 import grpc
 from pydantic import BaseModel
+from starlette.applications import Starlette
 from starlette.responses import JSONResponse, Response
 
 from example.common.response_model import gen_response_model_handle
 from example.grpc_common.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
 from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2_grpc
-from example.starlette_example.utils import api_exception
+from example.starlette_example.utils import create_app
 from pait.app import set_app_attribute
 from pait.app.starlette.grpc_route import GrpcGatewayRoute
 from pait.field import Header
@@ -82,17 +83,5 @@ def add_grpc_gateway_route(app: Starlette) -> None:
 
 
 if __name__ == "__main__":
-    import uvicorn
-    from starlette.applications import Starlette
-
-    from pait.app.starlette import add_doc_route
-    from pait.extra.config import apply_block_http_method_set
-    from pait.g import config
-
-    config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
-
-    app: Starlette = Starlette()
-    app.add_exception_handler(Exception, api_exception)
-    add_grpc_gateway_route(app)
-    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
-    uvicorn.run(app)
+    with create_app() as app:
+        add_grpc_gateway_route(app)

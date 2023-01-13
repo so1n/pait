@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 from example.common import tag
 from example.common.request_model import SexEnum, TestPaitModel, UserModel, UserOtherModel
 from example.common.response_model import FailRespModel, SimpleRespModel, UserSuccessRespModel
-from example.tornado_example.utils import MyHandler, global_pait
+from example.tornado_example.utils import MyHandler, create_app, global_pait
 from pait.app.tornado import Pait
 from pait.field import Cookie, File, Form, Header, Json, MultiForm, MultiQuery, Path, Query
 from pait.model.status import PaitStatus
@@ -109,24 +109,13 @@ class PaitModelHanler(MyHandler):
 
 
 if __name__ == "__main__":
-    from tornado.ioloop import IOLoop
-    from tornado.web import Application
-
-    from pait.app.tornado import add_doc_route
-    from pait.extra.config import apply_block_http_method_set
-    from pait.g import config
-
-    config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
-
-    app: Application = Application(
-        [
-            (r"/api/post", PostHandler),
-            (r"/api/pait-base-field/(?P<age>\w+)", PaitBaseFieldHandler),
-            (r"/api/field-default-factory", FieldDefaultFactoryHandler),
-            (r"/api/same-alias", SameAliasHandler),
-            (r"/api/pait-model", PaitModelHanler),
-        ]
-    )
-    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
-    app.listen(8000)
-    IOLoop.instance().start()
+    with create_app() as app:
+        app.add_route(
+            [
+                (r"/api/post", PostHandler),
+                (r"/api/pait-base-field/(?P<age>\w+)", PaitBaseFieldHandler),
+                (r"/api/field-default-factory", FieldDefaultFactoryHandler),
+                (r"/api/same-alias", SameAliasHandler),
+                (r"/api/pait-model", PaitModelHanler),
+            ]
+        )

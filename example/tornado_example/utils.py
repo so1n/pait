@@ -1,5 +1,9 @@
+from contextlib import contextmanager
+from typing import Iterator
+
 from pydantic import ValidationError
-from tornado.web import HTTPError, RequestHandler
+from tornado.routing import _RuleList
+from tornado.web import AnyMatches, Application, HTTPError, RequestHandler, Rule, _ApplicationRouter
 
 from pait.app.tornado import Pait
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
@@ -28,3 +32,32 @@ class MyHandler(RequestHandler):
         else:
             self.write({"code": -1, "msg": str(exc)})
         self.finish()
+
+
+class MyApplication(Application):
+    def add_route(self, rules: _RuleList) -> None:
+        self.wildcard_router.add_rules(rules)
+        self.default_router = _ApplicationRouter(self, [Rule(AnyMatches(), self.wildcard_router)])
+
+
+@contextmanager
+def create_app() -> Iterator[MyApplication]:
+    import logging
+
+    from tornado.ioloop import IOLoop
+
+    from pait.app.tornado import add_doc_route
+    from pait.extra.config import apply_block_http_method_set
+    from pait.g import config
+
+    logging.basicConfig(
+        format="[%(asctime)s %(levelname)s] %(message)s", datefmt="%y-%m-%d %H:%M:%S", level=logging.DEBUG
+    )
+
+    config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
+
+    app: MyApplication = MyApplication()
+    yield app
+    app.listen(8000)
+    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
+    IOLoop.instance().start()

@@ -14,7 +14,7 @@ from example.common.response_model import (
     UserSuccessRespModel2,
     UserSuccessRespModel3,
 )
-from example.flask_example.utils import api_exception, global_pait
+from example.flask_example.utils import api_exception, create_app, global_pait
 from pait.app.flask import Pait
 from pait.app.flask.plugin import AtMostOneOfPlugin, RequiredPlugin
 from pait.app.flask.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
@@ -216,23 +216,12 @@ def check_param_route(
 
 
 if __name__ == "__main__":
-    from flask import Flask, Response
-
-    from pait.app.flask import add_doc_route
-    from pait.extra.config import apply_block_http_method_set
-    from pait.g import config
-
-    config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
-
-    app: Flask = Flask(__name__)
-    app.add_url_rule("/api/check-json-plugin", view_func=check_json_plugin_route, methods=["GET"])
-    app.add_url_rule("/api/cache-response", view_func=cache_response, methods=["GET"])
-    app.add_url_rule("/api/cache-response-1", view_func=cache_response1, methods=["GET"])
-    app.add_url_rule("/api/check-json-plugin-1", view_func=check_json_plugin_route1, methods=["GET"])
-    app.add_url_rule("/api/auto-complete-json-plugin", view_func=auto_complete_json_route, methods=["GET"])
-    app.add_url_rule("/api/mock/<age>", view_func=mock_route, methods=["GET"])
-    app.add_url_rule("/api/check-param", view_func=check_param_route, methods=["GET"])
-    app.errorhandler(Exception)(api_exception)
-
-    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
-    app.run(port=8000, debug=True)
+    with create_app(__name__) as app:
+        app.add_url_rule("/api/check-json-plugin", view_func=check_json_plugin_route, methods=["GET"])
+        app.add_url_rule("/api/cache-response", view_func=cache_response, methods=["GET"])
+        app.add_url_rule("/api/cache-response-1", view_func=cache_response1, methods=["GET"])
+        app.add_url_rule("/api/check-json-plugin-1", view_func=check_json_plugin_route1, methods=["GET"])
+        app.add_url_rule("/api/auto-complete-json-plugin", view_func=auto_complete_json_route, methods=["GET"])
+        app.add_url_rule("/api/mock/<age>", view_func=mock_route, methods=["GET"])
+        app.add_url_rule("/api/check-param", view_func=check_param_route, methods=["GET"])
+        app.errorhandler(Exception)(api_exception)

@@ -1,4 +1,8 @@
+from contextlib import contextmanager
+from typing import Iterator
+
 from pydantic import ValidationError
+from starlette.applications import Starlette
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -26,3 +30,21 @@ def api_exception(request: Request, exc: Exception) -> JSONResponse:
     elif isinstance(exc, HTTPException):
         raise exc
     return JSONResponse({"code": -1, "msg": str(exc)})
+
+
+@contextmanager
+def create_app() -> Iterator[Starlette]:
+    import uvicorn
+    from starlette.applications import Starlette
+
+    from pait.app.starlette import add_doc_route
+    from pait.extra.config import apply_block_http_method_set
+    from pait.g import config
+
+    config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
+
+    app: Starlette = Starlette()
+    yield app
+    app.add_exception_handler(Exception, api_exception)
+    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
+    uvicorn.run(app)

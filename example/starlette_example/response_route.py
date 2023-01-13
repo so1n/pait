@@ -7,7 +7,7 @@ from starlette.background import BackgroundTask
 from starlette.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse
 
 from example.common import response_model, tag
-from example.starlette_example.utils import api_exception, global_pait
+from example.starlette_example.utils import create_app, global_pait
 from pait.app.starlette import Pait
 from pait.field import Query
 from pait.model.status import PaitStatus
@@ -110,27 +110,11 @@ async def check_response_route(
 
 
 if __name__ == "__main__":
-    import uvicorn
-    from starlette.applications import Starlette
-    from starlette.routing import Route
-
-    from pait.app.starlette import add_doc_route
-    from pait.extra.config import apply_block_http_method_set
-    from pait.g import config
-
-    config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
-
-    app: Starlette = Starlette(
-        routes=[
-            Route("/api/check-resp", check_response_route, methods=["GET"]),
-            Route("/api/text-resp", text_response_route, methods=["GET"]),
-            Route("/api/html-resp", html_response_route, methods=["GET"]),
-            Route("/api/file-resp", file_response_route, methods=["GET"]),
-            Route("/api/async-text-resp", async_text_response_route, methods=["GET"]),
-            Route("/api/async-html-resp", async_html_response_route, methods=["GET"]),
-            Route("/api/async-file-resp", async_file_response_route, methods=["GET"]),
-        ]
-    )
-    app.add_exception_handler(Exception, api_exception)
-    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
-    uvicorn.run(app)
+    with create_app() as app:
+        app.add_route("/api/check-resp", check_response_route, methods=["GET"])
+        app.add_route("/api/text-resp", text_response_route, methods=["GET"])
+        app.add_route("/api/html-resp", html_response_route, methods=["GET"])
+        app.add_route("/api/file-resp", file_response_route, methods=["GET"])
+        app.add_route("/api/async-text-resp", async_text_response_route, methods=["GET"])
+        app.add_route("/api/async-html-resp", async_html_response_route, methods=["GET"])
+        app.add_route("/api/async-file-resp", async_file_response_route, methods=["GET"])

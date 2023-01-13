@@ -5,7 +5,7 @@ from typing import Optional
 from flask import Response, make_response, send_from_directory
 
 from example.common import response_model, tag
-from example.flask_example.utils import api_exception, global_pait
+from example.flask_example.utils import create_app, global_pait
 from pait.app.flask import Pait
 from pait.field import Query
 from pait.model.status import PaitStatus
@@ -73,20 +73,8 @@ def check_response_route(
 
 
 if __name__ == "__main__":
-    from flask import Flask
-
-    from pait.app.flask import add_doc_route
-    from pait.extra.config import apply_block_http_method_set
-    from pait.g import config
-
-    config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
-
-    app: Flask = Flask(__name__)
-    app.errorhandler(Exception)(api_exception)
-    app.add_url_rule("/api/text-resp", view_func=text_response_route, methods=["GET"])
-    app.add_url_rule("/api/html-resp", view_func=html_response_route, methods=["GET"])
-    app.add_url_rule("/api/file-resp", view_func=file_response_route, methods=["GET"])
-    app.add_url_rule("/api/check-resp", view_func=check_response_route, methods=["GET"])
-
-    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
-    app.run(port=8000, debug=True)
+    with create_app(__name__) as app:
+        app.add_url_rule("/api/text-resp", view_func=text_response_route, methods=["GET"])
+        app.add_url_rule("/api/html-resp", view_func=html_response_route, methods=["GET"])
+        app.add_url_rule("/api/file-resp", view_func=file_response_route, methods=["GET"])
+        app.add_url_rule("/api/check-resp", view_func=check_response_route, methods=["GET"])

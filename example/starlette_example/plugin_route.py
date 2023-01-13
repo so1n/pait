@@ -14,7 +14,7 @@ from example.common.response_model import (
     UserSuccessRespModel2,
     UserSuccessRespModel3,
 )
-from example.starlette_example.utils import api_exception, global_pait
+from example.starlette_example.utils import api_exception, create_app, global_pait
 from pait.app.starlette import Pait
 from pait.app.starlette.plugin import AtMostOneOfPlugin, RequiredPlugin
 from pait.app.starlette.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
@@ -354,3 +354,16 @@ if __name__ == "__main__":
     app.add_exception_handler(Exception, api_exception)
     add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
     uvicorn.run(app)
+
+    with create_app() as app:
+        app.add_route("/api/mock/{age}", mock_route, methods=["GET"])
+        app.add_route("/api/async-mock/{age}", async_mock_route, methods=["GET"])
+        app.add_route("/api/check-param", check_param_route, methods=["GET"])
+        app.add_route("/api/auto-complete-json-plugin", auto_complete_json_route, methods=["GET"])
+        app.add_route("/api/async-auto-complete-json-plugin", async_auto_complete_json_route, methods=["GET"])
+        app.add_route("/api/cache-response", cache_response, methods=["GET"])
+        app.add_route("/api/cache-response1", cache_response1, methods=["GET"])
+        app.add_route("/api/check-json-plugin", check_json_plugin_route, methods=["GET"])
+        app.add_route("/api/check-json-plugin-1", check_json_plugin_route1, methods=["GET"])
+        app.add_route("/api/async-check-json-plugin", async_check_json_plugin_route, methods=["GET"])
+        app.add_route("/api/async-check-json-plugin-1", async_check_json_plugin_route1, methods=["GET"])

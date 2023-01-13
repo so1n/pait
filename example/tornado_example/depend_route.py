@@ -5,7 +5,7 @@ from tornado.httputil import HTTPServerRequest
 from example.common import depend, tag
 from example.common.request_model import UserModel
 from example.common.response_model import FailRespModel, SimpleRespModel
-from example.tornado_example.utils import MyHandler, global_pait
+from example.tornado_example.utils import MyHandler, create_app, global_pait
 from pait.app.tornado import Pait
 from pait.field import Depends, Query
 from pait.model.status import PaitStatus
@@ -72,30 +72,13 @@ class PreDependAsyncContextmanagerHanler(MyHandler):
 
 
 if __name__ == "__main__":
-    import logging
-
-    from tornado.ioloop import IOLoop
-    from tornado.web import Application
-
-    from pait.app.tornado import add_doc_route
-    from pait.extra.config import apply_block_http_method_set
-    from pait.g import config
-
-    logging.basicConfig(
-        format="[%(asctime)s %(levelname)s] %(message)s", datefmt="%y-%m-%d %H:%M:%S", level=logging.DEBUG
-    )
-
-    config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
-
-    app: Application = Application(
-        [
-            (r"/api/depend", DependHandler),
-            (r"/api/check-depend-contextmanager", DependContextmanagerHanler),
-            (r"/api/check-depend-async-contextmanager", DependAsyncContextmanagerHanler),
-            (r"/api/check-pre-depend-contextmanager", PreDependContextmanagerHanler),
-            (r"/api/check-pre-depend-async-contextmanager", PreDependAsyncContextmanagerHanler),
-        ]
-    )
-    app.listen(8000)
-    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
-    IOLoop.instance().start()
+    with create_app() as app:
+        app.add_route(
+            [
+                (r"/api/depend", DependHandler),
+                (r"/api/check-depend-contextmanager", DependContextmanagerHanler),
+                (r"/api/check-depend-async-contextmanager", DependAsyncContextmanagerHanler),
+                (r"/api/check-pre-depend-contextmanager", PreDependContextmanagerHanler),
+                (r"/api/check-pre-depend-async-contextmanager", PreDependAsyncContextmanagerHanler),
+            ]
+        )

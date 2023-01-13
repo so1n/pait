@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 from example.common import tag
 from example.common.request_model import SexEnum, TestPaitModel, UserModel, UserOtherModel
 from example.common.response_model import FailRespModel, SimpleRespModel, UserSuccessRespModel
-from example.flask_example.utils import api_exception, global_pait
+from example.flask_example.utils import create_app, global_pait
 from pait.app.flask import Pait
 from pait.field import Cookie, File, Form, Header, Json, MultiForm, MultiQuery, Path, Query
 from pait.model.status import PaitStatus
@@ -99,21 +99,9 @@ def pait_model_route(test_pait_model: TestPaitModel) -> dict:
 
 
 if __name__ == "__main__":
-    from flask import Flask
-
-    from pait.app.flask import add_doc_route
-    from pait.extra.config import apply_block_http_method_set
-    from pait.g import config
-
-    config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
-
-    app: Flask = Flask(__name__)
-    app.errorhandler(Exception)(api_exception)
-    app.add_url_rule("/api/post", view_func=post_route, methods=["POST"])
-    app.add_url_rule("/api/pait-base-field/<age>", view_func=pait_base_field_route, methods=["POST"])
-    app.add_url_rule("/api/field-default-factory", view_func=field_default_factory_route, methods=["POST"])
-    app.add_url_rule("/api/same-alias", view_func=same_alias_route, methods=["GET"])
-    app.add_url_rule("/api/pait-model", view_func=pait_model_route, methods=["POST"])
-
-    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
-    app.run(port=8000, debug=True)
+    with create_app(__name__) as app:
+        app.add_url_rule("/api/post", view_func=post_route, methods=["POST"])
+        app.add_url_rule("/api/pait-base-field/<age>", view_func=pait_base_field_route, methods=["POST"])
+        app.add_url_rule("/api/field-default-factory", view_func=field_default_factory_route, methods=["POST"])
+        app.add_url_rule("/api/same-alias", view_func=same_alias_route, methods=["GET"])
+        app.add_url_rule("/api/pait-model", view_func=pait_model_route, methods=["POST"])

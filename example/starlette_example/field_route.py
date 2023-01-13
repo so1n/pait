@@ -5,7 +5,7 @@ from starlette.responses import JSONResponse
 from example.common import tag
 from example.common.request_model import SexEnum, TestPaitModel, UserModel, UserOtherModel
 from example.common.response_model import FailRespModel, SimpleRespModel, UserSuccessRespModel
-from example.starlette_example.utils import api_exception, global_pait
+from example.starlette_example.utils import api_exception, create_app, global_pait
 from pait.app.starlette import Pait
 from pait.field import Cookie, File, Form, Header, Json, MultiForm, MultiQuery, Path, Query
 from pait.model.status import PaitStatus
@@ -126,3 +126,10 @@ if __name__ == "__main__":
     app.add_exception_handler(Exception, api_exception)
     add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
     uvicorn.run(app)
+
+    with create_app() as app:
+        app.add_route("/api/post", post_route, methods=["POST"])
+        app.add_route("/api/pait-base-field/{age}", pait_base_field_route, methods=["POST"])
+        app.add_route("/api/field-default-factory", field_default_factory_route, methods=["POST"])
+        app.add_route("/api/same-alias", same_alias_route, methods=["GET"])
+        app.add_route("/api/pait-model", pait_model_route, methods=["POST"])

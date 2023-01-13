@@ -14,7 +14,7 @@ from example.common.response_model import (
     UserSuccessRespModel2,
     UserSuccessRespModel3,
 )
-from example.sanic_example.utils import api_exception, global_pait
+from example.sanic_example.utils import create_app, global_pait
 from pait.app.sanic import Pait
 from pait.app.sanic.plugin import AtMostOneOfPlugin, RequiredPlugin
 from pait.app.sanic.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
@@ -220,23 +220,11 @@ async def check_param_route(
 
 
 if __name__ == "__main__":
-    from sanic import Sanic
-
-    from pait.app.sanic import add_doc_route
-    from pait.extra.config import apply_block_http_method_set
-    from pait.g import config
-
-    config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
-
-    app: Sanic = Sanic(__name__)
-    app.add_route(check_param_route, "/api/plugin/check-param", methods={"GET"})
-    app.add_route(mock_route, "/api/plugin/mock/<age>", methods={"GET"})
-    app.add_route(cache_response, "/api/plugin/cache-response", methods={"GET"})
-    app.add_route(cache_response1, "/api/plugin/cache-response1", methods={"GET"})
-    app.add_route(check_json_plugin_route, "/api/plugin/check-json-plugin", methods={"GET"})
-    app.add_route(auto_complete_json_route, "/api/plugin/auto-complete-json-plugin", methods={"GET"})
-    app.add_route(check_json_plugin_route1, "/api/plugin/check-json-plugin-1", methods={"GET"})
-    app.exception(Exception)(api_exception)
-
-    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
-    app.run(port=8000, debug=True)
+    with create_app(__name__) as app:
+        app.add_route(check_param_route, "/api/plugin/check-param", methods={"GET"})
+        app.add_route(mock_route, "/api/plugin/mock/<age>", methods={"GET"})
+        app.add_route(cache_response, "/api/plugin/cache-response", methods={"GET"})
+        app.add_route(cache_response1, "/api/plugin/cache-response1", methods={"GET"})
+        app.add_route(check_json_plugin_route, "/api/plugin/check-json-plugin", methods={"GET"})
+        app.add_route(auto_complete_json_route, "/api/plugin/auto-complete-json-plugin", methods={"GET"})
+        app.add_route(check_json_plugin_route1, "/api/plugin/check-json-plugin-1", methods={"GET"})

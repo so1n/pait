@@ -72,37 +72,28 @@ class BaseTest(object):
         ).json()
 
     def same_alias_name(self, route: Callable) -> None:
-        assert (
-            self.test_helper(
-                self.client,
-                route,
-                query_dict={"token": "query"},
-                header_dict={"token": "header"},
-                strict_inspection_check_json_content=False,
-            ).json()
-            == {"code": 0, "msg": "", "data": {"query_token": "query", "header_token": "header"}}
-        )
-        assert (
-            self.test_helper(
-                self.client,
-                route,
-                query_dict={"token": "query1"},
-                header_dict={"token": "header1"},
-                strict_inspection_check_json_content=False,
-            ).json()
-            == {"code": 0, "msg": "", "data": {"query_token": "query1", "header_token": "header1"}}
-        )
+        assert self.test_helper(
+            self.client,
+            route,
+            query_dict={"token": "query"},
+            header_dict={"token": "header"},
+            strict_inspection_check_json_content=False,
+        ).json() == {"code": 0, "msg": "", "data": {"query_token": "query", "header_token": "header"}}
+        assert self.test_helper(
+            self.client,
+            route,
+            query_dict={"token": "query1"},
+            header_dict={"token": "header1"},
+            strict_inspection_check_json_content=False,
+        ).json() == {"code": 0, "msg": "", "data": {"query_token": "query1", "header_token": "header1"}}
 
     def field_default_factory_route(self, route: Callable) -> None:
-        assert (
-            self.test_helper(
-                self.client,
-                route,
-                body_dict={"demo_value": 0},
-                strict_inspection_check_json_content=False,
-            ).json()
-            == {"code": 0, "msg": "", "data": {"demo_value": 0, "data_list": [], "data_dict": {}}}
-        )
+        assert self.test_helper(
+            self.client,
+            route,
+            body_dict={"demo_value": 0},
+            strict_inspection_check_json_content=False,
+        ).json() == {"code": 0, "msg": "", "data": {"demo_value": 0, "data_list": [], "data_dict": {}}}
 
     def pait_base_field_route(self, route: Callable, ignore_path: bool = True) -> None:
         file_content: str = "Hello Word!"

@@ -6,7 +6,7 @@ from starlette.responses import JSONResponse
 from example.common import depend, tag
 from example.common.request_model import UserModel
 from example.common.response_model import FailRespModel, SimpleRespModel
-from example.starlette_example.utils import api_exception, global_pait
+from example.starlette_example.utils import create_app, global_pait
 from pait.app.starlette import Pait
 from pait.field import Depends, Query
 from pait.model.status import PaitStatus
@@ -69,25 +69,11 @@ async def depend_async_contextmanager_route(
 
 
 if __name__ == "__main__":
-    import uvicorn
-    from starlette.applications import Starlette
-    from starlette.routing import Route
-
-    from pait.app.starlette import add_doc_route
-    from pait.extra.config import apply_block_http_method_set
-    from pait.g import config
-
-    config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
-
-    app: Starlette = Starlette(
-        routes=[
-            Route("/api/depend", depend_route, methods=["POST"]),
-            Route("/api/check_depend_contextmanager", depend_contextmanager_route, methods=["GET"]),
-            Route("/api/check_depend_async_contextmanager", depend_async_contextmanager_route, methods=["GET"]),
-            Route("/api/check_pre_depend_contextmanager", pre_depend_contextmanager_route, methods=["GET"]),
-            Route("/api/check_pre_depend_async_contextmanager", pre_depend_async_contextmanager_route, methods=["GET"]),
-        ]
-    )
-    app.add_exception_handler(Exception, api_exception)
-    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
-    uvicorn.run(app)
+    with create_app() as app:
+        app.add_route("/api/depend", depend_route, methods=["POST"])
+        app.add_route("/api/check_depend_contextmanager", depend_contextmanager_route, methods=["GET"])
+        app.add_route("/api/check_depend_async_contextmanager", depend_async_contextmanager_route, methods=["GET"])
+        app.add_route("/api/check_pre_depend_contextmanager", pre_depend_contextmanager_route, methods=["GET"])
+        app.add_route(
+            "/api/check_pre_depend_async_contextmanager", pre_depend_async_contextmanager_route, methods=["GET"]
+        )

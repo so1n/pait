@@ -4,12 +4,12 @@ from typing import Any
 
 import grpc
 from pydantic import BaseModel
-from sanic import response
+from sanic import Sanic, response
 
 from example.common.response_model import gen_response_model_handle
 from example.grpc_common.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
 from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2_grpc
-from example.sanic_example.utils import api_exception
+from example.sanic_example.utils import create_app
 from pait.app import set_app_attribute
 from pait.app.sanic.grpc_route import GrpcGatewayRoute
 from pait.field import Header
@@ -83,17 +83,5 @@ def add_grpc_gateway_route(app: Sanic) -> None:
 
 
 if __name__ == "__main__":
-    from sanic import Sanic
-
-    from pait.app.sanic import add_doc_route
-    from pait.extra.config import apply_block_http_method_set
-    from pait.g import config
-
-    config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
-
-    app: Sanic = Sanic(__name__)
-    add_grpc_gateway_route(app)
-    app.exception(Exception)(api_exception)
-
-    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
-    app.run(port=8000, debug=True)
+    with create_app(__name__) as app:
+        add_grpc_gateway_route(app)
