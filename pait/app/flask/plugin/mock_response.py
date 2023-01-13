@@ -1,31 +1,37 @@
-from tempfile import NamedTemporaryFile
+import sys
+from typing import IO, Any
 
 from flask import Response, jsonify, make_response, send_from_directory
 
-from pait.model import response
-from pait.plugin.base_mock_response import BaseMockPlugin
+from pait.plugin.base_mock_response import MockPluginProtocol
 
 __all__ = ["MockPlugin"]
 
 
-class MockPlugin(BaseMockPlugin):
-    def mock_response(self) -> Response:
-        if issubclass(self.pait_response_model, response.JsonResponseModel):
-            resp: Response = jsonify(self.pait_response_model.get_example_value())
-        elif issubclass(self.pait_response_model, response.TextResponseModel) or issubclass(
-            self.pait_response_model, response.HtmlResponseModel
-        ):
-            resp = make_response(self.pait_response_model.get_example_value())
-            resp.mimetype = self.pait_response_model.media_type
-        elif issubclass(self.pait_response_model, response.FileResponseModel):
-            with NamedTemporaryFile(delete=True) as temporary_file:
-                temporary_file.write(self.pait_response_model.get_example_value())
-                temporary_file.seek(0)
-                _, f_path, f_filename = temporary_file.name.split("/")
-                resp = send_from_directory("/" + f_path, f_filename, mimetype=self.pait_response_model.media_type)
-        else:
-            raise NotImplementedError(f"make_mock_response not support {self.pait_response_model}")
+class MockPlugin(MockPluginProtocol[Response]):
+    def _set_str_response(self) -> Response:
+        resp: Response = make_response(self.pait_response_model.get_example_value())
+        resp.mimetype = self.pait_response_model.media_type
+        return resp
+
+    def get_json_response(self) -> Response:
+        return jsonify(self.pait_response_model.get_example_value())
+
+    def get_html_response(self) -> Response:
+        return self._set_str_response()
+
+    def get_text_response(self) -> Response:
+        return self._set_str_response()
+
+    def get_file_response(self, temporary_file: IO[bytes], f: Any) -> Response:
+        try:
+            _, f_path, f_filename = temporary_file.name.split("/")
+            return send_from_directory("/" + f_path, f_filename, mimetype=self.pait_response_model.media_type)
+        finally:
+            exc_type, exc_val, exc_tb = sys.exc_info()
+            temporary_file.__exit__(exc_type, exc_val, exc_tb)
+
+    def set_info_to_response(self, resp: Response) -> None:
         resp.status_code = self.pait_response_model.status_code[0]
         if self.pait_response_model.header:
             resp.headers.update(self.pait_response_model.get_header_example_dict())
-        return resp

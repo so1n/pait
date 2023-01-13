@@ -17,7 +17,7 @@ from pait.param_handle import ParamHandler
 from pait.plugin import PluginManager
 from pait.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.plugin.base import PluginProtocol
-from pait.plugin.base_mock_response import BaseMockPlugin
+from pait.plugin.base_mock_response import MockPluginProtocol
 from pait.plugin.cache_response import CacheResponsePlugin
 from pait.plugin.check_json_resp import CheckJsonRespPlugin
 
@@ -169,7 +169,7 @@ class TestMockPlugin:
             pass
 
         with pytest.raises(RuntimeError) as e:
-            BaseMockPlugin.pre_check_hook(
+            MockPluginProtocol.pre_check_hook(
                 PaitCoreModel(
                     demo,
                     BaseAppHelper,
@@ -185,7 +185,7 @@ class TestMockPlugin:
             pass
 
         with pytest.raises(RuntimeError) as e:
-            BaseMockPlugin.pre_check_hook(
+            MockPluginProtocol.pre_check_hook(
                 PaitCoreModel(demo, BaseAppHelper, response_model_list=[response.JsonResponseModel]),
                 {"pait_response_model": ""},
             )
@@ -203,7 +203,7 @@ class TestMockPlugin:
             else:
                 return False
 
-        kwargs: dict = BaseMockPlugin.pre_load_hook(
+        kwargs: dict = MockPluginProtocol.pre_load_hook(
             PaitCoreModel(
                 demo,
                 BaseAppHelper,
@@ -217,7 +217,7 @@ class TestMockPlugin:
         def demo() -> None:
             pass
 
-        kwargs: dict = BaseMockPlugin.pre_load_hook(
+        kwargs: dict = MockPluginProtocol.pre_load_hook(
             PaitCoreModel(
                 demo,
                 BaseAppHelper,
