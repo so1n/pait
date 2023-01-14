@@ -238,9 +238,9 @@ class BaseParamHandler(PluginProtocol):
             func_args.append(self._app_helper.cbv_instance)
         elif issubclass(parameter.annotation, BaseModel):
             return True
-        elif self._app_helper.check_request_type(parameter.annotation):
+        elif self._app_helper.request.check_request_type(parameter.annotation):
             # support request param(def handle(request: Request))
-            func_args.append(self._app_helper.request)
+            func_args.append(self._app_helper.request.request)
         else:
             logging.warning(f"Pait not support args: {parameter}")  # pragma: no cover
         return False
@@ -282,10 +282,10 @@ class BaseParamHandler(PluginProtocol):
         # Note: not use hasattr with LazyProperty (
         #   because hasattr will calling getattr(obj, name) and catching AttributeError,
         # )
-        app_field_func: Optional[Callable] = getattr(self._app_helper, field_name, None)
+        app_field_func: Optional[Callable] = getattr(self._app_helper.request, field_name, None)
         if app_field_func is None:
             raise NotFoundFieldException(
-                parameter.name, f"field: {field_name} not found in {self._app_helper}"
+                parameter.name, f"field: {field_name} not found in {self._app_helper.request}"
             )  # pragma: no cover
         return app_field_func()
 
