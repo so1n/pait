@@ -26,8 +26,10 @@ class MockPlugin(MockPluginProtocol[None]):
 
     def set_info_to_response(self, resp: None) -> None:
         self.tornado_handle.set_status(self.pait_response_model.status_code[0])
+
         for key, value in self.pait_response_model.get_header_example_dict().items():
             self.tornado_handle.set_header(key, value)
+
         self.tornado_handle.set_header("Content-Type", self.pait_response_model.media_type)
 
     async def async_get_file_response(self, temporary_file: Any, f: Any) -> None:

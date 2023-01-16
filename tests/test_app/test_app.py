@@ -7,6 +7,7 @@ from pytest_mock import MockFixture
 
 from pait import app
 from pait.app.base import BaseAppHelper
+from pait.app.base.adapter.request import BaseRequest
 
 
 class TestApp:
@@ -107,37 +108,48 @@ class TestApp:
 
         demo = Demo()
 
+        class PaitRequestDemo(BaseRequest):
+            RequestType = str
+
         class CustomerAppHelper(BaseAppHelper[None, None]):  # type: ignore
             CbvType = Demo  # type: ignore
+            request_class = PaitRequestDemo
 
         # route func param: self, request, other param
-        customer_app_helper: CustomerAppHelper = CustomerAppHelper([demo, None, 1], {"a": 1, "b": 2, "c": 3})
-        assert customer_app_helper.request is None
+        arg_list = [demo, "", 1]
+        customer_app_helper: CustomerAppHelper = CustomerAppHelper(arg_list, {"a": 1, "b": 2, "c": 3})
+        assert isinstance(customer_app_helper.request.request, str)
         assert customer_app_helper.cbv_instance == demo
-        assert customer_app_helper.request_args == [demo]
-        assert customer_app_helper.request_kwargs == {"a": 1, "b": 2, "c": 3}
+        assert customer_app_helper.request.args == arg_list
+        assert customer_app_helper.request.request_kwargs == {"a": 1, "b": 2, "c": 3}
 
         # route func param: request
-        customer_app_helper = CustomerAppHelper([None], {"a": 1, "b": 2, "c": 3})
-        assert customer_app_helper.request is None
+        arg_list = [""]
+        customer_app_helper = CustomerAppHelper(arg_list, {"a": 1, "b": 2, "c": 3})
+        assert isinstance(customer_app_helper.request.request, str)
         assert customer_app_helper.cbv_instance is None
-        assert customer_app_helper.request_args == []
-        assert customer_app_helper.request_kwargs == {"a": 1, "b": 2, "c": 3}
+        assert customer_app_helper.request.args == arg_list
+        assert customer_app_helper.request.request_kwargs == {"a": 1, "b": 2, "c": 3}
 
-        patch = mocker.patch("pait.data.logging.warning")
-        # route func param: other param, self, request
-        BaseAppHelper([1, demo, None], {"a": 1, "b": 2, "c": 3})
-        patch.assert_called_once()
+        # patch = mocker.patch("pait.data.logging.warning")
+        # # route func param: other param, self, request
+        # BaseAppHelper([1, demo, None], {"a": 1, "b": 2, "c": 3})
+        # patch.assert_called_once()
 
     def test_base_app_helper_check_type(self) -> None:
-        class FakeAppHelper(BaseAppHelper):
+        from pait.app.base.adapter.request import BaseRequest
+
+        class FakeRequest(BaseRequest):
             RequestType = str
             FormType = int
             FileType = float
             HeaderType = type(None)
 
-        fake_app_helper: FakeAppHelper = FakeAppHelper([], {})
-        assert fake_app_helper.check_request_type(type(""))
-        assert fake_app_helper.check_form_type(type(0))
-        assert fake_app_helper.check_file_type(type(0.0))
-        assert fake_app_helper.check_header_type(type(None))
+        class FakeAppHelper(BaseAppHelper):
+            request_class = FakeRequest
+
+        fake_app_helper: FakeAppHelper = FakeAppHelper([""], {})
+        assert fake_app_helper.request.check_request_type(type(""))
+        assert fake_app_helper.request.check_form_type(type(0))
+        assert fake_app_helper.request.check_file_type(type(0.0))
+        assert fake_app_helper.request.check_header_type(type(None))

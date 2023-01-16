@@ -153,7 +153,7 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
             r_pin_code: str = Depends.i(self._get_request_pin_code),
             url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
         ) -> str:
-            re = pait_context.get().app_helper.request_extend()
+            re = pait_context.get().app_helper.request.request_extend()
             _scheme: str = self.scheme or re.scheme
             if self.openapi_json_url_only_path:
                 openapi_json_url: str = f"{'/'.join(re.path.split('/')[:-1])}/openapi.json"
@@ -214,7 +214,7 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
         def _openapi_route(
             url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map(extra_key=True)),
         ) -> ResponseT:
-            re = pait_context.get().app_helper.request_extend()
+            re = pait_context.get().app_helper.request.request_extend()
             _scheme: str = self.scheme or re.scheme
             pait_dict: Dict[str, PaitCoreModel] = self.load_app(app, project_name=self.project_name)
             with TemplateContext(url_dict):
