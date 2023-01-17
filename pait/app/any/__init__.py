@@ -38,7 +38,7 @@ def load_app(app: Any, project_name: str = "", auto_load_route: bool = False) ->
     """Read data from the route that has been registered to `pait`
     Note:This is an implicit method
     """
-    return base_call_func("load_app", app, project_name=project_name, app=app)
+    return base_call_func("load_app", app, project_name=project_name, app=app, auto_load_route=auto_load_route)
 
 
 def add_doc_route(

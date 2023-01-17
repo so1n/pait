@@ -8,7 +8,7 @@ from example.common.request_model import SexEnum
 from pait import FileResponseModel, HtmlResponseModel, JsonResponseModel
 from pait import ResponseModel as PaitResponseModel
 from pait import TextResponseModel
-from pait.model.links import LinksModel
+from pait.openapi.openapi import LinksModel
 from pait.util.grpc_inspect.stub import GrpcModel
 
 

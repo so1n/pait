@@ -7,7 +7,8 @@ import pytest
 from pydantic import BaseModel, Field
 
 from example.common.request_model import SexEnum
-from pait.model import links, response, tag
+from pait.model import response, tag
+from pait.openapi.openapi import LinksModel
 from pait.model.config import Config
 
 
@@ -55,21 +56,21 @@ class TestLinksModel:
 
         # not found header
         with pytest.raises(KeyError) as e:
-            links.LinksModel(DemoResponseModel, "$response.header.")._check_openapi_runtime_expr()
+            LinksModel(DemoResponseModel, "$response.header.")._check_openapi_runtime_expr()
 
         exec_msg: str = e.value.args[0]
         assert "Can not found header key" in exec_msg
 
         # not base model response data
         with pytest.raises(RuntimeError) as e:  # type: ignore
-            links.LinksModel(DemoResponseModel, "$response.body#")._check_openapi_runtime_expr()
+            LinksModel(DemoResponseModel, "$response.body#")._check_openapi_runtime_expr()
 
         exec_msg = e.value.args[0]
         assert "response_data type is pydantic.Basemodel" in exec_msg
 
         # not support expr
         with pytest.raises(ValueError) as e:  # type: ignore
-            links.LinksModel(DemoResponseModel, "$response.body")._check_openapi_runtime_expr()
+            LinksModel(DemoResponseModel, "$response.body")._check_openapi_runtime_expr()
 
         exec_msg = e.value.args[0]
         assert "Only support $response.headerXXX or $response.bodyXXX. " in exec_msg
