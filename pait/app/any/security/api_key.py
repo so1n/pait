@@ -1,19 +1,15 @@
-from abc import ABCMeta
-from typing import Callable, Optional, Type
-
-from werkzeug.exceptions import HTTPException
-
+from importlib import import_module
+from typing import TYPE_CHECKING, Callable, Optional, Type
 from pait.app.base.security.api_key import APIKEY_FIELD_TYPE
 from pait.app.base.security.api_key import APIkey as BaseAPIKey
-from pait.app.base.security.api_key import api_key as _api_key
+from pait.app.auto_load_app import auto_load_app_class
+from pait.app.any.util import base_call_func
 
+if TYPE_CHECKING:
+    from pait.app.base.security.api_key import APIkey as _APIKey
 
-class APIKey(BaseAPIKey, metaclass=ABCMeta):
-    @classmethod
-    def get_exception(cls, *, status_code: int, message: str) -> Exception:
-        exc = HTTPException(description=message)
-        exc.code = status_code
-        return exc
+pait_app_path: str = "pait.app." + auto_load_app_class().__name__.lower() + ".security.api_key"
+APIKey: "_APIKey" = getattr(import_module(pait_app_path), "APIKey")
 
 
 def api_key(
@@ -24,7 +20,8 @@ def api_key(
     security_name: Optional[str] = None,
     api_key_class: Type[BaseAPIKey] = APIKey,
 ) -> BaseAPIKey:
-    return _api_key(
+    return base_call_func(
+        "api_key",
         name=name,
         api_key_class=api_key_class,
         field=field,
