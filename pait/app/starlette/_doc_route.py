@@ -55,7 +55,7 @@ class AddDocRoute(_AddDocRoute[Starlette, Response]):
 def add_doc_route(
     app: Starlette,
     scheme: Optional[str] = None,
-    open_json_url_only_path: bool = False,
+    openapi_json_url_only_path: bool = False,
     prefix: str = "",
     pin_code: str = "",
     title: str = "",
@@ -64,7 +64,7 @@ def add_doc_route(
 ) -> None:
     AddDocRoute(
         scheme=scheme,
-        openapi_json_url_only_path=open_json_url_only_path,
+        openapi_json_url_only_path=openapi_json_url_only_path,
         prefix=prefix,
         pin_code=pin_code,
         title=title,

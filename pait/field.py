@@ -7,7 +7,7 @@ from pydantic.typing import NoArgAnyCallable
 from pait.types import CallType
 
 if TYPE_CHECKING:
-    from pait.model.links import LinksModel
+    from pait.openapi.openapi import LinksModel
 
 
 class BaseField(FieldInfo):

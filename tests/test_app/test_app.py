@@ -5,81 +5,82 @@ from unittest import mock
 import pytest
 from pytest_mock import MockFixture
 
-from pait import app
 from pait.app.base import BaseAppHelper
 from pait.app.base.adapter.request import BaseRequest
+from pait.app.auto_load_app import app_list, auto_load_app_class
+from pait.app import any
 
 
 class TestApp:
     @staticmethod
     def _clean_app_from_sys_module() -> None:
-        for i in app.auto_load_app.app_list:
+        for i in app_list:
             sys.modules.pop(i, None)
 
     def test_load_app(self, mocker: MockFixture) -> None:
-        for i in app.auto_load_app.app_list:
+        for i in app_list:
             patch = mocker.patch(f"pait.app.{i}.load_app")
-            app.load_app(importlib.import_module(f"example.{i}_example.main_example").create_app())  # type: ignore
-            patch.assert_called_once()
-
-        class Demo:
-            pass
-
-        with pytest.raises(NotImplementedError) as e:
-            app.load_app(Demo)
-
-        exec_msg: str = e.value.args[0]
-        assert exec_msg.startswith("Pait not support")
-
-    def test_add_doc_route(self, mocker: MockFixture) -> None:
-        for i in app.auto_load_app.app_list:
-            patch = mocker.patch(f"pait.app.{i}.add_doc_route")
-            app.add_doc_route(importlib.import_module(f"example.{i}_example.main_example").create_app())  # type: ignore
+            any.load_app(importlib.import_module(f"example.{i}_example.main_example").create_app())  # type: ignore
             patch.assert_called()
 
         class Demo:
             pass
 
         with pytest.raises(NotImplementedError) as e:
-            app.add_doc_route(Demo)
+            any.load_app(Demo)
+
+        exec_msg: str = e.value.args[0]
+        assert exec_msg.startswith("Pait not support")
+
+    def test_add_doc_route(self, mocker: MockFixture) -> None:
+        for i in app_list:
+            patch = mocker.patch(f"pait.app.{i}.add_doc_route")
+            any.add_doc_route(importlib.import_module(f"example.{i}_example.main_example").create_app())  # type: ignore
+            patch.assert_called()
+
+        class Demo:
+            pass
+
+        with pytest.raises(NotImplementedError) as e:
+            any.add_doc_route(Demo)
 
         exec_msg: str = e.value.args[0]
         assert exec_msg.startswith("Pait not support")
 
     def test_pait_class(self) -> None:
-        for i in app.auto_load_app.app_list:
+        for i in app_list:
             self._clean_app_from_sys_module()
             # import web app
             importlib.import_module(i)
             # reload pait.app
-            importlib.reload(app)
-            assert app.Pait == getattr(importlib.import_module(f"pait.app.{i}"), "Pait")
+            importlib.reload(importlib.import_module(f"pait.app.any"))
+            assert any.Pait == getattr(importlib.import_module(f"pait.app.{i}"), "Pait")
 
     def test_add_doc_route_class(self) -> None:
-        for i in app.auto_load_app.app_list:
+        for i in app_list:
             self._clean_app_from_sys_module()
             # import web app
             importlib.import_module(i)
             # reload pait.app
-            importlib.reload(app)
-            assert app.AddDocRoute == getattr(importlib.import_module(f"pait.app.{i}"), "AddDocRoute")
+            importlib.reload(any)
+            assert any.AddDocRoute == getattr(importlib.import_module(f"pait.app.{i}"), "AddDocRoute")
 
     def test_pait(self, mocker: MockFixture) -> None:
-        for i in app.auto_load_app.app_list:
+        for i in app_list:
             self._clean_app_from_sys_module()
             # import web app
             importlib.import_module(i)
             # reload pait.app
-            importlib.reload(app)
+            importlib.reload(any)
             patch = mocker.patch(f"pait.app.{i}.pait")
-            app.pait()
+            any.pait()
             patch.assert_called_once()
 
         class Demo:
             pass
 
         with pytest.raises(NotImplementedError) as e:
-            app.load_app(Demo)
+            any.load_app(Demo)
 
         exec_msg: str = e.value.args[0]
         assert exec_msg.startswith("Pait not support")
@@ -88,16 +89,16 @@ class TestApp:
         self._clean_app_from_sys_module()
         with mock.patch.dict("sys.modules", sys.modules):
             with pytest.raises(RuntimeError) as e:
-                app.auto_load_app_class()
+                auto_load_app_class()
 
         exec_msg: str = e.value.args[0]
         assert exec_msg == "Pait can't auto load app class"
 
-        for i in app.auto_load_app.app_list:
+        for i in app_list:
             importlib.import_module(i)
         with mock.patch.dict("sys.modules", sys.modules):
             with pytest.raises(RuntimeError) as e:
-                app.auto_load_app_class()
+                auto_load_app_class()
 
         exec_msg = e.value.args[0]
         assert exec_msg.startswith("Pait unable to make a choice")
