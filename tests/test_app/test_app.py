@@ -11,12 +11,14 @@ from pait.app.base import BaseAppHelper
 from pait.app.base.adapter.request import BaseRequest
 
 
-class TestApp:
+class BaseTestApp:
     @staticmethod
     def _clean_app_from_sys_module() -> None:
         for i in app_list:
             sys.modules.pop(i, None)
 
+
+class TestLoadApp(BaseTestApp):
     def test_load_app(self, mocker: MockFixture) -> None:
         for i in app_list:
             patch = mocker.patch(f"pait.app.{i}.load_app")
@@ -32,6 +34,28 @@ class TestApp:
         exec_msg: str = e.value.args[0]
         assert exec_msg.startswith("Pait not support")
 
+
+class TestAutoLoadApp(BaseTestApp):
+    def test_auto_load_app_class_error(self) -> None:
+        self._clean_app_from_sys_module()
+        with mock.patch.dict("sys.modules", sys.modules):
+            with pytest.raises(RuntimeError) as e:
+                auto_load_app_class()
+
+        exec_msg: str = e.value.args[0]
+        assert exec_msg == "Pait can't auto load app class"
+
+        for i in app_list:
+            importlib.import_module(i)
+        with mock.patch.dict("sys.modules", sys.modules):
+            with pytest.raises(RuntimeError) as e:
+                auto_load_app_class()
+
+        exec_msg = e.value.args[0]
+        assert exec_msg.startswith("Pait unable to make a choice")
+
+
+class TestAddDocRoute(BaseTestApp):
     def test_add_doc_route(self, mocker: MockFixture) -> None:
         for i in app_list:
             patch = mocker.patch(f"pait.app.{i}.add_doc_route")
@@ -47,15 +71,6 @@ class TestApp:
         exec_msg: str = e.value.args[0]
         assert exec_msg.startswith("Pait not support")
 
-    def test_pait_class(self) -> None:
-        for i in app_list:
-            self._clean_app_from_sys_module()
-            # import web app
-            importlib.import_module(i)
-            # reload pait.app
-            importlib.reload(importlib.import_module("pait.app.any"))
-            assert any.Pait == getattr(importlib.import_module(f"pait.app.{i}"), "Pait")
-
     def test_add_doc_route_class(self) -> None:
         for i in app_list:
             self._clean_app_from_sys_module()
@@ -64,6 +79,48 @@ class TestApp:
             # reload pait.app
             importlib.reload(any)
             assert any.AddDocRoute == getattr(importlib.import_module(f"pait.app.{i}"), "AddDocRoute")
+
+
+class TestGrpcRoute(BaseTestApp):
+    def test_grpc_route_class(self) -> None:
+        from pait.app.any import grpc_route
+
+        for i in app_list:
+            self._clean_app_from_sys_module()
+            # import web app
+            importlib.import_module(i)
+            # reload pait.app
+            importlib.reload(grpc_route)
+            assert grpc_route.GrpcGatewayRoute == getattr(
+                importlib.import_module(f"pait.app.{i}.grpc_route"), "GrpcGatewayRoute"
+            )
+
+
+class TestSecurity(BaseTestApp):
+    def test_security_api_key(self, mocker: MockFixture) -> None:
+        pass
+
+        from pait.field import Header
+
+        for i in app_list:
+            self._clean_app_from_sys_module()
+            # import web app
+            importlib.import_module(i)
+            patch = mocker.patch(f"pait.app.{i}.security.api_key.api_key")
+            api_key_func = getattr(importlib.import_module("pait.app.any.security.api_key"), "api_key")
+            api_key_func(name="demo", field=Header.i(), verify_api_key_callable=lambda x: True)
+            patch.assert_called()
+
+
+class TestPait(BaseTestApp):
+    def test_pait_class(self) -> None:
+        for i in app_list:
+            self._clean_app_from_sys_module()
+            # import web app
+            importlib.import_module(i)
+            # reload pait.app
+            importlib.reload(importlib.import_module("pait.app.any"))
+            assert any.Pait == getattr(importlib.import_module(f"pait.app.{i}"), "Pait")
 
     def test_pait(self, mocker: MockFixture) -> None:
         for i in app_list:
@@ -85,24 +142,8 @@ class TestApp:
         exec_msg: str = e.value.args[0]
         assert exec_msg.startswith("Pait not support")
 
-    def test_auto_load_app_class_error(self) -> None:
-        self._clean_app_from_sys_module()
-        with mock.patch.dict("sys.modules", sys.modules):
-            with pytest.raises(RuntimeError) as e:
-                auto_load_app_class()
 
-        exec_msg: str = e.value.args[0]
-        assert exec_msg == "Pait can't auto load app class"
-
-        for i in app_list:
-            importlib.import_module(i)
-        with mock.patch.dict("sys.modules", sys.modules):
-            with pytest.raises(RuntimeError) as e:
-                auto_load_app_class()
-
-        exec_msg = e.value.args[0]
-        assert exec_msg.startswith("Pait unable to make a choice")
-
+class TestAppHelper(BaseTestApp):
     def test_base_app_helper__init__(self, mocker: MockFixture) -> None:
         class Demo:
             pass

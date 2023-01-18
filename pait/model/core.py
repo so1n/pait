@@ -3,7 +3,6 @@ import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
 
-from any_api.openapi.model.util import HttpMethodLiteral
 from pydantic import BaseConfig, BaseModel
 
 from pait.model.response import BaseResponseModel, PaitResponseModel
@@ -131,8 +130,8 @@ class PaitCoreModel(object):
         self._method_list = list(set(self._method_list) | set(method_list))
 
     @property
-    def openapi_method_list(self) -> List[HttpMethodLiteral]:
-        return [i.lower() for i in self.method_list]  # type: ignore
+    def openapi_method_list(self) -> List[str]:
+        return [i.lower() for i in self.method_list]
 
     @property
     def response_model_list(self) -> List[Type[BaseResponseModel]]:

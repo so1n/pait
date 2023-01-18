@@ -12,7 +12,7 @@ class TestProtocol:
     @staticmethod
     def _real_check_func_type_hint(
         app_signature: inspect.Signature, any_app_signature: inspect.Signature, app_name: str, func_name: str
-    ):
+    ) -> None:
         assert app_signature.return_annotation == any_app_signature.return_annotation
         if len(app_signature.parameters) != len(any_app_signature.parameters):
             raise ValueError(f"{app_name}' func <{func_name}> param length error")
@@ -57,13 +57,13 @@ class TestProtocol:
         self._check_func_type_hint(any_app.pait.__name__)
 
     def test_pait_class(self) -> None:
-        self._check_func_type_hint(any_app.Pait.__name__)
+        self._check_func_type_hint(any_app.Pait.__name__)  # type: ignore
 
     def test_add_doc_route(self) -> None:
         self._check_func_type_hint(any_app.add_doc_route.__name__)
 
     def test_add_doc_route_class(self) -> None:
-        self._check_func_type_hint(any_app.AddDocRoute.__name__)
+        self._check_func_type_hint(any_app.AddDocRoute.__name__)  # type: ignore
 
     def test_grpc_gateway_route(self) -> None:
         self._check_func_type_hint_by_other_module("grpc_route", "GrpcGatewayRoute")

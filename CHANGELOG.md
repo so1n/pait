@@ -45,6 +45,7 @@ API Changes:
 - `pait.api_doc` All APIs of the module have undergone drastic changes, please refer to the document changes
 - The `AddDocRoute` and `add_doc_route` function signatures of the `pait.xxx.doc_route` module have been changed, the `openapi` parameter has been added, and the `open_api_tag_list` parameter has been removed
 - ApiDoc The `pin_code` parameter of url is no longer supported, only the normalized `pin-code` parameter is supported。
+- Use `pait.model.tag`,`pait.model.response` and `pait.openapi` module need to install `any-api`
 ### 0.8.0
 Rewrite part of the implementation of gRPC Gateway, and transfer some functions to [protobuf_to_pydantic](https://github.com/so1n/protobuf_to_pydantic)
 
