@@ -15,16 +15,16 @@ def parse_typing(_type: Any) -> Union[List[Type[Any]], Type]:
     >>> assert list is parse_typing(List)
     >>> assert dict is parse_typing(Dict)
     >>> assert dict in set(parse_typing(Optional[Dict]))
-    >>> assert None in set(parse_typing(Optional[Dict]))
+    >>> assert type(None) in set(parse_typing(Optional[Dict]))
     >>> assert dict in set(parse_typing(Optional[dict]))
-    >>> assert None in set(parse_typing(Optional[dict]))
+    >>> assert type(None) in set(parse_typing(Optional[dict]))
+    >>> assert type(None) is parse_typing(Optional)
     >>> assert dict is parse_typing(Union[dict])
     >>> assert dict is parse_typing(Union[Dict])
     >>> assert dict is parse_typing(Union[Dict[str, Any]])
     """
-    if isinstance(_type, _GenericAlias):
-        # support typing.xxx
-        origin: type = _type.__origin__  # get typing.xxx's raw type
+    origin: Optional[type] = getattr(_type, "__origin__", None)  # get typing.xxx's raw type
+    if origin:
         if origin is Union:
             # support Union, Optional
             type_list: List[Type[Any]] = []
@@ -43,12 +43,17 @@ def parse_typing(_type: Any) -> Union[List[Type[Any]], Type]:
                     else:
                         type_list.append(value)
             return type_list
-        elif origin in (AsyncIterator, Iterator):
+        elif origin in _CAN_JSON_TYPE_SET:
+            return origin
+        arg_list: List = getattr(_type, "__args__", [])
+        if arg_list:
             # support AsyncIterator, Iterator
-            return parse_typing(_type.__args__[0])
+            return parse_typing(arg_list[0])
         return origin
     elif _type in _CAN_JSON_TYPE_SET:
         return _type
+    elif getattr(_type, "_name", "") == "Optional":
+        return type(None)
     else:
         raise ParseTypeError(f"Can not parse {_type} origin type")
 

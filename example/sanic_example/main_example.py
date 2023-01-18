@@ -226,8 +226,8 @@ def add_api_doc_route(app: Sanic) -> None:
     AddDocRoute(prefix="/api-doc", title="Pait Api Doc", app=app)
 
 
-def create_app() -> Sanic:
-    app: Sanic = Sanic(name=__name__)
+def create_app(configure_logging: bool = True) -> Sanic:
+    app: Sanic = Sanic(name=__name__, configure_logging=configure_logging)
     CacheResponsePlugin.set_redis_to_app(app, Redis(decode_responses=True))
     app.add_route(login_route, "/api/login", methods={"POST"})
     app.add_route(get_user_route, "/api/user", methods={"GET"})

@@ -27,14 +27,14 @@ from tests.test_app.base_test import BaseTest
 
 @pytest.fixture
 def client() -> Generator[SanicTestClient, None, None]:
-    app: Sanic = main_example.create_app()
+    app: Sanic = main_example.create_app(configure_logging=False)
     SanicTestManager(app)
     yield app.test_client
 
 
 @pytest.fixture
 def base_test() -> Generator[BaseTest, None, None]:
-    app: Sanic = main_example.create_app()
+    app: Sanic = main_example.create_app(configure_logging=False)
     SanicTestManager(app)
     yield BaseTest(app.test_client, _TestHelper)
 
