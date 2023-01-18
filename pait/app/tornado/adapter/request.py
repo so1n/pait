@@ -7,7 +7,6 @@ from pait.app.base.adapter.request import BaseRequest, BaseRequestExtend
 from pait.util import LazyProperty
 
 
-
 class RequestExtend(BaseRequestExtend[HTTPServerRequest]):
     @property
     def scheme(self) -> str:

@@ -1,7 +1,8 @@
-from typing import Any, Coroutine, Dict, List, Mapping, Optional, Type
+from typing import Any, Coroutine, Dict, List, Mapping, Optional
 
 from starlette.datastructures import FormData, Headers, UploadFile
 from starlette.requests import Request as _Request
+
 from pait.app.base.adapter.request import BaseRequest, BaseRequestExtend
 from pait.util import LazyProperty
 

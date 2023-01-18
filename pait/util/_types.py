@@ -1,4 +1,3 @@
-from collections.abc import AsyncIterator, Iterator
 from typing import Any, List, Optional, Set, Type, Union, _GenericAlias  # type: ignore
 
 from pait.exceptions import ParseTypeError

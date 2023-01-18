@@ -1,7 +1,11 @@
-from typing import Any, Dict, List, Mapping, Generic, TypeVar
-from pait.app.base.adapter.request import BaseRequest, BaseRequestExtend
+from typing import Any, Dict, List, Mapping
+
 from sanic.headers import HeaderIterable
-from sanic.request import File, Request as _Request, RequestParameters
+from sanic.request import File
+from sanic.request import Request as _Request
+from sanic.request import RequestParameters
+
+from pait.app.base.adapter.request import BaseRequest, BaseRequestExtend
 from pait.util import LazyProperty
 
 
@@ -17,7 +21,6 @@ class RequestExtend(BaseRequestExtend[_Request]):
     @property
     def hostname(self) -> str:
         return self.request.host
-
 
 
 class Request(BaseRequest[_Request, RequestExtend]):

@@ -8,7 +8,6 @@ from any_api.openapi import OpenAPI as _OpenAPI
 from any_api.openapi import SecurityModelType, ServerModel, TagModel, openapi_model
 from any_api.openapi.model.openapi import OpenAPIModel
 from any_api.openapi.model.request_model import RequestModel
-from any_api.openapi.model.links import LinksModel
 from pydantic import BaseModel, Field
 from pydantic.fields import FieldInfo, Undefined
 

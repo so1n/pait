@@ -5,10 +5,10 @@ from unittest import mock
 import pytest
 from pytest_mock import MockFixture
 
+from pait.app import any
+from pait.app.auto_load_app import app_list, auto_load_app_class
 from pait.app.base import BaseAppHelper
 from pait.app.base.adapter.request import BaseRequest
-from pait.app.auto_load_app import app_list, auto_load_app_class
-from pait.app import any
 
 
 class TestApp:
@@ -53,7 +53,7 @@ class TestApp:
             # import web app
             importlib.import_module(i)
             # reload pait.app
-            importlib.reload(importlib.import_module(f"pait.app.any"))
+            importlib.reload(importlib.import_module("pait.app.any"))
             assert any.Pait == getattr(importlib.import_module(f"pait.app.{i}"), "Pait")
 
     def test_add_doc_route_class(self) -> None:

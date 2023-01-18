@@ -1,12 +1,12 @@
+import importlib
 import inspect
 import sys
-import importlib
 
 from pait import app as any_app
 from pait.app.auto_load_app import app_list
 
-
 other_app: list = [importlib.import_module(f"pait.app.{i}") for i in app_list]
+
 
 class TestProtocol:
     @staticmethod
@@ -30,7 +30,7 @@ class TestProtocol:
             app_signature: inspect.Signature = inspect.signature(getattr(app, func_name))
             self._real_check_func_type_hint(app_signature, any_app_signature, app.__name__, func_name)
 
-    def _check_func_type_hint_by_other_module(self, module_name: str ,func_name: str) -> None:
+    def _check_func_type_hint_by_other_module(self, module_name: str, func_name: str) -> None:
         for app in other_app:
             # reset import
             self._clean_app_from_sys_module()
@@ -70,5 +70,3 @@ class TestProtocol:
 
     def test_security_api_key(self) -> None:
         self._check_func_type_hint_by_other_module("security.api_key", "api_key")
-
-

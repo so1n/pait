@@ -385,6 +385,7 @@ class BaseTest(object):
         grpc_path: str = project_path + "example/grpc_common/"
 
         from pathlib import Path
+
         if not Path(grpc_path).exists():
             return
 

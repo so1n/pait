@@ -1,8 +1,9 @@
-from typing import Any, Generic, TypeVar
-
-from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
 from typing import Any, Dict, List, Mapping
-from flask import Request as FlaskRequest, g, request as _request
+
+from flask import Request as FlaskRequest
+from flask import request as _request
+from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
+
 from pait.app.base.adapter.request import BaseRequest, BaseRequestExtend
 from pait.util import LazyProperty
 

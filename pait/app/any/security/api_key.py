@@ -1,9 +1,10 @@
 from importlib import import_module
 from typing import TYPE_CHECKING, Callable, Optional, Type
+
+from pait.app.any.util import base_call_func
+from pait.app.auto_load_app import auto_load_app_class
 from pait.app.base.security.api_key import APIKEY_FIELD_TYPE
 from pait.app.base.security.api_key import APIkey as BaseAPIKey
-from pait.app.auto_load_app import auto_load_app_class
-from pait.app.any.util import base_call_func
 
 if TYPE_CHECKING:
     from pait.app.base.security.api_key import APIkey as _APIKey

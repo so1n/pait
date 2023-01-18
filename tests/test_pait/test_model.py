@@ -8,8 +8,8 @@ from pydantic import BaseModel, Field
 
 from example.common.request_model import SexEnum
 from pait.model import response, tag
-from pait.openapi.openapi import LinksModel
 from pait.model.config import Config
+from pait.openapi.openapi import LinksModel
 
 
 class TestConfigModel:
