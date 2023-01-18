@@ -113,7 +113,11 @@ def get_real_annotation(annotation: Union[Type, str], target_obj: Any) -> Type:
     else:
         # get real type
         value: ForwardRef = ForwardRef(annotation, is_argument=False)
-        new_annotation = value._evaluate(global_dict, None)  # type: ignore
+
+        if sys.version_info >= (3, 9):
+            new_annotation = value._evaluate(global_dict, None, frozenset())  # type: ignore
+        else:
+            new_annotation = value._evaluate(global_dict, None)  # type: ignore
         if not new_annotation:
             raise RuntimeError(f"get real annotation from {target_obj} fail")  # pragma: no cover
     return _eval_type(new_annotation, global_dict, None)
