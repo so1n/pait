@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, Callable, Generator, List, Optional, Tupl
 import grpc
 
 from example.grpc_common.server import create_app
-from pait.app.any import sniffing
+from pait.app.any.util import sniffing
 from pait.extra.config import apply_block_http_method_set
 from pait.g import config
 from pait.plugin.base import PluginManager

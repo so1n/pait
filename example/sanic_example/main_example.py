@@ -291,4 +291,4 @@ if __name__ == "__main__":
     sanic_app: Sanic = create_app()
     add_grpc_gateway_route(sanic_app)
     add_api_doc_route(sanic_app)
-    uvicorn.run(sanic_app, log_level="debug")
+    uvicorn.run(sanic_app)

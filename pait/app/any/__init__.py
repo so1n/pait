@@ -4,9 +4,8 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Ty
 
 from pydantic import BaseConfig
 
-from pait.app.any.util import base_call_func
+from pait.app.any.util import base_call_func, sniffing
 from pait.app.auto_load_app import auto_load_app_class
-from pait.app.base.util import sniffing
 from pait.core import PluginManager, Tag
 from pait.model.core import PaitCoreModel
 from pait.model.response import BaseResponseModel
