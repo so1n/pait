@@ -40,5 +40,6 @@ jobs:
       with:
         redis-version: 6
     - name: Test with pytest
-      run: |
-        pytest
+      run: pytest --cov app
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
