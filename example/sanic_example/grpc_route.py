@@ -4,7 +4,7 @@ from typing import Any
 
 import grpc
 from pydantic import BaseModel
-from sanic import Sanic, response
+from sanic import Sanic
 
 from example.common.response_model import gen_response_model_handle
 from example.grpc_common.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
@@ -24,8 +24,8 @@ def add_grpc_gateway_route(app: Sanic) -> None:
     from pait.util.grpc_inspect.stub import GrpcModel
     from pait.util.grpc_inspect.types import Message
 
-    def _make_response(resp_dict: dict) -> response.HTTPResponse:
-        return response.json({"code": 0, "msg": "", "data": resp_dict})
+    def _make_response(resp_dict: dict) -> dict:
+        return {"code": 0, "msg": "", "data": resp_dict}
 
     class CustomerGrpcGatewayRoute(GrpcGatewayRoute):
         def gen_route(self, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]) -> Callable:

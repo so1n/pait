@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 import grpc
-from flask import Flask, Response
+from flask import Flask
 from pydantic import BaseModel
 
 from example.common.response_model import gen_response_model_handle
@@ -20,14 +20,12 @@ def add_grpc_gateway_route(app: Flask) -> None:
     from typing import Callable, Type
     from uuid import uuid4
 
-    from flask import jsonify
-
     from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2
     from pait.util.grpc_inspect.stub import GrpcModel
     from pait.util.grpc_inspect.types import Message
 
-    def _make_response(resp_dict: dict) -> Response:
-        return jsonify({"code": 0, "msg": "", "data": resp_dict})
+    def _make_response(resp_dict: dict) -> dict:
+        return {"code": 0, "msg": "", "data": resp_dict}
 
     class CustomerGrpcGatewayRoute(GrpcGatewayRoute):
         def gen_route(self, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]) -> Callable:
@@ -70,6 +68,7 @@ def add_grpc_gateway_route(app: Flask) -> None:
         parse_msg_desc="by_mypy",
         gen_response_model_handle=gen_response_model_handle,
         make_response=_make_response,
+        import_name=__name__,
     )
     grpc_gateway_route.init_channel(grpc.intercept_channel(grpc.insecure_channel("0.0.0.0:9000")))
     set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest

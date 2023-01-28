@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, Response
 
 from pait.plugin.base import PluginManager, PluginProtocol
 
@@ -10,7 +10,7 @@ class JsonProtocol(PluginProtocol):
     headers: Optional[dict]
     media_type: Optional[str]
 
-    def gen_response(self, response: Any) -> JSONResponse:
+    def gen_response(self, response: Any) -> Response:
         return JSONResponse(response, status_code=self.status_code, headers=self.headers, media_type=self.media_type)
 
     @classmethod

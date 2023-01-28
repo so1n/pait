@@ -7,6 +7,7 @@ import grpc
 from protobuf_to_pydantic import msg_to_pydantic_model
 from pydantic import BaseModel
 
+from pait.app.base.simple_route import MediaTypeEnum, SimpleRoute
 from pait.core import Pait
 from pait.field import BaseField, Body, Query
 from pait.model.response import BaseResponseModel, JsonResponseModel
@@ -31,7 +32,8 @@ def _gen_response_model_handle(grpc_model: GrpcModel) -> Type[BaseResponseModel]
 
 class BaseGrpcGatewayRoute(object):
     pait: Pait
-    make_response: Callable
+    make_response: staticmethod = staticmethod(lambda x: x)
+    add_multi_simple_route: staticmethod
     channel: Union[grpc.Channel, grpc.aio.Channel]
 
     _grpc_tag: Tag = Tag("grpc", desc="grpc route")
@@ -49,6 +51,7 @@ class BaseGrpcGatewayRoute(object):
         make_response: Optional[Callable] = None,
         url_handler: Callable[[str], str] = lambda x: x.replace(".", "-"),
         gen_response_model_handle: Optional[Callable[[GrpcModel], Type[BaseResponseModel]]] = None,
+        **kwargs: Any,
     ):
         """
         :param app: Instance object of the web framework
@@ -64,6 +67,7 @@ class BaseGrpcGatewayRoute(object):
         :param make_response: The method of converting Message to Response object
         :param url_handler: url processing function, the default symbol: `.` is converted to `-`
         :param gen_response_model_handle: Methods for generating Open API response objects
+        :param kwargs: Extended parameters supported by the `add multi simple route` function of different frameworks
         """
         self.prefix: str = prefix
         self.title: str = title
@@ -83,7 +87,7 @@ class BaseGrpcGatewayRoute(object):
         self._tag_dict: Dict[str, Tag] = {}
         self.method_func_dict: Dict[str, Callable] = {}
 
-        self._add_route(app)
+        self._add_route(app, **kwargs)
 
     def _gen_request_pydantic_class_from_message(self, message: Type[Message], http_method: str) -> Type[BaseModel]:
         """Generate the corresponding request body according to the grpc message(pydantic request)"""
@@ -171,9 +175,26 @@ class BaseGrpcGatewayRoute(object):
         _route = pait(feature_code=grpc_model.method)(_route)
         return _route
 
-    def _add_route(self, app: Any) -> Any:  # type: ignore
+    def _add_route(self, app: Any, **kwargs: Any) -> Any:  # type: ignore
         """Add the generated routing function to the corresponding web framework instance"""
-        raise NotImplementedError()
+        for parse_stub in self.parse_stub_list:
+            simple_route: List[SimpleRoute] = []
+            for _, grpc_model_list in parse_stub.method_list_dict.items():
+                for grpc_model in grpc_model_list:
+                    _route = self._gen_route_func(grpc_model)
+                    if not _route:
+                        continue
+                    simple_route.append(
+                        SimpleRoute(
+                            url=self.url_handler(grpc_model.grpc_service_model.url),
+                            route=_route,
+                            methods=[grpc_model.grpc_service_model.http_method],
+                            media_type_enum=MediaTypeEnum.json,
+                        )
+                    )
+            self.add_multi_simple_route(
+                app, *simple_route, prefix=self.prefix, title=self.title + parse_stub.name, **kwargs
+            )
 
     def reinit_channel(
         self, channel: Union[grpc.Channel, grpc.aio.Channel]

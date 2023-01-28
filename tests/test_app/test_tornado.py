@@ -365,7 +365,7 @@ class TestTornadoGrpc(BaseTestTornado):
                 body='{"uid": "10086"}',
                 headers={"token": "fail_token"},
             ).body
-            assert b"500: Internal Server Error" in body
+            assert body == b'{"code": -1, "msg": "Not found user by token:fail_token"}'
             message: GetUidByTokenRequest = queue.get(timeout=1)
             assert message.token == "fail_token"
 

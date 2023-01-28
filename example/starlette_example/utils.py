@@ -17,7 +17,6 @@ global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
 def api_exception(request: Request, exc: Exception) -> JSONResponse:
     if isinstance(exc, TipException):
         exc = exc.exc
-
     if isinstance(exc, PaitBaseParamException):
         return JSONResponse({"code": -1, "msg": f"error param:{exc.param}, {exc.msg}"})
     elif isinstance(exc, PaitBaseException):

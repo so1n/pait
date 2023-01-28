@@ -47,7 +47,6 @@ class OpenAPIRespModel(JsonResponseModel):
 
 
 APP_T = TypeVar("APP_T")
-ResponseT = TypeVar("ResponseT")
 
 
 default_doc_fn_dict: Dict[str, Callable] = {key.split("_")[1]: getattr(web_ui, key) for key in web_ui.__all__}
@@ -57,15 +56,14 @@ class DocEnum(str, Enum):
     pass
 
 
-class AddDocRoute(Generic[APP_T, ResponseT]):
+class AddDocRoute(Generic[APP_T]):
     not_found_exc: Exception
-    html_response: staticmethod
-    json_response: staticmethod
     pait_class: Type[Pait]
     load_app: staticmethod
 
     def __init__(
         self,
+        app: APP_T,
         scheme: Optional[str] = None,
         openapi_json_url_only_path: bool = False,
         prefix: str = "",
@@ -73,10 +71,10 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
         title: str = "",
         project_name: str = "",
         doc_fn_dict: Optional[Dict[str, Callable]] = None,
-        app: APP_T = None,
         openapi: Optional[Type[OpenAPI]] = None,
     ):
         """
+        :param app: The app instance to which the doc route is bound
         :param scheme: The scheme of the specified url, if the value is empty,
             it will be automatically selected according to the request
 
@@ -96,7 +94,6 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
         :param openapi: OpenAPI class
         :param project_name: see `pait.app.{web framework}._load_app.load_app`
         :param doc_fn_dict: doc ui dict, default `pait.app.base.doc_route.default_doc_fn_dict`
-        :param app: The app instance to which the doc route is bound
         """
         if pin_code:
             logging.info(f"doc route start pin code:{pin_code}")
@@ -115,10 +112,7 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
             tag=(Tag("pait_doc", desc="pait default doc route"),),
             group="pait_doc",
         )
-
-        if app:
-            self._is_gen = True
-            self._gen_route(app)
+        self.gen_route(app)
 
     def _get_request_pin_code(
         self,
@@ -197,9 +191,9 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
         def _doc_route(
             route_path: dynamic_enum_class = Path.i(description="doc ui html"),  # type: ignore
             url: str = Depends.i(self._gen_url_fn()),
-        ) -> ResponseT:
+        ) -> str:
             get_doc_route: Callable = self._doc_fn_dict[route_path.value]  # type: ignore
-            return self.html_response(get_doc_route(url, title=self.title))
+            return get_doc_route(url, title=self.title)
 
         _doc_route.__name__ = self.title + "doc_route"
         _doc_route.__qualname__ = _doc_route.__qualname__.replace("._doc_route", "." + _doc_route.__name__)
@@ -213,7 +207,7 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
         )
         def _openapi_route(
             url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map(extra_key=True)),
-        ) -> ResponseT:
+        ) -> dict:
             re = pait_context.get().app_helper.request.request_extend()
             _scheme: str = self.scheme or re.scheme
             pait_dict: Dict[str, PaitCoreModel] = self.load_app(app, project_name=self.project_name)
@@ -223,8 +217,7 @@ class AddDocRoute(Generic[APP_T, ResponseT]):
                     openapi_info_model=InfoModel(title=self.title),
                     server_model_list=[ServerModel(url=f"{_scheme}://{re.hostname}")],
                 )
-                response: ResponseT = self.json_response(json.loads(pait_openapi.content()))
-            return response
+                return json.loads(pait_openapi.content())
 
         return _openapi_route
 

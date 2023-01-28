@@ -12,7 +12,6 @@ from any_api.openapi.model.request_model import RequestModel
 from pydantic import BaseModel, Field
 from pydantic.fields import FieldInfo, Undefined
 
-from pait.app.base.security.base import BaseSecurity
 from pait.field import BaseField, Depends
 from pait.g import config
 from pait.model.core import PaitCoreModel
@@ -145,6 +144,8 @@ class ParsePaitModel(object):
                 self._parse_base_model(parameter.annotation)
 
     def _parse_call_type(self, call_type: CallType, pait_model: PaitCoreModel) -> None:
+        from pait.app.base.security.base import BaseSecurity
+
         if isinstance(call_type, BaseSecurity):
             if self.security_dict.get(call_type.security_name, None) not in (call_type.model, None):
                 raise ValueError(

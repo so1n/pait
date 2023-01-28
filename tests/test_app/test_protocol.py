@@ -11,10 +11,14 @@ other_app: list = [importlib.import_module(f"pait.app.{i}") for i in app_list]
 class TestProtocol:
     @staticmethod
     def _real_check_func_type_hint(
-        app_signature: inspect.Signature, any_app_signature: inspect.Signature, app_name: str, func_name: str
+        app_signature: inspect.Signature,
+        any_app_signature: inspect.Signature,
+        app_name: str,
+        func_name: str,
+        support_extra_param: bool = False,
     ) -> None:
         assert app_signature.return_annotation == any_app_signature.return_annotation
-        if len(app_signature.parameters) != len(any_app_signature.parameters):
+        if not support_extra_param and len(app_signature.parameters) != len(any_app_signature.parameters):
             raise ValueError(f"{app_name}' func <{func_name}> param length error")
         for param, param_annotation in any_app_signature.parameters.items():
             if param == "app":
@@ -24,11 +28,17 @@ class TestProtocol:
             except KeyError as e:
                 raise KeyError(f"{app_name}'func <{func_name}> not found key {e}")
 
-    def _check_func_type_hint(self, func_name: str) -> None:
+    def _check_func_type_hint(
+        self,
+        func_name: str,
+        support_extra_param: bool = False,
+    ) -> None:
         any_app_signature: inspect.Signature = inspect.signature(getattr(any_app, func_name))
         for app in other_app:
             app_signature: inspect.Signature = inspect.signature(getattr(app, func_name))
-            self._real_check_func_type_hint(app_signature, any_app_signature, app.__name__, func_name)
+            self._real_check_func_type_hint(
+                app_signature, any_app_signature, app.__name__, func_name, support_extra_param=support_extra_param
+            )
 
     def _check_func_type_hint_by_other_module(self, module_name: str, func_name: str) -> None:
         for app in other_app:
@@ -70,3 +80,9 @@ class TestProtocol:
 
     def test_security_api_key(self) -> None:
         self._check_func_type_hint_by_other_module("security.api_key", "api_key")
+
+    def test_add_simple_route(self) -> None:
+        self._check_func_type_hint(any_app.add_simple_route.__name__, support_extra_param=True)
+
+    def test_add_multi_simple_route(self) -> None:
+        self._check_func_type_hint(any_app.add_multi_simple_route.__name__, support_extra_param=True)
