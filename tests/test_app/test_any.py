@@ -1,5 +1,6 @@
 import importlib
 import sys
+from typing import Any
 from unittest import mock
 
 import pytest
@@ -9,6 +10,7 @@ from pait.app import any
 from pait.app.auto_load_app import app_list, auto_load_app_class
 from pait.app.base import BaseAppHelper
 from pait.app.base.adapter.request import BaseRequest
+from pait.app.base.simple_route import SimpleRoute
 
 
 class BaseTestApp:
@@ -138,6 +140,51 @@ class TestPait(BaseTestApp):
 
         with pytest.raises(NotImplementedError) as e:
             any.load_app(Demo)
+
+        exec_msg: str = e.value.args[0]
+        assert exec_msg.startswith("Pait not support")
+
+
+def demo() -> Any:
+    return None
+
+
+empty_simple_route: SimpleRoute = SimpleRoute(url="/", methods=["get"], route=demo)
+
+
+class TestAddSimpleRoute(BaseTestApp):
+    def test_add_simple_route(self, mocker: MockFixture) -> None:
+        for i in app_list:
+            patch = mocker.patch(f"pait.app.{i}.add_simple_route")
+            any.add_simple_route(
+                importlib.import_module(f"example.{i}_example.main_example").create_app(),  # type: ignore
+                empty_simple_route,
+            )
+            patch.assert_called()
+
+        class Demo:
+            pass
+
+        with pytest.raises(NotImplementedError) as e:
+            any.add_simple_route(Demo, empty_simple_route)
+
+        exec_msg: str = e.value.args[0]
+        assert exec_msg.startswith("Pait not support")
+
+    def test_add_multi_simple_route(self, mocker: MockFixture) -> None:
+        for i in app_list:
+            patch = mocker.patch(f"pait.app.{i}.add_multi_simple_route")
+            any.add_multi_simple_route(
+                importlib.import_module(f"example.{i}_example.main_example").create_app(),  # type: ignore
+                empty_simple_route,
+            )
+            patch.assert_called()
+
+        class Demo:
+            pass
+
+        with pytest.raises(NotImplementedError) as e:
+            any.add_multi_simple_route(Demo, empty_simple_route)
 
         exec_msg: str = e.value.args[0]
         assert exec_msg.startswith("Pait not support")

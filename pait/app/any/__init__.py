@@ -12,6 +12,7 @@ from pait.model.response import BaseResponseModel
 from pait.model.status import PaitStatus
 
 if TYPE_CHECKING:
+    from pait.app.base.simple_route import SimpleRoute
     from pait.openapi.openapi import OpenAPI
     from pait.param_handle import BaseParamHandler
 
@@ -51,6 +52,7 @@ def add_doc_route(
 ) -> None:
     return base_call_func(
         "add_doc_route",
+        app,
         app=app,
         scheme=scheme,
         openapi_json_url_only_path=openapi_json_url_only_path,
@@ -113,7 +115,7 @@ def pait(
         plugin_list=plugin_list,
         append_plugin_list=append_plugin_list,
         post_plugin_list=post_plugin_list,
-        append_post_plugin_list=append_pre_depend_list,
+        append_post_plugin_list=append_post_plugin_list,
         param_handler_plugin=param_handler_plugin,
         feature_code=feature_code,
     )
@@ -153,3 +155,16 @@ def get_app_attribute(app: Any, key: str) -> Any:
         return getattr(app.ctx, key)
     elif app_name == "tornado":
         return app.settings[key]
+
+
+def add_simple_route(
+    app: Any,
+    simple_route: "SimpleRoute",
+) -> None:
+    base_call_func("add_simple_route", app, simple_route, app=app)
+
+
+def add_multi_simple_route(
+    app: Any, *simple_route_list: "SimpleRoute", prefix: str = "/", title: str = "", **kwargs: Any
+) -> None:
+    base_call_func("add_multi_simple_route", app, *simple_route_list, app=app, prefix=prefix, title=title, **kwargs)

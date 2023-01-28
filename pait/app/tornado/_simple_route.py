@@ -23,7 +23,7 @@ class SimpleRoutePlugin(JsonProtocol):
 def _add_route(
     app: Application,
     request_handler: Type[RequestHandler],
-    *simple_route_list: SimpleRoute,
+    *simple_route_list: "SimpleRoute",
     prefix: str = "",
     title: str = "",
 ) -> None:
@@ -68,14 +68,14 @@ def _add_route(
 
 
 def add_simple_route(
-    app: Application, simple_route: SimpleRoute, request_handler: Type[RequestHandler] = RequestHandler
+    app: Application, simple_route: "SimpleRoute", request_handler: Type[RequestHandler] = RequestHandler
 ) -> None:
     _add_route(app, request_handler, simple_route)
 
 
 def add_multi_simple_route(
     app: Application,
-    *simple_route_list: SimpleRoute,
+    *simple_route_list: "SimpleRoute",
     prefix: str = "/",
     title: str = "",
     request_handler: Type[RequestHandler] = RequestHandler,

@@ -86,7 +86,7 @@ class SimpleRoutePlugin(_SimpleRoutePlugin):
 
 def add_simple_route(
     app: Starlette,
-    simple_route: SimpleRoute,
+    simple_route: "SimpleRoute",
 ) -> None:
     add_route_plugin(simple_route, SimpleRoutePlugin)
     app.add_route(simple_route.url, simple_route.route, methods=simple_route.methods)
@@ -94,7 +94,7 @@ def add_simple_route(
 
 def add_multi_simple_route(
     app: Starlette,
-    *simple_route_list: SimpleRoute,
+    *simple_route_list: "SimpleRoute",
     prefix: str = "/",
     title: str = "",
 ) -> None:

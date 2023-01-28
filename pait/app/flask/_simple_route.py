@@ -6,7 +6,7 @@ from pait.app.base.simple_route import MediaTypeEnum, SimpleRoute
 from pait.app.base.simple_route import SimpleRoutePlugin as _SimpleRoutePlugin
 from pait.app.base.simple_route import add_route_plugin
 
-__all__ = ["SimpleRoute", "MediaTypeEnum", "add_route_plugin", "add_multi_simple_route"]
+__all__ = ["SimpleRoute", "MediaTypeEnum", "add_simple_route", "add_multi_simple_route"]
 
 
 class SimpleRoutePlugin(_SimpleRoutePlugin):
@@ -16,7 +16,7 @@ class SimpleRoutePlugin(_SimpleRoutePlugin):
 
 def add_simple_route(
     app: Flask,
-    simple_route: SimpleRoute,
+    simple_route: "SimpleRoute",
 ) -> None:
     add_route_plugin(simple_route, SimpleRoutePlugin)
     app.add_url_rule(simple_route.url, view_func=simple_route.route, methods=simple_route.methods)
@@ -24,7 +24,7 @@ def add_simple_route(
 
 def add_multi_simple_route(
     app: Flask,
-    *simple_route_list: SimpleRoute,
+    *simple_route_list: "SimpleRoute",
     prefix: str = "/",
     title: str = "",
     import_name: str = "",
