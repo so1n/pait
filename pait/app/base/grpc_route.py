@@ -49,6 +49,7 @@ class BaseGrpcGatewayRoute(object):
         make_response: Optional[Callable] = None,
         url_handler: Callable[[str], str] = lambda x: x.replace(".", "-"),
         gen_response_model_handle: Optional[Callable[[GrpcModel], Type[BaseResponseModel]]] = None,
+        **kwargs: Any,
     ):
         """
         :param app: Instance object of the web framework
@@ -83,6 +84,11 @@ class BaseGrpcGatewayRoute(object):
         self._tag_dict: Dict[str, Tag] = {}
         self.method_func_dict: Dict[str, Callable] = {}
 
+        for k, v in kwargs.items():
+            if hasattr(self, k):
+                setattr(self, k, v)
+            else:
+                raise KeyError(f"{self} not support param:{k}")
         self._add_route(app)
 
     def _gen_request_pydantic_class_from_message(self, message: Type[Message], http_method: str) -> Type[BaseModel]:

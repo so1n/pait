@@ -6,6 +6,7 @@ from tornado.web import Application, RequestHandler
 
 from pait.app.base.doc_route import AddDocRoute as _AddDocRoute
 from pait.app.base.doc_route import OpenAPI
+from pait.app.tornado._simple_route import SimpleRoute, add_multi_simple_route
 from pait.app.tornado.plugin.base import JsonProtocol
 
 from ._load_app import load_app
@@ -38,9 +39,6 @@ class AddDocRoute(_AddDocRoute[Application, None]):
     load_app = staticmethod(load_app)
 
     def _gen_route(self, app: Application) -> Any:
-        self._doc_pait: Pait = self._doc_pait.create_sub_pait(append_plugin_list=[WriteRespPlugin.build()])
-        doc_route_self: "AddDocRoute" = self
-
         class BaseHandle(RequestHandler, ABC):
             def _handle_request_exception(self, exc: BaseException) -> None:
                 if isinstance(exc, NotFound):
@@ -56,45 +54,14 @@ class AddDocRoute(_AddDocRoute[Application, None]):
                     self.set_status(500)  # pragma: no cover
                     self.finish()  # pragma: no cover
 
-        class GetdocHtmlHandle(BaseHandle, ABC):
-            get = self._get_doc_route()
-
-        class OpenApiHandle(BaseHandle, ABC):
-            get = self._get_openapi_route(app)
-
-        prefix: str = doc_route_self.prefix
-        if not prefix.endswith("/"):
-            prefix = prefix + "/"
-        # Method 1
-        # app.add_handlers(
-        #     r".*$",
-        #     [
-        #         (r"{}redoc".format(prefix), GetRedocHtmlHandle),
-        #         (r"{}swagger".format(prefix), GetSwaggerUiHtmlHandle),
-        #         (r"{}openapi.json".format(prefix), OpenApiHandle),
-        #     ]
-        # )
-        #
-        # Method 2
-        # app.add_handlers(
-        # app.default_router.add_rules(
-        #     [
-        #         (r"{}redoc".format(prefix), GetRedocHtmlHandle),
-        #         (r"{}swagger".format(prefix), GetSwaggerUiHtmlHandle),
-        #         (r"{}openapi.json".format(prefix), OpenApiHandle),
-        #     ]
-        # )
-        #
-        # Method 3
-        app.wildcard_router.add_rules(
-            [
-                (r"{}openapi.json".format(prefix), OpenApiHandle),
-                (r"{}(?P<route_path>\w+)".format(prefix), GetdocHtmlHandle),
-            ]
+        add_multi_simple_route(
+            app,
+            SimpleRoute(url=r"/(?P<route_path>\w+)", route=self._get_doc_route(), methods=["GET"]),
+            SimpleRoute(url="/openapi.json", route=self._get_openapi_route(app), methods=["GET"]),
+            prefix=self.prefix,
+            title=self.title,
+            request_handler=BaseHandle,
         )
-        from tornado.web import AnyMatches, Rule, _ApplicationRouter
-
-        app.default_router = _ApplicationRouter(app, [Rule(AnyMatches(), app.wildcard_router)])
 
 
 def add_doc_route(

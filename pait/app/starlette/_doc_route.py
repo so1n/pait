@@ -3,10 +3,10 @@ from typing import Any, Dict, Optional, Set, Type
 from starlette.applications import Starlette
 from starlette.exceptions import HTTPException
 from starlette.responses import HTMLResponse, JSONResponse, Response
-from starlette.routing import Mount, Route
 
 from pait.app.base.doc_route import AddDocRoute as _AddDocRoute
 from pait.app.base.doc_route import OpenAPI
+from pait.app.starlette._simple_route import SimpleRoute, add_multi_simple_route
 
 from ._load_app import load_app
 from ._pait import Pait
@@ -29,27 +29,13 @@ class AddDocRoute(_AddDocRoute[Starlette, Response]):
     load_app = staticmethod(load_app)
 
     def _gen_route(self, app: Starlette) -> Any:
-        # prefix `/` route group must be behind other route group
-        if app not in prefix_set_dict:
-            prefix_set: Set[str] = set()
-            prefix_set_dict[app] = prefix_set
-        else:
-            prefix_set = prefix_set_dict[app]
-        for prefix in prefix_set:
-            if self.prefix.startswith(prefix):
-                raise RuntimeError(f"prefix:{prefix} already exists, can use:{self.prefix}")
-
-        prefix_set.add(self.prefix)
-
-        route: Mount = Mount(
-            self.prefix,
-            name=self.title,
-            routes=[
-                Route("/openapi.json", self._get_openapi_route(app), methods=["GET"]),
-                Route("/{route_path}", self._get_doc_route(), methods=["GET"]),
-            ],
+        add_multi_simple_route(
+            app,
+            SimpleRoute(url="/openapi.json", route=self._get_openapi_route(app), methods=["GET"]),
+            SimpleRoute(url="/{route_path}", route=self._get_doc_route(), methods=["GET"]),
+            prefix=self.prefix,
+            title=self.title,
         )
-        app.routes.append(route)
 
 
 def add_doc_route(

@@ -1,10 +1,11 @@
 from typing import Any, Optional, Type
 
-from flask import Blueprint, Flask, Response, jsonify
+from flask import Flask, Response, jsonify
 from werkzeug.exceptions import NotFound
 
 from pait.app.base.doc_route import AddDocRoute as _AddDocRoute
 from pait.app.base.doc_route import OpenAPI
+from pait.app.flask._simple_route import SimpleRoute, add_multi_simple_route
 
 from ._load_app import load_app
 from ._pait import Pait
@@ -20,10 +21,14 @@ class AddDocRoute(_AddDocRoute[Flask, Response]):
     load_app = staticmethod(load_app)
 
     def _gen_route(self, app: Flask) -> Any:
-        blueprint: Blueprint = Blueprint(self.title, __name__, url_prefix=self.prefix)
-        blueprint.add_url_rule("/<path:route_path>", "doc ui route", view_func=self._get_doc_route(), methods=["GET"])
-        blueprint.add_url_rule("/openapi.json", view_func=self._get_openapi_route(app), methods=["GET"])
-        app.register_blueprint(blueprint)
+        add_multi_simple_route(
+            app,
+            SimpleRoute(url="/<path:route_path>", route=self._get_doc_route(), methods=["GET"]),
+            SimpleRoute(url="/openapi.json", route=self._get_openapi_route(app), methods=["GET"]),
+            prefix=self.prefix,
+            title=self.title,
+            import_name=__name__,
+        )
 
 
 def add_doc_route(
