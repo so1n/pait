@@ -2,11 +2,10 @@ from typing import Any, Dict, Optional, Set, Type
 
 from starlette.applications import Starlette
 from starlette.exceptions import HTTPException
-from starlette.responses import HTMLResponse, JSONResponse, Response
 
 from pait.app.base.doc_route import AddDocRoute as _AddDocRoute
 from pait.app.base.doc_route import OpenAPI
-from pait.app.starlette._simple_route import SimpleRoute, add_multi_simple_route
+from pait.app.starlette._simple_route import MediaTypeEnum, SimpleRoute, add_multi_simple_route
 
 from ._load_app import load_app
 from ._pait import Pait
@@ -15,7 +14,7 @@ __all__ = ["AddDocRoute", "add_doc_route"]
 prefix_set_dict: Dict[Starlette, Set[str]] = {}
 
 
-class AddDocRoute(_AddDocRoute[Starlette, Response]):
+class AddDocRoute(_AddDocRoute[Starlette]):
     not_found_exc: Exception = HTTPException(
         status_code=404,
         detail=(
@@ -23,8 +22,6 @@ class AddDocRoute(_AddDocRoute[Starlette, Response]):
             " the URL manually please check your spelling and try again."
         ),
     )
-    html_response = HTMLResponse
-    json_response = JSONResponse
     pait_class = Pait
     load_app = staticmethod(load_app)
 
@@ -32,7 +29,9 @@ class AddDocRoute(_AddDocRoute[Starlette, Response]):
         add_multi_simple_route(
             app,
             SimpleRoute(url="/openapi.json", route=self._get_openapi_route(app), methods=["GET"]),
-            SimpleRoute(url="/{route_path}", route=self._get_doc_route(), methods=["GET"]),
+            SimpleRoute(
+                url="/{route_path}", route=self._get_doc_route(), methods=["GET"], media_type_enum=MediaTypeEnum.html
+            ),
             prefix=self.prefix,
             title=self.title,
         )
@@ -45,7 +44,7 @@ def add_doc_route(
     prefix: str = "",
     pin_code: str = "",
     title: str = "",
-    openapi: Optional[Type[OpenAPI]] = None,
+    openapi: Optional[Type["OpenAPI"]] = None,
     project_name: str = "",
 ) -> None:
     AddDocRoute(

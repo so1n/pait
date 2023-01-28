@@ -15,6 +15,7 @@ class JsonProtocol(PluginProtocol):
         if self.headers is not None:
             for k, v in self.headers.items():
                 tornado_handle.set_header(k, v)
+        tornado_handle.set_header("content-type", self.content_type)
         tornado_handle.write(response)
         return response
 

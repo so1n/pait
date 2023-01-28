@@ -4,16 +4,16 @@ from typing import Any, Optional, Type
 from tornado.routing import _RuleList
 from tornado.web import AnyMatches, Application, RequestHandler, Rule, _ApplicationRouter
 
-from pait.app.base.simple_route import SimpleRoute
+from pait.app.base.simple_route import MediaTypeEnum, SimpleRoute
 from pait.app.tornado.plugin.base import JsonProtocol
 from pait.model.core import PaitCoreModel
 
+__all__ = ["MediaTypeEnum", "SimpleRoute", "add_simple_route", "add_multi_simple_route"]
 
-class WriteJsonRespPlugin(JsonProtocol):
-    """Support Tornado to load json routing functions with return values"""
 
+class SimpleRoutePlugin(JsonProtocol):
     async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        response: Any = super(WriteJsonRespPlugin, self).__call__(*args, **kwargs)
+        response: Any = super(SimpleRoutePlugin, self).__call__(*args, **kwargs)
         if asyncio.iscoroutine(response):
             response = await response
         tornado_handle: RequestHandler = args[0]
@@ -33,7 +33,7 @@ def _add_route(
         pait_core_model: Optional["PaitCoreModel"] = getattr(simple_route.route, "pait_core_model", None)
         if not pait_core_model:
             raise RuntimeError(f"{simple_route.route} must be a routing function decorated with pait")
-        pait_core_model.add_plugin([WriteJsonRespPlugin.build()], [])
+        pait_core_model.add_plugin([SimpleRoutePlugin.build(content_type=simple_route.media_type_enum.value)], [])
 
         if title:
             model_str: str = f"{__name__}.{title}.{simple_route.route.__name__}"

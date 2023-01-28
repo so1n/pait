@@ -10,9 +10,9 @@ from pait.core import PluginManager, Tag
 from pait.model.core import PaitCoreModel
 from pait.model.response import BaseResponseModel
 from pait.model.status import PaitStatus
-from pait.openapi.openapi import OpenAPI
 
 if TYPE_CHECKING:
+    from pait.openapi.openapi import OpenAPI
     from pait.param_handle import BaseParamHandler
 
 try:
@@ -46,7 +46,7 @@ def add_doc_route(
     prefix: str = "",
     pin_code: str = "",
     title: str = "",
-    openapi: Optional[Type[OpenAPI]] = None,
+    openapi: Optional[Type["OpenAPI"]] = None,
     project_name: str = "",
 ) -> None:
     return base_call_func(
