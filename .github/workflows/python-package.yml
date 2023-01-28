@@ -39,7 +39,7 @@ jobs:
       uses: supercharge/redis-github-action@1.4.0
       with:
         redis-version: 6
-    - name: Test with pytest
-      run: pytest --cov app
+    - name: Test with pytest cov
+      run: coverage run -m pytest
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
