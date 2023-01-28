@@ -11,6 +11,9 @@
 ---
 
 # pait
+
+[![codecov](https://codecov.io/gh/so1n/pait/branch/master/graph/badge.svg?token=NEVM1VODHR)](https://codecov.io/gh/so1n/pait)
+
 Pait is an api tool that can be used in any python web framework (currently only `flask`, `starlette`, `sanic`, `tornado` are supported, other frameworks will be supported once Pait is stable).
 
 > Note:
