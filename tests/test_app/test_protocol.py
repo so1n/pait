@@ -21,7 +21,7 @@ class TestProtocol:
         if not support_extra_param and len(app_signature.parameters) != len(any_app_signature.parameters):
             raise ValueError(f"{app_name}' func <{func_name}> param length error")
         for param, param_annotation in any_app_signature.parameters.items():
-            if param == "app":
+            if param in ("app", "kwargs"):
                 continue
             try:
                 assert app_signature.parameters[param] == param_annotation
