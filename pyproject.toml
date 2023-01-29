@@ -17,6 +17,13 @@ redis = { version = "^4.2.2", optional = true }
 # any-api = "0.1.0.1"
 any-api = {git = "https://github.com/so1n/any-api.git", branch="master"}
 
+[tool.poetry.urls]
+"Source" = "https://github.com/so1n/pait"
+"Tracker" = "https://github.com/so1n/pait/issues"
+"Changelog" = "https://github.com/so1n/pait/blob/master/CHANGELOG.md"
+"Documentation" = "https://so1n.me/pait/"
+
+
 [tool.poetry.extras]
 redis = ["redis"]
 protobuf = ["protobuf-to-pydantic"]

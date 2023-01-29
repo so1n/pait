@@ -15,9 +15,10 @@ Function Changes List:
 - Field adds the parameter `openapi_include`, determines whether the field can be resolved to the Open API.
 - The Mock plugin adds a new parameter example_column_name to specify the value of the Field from which the mock data is to be retrieved
 - Refactor the Mock plugin's API to reduce duplicate code
+- Support for adding simple routing to web frameworks (experimental)
 
 API Changes:
-- `@pait` The tag parameter type no longer supports String, only `Tag` is supported. e.g:
+- `@pait`: The tag parameter type no longer supports String, only support `Tag` class. e.g:
    ```python
    from pait.app.starlette import pait
    from pait import Tag
@@ -26,27 +27,29 @@ API Changes:
    def demo() -> None:
        pass
    ```
-- `pait.model.response.PaitBaseResponseModel`change name to`BaseResponseModel`
-   ```python
-   from pait.model.response import BaseResponseModel
-   ```
-- The `ResponseModel.header` parameter type no longer supports dict, only support `pydantic.BaseModel`. e.g:
-   ```python
-   from pait import HtmlResponseModel
-   from pydantic import BaseModel, Field
+- `pait.model.response`:
+  - `pait.model.response.PaitBaseResponseModel`change name to`BaseResponseModel`
+     ```python
+     from pait.model.response import BaseResponseModel
+     ```
+  - The `ResponseModel.header` parameter type no longer supports dict, only support `pydantic.BaseModel`. e.g:
+     ```python
+     from pait import HtmlResponseModel
+     from pydantic import BaseModel, Field
 
-   class HtmlRespModel(HtmlResponseModel):
-       class HeaderModel(BaseModel):
-           x_example_type: str = Field(default="html", alias="X-Example-Type")
+     class HtmlRespModel(HtmlResponseModel):
+         class HeaderModel(BaseModel):
+             x_example_type: str = Field(default="html", alias="X-Example-Type")
 
-       header: BaseModel = HeaderModel
-       description: str = "html response"
-   ```
-- `pait.api_doc` All APIs of the module have undergone drastic changes, please refer to the document changes
-- The `AddDocRoute` and `add_doc_route` function signatures of the `pait.xxx.doc_route` module have been changed, the `openapi` parameter has been added, and the `open_api_tag_list` parameter has been removed
-- ApiDoc The `pin_code` parameter of url is no longer supported, only the normalized `pin-code` parameter is supported。
+         header: BaseModel = HeaderModel
+         description: str = "html response"
+     ```
+- `pait.api_doc`: All APIs of the module have undergone drastic changes, please refer to the document changes
+- `DocRoute`:
+  - The `AddDocRoute` and `add_doc_route` function signatures of the `pait.xxx.doc_route` module have been changed, the `openapi` parameter has been added, and the `open_api_tag_list` parameter has been removed
+  - The `app` parameter of `AddDocRoute` is required.
+  - The `pin_code` parameter of url is no longer supported, only the normalized `pin-code` parameter is supported。
 - Use `pait.model.tag`,`pait.model.response` and `pait.openapi` module need to install `any-api`
-- The `app` parameter of `AddDocRoute` is required.
 ### 0.8.0
 Rewrite part of the implementation of gRPC Gateway, and transfer some functions to [protobuf_to_pydantic](https://github.com/so1n/protobuf_to_pydantic)
 
