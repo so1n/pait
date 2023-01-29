@@ -2,15 +2,19 @@ from typing import Any
 
 from pait.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin as _AutoCompleteJsonRespPlugin
 
-from .base import JsonProtocol
+from .unified_response import UnifiedResponsePluginProtocol
 
 __all__ = ["AsyncAutoCompleteJsonRespPlugin", "AutoCompleteJsonRespPlugin"]
 
 
-class AutoCompleteJsonRespPlugin(JsonProtocol, _AutoCompleteJsonRespPlugin):
-    async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        response: Any = await super(AutoCompleteJsonRespPlugin, self).__call__(*args, **kwargs)
-        return self.gen_response(response)
+class AutoCompleteJsonRespPlugin(UnifiedResponsePluginProtocol, _AutoCompleteJsonRespPlugin):
+    def _sync_call(self, *args: Any, **kwargs: Any) -> Any:
+        response: Any = super()._sync_call(*args, **kwargs)
+        return self._gen_response(response, *args, **kwargs)
+
+    async def _async_call(self, *args: Any, **kwargs: Any) -> Any:
+        response: Any = await super()._async_call(*args, **kwargs)
+        return self._gen_response(response, *args, **kwargs)
 
 
 class AsyncAutoCompleteJsonRespPlugin(AutoCompleteJsonRespPlugin):

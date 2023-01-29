@@ -1,37 +1,12 @@
-import asyncio
-from contextvars import copy_context
-from functools import partial
-from typing import Any, Type
+from typing import Type
 
 from tornado.routing import _RuleList
 from tornado.web import AnyMatches, Application, RequestHandler, Rule, _ApplicationRouter
 
-from pait.app.base.simple_route import SimpleRoute
-from pait.app.base.simple_route import SimpleRoutePlugin as _SimpleRoutePlugin
-from pait.app.base.simple_route import add_route_plugin
+from pait.app.base.simple_route import SimpleRoute, add_route_plugin
+from pait.app.tornado.plugin.unified_response import UnifiedResponsePlugin
 
 __all__ = ["SimpleRoute", "add_simple_route", "add_multi_simple_route"]
-
-
-class SimpleRoutePlugin(_SimpleRoutePlugin):
-    def _merge(self, return_value: Any, *args: Any, **kwargs: Any) -> Any:
-        tornado_handle: RequestHandler = args[0]
-        tornado_handle.set_status(self.status_code)
-        if self.headers is not None:
-            for k, v in self.headers.items():
-                tornado_handle.set_header(k, v)
-        tornado_handle.set_header("Content-Type", self.media_type)
-        tornado_handle.write(return_value)
-        return return_value
-
-    async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        # Compatible with tornado cannot call sync routing function
-        if self._is_async_func:
-            return await self._async_call(*args, **kwargs)
-        else:
-            return await asyncio.get_event_loop().run_in_executor(
-                None, partial(copy_context().run, partial(self._call, *args, **kwargs))  # Matryoshka
-            )
 
 
 def _add_route(
@@ -44,7 +19,7 @@ def _add_route(
 
     rule_list: _RuleList = []
     for simple_route in simple_route_list:
-        add_route_plugin(simple_route, SimpleRoutePlugin)
+        add_route_plugin(simple_route, UnifiedResponsePlugin)
 
         if title:
             model_str: str = f"{__name__}.{title}.{simple_route.route.__name__}"

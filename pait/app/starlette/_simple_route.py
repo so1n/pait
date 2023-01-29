@@ -1,14 +1,11 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from starlette.applications import Starlette
-from starlette.responses import JSONResponse, Response
 from starlette.routing import Match, Mount, Route
 from starlette.types import Scope
 
-from pait.app.base.simple_route import SimpleRoute
-from pait.app.base.simple_route import SimpleRoutePlugin as _SimpleRoutePlugin
-from pait.app.base.simple_route import add_route_plugin
-from pait.model.response import JsonResponseModel
+from pait.app.base.simple_route import SimpleRoute, add_route_plugin
+from pait.app.starlette.plugin.unified_response import UnifiedResponsePlugin
 
 
 class RouteNode:
@@ -78,18 +75,11 @@ class RouteTrie:
         return None
 
 
-class SimpleRoutePlugin(_SimpleRoutePlugin):
-    def _merge(self, return_value: Any, *args: Any, **kwargs: Any) -> Any:
-        if self.media_type == JsonResponseModel.media_type:
-            return JSONResponse(return_value, status_code=self.status_code, headers=self.headers)
-        return Response(return_value, status_code=self.status_code, headers=self.headers, media_type=self.media_type)
-
-
 def add_simple_route(
     app: Starlette,
     simple_route: "SimpleRoute",
 ) -> None:
-    add_route_plugin(simple_route, SimpleRoutePlugin)
+    add_route_plugin(simple_route, UnifiedResponsePlugin)
     app.add_route(simple_route.url, simple_route.route, methods=simple_route.methods)
 
 
@@ -105,11 +95,11 @@ def add_multi_simple_route(
     route_trie.insert_by_app(app)
     if route_trie.search(prefix):
         for simple_route in simple_route_list:
-            add_route_plugin(simple_route, SimpleRoutePlugin)
+            add_route_plugin(simple_route, UnifiedResponsePlugin)
             add_simple_route(app, simple_route)
     else:
         route_list: List[Route] = []
         for simple_route in simple_route_list:
-            add_route_plugin(simple_route, SimpleRoutePlugin)
+            add_route_plugin(simple_route, UnifiedResponsePlugin)
             route_list.append(Route(simple_route.url, simple_route.route, methods=simple_route.methods))
         app.routes.append(Mount(prefix, name=title, routes=route_list))

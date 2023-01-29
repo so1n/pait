@@ -52,13 +52,7 @@ class MockPluginProtocol(PluginProtocol, Generic[RESP_T]):
         kwargs["pait_response_model"] = pait_response
         return kwargs
 
-    def get_json_response(self) -> RESP_T:
-        raise NotImplementedError()
-
-    def get_html_response(self) -> RESP_T:
-        raise NotImplementedError()
-
-    def get_text_response(self) -> RESP_T:
+    def get_response(self) -> RESP_T:
         raise NotImplementedError()
 
     def get_file_response(self, temporary_file: IO[bytes], f: Any) -> RESP_T:
@@ -71,45 +65,37 @@ class MockPluginProtocol(PluginProtocol, Generic[RESP_T]):
         raise NotImplementedError()
 
     def mock_response(self) -> RESP_T:
-        if issubclass(self.pait_response_model, response.JsonResponseModel):
-            resp: RESP_T = self.get_json_response()
-        elif issubclass(self.pait_response_model, response.TextResponseModel):
-            resp = self.get_text_response()
-        elif issubclass(self.pait_response_model, response.HtmlResponseModel):
-            resp = self.get_html_response()
-        elif issubclass(self.pait_response_model, response.FileResponseModel):
+        if issubclass(self.pait_response_model, response.FileResponseModel):
             named_temporary_file: IO[bytes] = NamedTemporaryFile()
             f: Any = named_temporary_file.__enter__()
             try:
-                resp = self.get_file_response(named_temporary_file, f)
+                resp: RESP_T = self.get_file_response(named_temporary_file, f)
             except Exception as e:
                 exc_type, exc_val, exc_tb = sys.exc_info()
                 named_temporary_file.__exit__(exc_type, exc_val, exc_tb)
                 raise e
-        else:
+            self.set_info_to_response(resp)
+        elif not issubclass(self.pait_response_model, response.BaseResponseModel):
             raise NotImplementedError(f"make_mock_response not support {self.pait_response_model}")
-        self.set_info_to_response(resp)
+        else:
+            resp = self.get_response()
         return resp
 
     async def async_mock_response(self) -> RESP_T:
-        if issubclass(self.pait_response_model, response.JsonResponseModel):
-            resp: RESP_T = self.get_json_response()
-        elif issubclass(self.pait_response_model, response.TextResponseModel):
-            resp = self.get_text_response()
-        elif issubclass(self.pait_response_model, response.HtmlResponseModel):
-            resp = self.get_html_response()
-        elif issubclass(self.pait_response_model, response.FileResponseModel):
+        if issubclass(self.pait_response_model, response.FileResponseModel):
             tf: aiofiles.tempfile.AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()  # type: ignore
             f: Any = await tf.__aenter__()
             try:
-                resp = await self.async_get_file_response(tf, f)
+                resp: RESP_T = await self.async_get_file_response(tf, f)
             except Exception as e:
                 exc_type, exc_val, exc_tb = sys.exc_info()
                 await tf.__aexit__(exc_type, exc_val, exc_tb)
                 raise e
-        else:
+            self.set_info_to_response(resp)
+        elif not issubclass(self.pait_response_model, response.BaseResponseModel):
             raise NotImplementedError(f"make_mock_response not support {self.pait_response_model}")
-        self.set_info_to_response(resp)
+        else:
+            resp = self.get_response()
         return resp
 
     @classmethod

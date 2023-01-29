@@ -1,24 +1,16 @@
-from typing import Any
-
 from flask import Blueprint, Flask
 
-from pait.app.base.simple_route import MediaTypeEnum, SimpleRoute
-from pait.app.base.simple_route import SimpleRoutePlugin as _SimpleRoutePlugin
-from pait.app.base.simple_route import add_route_plugin
+from pait.app.base.simple_route import SimpleRoute, add_route_plugin
+from pait.app.flask.plugin.unified_response import UnifiedResponsePlugin
 
-__all__ = ["SimpleRoute", "MediaTypeEnum", "add_simple_route", "add_multi_simple_route"]
-
-
-class SimpleRoutePlugin(_SimpleRoutePlugin):
-    def _merge(self, return_value: Any, *args: Any, **kwargs: Any) -> Any:
-        return return_value
+__all__ = ["SimpleRoute", "add_simple_route", "add_multi_simple_route"]
 
 
 def add_simple_route(
     app: Flask,
     simple_route: "SimpleRoute",
 ) -> None:
-    add_route_plugin(simple_route, SimpleRoutePlugin)
+    add_route_plugin(simple_route, UnifiedResponsePlugin)
     app.add_url_rule(simple_route.url, view_func=simple_route.route, methods=simple_route.methods)
 
 
@@ -35,6 +27,6 @@ def add_multi_simple_route(
         url_prefix=prefix,
     )
     for simple_route in simple_route_list:
-        add_route_plugin(simple_route, SimpleRoutePlugin)
+        add_route_plugin(simple_route, UnifiedResponsePlugin)
         blueprint.add_url_rule(simple_route.url, view_func=simple_route.route, methods=simple_route.methods)
     app.register_blueprint(blueprint)

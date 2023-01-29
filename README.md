@@ -2,33 +2,33 @@
 <p align="center">
     <em>Python Modern API Tools, fast to code</em>
 </p>
-<p align="center">    
+<p align="center">
     <a href="https://codecov.io/gh/so1n/pait" target="_blank">
         <img src="https://codecov.io/gh/so1n/pait/branch/master/graph/badge.svg?token=NEVM1VODHR" alt="Coverage">
     </a>
 </p>
-<p align="center"> 
+<p align="center">
     <a href="https://pypi.org/project/pait/" target="_blank">
         <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/pait">
     </a>
     <a href="https://pypi.org/project/pait/" target="_blank">
         <img alt="PyPI" src="https://img.shields.io/pypi/v/pait">
-    </a>    
+    </a>
 </p>
-<p align="center"> 
+<p align="center">
     <a href="https://github.com/so1n/pait/actions?query=event%3Apush+branch%3Amaster" target="_blank">
         <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/so1n/pait/python-package.yml">
-    </a> 
+    </a>
     <a href="https://github.com/so1n/pait/releases" target="_blank">
         <img alt="GitHub release (release name instead of tag name)" src="https://img.shields.io/github/v/release/so1n/pait?include_prereleases">
-    </a>  
+    </a>
     <a href="https://github.com/so1n/pait/actions?query=event%3Apush+branch%3Amaster" target="_blank">
         <img src="https://github.com/so1n/pait/actions/workflows/python-package.yml/badge.svg?event=push&branch=master" alt="Test">
-    </a>     
+    </a>
 </p>
 <p align="center">
     <a href="https://github.com/so1n/pait/tree/master/example" target="_blank">
-        <img src="https://img.shields.io/badge/Support%20framework-Flask%2CSanic%2Cstarlette%2Ctornado-brightgreen" alt="Support framework">
+        <img src="https://img.shields.io/badge/Support%20framework-Flask%2CSanic%2CStarlette%2CTornado-brightgreen" alt="Support framework">
     </a>
 </p>
 
