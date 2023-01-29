@@ -7,7 +7,7 @@ import grpc
 from protobuf_to_pydantic import msg_to_pydantic_model
 from pydantic import BaseModel
 
-from pait.app.base.simple_route import MediaTypeEnum, SimpleRoute
+from pait.app.base.simple_route import SimpleRoute
 from pait.core import Pait
 from pait.field import BaseField, Body, Query
 from pait.model.response import BaseResponseModel, JsonResponseModel
@@ -189,7 +189,6 @@ class BaseGrpcGatewayRoute(object):
                             url=self.url_handler(grpc_model.grpc_service_model.url),
                             route=_route,
                             methods=[grpc_model.grpc_service_model.http_method],
-                            media_type_enum=MediaTypeEnum.json,
                         )
                     )
             self.add_multi_simple_route(

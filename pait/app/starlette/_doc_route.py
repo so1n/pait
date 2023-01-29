@@ -5,7 +5,7 @@ from starlette.exceptions import HTTPException
 
 from pait.app.base.doc_route import AddDocRoute as _AddDocRoute
 from pait.app.base.doc_route import OpenAPI
-from pait.app.starlette._simple_route import MediaTypeEnum, SimpleRoute, add_multi_simple_route
+from pait.app.starlette._simple_route import SimpleRoute, add_multi_simple_route
 
 from ._load_app import load_app
 from ._pait import Pait
@@ -29,9 +29,7 @@ class AddDocRoute(_AddDocRoute[Starlette]):
         add_multi_simple_route(
             app,
             SimpleRoute(url="/openapi.json", route=self._get_openapi_route(app), methods=["GET"]),
-            SimpleRoute(
-                url="/{route_path}", route=self._get_doc_route(), methods=["GET"], media_type_enum=MediaTypeEnum.html
-            ),
+            SimpleRoute(url="/{route_path}", route=self._get_doc_route(), methods=["GET"]),
             prefix=self.prefix,
             title=self.title,
         )

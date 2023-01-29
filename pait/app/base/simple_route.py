@@ -1,11 +1,12 @@
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Type
 
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel
 
 from pait.model.core import PaitCoreModel
+from pait.model.response import BaseResponseModel
 from pait.plugin.base import PluginManager, PluginProtocol
-from pait.util import get_real_annotation, is_type
+from pait.util import get_pait_response_model
 
 
 class MediaTypeEnum(str, Enum):
@@ -19,32 +20,30 @@ class SimpleRoute(BaseModel):
     methods: List[str]
     route: Callable
     url: str
-    media_type_enum: MediaTypeEnum = MediaTypeEnum.any
-
-    @root_validator
-    def after_init(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        """Data association after initializing data"""
-        if values["media_type_enum"] is MediaTypeEnum.any:
-            route: Callable = values["route"]
-            annotations: Dict[str, type] = getattr(route, "__annotations__", None)
-            if not annotations:
-                raise ValueError(f"Can not found annotation from {route}")
-            return_annotations = annotations["return"]
-            return_annotations = get_real_annotation(return_annotations, route)
-            if return_annotations is not Any:
-                if is_type(dict, return_annotations):
-                    values["media_type_enum"] = MediaTypeEnum.json
-                elif is_type(str, return_annotations):
-                    values["media_type_enum"] = MediaTypeEnum.text
-                else:
-                    raise RuntimeError(f"Unable to parse media type value for routing function:{route}")
-        return values
 
 
 class SimpleRoutePlugin(PluginProtocol):
     status_code: int
     headers: Optional[dict]
     media_type: Optional[str]
+
+    @classmethod
+    def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
+        kwargs = super().pre_load_hook(pait_core_model, kwargs)
+        if not kwargs["media_type"]:
+            if pait_core_model.response_model_list:
+                pait_response: Type[BaseResponseModel] = get_pait_response_model(
+                    pait_core_model.response_model_list,
+                    target_pait_response_class=kwargs.pop("target_pait_response_class", False),
+                    find_core_response_model=kwargs.pop("find_coro_response_model", None),
+                )
+                kwargs["media_type"] = pait_response.media_type
+            else:
+                raise ValueError(
+                    f"The response model list cannot be empty, please add a response model to {pait_core_model.func}"
+                )
+
+        return kwargs
 
     def _merge(self, return_value: Any, *args: Any, **kwargs: Any) -> Any:
         raise NotImplementedError
@@ -83,4 +82,4 @@ def add_route_plugin(simple_route: SimpleRoute, plugin: Type[SimpleRoutePlugin])
     pait_core_model: Optional["PaitCoreModel"] = getattr(simple_route.route, "pait_core_model", None)
     if not pait_core_model:
         raise RuntimeError(f"{simple_route.route} must be a routing function decorated with pait")
-    pait_core_model.add_plugin([plugin.build(media_type=simple_route.media_type_enum.value)], [])
+    pait_core_model.add_plugin([plugin.build()], [])

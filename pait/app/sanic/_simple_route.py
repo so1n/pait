@@ -2,14 +2,15 @@ from typing import Any
 
 from sanic import Blueprint, HTTPResponse, Sanic, json
 
-from pait.app.base.simple_route import MediaTypeEnum, SimpleRoute
+from pait.app.base.simple_route import SimpleRoute
 from pait.app.base.simple_route import SimpleRoutePlugin as _SimpleRoutePlugin
 from pait.app.base.simple_route import add_route_plugin
+from pait.model.response import JsonResponseModel
 
 
 class SimpleRoutePlugin(_SimpleRoutePlugin):
     def _merge(self, return_value: Any, *args: Any, **kwargs: Any) -> Any:
-        if self.media_type is MediaTypeEnum.json.value:
+        if self.media_type == JsonResponseModel.media_type:
             return json(return_value)
         return HTTPResponse(return_value, headers=self.headers, status=self.status_code, content_type=self.media_type)
 

@@ -5,9 +5,10 @@ from starlette.responses import JSONResponse, Response
 from starlette.routing import Match, Mount, Route
 from starlette.types import Scope
 
-from pait.app.base.simple_route import MediaTypeEnum, SimpleRoute
+from pait.app.base.simple_route import SimpleRoute
 from pait.app.base.simple_route import SimpleRoutePlugin as _SimpleRoutePlugin
 from pait.app.base.simple_route import add_route_plugin
+from pait.model.response import JsonResponseModel
 
 
 class RouteNode:
@@ -79,7 +80,7 @@ class RouteTrie:
 
 class SimpleRoutePlugin(_SimpleRoutePlugin):
     def _merge(self, return_value: Any, *args: Any, **kwargs: Any) -> Any:
-        if self.media_type is MediaTypeEnum.json.value:
+        if self.media_type == JsonResponseModel.media_type:
             return JSONResponse(return_value, status_code=self.status_code, headers=self.headers)
         return Response(return_value, status_code=self.status_code, headers=self.headers, media_type=self.media_type)
 
