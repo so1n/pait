@@ -7,7 +7,7 @@ from redis.asyncio import Redis as AsyncioRedis
 from pait.app import set_app_attribute
 from pait.g import pait_context
 from pait.model.response import FileResponseModel
-from pait.plugin.base import PluginProtocol
+from pait.plugin.base import PostPluginProtocol
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
@@ -17,8 +17,7 @@ if TYPE_CHECKING:
 _cache_plugin_redis_key: str = "_cache_plugin_redis"
 
 
-class CacheResponsePlugin(PluginProtocol):
-    is_pre_core: bool = False
+class CacheResponsePlugin(PostPluginProtocol):
     name: str
     lock_name: str
     include_exc: Optional[Tuple[Type[Exception]]] = None

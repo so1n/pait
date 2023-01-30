@@ -11,7 +11,7 @@ from pait.model.core import ContextModel, PaitCoreModel
 from pait.model.response import BaseResponseModel
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
-from pait.plugin.base import PluginManager, PluginProtocol
+from pait.plugin.base import PluginManager, PluginProtocol, PostPluginProtocol, PrePluginProtocol
 from pait.util import get_func_sig
 
 if TYPE_CHECKING:
@@ -39,8 +39,8 @@ class Pait(object):
         tag: Optional[Tuple[Tag, ...]] = None,
         response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
         # plugin
-        plugin_list: Optional[List[PluginManager]] = None,
-        post_plugin_list: Optional[List[PluginManager]] = None,
+        plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
+        post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
         param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
     ):
         """
@@ -86,8 +86,8 @@ class Pait(object):
         self._tag: Optional[Tuple[Tag, ...]] = tag
         self._response_model_list: Optional[List[Type[BaseResponseModel]]] = response_model_list
         # plugin
-        self._plugin_list: Optional[List[PluginManager]] = plugin_list
-        self._post_plugin_list: Optional[List[PluginManager]] = post_plugin_list
+        self._plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = plugin_list
+        self._post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = post_plugin_list
         self._param_handler_plugin: Optional[Type["BaseParamHandler"]] = param_handler_plugin
 
     @staticmethod
@@ -119,10 +119,10 @@ class Pait(object):
         append_tag: Optional[Tuple[Tag, ...]] = None,
         response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
         append_response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
-        plugin_list: Optional[List[PluginManager]] = None,
-        append_plugin_list: Optional[List[PluginManager]] = None,
-        post_plugin_list: Optional[List[PluginManager]] = None,
-        append_post_plugin_list: Optional[List[PluginManager]] = None,
+        plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
+        append_plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
+        post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
+        append_post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
         param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
     ) -> _PaitT:
         """
@@ -221,10 +221,10 @@ class Pait(object):
         response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
         append_response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
         # plugin
-        plugin_list: Optional[List[PluginManager]] = None,
-        append_plugin_list: Optional[List[PluginManager]] = None,
-        post_plugin_list: Optional[List[PluginManager]] = None,
-        append_post_plugin_list: Optional[List[PluginManager]] = None,
+        plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
+        append_plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
+        post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
+        append_post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
         param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
         feature_code: str = "",
     ) -> Callable:

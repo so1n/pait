@@ -2,14 +2,14 @@ import copy
 from typing import TYPE_CHECKING, Any, Dict, Type
 
 from pait.model.response import BaseResponseModel, JsonResponseModel
-from pait.plugin.base import PluginProtocol
+from pait.plugin.base import PrePluginProtocol
 from pait.util import get_pait_response_model
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
 
 
-class AutoCompleteJsonRespPlugin(PluginProtocol):
+class AutoCompleteJsonRespPlugin(PrePluginProtocol):
     default_response_dict: dict
 
     def _merge(self, source_dict: dict, target_dict: dict) -> None:

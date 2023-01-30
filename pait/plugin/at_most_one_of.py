@@ -1,20 +1,18 @@
 from typing import Any, List
 
 from pait.exceptions import CheckValueError
-from pait.plugin.base import PluginManager, PluginProtocol
+from pait.plugin.base import PluginManager, PostPluginProtocol
 from pait.util import gen_tip_exc
 
 __all__ = ["AsyncAtMostOneOfPlugin", "AtMostOneOfPlugin"]
 
 
-class AtMostOneOfPlugin(PluginProtocol):
+class AtMostOneOfPlugin(PostPluginProtocol):
     """
     Check whether each group of parameters appear at the same time
     """
 
     at_most_one_of_list: List[List[str]]
-
-    is_pre_core: bool = False
 
     def check_param(self, **kwargs: Any) -> None:
         try:

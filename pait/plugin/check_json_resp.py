@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Type
 import pydantic
 
 from pait.model.response import BaseResponseModel, JsonResponseModel
-from pait.plugin.base import PluginProtocol
+from pait.plugin.base import PrePluginProtocol
 from pait.types import is_typeddict
 from pait.util import gen_example_dict_from_pydantic_base_model, get_pait_response_model, get_real_annotation
 
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
 
 
-class CheckJsonRespPlugin(PluginProtocol):
+class CheckJsonRespPlugin(PrePluginProtocol):
     """Check if the json response result is legal"""
 
     check_resp_fn: Callable

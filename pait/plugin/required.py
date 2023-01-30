@@ -1,20 +1,18 @@
 from typing import Any, Dict, List
 
 from pait.exceptions import CheckValueError
-from pait.plugin.base import PluginManager, PluginProtocol
+from pait.plugin.base import PluginManager, PostPluginProtocol
 from pait.util import gen_tip_exc
 
 __all__ = ["RequiredPlugin", "AsyncRequiredPlugin"]
 
 
-class RequiredPlugin(PluginProtocol):
+class RequiredPlugin(PostPluginProtocol):
     """
     Check dependencies between parameters
     """
 
     required_dict: Dict[str, List[str]]
-
-    is_pre_core: bool = False
 
     def check_param(self, **kwargs: Any) -> None:
         try:

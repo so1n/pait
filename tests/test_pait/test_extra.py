@@ -9,8 +9,7 @@ from pait.model.core import PaitCoreModel
 from pait.model.response import BaseResponseModel, JsonResponseModel
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
-from pait.plugin.at_most_one_of import AtMostOneOfPlugin
-from pait.plugin.base import PluginManager
+from pait.plugin.base import PluginManager, PostPluginProtocol, PrePluginProtocol
 
 
 class FakeAppHelper(BaseAppHelper):
@@ -198,11 +197,14 @@ class TestApplyFun:
                 config.apply_block_http_method_set({"TEXT"})(i)
 
     def test_apply_mulit_plugin(self) -> None:
-        class PreAtMostOneOfPlugin(AtMostOneOfPlugin):
-            is_pre_core: bool = True
+        class NotPrePlugin(PostPluginProtocol):
+            pass
 
-        post_pm: PluginManager = AtMostOneOfPlugin.build(at_most_one_of_list=[["a", "b"]])
-        pre_pm: PluginManager = PreAtMostOneOfPlugin.build(at_most_one_of_list=[["a", "b"]])
+        class PrePlugin(PrePluginProtocol):
+            pass
+
+        post_pm: PluginManager = NotPrePlugin.build()
+        pre_pm: PluginManager = PrePlugin.build()
         for i in self.core_model_list:
             assert len(i.plugin_list) == 1
             config.apply_multi_plugin([lambda: post_pm, lambda: pre_pm])(i)

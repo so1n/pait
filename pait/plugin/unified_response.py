@@ -3,11 +3,11 @@ from typing import Any, Dict, Optional, Type
 
 from pait.model.core import PaitCoreModel
 from pait.model.response import BaseResponseModel, FileResponseModel
-from pait.plugin.base import PluginProtocol
+from pait.plugin.base import PrePluginProtocol
 from pait.util import get_pait_response_model
 
 
-class UnifiedResponsePluginProtocol(PluginProtocol):
+class UnifiedResponsePluginProtocol(PrePluginProtocol):
     response_model_class: Type[BaseResponseModel]
 
     def _gen_response(self, return_value: Any, *args: Any, **kwargs: Any) -> Any:

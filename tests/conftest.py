@@ -9,7 +9,7 @@ from example.grpc_common.server import create_app
 from pait.app.any.util import sniffing
 from pait.extra.config import apply_block_http_method_set
 from pait.g import config
-from pait.plugin.base import PluginManager
+from pait.plugin.base import PluginManager, PrePluginProtocol
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
@@ -28,7 +28,7 @@ def enable_plugin(route_handler: Callable, *plugin_manager_list: PluginManager) 
     plugin_list: List[PluginManager] = []
     post_plugin_list: List[PluginManager] = []
     for plugin_manager in plugin_manager_list:
-        if plugin_manager.plugin_class.is_pre_core:
+        if issubclass(plugin_manager.plugin_class, PrePluginProtocol):
             plugin_list.append(plugin_manager)
         else:
             post_plugin_list.append(plugin_manager)

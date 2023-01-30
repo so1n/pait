@@ -6,7 +6,7 @@ import aiofiles  # type: ignore
 from typing_extensions import Literal
 
 from pait.model import response
-from pait.plugin.base import PluginManager, PluginProtocol
+from pait.plugin.base import PluginManager, PrePluginProtocol
 from pait.util import get_pait_response_model
 
 if TYPE_CHECKING:
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 RESP_T = TypeVar("RESP_T")
 
 
-class MockPluginProtocol(PluginProtocol, Generic[RESP_T]):
+class MockPluginProtocol(PrePluginProtocol, Generic[RESP_T]):
     """Automatically return a json response with sample values based on the response object
     Note: the code logic of the routing function will not be executed
     """

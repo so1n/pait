@@ -10,8 +10,6 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 
 class PluginProtocol(object):
-    # Indicates whether the plugin is a pre plugin or a post plugin, by default it is a pre plugin
-    is_pre_core: bool = True
 
     pait_core_model: "PaitCoreModel"
     args: list
@@ -67,6 +65,14 @@ class PluginProtocol(object):
          function.
         """
         return self.call_next(*args, **kwargs)  # pragma: no cover
+
+
+class PrePluginProtocol(PluginProtocol):
+    """Pre Plugin"""
+
+
+class PostPluginProtocol(PluginProtocol):
+    """Post Plugin"""
 
 
 class PluginManager(Generic[_PluginT]):

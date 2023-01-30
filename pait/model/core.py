@@ -9,7 +9,7 @@ from pait.model.response import BaseResponseModel, PaitResponseModel
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
 from pait.param_handle import AsyncParamHandler, BaseParamHandler, ParamHandler
-from pait.plugin import PluginManager
+from pait.plugin import PluginManager, PostPluginProtocol, PrePluginProtocol
 from pait.util import ignore_pre_check
 
 if TYPE_CHECKING:
@@ -47,8 +47,8 @@ class PaitCoreModel(object):
         tag: Optional[Tuple[Tag, ...]] = None,
         response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
-        plugin_list: Optional[List[PluginManager]] = None,
-        post_plugin_list: Optional[List[PluginManager]] = None,
+        plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
+        post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
         param_handler_plugin: Optional[Type[BaseParamHandler]] = None,
         feature_code: str = "",
     ):
@@ -160,26 +160,28 @@ class PaitCoreModel(object):
         return self._plugin_manager_list
 
     def add_plugin(
-        self, plugin_list: Optional[List[PluginManager]], post_plugin_list: Optional[List[PluginManager]]
+        self,
+        plugin_list: Optional[List[PluginManager[PrePluginProtocol]]],
+        post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]],
     ) -> None:
         raw_plugin_list: List[PluginManager] = self._plugin_list
         raw_post_plugin_list: List[PluginManager] = self._post_plugin_list
         try:
             for plugin_manager in plugin_list or []:
-                if not plugin_manager.plugin_class.is_pre_core:
+                if issubclass(plugin_manager.plugin_class, PostPluginProtocol):
                     raise ValueError(f"{plugin_manager.plugin_class} is post plugin")
                 if not ignore_pre_check:
                     plugin_manager.pre_check_hook(self)
                 plugin_manager.pre_load_hook(self)
                 self._plugin_list.append(plugin_manager)
 
-            for plugin_manager in post_plugin_list or []:
-                if plugin_manager.plugin_class.is_pre_core:
-                    raise ValueError(f"{plugin_manager.plugin_class} is pre plugin")
+            for post_plugin_manager in post_plugin_list or []:
+                if issubclass(post_plugin_manager.plugin_class, PrePluginProtocol):
+                    raise ValueError(f"{post_plugin_manager.plugin_class} is pre plugin")
                 if not ignore_pre_check:
-                    plugin_manager.pre_check_hook(self)
-                plugin_manager.pre_load_hook(self)
-                self._post_plugin_list.append(plugin_manager)
+                    post_plugin_manager.pre_check_hook(self)
+                post_plugin_manager.pre_load_hook(self)
+                self._post_plugin_list.append(post_plugin_manager)
         except Exception as e:
             self._plugin_list = raw_plugin_list
             self._post_plugin_list = raw_post_plugin_list

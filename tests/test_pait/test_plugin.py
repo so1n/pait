@@ -16,7 +16,7 @@ from pait.model.core import PaitCoreModel
 from pait.param_handle import ParamHandler
 from pait.plugin import PluginManager
 from pait.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
-from pait.plugin.base import PluginProtocol
+from pait.plugin.base import PostPluginProtocol, PrePluginProtocol
 from pait.plugin.base_mock_response import MockPluginProtocol
 from pait.plugin.cache_response import CacheResponsePlugin
 from pait.plugin.check_json_resp import CheckJsonRespPlugin
@@ -37,11 +37,11 @@ def client() -> Generator[FlaskClient, None, None]:
 
 class TestPlugin:
     def test_add_plugin(self) -> None:
-        class NotPrePlugin(PluginProtocol):
-            is_pre_core = False
+        class NotPrePlugin(PostPluginProtocol):
+            pass
 
-        class PrePlugin(PluginProtocol):
-            is_pre_core = True
+        class PrePlugin(PrePluginProtocol):
+            pass
 
         def demo() -> None:
             pass
@@ -55,12 +55,12 @@ class TestPlugin:
         raw_post_plugin_list: List[PluginManager] = core_model._post_plugin_list
 
         with pytest.raises(ValueError) as e:
-            core_model.add_plugin([PluginManager(NotPrePlugin)], [PluginManager(NotPrePlugin)])
+            core_model.add_plugin([PluginManager(NotPrePlugin)], [PluginManager(NotPrePlugin)])  # type: ignore
         exec_msg: str = e.value.args[0]
         assert "is post plugin" in exec_msg
 
         with pytest.raises(ValueError) as e:
-            core_model.add_plugin([PluginManager(PrePlugin)], [PluginManager(PrePlugin)])
+            core_model.add_plugin([PluginManager(PrePlugin)], [PluginManager(PrePlugin)])  # type: ignore
         exec_msg = e.value.args[0]
         assert "is pre plugin" in exec_msg
         assert core_model._plugin_list == raw_plugin_list

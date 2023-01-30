@@ -16,6 +16,9 @@ Function Changes List:
 - The Mock plugin adds a new parameter example_column_name to specify the value of the Field from which the mock data is to be retrieved
 - Refactor the Mock plugin's API to reduce duplicate code
 - Support for adding simple routing to web frameworks (experimental)
+- Plugin Record:
+  - No longer distinguish between front or back plugins by is_core, but by different classes to facilitate Type Hint checking
+
 
 API Changes:
 - `@pait`: The tag parameter type no longer supports String, only support `Tag` class. e.g:

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Typ
 from pydantic import BaseConfig, BaseModel
 
 from pait.model.response import BaseResponseModel
-from pait.plugin.base import PluginManager
+from pait.plugin.base import PluginManager, PrePluginProtocol
 from pait.types import Literal
 from pait.util import http_method_tuple
 
@@ -175,7 +175,7 @@ def apply_multi_plugin(
             post_plugin_manager_list: List[PluginManager] = []
             for plugin_manager_fn in plugin_manager_fn_list:
                 plugin_manager: PluginManager = plugin_manager_fn()
-                if plugin_manager.plugin_class.is_pre_core:
+                if issubclass(plugin_manager.plugin_class, PrePluginProtocol):
                     pre_plugin_manager_list.append(plugin_manager)
                 else:
                     post_plugin_manager_list.append(plugin_manager)

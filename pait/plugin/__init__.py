@@ -1,1 +1,1 @@
-from .base import PluginManager
+from .base import PluginManager, PluginProtocol, PostPluginProtocol, PrePluginProtocol

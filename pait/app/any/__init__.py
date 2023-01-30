@@ -6,10 +6,11 @@ from pydantic import BaseConfig
 
 from pait.app.any.util import base_call_func, sniffing
 from pait.app.auto_load_app import auto_load_app_class
-from pait.core import PluginManager, Tag
+from pait.core import Tag
 from pait.model.core import PaitCoreModel
 from pait.model.response import BaseResponseModel
 from pait.model.status import PaitStatus
+from pait.plugin.base import PluginManager, PostPluginProtocol, PrePluginProtocol
 
 if TYPE_CHECKING:
     from pait.app.base.simple_route import SimpleRoute
@@ -82,10 +83,10 @@ def pait(
     response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
     append_response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
     # plugin
-    plugin_list: Optional[List[PluginManager]] = None,
-    append_plugin_list: Optional[List[PluginManager]] = None,
-    post_plugin_list: Optional[List[PluginManager]] = None,
-    append_post_plugin_list: Optional[List[PluginManager]] = None,
+    plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
+    append_plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
+    post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
+    append_post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
     param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
     feature_code: str = "",
 ) -> Callable:
