@@ -158,7 +158,7 @@ class PaitCoreModel(object):
         )
         self._main_plugin = self.func  # type: ignore
         for plugin_manager in reversed(plugin_manager_list):
-            self._main_plugin = plugin_manager.get_plugin(self._main_plugin)
+            self._main_plugin = plugin_manager.get_plugin(self._main_plugin, self)
 
     def add_plugin(
         self,

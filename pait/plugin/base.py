@@ -13,29 +13,31 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 
 class PluginProtocol(object):
-
-    _is_async_func: bool
-    bind_func: Callable
-
-    def __init__(self: "_PluginT", next_plugin: _NextPluginT, **kwargs: Any) -> None:
+    def __init__(self: "_PluginT", next_plugin: _NextPluginT, pait_core_model: "PaitCoreModel", **kwargs: Any) -> None:
         """Direct init calls are not supported,
         so there is no need to write clearly in init what parameters are needed
         """
         self.next_plugin: _NextPluginT = next_plugin
+        self.pait_core_model: "PaitCoreModel" = pait_core_model
+        self._is_async_func: bool = inspect.iscoroutinefunction(pait_core_model.func)
         if kwargs:
             for k, v in kwargs.items():
                 if getattr(self, k, None) is not None:
                     continue
                 setattr(self, k, v)
-        self.__post_init__()
+        self.__post_init__(**kwargs)
 
-    def __post_init__(self) -> None:
+    def __post_init__(self, **kwargs: Any) -> None:
         pass
 
     @classmethod
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
         """The hook that runs the check at startup. If the value of env's PAIT_IGNORE_PRE_CHECK is True,
-        it will not be executed."""
+        it will not be executed.
+
+        Note:
+            Failure to execute this stage will cause the plugin to fail to load, but will not affect the use of routes
+        """
         class_name: str = cls.__class__.__name__
         if class_name.startswith("Async"):
             logger.warning(
@@ -44,9 +46,11 @@ class PluginProtocol(object):
 
     @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
-        """Hook for initialization processing"""
-        kwargs["_is_async_func"] = inspect.iscoroutinefunction(pait_core_model.func)
-        kwargs["bind_func"] = pait_core_model.func
+        """Hook for initialization processing, the plugin has not been initialized at this time
+
+        Note:
+            Failure to execute this stage will cause the plugin to fail to load, but will not affect the use of routes
+        """
         return kwargs  # pragma: no cover
 
     @classmethod
@@ -88,8 +92,8 @@ class PluginManager(Generic[_PluginT]):
     def pre_load_hook(self, pait_core_model: "PaitCoreModel") -> None:
         self._kwargs = self.plugin_class.pre_load_hook(pait_core_model, self._kwargs)
 
-    def get_plugin(self, next_plugin: _NextPluginT) -> _PluginT:
-        return self.plugin_class(next_plugin, **self._kwargs)
+    def get_plugin(self, next_plugin: _NextPluginT, pait_core_model: "PaitCoreModel") -> _PluginT:
+        return self.plugin_class(next_plugin, pait_core_model, **self._kwargs)
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} {self.plugin_class.__name__}>"

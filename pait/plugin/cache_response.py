@@ -28,7 +28,7 @@ class CacheResponsePlugin(PostPluginProtocol):
     sleep: Optional[float]
     blocking_timeout: Optional[float]
 
-    def __post_init__(self) -> None:
+    def __post_init__(self, **kwargs: Any) -> None:
         self.lock_name: str = self.name + ":" + "lock"
 
     @classmethod

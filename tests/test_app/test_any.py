@@ -1,6 +1,6 @@
 import importlib
 import sys
-from typing import Any
+from typing import Any, Callable
 from unittest import mock
 
 import pytest
@@ -100,8 +100,6 @@ class TestGrpcRoute(BaseTestApp):
 
 class TestSecurity(BaseTestApp):
     def test_security_api_key(self, mocker: MockFixture) -> None:
-        pass
-
         from pait.field import Header
 
         for i in app_list:
@@ -242,3 +240,119 @@ class TestAppHelper(BaseTestApp):
         assert fake_app_helper.request.check_form_type(type(0))
         assert fake_app_helper.request.check_file_type(type(0.0))
         assert fake_app_helper.request.check_header_type(type(None))
+
+
+class TestPlugin(BaseTestApp):
+    class FakePluginCoreModel:
+        func: Callable = lambda: None
+
+    def test_at_most_one_of(self, mocker: MockFixture) -> None:
+        from pait.app.any import plugin
+
+        for i in app_list:
+            self._clean_app_from_sys_module()
+            # import web app
+            importlib.import_module(i)
+            # reload pait.app
+            importlib.reload(plugin)
+            patch = mocker.patch(f"pait.app.{i}.plugin.AtMostOneOfPlugin.__post_init__")
+            plugin_class = getattr(importlib.import_module("pait.app.any.plugin"), "AtMostOneOfPlugin")
+            plugin_class(lambda *args, **kwargs: None, self.FakePluginCoreModel())
+            patch.assert_called()
+
+    def test_auto_complete_json_resp(self, mocker: MockFixture) -> None:
+        from pait.app.any.plugin import auto_complete_json_resp
+
+        for i in app_list:
+            self._clean_app_from_sys_module()
+            # import web app
+            importlib.import_module(i)
+            importlib.reload(auto_complete_json_resp)
+            patch = mocker.patch(
+                f"pait.app.{i}.plugin.auto_complete_json_resp.AutoCompleteJsonRespPlugin.__post_init__"
+            )
+            plugin_class = getattr(
+                importlib.import_module("pait.app.any.plugin.auto_complete_json_resp"), "AutoCompleteJsonRespPlugin"
+            )
+            plugin_class(lambda *args, **kwargs: None, self.FakePluginCoreModel())
+            patch.assert_called()
+
+    def test_mock_plugin(self, mocker: MockFixture) -> None:
+        from pait.app.any.plugin import mock_response
+
+        for i in app_list:
+            self._clean_app_from_sys_module()
+            # import web app
+            importlib.import_module(i)
+            importlib.reload(mock_response)
+            patch = mocker.patch(f"pait.app.{i}.plugin.mock_response.MockPlugin.__post_init__")
+            plugin_class = getattr(
+                importlib.import_module("pait.app.any.plugin.mock_response"),
+                "MockPlugin",
+            )
+            plugin_class(lambda *args, **kwargs: None, self.FakePluginCoreModel())
+            patch.assert_called()
+
+    def test_cache_response(self, mocker: MockFixture) -> None:
+        from pait.app.any.plugin import cache_response
+
+        for i in app_list:
+            self._clean_app_from_sys_module()
+            # import web app
+            importlib.import_module(i)
+            importlib.reload(cache_response)
+            patch = mocker.patch(f"pait.app.{i}.plugin.cache_response.CacheResponsePlugin.__post_init__")
+            plugin_class = getattr(
+                importlib.import_module("pait.app.any.plugin.cache_response"),
+                "CacheResponsePlugin",
+            )
+            plugin_class(lambda *args, **kwargs: None, self.FakePluginCoreModel())
+            patch.assert_called()
+
+    def test_check_json_resp(self, mocker: MockFixture) -> None:
+        from pait.app.any.plugin import check_json_resp
+
+        for i in app_list:
+            self._clean_app_from_sys_module()
+            # import web app
+            importlib.import_module(i)
+            importlib.reload(check_json_resp)
+            patch = mocker.patch(f"pait.app.{i}.plugin.check_json_resp.CheckJsonRespPlugin.__post_init__")
+            plugin_class = getattr(
+                importlib.import_module("pait.app.any.plugin.check_json_resp"),
+                "CheckJsonRespPlugin",
+            )
+            plugin_class(lambda *args, **kwargs: None, self.FakePluginCoreModel())
+            patch.assert_called()
+
+    def test_required(self, mocker: MockFixture) -> None:
+        from pait.app.any import plugin
+
+        for i in app_list:
+            self._clean_app_from_sys_module()
+            # import web app
+            importlib.import_module(i)
+            importlib.reload(plugin)
+            patch = mocker.patch(f"pait.app.{i}.plugin.RequiredPlugin.__post_init__")
+            plugin_class = getattr(
+                importlib.import_module("pait.app.any.plugin"),
+                "RequiredPlugin",
+            )
+            plugin_class(lambda *args, **kwargs: None, self.FakePluginCoreModel())
+            patch.assert_called()
+
+    def test_unified_response(self, mocker: MockFixture) -> None:
+        from pait.app.any.plugin import unified_response
+
+        for i in app_list:
+            self._clean_app_from_sys_module()
+            # import web app
+            importlib.import_module(i)
+            importlib.reload(unified_response)
+            patch = mocker.patch(f"pait.app.{i}.plugin.unified_response.UnifiedResponsePlugin.__post_init__")
+            plugin_class = getattr(
+                importlib.import_module("pait.app.any.plugin.unified_response"),
+                "UnifiedResponsePlugin",
+            )
+            plugin_class(lambda *args, **kwargs: None, self.FakePluginCoreModel())
+            patch.assert_called()
