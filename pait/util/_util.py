@@ -53,6 +53,7 @@ __all__ = [
     "gen_example_value_from_python",
     "get_real_annotation",
     "create_factory",
+    "partial_wrapper",
 ]
 ignore_pre_check: bool = bool(os.environ.get("PAIT_IGNORE_PRE_CHECK", False))
 http_method_tuple: Tuple[str, ...] = ("get", "post", "head", "options", "delete", "put", "trace", "patch")
@@ -90,6 +91,18 @@ def create_factory(func: Callable[P, R_T]) -> Callable[P, R_T]:  # type: ignore
     @wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R_T:  # type: ignore
         return lambda: func(*args, **kwargs)  # type: ignore
+
+    return wrapper
+
+
+def partial_wrapper(func: Callable[P, R_T], **_customer_kwargs: Any) -> Callable[P, R_T]:  # type: ignore
+    """with type hints partial"""
+
+    @wraps(func)
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R_T:  # type: ignore
+        new_kwargs = _customer_kwargs.copy()
+        new_kwargs.update(kwargs)
+        return func(*args, **new_kwargs)
 
     return wrapper
 

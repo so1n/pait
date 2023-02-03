@@ -100,18 +100,18 @@ class TestGrpcRoute(BaseTestApp):
 
 class TestSecurity(BaseTestApp):
     def test_security_api_key(self, mocker: MockFixture) -> None:
-        pass
-
         from pait.field import Header
 
         for i in app_list:
             self._clean_app_from_sys_module()
             # import web app
             importlib.import_module(i)
-            patch = mocker.patch(f"pait.app.{i}.security.api_key.api_key")
+            # reload pait.app
+            importlib.reload(importlib.import_module("pait.app.any.security.api_key"))
             api_key_func = getattr(importlib.import_module("pait.app.any.security.api_key"), "api_key")
-            api_key_func(name="demo", field=Header.i(), verify_api_key_callable=lambda x: True)
-            patch.assert_called()
+            api_key = api_key_func(name="demo", field=Header.i(), verify_api_key_callable=lambda x: True)
+            # Since partial_wrapper is used, it can only be judged whether the APIKey is used correctly
+            getattr(importlib.import_module(f"pait.app.{i}.security.api_key"), "APIKey") in api_key.__class__.__bases__
 
 
 class TestPait(BaseTestApp):
