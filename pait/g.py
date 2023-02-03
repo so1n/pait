@@ -7,7 +7,7 @@ from pait.model import tag
 from pait.model.config import Config
 
 if TYPE_CHECKING:
-    from pait.model.core import ContextModel
+    from pait.model.context import ContextModel
 
 __all__ = ["config", "pait_data", "pait_context"]
 

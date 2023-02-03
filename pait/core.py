@@ -7,7 +7,8 @@ from pydantic import BaseConfig
 from pait.app.base import BaseAppHelper
 from pait.extra.util import sync_config_data_to_pait_core_model
 from pait.g import config, pait_context, pait_data
-from pait.model.core import ContextModel, PaitCoreModel
+from pait.model.context import ContextModel
+from pait.model.core import PaitCoreModel
 from pait.model.response import BaseResponseModel
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
@@ -179,28 +180,18 @@ class Pait(object):
         )
 
     @staticmethod
-    def _plugin_manager_handler(
-        pait_core_model: PaitCoreModel,
-        args: Any,
-        kwargs: Any,
-    ) -> List[_PluginT]:
-        plugin_instance_list: List[_PluginT] = []
-
-        pre_plugin: Callable = pait_core_model.func
-        for plugin_manager in pait_core_model.plugin_list:
-            plugin_instance: _PluginT = plugin_manager.get_plugin()
-            plugin_instance.__post_init__(pait_core_model, args, kwargs)
-            plugin_instance.call_next = pre_plugin  # type: ignore
-            pre_plugin = plugin_instance
-            plugin_instance_list.append(plugin_instance)
-        plugin_instance_list.reverse()
-        return plugin_instance_list
-
-    @staticmethod
-    def init_context(pait_core_model: "PaitCoreModel", args: Any, kwargs: Any) -> None:
+    def init_context(pait_core_model: "PaitCoreModel", args: Any, kwargs: Any) -> ContextModel:
         """Inject App Helper into context"""
         app_helper: BaseAppHelper = pait_core_model.app_helper_class(args, kwargs)
-        pait_context.set(ContextModel(cbv_instance=app_helper.cbv_instance, app_helper=app_helper))
+        context: ContextModel = ContextModel(
+            cbv_instance=app_helper.cbv_instance,
+            app_helper=app_helper,
+            pait_core_model=pait_core_model,
+            args=args,
+            kwargs=kwargs,
+        )
+        pait_context.set(context)
+        return context
 
     def __call__(
         self,
@@ -300,18 +291,16 @@ class Pait(object):
 
                 @wraps(func)
                 async def dispatch(*args: Any, **kwargs: Any) -> Callable:
-                    self.init_context(pait_core_model, args, kwargs)
-                    invoke: PluginProtocol = self._plugin_manager_handler(pait_core_model, args, kwargs)[0]
-                    return await invoke(*args, **kwargs)
+                    context: ContextModel = self.init_context(pait_core_model, args, kwargs)
+                    return await pait_core_model.main_plugin(context)
 
                 return dispatch
             else:
 
                 @wraps(func)
                 def dispatch(*args: Any, **kwargs: Any) -> Callable:
-                    self.init_context(pait_core_model, args, kwargs)
-                    invoke: PluginProtocol = self._plugin_manager_handler(pait_core_model, args, kwargs)[0]
-                    return invoke(*args, **kwargs)
+                    context = self.init_context(pait_core_model, args, kwargs)
+                    return pait_core_model.main_plugin(context)
 
                 return dispatch
 

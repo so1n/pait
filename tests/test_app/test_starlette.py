@@ -8,6 +8,7 @@ from unittest import mock
 
 import pytest
 from pytest_mock import MockFixture
+from redis import Redis  # type: ignore
 from requests import Response  # type: ignore
 from starlette.applications import Starlette
 from starlette.testclient import TestClient
@@ -248,9 +249,7 @@ class TestStarlette:
         base_test.cache_response(main_example.cache_response, main_example.cache_response1, app="starlette")
 
     def test_cache_other_response_type(self, base_test: BaseTest) -> None:
-        main_example.CacheResponsePlugin.set_redis_to_app(
-            base_test.client.app, main_example.Redis(decode_responses=True)
-        )
+        main_example.CacheResponsePlugin.set_redis_to_app(base_test.client.app, Redis(decode_responses=True))
         base_test.cache_other_response_type(
             main_example.text_response_route,
             main_example.html_response_route,

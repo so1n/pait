@@ -4,6 +4,7 @@ import aiofiles  # type: ignore
 from tornado.web import RequestHandler
 
 from pait.app.tornado.adapter.response import gen_response, set_info_to_response
+from pait.plugin.base import PluginContext
 from pait.plugin.base_mock_response import MockPluginProtocol
 
 
@@ -27,9 +28,9 @@ class MockPlugin(MockPluginProtocol[None]):
             self.tornado_handle.write(line)
         await temporary_file.__aexit__(None, None, None)
 
-    async def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        self.tornado_handle = args[0]
-        await super().__call__(args, kwargs)
+    async def __call__(self, context: PluginContext) -> Any:
+        self.tornado_handle = context.args[0]
+        await super().__call__(context)
 
 
 class AsyncMockPlugin(MockPlugin):

@@ -1,4 +1,5 @@
 import asyncio
+import copy
 from contextlib import contextmanager
 from queue import Queue
 from typing import TYPE_CHECKING, Any, Callable, Generator, List, Optional, Tuple, Union
@@ -23,7 +24,8 @@ def enable_plugin(route_handler: Callable, *plugin_manager_list: PluginManager) 
         raise TypeError("route handler must pait func")
 
     pait_core_model: "PaitCoreModel" = getattr(route_handler, "pait_core_model")
-    raw_plugin_manager_list: List["PluginManager"] = pait_core_model._plugin_manager_list
+    raw_plugin_list: List[PluginManager] = copy.deepcopy(pait_core_model._plugin_list)
+    raw_post_plugin_list: List[PluginManager] = copy.deepcopy(pait_core_model._post_plugin_list)
 
     plugin_list: List[PluginManager] = []
     post_plugin_list: List[PluginManager] = []
@@ -36,7 +38,9 @@ def enable_plugin(route_handler: Callable, *plugin_manager_list: PluginManager) 
         pait_core_model.add_plugin(plugin_list, post_plugin_list)
         yield
     finally:
-        pait_core_model._plugin_manager_list = raw_plugin_manager_list
+        pait_core_model._plugin_list = raw_plugin_list
+        pait_core_model._post_plugin_list = raw_post_plugin_list
+        pait_core_model.build_plugin_stack()
 
 
 GRPC_RESPONSE = Union[grpc.Call, grpc.Future]

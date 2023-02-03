@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Type
 import pydantic
 
 from pait.model.response import BaseResponseModel, JsonResponseModel
-from pait.plugin.base import PrePluginProtocol
+from pait.plugin.base import PluginContext, PrePluginProtocol
 from pait.types import is_typeddict
 from pait.util import gen_example_dict_from_pydantic_base_model, get_pait_response_model, get_real_annotation
 
@@ -51,21 +51,21 @@ class CheckJsonRespPlugin(PrePluginProtocol):
         kwargs["check_resp_fn"] = check_resp_by_dict
         return kwargs
 
-    def _sync_call(self, *args: Any, **kwargs: Any) -> Any:
-        response: Any = self.call_next(*args, **kwargs)
+    def _sync_call(self, context: PluginContext) -> Any:
+        response: Any = super().__call__(context)
         self.check_resp_fn(response)
         return response
 
-    async def _async_call(self, *args: Any, **kwargs: Any) -> Any:
-        response: Any = await self.call_next(*args, **kwargs)
+    async def _async_call(self, context: PluginContext) -> Any:
+        response: Any = await super().__call__(context)
         self.check_resp_fn(response)
         return response
 
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+    def __call__(self, context: PluginContext) -> Any:
         if self._is_async_func:
-            return self._async_call(*args, **kwargs)
+            return self._async_call(context)
         else:
-            return self._sync_call(*args, **kwargs)
+            return self._sync_call(context)
 
 
 class AsyncCheckJsonRespPlugin(CheckJsonRespPlugin):

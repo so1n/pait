@@ -2,7 +2,7 @@ import copy
 from typing import TYPE_CHECKING, Any, Dict, Type
 
 from pait.model.response import BaseResponseModel, JsonResponseModel
-from pait.plugin.base import PrePluginProtocol
+from pait.plugin.base import PluginContext, PrePluginProtocol
 from pait.util import get_pait_response_model
 
 if TYPE_CHECKING:
@@ -43,23 +43,23 @@ class AutoCompleteJsonRespPlugin(PrePluginProtocol):
             pait_core_model.response_model_list, find_core_response_model=True
         )
         if not issubclass(pait_response_model, JsonResponseModel):
-            raise ValueError(f"pait_response_model must {JsonResponseModel} not {pait_response_model}")
+            raise ValueError(f"pait_response_model must `{JsonResponseModel.__name__}` not {pait_response_model}")
         kwargs["default_response_dict"] = pait_response_model.get_default_dict()
         return kwargs
 
-    def _sync_call(self, *args: Any, **kwargs: Any) -> Any:
-        response_dict = self.call_next(*args, **kwargs)
+    def _sync_call(self, context: PluginContext) -> Any:
+        response_dict: dict = super().__call__(context)
         return self.merge(response_dict)
 
-    async def _async_call(self, *args: Any, **kwargs: Any) -> Any:
-        response_dict: dict = await self.call_next(*args, **kwargs)
+    async def _async_call(self, context: PluginContext) -> Any:
+        response_dict: dict = await super().__call__(context)
         return self.merge(response_dict)
 
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+    def __call__(self, context: PluginContext) -> Any:
         if self._is_async_func:
-            return self._async_call(*args, **kwargs)
+            return self._async_call(context)
         else:
-            return self._sync_call(*args, **kwargs)
+            return self._sync_call(context)
 
 
 class AsyncAutoCompleteJsonRespPlugin(AutoCompleteJsonRespPlugin):

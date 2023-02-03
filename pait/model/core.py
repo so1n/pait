@@ -1,7 +1,7 @@
+import copy
 import inspect
 import logging
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
+from typing import TYPE_CHECKING, Callable, List, Optional, Set, Tuple, Type
 
 from pydantic import BaseConfig, BaseModel
 
@@ -9,7 +9,7 @@ from pait.model.response import BaseResponseModel, PaitResponseModel
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
 from pait.param_handle import AsyncParamHandler, BaseParamHandler, ParamHandler
-from pait.plugin import PluginManager, PostPluginProtocol, PrePluginProtocol
+from pait.plugin import PluginManager, PluginProtocol, PostPluginProtocol, PrePluginProtocol
 from pait.util import ignore_pre_check
 
 if TYPE_CHECKING:
@@ -17,17 +17,12 @@ if TYPE_CHECKING:
 
 from pait.extra.config import MatchKeyLiteral, MatchRule
 
-__all__ = ["PaitCoreModel", "ContextModel", "MatchRule", "MatchKeyLiteral"]
-
-
-@dataclass
-class ContextModel(object):
-    cbv_instance: Optional[Any]
-    app_helper: "BaseAppHelper"
+__all__ = ["PaitCoreModel", "MatchRule", "MatchKeyLiteral"]
 
 
 class PaitCoreModel(object):
     _param_handler_plugin: PluginManager["BaseParamHandler"]
+    _main_plugin: PluginProtocol
 
     def __init__(
         self,
@@ -88,7 +83,6 @@ class PaitCoreModel(object):
         # pait plugin
         self._plugin_list: List[PluginManager] = []
         self._post_plugin_list: List[PluginManager] = []
-        self._plugin_manager_list: List[PluginManager] = []
 
         self.param_handler_plugin = param_handler_plugin  # type: ignore
         self.add_plugin(plugin_list, post_plugin_list)
@@ -108,8 +102,7 @@ class PaitCoreModel(object):
         if not ignore_pre_check:
             self._param_handler_plugin.pre_check_hook(self)
         self._param_handler_plugin.pre_load_hook(self)
-        if not self._plugin_manager_list:
-            self.add_plugin([], [])
+        self.add_plugin([], [])
 
     @property
     def func_md5(self) -> str:
@@ -156,16 +149,24 @@ class PaitCoreModel(object):
         self._extra_openapi_model_list.extend(item)
 
     @property
-    def plugin_list(self) -> List[PluginManager]:
-        return self._plugin_manager_list
+    def main_plugin(self) -> PluginProtocol:
+        return self._main_plugin
+
+    def build_plugin_stack(self) -> None:
+        plugin_manager_list: List[PluginManager] = (
+            [i for i in self._plugin_list] + [self._param_handler_plugin] + [i for i in self._post_plugin_list]
+        )
+        self._main_plugin = self.func  # type: ignore
+        for plugin_manager in reversed(plugin_manager_list):
+            self._main_plugin = plugin_manager.get_plugin(self._main_plugin)
 
     def add_plugin(
         self,
         plugin_list: Optional[List[PluginManager[PrePluginProtocol]]],
         post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]],
     ) -> None:
-        raw_plugin_list: List[PluginManager] = self._plugin_list
-        raw_post_plugin_list: List[PluginManager] = self._post_plugin_list
+        raw_plugin_list: List[PluginManager] = copy.deepcopy(self._plugin_list)
+        raw_post_plugin_list: List[PluginManager] = copy.deepcopy(self._post_plugin_list)
         try:
             for plugin_manager in plugin_list or []:
                 if issubclass(plugin_manager.plugin_class, PostPluginProtocol):
@@ -187,12 +188,4 @@ class PaitCoreModel(object):
             self._post_plugin_list = raw_post_plugin_list
             raise e
         else:
-            # In future version, it may be possible to switch plugins at runtime
-            plugin_manager_list: List[PluginManager] = (
-                [i for i in self._plugin_list] + [self._param_handler_plugin] + [i for i in self._post_plugin_list]
-            )
-            # copy.deepcopy(
-            #     self._plugin_list + [self._param_handler_plugin] + self._post_plugin_list
-            # )
-            plugin_manager_list.reverse()
-            self._plugin_manager_list = plugin_manager_list
+            self.build_plugin_stack()

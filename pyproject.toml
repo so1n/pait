@@ -52,10 +52,17 @@ pytest-profiling = "1.7.0"
 aiofiles = "0.8.0"
 mkdocs-material = "^8.1.7"
 starlette = "0.14.1"
-mypy-protobuf = "^3.2.0"
+mypy-protobuf = "3.2.0"
 lark = "^1.1.2"
 # redis = "^4.2.2"
 grpcio = "^1.48.1"
+
+# During development, if it is found that the project cannot be started, please specify the following dependencies forcibly
+# importlib-metadata = "4.11.4"
+# jinja2 = "2.11.3"
+# markupsafe = "2.0.1"
+# itsdangerous = "1.1.0"
+# werkzeug = "1.0.1"
 
 [tool.black]
 line-length = 120

@@ -206,11 +206,13 @@ class TestApplyFun:
         post_pm: PluginManager = NotPrePlugin.build()
         pre_pm: PluginManager = PrePlugin.build()
         for i in self.core_model_list:
-            assert len(i.plugin_list) == 1
+            assert len(i._plugin_list) == 0
+            assert len(i._post_plugin_list) == 0
             config.apply_multi_plugin([lambda: post_pm, lambda: pre_pm])(i)
-            assert len(i.plugin_list) == 3
-            assert i.plugin_list[-1].plugin_class is pre_pm.plugin_class
-            assert i.plugin_list[0].plugin_class is post_pm.plugin_class
+            assert len(i._plugin_list) == 1
+            assert len(i._post_plugin_list) == 1
+            assert i._plugin_list[0].plugin_class is pre_pm.plugin_class
+            assert i._post_plugin_list[0].plugin_class is post_pm.plugin_class
 
     def test_apply_pre_depend(self) -> None:
         def demo_pre_depend() -> None:

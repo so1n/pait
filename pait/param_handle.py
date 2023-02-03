@@ -20,7 +20,7 @@ from pait.exceptions import (
 )
 from pait.field import BaseField
 from pait.g import pait_context
-from pait.plugin.base import PluginProtocol
+from pait.plugin.base import PluginContext, PluginProtocol
 from pait.util import (
     FuncSig,
     create_pydantic_model,
@@ -34,8 +34,8 @@ from pait.util import (
 )
 
 if TYPE_CHECKING:
-    from pait.app.base import BaseAppHelper
-    from pait.model.core import ContextModel, PaitCoreModel
+    from pait.model.context import ContextModel
+    from pait.model.core import PaitCoreModel
 
 
 def raise_multiple_exc(exc_list: List[Exception]) -> None:
@@ -91,24 +91,26 @@ def parameter_2_dict(
 class BaseParamHandler(PluginProtocol):
     tip_exception_class: Optional[Type[TipException]] = TipException
 
-    def __post_init__(self, pait_core_model: "PaitCoreModel", args: tuple, kwargs: dict) -> None:
-        super(BaseParamHandler, self).__post_init__(pait_core_model, args, kwargs)
+    # def __post_init__(self, pait_core_model: "PaitCoreModel", args: tuple, kwargs: dict) -> None:
+    #     super(BaseParamHandler, self).__post_init__(pait_core_model, args, kwargs)
 
-        # cbv handle
-        context_model: ContextModel = pait_context.get()
-        self.cbv_instance: Optional[Any] = context_model.cbv_instance
-        self._app_helper: "BaseAppHelper" = context_model.app_helper
-        self.cbv_type: Optional[Type] = None
+    #     # cbv handle
+    #     context_model: "ContextModel" = pait_context.get()
+    #     self.cbv_instance: Optional[Any] = context_model.cbv_instance
+    #     self._app_helper: "BaseAppHelper" = context_model.app_helper
+    #     self.cbv_type: Optional[Type] = None
 
-        if self.cbv_instance:
-            self.cbv_type = self.cbv_instance.__class__
-            self.cbv_param_list: List["inspect.Parameter"] = get_parameter_list_from_class(self.cbv_type)
-        else:
-            self.cbv_param_list = []
-            # cbv_type = getattr(inspect.getmodule(func), func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0])
-
-        self.pre_depend_list: List[Callable] = pait_core_model.pre_depend_list
-        self.pydantic_model_config: Type[BaseConfig] = pait_core_model.pydantic_model_config
+    #     if self.cbv_instance:
+    #         self.cbv_type = self.cbv_instance.__class__
+    #         self.cbv_param_list: List["inspect.Parameter"] = get_parameter_list_from_class(self.cbv_type)
+    #     else:
+    #         self.cbv_param_list = []
+    #         # cbv_type = getattr(
+    #               inspect.getmodule(func),
+    #               func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0]
+    #               )
+    #     self.pre_depend_list: List[Callable] = pait_core_model.pre_depend_list
+    #     self.pydantic_model_config: Type[BaseConfig] = pait_core_model.pydantic_model_config
 
     @classmethod
     def check_depend_handle(cls, func: Callable) -> Any:
@@ -224,23 +226,25 @@ class BaseParamHandler(PluginProtocol):
         super().pre_check_hook(pait_core_model, kwargs)
         cls.pre_hook(pait_core_model, kwargs)
 
-    def _set_parameter_value_to_args(self, parameter: inspect.Parameter, func_args: list) -> bool:
+    def _set_parameter_value_to_args(
+        self, context: "ContextModel", parameter: inspect.Parameter, func_args: list
+    ) -> bool:
         """Extract the self parameter of the cbv handler,
         the request parameter of the route and the parameter of type PaitBaseModel,
         and check if there are any other parameters that do not meet the conditions
 
         Sort by frequency of occurrence
         """
-        if self.cbv_instance and (
+        if context.cbv_instance and (
             parameter.annotation == Self or (not func_args and parameter.annotation == parameter.empty)
         ):
             # first parma must self param, looking forward to the appearance of `self type
-            func_args.append(self._app_helper.cbv_instance)
+            func_args.append(context.cbv_instance)
         elif issubclass(parameter.annotation, BaseModel):
             return True
-        elif self._app_helper.request.check_request_type(parameter.annotation):
+        elif context.app_helper.request.check_request_type(parameter.annotation):
             # support request param(def handle(request: Request))
-            func_args.append(self._app_helper.request.request)
+            func_args.append(context.app_helper.request.request)
         else:
             logging.warning(f"Pait not support args: {parameter}")  # pragma: no cover
         return False
@@ -277,25 +281,28 @@ class BaseParamHandler(PluginProtocol):
             # parse annotation is python type and pydantic.field
             parameter_value_dict[parameter] = request_value
 
-    def get_request_value_from_parameter(self, parameter: inspect.Parameter) -> Union[Any, Coroutine]:
+    def get_request_value_from_parameter(
+        self, context: "ContextModel", parameter: inspect.Parameter
+    ) -> Union[Any, Coroutine]:
         field_name: str = parameter.default.get_field_name()
         # Note: not use hasattr with LazyProperty (
         #   because hasattr will calling getattr(obj, name) and catching AttributeError,
         # )
-        app_field_func: Optional[Callable] = getattr(self._app_helper.request, field_name, None)
+        app_field_func: Optional[Callable] = getattr(context.app_helper.request, field_name, None)
         if app_field_func is None:
             raise NotFoundFieldException(
-                parameter.name, f"field: {field_name} not found in {self._app_helper.request}"
+                parameter.name, f"field: {field_name} not found in {context.app_helper.request}"
             )  # pragma: no cover
         return app_field_func()
 
     def valid_and_merge_kwargs_by_single_field_dict(
         self,
+        context: "ContextModel",
         single_field_dict: Dict["inspect.Parameter", Any],
         kwargs_param_dict: Dict[str, Any],
         _object: Union[FuncSig, Type, None],
     ) -> None:
-        for parse_dict in parameter_2_dict(single_field_dict, self.pydantic_model_config):
+        for parse_dict in parameter_2_dict(single_field_dict, context.pait_core_model.pydantic_model_config):
             kwargs_param_dict.update(parse_dict)
 
     @staticmethod
@@ -312,12 +319,13 @@ class BaseParamHandler(PluginProtocol):
 
 
 class ParamHandler(BaseParamHandler):
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
         self._contextmanager_list: List[AbstractContextManager] = []
 
     def param_handle(
         self,
+        context: "ContextModel",
         _object: Union[FuncSig, Type, None],
         param_list: List["inspect.Parameter"],
         pydantic_model: Type[BaseModel] = None,
@@ -333,14 +341,14 @@ class ParamHandler(BaseParamHandler):
                     # kwargs param
                     # support model: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseField())
                     if isinstance(parameter.default, field.Depends):
-                        kwargs_param_dict[parameter.name] = self._depend_handle(parameter.default.func)
+                        kwargs_param_dict[parameter.name] = self._depend_handle(context, parameter.default.func)
                     else:
-                        request_value: Any = self.get_request_value_from_parameter(parameter)
+                        request_value: Any = self.get_request_value_from_parameter(context, parameter)
                         self.request_value_handle(parameter, request_value, kwargs_param_dict, single_field_dict)
                 else:
                     # args param
                     # support model: model: ModelType
-                    self.set_parameter_value_to_args(parameter, args_param_list)
+                    self.set_parameter_value_to_args(context, parameter, args_param_list)
             except PaitBaseException as e:
                 raise gen_tip_exc(_object, e, parameter, tip_exception_class=self.tip_exception_class)
         # support field: def demo(demo_param: int = pait.field.BaseField())
@@ -350,29 +358,31 @@ class ParamHandler(BaseParamHandler):
                     single_field_dict, kwargs_param_dict, pydantic_model, _object
                 )
             else:
-                self.valid_and_merge_kwargs_by_single_field_dict(single_field_dict, kwargs_param_dict, _object)
+                self.valid_and_merge_kwargs_by_single_field_dict(context, single_field_dict, kwargs_param_dict, _object)
         return args_param_list, kwargs_param_dict
 
-    def set_parameter_value_to_args(self, parameter: inspect.Parameter, func_args: list) -> None:
+    def set_parameter_value_to_args(
+        self, context: "ContextModel", parameter: inspect.Parameter, func_args: list
+    ) -> None:
         """use func_args param faster return and extend func_args"""
-        if not self._set_parameter_value_to_args(parameter, func_args):
+        if not self._set_parameter_value_to_args(context, parameter, func_args):
             return
         # support pait_model param(def handle(model: PaitBaseModel))
         _pait_model: Type[BaseModel] = parameter.annotation
         _, kwargs = self.param_handle(
-            None, get_parameter_list_from_pydantic_basemodel(_pait_model), pydantic_model=_pait_model
+            context, None, get_parameter_list_from_pydantic_basemodel(_pait_model), pydantic_model=_pait_model
         )
         # Data has been validated or is from a trusted source
         func_args.append(_pait_model.construct(**kwargs))
 
-    def _depend_handle(self, func: Any) -> Any:
+    def _depend_handle(self, context: "ContextModel", func: Any) -> Any:
         class_: Optional[type] = getattr(func, "__class__", None)
         if class_ and not inspect.isfunction(func):
-            _, kwargs = self.param_handle(func.__class__, get_parameter_list_from_class(func.__class__))
+            _, kwargs = self.param_handle(context, func.__class__, get_parameter_list_from_class(func.__class__))
             func.__dict__.update(kwargs)
 
         func_sig: FuncSig = get_func_sig(func)
-        _func_args, _func_kwargs = self.param_handle(func_sig, func_sig.param_list)
+        _func_args, _func_kwargs = self.param_handle(context, func_sig, func_sig.param_list)
         func_result: Any = func(*_func_args, **_func_kwargs)
         if isinstance(func_result, AbstractContextManager):
             self._contextmanager_list.append(func_result)
@@ -380,27 +390,27 @@ class ParamHandler(BaseParamHandler):
         else:
             return func_result
 
-    def _gen_param(self) -> None:
+    def _gen_param(self, context: "ContextModel") -> None:
         # check param from pre depend
-        for pre_depend in self.pre_depend_list:
-            self._depend_handle(pre_depend)
+        for pre_depend in context.pait_core_model.pre_depend_list:
+            self._depend_handle(context, pre_depend)
 
         # gen and check param from func
-        func_sig: FuncSig = get_func_sig(self.pait_core_model.func)
-        self.args, self.kwargs = self.param_handle(func_sig, func_sig.param_list)
+        func_sig: FuncSig = get_func_sig(context.pait_core_model.func)
+        context.args, context.kwargs = self.param_handle(context, func_sig, func_sig.param_list)
 
         # gen and check param from class
-        if self.cbv_param_list and self.cbv_type:
-            _, kwargs = self.param_handle(self.cbv_type, self.cbv_param_list)
-            self.cbv_instance.__dict__.update(kwargs)
+        if context.cbv_param_list:
+            _, kwargs = self.param_handle(context, context.cbv_instance.__class__, context.cbv_param_list)
+            context.cbv_instance.__dict__.update(kwargs)
         return None
 
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+    def __call__(self, context: PluginContext) -> Any:
         with self:
-            return self.call_next(*self.args, **self.kwargs)
+            return super().__call__(context)
 
     def __enter__(self) -> "ParamHandler":
-        self._gen_param()
+        self._gen_param(pait_context.get())
         return self
 
     def __exit__(
@@ -417,18 +427,20 @@ class ParamHandler(BaseParamHandler):
                     exc_list.append(exc_type(exc_val).with_traceback(exc_tb))
         if exc_list:
             raise_multiple_exc(exc_list)
+
             return True
         else:
             return False
 
 
 class AsyncParamHandler(BaseParamHandler):
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
         self._contextmanager_list: List[Union[AbstractAsyncContextManager, AbstractContextManager]] = []
 
     async def param_handle(
         self,
+        context: "ContextModel",
         _object: Union[FuncSig, Type],
         param_list: List["inspect.Parameter"],
         pydantic_model: Type[BaseModel] = None,
@@ -443,16 +455,16 @@ class AsyncParamHandler(BaseParamHandler):
                     # kwargs param
                     # support like: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseField())
                     if isinstance(parameter.default, field.Depends):
-                        kwargs_param_dict[parameter.name] = await self._depend_handle(parameter.default.func)
+                        kwargs_param_dict[parameter.name] = await self._depend_handle(context, parameter.default.func)
                     else:
-                        request_value: Any = self.get_request_value_from_parameter(parameter)
+                        request_value: Any = self.get_request_value_from_parameter(context, parameter)
                         if asyncio.iscoroutine(request_value) or asyncio.isfuture(request_value):
                             request_value = await request_value
                         self.request_value_handle(parameter, request_value, kwargs_param_dict, single_field_dict)
                 else:
                     # args param
                     # support model: model: ModelType
-                    await self.set_parameter_value_to_args(_object, parameter, args_param_list)
+                    await self.set_parameter_value_to_args(context, _object, parameter, args_param_list)
             except PaitBaseException as closer_e:
                 raise gen_tip_exc(_object, closer_e, parameter, tip_exception_class=self.tip_exception_class)
 
@@ -465,30 +477,30 @@ class AsyncParamHandler(BaseParamHandler):
                     single_field_dict, kwargs_param_dict, pydantic_model, _object
                 )
             else:
-                self.valid_and_merge_kwargs_by_single_field_dict(single_field_dict, kwargs_param_dict, _object)
+                self.valid_and_merge_kwargs_by_single_field_dict(context, single_field_dict, kwargs_param_dict, _object)
         return args_param_list, kwargs_param_dict
 
     async def set_parameter_value_to_args(
-        self, _object: Union[FuncSig, Type], parameter: inspect.Parameter, func_args: list
+        self, context: "ContextModel", _object: Union[FuncSig, Type], parameter: inspect.Parameter, func_args: list
     ) -> None:
         """use func_args param faster return and extend func_args"""
-        if not self._set_parameter_value_to_args(parameter, func_args):
+        if not self._set_parameter_value_to_args(context, parameter, func_args):
             return
         _pait_model: Type[BaseModel] = parameter.annotation
         # Data has been validated or is from a trusted source
         _, kwargs = await self.param_handle(
-            _object, get_parameter_list_from_pydantic_basemodel(_pait_model), _pait_model
+            context, _object, get_parameter_list_from_pydantic_basemodel(_pait_model), _pait_model
         )
         func_args.append(_pait_model.construct(**kwargs))
 
-    async def _depend_handle(self, func: Any) -> Any:
+    async def _depend_handle(self, context: "ContextModel", func: Any) -> Any:
         class_: Optional[type] = getattr(func, "__class__", None)
         if class_ and not inspect.isfunction(func):
-            _, kwargs = await self.param_handle(func.__class__, get_parameter_list_from_class(func.__class__))
+            _, kwargs = await self.param_handle(context, func.__class__, get_parameter_list_from_class(func.__class__))
             func.__dict__.update(kwargs)
 
         func_sig: FuncSig = get_func_sig(func)
-        _func_args, _func_kwargs = await self.param_handle(func_sig, func_sig.param_list)
+        _func_args, _func_kwargs = await self.param_handle(context, func_sig, func_sig.param_list)
         func_result: Any = func(*_func_args, **_func_kwargs)
         if asyncio.iscoroutine(func_result):
             func_result = await func_result
@@ -501,27 +513,32 @@ class AsyncParamHandler(BaseParamHandler):
         else:
             return func_result
 
-    async def _gen_param(self) -> None:
+    async def _gen_param(self, context: "ContextModel") -> None:
         # check param from pre depend
-        if self.pre_depend_list:
-            await asyncio.gather(*[self._depend_handle(pre_depend) for pre_depend in self.pre_depend_list])
+        if context.pait_core_model.pre_depend_list:
+            await asyncio.gather(
+                *[self._depend_handle(context, pre_depend) for pre_depend in context.pait_core_model.pre_depend_list]
+            )
 
         # gen and check param from func
-        func_sig: FuncSig = get_func_sig(self.pait_core_model.func)
-        self.args, self.kwargs = await self.param_handle(func_sig, func_sig.param_list)
+        func_sig: FuncSig = get_func_sig(context.pait_core_model.func)
+        context.args, context.kwargs = await self.param_handle(context, func_sig, func_sig.param_list)
 
         # gen and check param from class
-        if self.cbv_param_list and self.cbv_type:
-            _, kwargs = await self.param_handle(self.cbv_type, self.cbv_param_list)
-            self.cbv_instance.__dict__.update(kwargs)
+        if context.cbv_param_list:
+            _, kwargs = await self.param_handle(context, context.cbv_instance.__class__, context.cbv_param_list)
+            context.cbv_instance.__dict__.update(kwargs)
         return None
 
-    async def __call__(self, *args: Any, **kwargs: Any) -> Any:
+    async def __call__(self, context: "ContextModel") -> Any:
         async with self:
-            return await self.call_next(*self.args, **self.kwargs)
+            try:
+                return await super().__call__(context)
+            except Exception as e:
+                raise e
 
     async def __aenter__(self) -> "AsyncParamHandler":
-        await self._gen_param()
+        await self._gen_param(pait_context.get())
         return self
 
     async def __aexit__(

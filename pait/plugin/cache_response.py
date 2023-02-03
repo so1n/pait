@@ -1,5 +1,5 @@
 import pickle
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple, Type, Union
 
 from redis.asyncio import Redis  # type: ignore
 from redis.asyncio import Redis as AsyncioRedis
@@ -7,7 +7,7 @@ from redis.asyncio import Redis as AsyncioRedis
 from pait.app import set_app_attribute
 from pait.g import pait_context
 from pait.model.response import FileResponseModel
-from pait.plugin.base import PostPluginProtocol
+from pait.plugin.base import PluginContext, PostPluginProtocol
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
@@ -28,7 +28,7 @@ class CacheResponsePlugin(PostPluginProtocol):
     sleep: Optional[float]
     blocking_timeout: Optional[float]
 
-    def __post_init__(self, pait_core_model: "PaitCoreModel", args: tuple, kwargs: dict) -> None:
+    def __post_init__(self) -> None:
         self.lock_name: str = self.name + ":" + "lock"
 
     @classmethod
@@ -91,12 +91,12 @@ class CacheResponsePlugin(PostPluginProtocol):
     def _dumps(self, response: Any, *args: Any, **kwargs: Any) -> Any:
         return pickle.dumps(response).decode("latin1")
 
-    async def _async_cache(self, func: Callable, *args: Any, **kwargs: Any) -> Any:
-        real_key, real_lock_key = self._gen_key(*args, **kwargs)
+    async def _async_cache(self, context: PluginContext) -> Any:
+        real_key, real_lock_key = self._gen_key(*context.args, **context.kwargs)
         redis: AsyncioRedis = self._get_redis()
         result: Any = await redis.get(real_key)
         if result:
-            result = self._loads(result, *args, **kwargs)
+            result = self._loads(result, *context.args, **context.kwargs)
         else:
             async with redis.lock(
                 real_lock_key,
@@ -106,26 +106,28 @@ class CacheResponsePlugin(PostPluginProtocol):
             ):
                 result = await redis.get(real_key)
                 if result:
-                    result = self._loads(result, *args, **kwargs)
+                    result = self._loads(result, *context.args, **context.kwargs)
                 else:
                     try:
-                        result = await func(*args, **kwargs)
+                        result = await super().__call__(context)
                     except Exception as e:
                         if self.include_exc and isinstance(e, self.include_exc):
                             result = e
                         else:
                             raise e
-                    await redis.set(real_key, self._dumps(result, *args, **kwargs), ex=self.cache_time)  # type: ignore
+                    await redis.set(  # type: ignore
+                        real_key, self._dumps(result, *context.args, **context.kwargs), ex=self.cache_time
+                    )
         if isinstance(result, Exception):
             raise result
         return result
 
-    def _cache(self, func: Callable, *args: Any, **kwargs: Any) -> Any:
-        real_key, real_lock_key = self._gen_key(*args, **kwargs)
+    def _cache(self, context: PluginContext) -> Any:
+        real_key, real_lock_key = self._gen_key(*context.args, **context.kwargs)
         redis: Redis = self._get_redis()
         result: Any = redis.get(real_key)
         if result:
-            result = self._loads(result, *args, **kwargs)
+            result = self._loads(result, *context.args, **context.kwargs)
         else:
             with redis.lock(
                 real_lock_key,
@@ -135,25 +137,25 @@ class CacheResponsePlugin(PostPluginProtocol):
             ):
                 result = redis.get(real_key)
                 if result:
-                    result = self._loads(result, *args, **kwargs)
+                    result = self._loads(result, *context.args, **context.kwargs)
                 else:
                     try:
-                        result = func(*args, **kwargs)
+                        result = super().__call__(context)
                     except Exception as e:
                         if self.include_exc and isinstance(e, self.include_exc):
                             result = e
                         else:
                             raise e
-                    redis.set(real_key, self._dumps(result, *args, **kwargs), ex=self.cache_time)
+                    redis.set(real_key, self._dumps(result, *context.args, **context.kwargs), ex=self.cache_time)
         if isinstance(result, Exception):
             raise result
         return result
 
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+    def __call__(self, context: PluginContext) -> Any:
         if self._is_async_func:
-            return self._async_cache(self.call_next, *args, **kwargs)
+            return self._async_cache(context)
         else:
-            return self._cache(self.call_next, *args, **kwargs)
+            return self._cache(context)
 
     @classmethod
     def build(  # type: ignore
