@@ -51,7 +51,7 @@ from example.tornado_example.response_route import (
 from example.tornado_example.security_route import APIKeyHanler
 from example.tornado_example.utils import MyHandler, global_pait
 from pait.app.tornado import AddDocRoute, Pait, add_doc_route, load_app, pait
-from pait.app.tornado.plugin.cache_resonse import CacheResponsePlugin
+from pait.app.tornado.plugin.cache_response import CacheResponsePlugin
 from pait.extra.config import MatchRule
 from pait.field import Header, Json, Query
 from pait.model.status import PaitStatus

@@ -75,7 +75,6 @@ class PaitCoreModel(object):
         self.group: str = group or "root"  # Which group this interface belongs to
         self.tag: Tuple[Tag, ...] = tag or (Tag(name="default"),)  # Interface tag
         self._extra_openapi_model_list: List[Type[BaseModel]] = []
-
         self._response_model_list: List[Type[BaseResponseModel]] = []
         if response_model_list:
             self.add_response_model_list(response_model_list)
@@ -83,7 +82,6 @@ class PaitCoreModel(object):
         # pait plugin
         self._plugin_list: List[PluginManager] = []
         self._post_plugin_list: List[PluginManager] = []
-
         self.param_handler_plugin = param_handler_plugin  # type: ignore
         self.add_plugin(plugin_list, post_plugin_list)
 
@@ -93,12 +91,13 @@ class PaitCoreModel(object):
 
     @param_handler_plugin.setter
     def param_handler_plugin(self, param_handler_plugin: Optional[Type[BaseParamHandler]]) -> None:
-        if param_handler_plugin:
-            self._param_handler_plugin = PluginManager(param_handler_plugin)
-        elif inspect.iscoroutinefunction(self.func):
-            self._param_handler_plugin = PluginManager(AsyncParamHandler)
-        else:
-            self._param_handler_plugin = PluginManager(ParamHandler)
+        if param_handler_plugin is None:
+            if inspect.iscoroutinefunction(self.func):
+                param_handler_plugin = AsyncParamHandler
+            else:
+                param_handler_plugin = ParamHandler
+        self._param_handler_plugin = PluginManager(param_handler_plugin)
+
         if not ignore_pre_check:
             self._param_handler_plugin.pre_check_hook(self)
         self._param_handler_plugin.pre_load_hook(self)

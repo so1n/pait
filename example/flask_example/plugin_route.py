@@ -18,7 +18,7 @@ from example.flask_example.utils import api_exception, create_app, global_pait
 from pait.app.flask import Pait
 from pait.app.flask.plugin import AtMostOneOfPlugin, RequiredPlugin
 from pait.app.flask.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
-from pait.app.flask.plugin.cache_resonse import CacheResponsePlugin
+from pait.app.flask.plugin.cache_response import CacheResponsePlugin
 from pait.app.flask.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.flask.plugin.mock_response import MockPlugin
 from pait.field import MultiQuery, Path, Query

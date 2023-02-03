@@ -26,7 +26,7 @@ class Pait(object):
     app_helper_class: "Type[BaseAppHelper]"
 
     def __init__(
-        self,
+        self: "_PaitT",
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
         # param check
         pre_depend_list: Optional[List[Callable]] = None,
@@ -103,7 +103,7 @@ class Pait(object):
             return target_container or self_container
 
     def create_sub_pait(
-        self: _PaitT,
+        self: "_PaitT",
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
         # param check
         pre_depend_list: Optional[List[Callable]] = None,
@@ -194,7 +194,7 @@ class Pait(object):
         return context
 
     def __call__(
-        self,
+        self: "_PaitT",
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
         # param check
         pre_depend_list: Optional[List[Callable]] = None,
@@ -268,11 +268,11 @@ class Pait(object):
             get_func_sig(func)
             # gen pait core model and register to pait data
             pait_core_model: PaitCoreModel = PaitCoreModel(
+                func,
+                self.app_helper_class,
                 author=author,
-                app_helper_class=self.app_helper_class,
                 desc=desc,
                 summary=summary,
-                func=func,
                 func_name=name,
                 status=status,
                 group=group,

@@ -17,7 +17,7 @@ from example.tornado_example.utils import MyHandler, create_app, global_pait
 from pait.app.tornado import Pait
 from pait.app.tornado.plugin import AtMostOneOfPlugin, RequiredPlugin
 from pait.app.tornado.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
-from pait.app.tornado.plugin.cache_resonse import CacheResponsePlugin
+from pait.app.tornado.plugin.cache_response import CacheResponsePlugin
 from pait.app.tornado.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.tornado.plugin.mock_response import MockPlugin
 from pait.field import MultiQuery, Path, Query

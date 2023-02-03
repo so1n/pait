@@ -49,7 +49,7 @@ from example.flask_example.response_route import (
 from example.flask_example.security_route import api_key_route
 from example.flask_example.utils import api_exception, global_pait
 from pait.app.flask import AddDocRoute, Pait, add_doc_route, load_app, pait
-from pait.app.flask.plugin.cache_resonse import CacheResponsePlugin
+from pait.app.flask.plugin.cache_response import CacheResponsePlugin
 from pait.exceptions import PaitBaseException
 from pait.extra.config import MatchRule, apply_block_http_method_set, apply_extra_openapi_model
 from pait.field import Header, Json, Query

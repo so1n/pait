@@ -18,7 +18,7 @@ from example.sanic_example.utils import create_app, global_pait
 from pait.app.sanic import Pait
 from pait.app.sanic.plugin import AtMostOneOfPlugin, RequiredPlugin
 from pait.app.sanic.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
-from pait.app.sanic.plugin.cache_resonse import CacheResponsePlugin
+from pait.app.sanic.plugin.cache_response import CacheResponsePlugin
 from pait.app.sanic.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.sanic.plugin.mock_response import MockPlugin
 from pait.field import MultiQuery, Path, Query

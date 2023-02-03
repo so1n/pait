@@ -71,6 +71,22 @@ class TestProtocol(BaseTestProtocol):
     def test_pait_class(self) -> None:
         self._check_func_type_hint(any_app.Pait.__name__)  # type: ignore
 
+    def test_pait_method(self) -> None:
+        from pait.core import Pait
+
+        init_signature: inspect.Signature = inspect.signature(Pait.__init__)
+        create_sub_pait_signature: inspect.Signature = inspect.signature(Pait.create_sub_pait)
+        call_signature: inspect.Signature = inspect.signature(Pait.__call__)
+
+        # __call__ parameter set include create_sub_pait parameter set
+        # create_sub_pait parameter set include __init__ parameter set
+        for name, parameters in init_signature.parameters.items():
+            assert parameters == create_sub_pait_signature.parameters[name]
+            assert parameters == call_signature.parameters[name]
+
+        for name, parameters in create_sub_pait_signature.parameters.items():
+            assert parameters == call_signature.parameters[name]
+
 
 class TestDocRouteProtocol(BaseTestProtocol):
     def test_add_doc_route(self) -> None:

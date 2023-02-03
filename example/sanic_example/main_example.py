@@ -53,7 +53,7 @@ from example.sanic_example.response_route import (
 )
 from example.sanic_example.utils import api_exception, global_pait
 from pait.app.sanic import AddDocRoute, Pait, add_doc_route, load_app, pait
-from pait.app.sanic.plugin.cache_resonse import CacheResponsePlugin
+from pait.app.sanic.plugin.cache_response import CacheResponsePlugin
 from pait.app.sanic.security.api_key import api_key
 from pait.exceptions import PaitBaseException
 from pait.extra.config import MatchRule

@@ -60,7 +60,7 @@ from example.starlette_example.response_route import (
 from example.starlette_example.security_route import api_key_route
 from example.starlette_example.utils import api_exception, global_pait
 from pait.app.starlette import AddDocRoute, Pait, add_doc_route, load_app, pait
-from pait.app.starlette.plugin.cache_resonse import CacheResponsePlugin
+from pait.app.starlette.plugin.cache_response import CacheResponsePlugin
 from pait.exceptions import PaitBaseException
 from pait.extra.config import MatchRule
 from pait.field import Header, Json, Query
