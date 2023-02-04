@@ -1,8 +1,8 @@
 import asyncio
 import inspect
 import logging
+import sys
 from contextlib import AbstractAsyncContextManager, AbstractContextManager
-from types import TracebackType
 from typing import TYPE_CHECKING, Any, Callable, Coroutine, Dict, Generator, List, Optional, Set, Tuple, Type, Union
 
 from pydantic import BaseConfig, BaseModel
@@ -19,7 +19,6 @@ from pait.exceptions import (
     TipException,
 )
 from pait.field import BaseField
-from pait.g import pait_context
 from pait.plugin.base import PluginContext, PluginProtocol
 from pait.util import (
     FuncSig,
@@ -318,14 +317,14 @@ class BaseParamHandler(PluginProtocol):
         kwargs_param_dict.update(pydantic_model(**request_dict))
 
 
-class ParamHandler(BaseParamHandler):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-        self._contextmanager_list: List[AbstractContextManager] = []
+class ParamHandleContext(PluginContext):
+    contextmanager_list: List[AbstractContextManager]
 
+
+class ParamHandler(BaseParamHandler):
     def param_handle(
         self,
-        context: "ContextModel",
+        context: "ParamHandleContext",
         _object: Union[FuncSig, Type, None],
         param_list: List["inspect.Parameter"],
         pydantic_model: Type[BaseModel] = None,
@@ -362,7 +361,7 @@ class ParamHandler(BaseParamHandler):
         return args_param_list, kwargs_param_dict
 
     def set_parameter_value_to_args(
-        self, context: "ContextModel", parameter: inspect.Parameter, func_args: list
+        self, context: "ParamHandleContext", parameter: inspect.Parameter, func_args: list
     ) -> None:
         """use func_args param faster return and extend func_args"""
         if not self._set_parameter_value_to_args(context, parameter, func_args):
@@ -375,7 +374,7 @@ class ParamHandler(BaseParamHandler):
         # Data has been validated or is from a trusted source
         func_args.append(_pait_model.construct(**kwargs))
 
-    def _depend_handle(self, context: "ContextModel", func: Any) -> Any:
+    def _depend_handle(self, context: "ParamHandleContext", func: Any) -> Any:
         class_: Optional[type] = getattr(func, "__class__", None)
         if class_ and not inspect.isfunction(func):
             _, kwargs = self.param_handle(context, func.__class__, get_parameter_list_from_class(func.__class__))
@@ -385,12 +384,12 @@ class ParamHandler(BaseParamHandler):
         _func_args, _func_kwargs = self.param_handle(context, func_sig, func_sig.param_list)
         func_result: Any = func(*_func_args, **_func_kwargs)
         if isinstance(func_result, AbstractContextManager):
-            self._contextmanager_list.append(func_result)
+            context.contextmanager_list.append(func_result)
             return func_result.__enter__()
         else:
             return func_result
 
-    def _gen_param(self, context: "ContextModel") -> None:
+    def _gen_param(self, context: "ParamHandleContext") -> None:
         # check param from pre depend
         for pre_depend in context.pait_core_model.pre_depend_list:
             self._depend_handle(context, pre_depend)
@@ -406,41 +405,39 @@ class ParamHandler(BaseParamHandler):
         return None
 
     def __call__(self, context: PluginContext) -> Any:
-        with self:
-            return super().__call__(context)
+        error: Optional[Exception] = None
+        result: Any = None
+        exc_type, exc_val, exc_tb = None, None, None
 
-    def __enter__(self) -> "ParamHandler":
-        self._gen_param(pait_context.get())
-        return self
+        param_handle_context: ParamHandleContext = context  # type: ignore
+        param_handle_context.contextmanager_list = []
 
-    def __exit__(
-        self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[TracebackType]
-    ) -> Optional[bool]:
-        exc_list: List[Exception] = []
-        for contextmanager in self._contextmanager_list:
+        try:
+            self._gen_param(param_handle_context)
+            result = super().__call__(context)
+        except Exception as e:
+            error = e
+            exc_type, exc_val, exc_tb = sys.exc_info()
+        exc_list: List[Exception] = [error] if error else []
+        for contextmanager in param_handle_context.contextmanager_list:
             try:
                 contextmanager.__exit__(exc_type, exc_val, exc_tb)
             except Exception as e:
                 exc_list.append(e)
-            else:
-                if exc_type and issubclass(exc_type, Exception):
-                    exc_list.append(exc_type(exc_val).with_traceback(exc_tb))
         if exc_list:
             raise_multiple_exc(exc_list)
-
-            return True
         else:
-            return False
+            return result
+
+
+class AsyncParamHandleContext(PluginContext):
+    contextmanager_list: List[Union[AbstractAsyncContextManager, AbstractContextManager]]
 
 
 class AsyncParamHandler(BaseParamHandler):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(*args, **kwargs)
-        self._contextmanager_list: List[Union[AbstractAsyncContextManager, AbstractContextManager]] = []
-
     async def param_handle(
         self,
-        context: "ContextModel",
+        context: "AsyncParamHandleContext",
         _object: Union[FuncSig, Type],
         param_list: List["inspect.Parameter"],
         pydantic_model: Type[BaseModel] = None,
@@ -481,7 +478,11 @@ class AsyncParamHandler(BaseParamHandler):
         return args_param_list, kwargs_param_dict
 
     async def set_parameter_value_to_args(
-        self, context: "ContextModel", _object: Union[FuncSig, Type], parameter: inspect.Parameter, func_args: list
+        self,
+        context: "AsyncParamHandleContext",
+        _object: Union[FuncSig, Type],
+        parameter: inspect.Parameter,
+        func_args: list,
     ) -> None:
         """use func_args param faster return and extend func_args"""
         if not self._set_parameter_value_to_args(context, parameter, func_args):
@@ -493,7 +494,7 @@ class AsyncParamHandler(BaseParamHandler):
         )
         func_args.append(_pait_model.construct(**kwargs))
 
-    async def _depend_handle(self, context: "ContextModel", func: Any) -> Any:
+    async def _depend_handle(self, context: "AsyncParamHandleContext", func: Any) -> Any:
         class_: Optional[type] = getattr(func, "__class__", None)
         if class_ and not inspect.isfunction(func):
             _, kwargs = await self.param_handle(context, func.__class__, get_parameter_list_from_class(func.__class__))
@@ -505,15 +506,15 @@ class AsyncParamHandler(BaseParamHandler):
         if asyncio.iscoroutine(func_result):
             func_result = await func_result
         if isinstance(func_result, AbstractAsyncContextManager):
-            self._contextmanager_list.append(func_result)
+            context.contextmanager_list.append(func_result)
             return await func_result.__aenter__()
         elif isinstance(func_result, AbstractContextManager):
-            self._contextmanager_list.append(func_result)
+            context.contextmanager_list.append(func_result)
             return func_result.__enter__()
         else:
             return func_result
 
-    async def _gen_param(self, context: "ContextModel") -> None:
+    async def _gen_param(self, context: "AsyncParamHandleContext") -> None:
         # check param from pre depend
         if context.pait_core_model.pre_depend_list:
             await asyncio.gather(
@@ -531,20 +532,20 @@ class AsyncParamHandler(BaseParamHandler):
         return None
 
     async def __call__(self, context: "ContextModel") -> Any:
-        async with self:
-            try:
-                return await super().__call__(context)
-            except Exception as e:
-                raise e
+        error: Optional[Exception] = None
+        result: Any = None
+        exc_type, exc_val, exc_tb = None, None, None
 
-    async def __aenter__(self) -> "AsyncParamHandler":
-        await self._gen_param(pait_context.get())
-        return self
+        param_handle_context: AsyncParamHandleContext = context  # type: ignore
+        param_handle_context.contextmanager_list = []
+        try:
+            await self._gen_param(param_handle_context)
+            result = await super().__call__(context)
+        except Exception as e:
+            error = e
+            exc_type, exc_val, exc_tb = sys.exc_info()
 
-    async def __aexit__(
-        self, exc_type: Optional[Type[BaseException]], exc_val: Optional[BaseException], exc_tb: Optional[TracebackType]
-    ) -> Optional[bool]:
-        exc_list: List[Exception] = []
+        exc_list: List[Exception] = [error] if error else []
 
         async def _aexit(contextmanager: Union[AbstractAsyncContextManager, AbstractContextManager]) -> None:
             try:
@@ -554,14 +555,12 @@ class AsyncParamHandler(BaseParamHandler):
                     await contextmanager.__aexit__(exc_type, exc_val, exc_tb)
             except Exception as e:
                 exc_list.append(e)
-            else:
-                if exc_type and issubclass(exc_type, Exception):
-                    exc_list.append(exc_type(exc_val).with_traceback(exc_tb))
 
-        if self._contextmanager_list:
-            await asyncio.gather(*[_aexit(contextmanager) for contextmanager in self._contextmanager_list])
+        if param_handle_context.contextmanager_list:
+            await asyncio.gather(
+                *[_aexit(contextmanager) for contextmanager in param_handle_context.contextmanager_list]
+            )
         if exc_list:
             raise_multiple_exc(exc_list)
-            return True
         else:
-            return False
+            return result
