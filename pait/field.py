@@ -1,6 +1,7 @@
 from dataclasses import MISSING
-from typing import TYPE_CHECKING, Any, Mapping, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional
 
+from pydantic import BaseModel, Field, root_validator
 from pydantic.fields import FieldInfo, Undefined
 from pydantic.typing import NoArgAnyCallable
 
@@ -8,6 +9,17 @@ from pait.types import CallType
 
 if TYPE_CHECKING:
     from pait.openapi.openapi import LinksModel
+
+
+class ExtraParam(BaseModel):
+    key: str = Field(default="")
+
+    @root_validator
+    def after_init(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        if "key" in values:
+            if not values["key"]:
+                values["key"] = cls.__name__
+        return values
 
 
 class BaseField(FieldInfo):
@@ -41,6 +53,7 @@ class BaseField(FieldInfo):
         min_length: int = None,
         max_length: int = None,
         regex: str = None,
+        extra_param_list: Optional[List[ExtraParam]] = None,
         **extra: Any,
     ):
         # Same checks as pydantic, checked in advance here
@@ -68,6 +81,7 @@ class BaseField(FieldInfo):
         # if not alias, pait will set the key name to request_key in the preload phase
         self.request_key: Optional[str] = alias
         self.openapi_serialization = openapi_serialization or self.__class__.openapi_serialization
+        self.extra_param_list: List[ExtraParam] = extra_param_list or []
 
         super().__init__(
             default,
@@ -137,6 +151,7 @@ class BaseField(FieldInfo):
         min_length: int = None,
         max_length: int = None,
         regex: str = None,
+        extra_param_list: Optional[List[ExtraParam]] = None,
         **extra: Any,
     ) -> Any:
         """ignore mypy tip"""
@@ -164,6 +179,7 @@ class BaseField(FieldInfo):
             min_length=min_length,
             max_length=max_length,
             regex=regex,
+            extra_param_list=extra_param_list,
             **extra,
         )
 
@@ -187,7 +203,7 @@ class BaseField(FieldInfo):
             min_length=field.min_length,
             max_length=field.max_length,
             regex=field.regex,
-            **field.extra,
+            extra_param_list=field.extra.pop("extra_param_list", None) ** field.extra,
         )
 
 

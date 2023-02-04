@@ -16,7 +16,13 @@ from example.common.response_model import (
 )
 from example.sanic_example.utils import create_app, global_pait
 from pait.app.sanic import Pait
-from pait.app.sanic.plugin import AtMostOneOfPlugin, RequiredPlugin
+from pait.app.sanic.plugin import (
+    AtMostOneOfExtraParam,
+    AtMostOneOfPlugin,
+    RequiredExtraParam,
+    RequiredGroupExtraParam,
+    RequiredPlugin,
+)
 from pait.app.sanic.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.app.sanic.plugin.cache_response import CacheResponsePlugin
 from pait.app.sanic.plugin.check_json_resp import CheckJsonRespPlugin
@@ -189,42 +195,123 @@ async def mock_route(
     tag=(tag.check_param_tag,),
     response_model_list=[SimpleRespModel, FailRespModel],
     post_plugin_list=[
-        RequiredPlugin.build(required_dict={"birthday": ["alias_user_name"]}),
-        AtMostOneOfPlugin.build(at_most_one_of_list=[["user_name", "alias_user_name"]]),
+        AtMostOneOfPlugin.build(
+            at_most_one_of_list=[["user_name", "alias_user_name"], ["other_user_name", "alias_user_name"]]
+        )
     ],
 )
-async def check_param_route(
-    uid: int = Query.i(description="user id", gt=10, lt=1000),
-    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
-    user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
-    alias_user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
-    age: int = Query.i(description="age", gt=1, lt=100),
+async def param_at_most_one_of_route(
+    uid: int = Query.i(description="user id"),
+    user_name: Optional[str] = Query.i(None, description="user name"),
+    alias_user_name: Optional[str] = Query.i(None, description="user name"),
+    other_user_name: Optional[str] = Query.i(None, description="user name"),
+) -> response.HTTPResponse:
+    return response.json(
+        {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "uid": uid,
+                "user_name": user_name or alias_user_name or other_user_name,
+            },
+        }
+    )
+
+
+@plugin_pait(
+    tag=(tag.check_param_tag,),
+    response_model_list=[SimpleRespModel, FailRespModel],
+    post_plugin_list=[AtMostOneOfPlugin.build()],
+)
+async def param_at_most_one_of_route_by_extra_param(
+    uid: int = Query.i(description="user id"),
+    user_name: Optional[str] = Query.i(
+        None, description="user name", extra_param_list=[AtMostOneOfExtraParam(group="user_name")]
+    ),
+    alias_user_name: Optional[str] = Query.i(
+        None,
+        description="user name",
+        extra_param_list=[AtMostOneOfExtraParam(group="user_name"), AtMostOneOfExtraParam(group="alias_user_name")],
+    ),
+    other_user_name: Optional[str] = Query.i(
+        None, description="user name", extra_param_list=[AtMostOneOfExtraParam(group="alias_user_name")]
+    ),
+) -> response.HTTPResponse:
+    return response.json(
+        {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "uid": uid,
+                "user_name": user_name or alias_user_name or other_user_name,
+            },
+        }
+    )
+
+
+@plugin_pait(
+    tag=(tag.check_param_tag,),
+    response_model_list=[SimpleRespModel, FailRespModel],
+    post_plugin_list=[
+        RequiredPlugin.build(required_dict={"email": ["birthday"], "user_name": ["sex"]}),
+    ],
+)
+async def param_required_route(
+    uid: int = Query.i(description="user id"),
+    email: Optional[str] = Query.i(None, description="user email"),
     birthday: Optional[str] = Query.i(None, description="birthday"),
-    sex: SexEnum = Query.i(description="sex"),
+    user_name: Optional[str] = Query.i(None, description="user name"),
+    sex: Optional[SexEnum] = Query.i(None, description="sex"),
 ) -> response.HTTPResponse:
     """Test check param"""
     return response.json(
         {
             "code": 0,
             "msg": "",
-            "data": {
-                "birthday": birthday,
-                "uid": uid,
-                "user_name": user_name or alias_user_name,
-                "email": email,
-                "age": age,
-                "sex": sex.value,
-            },
+            "data": {"birthday": birthday, "uid": uid, "email": email, "user_name": user_name, "sex": sex},
+        }
+    )
+
+
+@plugin_pait(
+    tag=(tag.check_param_tag,),
+    response_model_list=[SimpleRespModel, FailRespModel],
+    post_plugin_list=[
+        RequiredPlugin.build(),
+    ],
+)
+async def param_required_route_by_extra_param(
+    uid: int = Query.i(description="user id"),
+    email: Optional[str] = Query.i(None, description="user email"),
+    birthday: Optional[str] = Query.i(
+        None, description="birthday", extra_param_list=[RequiredExtraParam(main_column="email")]
+    ),
+    user_name: Optional[str] = Query.i(
+        None, description="user name", extra_param_list=[RequiredGroupExtraParam(group="user_name", is_main=True)]
+    ),
+    sex: Optional[SexEnum] = Query.i(
+        None, description="sex", extra_param_list=[RequiredGroupExtraParam(group="user_name")]
+    ),
+) -> response.HTTPResponse:
+    """Test check param"""
+    return response.json(
+        {
+            "code": 0,
+            "msg": "",
+            "data": {"birthday": birthday, "uid": uid, "email": email, "user_name": user_name, "sex": sex},
         }
     )
 
 
 if __name__ == "__main__":
     with create_app(__name__) as app:
-        app.add_route(check_param_route, "/api/plugin/check-param", methods={"GET"})
         app.add_route(mock_route, "/api/plugin/mock/<age>", methods={"GET"})
         app.add_route(cache_response, "/api/plugin/cache-response", methods={"GET"})
         app.add_route(cache_response1, "/api/plugin/cache-response1", methods={"GET"})
         app.add_route(check_json_plugin_route, "/api/plugin/check-json-plugin", methods={"GET"})
         app.add_route(auto_complete_json_route, "/api/plugin/auto-complete-json-plugin", methods={"GET"})
         app.add_route(check_json_plugin_route1, "/api/plugin/check-json-plugin-1", methods={"GET"})
+        app.add_route(param_at_most_one_of_route_by_extra_param, "/api/at-most-one-of-by-extra-param", methods={"GET"})
+        app.add_route(param_at_most_one_of_route, "/api/at-most-one-of", methods={"GET"})
+        app.add_route(param_required_route_by_extra_param, "/api/required-by-extra-param", methods={"GET"})
+        app.add_route(param_required_route, "/api/required", methods={"GET"})

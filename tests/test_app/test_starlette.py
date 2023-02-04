@@ -212,8 +212,13 @@ class TestStarlette:
     def test_pait_base_field_route(self, base_test: BaseTest) -> None:
         base_test.pait_base_field_route(main_example.pait_base_field_route)
 
-    def test_check_param(self, base_test: BaseTest) -> None:
-        base_test.check_param(main_example.check_param_route)
+    def test_param_at_most_one_of_route(self, base_test: BaseTest) -> None:
+        base_test.param_at_most_one_of_route(main_example.param_at_most_one_of_route_by_extra_param)
+        base_test.param_at_most_one_of_route(main_example.param_at_most_one_of_route)
+
+    def test_param_required_route(self, base_test: BaseTest) -> None:
+        base_test.param_required_route(main_example.param_required_route_by_extra_param)
+        base_test.param_required_route(main_example.param_required_route)
 
     def test_check_response(self, base_test: BaseTest) -> None:
         base_test.check_response(main_example.check_response_route)

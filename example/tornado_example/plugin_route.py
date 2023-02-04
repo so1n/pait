@@ -15,7 +15,13 @@ from example.common.response_model import (
 )
 from example.tornado_example.utils import MyHandler, create_app, global_pait
 from pait.app.tornado import Pait
-from pait.app.tornado.plugin import AtMostOneOfPlugin, RequiredPlugin
+from pait.app.tornado.plugin import (
+    AtMostOneOfExtraParam,
+    AtMostOneOfPlugin,
+    RequiredExtraParam,
+    RequiredGroupExtraParam,
+    RequiredPlugin,
+)
 from pait.app.tornado.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.app.tornado.plugin.cache_response import CacheResponsePlugin
 from pait.app.tornado.plugin.check_json_resp import CheckJsonRespPlugin
@@ -193,38 +199,122 @@ class CheckJsonPlugin1Handler(MyHandler):
         return return_dict  # type: ignore
 
 
-class CheckParamHandler(MyHandler):
+class ParamAtMostOneOfHandler(MyHandler):
     @plugin_pait(
         tag=(tag.check_param_tag,),
         response_model_list=[SimpleRespModel, FailRespModel],
         post_plugin_list=[
-            RequiredPlugin.build(required_dict={"birthday": ["alias_user_name"]}),
-            AtMostOneOfPlugin.build(at_most_one_of_list=[["user_name", "alias_user_name"]]),
+            AtMostOneOfPlugin.build(
+                at_most_one_of_list=[["user_name", "alias_user_name"], ["other_user_name", "alias_user_name"]]
+            )
         ],
     )
     async def get(
         self,
-        uid: int = Query.i(description="user id", gt=10, lt=1000),
-        email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
-        user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
-        alias_user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
-        age: int = Query.i(description="age", gt=1, lt=100),
+        uid: int = Query.i(description="user id"),
+        user_name: Optional[str] = Query.i(None, description="user name"),
+        alias_user_name: Optional[str] = Query.i(None, description="user name"),
+        other_user_name: Optional[str] = Query.i(None, description="user name"),
+    ) -> None:
+        self.write(
+            {
+                "code": 0,
+                "msg": "",
+                "data": {
+                    "uid": uid,
+                    "user_name": user_name or alias_user_name or other_user_name,
+                },
+            }
+        )
+
+
+class ParamAtMostOneOfByExtraParamHandler(MyHandler):
+    @plugin_pait(
+        tag=(tag.check_param_tag,),
+        response_model_list=[SimpleRespModel, FailRespModel],
+        post_plugin_list=[AtMostOneOfPlugin.build()],
+    )
+    async def get(
+        self,
+        uid: int = Query.i(description="user id"),
+        user_name: Optional[str] = Query.i(
+            None, description="user name", extra_param_list=[AtMostOneOfExtraParam(group="user_name")]
+        ),
+        alias_user_name: Optional[str] = Query.i(
+            None,
+            description="user name",
+            extra_param_list=[AtMostOneOfExtraParam(group="user_name"), AtMostOneOfExtraParam(group="alias_user_name")],
+        ),
+        other_user_name: Optional[str] = Query.i(
+            None, description="user name", extra_param_list=[AtMostOneOfExtraParam(group="alias_user_name")]
+        ),
+    ) -> None:
+        self.write(
+            {
+                "code": 0,
+                "msg": "",
+                "data": {
+                    "uid": uid,
+                    "user_name": user_name or alias_user_name or other_user_name,
+                },
+            }
+        )
+
+
+class ParamRequiredHandler(MyHandler):
+    @plugin_pait(
+        tag=(tag.check_param_tag,),
+        response_model_list=[SimpleRespModel, FailRespModel],
+        post_plugin_list=[
+            RequiredPlugin.build(required_dict={"email": ["birthday"], "user_name": ["sex"]}),
+        ],
+    )
+    async def get(
+        self,
+        uid: int = Query.i(description="user id"),
+        email: Optional[str] = Query.i(None, description="user email"),
         birthday: Optional[str] = Query.i(None, description="birthday"),
-        sex: SexEnum = Query.i(description="sex"),
+        user_name: Optional[str] = Query.i(None, description="user name"),
+        sex: Optional[SexEnum] = Query.i(None, description="sex"),
     ) -> None:
         """Test check param"""
         self.write(
             {
                 "code": 0,
                 "msg": "",
-                "data": {
-                    "birthday": birthday,
-                    "uid": uid,
-                    "user_name": user_name or alias_user_name,
-                    "email": email,
-                    "age": age,
-                    "sex": sex.value,
-                },
+                "data": {"birthday": birthday, "uid": uid, "email": email, "user_name": user_name, "sex": sex},
+            }
+        )
+
+
+class ParamRequiredByExtraParamHandler(MyHandler):
+    @plugin_pait(
+        tag=(tag.check_param_tag,),
+        response_model_list=[SimpleRespModel, FailRespModel],
+        post_plugin_list=[
+            RequiredPlugin.build(),
+        ],
+    )
+    async def get(
+        self,
+        uid: int = Query.i(description="user id"),
+        email: Optional[str] = Query.i(None, description="user email"),
+        birthday: Optional[str] = Query.i(
+            None, description="birthday", extra_param_list=[RequiredExtraParam(main_column="email")]
+        ),
+        user_name: Optional[str] = Query.i(
+            None, description="user name", extra_param_list=[RequiredGroupExtraParam(group="user_name", is_main=True)]
+        ),
+        sex: Optional[SexEnum] = Query.i(
+            None, description="sex", extra_param_list=[RequiredGroupExtraParam(group="user_name")]
+        ),
+    ) -> None:
+        """Test check param"""
+        self.write(
+            {
+                "code": 0,
+                "msg": "",
+                "data": {"birthday": birthday, "uid": uid, "email": email, "user_name": user_name, "sex": sex},
             }
         )
 
@@ -233,12 +323,15 @@ if __name__ == "__main__":
     with create_app() as app:
         app.add_route(
             [
-                (r"/api/check-param", CheckParamHandler),
                 (r"/api/auto-complete-json-plugin", AutoCompleteJsonHandler),
                 (r"/api/cache-response", CacheResponseHandler),
                 (r"/api/cache-response1", CacheResponse1Handler),
                 (r"/api/check-json-plugin", CheckJsonPluginHandler),
                 (r"/api/check-json-plugin-1", CheckJsonPlugin1Handler),
                 (r"/api/mock/(?P<age>\w+)", MockHandler),
+                (r"/api/at-most-one-of-by-extra-param", ParamAtMostOneOfByExtraParamHandler),
+                (r"/api/at-most-one-of", ParamAtMostOneOfHandler),
+                (r"/api/required-by-extra-param", ParamRequiredByExtraParamHandler),
+                (r"/api/required", ParamRequiredHandler),
             ]
         )

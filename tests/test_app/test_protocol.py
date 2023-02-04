@@ -87,6 +87,14 @@ class TestProtocol(BaseTestProtocol):
         for name, parameters in create_sub_pait_signature.parameters.items():
             assert parameters == call_signature.parameters[name]
 
+    def test_field(self) -> None:
+        from pait.field import BaseField
+
+        init_signature: inspect.Signature = inspect.signature(BaseField.__init__)
+        ignore_signature: inspect.Signature = inspect.signature(BaseField.i)
+        for name, parameters in ignore_signature.parameters.items():
+            assert parameters == init_signature.parameters[name]
+
 
 class TestDocRouteProtocol(BaseTestProtocol):
     def test_add_doc_route(self) -> None:

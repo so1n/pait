@@ -129,6 +129,64 @@ class BaseTest(object):
                 strict_inspection_check_json_content=False,
             ).json()
 
+    def param_at_most_one_of_route(self, route: Callable) -> None:
+        test_helper: BaseTestHelper = self.test_helper(
+            self.client,
+            route,
+            query_dict={"uid": 123, "user_name": "appl", "alias_user_name": "appe"},
+            strict_inspection_check_json_content=False,
+        )
+        assert "requires at most one of param user_name or alias_user_name" in test_helper.json()["msg"]
+        test_helper = self.test_helper(
+            self.client,
+            route,
+            query_dict={"uid": 123, "other_user_name": "appl", "alias_user_name": "appe"},
+            strict_inspection_check_json_content=False,
+        )
+        assert (
+            "requires at most one of param alias_user_name or other_user_name" in test_helper.json()["msg"]
+            or "requires at most one of param other_user_name or alias_user_name" in test_helper.json()["msg"]
+        )
+
+        for column in ["user_name", "alias_user_name", "other_user_name"]:
+            test_helper = self.test_helper(
+                self.client,
+                route,
+                query_dict={"uid": 123, column: "appl"},
+                strict_inspection_check_json_content=False,
+            )
+        assert test_helper.json()["code"] == 0
+
+    def param_required_route(self, route: Callable) -> None:
+        test_helper = self.test_helper(
+            self.client,
+            route,
+            query_dict={"uid": 123, "email": "example@example.com"},
+            strict_inspection_check_json_content=False,
+        )
+        assert "email requires param birthday, which if not none" in test_helper.json()["msg"]
+        test_helper = self.test_helper(
+            self.client,
+            route,
+            query_dict={"uid": 123, "email": "example@example.com", "birthday": "2000-01-01"},
+            strict_inspection_check_json_content=False,
+        )
+        assert test_helper.json()["code"] == 0
+        test_helper = self.test_helper(
+            self.client,
+            route,
+            query_dict={"uid": 123, "user_name": "appl"},
+            strict_inspection_check_json_content=False,
+        )
+        assert "user_name requires param sex, which if not none" in test_helper.json()["msg"]
+        test_helper = self.test_helper(
+            self.client,
+            route,
+            query_dict={"uid": 123, "user_name": "appl", "sex": "man"},
+            strict_inspection_check_json_content=False,
+        )
+        assert test_helper.json()["code"] == 0
+
     def check_param(self, route: Callable) -> None:
         test_helper: BaseTestHelper = self.test_helper(
             self.client,
