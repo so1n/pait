@@ -1,7 +1,7 @@
 from dataclasses import MISSING
-from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional
+from typing import TYPE_CHECKING, Any, List, Mapping, Optional
 
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel
 from pydantic.fields import FieldInfo, Undefined
 from pydantic.typing import NoArgAnyCallable
 
@@ -12,14 +12,7 @@ if TYPE_CHECKING:
 
 
 class ExtraParam(BaseModel):
-    key: str = Field(default="")
-
-    @root_validator
-    def after_init(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        if "key" in values:
-            if not values["key"]:
-                values["key"] = cls.__name__
-        return values
+    pass
 
 
 class BaseField(FieldInfo):
