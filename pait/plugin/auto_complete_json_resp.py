@@ -60,7 +60,3 @@ class AutoCompleteJsonRespPlugin(PrePluginProtocol):
             return self._async_call(context)
         else:
             return self._sync_call(context)
-
-
-class AsyncAutoCompleteJsonRespPlugin(AutoCompleteJsonRespPlugin):
-    """"""

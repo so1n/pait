@@ -8,7 +8,7 @@ from pait.util import FuncSig, gen_tip_exc, get_func_sig
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
 
-__all__ = ["AsyncAtMostOneOfPlugin", "AtMostOneOfPlugin", "AtMostOneOfExtraParam"]
+__all__ = ["AtMostOneOfPlugin", "AtMostOneOfExtraParam"]
 
 
 class AtMostOneOfExtraParam(ExtraParam):
@@ -55,7 +55,3 @@ class AtMostOneOfPlugin(PostPluginProtocol):
     def __call__(self, context: PluginContext) -> Any:
         self.check_param(context)
         return super().__call__(context)
-
-
-class AsyncAtMostOneOfPlugin(AtMostOneOfPlugin):
-    """"""

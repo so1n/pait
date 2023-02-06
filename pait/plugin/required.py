@@ -8,7 +8,7 @@ from pait.util import FuncSig, gen_tip_exc, get_func_sig
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
 
-__all__ = ["RequiredPlugin", "AsyncRequiredPlugin", "RequiredExtraParam", "RequiredGroupExtraParam"]
+__all__ = ["RequiredPlugin", "RequiredExtraParam", "RequiredGroupExtraParam"]
 
 
 class RequiredGroupExtraParam(ExtraParam):
@@ -77,7 +77,3 @@ class RequiredPlugin(PostPluginProtocol):
     def __call__(self, context: PluginContext) -> Any:
         self.check_param(context)
         return super().__call__(context)
-
-
-class AsyncRequiredPlugin(RequiredPlugin):
-    """"""

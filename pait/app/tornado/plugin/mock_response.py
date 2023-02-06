@@ -5,7 +5,7 @@ from tornado.web import RequestHandler
 
 from pait.app.tornado.adapter.response import gen_response, set_info_to_response
 from pait.plugin.base import PluginContext
-from pait.plugin.base_mock_response import MockPluginProtocol
+from pait.plugin.mock_response import MockPluginProtocol
 
 
 class MockPlugin(MockPluginProtocol[None]):
@@ -31,7 +31,3 @@ class MockPlugin(MockPluginProtocol[None]):
     async def __call__(self, context: PluginContext) -> Any:
         self.tornado_handle = context.args[0]
         await super().__call__(context)
-
-
-class AsyncMockPlugin(MockPlugin):
-    """"""

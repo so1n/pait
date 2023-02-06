@@ -5,7 +5,7 @@ from pait.plugin.base import PluginContext
 
 from .unified_response import UnifiedResponsePluginProtocol
 
-__all__ = ["AsyncAutoCompleteJsonRespPlugin", "AutoCompleteJsonRespPlugin"]
+__all__ = ["AutoCompleteJsonRespPlugin"]
 
 
 class AutoCompleteJsonRespPlugin(UnifiedResponsePluginProtocol, _AutoCompleteJsonRespPlugin):
@@ -16,7 +16,3 @@ class AutoCompleteJsonRespPlugin(UnifiedResponsePluginProtocol, _AutoCompleteJso
     async def _async_call(self, context: PluginContext) -> Any:
         response: Any = await super()._async_call(context)
         return self._gen_response(response, context)
-
-
-class AsyncAutoCompleteJsonRespPlugin(AutoCompleteJsonRespPlugin):
-    """"""

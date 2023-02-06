@@ -5,7 +5,7 @@ from pait.plugin.check_json_resp import CheckJsonRespPlugin as _CheckJsonRespPlu
 
 from .unified_response import UnifiedResponsePluginProtocol
 
-__all__ = ["AsyncCheckJsonRespPlugin", "CheckJsonRespPlugin"]
+__all__ = ["CheckJsonRespPlugin"]
 
 
 class CheckJsonRespPlugin(UnifiedResponsePluginProtocol, _CheckJsonRespPlugin):
@@ -16,7 +16,3 @@ class CheckJsonRespPlugin(UnifiedResponsePluginProtocol, _CheckJsonRespPlugin):
     async def _async_call(self, context: PluginContext) -> Any:
         response: Any = await super()._async_call(context)
         return self._gen_response(response, context)
-
-
-class AsyncCheckJsonRespPlugin(CheckJsonRespPlugin):
-    """"""

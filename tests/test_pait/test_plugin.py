@@ -17,9 +17,9 @@ from pait.param_handle import ParamHandler
 from pait.plugin import PluginManager
 from pait.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.plugin.base import PostPluginProtocol, PrePluginProtocol
-from pait.plugin.base_mock_response import MockPluginProtocol
 from pait.plugin.cache_response import CacheResponsePlugin
 from pait.plugin.check_json_resp import CheckJsonRespPlugin
+from pait.plugin.mock_response import MockPluginProtocol
 
 
 @pytest.fixture

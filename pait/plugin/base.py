@@ -13,7 +13,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 
 class PluginProtocol(object):
-    def __init__(self: "_PluginT", next_plugin: _NextPluginT, pait_core_model: "PaitCoreModel", **kwargs: Any) -> None:
+    def __init__(self, next_plugin: _NextPluginT, pait_core_model: "PaitCoreModel", **kwargs: Any) -> None:
         """Direct init calls are not supported,
         so there is no need to write clearly in init what parameters are needed
         """
@@ -38,11 +38,6 @@ class PluginProtocol(object):
         Note:
             Failure to execute this stage will cause the plugin to fail to load, but will not affect the use of routes
         """
-        class_name: str = cls.__class__.__name__
-        if class_name.startswith("Async"):
-            logger.warning(
-                f"Please use {class_name.replace('Async', '')}, {class_name} will remove on version 1.0"
-            )  # pragma: no cover
 
     @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
