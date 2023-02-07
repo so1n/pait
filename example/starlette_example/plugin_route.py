@@ -14,11 +14,17 @@ from example.common.response_model import (
     UserSuccessRespModel2,
     UserSuccessRespModel3,
 )
-from example.starlette_example.utils import api_exception, create_app, global_pait
+from example.starlette_example.utils import create_app, global_pait
 from pait.app.starlette import Pait
-from pait.app.starlette.plugin import AtMostOneOfPlugin, RequiredPlugin
+from pait.app.starlette.plugin import (
+    AtMostOneOfExtraParam,
+    AtMostOneOfPlugin,
+    RequiredExtraParam,
+    RequiredGroupExtraParam,
+    RequiredPlugin,
+)
 from pait.app.starlette.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
-from pait.app.starlette.plugin.cache_resonse import CacheResponsePlugin
+from pait.app.starlette.plugin.cache_response import CacheResponsePlugin
 from pait.app.starlette.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.starlette.plugin.mock_response import MockPlugin
 from pait.field import MultiQuery, Path, Query
@@ -294,71 +300,118 @@ async def async_mock_route(
     tag=(tag.check_param_tag,),
     response_model_list=[SimpleRespModel, FailRespModel],
     post_plugin_list=[
-        RequiredPlugin.build(required_dict={"birthday": ["alias_user_name"]}),
-        AtMostOneOfPlugin.build(at_most_one_of_list=[["user_name", "alias_user_name"]]),
+        AtMostOneOfPlugin.build(
+            at_most_one_of_list=[["user_name", "alias_user_name"], ["alias_user_name", "other_user_name"]]
+        )
     ],
 )
-async def check_param_route(
-    uid: int = Query.i(description="user id", gt=10, lt=1000),
-    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
-    user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
-    alias_user_name: Optional[str] = Query.i(None, description="user name", min_length=2, max_length=4),
-    age: int = Query.i(description="age", gt=1, lt=100),
+async def param_at_most_one_of_route(
+    uid: int = Query.i(description="user id"),
+    user_name: Optional[str] = Query.i(None, description="user name"),
+    alias_user_name: Optional[str] = Query.i(None, description="user name"),
+    other_user_name: Optional[str] = Query.i(None, description="user name"),
+) -> JSONResponse:
+    return JSONResponse(
+        {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "uid": uid,
+                "user_name": user_name or alias_user_name or other_user_name,
+            },
+        }
+    )
+
+
+@plugin_pait(
+    tag=(tag.check_param_tag,),
+    response_model_list=[SimpleRespModel, FailRespModel],
+    post_plugin_list=[AtMostOneOfPlugin.build()],
+)
+async def param_at_most_one_of_route_by_extra_param(
+    uid: int = Query.i(description="user id"),
+    user_name: Optional[str] = Query.i(
+        None, description="user name", extra_param_list=[AtMostOneOfExtraParam(group="user_name")]
+    ),
+    alias_user_name: Optional[str] = Query.i(
+        None,
+        description="user name",
+        extra_param_list=[AtMostOneOfExtraParam(group="user_name"), AtMostOneOfExtraParam(group="alias_user_name")],
+    ),
+    other_user_name: Optional[str] = Query.i(
+        None, description="user name", extra_param_list=[AtMostOneOfExtraParam(group="alias_user_name")]
+    ),
+) -> JSONResponse:
+    return JSONResponse(
+        {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "uid": uid,
+                "user_name": user_name or alias_user_name or other_user_name,
+            },
+        }
+    )
+
+
+@plugin_pait(
+    tag=(tag.check_param_tag,),
+    response_model_list=[SimpleRespModel, FailRespModel],
+    post_plugin_list=[
+        RequiredPlugin.build(required_dict={"email": ["birthday"], "user_name": ["sex"]}),
+    ],
+)
+async def param_required_route(
+    uid: int = Query.i(description="user id"),
+    email: Optional[str] = Query.i(None, description="user email"),
     birthday: Optional[str] = Query.i(None, description="birthday"),
-    sex: SexEnum = Query.i(description="sex"),
+    user_name: Optional[str] = Query.i(None, description="user name"),
+    sex: Optional[SexEnum] = Query.i(None, description="sex"),
 ) -> JSONResponse:
     """Test check param"""
     return JSONResponse(
         {
             "code": 0,
             "msg": "",
-            "data": {
-                "birthday": birthday,
-                "uid": uid,
-                "user_name": user_name or alias_user_name,
-                "email": email,
-                "age": age,
-                "sex": sex.value,
-            },
+            "data": {"birthday": birthday, "uid": uid, "email": email, "user_name": user_name, "sex": sex},
+        }
+    )
+
+
+@plugin_pait(
+    tag=(tag.check_param_tag,),
+    response_model_list=[SimpleRespModel, FailRespModel],
+    post_plugin_list=[
+        RequiredPlugin.build(),
+    ],
+)
+async def param_required_route_by_extra_param(
+    uid: int = Query.i(description="user id"),
+    email: Optional[str] = Query.i(None, description="user email"),
+    birthday: Optional[str] = Query.i(
+        None, description="birthday", extra_param_list=[RequiredExtraParam(main_column="email")]
+    ),
+    user_name: Optional[str] = Query.i(
+        None, description="user name", extra_param_list=[RequiredGroupExtraParam(group="user_name", is_main=True)]
+    ),
+    sex: Optional[SexEnum] = Query.i(
+        None, description="sex", extra_param_list=[RequiredGroupExtraParam(group="user_name")]
+    ),
+) -> JSONResponse:
+    """Test check param"""
+    return JSONResponse(
+        {
+            "code": 0,
+            "msg": "",
+            "data": {"birthday": birthday, "uid": uid, "email": email, "user_name": user_name, "sex": sex},
         }
     )
 
 
 if __name__ == "__main__":
-    import uvicorn
-    from starlette.applications import Starlette
-    from starlette.routing import Route
-
-    from pait.app.starlette import add_doc_route
-    from pait.extra.config import apply_block_http_method_set
-    from pait.g import config
-
-    config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
-
-    app: Starlette = Starlette(
-        routes=[
-            Route("/api/mock/{age}", mock_route, methods=["GET"]),
-            Route("/api/async-mock/{age}", async_mock_route, methods=["GET"]),
-            Route("/api/check-param", check_param_route, methods=["GET"]),
-            Route("/api/auto-complete-json-plugin", auto_complete_json_route, methods=["GET"]),
-            Route("/api/async-auto-complete-json-plugin", async_auto_complete_json_route, methods=["GET"]),
-            Route("/api/cache-response", cache_response, methods=["GET"]),
-            Route("/api/cache-response1", cache_response1, methods=["GET"]),
-            Route("/api/check-json-plugin", check_json_plugin_route, methods=["GET"]),
-            Route("/api/check-json-plugin-1", check_json_plugin_route1, methods=["GET"]),
-            Route("/api/async-check-json-plugin", async_check_json_plugin_route, methods=["GET"]),
-            Route("/api/async-check-json-plugin-1", async_check_json_plugin_route1, methods=["GET"]),
-        ]
-    )
-    CacheResponsePlugin.set_redis_to_app(app, redis=Redis(decode_responses=True))
-    app.add_exception_handler(Exception, api_exception)
-    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
-    uvicorn.run(app)
-
     with create_app() as app:
         app.add_route("/api/mock/{age}", mock_route, methods=["GET"])
         app.add_route("/api/async-mock/{age}", async_mock_route, methods=["GET"])
-        app.add_route("/api/check-param", check_param_route, methods=["GET"])
         app.add_route("/api/auto-complete-json-plugin", auto_complete_json_route, methods=["GET"])
         app.add_route("/api/async-auto-complete-json-plugin", async_auto_complete_json_route, methods=["GET"])
         app.add_route("/api/cache-response", cache_response, methods=["GET"])
@@ -367,3 +420,7 @@ if __name__ == "__main__":
         app.add_route("/api/check-json-plugin-1", check_json_plugin_route1, methods=["GET"])
         app.add_route("/api/async-check-json-plugin", async_check_json_plugin_route, methods=["GET"])
         app.add_route("/api/async-check-json-plugin-1", async_check_json_plugin_route1, methods=["GET"])
+        app.add_route("/api/at-most-one-of-by-extra-param", param_at_most_one_of_route_by_extra_param, methods=["GET"])
+        app.add_route("/api/at-most-one-of", param_at_most_one_of_route, methods=["GET"])
+        app.add_route("/api/required-by-extra-param", param_required_route_by_extra_param, methods=["GET"])
+        app.add_route("/api/required", param_required_route, methods=["GET"])

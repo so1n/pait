@@ -7,11 +7,12 @@ from pydantic import BaseConfig
 from pait.app.base import BaseAppHelper
 from pait.extra.util import sync_config_data_to_pait_core_model
 from pait.g import config, pait_context, pait_data
-from pait.model.core import ContextModel, PaitCoreModel
+from pait.model.context import ContextModel
+from pait.model.core import PaitCoreModel
 from pait.model.response import BaseResponseModel
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
-from pait.plugin.base import PluginManager, PluginProtocol
+from pait.plugin.base import PluginManager, PluginProtocol, PostPluginProtocol, PrePluginProtocol
 from pait.util import get_func_sig
 
 if TYPE_CHECKING:
@@ -25,7 +26,7 @@ class Pait(object):
     app_helper_class: "Type[BaseAppHelper]"
 
     def __init__(
-        self,
+        self: "_PaitT",
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
         # param check
         pre_depend_list: Optional[List[Callable]] = None,
@@ -39,8 +40,8 @@ class Pait(object):
         tag: Optional[Tuple[Tag, ...]] = None,
         response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
         # plugin
-        plugin_list: Optional[List[PluginManager]] = None,
-        post_plugin_list: Optional[List[PluginManager]] = None,
+        plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
+        post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
         param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
     ):
         """
@@ -86,8 +87,8 @@ class Pait(object):
         self._tag: Optional[Tuple[Tag, ...]] = tag
         self._response_model_list: Optional[List[Type[BaseResponseModel]]] = response_model_list
         # plugin
-        self._plugin_list: Optional[List[PluginManager]] = plugin_list
-        self._post_plugin_list: Optional[List[PluginManager]] = post_plugin_list
+        self._plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = plugin_list
+        self._post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = post_plugin_list
         self._param_handler_plugin: Optional[Type["BaseParamHandler"]] = param_handler_plugin
 
     @staticmethod
@@ -102,7 +103,7 @@ class Pait(object):
             return target_container or self_container
 
     def create_sub_pait(
-        self: _PaitT,
+        self: "_PaitT",
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
         # param check
         pre_depend_list: Optional[List[Callable]] = None,
@@ -119,10 +120,10 @@ class Pait(object):
         append_tag: Optional[Tuple[Tag, ...]] = None,
         response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
         append_response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
-        plugin_list: Optional[List[PluginManager]] = None,
-        append_plugin_list: Optional[List[PluginManager]] = None,
-        post_plugin_list: Optional[List[PluginManager]] = None,
-        append_post_plugin_list: Optional[List[PluginManager]] = None,
+        plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
+        append_plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
+        post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
+        append_post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
         param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
     ) -> _PaitT:
         """
@@ -179,31 +180,21 @@ class Pait(object):
         )
 
     @staticmethod
-    def _plugin_manager_handler(
-        pait_core_model: PaitCoreModel,
-        args: Any,
-        kwargs: Any,
-    ) -> List[_PluginT]:
-        plugin_instance_list: List[_PluginT] = []
-
-        pre_plugin: Callable = pait_core_model.func
-        for plugin_manager in pait_core_model.plugin_list:
-            plugin_instance: _PluginT = plugin_manager.get_plugin()
-            plugin_instance.__post_init__(pait_core_model, args, kwargs)
-            plugin_instance.call_next = pre_plugin  # type: ignore
-            pre_plugin = plugin_instance
-            plugin_instance_list.append(plugin_instance)
-        plugin_instance_list.reverse()
-        return plugin_instance_list
-
-    @staticmethod
-    def init_context(pait_core_model: "PaitCoreModel", args: Any, kwargs: Any) -> None:
+    def init_context(pait_core_model: "PaitCoreModel", args: Any, kwargs: Any) -> ContextModel:
         """Inject App Helper into context"""
         app_helper: BaseAppHelper = pait_core_model.app_helper_class(args, kwargs)
-        pait_context.set(ContextModel(cbv_instance=app_helper.cbv_instance, app_helper=app_helper))
+        context: ContextModel = ContextModel(
+            cbv_instance=app_helper.cbv_instance,
+            app_helper=app_helper,
+            pait_core_model=pait_core_model,
+            args=args,
+            kwargs=kwargs,
+        )
+        pait_context.set(context)
+        return context
 
     def __call__(
-        self,
+        self: "_PaitT",
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
         # param check
         pre_depend_list: Optional[List[Callable]] = None,
@@ -221,10 +212,10 @@ class Pait(object):
         response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
         append_response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
         # plugin
-        plugin_list: Optional[List[PluginManager]] = None,
-        append_plugin_list: Optional[List[PluginManager]] = None,
-        post_plugin_list: Optional[List[PluginManager]] = None,
-        append_post_plugin_list: Optional[List[PluginManager]] = None,
+        plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
+        append_plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
+        post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
+        append_post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
         param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
         feature_code: str = "",
     ) -> Callable:
@@ -277,11 +268,11 @@ class Pait(object):
             get_func_sig(func)
             # gen pait core model and register to pait data
             pait_core_model: PaitCoreModel = PaitCoreModel(
+                func,
+                self.app_helper_class,
                 author=author,
-                app_helper_class=self.app_helper_class,
                 desc=desc,
                 summary=summary,
-                func=func,
                 func_name=name,
                 status=status,
                 group=group,
@@ -300,18 +291,16 @@ class Pait(object):
 
                 @wraps(func)
                 async def dispatch(*args: Any, **kwargs: Any) -> Callable:
-                    self.init_context(pait_core_model, args, kwargs)
-                    invoke: PluginProtocol = self._plugin_manager_handler(pait_core_model, args, kwargs)[0]
-                    return await invoke(*args, **kwargs)
+                    context: ContextModel = self.init_context(pait_core_model, args, kwargs)
+                    return await pait_core_model.main_plugin(context)
 
                 return dispatch
             else:
 
                 @wraps(func)
                 def dispatch(*args: Any, **kwargs: Any) -> Callable:
-                    self.init_context(pait_core_model, args, kwargs)
-                    invoke: PluginProtocol = self._plugin_manager_handler(pait_core_model, args, kwargs)[0]
-                    return invoke(*args, **kwargs)
+                    context = self.init_context(pait_core_model, args, kwargs)
+                    return pait_core_model.main_plugin(context)
 
                 return dispatch
 

@@ -5,7 +5,7 @@ from sanic import response as sanic_response
 from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
 
 from pait.app.sanic.adapter.response import gen_response, set_info_to_response
-from pait.plugin.base_mock_response import MockPluginProtocol
+from pait.plugin.mock_response import MockPluginProtocol
 
 
 class MockPlugin(MockPluginProtocol[sanic_response.BaseHTTPResponse]):
@@ -31,7 +31,3 @@ class MockPlugin(MockPluginProtocol[sanic_response.BaseHTTPResponse]):
 
     def set_info_to_response(self, resp: sanic_response.BaseHTTPResponse) -> None:
         set_info_to_response(resp, self.pait_response_model)
-
-
-class AsyncMockPlugin(MockPlugin):
-    pass

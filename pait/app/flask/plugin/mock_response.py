@@ -4,7 +4,7 @@ from typing import IO, Any
 from flask import Response, send_from_directory
 
 from pait.app.flask.adapter.response import gen_response, set_info_to_response
-from pait.plugin.base_mock_response import MockPluginProtocol
+from pait.plugin.mock_response import MockPluginProtocol
 
 __all__ = ["MockPlugin"]
 

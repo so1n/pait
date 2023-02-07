@@ -4,7 +4,7 @@ Rewrite some old methods to increase the extensibility of the corresponding modu
 - 1 Add a user-friendly doc ui
 - 2 Plugin Panel
 
-### 0.9.0[now]
+### 0.9.0[Dev]
 Improve Open API related functions and refactor some APIs that affect performance
 > Note: This version will have syntax changes that are not backward compatible, and the library status will change from alpha to beta
 
@@ -16,6 +16,9 @@ Function Changes List:
 - The Mock plugin adds a new parameter example_column_name to specify the value of the Field from which the mock data is to be retrieved
 - Refactor the Mock plugin's API to reduce duplicate code
 - Support for adding simple routing to web frameworks (experimental)
+- Plugin Record:
+  - No longer distinguish between front or back plugins by is_core, but by different classes to facilitate Type Hint checking
+
 
 API Changes:
 - `@pait`: The tag parameter type no longer supports String, only support `Tag` class. e.g:
@@ -50,7 +53,7 @@ API Changes:
   - The `app` parameter of `AddDocRoute` is required.
   - The `pin_code` parameter of url is no longer supported, only the normalized `pin-code` parameter is supported。
 - Use `pait.model.tag`,`pait.model.response` and `pait.openapi` module need to install `any-api`
-### 0.8.0
+### 0.8.0[Now]
 Rewrite part of the implementation of gRPC Gateway, and transfer some functions to [protobuf_to_pydantic](https://github.com/so1n/protobuf_to_pydantic)
 
 ### 0.7.9

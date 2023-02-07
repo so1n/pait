@@ -45,8 +45,11 @@ from example.starlette_example.plugin_route import (
     cache_response1,
     check_json_plugin_route,
     check_json_plugin_route1,
-    check_param_route,
     mock_route,
+    param_at_most_one_of_route,
+    param_at_most_one_of_route_by_extra_param,
+    param_required_route,
+    param_required_route_by_extra_param,
 )
 from example.starlette_example.response_route import (
     async_file_response_route,
@@ -60,7 +63,7 @@ from example.starlette_example.response_route import (
 from example.starlette_example.security_route import api_key_route
 from example.starlette_example.utils import api_exception, global_pait
 from pait.app.starlette import AddDocRoute, Pait, add_doc_route, load_app, pait
-from pait.app.starlette.plugin.cache_resonse import CacheResponsePlugin
+from pait.app.starlette.plugin.cache_response import CacheResponsePlugin
 from pait.exceptions import PaitBaseException
 from pait.extra.config import MatchRule
 from pait.field import Header, Json, Query
@@ -233,7 +236,6 @@ def create_app() -> Starlette:
             Route("/api/resp/async-file-resp", async_file_response_route, methods=["GET"]),
             Route("/api/plugin/mock/{age}", mock_route, methods=["GET"]),
             Route("/api/plugin/async-mock/{age}", async_mock_route, methods=["GET"]),
-            Route("/api/plugin/check-param", check_param_route, methods=["GET"]),
             Route("/api/plugin/auto-complete-json-plugin", auto_complete_json_route, methods=["GET"]),
             Route("/api/plugin/async-auto-complete-json-plugin", async_auto_complete_json_route, methods=["GET"]),
             Route("/api/plugin/cache-response", cache_response, methods=["GET"]),
@@ -242,6 +244,10 @@ def create_app() -> Starlette:
             Route("/api/plugin/check-json-plugin-1", check_json_plugin_route1, methods=["GET"]),
             Route("/api/plugin/async-check-json-plugin", async_check_json_plugin_route, methods=["GET"]),
             Route("/api/plugin/async-check-json-plugin-1", async_check_json_plugin_route1, methods=["GET"]),
+            Route("/api/at-most-one-of-by-extra-param", param_at_most_one_of_route_by_extra_param, methods=["GET"]),
+            Route("/api/at-most-one-of", param_at_most_one_of_route, methods=["GET"]),
+            Route("/api/required-by-extra-param", param_required_route_by_extra_param, methods=["GET"]),
+            Route("/api/required", param_required_route, methods=["GET"]),
             Route("/api/depend/depend", depend_route, methods=["POST"]),
             Route("/api/depend/check_depend_contextmanager", depend_contextmanager_route, methods=["GET"]),
             Route("/api/depend/check_depend_async_contextmanager", depend_async_contextmanager_route, methods=["GET"]),

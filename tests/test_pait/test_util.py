@@ -186,7 +186,7 @@ class FakeField(field.BaseField):
 
 class TestGenTipExc:
     def test_raise_and_tip_param_value_is_empty(self, mocker: MockFixture) -> None:
-        patch = mocker.patch("pait.param_handle.logging.debug")
+        patch = mocker.patch("pait.param_handle.base.logging.debug")
         parameter: inspect.Parameter = inspect.Parameter(
             "b",
             inspect.Parameter.POSITIONAL_ONLY,
@@ -197,7 +197,7 @@ class TestGenTipExc:
         patch.assert_called_with(AnyStringWith("class: `Demo`  attributes error"))
 
     def test_raise_and_tip_param_value_is_pait_field(self, mocker: MockFixture) -> None:
-        patch = mocker.patch("pait.param_handle.logging.debug")
+        patch = mocker.patch("pait.param_handle.base.logging.debug")
         parameter: inspect.Parameter = inspect.Parameter(
             "b", inspect.Parameter.POSITIONAL_ONLY, annotation=str, default=FakeField.i()
         )
@@ -207,7 +207,7 @@ class TestGenTipExc:
         patch.assert_called_with(AnyStringWith("class: `Demo`  attributes error"))
 
     def test_raise_and_tip_param_value_is_not_pait_field(self, mocker: MockFixture) -> None:
-        patch = mocker.patch("pait.param_handle.logging.debug")
+        patch = mocker.patch("pait.param_handle.base.logging.debug")
         parameter: inspect.Parameter = inspect.Parameter(
             "b", inspect.Parameter.POSITIONAL_ONLY, annotation=str, default=""
         )

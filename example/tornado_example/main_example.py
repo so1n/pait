@@ -39,8 +39,11 @@ from example.tornado_example.plugin_route import (
     CacheResponseHandler,
     CheckJsonPlugin1Handler,
     CheckJsonPluginHandler,
-    CheckParamHandler,
     MockHandler,
+    ParamAtMostOneOfByExtraParamHandler,
+    ParamAtMostOneOfHandler,
+    ParamRequiredByExtraParamHandler,
+    ParamRequiredHandler,
 )
 from example.tornado_example.response_route import (
     CheckRespHandler,
@@ -51,7 +54,7 @@ from example.tornado_example.response_route import (
 from example.tornado_example.security_route import APIKeyHanler
 from example.tornado_example.utils import MyHandler, global_pait
 from pait.app.tornado import AddDocRoute, Pait, add_doc_route, load_app, pait
-from pait.app.tornado.plugin.cache_resonse import CacheResponsePlugin
+from pait.app.tornado.plugin.cache_response import CacheResponsePlugin
 from pait.extra.config import MatchRule
 from pait.field import Header, Json, Query
 from pait.model.status import PaitStatus
@@ -216,13 +219,16 @@ def create_app() -> Application:
             (r"/api/resp/text-resp", TextResponseHanler),
             (r"/api/resp/html-resp", HtmlResponseHanler),
             (r"/api/resp/file-resp", FileResponseHanler),
-            (r"/api/plugin/check-param", CheckParamHandler),
             (r"/api/plugin/auto-complete-json-plugin", AutoCompleteJsonHandler),
             (r"/api/plugin/cache-response", CacheResponseHandler),
             (r"/api/plugin/cache-response1", CacheResponse1Handler),
             (r"/api/plugin/check-json-plugin", CheckJsonPluginHandler),
             (r"/api/plugin/check-json-plugin-1", CheckJsonPlugin1Handler),
             (r"/api/plugin/mock/(?P<age>\w+)", MockHandler),
+            (r"/api/plugin/at-most-one-of-by-extra-param", ParamAtMostOneOfByExtraParamHandler),
+            (r"/api/plugin/at-most-one-of", ParamAtMostOneOfHandler),
+            (r"/api/plugin/required-by-extra-param", ParamRequiredByExtraParamHandler),
+            (r"/api/plugin/required", ParamRequiredHandler),
             (r"/api/depend/depend", DependHandler),
             (r"/api/depend/check-depend-contextmanager", DependContextmanagerHanler),
             (r"/api/depend/check-depend-async-contextmanager", DependAsyncContextmanagerHanler),

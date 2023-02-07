@@ -207,8 +207,13 @@ class TestTornado(BaseTestTornado):
     def test_field_default_factory_route(self) -> None:
         self.base_test.field_default_factory_route(main_example.FieldDefaultFactoryHandler.post)
 
-    def test_check_param(self) -> None:
-        self.base_test.check_param(main_example.CheckParamHandler.get)
+    def test_param_at_most_one_of_route(self) -> None:
+        self.base_test.param_at_most_one_of_route(main_example.ParamAtMostOneOfByExtraParamHandler.get)
+        self.base_test.param_at_most_one_of_route(main_example.ParamAtMostOneOfHandler.get)
+
+    def test_param_required_route(self) -> None:
+        self.base_test.param_required_route(main_example.ParamRequiredHandler.get)
+        self.base_test.param_required_route(main_example.ParamRequiredByExtraParamHandler.get)
 
     def test_check_response(self) -> None:
         self.base_test.check_response(main_example.CheckRespHandler.get)

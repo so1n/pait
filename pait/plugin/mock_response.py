@@ -6,7 +6,7 @@ import aiofiles  # type: ignore
 from typing_extensions import Literal
 
 from pait.model import response
-from pait.plugin.base import PluginManager, PluginProtocol
+from pait.plugin.base import PluginContext, PluginManager, PrePluginProtocol
 from pait.util import get_pait_response_model
 
 if TYPE_CHECKING:
@@ -16,13 +16,18 @@ if TYPE_CHECKING:
 RESP_T = TypeVar("RESP_T")
 
 
-class MockPluginProtocol(PluginProtocol, Generic[RESP_T]):
+class MockPluginProtocol(PrePluginProtocol, Generic[RESP_T]):
     """Automatically return a json response with sample values based on the response object
     Note: the code logic of the routing function will not be executed
     """
 
     pait_response_model: Type[response.BaseResponseModel]
     example_column_name: Literal["example", "mock"]
+
+    def __call__(self, context: PluginContext) -> Any:
+        if self._is_async_func:
+            return self.async_mock_response()
+        return self.mock_response()
 
     @classmethod
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
@@ -112,9 +117,3 @@ class MockPluginProtocol(PluginProtocol, Generic[RESP_T]):
             find_core_response_model=find_core_response_model,
             example_column_name=example_column_name,
         )
-
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        if self._is_async_func:
-            return self.async_mock_response()
-        else:
-            return self.mock_response()

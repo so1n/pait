@@ -1,7 +1,7 @@
+import copy
 import inspect
 import logging
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
+from typing import TYPE_CHECKING, Callable, List, Optional, Set, Tuple, Type
 
 from pydantic import BaseConfig, BaseModel
 
@@ -9,7 +9,7 @@ from pait.model.response import BaseResponseModel, PaitResponseModel
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
 from pait.param_handle import AsyncParamHandler, BaseParamHandler, ParamHandler
-from pait.plugin import PluginManager
+from pait.plugin import PluginManager, PluginProtocol, PostPluginProtocol, PrePluginProtocol
 from pait.util import ignore_pre_check
 
 if TYPE_CHECKING:
@@ -17,17 +17,12 @@ if TYPE_CHECKING:
 
 from pait.extra.config import MatchKeyLiteral, MatchRule
 
-__all__ = ["PaitCoreModel", "ContextModel", "MatchRule", "MatchKeyLiteral"]
-
-
-@dataclass
-class ContextModel(object):
-    cbv_instance: Optional[Any]
-    app_helper: "BaseAppHelper"
+__all__ = ["PaitCoreModel", "MatchRule", "MatchKeyLiteral"]
 
 
 class PaitCoreModel(object):
     _param_handler_plugin: PluginManager["BaseParamHandler"]
+    _main_plugin: PluginProtocol
 
     def __init__(
         self,
@@ -47,8 +42,8 @@ class PaitCoreModel(object):
         tag: Optional[Tuple[Tag, ...]] = None,
         response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
-        plugin_list: Optional[List[PluginManager]] = None,
-        post_plugin_list: Optional[List[PluginManager]] = None,
+        plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
+        post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
         param_handler_plugin: Optional[Type[BaseParamHandler]] = None,
         feature_code: str = "",
     ):
@@ -80,7 +75,6 @@ class PaitCoreModel(object):
         self.group: str = group or "root"  # Which group this interface belongs to
         self.tag: Tuple[Tag, ...] = tag or (Tag(name="default"),)  # Interface tag
         self._extra_openapi_model_list: List[Type[BaseModel]] = []
-
         self._response_model_list: List[Type[BaseResponseModel]] = []
         if response_model_list:
             self.add_response_model_list(response_model_list)
@@ -88,8 +82,6 @@ class PaitCoreModel(object):
         # pait plugin
         self._plugin_list: List[PluginManager] = []
         self._post_plugin_list: List[PluginManager] = []
-        self._plugin_manager_list: List[PluginManager] = []
-
         self.param_handler_plugin = param_handler_plugin  # type: ignore
         self.add_plugin(plugin_list, post_plugin_list)
 
@@ -99,17 +91,17 @@ class PaitCoreModel(object):
 
     @param_handler_plugin.setter
     def param_handler_plugin(self, param_handler_plugin: Optional[Type[BaseParamHandler]]) -> None:
-        if param_handler_plugin:
-            self._param_handler_plugin = PluginManager(param_handler_plugin)
-        elif inspect.iscoroutinefunction(self.func):
-            self._param_handler_plugin = PluginManager(AsyncParamHandler)
-        else:
-            self._param_handler_plugin = PluginManager(ParamHandler)
+        if param_handler_plugin is None:
+            if inspect.iscoroutinefunction(self.func):
+                param_handler_plugin = AsyncParamHandler
+            else:
+                param_handler_plugin = ParamHandler
+        self._param_handler_plugin = PluginManager(param_handler_plugin)
+
         if not ignore_pre_check:
             self._param_handler_plugin.pre_check_hook(self)
         self._param_handler_plugin.pre_load_hook(self)
-        if not self._plugin_manager_list:
-            self.add_plugin([], [])
+        self.add_plugin([], [])
 
     @property
     def func_md5(self) -> str:
@@ -156,41 +148,43 @@ class PaitCoreModel(object):
         self._extra_openapi_model_list.extend(item)
 
     @property
-    def plugin_list(self) -> List[PluginManager]:
-        return self._plugin_manager_list
+    def main_plugin(self) -> PluginProtocol:
+        return self._main_plugin
+
+    def build_plugin_stack(self) -> None:
+        plugin_manager_list: List[PluginManager] = (
+            [i for i in self._plugin_list] + [self._param_handler_plugin] + [i for i in self._post_plugin_list]
+        )
+        self._main_plugin = self.func  # type: ignore
+        for plugin_manager in reversed(plugin_manager_list):
+            self._main_plugin = plugin_manager.get_plugin(self._main_plugin, self)
 
     def add_plugin(
-        self, plugin_list: Optional[List[PluginManager]], post_plugin_list: Optional[List[PluginManager]]
+        self,
+        plugin_list: Optional[List[PluginManager[PrePluginProtocol]]],
+        post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]],
     ) -> None:
-        raw_plugin_list: List[PluginManager] = self._plugin_list
-        raw_post_plugin_list: List[PluginManager] = self._post_plugin_list
+        raw_plugin_list: List[PluginManager] = copy.deepcopy(self._plugin_list)
+        raw_post_plugin_list: List[PluginManager] = copy.deepcopy(self._post_plugin_list)
         try:
             for plugin_manager in plugin_list or []:
-                if not plugin_manager.plugin_class.is_pre_core:
+                if issubclass(plugin_manager.plugin_class, PostPluginProtocol):
                     raise ValueError(f"{plugin_manager.plugin_class} is post plugin")
                 if not ignore_pre_check:
                     plugin_manager.pre_check_hook(self)
                 plugin_manager.pre_load_hook(self)
                 self._plugin_list.append(plugin_manager)
 
-            for plugin_manager in post_plugin_list or []:
-                if plugin_manager.plugin_class.is_pre_core:
-                    raise ValueError(f"{plugin_manager.plugin_class} is pre plugin")
+            for post_plugin_manager in post_plugin_list or []:
+                if issubclass(post_plugin_manager.plugin_class, PrePluginProtocol):
+                    raise ValueError(f"{post_plugin_manager.plugin_class} is pre plugin")
                 if not ignore_pre_check:
-                    plugin_manager.pre_check_hook(self)
-                plugin_manager.pre_load_hook(self)
-                self._post_plugin_list.append(plugin_manager)
+                    post_plugin_manager.pre_check_hook(self)
+                post_plugin_manager.pre_load_hook(self)
+                self._post_plugin_list.append(post_plugin_manager)
         except Exception as e:
             self._plugin_list = raw_plugin_list
             self._post_plugin_list = raw_post_plugin_list
             raise e
         else:
-            # In future version, it may be possible to switch plugins at runtime
-            plugin_manager_list: List[PluginManager] = (
-                [i for i in self._plugin_list] + [self._param_handler_plugin] + [i for i in self._post_plugin_list]
-            )
-            # copy.deepcopy(
-            #     self._plugin_list + [self._param_handler_plugin] + self._post_plugin_list
-            # )
-            plugin_manager_list.reverse()
-            self._plugin_manager_list = plugin_manager_list
+            self.build_plugin_stack()

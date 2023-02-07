@@ -3,11 +3,12 @@ import difflib
 import json
 import random
 import sys
-from typing import Callable, Generator, Type, Union
+from typing import Callable, Generator, Type
 from unittest import mock
 
 import pytest
 from pytest_mock import MockFixture
+from redis import Redis  # type: ignore
 from requests import Response  # type: ignore
 from starlette.applications import Starlette
 from starlette.testclient import TestClient
@@ -18,7 +19,7 @@ from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.starlette import TestHelper as _TestHelper
 from pait.app.starlette import load_app
-from pait.app.starlette.plugin.mock_response import AsyncMockPlugin, MockPlugin
+from pait.app.starlette.plugin.mock_response import MockPlugin
 from pait.model import response
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin, grpc_test_create_user_request, grpc_test_openapi
@@ -54,7 +55,7 @@ def response_test_helper(
     client: TestClient,
     route_handler: Callable,
     pait_response: Type[response.BaseResponseModel],
-    plugin: Type[Union[MockPlugin, AsyncMockPlugin]],
+    plugin: Type[MockPlugin],
 ) -> None:
 
     test_helper: _TestHelper = _TestHelper(client, route_handler)
@@ -211,8 +212,13 @@ class TestStarlette:
     def test_pait_base_field_route(self, base_test: BaseTest) -> None:
         base_test.pait_base_field_route(main_example.pait_base_field_route)
 
-    def test_check_param(self, base_test: BaseTest) -> None:
-        base_test.check_param(main_example.check_param_route)
+    def test_param_at_most_one_of_route(self, base_test: BaseTest) -> None:
+        base_test.param_at_most_one_of_route(main_example.param_at_most_one_of_route_by_extra_param)
+        base_test.param_at_most_one_of_route(main_example.param_at_most_one_of_route)
+
+    def test_param_required_route(self, base_test: BaseTest) -> None:
+        base_test.param_required_route(main_example.param_required_route_by_extra_param)
+        base_test.param_required_route(main_example.param_required_route)
 
     def test_check_response(self, base_test: BaseTest) -> None:
         base_test.check_response(main_example.check_response_route)
@@ -248,9 +254,7 @@ class TestStarlette:
         base_test.cache_response(main_example.cache_response, main_example.cache_response1, app="starlette")
 
     def test_cache_other_response_type(self, base_test: BaseTest) -> None:
-        main_example.CacheResponsePlugin.set_redis_to_app(
-            base_test.client.app, main_example.Redis(decode_responses=True)
-        )
+        main_example.CacheResponsePlugin.set_redis_to_app(base_test.client.app, Redis(decode_responses=True))
         base_test.cache_other_response_type(
             main_example.text_response_route,
             main_example.html_response_route,

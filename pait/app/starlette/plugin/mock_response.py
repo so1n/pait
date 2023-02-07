@@ -5,7 +5,7 @@ from starlette.background import BackgroundTask
 from starlette.responses import FileResponse, Response
 
 from pait.app.starlette.adapter.response import gen_response, set_info_to_response
-from pait.plugin.base_mock_response import RESP_T, MockPluginProtocol
+from pait.plugin.mock_response import RESP_T, MockPluginProtocol
 
 
 class MockPlugin(MockPluginProtocol[Response]):
@@ -39,7 +39,3 @@ class MockPlugin(MockPluginProtocol[Response]):
 
     def set_info_to_response(self, resp: Response) -> None:
         set_info_to_response(resp, self.pait_response_model)
-
-
-class AsyncMockPlugin(MockPlugin):
-    """"""

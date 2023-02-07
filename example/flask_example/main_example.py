@@ -37,8 +37,11 @@ from example.flask_example.plugin_route import (
     cache_response1,
     check_json_plugin_route,
     check_json_plugin_route1,
-    check_param_route,
     mock_route,
+    param_at_most_onf_of_route,
+    param_at_most_onf_of_route_by_extra_param,
+    param_required_route,
+    param_required_route_by_extra_param,
 )
 from example.flask_example.response_route import (
     check_response_route,
@@ -49,7 +52,7 @@ from example.flask_example.response_route import (
 from example.flask_example.security_route import api_key_route
 from example.flask_example.utils import api_exception, global_pait
 from pait.app.flask import AddDocRoute, Pait, add_doc_route, load_app, pait
-from pait.app.flask.plugin.cache_resonse import CacheResponsePlugin
+from pait.app.flask.plugin.cache_response import CacheResponsePlugin
 from pait.exceptions import PaitBaseException
 from pait.extra.config import MatchRule, apply_block_http_method_set, apply_extra_openapi_model
 from pait.field import Header, Json, Query
@@ -214,7 +217,16 @@ def create_app() -> Flask:
     app.add_url_rule("/api/plugin/cache-response-1", view_func=cache_response1, methods=["GET"])
     app.add_url_rule("/api/plugin/check-json-plugin-1", view_func=check_json_plugin_route1, methods=["GET"])
     app.add_url_rule("/api/plugin/auto-complete-json-plugin", view_func=auto_complete_json_route, methods=["GET"])
-    app.add_url_rule("/api/plugin/check-param", view_func=check_param_route, methods=["GET"])
+    app.add_url_rule(
+        "/api/plugin/at-most-one-of-by-extra-param",
+        view_func=param_at_most_onf_of_route_by_extra_param,
+        methods=["GET"],
+    )
+    app.add_url_rule("/api/plugin/at-most-one-of", view_func=param_at_most_onf_of_route, methods=["GET"])
+    app.add_url_rule(
+        "/api/plugin/required-by-extra-param", view_func=param_required_route_by_extra_param, methods=["GET"]
+    )
+    app.add_url_rule("/api/plugin/required", view_func=param_required_route, methods=["GET"])
 
     app.add_url_rule("/api/depend/depend", view_func=depend_route, methods=["POST"])
     app.add_url_rule("/api/depend/depend-contextmanager", view_func=depend_contextmanager_route, methods=["GET"])

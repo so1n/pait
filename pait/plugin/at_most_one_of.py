@@ -1,37 +1,57 @@
-from typing import Any, List
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from pait.exceptions import CheckValueError
-from pait.plugin.base import PluginManager, PluginProtocol
-from pait.util import gen_tip_exc
+from pait.field import BaseField, ExtraParam
+from pait.plugin.base import PluginContext, PluginManager, PostPluginProtocol
+from pait.util import FuncSig, gen_tip_exc, get_func_sig
 
-__all__ = ["AsyncAtMostOneOfPlugin", "AtMostOneOfPlugin"]
+if TYPE_CHECKING:
+    from pait.model.core import PaitCoreModel
+
+__all__ = ["AtMostOneOfPlugin", "AtMostOneOfExtraParam"]
 
 
-class AtMostOneOfPlugin(PluginProtocol):
+class AtMostOneOfExtraParam(ExtraParam):
+    group: str
+
+
+class AtMostOneOfPlugin(PostPluginProtocol):
     """
     Check whether each group of parameters appear at the same time
     """
 
     at_most_one_of_list: List[List[str]]
 
-    is_pre_core: bool = False
-
-    def check_param(self, **kwargs: Any) -> None:
+    def check_param(self, context: PluginContext) -> None:
         try:
             for at_most_one_of in self.at_most_one_of_list:
-                if len([i for i in at_most_one_of if kwargs.get(i, None) is not None]) > 1:
+                if len([i for i in at_most_one_of if context.kwargs.get(i, None) is not None]) > 1:
                     raise CheckValueError(f"requires at most one of param {' or '.join(at_most_one_of)}")
         except Exception as e:
-            raise e from gen_tip_exc(self.pait_core_model.func, e)
+            raise e from gen_tip_exc(context.pait_core_model.func, e)
 
     @classmethod
-    def build(cls, *, at_most_one_of_list: List[List[str]]) -> "PluginManager":  # type: ignore
-        return super().build(at_most_one_of_list=at_most_one_of_list)
+    def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
+        kwargs = super().pre_load_hook(pait_core_model, kwargs)
+        fun_sig: FuncSig = get_func_sig(pait_core_model.func)
+        at_most_one_of_dict: Dict[str, List[str]] = {}
+        for param in fun_sig.param_list:
+            default: Any = param.default
+            if not isinstance(default, BaseField):
+                continue
+            for extra_param in default.extra_param_list:
+                if not isinstance(extra_param, AtMostOneOfExtraParam):
+                    continue
+                at_most_one_of_dict.setdefault(extra_param.group, [])
+                at_most_one_of_dict[extra_param.group].append(default.alias or param.name)
+        for _, v in at_most_one_of_dict.items():
+            kwargs["at_most_one_of_list"].append(v)
+        return kwargs
 
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        self.check_param(**kwargs)
-        return self.call_next(*args, **kwargs)
+    @classmethod
+    def build(cls, *, at_most_one_of_list: Optional[List[List[str]]] = None) -> "PluginManager":  # type: ignore
+        return super().build(at_most_one_of_list=at_most_one_of_list or [])
 
-
-class AsyncAtMostOneOfPlugin(AtMostOneOfPlugin):
-    """"""
+    def __call__(self, context: PluginContext) -> Any:
+        self.check_param(context)
+        return super().__call__(context)

@@ -42,8 +42,11 @@ from example.sanic_example.plugin_route import (
     cache_response1,
     check_json_plugin_route,
     check_json_plugin_route1,
-    check_param_route,
     mock_route,
+    param_at_most_one_of_route,
+    param_at_most_one_of_route_by_extra_param,
+    param_required_route,
+    param_required_route_by_extra_param,
 )
 from example.sanic_example.response_route import (
     check_response_route,
@@ -53,7 +56,7 @@ from example.sanic_example.response_route import (
 )
 from example.sanic_example.utils import api_exception, global_pait
 from pait.app.sanic import AddDocRoute, Pait, add_doc_route, load_app, pait
-from pait.app.sanic.plugin.cache_resonse import CacheResponsePlugin
+from pait.app.sanic.plugin.cache_response import CacheResponsePlugin
 from pait.app.sanic.security.api_key import api_key
 from pait.exceptions import PaitBaseException
 from pait.extra.config import MatchRule
@@ -248,13 +251,18 @@ def create_app(configure_logging: bool = True) -> Sanic:
     app.add_route(html_response_route, "/api/resp/html-resp", methods={"GET"})
     app.add_route(file_response_route, "/api/resp/file-resp", methods={"GET"})
 
-    app.add_route(check_param_route, "/api/plugin/check-param", methods={"GET"})
     app.add_route(mock_route, "/api/plugin/mock/<age>", methods={"GET"})
     app.add_route(cache_response, "/api/plugin/cache-response", methods={"GET"})
     app.add_route(cache_response1, "/api/plugin/cache-response1", methods={"GET"})
     app.add_route(check_json_plugin_route, "/api/plugin/check-json-plugin", methods={"GET"})
     app.add_route(auto_complete_json_route, "/api/plugin/auto-complete-json-plugin", methods={"GET"})
     app.add_route(check_json_plugin_route1, "/api/plugin/check-json-plugin-1", methods={"GET"})
+    app.add_route(
+        param_at_most_one_of_route_by_extra_param, "/api/plugin/at-most-one-of-by-extra-param", methods={"GET"}
+    )
+    app.add_route(param_at_most_one_of_route, "/api/plugin/at-most-one-of", methods={"GET"})
+    app.add_route(param_required_route_by_extra_param, "/api/plugin/required-by-extra-param", methods={"GET"})
+    app.add_route(param_required_route, "/api/plugin/required", methods={"GET"})
 
     app.add_route(depend_route, "/api/depend/depend", methods={"POST"})
     app.add_route(depend_contextmanager_route, "/api/depend/check-depend-contextmanager", methods={"GET"})
