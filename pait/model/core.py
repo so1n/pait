@@ -1,7 +1,7 @@
 import copy
 import inspect
 import logging
-from typing import TYPE_CHECKING, Callable, List, Optional, Set, Tuple, Type
+from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
 
 from pydantic import BaseConfig, BaseModel
 
@@ -17,7 +17,15 @@ if TYPE_CHECKING:
 
 from pait.extra.config import MatchKeyLiteral, MatchRule
 
-__all__ = ["PaitCoreModel", "MatchRule", "MatchKeyLiteral"]
+__all__ = ["PaitCoreModel", "MatchRule", "MatchKeyLiteral", "get_core_model"]
+ChangeNotifyType = Callable[["PaitCoreModel", str, Any], None]
+
+
+def get_core_model(route: Callable) -> "PaitCoreModel":
+    core_model: Optional["PaitCoreModel"] = getattr(route, "pait_core_model", None)
+    if not core_model:
+        raise TypeError(f"Routing function: {route} has not been wrapped by pait")
+    return core_model
 
 
 class PaitCoreModel(object):
@@ -86,6 +94,25 @@ class PaitCoreModel(object):
         self._post_plugin_list: List[PluginManager] = []
         self.param_handler_plugin = param_handler_plugin  # type: ignore
         self.add_plugin(plugin_list, post_plugin_list)
+
+        # change notify
+        self._change_notify_list: List[ChangeNotifyType] = []
+
+    def add_change_notify(self, callback: ChangeNotifyType) -> None:
+        self._change_notify_list.append(callback)
+
+    def remove_change_notify(self, callback: ChangeNotifyType) -> None:
+        self._change_notify_list.remove(callback)
+
+    def __setattr__(self, key: str, value: Any) -> None:
+        if key.startswith("_"):
+            return super().__setattr__(key, value)
+
+        change_notify_list: List[ChangeNotifyType] = self.__dict__.get("_change_notify_list", [])
+        if change_notify_list:
+            for callback in self._change_notify_list:
+                callback(self, key, value)
+        return super().__setattr__(key, value)
 
     @property
     def param_handler_plugin(self) -> Type[BaseParamHandler]:
