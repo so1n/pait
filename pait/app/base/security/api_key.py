@@ -10,20 +10,18 @@ from .base import BaseSecurity
 APIKEY_FIELD_TYPE = Union[Query, Header, Cookie]
 
 
-class APIkey(BaseSecurity, metaclass=ABCMeta):
-    @classmethod
-    def get_exception(cls, *, status_code: int, message: str) -> Exception:
-        return NotImplementedError()
+class BaseAPIKey(BaseSecurity, metaclass=ABCMeta):
+    pass
 
 
 def api_key(
     *,
     name: str,
-    api_key_class: Type[APIkey],
     field: APIKEY_FIELD_TYPE,
+    api_key_class: Type[BaseAPIKey] = BaseAPIKey,
     verify_api_key_callable: Callable[[str], bool],
     security_name: Optional[str] = None,
-) -> APIkey:
+) -> BaseAPIKey:
     not_authenticated_exc: Exception = api_key_class.get_exception(status_code=403, message="Not authenticated")
     if field.alias is not None:
         raise ValueError("Custom alias parameters are not allowed")

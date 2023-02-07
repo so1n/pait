@@ -170,11 +170,29 @@ class LoginRespModel(JsonResponseModel):
 link_login_token_model: LinksModel = LinksModel(LoginRespModel, "$response.body#/data/token", desc="test links model")
 
 
-class NotAuthenticatedRespModel(HtmlResponseModel):
+class BadRequestRespModel(HtmlResponseModel):
+    status_code = (400,)
+
+
+class BadRequestTextRespModel(TextResponseModel):
+    status_code = (400,)
+
+
+class NotAuthenticated401RespModel(HtmlResponseModel):
+    status_code = (401,)
+    response_data = "Not authenticated"
+
+
+class NotAuthenticated401TextRespModel(TextResponseModel):
+    status_code = (401,)
+    response_data = "Not authenticated"
+
+
+class NotAuthenticated403RespModel(HtmlResponseModel):
     status_code = (403,)
     response_data = "Not authenticated"
 
 
-class NotAuthenticatedTextRespModel(TextResponseModel):
+class NotAuthenticated403TextRespModel(TextResponseModel):
     status_code = (403,)
     response_data = "Not authenticated"

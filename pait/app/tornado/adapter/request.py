@@ -45,7 +45,7 @@ class Request(BaseRequest[HTTPServerRequest, RequestExtend]):
             form_dict: dict = {key: value[0].decode() for key, value in self.request.arguments.items()}
         else:
             form_dict = json.loads(self.request.body.decode())  # pragma: no cover
-        return {key: value[0] for key, value in form_dict.items()}
+        return form_dict
 
     def header(self) -> HTTPHeaders:
         return self.request.headers

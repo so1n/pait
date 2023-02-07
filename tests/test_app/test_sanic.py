@@ -214,6 +214,11 @@ class TestSanic:
     def test_api_key_route(self, base_test: BaseTest) -> None:
         base_test.api_key_route(main_example.api_key_route)
 
+    def test_oauth2_password_route(self, base_test: BaseTest) -> None:
+        base_test.oauth2_password_route(
+            login_route=main_example.oauth2_login, user_name_route=main_example.oauth2_user_name
+        )
+
     def test_get_cbv(self, base_test: BaseTest) -> None:
         base_test.get_cbv(main_example.CbvRoute.get)
 

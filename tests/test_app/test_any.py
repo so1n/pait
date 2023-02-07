@@ -99,7 +99,7 @@ class TestGrpcRoute(BaseTestApp):
 
 
 class TestSecurity(BaseTestApp):
-    def test_security_api_key(self, mocker: MockFixture) -> None:
+    def test_security_api_key(self) -> None:
         from pait.field import Header
 
         for i in app_list:
@@ -112,6 +112,22 @@ class TestSecurity(BaseTestApp):
             api_key = api_key_func(name="demo", field=Header.i(), verify_api_key_callable=lambda x: True)
             # Since partial_wrapper is used, it can only be judged whether the APIKey is used correctly
             getattr(importlib.import_module(f"pait.app.{i}.security.api_key"), "APIKey") in api_key.__class__.__bases__
+
+    def test_security_oauth2_password_bearer(self) -> None:
+        from example.flask_example.security_route import oauth2_login
+
+        for i in app_list:
+            self._clean_app_from_sys_module()
+            # import web app
+            importlib.import_module(i)
+            # reload pait.app
+            importlib.reload(importlib.import_module("pait.app.any.security.oauth2"))
+            gen_func = getattr(importlib.import_module("pait.app.any.security.oauth2"), "oauth_2_password_bearer")
+            oauth_2_password_bearer = gen_func(route=oauth2_login)
+            # Since partial_wrapper is used, it can only be judged whether the OAuth2PasswordBearer is used correctly
+            getattr(
+                importlib.import_module(f"pait.app.{i}.security.oauth2"), "OAuth2PasswordBearer"
+            ) in oauth_2_password_bearer.__class__.__bases__
 
 
 class TestPait(BaseTestApp):

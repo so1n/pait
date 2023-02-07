@@ -113,6 +113,9 @@ class TestSecurityProtocol(BaseTestProtocol):
     def test_security_api_key(self) -> None:
         self._check_func_type_hint_by_other_module("security.api_key", "api_key")
 
+    def test_security_oauth2(self) -> None:
+        self._check_func_type_hint_by_other_module("security.oauth2", "oauth_2_password_bearer")
+
 
 class TestSimpleRouteProtocol(BaseTestProtocol):
     def test_add_simple_route(self) -> None:

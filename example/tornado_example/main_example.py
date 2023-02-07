@@ -51,7 +51,7 @@ from example.tornado_example.response_route import (
     HtmlResponseHanler,
     TextResponseHanler,
 )
-from example.tornado_example.security_route import APIKeyHanler
+from example.tornado_example.security_route import APIKeyHanler, OAuth2LoginHandler, OAuth2UserNameHandler
 from example.tornado_example.utils import MyHandler, global_pait
 from pait.app.tornado import AddDocRoute, Pait, add_doc_route, load_app, pait
 from pait.app.tornado.plugin.cache_response import CacheResponsePlugin
@@ -235,6 +235,8 @@ def create_app() -> Application:
             (r"/api/depend/check-pre-depend-contextmanager", PreDependContextmanagerHanler),
             (r"/api/depend/check-pre-depend-async-contextmanager", PreDependAsyncContextmanagerHanler),
             (r"/api/security/api-key", APIKeyHanler),
+            (r"/api/security/oauth2-login", OAuth2LoginHandler),
+            (r"/api/security/oauth2-user-name", OAuth2UserNameHandler),
         ]
     )
     CacheResponsePlugin.set_redis_to_app(app, redis=Redis(decode_responses=True))

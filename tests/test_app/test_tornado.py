@@ -266,6 +266,11 @@ class TestTornado(BaseTestTornado):
     def test_api_key_route(self) -> None:
         self.base_test.api_key_route(main_example.APIKeyHanler.get)
 
+    def test_oauth2_password_route(self) -> None:
+        self.base_test.oauth2_password_route(
+            login_route=main_example.OAuth2LoginHandler.post, user_name_route=main_example.OAuth2UserNameHandler.get
+        )
+
     def test_get_cbv(self) -> None:
         self.base_test.get_cbv(main_example.CbvHandler.get)
 

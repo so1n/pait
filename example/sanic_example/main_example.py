@@ -14,7 +14,6 @@ from example.common.request_model import SexEnum, UserOtherModel
 from example.common.response_model import (
     FailRespModel,
     LoginRespModel,
-    NotAuthenticatedRespModel,
     SimpleRespModel,
     SuccessRespModel,
     UserSuccessRespModel,
@@ -54,13 +53,13 @@ from example.sanic_example.response_route import (
     html_response_route,
     text_response_route,
 )
+from example.sanic_example.security_route import api_key_route, oauth2_login, oauth2_user_name
 from example.sanic_example.utils import api_exception, global_pait
 from pait.app.sanic import AddDocRoute, Pait, add_doc_route, load_app, pait
 from pait.app.sanic.plugin.cache_response import CacheResponsePlugin
-from pait.app.sanic.security.api_key import api_key
 from pait.exceptions import PaitBaseException
 from pait.extra.config import MatchRule
-from pait.field import Depends, Header, Json, Query
+from pait.field import Header, Json, Query
 from pait.model.status import PaitStatus
 from pait.model.template import TemplateVar
 
@@ -203,26 +202,6 @@ async def not_pait_route(
     return response.text(str(uid), 200)
 
 
-@other_pait(
-    status=PaitStatus.test,
-    tag=(
-        tag.links_tag,
-        tag.security_tag,
-    ),
-    response_model_list=[SuccessRespModel, NotAuthenticatedRespModel],
-)
-def api_key_route(
-    token: str = Depends.i(
-        api_key(
-            name="token",
-            field=Header(links=link_login_token_model, openapi_include=False),
-            verify_api_key_callable=lambda x: x == "my-token",
-        )
-    )
-) -> response.HTTPResponse:
-    return response.json({"token": token})
-
-
 def add_api_doc_route(app: Sanic) -> None:
     """Split out to improve the speed of test cases"""
     add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
@@ -272,6 +251,8 @@ def create_app(configure_logging: bool = True) -> Sanic:
         pre_depend_async_contextmanager_route, "/api/depend/check-pre-depend-async-contextmanager", methods={"GET"}
     )
     app.add_route(api_key_route, "/api/security/api-key", methods={"GET"})
+    app.add_route(oauth2_login, "/api/security/oauth2-login", methods={"POST"})
+    app.add_route(oauth2_user_name, "/api/security/oauth2-user-name", methods={"GET"})
     app.exception(PaitBaseException)(api_exception)
     app.exception(ValidationError)(api_exception)
     app.exception(RuntimeError)(api_exception)
