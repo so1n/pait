@@ -42,6 +42,7 @@ class PaitCoreModel(object):
         tag: Optional[Tuple[Tag, ...]] = None,
         response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
+        pydantic_basemodel: Optional[Type[BaseModel]] = None,
         plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
         post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
         param_handler_plugin: Optional[Type[BaseParamHandler]] = None,
@@ -60,7 +61,8 @@ class PaitCoreModel(object):
         self.pre_depend_list: List[Callable] = pre_depend_list or []
         self.func_path: str = ""
         self.block_http_method_set: Set[str] = set()
-        self.pydantic_model_config: Type[BaseConfig] = pydantic_model_config or BaseConfig
+        self.pydantic_model_config: Optional[Type[BaseConfig]] = pydantic_model_config
+        self.pydantic_basemodel: Optional[Type[BaseModel]] = pydantic_basemodel
 
         # api doc
         self.path: str = path or ""  # request url path

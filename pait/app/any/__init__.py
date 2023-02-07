@@ -2,7 +2,7 @@ from dataclasses import MISSING
 from importlib import import_module
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Type
 
-from pydantic import BaseConfig
+from pydantic import BaseConfig, BaseModel
 
 from pait.app.any.util import base_call_func, sniffing
 from pait.app.auto_load_app import auto_load_app_class
@@ -67,6 +67,7 @@ def add_doc_route(
 
 def pait(
     pydantic_model_config: Optional[Type[BaseConfig]] = None,
+    pydantic_basemodel: Optional[Type[BaseModel]] = None,
     # param check
     pre_depend_list: Optional[List[Callable]] = None,
     append_pre_depend_list: Optional[List[Callable]] = None,
@@ -99,6 +100,7 @@ def pait(
     if not _pait:
         raise NotImplementedError(f"Pait not support:{load_class_app}")
     return _pait(
+        pydantic_basemodel=pydantic_basemodel,
         pydantic_model_config=pydantic_model_config,
         pre_depend_list=pre_depend_list,
         append_pre_depend_list=append_pre_depend_list,

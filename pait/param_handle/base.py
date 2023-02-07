@@ -47,7 +47,8 @@ def raise_multiple_exc(exc_list: List[Exception]) -> None:
 
 def parameter_2_dict(
     parameter_value_dict: Dict["inspect.Parameter", Any],
-    pydantic_config: Type[BaseConfig],
+    pydantic_config: Optional[Type[BaseConfig]] = None,
+    pydantic_basemodel: Optional[Type[BaseModel]] = None,
     validators: Dict[str, classmethod] = None,
 ) -> Generator[dict, None, None]:
     """Convert all parameters into pydantic mods"""
@@ -67,6 +68,7 @@ def parameter_2_dict(
             yield create_pydantic_model(
                 annotation_dict,
                 pydantic_config=pydantic_config,
+                pydantic_base=pydantic_basemodel,
                 pydantic_validators=validators,
             )(**param_value_dict).__dict__
             key_set = set()
@@ -297,7 +299,11 @@ class BaseParamHandler(PluginProtocol):
         kwargs_param_dict: Dict[str, Any],
         _object: Union[FuncSig, Type, None],
     ) -> None:
-        for parse_dict in parameter_2_dict(single_field_dict, context.pait_core_model.pydantic_model_config):
+        for parse_dict in parameter_2_dict(
+            single_field_dict,
+            context.pait_core_model.pydantic_model_config,
+            context.pait_core_model.pydantic_basemodel,
+        ):
             kwargs_param_dict.update(parse_dict)
 
     @staticmethod

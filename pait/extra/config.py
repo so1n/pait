@@ -145,6 +145,18 @@ def apply_default_pydantic_model_config(
     return _apply
 
 
+def apply_default_pydantic_basemodel(
+    pydantic_basemodel: Type[BaseModel], match_rule: Optional["MatchRule"] = None
+) -> "APPLY_FN":
+    """pait route gen pydantic model default pydantic base model"""
+
+    def _apply(pait_core_model: "PaitCoreModel") -> None:
+        if _is_match(pait_core_model, match_rule):
+            pait_core_model.pydantic_basemodel = pydantic_basemodel
+
+    return _apply
+
+
 def apply_block_http_method_set(
     block_http_method_set: Set[str], match_rule: Optional["MatchRule"] = None
 ) -> "APPLY_FN":
