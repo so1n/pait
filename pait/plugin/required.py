@@ -1,7 +1,9 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
+from pydantic import Field
+
 from pait.exceptions import CheckValueError
-from pait.field import BaseField, ExtraParam, Field
+from pait.field import BaseField, ExtraParam
 from pait.plugin.base import PluginContext, PluginManager, PostPluginProtocol
 from pait.util import FuncSig, gen_tip_exc, get_func_sig
 

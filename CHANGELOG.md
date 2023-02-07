@@ -4,7 +4,7 @@ Rewrite some old methods to increase the extensibility of the corresponding modu
 - 1 Add a user-friendly doc ui
 - 2 Plugin Panel
 
-### 0.9.0[now]
+### 0.9.0[Dev]
 Improve Open API related functions and refactor some APIs that affect performance
 > Note: This version will have syntax changes that are not backward compatible, and the library status will change from alpha to beta
 
@@ -53,7 +53,7 @@ API Changes:
   - The `app` parameter of `AddDocRoute` is required.
   - The `pin_code` parameter of url is no longer supported, only the normalized `pin-code` parameter is supported。
 - Use `pait.model.tag`,`pait.model.response` and `pait.openapi` module need to install `any-api`
-### 0.8.0
+### 0.8.0[Now]
 Rewrite part of the implementation of gRPC Gateway, and transfer some functions to [protobuf_to_pydantic](https://github.com/so1n/protobuf_to_pydantic)
 
 ### 0.7.9

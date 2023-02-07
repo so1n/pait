@@ -1,5 +1,5 @@
 import datetime
-from typing import Generator, List, Type
+from typing import Callable, Generator, List, Type
 
 import pytest
 from flask import Flask
@@ -161,6 +161,23 @@ class TestAutoCompleteJsonPlugin:
 
         exec_msg: str = e.value.args[0]
         assert "pait_response_model must " in exec_msg
+
+    def test_resp_not_sub_data(self) -> None:
+        from example.common.response_model import AutoCompleteRespModel
+
+        class FakePluginCoreModel:
+            func: Callable = lambda: None
+
+        plugin = AutoCompleteJsonRespPlugin(
+            lambda *args, **kwargs: None,
+            FakePluginCoreModel(),  # type: ignore
+            default_response_dict=AutoCompleteRespModel.get_default_dict(),
+        )
+        assert plugin.merge({"code": 0}) == {
+            "code": 0,
+            "msg": "success",
+            "data": {"uid": 100, "music_list": [{"name": "", "url": "", "singer": ""}], "image_list": []},
+        }
 
 
 class TestMockPlugin:
