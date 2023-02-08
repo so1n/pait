@@ -268,7 +268,9 @@ class TestTornado(BaseTestTornado):
 
     def test_oauth2_password_route(self) -> None:
         self.base_test.oauth2_password_route(
-            login_route=main_example.OAuth2LoginHandler.post, user_name_route=main_example.OAuth2UserNameHandler.get
+            login_route=main_example.OAuth2LoginHandler.post,
+            user_name_route=main_example.OAuth2UserNameHandler.get,
+            user_info_route=main_example.OAuth2UserInfoHandler.get,
         )
 
     def test_get_cbv(self) -> None:

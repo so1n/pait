@@ -39,7 +39,7 @@ class DependHandler(MyHandler):
 
 class DependContextmanagerHanler(MyHandler):
     @depend_pait(status=PaitStatus.test)
-    async def get(self, uid: str = Depends.i(depend.context_depend), is_raise: bool = Query.i(default=False)) -> None:
+    async def get(self, uid: int = Depends.i(depend.context_depend), is_raise: bool = Query.i(default=False)) -> None:
         if is_raise:
             raise RuntimeError()
         self.write({"code": 0, "msg": uid})
@@ -48,7 +48,7 @@ class DependContextmanagerHanler(MyHandler):
 class DependAsyncContextmanagerHanler(MyHandler):
     @depend_pait(status=PaitStatus.test)
     async def get(
-        self, uid: str = Depends.i(depend.async_context_depend), is_raise: bool = Query.i(default=False)
+        self, uid: int = Depends.i(depend.async_context_depend), is_raise: bool = Query.i(default=False)
     ) -> None:
         if is_raise:
             raise RuntimeError()

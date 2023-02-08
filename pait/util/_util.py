@@ -54,6 +54,8 @@ __all__ = [
     "get_real_annotation",
     "create_factory",
     "partial_wrapper",
+    "R_T",
+    "P",
 ]
 ignore_pre_check: bool = bool(os.environ.get("PAIT_IGNORE_PRE_CHECK", False))
 http_method_tuple: Tuple[str, ...] = ("get", "post", "head", "options", "delete", "put", "trace", "patch")

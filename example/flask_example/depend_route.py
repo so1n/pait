@@ -35,7 +35,7 @@ def depend_route(
 
 @depend_pait(status=PaitStatus.test)
 def depend_contextmanager_route(
-    uid: str = Depends.i(depend.context_depend), is_raise: bool = Query.i(default=False)
+    uid: int = Depends.i(depend.context_depend), is_raise: bool = Query.i(default=False)
 ) -> dict:
     if is_raise:
         raise RuntimeError("test")

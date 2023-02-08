@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Optional, Tuple, Type
+from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Type
 
 from any_api.openapi.model.openapi import Oauth2SecurityModel, OAuthFlowModel, OAuthFlowsModel
 from pydantic import BaseModel, Field
@@ -7,7 +7,7 @@ from pait.field import Form, Header
 from pait.model.core import PaitCoreModel, get_core_model
 from pait.model.response import JsonResponseModel
 
-from .base import BaseSecurity
+from .base import BaseSecurity, SecurityModelType
 from .util import set_and_check_field
 
 __all__ = [
@@ -26,10 +26,20 @@ def get_authorization_scheme_param(authorization_header_value: str) -> Tuple[str
     return scheme, param
 
 
+class ScopeType(List[str]):
+    @classmethod
+    def __get_validators__(cls) -> Generator[Callable, None, None]:
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v: str) -> List[str]:
+        return v.split(" ")
+
+
 class BaseOAuth2PasswordRequestFrom(BaseModel):
     username: str = Form()
     password: str = Form()
-    scope: str = Form("")
+    scope: ScopeType = Form("")
     client_id: Optional[str] = Form(None)
     client_secret: Optional[str] = Form(None)
 
@@ -53,30 +63,28 @@ class OAuth2PasswordBearerJsonRespModel(JsonResponseModel):
 class BaseOAuth2PasswordBearer(BaseSecurity):
     def __init__(
         self,
-        route: Callable,
+        route: Optional[Callable] = None,
         security_name: Optional[str] = None,
         scopes: Optional[Dict[str, str]] = None,
         header_field: Optional[Header] = None,
     ):
+        self._model: Optional[SecurityModelType] = None
+
+        self.route: Optional[Callable] = route
         self.security_name = security_name or self.__class__.__name__
+        self.scopes: Dict[str, str] = scopes or {}
+        self.header_field: Header = header_field or Header.i(openapi_include=False)
 
-        # update model
-        core_model: PaitCoreModel = get_core_model(route)
-        self._set_model(core_model.path, scopes or {})
-
-        def _set_model_by_core_model_change(*args: Any) -> None:
-            self._set_model(core_model.path, scopes or {})
-
-        core_model.add_change_notify(_set_model_by_core_model_change)
+        if route:
+            self.with_route(route)
 
         # init field
-        _header_field: Header = header_field or Header.i(openapi_include=False)
         self.not_authenticated_exc: Exception = self.get_exception(
             status_code=401, message="Not authenticated", headers={"WWW-Authenticate": "Bearer"}
         )
-        set_and_check_field(_header_field, "Authorization", self.not_authenticated_exc)
+        set_and_check_field(self.header_field, "Authorization", self.not_authenticated_exc)
 
-        def __call__(authorization: str = _header_field) -> str:
+        def __call__(authorization: str = self.header_field) -> str:
             return self.authorization_handler(authorization)
 
         # Compatible with the following syntax
@@ -85,8 +93,27 @@ class BaseOAuth2PasswordBearer(BaseSecurity):
         setattr(self, "_override_call_sig", True)
         setattr(self, "__call__", __call__)
 
+    def with_route(self, route: Callable) -> "BaseOAuth2PasswordBearer":
+        if self.route is not None:
+            raise ValueError("route has been set")
+        self.route = route
+        core_model: PaitCoreModel = get_core_model(route)
+        self._set_model(core_model.path, self.scopes)
+
+        def _set_model_by_core_model_change(*args: Any) -> None:
+            self._set_model(core_model.path, self.scopes)
+
+        core_model.add_change_notify(_set_model_by_core_model_change)
+        return self
+
     def _set_model(self, path: str, scopes: Dict[str, str]) -> None:
-        self.model = Oauth2SecurityModel(flows=OAuthFlowsModel(password=OAuthFlowModel(tokenUrl=path, scopes=scopes)))
+        self._model = Oauth2SecurityModel(flows=OAuthFlowsModel(password=OAuthFlowModel(tokenUrl=path, scopes=scopes)))
+
+    @property
+    def model(self) -> SecurityModelType:
+        if self._model is None:
+            raise ValueError("The model is invalid, please use the `with_route` method to set the routing function")
+        return self._model
 
     def __call__(self, authorization: str = Header.i()) -> str:
         return self.authorization_handler(authorization)

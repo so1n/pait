@@ -246,7 +246,9 @@ class TestStarlette:
 
     def test_oauth2_password_route(self, base_test: BaseTest) -> None:
         base_test.oauth2_password_route(
-            login_route=main_example.oauth2_login, user_name_route=main_example.oauth2_user_name
+            login_route=main_example.oauth2_login,
+            user_name_route=main_example.oauth2_user_name,
+            user_info_route=main_example.oauth2_user_info,
         )
 
     def test_get_cbv(self, base_test: BaseTest) -> None:

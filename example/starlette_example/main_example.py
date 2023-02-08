@@ -60,7 +60,7 @@ from example.starlette_example.response_route import (
     html_response_route,
     text_response_route,
 )
-from example.starlette_example.security_route import api_key_route, oauth2_login, oauth2_user_name
+from example.starlette_example.security_route import api_key_route, oauth2_login, oauth2_user_info, oauth2_user_name
 from example.starlette_example.utils import api_exception, global_pait
 from pait.app.starlette import AddDocRoute, Pait, add_doc_route, load_app, pait
 from pait.app.starlette.plugin.cache_response import CacheResponsePlugin
@@ -260,6 +260,7 @@ def create_app() -> Starlette:
             Route("/api/security/api-key", api_key_route, methods=["GET"]),
             Route("/api/security/oauth2-login", oauth2_login, methods=["POST"]),
             Route("/api/security/oauth2-user-name", oauth2_user_name, methods=["GET"]),
+            Route("/api/security/oauth2-user-info", oauth2_user_info, methods=["GET"]),
         ]
     )
     CacheResponsePlugin.set_redis_to_app(app, redis=Redis(decode_responses=True))

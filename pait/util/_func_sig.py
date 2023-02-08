@@ -1,6 +1,6 @@
 import inspect
 from dataclasses import dataclass
-from typing import Callable, Dict, List, Optional, Type
+from typing import Any, Callable, Dict, List, Optional, Type
 
 from typing_extensions import Self  # type: ignore
 
@@ -16,6 +16,7 @@ class FuncSig:
     func: Callable
     sig: "inspect.Signature"
     param_list: List["inspect.Parameter"]
+    return_param: Any
     cbv_class: Optional[Type] = None
 
 
@@ -46,8 +47,9 @@ def get_func_sig(func: Callable) -> FuncSig:
         setattr(parameter, "_annotation", get_real_annotation(parameter.annotation, func))
         param_list.append(parameter)
 
-    # return_param = sig.return_annotation
-    func_sig: FuncSig = FuncSig(func=func, sig=sig, param_list=param_list)
+    func_sig: FuncSig = FuncSig(
+        func=func, sig=sig, param_list=param_list, return_param=get_real_annotation(sig.return_annotation, func)
+    )
     _func_sig_dict[func] = func_sig
     return func_sig
 

@@ -26,6 +26,7 @@ from pait.util import (
     get_parameter_list_from_pydantic_basemodel,
     ignore_pre_check,
     is_bounded_func,
+    is_type,
 )
 
 if TYPE_CHECKING:
@@ -134,6 +135,15 @@ class BaseParamHandler(PluginProtocol):
     ) -> None:
         if isinstance(parameter.default, field.Depends):
             cls.check_depend_handle(parameter.default.func)
+            if ignore_pre_check:
+                return
+            func_sig: FuncSig = get_func_sig(parameter.default.func)  # get and cache func sig
+            if not is_type(parameter.annotation, func_sig.return_param):
+                raise FieldValueTypeException(
+                    parameter.name,
+                    f"{parameter.name}'s Depends.callable return annotation"
+                    f" must:{parameter.annotation}, not {func_sig.return_param}",
+                )
         elif isinstance(parameter.default, field.BaseField):
             if not parameter.default.alias:
                 parameter.default.request_key = parameter.name

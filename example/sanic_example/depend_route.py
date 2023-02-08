@@ -37,7 +37,7 @@ async def depend_route(
 
 @depend_pait(status=PaitStatus.test)
 async def depend_contextmanager_route(
-    uid: str = Depends.i(depend.context_depend), is_raise: bool = Query.i(default=False)
+    uid: int = Depends.i(depend.context_depend), is_raise: bool = Query.i(default=False)
 ) -> response.HTTPResponse:
     if is_raise:
         raise RuntimeError()
@@ -53,7 +53,7 @@ async def pre_depend_contextmanager_route(is_raise: bool = Query.i(default=False
 
 @depend_pait(status=PaitStatus.test)
 async def depend_async_contextmanager_route(
-    uid: str = Depends.i(depend.async_context_depend), is_raise: bool = Query.i(default=False)
+    uid: int = Depends.i(depend.async_context_depend), is_raise: bool = Query.i(default=False)
 ) -> response.HTTPResponse:
     if is_raise:
         raise RuntimeError()

@@ -187,29 +187,6 @@ class BaseTest(object):
         )
         assert test_helper.json()["code"] == 0
 
-    def check_param(self, route: Callable) -> None:
-        test_helper: BaseTestHelper = self.test_helper(
-            self.client,
-            route,
-            query_dict={"uid": 123, "user_name": "appl", "sex": "man", "age": 10, "alias_user_name": "appe"},
-            strict_inspection_check_json_content=False,
-        )
-        assert "requires at most one of param user_name or alias_user_name" in test_helper.json()["msg"]
-        test_helper = self.test_helper(
-            self.client,
-            route,
-            query_dict={"uid": 123, "sex": "man", "age": 10, "birthday": "2000-01-01"},
-            strict_inspection_check_json_content=False,
-        )
-        assert "birthday requires param alias_user_name, which if not none" in test_helper.json()["msg"]
-        test_helper = self.test_helper(
-            self.client,
-            route,
-            query_dict={"uid": 123, "sex": "man", "age": 10, "birthday": "2000-01-01", "alias_user_name": "appe"},
-            strict_inspection_check_json_content=False,
-        )
-        assert test_helper.json()["code"] == 0
-
     def check_response(self, route: Callable) -> None:
         test_helper: BaseTestHelper = self.test_helper(
             self.client,
@@ -311,8 +288,13 @@ class BaseTest(object):
         assert 403 == test_helper._get_status_code(resp)
         assert "Not authenticated" in test_helper._get_text(resp)
 
-    def oauth2_password_route(self, *, login_route: Callable, user_name_route: Callable) -> None:
+    def oauth2_password_route(
+        self, *, login_route: Callable, user_name_route: Callable, user_info_route: Callable
+    ) -> None:
         test_helper = self.test_helper(self.client, user_name_route, strict_inspection_check_json_content=False)
+        assert 401 == test_helper._get_status_code(test_helper.get())
+
+        test_helper = self.test_helper(self.client, user_info_route, strict_inspection_check_json_content=False)
         assert 401 == test_helper._get_status_code(test_helper.get())
 
         test_helper = self.test_helper(
@@ -323,23 +305,46 @@ class BaseTest(object):
         )
         assert 400 == test_helper._get_status_code(test_helper.post())
 
-        resp_dict = self.test_helper(
-            self.client,
-            login_route,
-            form_dict={"username": "so1n", "password": "so1n"},
-            strict_inspection_check_json_content=False,
-        ).json()
-        assert resp_dict["token_type"] == "bearer"
+        for test_dict in [
+            {"scopes": [], "status_code": 401, "route": user_name_route, "data": None},
+            {"scopes": [], "status_code": 401, "route": user_info_route, "data": None},
+            {"scopes": "user-name", "status_code": 200, "route": user_name_route, "data": "so1n"},
+            {
+                "scopes": "user",
+                "status_code": 200,
+                "route": user_info_route,
+                "data": {"age": 23, "name": "so1n", "scopes": ["user"], "sex": "M", "uid": "123"},
+            },
+            {"scopes": "user user-name", "status_code": 200, "route": user_name_route, "data": "so1n"},
+            {
+                "scopes": "user user-name",
+                "status_code": 200,
+                "route": user_info_route,
+                "data": {"age": 23, "name": "so1n", "scopes": ["user", "user-name"], "sex": "M", "uid": "123"},
+            },
+        ]:
+            from example.common.security import temp_token_dict
 
-        assert (
-            self.test_helper(
+            temp_token_dict.clear()
+
+            resp_dict = self.test_helper(
                 self.client,
-                user_name_route,
+                login_route,
+                form_dict={"username": "so1n", "password": "so1n", "scope": test_dict["scopes"]},
+                strict_inspection_check_json_content=False,
+            ).json()
+            assert resp_dict["token_type"] == "bearer"
+
+            resp = self.test_helper(
+                self.client,
+                test_dict["route"],  # type: ignore
                 header_dict={"Authorization": f"Bearer {resp_dict['access_token']}"},
                 strict_inspection_check_json_content=False,
-            ).json()["data"]
-            == "so1n"
-        )
+            ).get()
+            assert test_dict["status_code"] == test_helper._get_status_code(resp)
+            resp_data = test_dict["data"]
+            if resp_data:
+                assert resp_data == test_helper._get_json(resp)["data"]
 
     def get_cbv(self, route: Callable) -> None:
         assert {

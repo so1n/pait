@@ -6,6 +6,7 @@ from sanic.exceptions import InvalidUsage
 
 from example.common import tag
 from example.common.response_model import NotAuthenticated403RespModel, SuccessRespModel, link_login_token_model
+from example.common.security import User, get_current_user, temp_token_dict
 from example.sanic_example.utils import create_app, global_pait
 from pait.app.sanic import Pait
 from pait.app.sanic.security import api_key, oauth2
@@ -37,7 +38,12 @@ async def api_key_route(
     return response.json({"token": token})
 
 
-_temp_token_dict: dict = {}
+oauth2_pb: oauth2.OAuth2PasswordBearer = oauth2.OAuth2PasswordBearer(
+    scopes={
+        "user": "get all user info",
+        "user-name": "only get user name",
+    }
+)
 
 
 @security_pait(
@@ -48,7 +54,7 @@ async def oauth2_login(form_data: oauth2.OAuth2PasswordRequestFrom) -> response.
     if form_data.username != form_data.password:
         raise InvalidUsage("Bad Request")
     token: str = "".join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
-    _temp_token_dict[token] = form_data.username
+    temp_token_dict[token] = User(uid="123", name=form_data.username, age=23, sex="M", scopes=form_data.scope)
     return response.json(oauth2.OAuth2PasswordBearerJsonRespModel.response_data(access_token=token).dict())
 
 
@@ -57,15 +63,25 @@ async def oauth2_login(form_data: oauth2.OAuth2PasswordRequestFrom) -> response.
     response_model_list=[SuccessRespModel, Http400RespModel, Http401RespModel],
 )
 def oauth2_user_name(
-    token: str = Depends.i(oauth2.OAuth2PasswordBearer(route=oauth2_login)),
+    user_model: User = Depends.t(get_current_user(["user-name"], oauth2_pb)),
 ) -> response.HTTPResponse:
-    if token not in _temp_token_dict:
-        raise InvalidUsage("Bad Request")
-    return response.json({"code": 0, "msg": "", "data": _temp_token_dict[token]})
+    return response.json({"code": 0, "msg": "", "data": user_model.name})
 
 
+@security_pait(
+    status=PaitStatus.test,
+    response_model_list=[SuccessRespModel, Http400RespModel, Http401RespModel],
+)
+def oauth2_user_info(
+    user_model: User = Depends.t(get_current_user(["user"], oauth2_pb)),
+) -> response.HTTPResponse:
+    return response.json({"code": 0, "msg": "", "data": user_model.dict()})
+
+
+oauth2_pb.with_route(oauth2_login)
 if __name__ == "__main__":
     with create_app(__name__) as app:
         app.add_route(api_key_route, "/api/security/api-key", methods={"GET"})
         app.add_route(oauth2_login, "/api/security/oauth2-login", methods={"POST"})
         app.add_route(oauth2_user_name, "/api/security/oauth2-user-name", methods={"GET"})
+        app.add_route(oauth2_user_info, "/api/security/oauth2-user-info", methods={"GET"})
