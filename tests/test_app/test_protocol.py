@@ -111,10 +111,10 @@ class TestGrpcRouteProtocol(BaseTestProtocol):
 
 class TestSecurityProtocol(BaseTestProtocol):
     def test_security_api_key(self) -> None:
-        self._check_func_type_hint_by_other_module("security.api_key", "api_key")
+        self._check_func_type_hint_by_other_module("security.api_key", "APIKey")
 
     def test_security_oauth2(self) -> None:
-        self._check_func_type_hint_by_other_module("security.oauth2", "oauth_2_password_bearer")
+        self._check_func_type_hint_by_other_module("security.oauth2", "BaseOAuth2PasswordBearer")
 
 
 class TestSimpleRouteProtocol(BaseTestProtocol):

@@ -14,8 +14,7 @@ from example.common.response_model import (
 )
 from example.starlette_example.utils import create_app, global_pait
 from pait.app.starlette import Pait
-from pait.app.starlette.security import oauth2
-from pait.app.starlette.security.api_key import api_key
+from pait.app.starlette.security import api_key, oauth2
 from pait.field import Depends, Header
 from pait.model.status import PaitStatus
 
@@ -33,7 +32,7 @@ security_pait: Pait = global_pait.create_sub_pait(
 )
 def api_key_route(
     token: str = Depends.i(
-        api_key(
+        api_key.APIKey(
             name="token",
             field=Header(links=link_login_token_model, openapi_include=False),
             verify_api_key_callable=lambda x: x == "my-token",
@@ -62,7 +61,7 @@ async def oauth2_login(form_data: oauth2.OAuth2PasswordRequestFrom) -> JSONRespo
     status=PaitStatus.test,
     response_model_list=[SuccessRespModel, NotAuthenticated401TextRespModel, BadRequestTextRespModel],
 )
-def oauth2_user_name(token: str = Depends.i(oauth2.oauth_2_password_bearer(route=oauth2_login))) -> JSONResponse:
+def oauth2_user_name(token: str = Depends.i(oauth2.OAuth2PasswordBearer(route=oauth2_login))) -> JSONResponse:
     if token not in _temp_token_dict:
         raise HTTPException(400)
     return JSONResponse({"code": 0, "msg": "", "data": _temp_token_dict[token]})

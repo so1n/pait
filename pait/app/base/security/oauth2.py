@@ -1,5 +1,4 @@
-from abc import ABCMeta
-from typing import Any, Callable, Dict, Optional, Tuple, Type
+from typing import Any, Callable, Dict, Optional, Tuple
 
 from any_api.openapi.model.openapi import Oauth2SecurityModel, OAuthFlowModel, OAuthFlowsModel
 from pydantic import BaseModel
@@ -8,10 +7,10 @@ from pait.field import Form, Header
 from pait.model.core import PaitCoreModel, get_core_model
 
 from .base import BaseSecurity
+from .util import set_and_check_field
 
 __all__ = [
     "BaseOAuth2PasswordBearer",
-    "oauth_2_password_bearer",
     "OAuth2PasswordRequestFrom",
     "OAuth2PasswordRequestFromStrict",
     "BaseOAuth2PasswordRequestFrom",
@@ -41,16 +40,18 @@ class OAuth2PasswordRequestFromStrict(BaseOAuth2PasswordRequestFrom):
     grant_type: str = Form(regex="password")
 
 
-class BaseOAuth2PasswordBearer(BaseSecurity, metaclass=ABCMeta):
+class BaseOAuth2PasswordBearer(BaseSecurity):
     def __init__(
         self,
         route: Callable,
         security_name: Optional[str] = None,
         scopes: Optional[Dict[str, str]] = None,
+        header_field: Optional[Header] = None,
     ):
-        core_model: PaitCoreModel = get_core_model(route)
-
         self.security_name = security_name or self.__class__.__name__
+
+        # update model
+        core_model: PaitCoreModel = get_core_model(route)
         self._set_model(core_model.path, scopes or {})
 
         def _set_model_by_core_model_change(*args: Any) -> None:
@@ -58,36 +59,30 @@ class BaseOAuth2PasswordBearer(BaseSecurity, metaclass=ABCMeta):
 
         core_model.add_change_notify(_set_model_by_core_model_change)
 
+        # init field
+        _header_field: Header = header_field or Header.i(openapi_include=False)
+        self.not_authenticated_exc: Exception = self.get_exception(
+            status_code=401, message="Not authenticated", headers={"WWW-Authenticate": "Bearer"}
+        )
+        set_and_check_field(_header_field, "Authorization", self.not_authenticated_exc)
+
+        def __call__(authorization: str = _header_field) -> str:
+            return self.authorization_handler(authorization)
+
+        # Compatible with the following syntax
+        # Oauth2PasswordBearer()()
+        # Oauth2PasswordBearer().__call__()
+        setattr(self, "_override_call_sig", True)
+        setattr(self, "__call__", __call__)
+
     def _set_model(self, path: str, scopes: Dict[str, str]) -> None:
         self.model = Oauth2SecurityModel(flows=OAuthFlowsModel(password=OAuthFlowModel(tokenUrl=path, scopes=scopes)))
 
+    def __call__(self, authorization: str = Header.i()) -> str:
+        return self.authorization_handler(authorization)
 
-def oauth_2_password_bearer(
-    *,
-    route: Callable,
-    class_: Type[BaseOAuth2PasswordBearer] = BaseOAuth2PasswordBearer,
-    security_name: Optional[str] = None,
-    scopes: Optional[Dict[str, str]] = None,
-    header_field: Optional[Header] = None,
-) -> BaseOAuth2PasswordBearer:
-    _header_field: Header = header_field or Header.i(openapi_include=False)
-    not_authenticated_exc: Exception = class_.get_exception(
-        status_code=401, message="Not authenticated", headers={"WWW-Authenticate": "Bearer"}
-    )
-    if _header_field.alias is not None:
-        raise ValueError("Custom alias parameters are not allowed")
-    if _header_field.not_value_exception is not None:
-        raise ValueError("Custom not_value_exception parameters are not allowed")
-    _header_field.set_alias("Authorization")
-    _header_field.not_value_exception = not_authenticated_exc
-
-    class OAuth2PasswordBearer(class_):  # type: ignore
-        def __call__(self, authorization: str = _header_field) -> Optional[str]:
-            scheme, param = get_authorization_scheme_param(authorization)
-            if not authorization or scheme.lower() != "bearer":
-                raise self.get_exception(
-                    status_code=401, message="Not authenticated", headers={"WWW-Authenticate": "Bearer"}
-                )
-            return param
-
-    return OAuth2PasswordBearer(route=route, security_name=security_name, scopes=scopes)
+    def authorization_handler(self, authorization: str) -> str:
+        scheme, param = get_authorization_scheme_param(authorization)
+        if not authorization or scheme.lower() != "bearer":
+            raise self.not_authenticated_exc
+        return param

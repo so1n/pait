@@ -153,6 +153,7 @@ class ParsePaitModel(object):
                     f"but the Security Model is inconsistent with {call_type.model}"
                 )
             self.security_dict[call_type.security_name] = call_type.model
+
         func_type_sig: FuncSig = get_func_sig(call_type)
         single_field_list: List[Tuple[str, "inspect.Parameter"]] = []
 

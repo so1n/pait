@@ -14,8 +14,7 @@ from example.common.response_model import (
 )
 from example.sanic_example.utils import create_app, global_pait
 from pait.app.sanic import Pait
-from pait.app.sanic.security import oauth2
-from pait.app.sanic.security.api_key import api_key
+from pait.app.sanic.security import api_key, oauth2
 from pait.field import Depends, Header
 from pait.model.status import PaitStatus
 
@@ -33,7 +32,7 @@ security_pait: Pait = global_pait.create_sub_pait(
 )
 async def api_key_route(
     token: str = Depends.i(
-        api_key(
+        api_key.APIKey(
             name="token",
             field=Header(links=link_login_token_model, openapi_include=False),
             verify_api_key_callable=lambda x: x == "my-token",
@@ -63,7 +62,7 @@ async def oauth2_login(form_data: oauth2.OAuth2PasswordRequestFrom) -> response.
     response_model_list=[SuccessRespModel, NotAuthenticated401RespModel, BadRequestRespModel],
 )
 def oauth2_user_name(
-    token: str = Depends.i(oauth2.oauth_2_password_bearer(route=oauth2_login)),
+    token: str = Depends.i(oauth2.OAuth2PasswordBearer(route=oauth2_login)),
 ) -> response.HTTPResponse:
     if token not in _temp_token_dict:
         raise InvalidUsage("Bad Request")

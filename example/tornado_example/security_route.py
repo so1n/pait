@@ -13,8 +13,7 @@ from example.common.response_model import (
 )
 from example.tornado_example.utils import MyHandler, create_app, global_pait
 from pait.app.tornado import Pait
-from pait.app.tornado.security import oauth2
-from pait.app.tornado.security.api_key import api_key
+from pait.app.tornado.security import api_key, oauth2
 from pait.field import Depends, Header
 from pait.model.status import PaitStatus
 
@@ -30,7 +29,7 @@ class APIKeyHanler(MyHandler):
     async def get(
         self,
         token: str = Depends.i(
-            api_key(
+            api_key.APIKey(
                 name="token",
                 field=Header(links=link_login_token_model, openapi_include=False),
                 verify_api_key_callable=lambda x: x == "my-token",
@@ -61,7 +60,7 @@ class OAuth2UserNameHandler(MyHandler):
         status=PaitStatus.test,
         response_model_list=[SuccessRespModel, NotAuthenticated401RespModel, BadRequestRespModel],
     )
-    def get(self, token: str = Depends.i(oauth2.oauth_2_password_bearer(route=OAuth2LoginHandler.post))) -> None:
+    def get(self, token: str = Depends.i(oauth2.OAuth2PasswordBearer(route=OAuth2LoginHandler.post))) -> None:
         if token not in _temp_token_dict:
             raise HTTPError(400)
         self.write({"code": 0, "msg": "", "data": _temp_token_dict[token]})

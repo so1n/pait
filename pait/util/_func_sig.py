@@ -27,6 +27,10 @@ def get_func_sig(func: Callable) -> FuncSig:
     if func in _func_sig_dict:
         return _func_sig_dict[func]
 
+    # __call__ method that supports func override
+    if getattr(func, "_override_call_sig", False):
+        func = getattr(func, "__call__", func)
+
     sig: inspect.Signature = inspect.signature(func)
     param_list: List[inspect.Parameter] = []
     for key in sig.parameters:
