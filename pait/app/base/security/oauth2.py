@@ -1,19 +1,21 @@
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, Optional, Tuple, Type
 
 from any_api.openapi.model.openapi import Oauth2SecurityModel, OAuthFlowModel, OAuthFlowsModel
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from pait.field import Form, Header
 from pait.model.core import PaitCoreModel, get_core_model
+from pait.model.response import JsonResponseModel
 
 from .base import BaseSecurity
 from .util import set_and_check_field
 
 __all__ = [
     "BaseOAuth2PasswordBearer",
+    "BaseOAuth2PasswordRequestFrom",
     "OAuth2PasswordRequestFrom",
     "OAuth2PasswordRequestFromStrict",
-    "BaseOAuth2PasswordRequestFrom",
+    "OAuth2PasswordBearerJsonRespModel",
 ]
 
 
@@ -38,6 +40,14 @@ class OAuth2PasswordRequestFrom(BaseOAuth2PasswordRequestFrom):
 
 class OAuth2PasswordRequestFromStrict(BaseOAuth2PasswordRequestFrom):
     grant_type: str = Form(regex="password")
+
+
+class OAuth2PasswordBearerJsonRespModel(JsonResponseModel):
+    class ResponseModel(BaseModel):
+        access_token: str = Field(description="")
+        token_type: str = Field(default="bearer")
+
+    response_data: Type[BaseModel] = ResponseModel
 
 
 class BaseOAuth2PasswordBearer(BaseSecurity):

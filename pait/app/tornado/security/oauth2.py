@@ -5,6 +5,7 @@ from tornado.web import HTTPError
 from pait.app.base.security.oauth2 import (
     BaseOAuth2PasswordBearer,
     BaseOAuth2PasswordRequestFrom,
+    OAuth2PasswordBearerJsonRespModel,
     OAuth2PasswordRequestFrom,
     OAuth2PasswordRequestFromStrict,
 )
@@ -14,6 +15,7 @@ __all__ = [
     "OAuth2PasswordRequestFrom",
     "OAuth2PasswordRequestFromStrict",
     "BaseOAuth2PasswordRequestFrom",
+    "OAuth2PasswordBearerJsonRespModel",
 ]
 
 
