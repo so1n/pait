@@ -223,6 +223,15 @@ class TestSanic:
             user_info_route=main_example.oauth2_user_info,
         )
 
+    def test_get_user_name_by_http_bearer(self, base_test: BaseTest) -> None:
+        base_test.get_user_name_by_http_bearer(main_example.get_user_name_by_http_bearer)
+
+    def test_get_user_name_by_http_digest(self, base_test: BaseTest) -> None:
+        base_test.get_user_name_by_http_digest(main_example.get_user_name_by_http_digest)
+
+    def test_get_user_name_by_http_basic_credentials(self, base_test: BaseTest) -> None:
+        base_test.get_user_name_by_http_basic_credentials(main_example.get_user_name_by_http_basic_credentials)
+
     def test_get_cbv(self, base_test: BaseTest) -> None:
         base_test.get_cbv(main_example.CbvRoute.get)
 

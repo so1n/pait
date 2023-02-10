@@ -11,7 +11,7 @@ from example.starlette_example.utils import create_app, global_pait
 from pait.app.starlette import Pait
 from pait.app.starlette.security import api_key, http, oauth2
 from pait.field import Cookie, Depends, Header, Query
-from pait.model.response import Http400RespModel, Http401RespModel, TextResponseModel
+from pait.model.response import Http400RespModel, Http401RespModel, Http403RespModel, TextResponseModel
 from pait.model.status import PaitStatus
 
 security_pait: Pait = global_pait.create_sub_pait(
@@ -122,7 +122,11 @@ http_digest: http.HTTPDigest = http.HTTPDigest(verify_callable=lambda x: "http" 
 http_pait = security_pait.create_sub_pait(
     status=PaitStatus.test,
     append_tag=(tag.http_tag,),
-    response_model_list=[SuccessRespModel, Http400RespModel, Http401RespModel],
+    response_model_list=[
+        SuccessRespModel,
+        Http400RespModel.clone(TextResponseModel),
+        Http401RespModel.clone(TextResponseModel),
+    ],
 )
 
 
@@ -132,17 +136,17 @@ def get_user_name(credentials: http.HTTPBasicCredentials = Depends.t(http_basic)
     return credentials.username
 
 
-@http_pait()
+@http_pait(response_model_list=[SuccessRespModel, Http401RespModel.clone(TextResponseModel)])
 async def get_user_name_by_http_basic_credentials(user_name: str = Depends.t(get_user_name)) -> JSONResponse:
     return JSONResponse({"code": 0, "msg": "", "data": user_name})
 
 
-@http_pait()
+@http_pait(response_model_list=[SuccessRespModel, Http403RespModel.clone(TextResponseModel)])
 async def get_user_name_by_http_bearer(credentials: str = Depends.t(http_bear)) -> JSONResponse:
     return JSONResponse({"code": 0, "msg": "", "data": credentials})
 
 
-@http_pait()
+@http_pait(response_model_list=[SuccessRespModel, Http403RespModel.clone(TextResponseModel)])
 async def get_user_name_by_http_digest(credentials: str = Depends.t(http_digest)) -> JSONResponse:
     return JSONResponse({"code": 0, "msg": "", "data": credentials})
 

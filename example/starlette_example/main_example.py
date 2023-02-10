@@ -64,6 +64,9 @@ from example.starlette_example.security_route import (
     api_key_cookie_route,
     api_key_header_route,
     api_key_query_route,
+    get_user_name_by_http_basic_credentials,
+    get_user_name_by_http_bearer,
+    get_user_name_by_http_digest,
     oauth2_login,
     oauth2_user_info,
     oauth2_user_name,
@@ -270,6 +273,9 @@ def create_app() -> Starlette:
             Route("/api/security/oauth2-login", oauth2_login, methods=["POST"]),
             Route("/api/security/oauth2-user-name", oauth2_user_name, methods=["GET"]),
             Route("/api/security/oauth2-user-info", oauth2_user_info, methods=["GET"]),
+            Route("/api/user-name-by-http-basic-credentials", get_user_name_by_http_basic_credentials, methods=["GET"]),
+            Route("/api/user-name-by-http-bearer", get_user_name_by_http_bearer, methods=["GET"]),
+            Route("/api/user-name-by-http-digest", get_user_name_by_http_digest, methods=["GET"]),
         ]
     )
     CacheResponsePlugin.set_redis_to_app(app, redis=Redis(decode_responses=True))

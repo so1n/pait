@@ -234,6 +234,15 @@ class TestFlask:
         base_test.api_key_route(main_example.api_key_header_route, {"header_dict": {"token": "my-token"}})
         base_test.api_key_route(main_example.api_key_query_route, {"query_dict": {"token": "my-token"}})
 
+    def test_get_user_name_by_http_bearer(self, base_test: BaseTest) -> None:
+        base_test.get_user_name_by_http_bearer(main_example.get_user_name_by_http_bearer)
+
+    def test_get_user_name_by_http_digest(self, base_test: BaseTest) -> None:
+        base_test.get_user_name_by_http_digest(main_example.get_user_name_by_http_digest)
+
+    def test_get_user_name_by_http_basic_credentials(self, base_test: BaseTest) -> None:
+        base_test.get_user_name_by_http_basic_credentials(main_example.get_user_name_by_http_basic_credentials)
+
     def test_oauth2_password_route(self, base_test: BaseTest) -> None:
         base_test.oauth2_password_route(
             login_route=main_example.oauth2_login,

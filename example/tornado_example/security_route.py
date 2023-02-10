@@ -10,7 +10,7 @@ from example.tornado_example.utils import MyHandler, create_app, global_pait
 from pait.app.tornado import Pait
 from pait.app.tornado.security import api_key, http, oauth2
 from pait.field import Cookie, Depends, Header, Query
-from pait.model.response import Http400RespModel, Http401RespModel
+from pait.model.response import Http400RespModel, Http401RespModel, Http403RespModel
 from pait.model.status import PaitStatus
 
 security_pait: Pait = global_pait.create_sub_pait(
@@ -126,19 +126,19 @@ def get_user_name(credentials: http.HTTPBasicCredentials = Depends.t(http_basic)
 
 
 class UserNameByHttpBasicCredentialsHandler(MyHandler):
-    @http_pait()
+    @http_pait(response_model_list=[SuccessRespModel, Http401RespModel])
     async def get(self, user_name: str = Depends.t(get_user_name)) -> None:
         self.write({"code": 0, "msg": "", "data": user_name})
 
 
 class UserNameByHttpBearerHandler(MyHandler):
-    @http_pait()
+    @http_pait(response_model_list=[SuccessRespModel, Http403RespModel])
     async def get(self, credentials: str = Depends.t(http_bear)) -> None:
         self.write({"code": 0, "msg": "", "data": credentials})
 
 
 class UserNameByHttpDigestHandler(MyHandler):
-    @http_pait()
+    @http_pait(response_model_list=[SuccessRespModel, Http403RespModel])
     async def get(self, credentials: str = Depends.t(http_digest)) -> None:
         self.write({"code": 0, "msg": "", "data": credentials})
 

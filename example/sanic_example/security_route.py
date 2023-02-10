@@ -11,7 +11,7 @@ from example.sanic_example.utils import create_app, global_pait
 from pait.app.sanic import Pait
 from pait.app.sanic.security import api_key, http, oauth2
 from pait.field import Cookie, Depends, Header, Query
-from pait.model.response import Http400RespModel, Http401RespModel
+from pait.model.response import Http400RespModel, Http401RespModel, Http403RespModel
 from pait.model.status import PaitStatus
 
 security_pait: Pait = global_pait.create_sub_pait(
@@ -125,17 +125,17 @@ def get_user_name(credentials: http.HTTPBasicCredentials = Depends.t(http_basic)
     return credentials.username
 
 
-@http_pait()
+@http_pait(response_model_list=[SuccessRespModel, Http401RespModel])
 async def get_user_name_by_http_basic_credentials(user_name: str = Depends.t(get_user_name)) -> response.HTTPResponse:
     return response.json({"code": 0, "msg": "", "data": user_name})
 
 
-@http_pait()
+@http_pait(response_model_list=[SuccessRespModel, Http403RespModel])
 async def get_user_name_by_http_bearer(credentials: str = Depends.t(http_bear)) -> response.HTTPResponse:
     return response.json({"code": 0, "msg": "", "data": credentials})
 
 
-@http_pait()
+@http_pait(response_model_list=[SuccessRespModel, Http403RespModel])
 async def get_user_name_by_http_digest(credentials: str = Depends.t(http_digest)) -> response.HTTPResponse:
     return response.json({"code": 0, "msg": "", "data": credentials})
 

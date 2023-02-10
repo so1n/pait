@@ -275,6 +275,15 @@ class TestTornado(BaseTestTornado):
             user_info_route=main_example.OAuth2UserInfoHandler.get,
         )
 
+    def test_get_user_name_by_http_bearer(self) -> None:
+        self.base_test.get_user_name_by_http_bearer(main_example.UserNameByHttpBearerHandler.get)
+
+    def test_get_user_name_by_http_digest(self) -> None:
+        self.base_test.get_user_name_by_http_digest(main_example.UserNameByHttpDigestHandler.get)
+
+    def test_get_user_name_by_http_basic_credentials(self) -> None:
+        self.base_test.get_user_name_by_http_basic_credentials(main_example.UserNameByHttpBasicCredentialsHandler.get)
+
     def test_get_cbv(self) -> None:
         self.base_test.get_cbv(main_example.CbvHandler.get)
 

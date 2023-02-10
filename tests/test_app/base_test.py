@@ -346,6 +346,41 @@ class BaseTest(object):
             if resp_data:
                 assert resp_data == test_helper._get_json(resp)["data"]
 
+    def get_user_name_by_http_bearer(self, route: Callable) -> None:
+        for header_dict, status_code in [
+            ({}, 403),
+            ({"Authorization": "http-token"}, 403),
+            ({"Authorization": "Bearer http-token"}, 200),
+        ]:
+            test_helper = self.test_helper(
+                self.client, route, header_dict=header_dict, strict_inspection_check_json_content=False  # type: ignore
+            )
+            assert test_helper._get_status_code(test_helper.get()) == status_code
+
+    def get_user_name_by_http_digest(self, route: Callable) -> None:
+        for header_dict, status_code in [
+            ({}, 403),
+            ({"Authorization": "http-token"}, 403),
+            ({"Authorization": "Digest http-token"}, 200),
+        ]:
+            test_helper = self.test_helper(
+                self.client, route, header_dict=header_dict, strict_inspection_check_json_content=False  # type: ignore
+            )
+            assert test_helper._get_status_code(test_helper.get()) == status_code
+
+    def get_user_name_by_http_basic_credentials(self, route: Callable) -> None:
+        from base64 import b64encode
+
+        for header_dict, status_code in [
+            ({}, 401),
+            ({"Authorization": b64encode(b"http-token").decode()}, 401),
+            ({"Authorization": f"Basic {b64encode(b'so1n:so1n').decode()}"}, 200),
+        ]:
+            test_helper = self.test_helper(
+                self.client, route, header_dict=header_dict, strict_inspection_check_json_content=False  # type: ignore
+            )
+            assert test_helper._get_status_code(test_helper.get()) == status_code
+
     def get_cbv(self, route: Callable) -> None:
         assert {
             "code": 0,

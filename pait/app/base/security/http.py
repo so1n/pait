@@ -61,7 +61,7 @@ class BaseHTTPBasic(BaseSecurity):
 
     def authorization_handler(self, authorization: str) -> Optional[HTTPBasicCredentials]:
         scheme, param = get_authorization_scheme_param(authorization)
-        if not authorization or scheme.lower() != "basic":
+        if not authorization or (scheme.lower() != "basic"):
             if self.is_raise:
                 raise self.not_authorization_exc
             else:
