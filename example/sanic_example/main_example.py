@@ -57,6 +57,9 @@ from example.sanic_example.security_route import (
     api_key_cookie_route,
     api_key_header_route,
     api_key_query_route,
+    get_user_name_by_http_basic_credentials,
+    get_user_name_by_http_bearer,
+    get_user_name_by_http_digest,
     oauth2_login,
     oauth2_user_info,
     oauth2_user_name,
@@ -265,6 +268,11 @@ def create_app(configure_logging: bool = True) -> Sanic:
     app.add_route(oauth2_login, "/api/security/oauth2-login", methods={"POST"})
     app.add_route(oauth2_user_name, "/api/security/oauth2-user-name", methods={"GET"})
     app.add_route(oauth2_user_info, "/api/security/oauth2-user-info", methods={"GET"})
+    app.add_route(
+        get_user_name_by_http_basic_credentials, "/api/security/user-name-by-http-basic-credentials", methods=["GET"]
+    )
+    app.add_route(get_user_name_by_http_bearer, "/api/security/user-name-by-http-bearer", methods=["GET"])
+    app.add_route(get_user_name_by_http_digest, "/api/security/user-name-by-http-digest", methods=["GET"])
     app.exception(PaitBaseException)(api_exception)
     app.exception(ValidationError)(api_exception)
     app.exception(RuntimeError)(api_exception)

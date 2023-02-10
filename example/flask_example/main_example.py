@@ -53,6 +53,9 @@ from example.flask_example.security_route import (
     api_key_cookie_route,
     api_key_header_route,
     api_key_query_route,
+    get_user_name_by_http_basic_credentials,
+    get_user_name_by_http_bearer,
+    get_user_name_by_http_digest,
     oauth2_login,
     oauth2_user_info,
     oauth2_user_name,
@@ -247,6 +250,13 @@ def create_app() -> Flask:
     app.add_url_rule("/api/security/oauth2-login", view_func=oauth2_login, methods=["POST"])
     app.add_url_rule("/api/security/oauth2-user-name", view_func=oauth2_user_name, methods=["GET"])
     app.add_url_rule("/api/security/oauth2-user-info", view_func=oauth2_user_info, methods=["GET"])
+    app.add_url_rule(
+        "/api/security/user-name-by-http-basic-credentials",
+        view_func=get_user_name_by_http_basic_credentials,
+        methods=["GET"],
+    )
+    app.add_url_rule("/api/security/user-name-by-http-bearer", view_func=get_user_name_by_http_bearer, methods=["GET"])
+    app.add_url_rule("/api/security/user-name-by-http-digest", view_func=get_user_name_by_http_digest, methods=["GET"])
 
     app.errorhandler(PaitBaseException)(api_exception)
     app.errorhandler(ValidationError)(api_exception)

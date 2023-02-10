@@ -8,7 +8,7 @@ from example.common.response_model import NotAuthenticated403RespModel, SuccessR
 from example.common.security import User, get_current_user, temp_token_dict
 from example.tornado_example.utils import MyHandler, create_app, global_pait
 from pait.app.tornado import Pait
-from pait.app.tornado.security import api_key, oauth2
+from pait.app.tornado.security import api_key, http, oauth2
 from pait.field import Cookie, Depends, Header, Query
 from pait.model.response import Http400RespModel, Http401RespModel
 from pait.model.status import PaitStatus
@@ -41,7 +41,7 @@ token_query_api_key: api_key.APIKey = api_key.APIKey(
 
 api_key_pait = security_pait.create_sub_pait(
     status=PaitStatus.test,
-    append_tag=(tag.links_tag,),
+    append_tag=(tag.api_key_tag,),
     response_model_list=[SuccessRespModel, NotAuthenticated403RespModel],
 )
 
@@ -75,6 +75,7 @@ oauth2_pb: oauth2.OAuth2PasswordBearer = oauth2.OAuth2PasswordBearer(
 class OAuth2LoginHandler(MyHandler):
     @security_pait(
         status=PaitStatus.test,
+        append_tag=(tag.oauth2_tag,),
         response_model_list=[oauth2.OAuth2PasswordBearerJsonRespModel, Http400RespModel],
     )
     async def post(self, form_data: oauth2.OAuth2PasswordRequestFrom) -> None:
@@ -85,9 +86,13 @@ class OAuth2LoginHandler(MyHandler):
         self.write(oauth2.OAuth2PasswordBearerJsonRespModel.response_data(access_token=token).dict())
 
 
+oauth2_pb.with_route(OAuth2LoginHandler.post)
+
+
 class OAuth2UserNameHandler(MyHandler):
     @security_pait(
         status=PaitStatus.test,
+        append_tag=(tag.oauth2_tag,),
         response_model_list=[SuccessRespModel, Http400RespModel, Http401RespModel],
     )
     def get(self, user_model: User = Depends.t(get_current_user(["user-name"], oauth2_pb))) -> None:
@@ -97,13 +102,47 @@ class OAuth2UserNameHandler(MyHandler):
 class OAuth2UserInfoHandler(MyHandler):
     @security_pait(
         status=PaitStatus.test,
+        append_tag=(tag.oauth2_tag,),
         response_model_list=[SuccessRespModel, Http400RespModel, Http401RespModel],
     )
     def get(self, user_model: User = Depends.t(get_current_user(["user"], oauth2_pb))) -> None:
         self.write({"code": 0, "msg": "", "data": user_model.dict()})
 
 
-oauth2_pb.with_route(OAuth2LoginHandler.post)
+http_basic: http.HTTPBasic = http.HTTPBasic()
+http_bear: http.HTTPBearer = http.HTTPBearer(verify_callable=lambda x: "http" in x)
+http_digest: http.HTTPDigest = http.HTTPDigest(verify_callable=lambda x: "http" in x)
+http_pait = security_pait.create_sub_pait(
+    status=PaitStatus.test,
+    append_tag=(tag.http_tag,),
+    response_model_list=[SuccessRespModel, Http400RespModel, Http401RespModel],
+)
+
+
+def get_user_name(credentials: http.HTTPBasicCredentials = Depends.t(http_basic)) -> str:
+    if credentials.username != credentials.password:
+        raise http_basic.not_authorization_exc
+    return credentials.username
+
+
+class UserNameByHttpBasicCredentialsHandler(MyHandler):
+    @http_pait()
+    async def get(self, user_name: str = Depends.t(get_user_name)) -> None:
+        self.write({"code": 0, "msg": "", "data": user_name})
+
+
+class UserNameByHttpBearerHandler(MyHandler):
+    @http_pait()
+    async def get(self, credentials: str = Depends.t(http_bear)) -> None:
+        self.write({"code": 0, "msg": "", "data": credentials})
+
+
+class UserNameByHttpDigestHandler(MyHandler):
+    @http_pait()
+    async def get(self, credentials: str = Depends.t(http_digest)) -> None:
+        self.write({"code": 0, "msg": "", "data": credentials})
+
+
 if __name__ == "__main__":
     with create_app() as app:
         app.add_route(
@@ -114,5 +153,8 @@ if __name__ == "__main__":
                 (r"/api/security/oauth2-login", OAuth2LoginHandler),
                 (r"/api/security/oauth2-user-name", OAuth2UserNameHandler),
                 (r"/api/security/oauth2-user-info", OAuth2UserInfoHandler),
+                (r"/api/security/user-name-by-http-basic-credentials", UserNameByHttpBasicCredentialsHandler),
+                (r"/api/security/user-name-by-http-bearer", UserNameByHttpBearerHandler),
+                (r"/api/security/user-name-by-http-digest", UserNameByHttpDigestHandler),
             ]
         )

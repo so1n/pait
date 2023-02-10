@@ -26,7 +26,7 @@ async def api_exception(request: Request, exc: Exception) -> response.HTTPRespon
             error_param_list.extend(i["loc"])
         return response.json({"code": -1, "msg": f"miss param: {error_param_list}"})
     elif isinstance(exc, SanicException):
-        raise exc
+        return response.html(str(exc), status=exc.status_code, headers=getattr(exc, "headers", {}))
     return response.json({"code": -1, "msg": str(exc)})
 
 

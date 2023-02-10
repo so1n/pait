@@ -5,7 +5,7 @@ from pydantic import ValidationError
 from starlette.applications import Starlette
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
-from starlette.responses import JSONResponse
+from starlette.responses import HTMLResponse, JSONResponse, Response
 
 from pait.app.starlette import Pait
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
@@ -14,7 +14,7 @@ from pait.model.status import PaitStatus
 global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
 
 
-def api_exception(request: Request, exc: Exception) -> JSONResponse:
+def api_exception(request: Request, exc: Exception) -> Response:
     if isinstance(exc, TipException):
         exc = exc.exc
     if isinstance(exc, PaitBaseParamException):
@@ -27,7 +27,7 @@ def api_exception(request: Request, exc: Exception) -> JSONResponse:
             error_param_list.extend(i["loc"])
         return JSONResponse({"code": -1, "msg": f"miss param: {error_param_list}"})
     elif isinstance(exc, HTTPException):
-        raise exc
+        return HTMLResponse(status_code=exc.status_code, content=str(exc), headers=getattr(exc, "headers", {}))
     return JSONResponse({"code": -1, "msg": str(exc)})
 
 

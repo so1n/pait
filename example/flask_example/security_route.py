@@ -8,7 +8,7 @@ from example.common.response_model import NotAuthenticated403RespModel, SuccessR
 from example.common.security import User, get_current_user, temp_token_dict
 from example.flask_example.utils import create_app, global_pait
 from pait.app.flask import Pait
-from pait.app.flask.security import api_key, oauth2
+from pait.app.flask.security import api_key, http, oauth2
 from pait.field import Cookie, Depends, Header, Query
 from pait.model.response import Http400RespModel, Http401RespModel
 from pait.model.status import PaitStatus
@@ -41,7 +41,7 @@ token_query_api_key: api_key.APIKey = api_key.APIKey(
 
 api_key_pait = security_pait.create_sub_pait(
     status=PaitStatus.test,
-    append_tag=(tag.links_tag,),
+    append_tag=(tag.api_key_tag,),
     response_model_list=[SuccessRespModel, NotAuthenticated403RespModel],
 )
 
@@ -71,6 +71,7 @@ oauth2_pb: oauth2.OAuth2PasswordBearer = oauth2.OAuth2PasswordBearer(
 
 @security_pait(
     status=PaitStatus.test,
+    append_tag=(tag.oauth2_tag,),
     response_model_list=[Http400RespModel, oauth2.OAuth2PasswordBearerJsonRespModel],
 )
 def oauth2_login(form_data: oauth2.OAuth2PasswordRequestFrom) -> dict:
@@ -81,8 +82,12 @@ def oauth2_login(form_data: oauth2.OAuth2PasswordRequestFrom) -> dict:
     return oauth2.OAuth2PasswordBearerJsonRespModel.response_data(access_token=token).dict()
 
 
+oauth2_pb.with_route(oauth2_login)
+
+
 @security_pait(
     status=PaitStatus.test,
+    append_tag=(tag.oauth2_tag,),
     response_model_list=[SuccessRespModel, Http400RespModel, Http401RespModel],
 )
 def oauth2_user_name(user_model: User = Depends.t(get_current_user(["user-name"], oauth2_pb))) -> dict:
@@ -91,13 +96,44 @@ def oauth2_user_name(user_model: User = Depends.t(get_current_user(["user-name"]
 
 @security_pait(
     status=PaitStatus.test,
+    append_tag=(tag.oauth2_tag,),
     response_model_list=[SuccessRespModel, Http400RespModel, Http401RespModel],
 )
 def oauth2_user_info(user_model: User = Depends.t(get_current_user(["user"], oauth2_pb))) -> dict:
     return {"code": 0, "msg": "", "data": user_model.dict()}
 
 
-oauth2_pb.with_route(oauth2_login)
+http_basic: http.HTTPBasic = http.HTTPBasic()
+http_bear: http.HTTPBearer = http.HTTPBearer(verify_callable=lambda x: "http" in x)
+http_digest: http.HTTPDigest = http.HTTPDigest(verify_callable=lambda x: "http" in x)
+http_pait = security_pait.create_sub_pait(
+    status=PaitStatus.test,
+    append_tag=(tag.http_tag,),
+    response_model_list=[SuccessRespModel, Http400RespModel, Http401RespModel],
+)
+
+
+def get_user_name(credentials: http.HTTPBasicCredentials = Depends.t(http_basic)) -> str:
+    if credentials.username != credentials.password:
+        raise http_basic.not_authorization_exc
+    return credentials.username
+
+
+@http_pait()
+def get_user_name_by_http_basic_credentials(user_name: str = Depends.t(get_user_name)) -> dict:
+    return {"code": 0, "msg": "", "data": user_name}
+
+
+@http_pait()
+def get_user_name_by_http_bearer(credentials: str = Depends.t(http_bear)) -> dict:
+    return {"code": 0, "msg": "", "data": credentials}
+
+
+@http_pait()
+def get_user_name_by_http_digest(credentials: str = Depends.t(http_digest)) -> dict:
+    return {"code": 0, "msg": "", "data": credentials}
+
+
 if __name__ == "__main__":
     with create_app(__name__) as app:
         app.add_url_rule("/api/api-cookie-key", view_func=api_key_cookie_route, methods=["GET"])
@@ -106,3 +142,10 @@ if __name__ == "__main__":
         app.add_url_rule("/api/oauth2-login", view_func=oauth2_login, methods=["POST"])
         app.add_url_rule("/api/oauth2-user-name", view_func=oauth2_user_name, methods=["GET"])
         app.add_url_rule("/api/oauth2-user-info", view_func=oauth2_user_info, methods=["GET"])
+        app.add_url_rule(
+            "/api/user-name-by-http-basic-credentials",
+            view_func=get_user_name_by_http_basic_credentials,
+            methods=["GET"],
+        )
+        app.add_url_rule("/api/user-name-by-http-bearer", view_func=get_user_name_by_http_bearer, methods=["GET"])
+        app.add_url_rule("/api/user-name-by-http-digest", view_func=get_user_name_by_http_digest, methods=["GET"])

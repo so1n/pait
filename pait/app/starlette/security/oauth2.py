@@ -1,7 +1,3 @@
-from typing import Dict, Optional
-
-from starlette.exceptions import HTTPException
-
 from pait.app.base.security.oauth2 import (
     BaseOAuth2PasswordBearer,
     BaseOAuth2PasswordRequestFrom,
@@ -9,6 +5,8 @@ from pait.app.base.security.oauth2 import (
     OAuth2PasswordRequestFrom,
     OAuth2PasswordRequestFromStrict,
 )
+
+from .util import GetException
 
 __all__ = [
     "OAuth2PasswordBearer",
@@ -19,8 +17,5 @@ __all__ = [
 ]
 
 
-class OAuth2PasswordBearer(BaseOAuth2PasswordBearer):
-    @classmethod
-    def get_exception(cls, *, status_code: int, message: str, headers: Optional[Dict] = None) -> Exception:
-        # starlette not support read header from exc
-        return HTTPException(status_code=status_code, detail=message)
+class OAuth2PasswordBearer(GetException, BaseOAuth2PasswordBearer):
+    pass

@@ -1,7 +1,7 @@
 from contextlib import contextmanager
-from typing import Any, Dict, Iterator
+from typing import Any, Dict, Iterator, Union
 
-from flask import Flask
+from flask import Flask, Response, make_response
 from pydantic import ValidationError
 from werkzeug.exceptions import HTTPException
 
@@ -12,7 +12,7 @@ from pait.model.status import PaitStatus
 global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
 
 
-def api_exception(exc: Exception) -> Dict[str, Any]:
+def api_exception(exc: Exception) -> Union[Dict[str, Any], Response]:
     if isinstance(exc, TipException):
         exc = exc.exc
 
@@ -26,7 +26,9 @@ def api_exception(exc: Exception) -> Dict[str, Any]:
             error_param_list.extend(i["loc"])
         return {"code": -1, "msg": f"miss param: {error_param_list}"}
     elif isinstance(exc, HTTPException):
-        raise exc
+        resp: Response = make_response(str(exc), exc.code)
+        resp.headers.update(getattr(exc, "headers", {}) or {})
+        return resp
     return {"code": -1, "msg": str(exc)}
 
 

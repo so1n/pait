@@ -100,7 +100,6 @@ class TestGrpcRoute(BaseTestApp):
 
 class TestSecurity(BaseTestApp):
     def test_security_api_key(self) -> None:
-        pass
 
         for i in app_list:
             self._clean_app_from_sys_module()
@@ -113,7 +112,6 @@ class TestSecurity(BaseTestApp):
             getattr(importlib.import_module(f"pait.app.{i}.security.api_key"), "APIKey") in APIKey.__bases__
 
     def test_security_oauth2_password_bearer(self) -> None:
-        pass
 
         for i in app_list:
             self._clean_app_from_sys_module()
@@ -128,6 +126,18 @@ class TestSecurity(BaseTestApp):
             getattr(
                 importlib.import_module(f"pait.app.{i}.security.oauth2"), "OAuth2PasswordBearer"
             ) in OAuth2PasswordBearer.__bases__
+
+    def test_security_http(self) -> None:
+        for i in app_list:
+            self._clean_app_from_sys_module()
+            # import web app
+            importlib.import_module(i)
+            # reload pait.app
+            importlib.reload(importlib.import_module("pait.app.any.security.http"))
+            for item in ["HTTPBasic", "HTTPDigest", "HTTPBearer"]:
+                class_ = getattr(importlib.import_module("pait.app.any.security.http"), item)
+                # Since partial_wrapper is used, it can only be judged whether the class_ is used correctly
+                getattr(importlib.import_module(f"pait.app.{i}.security.http"), item) in class_.__bases__
 
 
 class TestPait(BaseTestApp):

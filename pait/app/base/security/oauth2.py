@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Generator, List, Optional, Tuple, Type
+from typing import Any, Callable, Dict, Generator, List, Optional, Type
 
 from any_api.openapi.model.openapi import Oauth2SecurityModel, OAuthFlowModel, OAuthFlowsModel
 from pydantic import BaseModel, Field
@@ -8,7 +8,7 @@ from pait.model.core import PaitCoreModel, get_core_model
 from pait.model.response import JsonResponseModel
 
 from .base import BaseSecurity, SecurityModelType
-from .util import set_and_check_field
+from .util import get_authorization_scheme_param, set_and_check_field
 
 __all__ = [
     "BaseOAuth2PasswordBearer",
@@ -17,13 +17,6 @@ __all__ = [
     "OAuth2PasswordRequestFromStrict",
     "OAuth2PasswordBearerJsonRespModel",
 ]
-
-
-def get_authorization_scheme_param(authorization_header_value: str) -> Tuple[str, str]:
-    if not authorization_header_value:
-        return "", ""
-    scheme, _, param = authorization_header_value.partition(" ")
-    return scheme, param
 
 
 class ScopeType(List[str]):
@@ -63,6 +56,7 @@ class OAuth2PasswordBearerJsonRespModel(JsonResponseModel):
 class BaseOAuth2PasswordBearer(BaseSecurity):
     def __init__(
         self,
+        *,
         route: Optional[Callable] = None,
         security_name: Optional[str] = None,
         scopes: Optional[Dict[str, str]] = None,
@@ -87,11 +81,7 @@ class BaseOAuth2PasswordBearer(BaseSecurity):
         def __call__(authorization: str = self.header_field) -> str:
             return self.authorization_handler(authorization)
 
-        # Compatible with the following syntax
-        # Oauth2PasswordBearer()()
-        # Oauth2PasswordBearer().__call__()
-        setattr(self, "_override_call_sig", True)
-        setattr(self, "__call__", __call__)
+        self._override_call_sig(__call__)
 
     def with_route(self, route: Callable) -> "BaseOAuth2PasswordBearer":
         if self.route is not None:

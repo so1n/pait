@@ -27,6 +27,8 @@ class MyHandler(RequestHandler):
             self.write({"code": -1, "msg": f"miss param: {error_param_list}"})
         elif isinstance(exc, HTTPError):
             self.set_status(exc.status_code, exc.reason)
+            for k, v in getattr(exc, "headers", {}).items():
+                self.set_header(k, v)
             self.write_error(exc.status_code)
             return
         else:

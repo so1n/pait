@@ -116,6 +116,10 @@ class TestSecurityProtocol(BaseTestProtocol):
     def test_security_oauth2(self) -> None:
         self._check_func_type_hint_by_other_module("security.oauth2", "BaseOAuth2PasswordBearer")
 
+    def test_security_http(self) -> None:
+        for item in ["HTTPBasic", "HTTPDigest", "HTTPBearer"]:
+            self._check_func_type_hint_by_other_module("security.http", item)
+
 
 class TestSimpleRouteProtocol(BaseTestProtocol):
     def test_add_simple_route(self) -> None:

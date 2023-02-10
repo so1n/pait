@@ -14,6 +14,7 @@ APIKEY_FIELD_TYPE = Union[Query, Header, Cookie]
 class BaseAPIKey(BaseSecurity, metaclass=ABCMeta):
     def __init__(
         self,
+        *,
         name: str,
         field: APIKEY_FIELD_TYPE,
         verify_api_key_callable: Optional[Callable[[str], bool]] = None,
@@ -34,11 +35,7 @@ class BaseAPIKey(BaseSecurity, metaclass=ABCMeta):
         def __call__(authorization: str = field) -> str:
             return self.authorization_handler(authorization)
 
-        # Compatible with the following syntax
-        # APIKey()()
-        # APIKey().__call__()
-        setattr(self, "_override_call_sig", True)
-        setattr(self, "__call__", __call__)
+        self._override_call_sig(__call__)
 
     def __call__(self, authorization: str = Header.i()) -> Optional[str]:
         return self.authorization_handler(authorization)

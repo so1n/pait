@@ -58,6 +58,9 @@ from example.tornado_example.security_route import (
     OAuth2LoginHandler,
     OAuth2UserInfoHandler,
     OAuth2UserNameHandler,
+    UserNameByHttpBasicCredentialsHandler,
+    UserNameByHttpBearerHandler,
+    UserNameByHttpDigestHandler,
 )
 from example.tornado_example.utils import MyHandler, global_pait
 from pait.app.tornado import AddDocRoute, Pait, add_doc_route, load_app, pait
@@ -247,6 +250,9 @@ def create_app() -> Application:
             (r"/api/security/oauth2-login", OAuth2LoginHandler),
             (r"/api/security/oauth2-user-name", OAuth2UserNameHandler),
             (r"/api/security/oauth2-user-info", OAuth2UserInfoHandler),
+            (r"/api/security/user-name-by-http-basic-credentials", UserNameByHttpBasicCredentialsHandler),
+            (r"/api/security/user-name-by-http-bearer", UserNameByHttpBearerHandler),
+            (r"/api/security/user-name-by-http-digest", UserNameByHttpDigestHandler),
         ]
     )
     CacheResponsePlugin.set_redis_to_app(app, redis=Redis(decode_responses=True))
