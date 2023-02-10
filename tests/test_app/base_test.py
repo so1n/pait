@@ -275,18 +275,18 @@ class BaseTest(object):
         ).get()
         error_logger.assert_called_once_with("context_depend error")
 
-    def api_key_route(self, route: Callable) -> None:
-        assert self.test_helper(
-            self.client, route, header_dict={"token": "my-token"}, strict_inspection_check_json_content=False
-        ).json() == {"token": "my-token"}
-
-        test_helper = self.test_helper(
-            self.client,
-            route,
-        )
+    def api_key_route(self, route: Callable, request_dict: dict) -> None:
+        test_helper = self.test_helper(self.client, route, strict_inspection_check_json_content=False)
         resp = test_helper.get()
         assert 403 == test_helper._get_status_code(resp)
         assert "Not authenticated" in test_helper._get_text(resp)
+
+        assert (
+            self.test_helper(self.client, route, strict_inspection_check_json_content=False, **request_dict).json()[
+                "data"
+            ]
+            == "my-token"
+        )
 
     def oauth2_password_route(
         self, *, login_route: Callable, user_name_route: Callable, user_info_route: Callable

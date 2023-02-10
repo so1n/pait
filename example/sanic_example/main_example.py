@@ -53,7 +53,14 @@ from example.sanic_example.response_route import (
     html_response_route,
     text_response_route,
 )
-from example.sanic_example.security_route import api_key_route, oauth2_login, oauth2_user_info, oauth2_user_name
+from example.sanic_example.security_route import (
+    api_key_cookie_route,
+    api_key_header_route,
+    api_key_query_route,
+    oauth2_login,
+    oauth2_user_info,
+    oauth2_user_name,
+)
 from example.sanic_example.utils import api_exception, global_pait
 from pait.app.sanic import AddDocRoute, Pait, add_doc_route, load_app, pait
 from pait.app.sanic.plugin.cache_response import CacheResponsePlugin
@@ -250,7 +257,11 @@ def create_app(configure_logging: bool = True) -> Sanic:
     app.add_route(
         pre_depend_async_contextmanager_route, "/api/depend/check-pre-depend-async-contextmanager", methods={"GET"}
     )
-    app.add_route(api_key_route, "/api/security/api-key", methods={"GET"})
+
+    app.add_route(api_key_cookie_route, "/api/security/api-key-cookie-route", methods={"GET"})
+    app.add_route(api_key_query_route, "/api/security/api-key-header-route", methods={"GET"})
+    app.add_route(api_key_header_route, "/api/security/api-key-query-route", methods={"GET"})
+
     app.add_route(oauth2_login, "/api/security/oauth2-login", methods={"POST"})
     app.add_route(oauth2_user_name, "/api/security/oauth2-user-name", methods={"GET"})
     app.add_route(oauth2_user_info, "/api/security/oauth2-user-info", methods={"GET"})

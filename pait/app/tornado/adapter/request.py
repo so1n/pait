@@ -30,12 +30,15 @@ class Request(BaseRequest[HTTPServerRequest, RequestExtend]):
     def request_extend(self) -> RequestExtend:
         return RequestExtend(self.request)
 
+    @LazyProperty()
     def body(self) -> dict:
         return json.loads(self.request.body.decode())
 
+    @LazyProperty()
     def cookie(self) -> dict:
-        return self.request.cookies
+        return {i.key: i.value for i in self.request.cookies.values()}
 
+    @LazyProperty()
     def file(self) -> dict:
         return {item["filename"]: item for item in self.request.files["file"]}
 

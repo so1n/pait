@@ -49,7 +49,14 @@ from example.flask_example.response_route import (
     html_response_route,
     text_response_route,
 )
-from example.flask_example.security_route import api_key_route, oauth2_login, oauth2_user_info, oauth2_user_name
+from example.flask_example.security_route import (
+    api_key_cookie_route,
+    api_key_header_route,
+    api_key_query_route,
+    oauth2_login,
+    oauth2_user_info,
+    oauth2_user_name,
+)
 from example.flask_example.utils import api_exception, global_pait
 from pait.app.flask import AddDocRoute, Pait, add_doc_route, load_app, pait
 from pait.app.flask.plugin.cache_response import CacheResponsePlugin
@@ -234,7 +241,9 @@ def create_app() -> Flask:
         "/api/depend/pre-depend-contextmanager", view_func=pre_depend_contextmanager_route, methods=["GET"]
     )
 
-    app.add_url_rule("/api/security/api-key", view_func=api_key_route, methods=["GET"])
+    app.add_url_rule("/api/security/api-cookie-key", view_func=api_key_cookie_route, methods=["GET"])
+    app.add_url_rule("/api/security/api-header-key", view_func=api_key_header_route, methods=["GET"])
+    app.add_url_rule("/api/security/api-query-key", view_func=api_key_query_route, methods=["GET"])
     app.add_url_rule("/api/security/oauth2-login", view_func=oauth2_login, methods=["POST"])
     app.add_url_rule("/api/security/oauth2-user-name", view_func=oauth2_user_name, methods=["GET"])
     app.add_url_rule("/api/security/oauth2-user-info", view_func=oauth2_user_info, methods=["GET"])

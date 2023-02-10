@@ -1,9 +1,11 @@
-from typing import Callable, Dict, List, Optional
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
-from pait.app.base.security.oauth2 import BaseOAuth2PasswordBearer
 from pait.field import Depends
+
+if TYPE_CHECKING:
+    from pait.app.base.security.oauth2 import BaseOAuth2PasswordBearer
 
 
 class User(BaseModel):
@@ -17,7 +19,7 @@ class User(BaseModel):
 temp_token_dict: Dict[str, User] = {}
 
 
-def get_current_user(scope_list: List[str], oauth2_pb: BaseOAuth2PasswordBearer) -> Callable[[str], User]:
+def get_current_user(scope_list: List[str], oauth2_pb: "BaseOAuth2PasswordBearer") -> Callable[[str], User]:
     def _check_scope(token: str = Depends.i(oauth2_pb)) -> User:
         user_model: Optional[User] = temp_token_dict.get(token, None)
         if not user_model:

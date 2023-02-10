@@ -52,7 +52,9 @@ from example.tornado_example.response_route import (
     TextResponseHanler,
 )
 from example.tornado_example.security_route import (
-    APIKeyHanler,
+    APIKeyCookieHanler,
+    APIKeyHeaderHanler,
+    APIKeyQueryHanler,
     OAuth2LoginHandler,
     OAuth2UserInfoHandler,
     OAuth2UserNameHandler,
@@ -239,7 +241,9 @@ def create_app() -> Application:
             (r"/api/depend/check-depend-async-contextmanager", DependAsyncContextmanagerHanler),
             (r"/api/depend/check-pre-depend-contextmanager", PreDependContextmanagerHanler),
             (r"/api/depend/check-pre-depend-async-contextmanager", PreDependAsyncContextmanagerHanler),
-            (r"/api/security/api-key", APIKeyHanler),
+            (r"/api/security/api-key-cookie-route", APIKeyCookieHanler),
+            (r"/api/security/api-key-header-route", APIKeyHeaderHanler),
+            (r"/api/security/api-key-query-route", APIKeyQueryHanler),
             (r"/api/security/oauth2-login", OAuth2LoginHandler),
             (r"/api/security/oauth2-user-name", OAuth2UserNameHandler),
             (r"/api/security/oauth2-user-info", OAuth2UserInfoHandler),

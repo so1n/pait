@@ -264,7 +264,9 @@ class TestTornado(BaseTestTornado):
         )
 
     def test_api_key_route(self) -> None:
-        self.base_test.api_key_route(main_example.APIKeyHanler.get)
+        self.base_test.api_key_route(main_example.APIKeyCookieHanler.get, {"cookie_dict": {"token": "my-token"}})
+        self.base_test.api_key_route(main_example.APIKeyHeaderHanler.get, {"header_dict": {"token": "my-token"}})
+        self.base_test.api_key_route(main_example.APIKeyQueryHanler.get, {"query_dict": {"token": "my-token"}})
 
     def test_oauth2_password_route(self) -> None:
         self.base_test.oauth2_password_route(

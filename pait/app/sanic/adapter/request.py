@@ -38,9 +38,11 @@ class Request(BaseRequest[_Request, RequestExtend]):
     def cookie(self) -> dict:
         return self.request.cookies
 
+    @LazyProperty()
     def file(self) -> Dict[str, File]:
         return {key: value[0] for key, value in self.request.files.items()}
 
+    @LazyProperty()
     def form(self) -> dict:
         return {key: value[0] for key, value in self.request.form.items()}
 

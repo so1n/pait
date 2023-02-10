@@ -16,7 +16,7 @@ class BaseAPIKey(BaseSecurity, metaclass=ABCMeta):
         self,
         name: str,
         field: APIKEY_FIELD_TYPE,
-        verify_api_key_callable: Callable[[str], bool],
+        verify_api_key_callable: Optional[Callable[[str], bool]] = None,
         security_name: Optional[str] = None,
     ) -> None:
         field_name: str = field.get_field_name()
@@ -25,7 +25,7 @@ class BaseAPIKey(BaseSecurity, metaclass=ABCMeta):
         self.not_authenticated_exc: Exception = self.get_exception(status_code=403, message="Not authenticated")
         set_and_check_field(field, name, self.not_authenticated_exc)
 
-        self.verify_api_key_callable: Callable[[str], bool] = verify_api_key_callable
+        self.verify_api_key_callable: Optional[Callable[[str], bool]] = verify_api_key_callable
         self.model: security.ApiKeySecurityModel = security.ApiKeySecurityModel(
             name=name, in_stub=field_name  # type: ignore
         )
@@ -44,6 +44,6 @@ class BaseAPIKey(BaseSecurity, metaclass=ABCMeta):
         return self.authorization_handler(authorization)
 
     def authorization_handler(self, authorization: str) -> str:
-        if not self.verify_api_key_callable(authorization):
+        if self.verify_api_key_callable and not self.verify_api_key_callable(authorization):
             raise self.not_authenticated_exc
         return authorization

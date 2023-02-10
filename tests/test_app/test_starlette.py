@@ -242,7 +242,9 @@ class TestStarlette:
         base_test.pre_depend_contextmanager(main_example.pre_depend_async_contextmanager_route, mocker)
 
     def test_api_key_route(self, base_test: BaseTest) -> None:
-        base_test.api_key_route(main_example.api_key_route)
+        base_test.api_key_route(main_example.api_key_cookie_route, {"cookie_dict": {"token": "my-token"}})
+        base_test.api_key_route(main_example.api_key_header_route, {"header_dict": {"token": "my-token"}})
+        base_test.api_key_route(main_example.api_key_query_route, {"query_dict": {"token": "my-token"}})
 
     def test_oauth2_password_route(self, base_test: BaseTest) -> None:
         base_test.oauth2_password_route(
