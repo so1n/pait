@@ -11,6 +11,9 @@ if TYPE_CHECKING:
     from pait.openapi.openapi import LinksModel
 
 
+_T = TypeVar("_T")
+
+
 class ExtraParam(BaseModel):
     pass
 
@@ -31,6 +34,8 @@ class BaseField(FieldInfo):
         example: Any = MISSING,
         not_value_exception: Optional[Exception] = None,
         openapi_include: bool = True,
+        extra_param_list: Optional[List[ExtraParam]] = None,
+        # pydantic.Field param
         default_factory: Optional[NoArgAnyCallable] = None,
         alias: str = None,
         title: str = None,
@@ -46,9 +51,20 @@ class BaseField(FieldInfo):
         min_length: int = None,
         max_length: int = None,
         regex: str = None,
-        extra_param_list: Optional[List[ExtraParam]] = None,
         **extra: Any,
     ):
+        """
+        :param links: OpenAPI Link model
+        :param media_type: default media type of request body
+        :param openapi_serialization: Additional description of OpenAPI Schema
+        :param raw_return: If True, the return value will be returned as is (the request key will be invalidated).
+        :param example: example data
+        :param not_value_exception:
+            The exception thrown when the corresponding value cannot be obtained from the request,
+            default value `pait.exceptions.NotFoundValueException`
+        :param openapi_include: Whether it is used by the OpenAPI
+        :param extra_param_list: Extended parameters for plug-ins to use
+        """
         # Same checks as pydantic, checked in advance here
         if default is not Undefined and default_factory is not None:
             raise ValueError("cannot specify both default and default_factory")  # pragma: no cover
@@ -148,6 +164,65 @@ class BaseField(FieldInfo):
         **extra: Any,
     ) -> Any:
         """ignore mypy tip"""
+        return cls(
+            default,
+            raw_return=raw_return,
+            links=links,
+            example=example,
+            media_type=media_type,
+            openapi_serialization=openapi_serialization,
+            not_value_exception=not_value_exception,
+            openapi_include=openapi_include,
+            default_factory=default_factory,
+            alias=alias,
+            title=title,
+            description=description,
+            const=const,
+            gt=gt,
+            ge=ge,
+            lt=lt,
+            le=le,
+            multiple_of=multiple_of,
+            min_items=min_items,
+            max_items=max_items,
+            min_length=min_length,
+            max_length=max_length,
+            regex=regex,
+            extra_param_list=extra_param_list,
+            **extra,
+        )
+
+    @classmethod
+    def t(
+        cls,
+        default: _T = Undefined,
+        *,
+        links: "Optional[LinksModel]" = None,
+        raw_return: bool = False,
+        media_type: str = "",
+        example: _T = MISSING,  # type: ignore
+        openapi_serialization: Any = None,
+        not_value_exception: Optional[Exception] = None,
+        openapi_include: bool = True,
+        default_factory: Optional[Callable[[], _T]] = None,
+        alias: str = None,
+        title: str = None,
+        description: str = None,
+        const: bool = None,
+        gt: float = None,
+        ge: float = None,
+        lt: float = None,
+        le: float = None,
+        multiple_of: float = None,
+        min_items: int = None,
+        max_items: int = None,
+        min_length: int = None,
+        max_length: int = None,
+        regex: str = None,
+        extra_param_list: Optional[List[ExtraParam]] = None,
+        **extra: Any,
+    ) -> _T:
+        """Limited type hint support"""
         return cls(
             default,
             raw_return=raw_return,

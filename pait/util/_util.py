@@ -90,6 +90,8 @@ R_T = TypeVar("R_T")
 
 
 def create_factory(func: Callable[P, R_T]) -> Callable[P, R_T]:  # type: ignore
+    """Create a factory that calls the function (Use the syntax hints provided by PEP 612)"""
+
     @wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> R_T:  # type: ignore
         return lambda: func(*args, **kwargs)  # type: ignore
@@ -120,6 +122,7 @@ def example_value_handle(example_value: Any) -> Any:
 
 
 def get_real_annotation(annotation: Union[Type, str], target_obj: Any) -> Type:
+    """Used to get the real annotation(Compatible with postponed annotations)"""
     global_dict = sys.modules[target_obj.__module__].__dict__
     if not isinstance(annotation, str):
         return _eval_type(annotation, global_dict, None)
@@ -139,6 +142,7 @@ def get_real_annotation(annotation: Union[Type, str], target_obj: Any) -> Type:
 
 
 def get_pydantic_annotation(key: str, pydantic_base_model: Type[BaseModel]) -> Type:
+    """Get the annotation from BaseModel's properties"""
     annotation: Any = MISSING
     for base in reversed(pydantic_base_model.__mro__):
         ann: Union[str, Type] = base.__dict__.get("__annotations__", {}).get(key, MISSING)

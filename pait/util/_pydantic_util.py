@@ -1,3 +1,6 @@
+"""
+Several function methods of PyDantic are overridden so that it can globally determine if model names are duplicates
+"""
 from typing import TYPE_CHECKING, Any, Dict, Optional, Set, Tuple, Type, Union
 
 from pydantic import create_model

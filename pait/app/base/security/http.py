@@ -1,4 +1,5 @@
 import binascii
+import warnings
 from base64 import b64decode
 from typing import Callable, Optional
 
@@ -170,3 +171,7 @@ class BaseHTTPDigest(BaseHTTP):
             is_raise=is_raise,
             verify_callable=verify_callable,
         )
+
+    def authorization_handler(self, authorization: str) -> Optional[str]:
+        warnings.warn("Http Digest just a simple example and does not provide practical usage")
+        return super().authorization_handler(authorization)

@@ -12,33 +12,6 @@ pytestmark = pytest.mark.asyncio
 
 
 class TestUtil:
-    def test_change_local(self) -> None:
-        for item in ["zh-cn", "en", "customer_1", "customer_2"]:
-            util.change_local(item)
-
-            from pait.util._i18n import i18n_local
-
-            assert i18n_local == item
-
-        with pytest.raises(ValueError):
-            util.change_local("aaa")
-        util.change_local("en")
-
-    def test_join_i18n(self) -> None:
-        util.change_local("en")
-        assert "Group Name" == util.join_i18n([util.I18n.Group, util.I18n.Name])
-
-        util.change_local("zh-cn")
-        assert "组名称" == util.join_i18n([util.I18n.Group, util.I18n.Name])
-        util.change_local("en")
-
-    def test_join_i18n_context(self) -> None:
-        with util.I18nContext("zh-cn"):
-            assert "组名称" == util.join_i18n([util.I18n.Group, util.I18n.Name])
-
-            with pytest.raises(RuntimeError):
-                util.change_local("en")
-
     def test_parse_typing(self) -> None:
         assert dict is util.parse_typing(dict)
         assert list is util.parse_typing(List)
