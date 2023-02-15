@@ -55,6 +55,7 @@ class PaitCoreModel(object):
         post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
         param_handler_plugin: Optional[Type[BaseParamHandler]] = None,
         feature_code: str = "",
+        **kwargs: Any,
     ):
         # pait
         self.app_helper_class: "Type[BaseAppHelper]" = app_helper_class
@@ -71,6 +72,7 @@ class PaitCoreModel(object):
         self.block_http_method_set: Set[str] = set()
         self.pydantic_model_config: Optional[Type[BaseConfig]] = pydantic_model_config
         self.pydantic_basemodel: Optional[Type[BaseModel]] = pydantic_basemodel
+        self.extra: dict = kwargs
 
         # api doc
         self.path: str = path or ""  # request url path

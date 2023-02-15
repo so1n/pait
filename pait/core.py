@@ -44,6 +44,7 @@ class Pait(object):
         plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
         post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
         param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
+        **kwargs: Any,
     ):
         """
         :param pydantic_model_config: pydantic.BaseConfig
@@ -93,6 +94,7 @@ class Pait(object):
         self._plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = plugin_list
         self._post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = post_plugin_list
         self._param_handler_plugin: Optional[Type["BaseParamHandler"]] = param_handler_plugin
+        self.extra: dict = kwargs
 
     @staticmethod
     def _append_data(
@@ -129,6 +131,7 @@ class Pait(object):
         post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
         append_post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
         param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
+        **kwargs: Any,
     ) -> _PaitT:
         """
         :param pydantic_model_config: pydantic.BaseConfig
@@ -183,6 +186,7 @@ class Pait(object):
             plugin_list=plugin_list,
             post_plugin_list=post_plugin_list,
             param_handler_plugin=param_handler_plugin or self._param_handler_plugin,
+            **(kwargs or self.extra),
         )
 
     @staticmethod
@@ -225,6 +229,7 @@ class Pait(object):
         append_post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
         param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
         feature_code: str = "",
+        **kwargs: Any,
     ) -> Callable:
         """
         :param pydantic_model_config: pydantic.BaseConfig
@@ -294,6 +299,7 @@ class Pait(object):
                 post_plugin_list=post_plugin_list,
                 param_handler_plugin=param_handler_plugin or self._param_handler_plugin,
                 feature_code=feature_code,
+                **(kwargs or self.extra),
             )
             sync_config_data_to_pait_core_model(config, pait_core_model)
             pait_data.register(app_name, pait_core_model)
