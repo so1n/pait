@@ -12,7 +12,6 @@ __all__ = ["AppHelper", "RequestExtend"]
 
 
 class AppHelper(BaseAppHelper[_Request, RequestExtend]):
-
     CbvType = (View,)
     app_name = "flask"
 

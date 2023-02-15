@@ -1,8 +1,16 @@
 from dataclasses import MISSING
-from typing import Any
+from typing import Any, Tuple, Type
 
 from sanic.request import Request as _Request
-from sanic.views import CompositionView, HTTPMethodView
+
+try:
+    from sanic.views import CompositionView, HTTPMethodView
+
+    cbv_type_tuple: Tuple[Type[Exception], ...] = (HTTPMethodView, CompositionView)
+except ImportError:
+    from sanic.views import HTTPMethodView
+
+    cbv_type_tuple = (HTTPMethodView,)
 from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
 
 from pait.app.base import BaseAppHelper
@@ -12,7 +20,7 @@ __all__ = ["AppHelper", "RequestExtend"]
 
 
 class AppHelper(BaseAppHelper[_Request, RequestExtend]):
-    CbvType = (HTTPMethodView, CompositionView)
+    CbvType = cbv_type_tuple
     app_name = "sanic"
 
     request_class = Request

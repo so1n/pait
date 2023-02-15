@@ -138,16 +138,19 @@ def grpc_test_create_user_request(app: Any) -> Generator[Queue, None, None]:
     with grpc_test_helper():
         queue: Queue = Queue()
         grpc_gateway_route: BaseGrpcGatewayRoute = get_app_attribute(app, "grpc_gateway_route")
+
+        def _before_server_start(*_: Any) -> None:
+            reinit_channel(grpc_gateway_route, queue)
+
+        async def _after_server_stop(*_: Any) -> None:
+            await grpc_gateway_route.channel.close()
+
         if sniffing(app) == "sanic":
-
-            def _before_server_start(*_: Any) -> None:
-                reinit_channel(grpc_gateway_route, queue)
-
-            async def _after_server_stop(*_: Any) -> None:
-                await grpc_gateway_route.channel.close()
-
             app.before_server_start(_before_server_start)
             app.after_server_stop(_after_server_stop)
+        elif sniffing(app) == "starlette":
+            app.add_event_handler("startup", _before_server_start)
+            app.add_event_handler("shutdown", _after_server_stop)
         else:
             reinit_channel(grpc_gateway_route, queue)
 

@@ -89,7 +89,6 @@ def add_multi_simple_route(
     prefix: str = "/",
     title: str = "",
 ) -> None:
-
     # prefix `/` route group must be behind other route group
     route_trie: RouteTrie = RouteTrie()
     route_trie.insert_by_app(app)

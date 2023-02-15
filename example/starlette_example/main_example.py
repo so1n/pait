@@ -222,7 +222,6 @@ def add_api_doc_route(app: Starlette) -> None:
 
 
 def create_app() -> Starlette:
-
     app: Starlette = Starlette(
         routes=[
             Route("/api/login", login_route, methods=["POST"]),
@@ -288,7 +287,6 @@ def create_app() -> Starlette:
 
 
 if __name__ == "__main__":
-
     import uvicorn  # type: ignore
     from pydantic import BaseModel
 

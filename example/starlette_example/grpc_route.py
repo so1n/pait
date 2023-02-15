@@ -29,7 +29,6 @@ def add_grpc_gateway_route(app: Starlette) -> None:
 
     class CustomerGrpcGatewayRoute(GrpcGatewayRoute):
         def gen_route(self, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]) -> Callable:
-
             if grpc_model.method in ("/user.User/login_user", "/user.User/create_user"):
                 return super().gen_route(grpc_model, request_pydantic_model_class)
             else:

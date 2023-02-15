@@ -34,7 +34,6 @@ def api_exception(exc: Exception) -> Union[Dict[str, Any], Response]:
 
 @contextmanager
 def create_app(name: str) -> Iterator[Flask]:
-
     from pait.app.flask import add_doc_route
     from pait.extra.config import apply_block_http_method_set
     from pait.g import config

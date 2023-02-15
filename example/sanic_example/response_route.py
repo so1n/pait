@@ -10,6 +10,15 @@ from pait.app.sanic import Pait
 from pait.field import Query
 from pait.model.status import PaitStatus
 
+try:
+    from sanic.response import StreamingHTTPResponse
+
+    StreamResponse = StreamingHTTPResponse
+except ImportError:
+    from sanic.response import ResponseStream
+
+    StreamResponse = ResponseStream
+
 check_resp_pait: Pait = global_pait.create_sub_pait(
     group="check_resp", tag=(tag.check_resp_tag,), status=PaitStatus.release
 )
@@ -28,22 +37,22 @@ async def html_response_route(request: Request) -> response.HTTPResponse:
 
 
 @check_resp_pait(response_model_list=[response_model.FileRespModel])
-async def file_response_route(request: Request) -> response.StreamingHTTPResponse:
+async def file_response_route(request: Request) -> StreamResponse:  # type: ignore
     # sanic file response will return read file when `return resp`
     named_temporary_file: AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()  # type: ignore
     f: Any = await named_temporary_file.__aenter__()
     await f.write("Hello Word!".encode())
     await f.seek(0)
-    resp: response.StreamingHTTPResponse = await response.file_stream(f.name, mime_type="application/octet-stream")
-    resp.headers.add("X-Example-Type", "file")
+    resp: StreamResponse = await response.file_stream(f.name, mime_type="application/octet-stream")  # type: ignore
+    resp.headers.add("X-Example-Type", "file")  # type: ignore
 
-    raw_streaming_fn = resp.streaming_fn
+    raw_streaming_fn = resp.streaming_fn  # type: ignore
 
     async def _streaming_fn(_response: response.BaseHTTPResponse) -> None:
         await raw_streaming_fn(_response)
         await named_temporary_file.__aexit__(None, None, None)
 
-    resp.streaming_fn = _streaming_fn
+    resp.streaming_fn = _streaming_fn  # type: ignore
     return resp
 
 

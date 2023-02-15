@@ -7,6 +7,7 @@ from pydantic import ValidationError
 from redis.asyncio import Redis  # type: ignore
 from sanic import response
 from sanic.app import Sanic
+from sanic.exceptions import SanicException
 from sanic.views import HTTPMethodView
 
 from example.common import tag
@@ -219,7 +220,7 @@ def add_api_doc_route(app: Sanic) -> None:
 
 
 def create_app(configure_logging: bool = True) -> Sanic:
-    app: Sanic = Sanic(name=__name__, configure_logging=configure_logging)
+    app: Sanic = Sanic(name="example", configure_logging=configure_logging)
     CacheResponsePlugin.set_redis_to_app(app, Redis(decode_responses=True))
     app.add_route(login_route, "/api/login", methods={"POST"})
     app.add_route(get_user_route, "/api/user", methods={"GET"})
@@ -273,9 +274,10 @@ def create_app(configure_logging: bool = True) -> Sanic:
     )
     app.add_route(get_user_name_by_http_bearer, "/api/security/user-name-by-http-bearer", methods=["GET"])
     app.add_route(get_user_name_by_http_digest, "/api/security/user-name-by-http-digest", methods=["GET"])
-    app.exception(PaitBaseException)(api_exception)
-    app.exception(ValidationError)(api_exception)
-    app.exception(RuntimeError)(api_exception)
+    app.exception(PaitBaseException, ValidationError, RuntimeError, SanicException)(api_exception)
+    # app.exception(ValidationError)(api_exception)
+    # app.exception(RuntimeError)(api_exception)
+    # app.exception(SanicException)(api_exception)
     load_app(app, auto_load_route=True)
     return app
 

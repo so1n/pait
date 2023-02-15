@@ -410,3 +410,10 @@ class TestTornadoGrpc(BaseTestTornado):
         from pait.app.tornado.grpc_route import GrpcGatewayRoute
 
         self.base_test.grpc_openapi_by_protobuf_file(self._app, GrpcGatewayRoute, load_app)
+
+    def test_grpc_openapi_by_option(self) -> None:
+        from pait.app.tornado import load_app
+        from pait.app.tornado.grpc_route import GrpcGatewayRoute
+
+        self.setUp()
+        self.base_test.grpc_openapi_by_option(self._app, GrpcGatewayRoute, load_app)

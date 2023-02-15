@@ -3,6 +3,7 @@ from importlib import import_module
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Type
 
 from pydantic import BaseConfig, BaseModel
+from typing_extensions import NoReturn
 
 from pait.app.any.util import base_call_func, sniffing
 from pait.app.auto_load_app import auto_load_app_class
@@ -16,6 +17,26 @@ if TYPE_CHECKING:
     from pait.app.base.simple_route import SimpleRoute
     from pait.openapi.openapi import OpenAPI
     from pait.param_handle import BaseParamHandler
+
+
+_NotFoundFrameworkException = RuntimeError(
+    "The web framework to use cannot be found automatically, please specify it manually"
+)
+
+
+class Empty(object):
+    def __int__(self) -> NoReturn:
+        raise _NotFoundFrameworkException
+
+    def __setattr__(self, key: Any, value: Any) -> NoReturn:
+        raise _NotFoundFrameworkException
+
+    def __getattr__(self, item: Any) -> NoReturn:
+        raise _NotFoundFrameworkException
+
+    def __call__(self, *args: Any, **kwargs: Any) -> NoReturn:
+        raise _NotFoundFrameworkException
+
 
 try:
     load_class_app: Any = auto_load_app_class()
@@ -31,6 +52,9 @@ try:
     AddDocRoute: "_AddDocRoute" = getattr(import_module(pait_app_path), "AddDocRoute")
 except RuntimeError:  # pragma: no cover
     # Automatic loading of classes, loading failure when the user can not use
+    load_class_app = Empty()
+    Pait = Empty()  # type: ignore
+    AddDocRoute = Empty()  # type: ignore
     pait_app_path = ""  # pragma: no cover
 
 

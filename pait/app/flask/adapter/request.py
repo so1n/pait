@@ -23,7 +23,6 @@ class RequestExtend(BaseRequestExtend[FlaskRequest]):
 
 
 class Request(BaseRequest[FlaskRequest, RequestExtend]):
-
     RequestType = FlaskRequest
     FormType = ImmutableMultiDict
     FileType = FlaskRequest.files

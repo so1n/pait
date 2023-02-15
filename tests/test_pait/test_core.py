@@ -22,7 +22,6 @@ class FakeAppHelper(BaseAppHelper):
 
 class TestPaitCore:
     def test_pait_not_set_app_helper_class(self) -> None:
-
         with pytest.raises(ValueError) as e:
             core.Pait()
 

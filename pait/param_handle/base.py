@@ -185,7 +185,6 @@ class BaseParamHandler(PluginProtocol):
         _object: Union[FuncSig, Type, None],
         param_list: List["inspect.Parameter"],
     ) -> None:
-
         for parameter in param_list:
             try:
                 if parameter.default != parameter.empty:
@@ -274,7 +273,6 @@ class BaseParamHandler(PluginProtocol):
         # some type like dict, but not isinstance Mapping, e.g: werkzeug.datastructures.EnvironHeaders
         # assert getattr(request_value, "get", None), f"{parameter.name}'s request value must like dict"
         if not pait_field.raw_return:
-
             request_value = pait_field.request_value_handle(request_value)
             if request_value is Undefined:
                 if pait_field.not_value_exception:

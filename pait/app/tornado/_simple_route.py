@@ -16,7 +16,6 @@ def _add_route(
     prefix: str = "",
     title: str = "",
 ) -> None:
-
     rule_list: _RuleList = []
     for simple_route in simple_route_list:
         add_route_plugin(simple_route, UnifiedResponsePlugin)

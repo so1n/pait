@@ -100,7 +100,6 @@ class TestGrpcRoute(BaseTestApp):
 
 class TestSecurity(BaseTestApp):
     def test_security_api_key(self) -> None:
-
         for i in app_list:
             self._clean_app_from_sys_module()
             # import web app
@@ -112,7 +111,6 @@ class TestSecurity(BaseTestApp):
             getattr(importlib.import_module(f"pait.app.{i}.security.api_key"), "APIKey") in APIKey.__bases__
 
     def test_security_oauth2_password_bearer(self) -> None:
-
         for i in app_list:
             self._clean_app_from_sys_module()
             # import web app
@@ -275,7 +273,6 @@ class TestPlugin(BaseTestApp):
         func: Callable = lambda: None
 
     def test_at_most_one_of(self, mocker: MockFixture) -> None:
-
         for i in app_list:
             self._clean_app_from_sys_module()
             # import web app
@@ -290,7 +287,6 @@ class TestPlugin(BaseTestApp):
             patch.assert_called()
 
     def test_auto_complete_json_resp(self, mocker: MockFixture) -> None:
-
         for i in app_list:
             self._clean_app_from_sys_module()
             # import web app
@@ -308,7 +304,6 @@ class TestPlugin(BaseTestApp):
             patch.assert_called()
 
     def test_mock_plugin(self, mocker: MockFixture) -> None:
-
         for i in app_list:
             self._clean_app_from_sys_module()
             # import web app
@@ -325,7 +320,6 @@ class TestPlugin(BaseTestApp):
             patch.assert_called()
 
     def test_cache_response(self, mocker: MockFixture) -> None:
-
         for i in app_list:
             self._clean_app_from_sys_module()
             # import web app
@@ -342,7 +336,6 @@ class TestPlugin(BaseTestApp):
             patch.assert_called()
 
     def test_check_json_resp(self, mocker: MockFixture) -> None:
-
         for i in app_list:
             self._clean_app_from_sys_module()
             # import web app
@@ -359,7 +352,6 @@ class TestPlugin(BaseTestApp):
             patch.assert_called()
 
     def test_required(self, mocker: MockFixture) -> None:
-
         for i in app_list:
             self._clean_app_from_sys_module()
             # import web app
@@ -376,7 +368,6 @@ class TestPlugin(BaseTestApp):
             patch.assert_called()
 
     def test_unified_response(self, mocker: MockFixture) -> None:
-
         for i in app_list:
             self._clean_app_from_sys_module()
             # import web app

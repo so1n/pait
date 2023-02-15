@@ -96,7 +96,6 @@ class TestApplyFun:
             ("method_list", "OPTIONS", self.test_method_core_model),
         ]:
             for is_and in [True, False]:
-
                 for i in self.core_model_list:
                     if is_and:
                         config.apply_default_pydantic_model_config(

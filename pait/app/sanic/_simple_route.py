@@ -1,3 +1,5 @@
+import string
+
 from sanic import Blueprint, Sanic
 
 from pait.app.base.simple_route import SimpleRoute, add_route_plugin
@@ -19,7 +21,7 @@ def add_multi_simple_route(
     title: str = "",
 ) -> None:
     blueprint: Blueprint = Blueprint(
-        title,
+        title.translate(str.maketrans({key: "" for key in string.punctuation})).replace(" ", ""),  # type: ignore
         url_prefix=prefix,
     )
     for simple_route in simple_route_list:

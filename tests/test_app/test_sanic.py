@@ -1,5 +1,6 @@
 import difflib
 import json
+import logging
 import random
 import sys
 from contextlib import contextmanager
@@ -28,6 +29,7 @@ from tests.test_app.base_test import BaseTest
 
 @contextmanager
 def client_ctx() -> Generator[SanicTestClient, None, None]:
+    logging.disable()  # don't know where to configure the log, the test environment will be canceled log
     app: Sanic = main_example.create_app(configure_logging=False)
     app.config.ACCESS_LOG = False
     yield app.test_client
@@ -41,6 +43,7 @@ def client() -> Generator[SanicTestClient, None, None]:
 
 @contextmanager
 def base_test_ctx() -> Generator[BaseTest, None, None]:
+    logging.disable()  # don't know where to configure the log, the test environment will be canceled log
     app: Sanic = main_example.create_app(configure_logging=False)
     app.config.ACCESS_LOG = False
     yield BaseTest(app.test_client, _TestHelper)
@@ -340,7 +343,6 @@ class TestSanicGrpc:
                 assert message.token == "fail_token"
 
     def test_grpc_openapi(self) -> None:
-
         from pait.app.sanic import load_app
 
         with client_ctx() as client:
@@ -353,3 +355,10 @@ class TestSanicGrpc:
 
         with base_test_ctx() as base_test:
             base_test.grpc_openapi_by_protobuf_file(base_test.client.app, GrpcGatewayRoute, load_app)
+
+    def test_grpc_openapi_by_option(self) -> None:
+        from pait.app.sanic import load_app
+        from pait.app.sanic.grpc_route import GrpcGatewayRoute
+
+        with base_test_ctx() as base_test:
+            base_test.grpc_openapi_by_option(base_test.client.app, GrpcGatewayRoute, load_app)

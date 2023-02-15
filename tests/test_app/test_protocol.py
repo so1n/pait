@@ -33,11 +33,15 @@ class BaseTestProtocol:
         func_name: str,
         support_extra_param: bool = False,
     ) -> None:
-        any_app_signature: inspect.Signature = inspect.signature(getattr(any_app, func_name))
-        for app in other_app:
-            app_signature: inspect.Signature = inspect.signature(getattr(app, func_name))
+        for app in app_list:
+            self._clean_app_from_sys_module()
+            importlib.import_module(app)
+
+            obj = importlib.import_module(f"pait.app.{app}")
+            any_app_signature: inspect.Signature = inspect.signature(getattr(any_app, func_name))
+            app_signature: inspect.Signature = inspect.signature(getattr(obj, func_name))
             self._real_check_func_type_hint(
-                app_signature, any_app_signature, app.__name__, func_name, support_extra_param=support_extra_param
+                app_signature, any_app_signature, obj.__name__, func_name, support_extra_param=support_extra_param
             )
 
     def _check_func_type_hint_by_other_module(self, module_name: str, func_name: str) -> None:
@@ -69,6 +73,10 @@ class TestProtocol(BaseTestProtocol):
         self._check_func_type_hint(any_app.pait.__name__)
 
     def test_pait_class(self) -> None:
+        importlib.reload(importlib.import_module("pait.app.any"))
+        importlib.reload(importlib.import_module("pait.app"))
+        importlib.reload(any_app)
+        importlib.import_module("pait.app.any")
         self._check_func_type_hint(any_app.Pait.__name__)  # type: ignore
 
     def test_pait_method(self) -> None:

@@ -56,7 +56,6 @@ def _load_route(
         pait_data.add_route_info(AppHelper.app_name, pait_id, path, openapi_path, method_set, route_name, project_name)
         _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
     elif auto_load_route:
-
         from pait.app.starlette import pait
 
         endpoint = pait()(endpoint)
