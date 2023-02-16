@@ -66,9 +66,9 @@ def create_app(
         futures.ThreadPoolExecutor(max_workers=max_workers),
         interceptors=interceptor_list,
     )
-    manager_service.add_BookManagerServicer_to_server(ManagerService(), server)
-    user_service.add_UserServicer_to_server(UserService(), server)
-    social_service.add_BookSocialServicer_to_server(SocialService(), server)
+    manager_service.add_BookManagerServicer_to_server(ManagerService(), server)  # type: ignore
+    user_service.add_UserServicer_to_server(UserService(), server)  # type: ignore
+    social_service.add_BookSocialServicer_to_server(SocialService(), server)  # type: ignore
     server.add_insecure_port(host_post)
     return server
 

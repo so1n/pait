@@ -50,7 +50,7 @@ def load_app(app: Application, project_name: str = "", auto_load_route: bool = F
                     from pait.app.tornado import pait
 
                     handler = pait()(handler)
-                    pait_id = getattr(handler, "_pait_id", None)
+                    pait_id = getattr(handler, "_pait_id")
                     setattr(rule.target, method, handler)
                 else:
                     logging.warning(f"{route_name} can not found pait id")  # pragma: no cover

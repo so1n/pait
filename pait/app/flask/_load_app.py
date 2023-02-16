@@ -63,14 +63,14 @@ def load_app(app: Flask, project_name: str = "", auto_load_route: bool = False) 
             for method in view_class_endpoint.methods:
                 method = method.lower()
                 method_set = {method}
-                endpoint = getattr(view_class_endpoint, method, None)
-                if not endpoint:
+                cbv_endpoint = getattr(view_class_endpoint, method, None)
+                if not cbv_endpoint:
                     continue
-                pait_id = getattr(endpoint, "_pait_id", None)
+                pait_id = getattr(cbv_endpoint, "_pait_id", "")
                 if not pait_id:
                     from pait.app.flask import pait
 
-                    endpoint = pait()(endpoint)
+                    endpoint = pait()(cbv_endpoint)
                     pait_id = getattr(endpoint, "_pait_id")
                     setattr(view_class_endpoint, method, endpoint)
 

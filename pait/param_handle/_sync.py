@@ -29,7 +29,7 @@ class ParamHandler(BaseParamHandler):
         context: "ParamHandleContext",
         _object: Union[FuncSig, Type, None],
         param_list: List["inspect.Parameter"],
-        pydantic_model: Type[BaseModel] = None,
+        pydantic_model: Optional[Type[BaseModel]] = None,
     ) -> Tuple[List[Any], Dict[str, Any]]:
         args_param_list: List[Any] = []
         kwargs_param_dict: Dict[str, Any] = {}

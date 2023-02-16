@@ -89,12 +89,12 @@ P = ParamSpec("P")
 R_T = TypeVar("R_T")
 
 
-def create_factory(func: Callable[P, R_T]) -> Callable[P, R_T]:  # type: ignore
+def create_factory(func: Callable[P, R_T]) -> Callable[P, Callable[[], R_T]]:
     """Create a factory that calls the function (Use the syntax hints provided by PEP 612)"""
 
     @wraps(func)
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R_T:  # type: ignore
-        return lambda: func(*args, **kwargs)  # type: ignore
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Callable[[], R_T]:
+        return lambda: func(*args, **kwargs)
 
     return wrapper
 

@@ -119,7 +119,7 @@ class TestJsonPlugin:
             is_core = True
 
         def demo() -> int:
-            pass
+            return 0
 
         with pytest.raises(ValueError) as e:
             CheckJsonRespPlugin.pre_load_hook(

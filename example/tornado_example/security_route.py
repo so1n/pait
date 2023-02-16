@@ -1,5 +1,6 @@
 import random
 import string
+from typing import Optional
 
 from tornado.web import HTTPError
 
@@ -119,8 +120,8 @@ http_pait = security_pait.create_sub_pait(
 )
 
 
-def get_user_name(credentials: http.HTTPBasicCredentials = Depends.t(http_basic)) -> str:
-    if credentials.username != credentials.password:
+def get_user_name(credentials: Optional[http.HTTPBasicCredentials] = Depends.t(http_basic)) -> str:
+    if not credentials or credentials.username != credentials.password:
         raise http_basic.not_authorization_exc
     return credentials.username
 
@@ -133,13 +134,13 @@ class UserNameByHttpBasicCredentialsHandler(MyHandler):
 
 class UserNameByHttpBearerHandler(MyHandler):
     @http_pait(response_model_list=[SuccessRespModel, Http403RespModel])
-    async def get(self, credentials: str = Depends.t(http_bear)) -> None:
+    async def get(self, credentials: Optional[str] = Depends.t(http_bear)) -> None:
         self.write({"code": 0, "msg": "", "data": credentials})
 
 
 class UserNameByHttpDigestHandler(MyHandler):
     @http_pait(response_model_list=[SuccessRespModel, Http403RespModel])
-    async def get(self, credentials: str = Depends.t(http_digest)) -> None:
+    async def get(self, credentials: Optional[str] = Depends.t(http_digest)) -> None:
         self.write({"code": 0, "msg": "", "data": credentials})
 
 

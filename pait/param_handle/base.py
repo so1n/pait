@@ -50,7 +50,7 @@ def parameter_2_dict(
     parameter_value_dict: Dict["inspect.Parameter", Any],
     pydantic_config: Optional[Type[BaseConfig]] = None,
     pydantic_basemodel: Optional[Type[BaseModel]] = None,
-    validators: Dict[str, classmethod] = None,
+    validators: Optional[Dict[str, classmethod]] = None,
 ) -> Generator[dict, None, None]:
     """Convert all parameters into pydantic mods"""
     annotation_dict: Dict[str, Tuple[Type, Any]] = {}

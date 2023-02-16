@@ -100,7 +100,7 @@ def fixture_loop(mock_close_loop: bool = False) -> Generator[asyncio.AbstractEve
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
 
-    def _mock(_loop: asyncio.AbstractEventLoop = None) -> asyncio.AbstractEventLoop:
+    def _mock(_loop: Optional[asyncio.AbstractEventLoop] = None) -> Optional[asyncio.AbstractEventLoop]:
         return loop
 
     if mock_close_loop:
@@ -109,7 +109,7 @@ def fixture_loop(mock_close_loop: bool = False) -> Generator[asyncio.AbstractEve
     new_event_loop = asyncio.new_event_loop
     try:
         asyncio.set_event_loop = _mock  # type: ignore
-        asyncio.new_event_loop = _mock
+        asyncio.new_event_loop = _mock  # type: ignore
         if mock_close_loop:
             loop.close = lambda: None  # type: ignore
         yield loop
@@ -118,6 +118,7 @@ def fixture_loop(mock_close_loop: bool = False) -> Generator[asyncio.AbstractEve
         asyncio.new_event_loop = new_event_loop
         if mock_close_loop:
             loop.close = close_loop  # type: ignore
+    return None
 
 
 @contextmanager

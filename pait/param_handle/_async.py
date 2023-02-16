@@ -31,7 +31,7 @@ class AsyncParamHandler(BaseParamHandler):
         context: "AsyncParamHandleContext",
         _object: Union[FuncSig, Type],
         param_list: List["inspect.Parameter"],
-        pydantic_model: Type[BaseModel] = None,
+        pydantic_model: Optional[Type[BaseModel]] = None,
     ) -> Tuple[List[Any], Dict[str, Any]]:
         args_param_list: List[Any] = []
         kwargs_param_dict: Dict[str, Any] = {}
@@ -157,7 +157,7 @@ class AsyncConcurrencyParamHandler(AsyncParamHandler):
         context: "AsyncParamHandleContext",
         _object: Union[FuncSig, Type],
         param_list: List["inspect.Parameter"],
-        pydantic_model: Type[BaseModel] = None,
+        pydantic_model: Optional[Type[BaseModel]] = None,
     ) -> Tuple[List[Any], Dict[str, Any]]:
         args_param_list: List[Any] = []
         kwargs_param_dict: Dict[str, Any] = {}

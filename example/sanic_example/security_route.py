@@ -1,5 +1,6 @@
 import random
 import string
+from typing import Optional
 
 from sanic import response
 from sanic.exceptions import InvalidUsage
@@ -119,8 +120,8 @@ http_pait = security_pait.create_sub_pait(
 )
 
 
-def get_user_name(credentials: http.HTTPBasicCredentials = Depends.t(http_basic)) -> str:
-    if credentials.username != credentials.password:
+def get_user_name(credentials: Optional[http.HTTPBasicCredentials] = Depends.t(http_basic)) -> str:
+    if not credentials or credentials.username != credentials.password:
         raise http_basic.not_authorization_exc
     return credentials.username
 
@@ -131,12 +132,12 @@ async def get_user_name_by_http_basic_credentials(user_name: str = Depends.t(get
 
 
 @http_pait(response_model_list=[SuccessRespModel, Http403RespModel])
-async def get_user_name_by_http_bearer(credentials: str = Depends.t(http_bear)) -> response.HTTPResponse:
+async def get_user_name_by_http_bearer(credentials: Optional[str] = Depends.t(http_bear)) -> response.HTTPResponse:
     return response.json({"code": 0, "msg": "", "data": credentials})
 
 
 @http_pait(response_model_list=[SuccessRespModel, Http403RespModel])
-async def get_user_name_by_http_digest(credentials: str = Depends.t(http_digest)) -> response.HTTPResponse:
+async def get_user_name_by_http_digest(credentials: Optional[str] = Depends.t(http_digest)) -> response.HTTPResponse:
     return response.json({"code": 0, "msg": "", "data": credentials})
 
 

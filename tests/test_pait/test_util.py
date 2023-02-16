@@ -95,7 +95,7 @@ class TestUtil:
 
     def test_func_sig(self) -> None:
         def demo(a: int, b: str) -> int:
-            pass
+            return 0
 
         func_sig: util.FuncSig = util.get_func_sig(demo)
         assert func_sig.func == demo

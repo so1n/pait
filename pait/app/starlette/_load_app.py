@@ -38,14 +38,14 @@ def _load_route(
             if not method_endpoint:
                 continue
             method_set = {method}
-            pait_id = getattr(method_endpoint, "_pait_id", None)
+            pait_id = getattr(method_endpoint, "_pait_id", "")
             if not pait_id:
                 if not auto_load_route:
                     logging.warning(f"{route_name}.{method} can not found pait id")  # pragma: no cover
                 from pait.app.starlette import pait
 
                 method_endpoint = pait()(method_endpoint)
-                pait_id = getattr(method_endpoint, "_pait_id", None)
+                pait_id = getattr(method_endpoint, "_pait_id", "")
                 setattr(endpoint, method, method_endpoint)
 
             pait_data.add_route_info(

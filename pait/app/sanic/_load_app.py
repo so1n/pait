@@ -45,7 +45,7 @@ def load_app(app: Sanic, project_name: str = "", auto_load_route: bool = False) 
         for method in method_set:
             view_class: Optional[Type] = getattr(handler, "view_class", None)
             if view_class:
-                real_handler: Callable = getattr(view_class, method.lower(), None)
+                real_handler: Optional[Callable] = getattr(view_class, method.lower(), None)
             else:
                 real_handler = handler
             if not real_handler:

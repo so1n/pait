@@ -14,8 +14,7 @@ pydantic = "^1.7.3"
 typing-extensions = "^4.1.1"
 protobuf-to-pydantic = { version="^0.1.6.1", optional = true}
 redis = { version = "^4.2.2", optional = true }
-# any-api = "0.1.0.1"
-any-api = {git = "https://github.com/so1n/any-api.git", branch="master"}
+any-api = "0.1.0.2"
 
 [tool.poetry.urls]
 "Source" = "https://github.com/so1n/pait"

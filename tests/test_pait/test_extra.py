@@ -21,7 +21,7 @@ class FakeAppHelper(BaseAppHelper):
 
 class TestApplyFun:
     def _demo_func(self) -> int:
-        pass
+        return 0
 
     _demo_func._pait_id = "fake_pait_id"  # type: ignore
 

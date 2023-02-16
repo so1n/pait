@@ -15,7 +15,7 @@ class MockPlugin(MockPluginProtocol[Response]):
             self.pait_response_model,
         )
 
-    def get_file_response(self, temporary_file: IO[bytes], f: Any) -> RESP_T:
+    def get_file_response(self, temporary_file: IO[bytes], f: Any) -> RESP_T:  # type: ignore
         f.write(self.pait_response_model.get_example_value(example_column_name=self.example_column_name))
         f.seek(0)
 
