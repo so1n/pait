@@ -14,6 +14,7 @@ except ImportError:
 from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
 
 from pait.app.base import BaseAppHelper
+from pait.app.sanic._attribute import get_app_attribute
 from pait.app.sanic.adapter.request import Request, RequestExtend
 
 __all__ = ["AppHelper", "RequestExtend"]
@@ -26,6 +27,4 @@ class AppHelper(BaseAppHelper[_Request, RequestExtend]):
     request_class = Request
 
     def get_attributes(self, key: str, default: Any = MISSING) -> Any:
-        if default is MISSING:
-            return getattr(self.raw_request.app.ctx, key)
-        return getattr(self.raw_request.app.ctx, key, default)
+        return get_app_attribute(self.raw_request.app, key, default)

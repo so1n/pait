@@ -1,4 +1,5 @@
 from ._app_helper import AppHelper
+from ._attribute import get_app_attribute, set_app_attribute
 from ._doc_route import AddDocRoute, add_doc_route
 from ._load_app import load_app
 from ._pait import Pait, pait
