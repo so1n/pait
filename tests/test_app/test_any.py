@@ -176,6 +176,35 @@ def demo() -> Any:
 empty_simple_route: SimpleRoute = SimpleRoute(url="/", methods=["get"], route=demo)
 
 
+class TestAttribute(BaseTestApp):
+    def test_set_app_attribute(self, mocker: MockFixture) -> None:
+        for i in app_list:
+            patch = mocker.patch(f"pait.app.{i}.set_app_attribute")
+            any.set_app_attribute(
+                importlib.import_module(f"example.{i}_example.main_example").create_app(), "a", 1  # type: ignore
+            )
+            patch.assert_called()
+
+    def test_get_app_attribute(self, mocker: MockFixture) -> None:
+        for i in app_list:
+            # test not found
+            with pytest.raises(KeyError):
+                any.get_app_attribute(
+                    importlib.import_module(f"example.{i}_example.main_example").create_app(),  # type: ignore
+                    "a",
+                )
+            # test default value
+            assert "aaa" == any.get_app_attribute(
+                importlib.import_module(f"example.{i}_example.main_example").create_app(), "a", "aaa"  # type: ignore
+            )
+
+            patch = mocker.patch(f"pait.app.{i}.set_app_attribute")
+            any.get_app_attribute(
+                importlib.import_module(f"example.{i}_example.main_example").create_app(), "a", "demo"  # type: ignore
+            )
+            patch.assert_called()
+
+
 class TestAddSimpleRoute(BaseTestApp):
     def test_add_simple_route(self, mocker: MockFixture) -> None:
         for i in app_list:
