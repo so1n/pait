@@ -7,9 +7,10 @@ from types import ModuleType
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from google.protobuf.descriptor import MethodDescriptor, ServiceDescriptor  # type: ignore
+from google.protobuf.json_format import MessageToDict  # type: ignore
 from pydantic import BaseModel, Field
 
-from pait.util.grpc_inspect.types import Message
+from pait.grpc.types import Message
 
 
 class GrpcServiceOptionModel(BaseModel):
@@ -35,6 +36,35 @@ class GrpcModel(object):
     request: Type[Message] = Message
     response: Type[Message] = Message
     desc: str = ""
+
+
+def get_grpc_service_model_from_option_message(option_message: Message) -> List[GrpcServiceOptionModel]:
+    grpc_service_model_list: List[GrpcServiceOptionModel] = []
+    pait_dict: dict = {}
+    for rule_filed, value in option_message.ListFields():
+        key: str = rule_filed.name
+        if key == "tag":
+            pait_dict[key] = [(tag.name, tag.desc) for tag in value]
+        elif key == "not_enable":
+            pait_dict["enable"] = not value
+        elif rule_filed.containing_oneof:
+            if value.url:
+                pait_dict["url"] = value.url
+            if key == "custom":
+                logging.warning(f"Not support column:{key}")
+            elif key != "any":
+                pait_dict["http_method"] = key
+        elif key in ("body", "response_body"):
+            logging.warning(f"Not support column:{key}")
+        elif key == "additional_bindings":
+            for item in value:
+                grpc_service_model_list.extend(get_grpc_service_model_from_option_message(item))
+        else:
+            pait_dict[key] = value
+    grpc_service_model: GrpcServiceOptionModel = GrpcServiceOptionModel(**pait_dict)
+    grpc_service_model.http_method = grpc_service_model.http_method.upper()
+    grpc_service_model_list.append(grpc_service_model)
+    return grpc_service_model_list
 
 
 class ParseStub(object):
@@ -66,34 +96,6 @@ class ParseStub(object):
 
         return message_model
 
-    def get_grpc_service_model_from_option_message(self, option_message: Message) -> List[GrpcServiceOptionModel]:
-        grpc_service_model_list: List[GrpcServiceOptionModel] = []
-        pait_dict: dict = {}
-        for rule_filed, value in option_message.ListFields():
-            key: str = rule_filed.name
-            if key == "tag":
-                pait_dict[key] = [(tag.name, tag.desc) for tag in value]
-            elif key == "not_enable":
-                pait_dict["enable"] = not value
-            elif rule_filed.containing_oneof:
-                if value.url:
-                    pait_dict["url"] = value.url
-                if key == "custom":
-                    logging.warning(f"Not support column:{key}")
-                elif key != "any":
-                    pait_dict["http_method"] = key
-            elif key in ("body", "response_body"):
-                logging.warning(f"Not support column:{key}")
-            elif key == "additional_bindings":
-                for item in value:
-                    grpc_service_model_list.extend(self.get_grpc_service_model_from_option_message(item))
-            else:
-                pait_dict[key] = value
-        grpc_service_model: GrpcServiceOptionModel = GrpcServiceOptionModel(**pait_dict)
-        grpc_service_model.http_method = grpc_service_model.http_method.upper()
-        grpc_service_model_list.append(grpc_service_model)
-        return grpc_service_model_list
-
     def get_service_option_from_message(
         self, input_message: Type[Message], out_message: Type[Message]
     ) -> List[GrpcServiceOptionModel]:
@@ -109,10 +111,10 @@ class ParseStub(object):
                         continue
                     if not method.GetOptions().ListFields():
                         continue
-                    for filed, option_message in method.GetOptions().ListFields():
-                        if not filed.full_name.endswith("api.http"):
+                    for field, option_message in method.GetOptions().ListFields():
+                        if not field.full_name.endswith("api.http"):
                             continue
-                        return self.get_grpc_service_model_from_option_message(option_message)
+                        return get_grpc_service_model_from_option_message(option_message)
         return []
 
     @staticmethod

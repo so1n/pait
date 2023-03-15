@@ -21,8 +21,7 @@ def add_grpc_gateway_route(app: Sanic) -> None:
     from uuid import uuid4
 
     from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2
-    from pait.util.grpc_inspect.stub import GrpcModel
-    from pait.util.grpc_inspect.types import Message
+    from pait.grpc.grpc_inspect import GrpcModel, Message
 
     def _make_response(resp_dict: dict) -> dict:
         return {"code": 0, "msg": "", "data": resp_dict}
@@ -53,7 +52,7 @@ def add_grpc_gateway_route(app: Sanic) -> None:
                     request_msg: Message = self.get_msg_from_dict(grpc_model.request, request_dict)
                     # add req_id to request
                     grpc_msg: Message = await func(request_msg, metadata=[("req_id", req_id)])
-                    return self._make_response(self.msg_to_dict(grpc_msg))
+                    return self.make_response(self.msg_to_dict(grpc_msg))
 
                 return _route
 

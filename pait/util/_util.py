@@ -26,7 +26,7 @@ from typing import (
 )
 
 from pydantic import BaseModel
-from pydantic.fields import Undefined, UndefinedType
+from pydantic.fields import FieldInfo, Undefined, UndefinedType
 
 from pait.field import BaseField, Depends, is_pait_field
 from pait.model.template import TemplateVar
@@ -287,19 +287,26 @@ def gen_example_json_from_schema(schema_dict: Dict[str, Any], cls: Optional[Type
     return json.dumps(gen_example_dict_from_schema(schema_dict), cls=cls)
 
 
-def get_parameter_list_from_pydantic_basemodel(pait_model: Type[BaseModel]) -> List["inspect.Parameter"]:
+def get_parameter_list_from_pydantic_basemodel(
+    pait_model: Type[BaseModel], default_field_class: Optional[Type[BaseField]] = None
+) -> List["inspect.Parameter"]:
     """get class parameter list by attributes, if attributes not default value, it will be set `Undefined`"""
     parameter_list: Optional[List["inspect.Parameter"]] = getattr(pait_model, "_parameter_list", None)
     if parameter_list is not None:
         return parameter_list
     parameter_list = []
     for key, model_field in pait_model.__fields__.items():
-        if not is_pait_field(model_field.field_info):
-            raise TypeError(f"{model_field.field_info} must instance {BaseField} or {Depends}")  # pragma: no cover
+        field: FieldInfo = model_field.field_info
+        if not is_pait_field(field):
+            if not default_field_class:
+                raise TypeError(  # pragma: no cover
+                    f"{field.__class__} must instance {BaseField} or {Depends} by model {pait_model}"
+                )
+            field = default_field_class.from_pydantic_field(field)
         parameter = inspect.Parameter(
             key,
             inspect.Parameter.POSITIONAL_ONLY,
-            default=model_field.field_info,
+            default=field,
             annotation=get_pydantic_annotation(key, pait_model),
         )
         parameter_list.append(parameter)

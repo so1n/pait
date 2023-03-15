@@ -10,7 +10,13 @@ from example.common.response_model import gen_response_model_handle
 from example.flask_example.utils import create_app
 from example.grpc_common.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
 from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2_grpc
+from example.grpc_common.python_example_proto_code.example_proto_by_option.book import (
+    manager_pait_route,
+    social_pait_route,
+)
+from example.grpc_common.python_example_proto_code.example_proto_by_option.user import user_pait_route
 from pait.app import set_app_attribute
+from pait.app.flask import pait
 from pait.app.flask.grpc_route import GrpcGatewayRoute
 from pait.field import Header
 
@@ -21,8 +27,7 @@ def add_grpc_gateway_route(app: Flask) -> None:
     from uuid import uuid4
 
     from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2
-    from pait.util.grpc_inspect.stub import GrpcModel
-    from pait.util.grpc_inspect.types import Message
+    from pait.grpc.grpc_inspect import GrpcModel, Message
 
     def _make_response(resp_dict: dict) -> dict:
         return {"code": 0, "msg": "", "data": resp_dict}
@@ -53,7 +58,7 @@ def add_grpc_gateway_route(app: Flask) -> None:
                     request_msg: Message = self.get_msg_from_dict(grpc_model.request, request_dict)
                     # add req_id to request
                     grpc_msg: Message = func(request_msg, metadata=[("req_id", req_id)])
-                    return self._make_response(self.msg_to_dict(grpc_msg))
+                    return self.make_response(self.msg_to_dict(grpc_msg))
 
                 return _route
 
@@ -69,7 +74,17 @@ def add_grpc_gateway_route(app: Flask) -> None:
         make_response=_make_response,
         import_name=__name__,
     )
-    grpc_gateway_route.init_channel(grpc.intercept_channel(grpc.insecure_channel("0.0.0.0:9000")))
+    channel = grpc.intercept_channel(grpc.insecure_channel("0.0.0.0:9000"))
+    grpc_gateway_route.init_channel(channel)
+    user_pait_route.StaticGrpcGatewayRoute(  # type: ignore
+        app, channel, prefix="/api/static", pait=pait, title="static_user", make_response=_make_response
+    )
+    manager_pait_route.StaticGrpcGatewayRoute(  # type: ignore
+        app, channel, prefix="/api/static", pait=pait, title="static_manager", make_response=_make_response
+    )
+    social_pait_route.StaticGrpcGatewayRoute(  # type: ignore
+        app, channel, prefix="/api/static", pait=pait, title="static_social", make_response=_make_response
+    )
     set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest
 
 

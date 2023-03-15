@@ -271,7 +271,8 @@ class BaseField(FieldInfo):
             min_length=field.min_length,
             max_length=field.max_length,
             regex=field.regex,
-            extra_param_list=field.extra.pop("extra_param_list", None) ** field.extra,
+            extra_param_list=field.extra.pop("extra_param_list", None),
+            **field.extra,
         )
 
 

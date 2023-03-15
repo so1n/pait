@@ -124,9 +124,9 @@ def fixture_loop(mock_close_loop: bool = False) -> Generator[asyncio.AbstractEve
 @contextmanager
 def grpc_test_create_user_request(app: Any) -> Generator[Queue, None, None]:
     from pait.app import get_app_attribute
-    from pait.app.base.grpc_route import AsyncGrpcGatewayRoute, BaseGrpcGatewayRoute
+    from pait.app.base.grpc_route import AsyncGrpcGatewayRoute, BaseDynamicGrpcGatewayRoute
 
-    def reinit_channel(grpc_gateway_route: BaseGrpcGatewayRoute, queue: Queue) -> None:
+    def reinit_channel(grpc_gateway_route: BaseDynamicGrpcGatewayRoute, queue: Queue) -> None:
         if isinstance(grpc_gateway_route, AsyncGrpcGatewayRoute):
             grpc_gateway_route.reinit_channel(
                 grpc.aio.insecure_channel("0.0.0.0:9000", interceptors=[AioGrpcClientInterceptor(queue)])
@@ -138,7 +138,7 @@ def grpc_test_create_user_request(app: Any) -> Generator[Queue, None, None]:
 
     with grpc_test_helper():
         queue: Queue = Queue()
-        grpc_gateway_route: BaseGrpcGatewayRoute = get_app_attribute(app, "grpc_gateway_route")
+        grpc_gateway_route: BaseDynamicGrpcGatewayRoute = get_app_attribute(app, "grpc_gateway_route")
 
         def _before_server_start(*_: Any) -> None:
             reinit_channel(grpc_gateway_route, queue)

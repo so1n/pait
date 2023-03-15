@@ -3,7 +3,7 @@ repos:
     rev: v1.0.0
     hooks:
       - id: mypy
-        exclude: "^example/grpc_common/python_example_proto_code/example_proto|^pait/http"
+        exclude: "^example/grpc_common/python_example_proto_code/example_proto|^pait/grpc/proto"
         additional_dependencies:
           [ types-protobuf>=4.21.0.0]
   - repo: https://github.com/PyCQA/isort
@@ -20,7 +20,7 @@ repos:
     rev: 3.9.2
     hooks:
       - id: flake8
-        exclude: "^example/grpc_common/python_example_proto_code/example_proto|^pait/http"
+        exclude: "^example/grpc_common/python_example_proto_code/example_proto|^pait/grpc/proto"
   - repo: https://github.com/myint/autoflake
     rev: v2.0.1
     hooks:

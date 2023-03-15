@@ -15,6 +15,7 @@ target_p='python_example_proto_code'
 source_p='example_proto_by_option'
 # service
 service_list=("book" "user" "common")
+plugin_p='../../pait/grpc/plugin/main.py'
 
 rm -r "${target_p:?}/${source_p:?}"*
 mkdir -p "${target_p:?}/${source_p:?}"
@@ -25,6 +26,7 @@ do
   mkdir -p "${target_p:?}/${source_p:?}/${service:?}"
   echo  "from proto file:" $source_p/"$service"/*.proto "gen proto py file to" $target_p/$source_p
   ${VENV_PREFIX}python -m grpc_tools.protoc \
+    --plugin=protoc-gen-custom-plugin=$plugin_p --custom-plugin_out=config_path=plugin_config.py:./$target_p/ \
     --python_out=./$target_p \
     --grpc_python_out=./$target_p \
     --mypy_grpc_out=./$target_p \

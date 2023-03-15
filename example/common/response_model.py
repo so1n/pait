@@ -8,8 +8,8 @@ from example.common.request_model import SexEnum
 from pait import FileResponseModel, HtmlResponseModel, JsonResponseModel
 from pait import ResponseModel as PaitResponseModel
 from pait import TextResponseModel
+from pait.grpc.grpc_inspect import GrpcModel
 from pait.openapi.openapi import LinksModel
-from pait.util.grpc_inspect.stub import GrpcModel
 
 
 def gen_response_model_handle(grpc_model: GrpcModel) -> Type[BaseResponseModel]:

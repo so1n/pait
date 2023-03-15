@@ -7,7 +7,7 @@ import grpc
 from example.grpc_common.python_example_proto_code.example_proto.book import manager_pb2_grpc as manager_service
 from example.grpc_common.python_example_proto_code.example_proto.book import social_pb2_grpc as social_service
 from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2_grpc as user_service
-from pait.util.grpc_inspect.stub import ParseStub
+from pait.grpc.grpc_inspect import ParseStub
 
 logger: logging.Logger = logging.getLogger()
 

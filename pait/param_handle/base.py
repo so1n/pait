@@ -111,11 +111,11 @@ class BaseParamHandler(PluginProtocol):
     #     self.pydantic_model_config: Type[BaseConfig] = pait_core_model.pydantic_model_config
 
     @classmethod
-    def check_depend_handle(cls, func: Callable) -> Any:
+    def check_depend_handle(cls, pait_core_model: "PaitCoreModel", func: Callable) -> Any:
         if inspect.ismethod(func) and not is_bounded_func(func):
             raise ValueError(f"Method: {func.__qualname__} is not a bounded function")  # pragma: no cover
         func_sig: FuncSig = get_func_sig(func)  # get and cache func sig
-        cls.check_param_field_handle(func_sig, func_sig.param_list)
+        cls.check_param_field_handle(pait_core_model, func_sig, func_sig.param_list)
 
     @staticmethod
     def check_field_type(value: Any, target_type: Any, error_msg: str) -> None:
@@ -131,10 +131,11 @@ class BaseParamHandler(PluginProtocol):
     @classmethod
     def check_param_field_by_parameter(
         cls,
+        pait_core_model: "PaitCoreModel",
         parameter: inspect.Parameter,
     ) -> None:
         if isinstance(parameter.default, field.Depends):
-            cls.check_depend_handle(parameter.default.func)
+            cls.check_depend_handle(pait_core_model, parameter.default.func)
             if ignore_pre_check:
                 return
             func_sig: FuncSig = get_func_sig(parameter.default.func)  # get and cache func sig
@@ -182,6 +183,7 @@ class BaseParamHandler(PluginProtocol):
     @classmethod
     def check_param_field_handle(
         cls,
+        pait_core_model: "PaitCoreModel",
         _object: Union[FuncSig, Type, None],
         param_list: List["inspect.Parameter"],
     ) -> None:
@@ -190,7 +192,7 @@ class BaseParamHandler(PluginProtocol):
                 if parameter.default != parameter.empty:
                     # kwargs param
                     # support model: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseField())
-                    cls.check_param_field_by_parameter(parameter)
+                    cls.check_param_field_by_parameter(pait_core_model, parameter)
                 else:
                     # args param
                     # support model: model: ModelType
@@ -199,9 +201,11 @@ class BaseParamHandler(PluginProtocol):
                     if not issubclass(parameter.annotation, BaseModel):
                         continue
                     # cache and get parameter_list
-                    param_list = get_parameter_list_from_pydantic_basemodel(parameter.annotation)
+                    param_list = get_parameter_list_from_pydantic_basemodel(
+                        parameter.annotation, default_field_class=pait_core_model.default_field_class
+                    )
                     for _parameter in param_list:
-                        cls.check_param_field_by_parameter(_parameter)
+                        cls.check_param_field_by_parameter(pait_core_model, _parameter)
             except PaitBaseException as e:
                 raise gen_tip_exc(_object, e, parameter, tip_exception_class=cls.tip_exception_class) from e
 
@@ -209,11 +213,11 @@ class BaseParamHandler(PluginProtocol):
     def pre_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
         # check and load param from pre depend
         for pre_depend in pait_core_model.pre_depend_list:
-            cls.check_depend_handle(pre_depend)
+            cls.check_depend_handle(pait_core_model, pre_depend)
 
         # check and load param from func
         func_sig: FuncSig = get_func_sig(pait_core_model.func)
-        cls.check_param_field_handle(func_sig, func_sig.param_list)
+        cls.check_param_field_handle(pait_core_model, func_sig, func_sig.param_list)
 
         # TODO support cbv class Attribute
         # I don't know how to get the class of the decorated function at the initialization of the decorator,

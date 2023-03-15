@@ -6,6 +6,7 @@ from pydantic import BaseConfig, BaseModel
 
 from pait.app.base import BaseAppHelper
 from pait.extra.util import sync_config_data_to_pait_core_model
+from pait.field import BaseField
 from pait.g import config, pait_context, pait_data
 from pait.model.context import ContextModel
 from pait.model.core import PaitCoreModel
@@ -29,6 +30,7 @@ class Pait(object):
         self: "_PaitT",
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
         pydantic_basemodel: Optional[Type[BaseModel]] = None,
+        default_field_class: Optional[Type[BaseField]] = None,
         # param check
         pre_depend_list: Optional[List[Callable]] = None,
         # doc
@@ -49,6 +51,7 @@ class Pait(object):
         """
         :param pydantic_model_config: pydantic.BaseConfig
         :param pydantic_basemodel: pydantic.BaseModel
+        :param default_field_class: pait.field.BaseField
         :param pre_depend_list:  List of depend functions to execute before route functions
         :param author:  The author who wrote this routing function
         :param desc:  Description of the routing function
@@ -79,6 +82,7 @@ class Pait(object):
         # See issue: https://github.com/samuelcolvin/pydantic/issues/1280
         self._pydantic_model_config: Optional[Type[BaseConfig]] = pydantic_model_config
         self._pydantic_basemodel: Optional[Type[BaseModel]] = pydantic_basemodel
+        self._default_field_class: Optional[Type[BaseField]] = default_field_class
         # param check
         self._pre_depend_list: Optional[List[Callable]] = pre_depend_list
         # doc
@@ -111,6 +115,7 @@ class Pait(object):
         self: "_PaitT",
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
         pydantic_basemodel: Optional[Type[BaseModel]] = None,
+        default_field_class: Optional[Type[BaseField]] = None,
         # param check
         pre_depend_list: Optional[List[Callable]] = None,
         append_pre_depend_list: Optional[List[Callable]] = None,
@@ -136,6 +141,7 @@ class Pait(object):
         """
         :param pydantic_model_config: pydantic.BaseConfig
         :param pydantic_basemodel: pydantic.BaseModel
+        :param default_field_class: pait.field.BaseField
         :param pre_depend_list:  List of depend functions to execute before route functions(
             Do not use the pre depend value specified when Pait is initialized)
         :param append_pre_depend_list: Append some author when creating child Pait
@@ -174,6 +180,7 @@ class Pait(object):
         return self.__class__(
             pydantic_model_config=pydantic_model_config or self._pydantic_model_config,
             pydantic_basemodel=pydantic_basemodel or self._pydantic_basemodel,
+            default_field_class=default_field_class,
             desc=desc or self._desc,
             summary=summary or self._summary,
             name=name or self._name,
@@ -207,6 +214,7 @@ class Pait(object):
         self: "_PaitT",
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
         pydantic_basemodel: Optional[Type[BaseModel]] = None,
+        default_field_class: Optional[Type[BaseField]] = None,
         # param check
         pre_depend_list: Optional[List[Callable]] = None,
         append_pre_depend_list: Optional[List[Callable]] = None,
@@ -234,6 +242,7 @@ class Pait(object):
         """
         :param pydantic_model_config: pydantic.BaseConfig
         :param pydantic_basemodel: pydantic.BaseModel
+        :param default_field_class: pait.field.BaseField
         :param pre_depend_list:  List of depend functions to execute before route functions
         :param author:  The author who wrote this routing function
         :param desc:  Description of the routing function
@@ -299,6 +308,7 @@ class Pait(object):
                 post_plugin_list=post_plugin_list,
                 param_handler_plugin=param_handler_plugin or self._param_handler_plugin,
                 feature_code=feature_code,
+                default_field_class=default_field_class,
                 **(kwargs or self.extra),
             )
             sync_config_data_to_pait_core_model(config, pait_core_model)
