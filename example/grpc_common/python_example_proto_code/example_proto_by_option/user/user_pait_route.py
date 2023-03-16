@@ -1,26 +1,35 @@
 # This is an automatically generated file, please do not change
 # gen by pait[0.7.8.3](https://github.com/so1n/pait)
-# type: ignore
-
 from typing import Any, List, Type
+from uuid import uuid4
 
 from google.protobuf.empty_pb2 import Empty  # type: ignore
 from google.protobuf.message import Message  # type: ignore
+from pydantic import BaseModel, Field
+from pydantic.fields import FieldInfo
+
 from pait import field
 from pait.app.any import SimpleRoute, add_multi_simple_route, set_app_attribute
+from pait.field import Header
 from pait.g import pait_context
 from pait.grpc.plugin.gateway import BaseStaticGrpcGatewayRoute
 from pait.model.response import BaseResponseModel, JsonResponseModel
 from pait.model.tag import Tag
-from pydantic import BaseModel, Field
-from pydantic.fields import FieldInfo
 
 from . import user_p2p, user_pb2, user_pb2_grpc
 
 
-def get_uid_by_token_route(request_pydantic_model: user_p2p.GetUidByTokenRequest) -> Any:
+def get_uid_by_token_route(
+    request_pydantic_model: user_p2p.GetUidByTokenRequest,
+    token: str = Header.i(description="User Token"),
+    req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
+) -> Any:
     gateway = pait_context.get().app_helper.get_attributes("gateway_attr_gateway")
     stub: user_pb2_grpc.UserStub = pait_context.get().app_helper.get_attributes("gateway_attr_User")
+    # check token
+    result: user_pb2.GetUidByTokenResult = stub.get_uid_by_token(user_pb2.GetUidByTokenRequest(token=token))
+    if not result.uid:
+        raise RuntimeError("Not found user by token:" + token)
     request_msg: user_pb2.GetUidByTokenRequest = gateway.get_msg_from_dict(
         user_p2p.GetUidByTokenRequest, request_pydantic_model.dict()
     )
@@ -28,19 +37,31 @@ def get_uid_by_token_route(request_pydantic_model: user_p2p.GetUidByTokenRequest
     return gateway.make_response(gateway.msg_to_dict(grpc_msg))
 
 
-def logout_user_route(request_pydantic_model: user_p2p.LogoutUserRequest) -> Any:
+def logout_user_route(
+    request_pydantic_model: user_p2p.LogoutUserRequest,
+    token: str = Header.i(description="User Token"),
+    req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
+) -> Any:
     gateway = pait_context.get().app_helper.get_attributes("gateway_attr_gateway")
     stub: user_pb2_grpc.UserStub = pait_context.get().app_helper.get_attributes("gateway_attr_User")
-    request_msg: user_pb2.LogoutUserRequest = gateway.get_msg_from_dict(
-        user_p2p.LogoutUserRequest, request_pydantic_model.dict()
-    )
+    request_dict: dict = request_pydantic_model.dict()
+    request_dict["token"] = token
+    request_msg: user_pb2.LogoutUserRequest = gateway.get_msg_from_dict(user_p2p.LogoutUserRequest, request_dict)
     grpc_msg: Empty = stub.logout_user(request_msg)
     return gateway.make_response(gateway.msg_to_dict(grpc_msg))
 
 
-def login_user_route(request_pydantic_model: user_p2p.LoginUserRequest) -> Any:
+def login_user_route(
+    request_pydantic_model: user_p2p.LoginUserRequest,
+    token: str = Header.i(description="User Token"),
+    req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
+) -> Any:
     gateway = pait_context.get().app_helper.get_attributes("gateway_attr_gateway")
     stub: user_pb2_grpc.UserStub = pait_context.get().app_helper.get_attributes("gateway_attr_User")
+    # check token
+    result: user_pb2.GetUidByTokenResult = stub.get_uid_by_token(user_pb2.GetUidByTokenRequest(token=token))
+    if not result.uid:
+        raise RuntimeError("Not found user by token:" + token)
     request_msg: user_pb2.LoginUserRequest = gateway.get_msg_from_dict(
         user_p2p.LoginUserRequest, request_pydantic_model.dict()
     )
@@ -48,9 +69,17 @@ def login_user_route(request_pydantic_model: user_p2p.LoginUserRequest) -> Any:
     return gateway.make_response(gateway.msg_to_dict(grpc_msg))
 
 
-def create_user_route(request_pydantic_model: user_p2p.CreateUserRequest) -> Any:
+def create_user_route(
+    request_pydantic_model: user_p2p.CreateUserRequest,
+    token: str = Header.i(description="User Token"),
+    req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
+) -> Any:
     gateway = pait_context.get().app_helper.get_attributes("gateway_attr_gateway")
     stub: user_pb2_grpc.UserStub = pait_context.get().app_helper.get_attributes("gateway_attr_User")
+    # check token
+    result: user_pb2.GetUidByTokenResult = stub.get_uid_by_token(user_pb2.GetUidByTokenRequest(token=token))
+    if not result.uid:
+        raise RuntimeError("Not found user by token:" + token)
     request_msg: user_pb2.CreateUserRequest = gateway.get_msg_from_dict(
         user_p2p.CreateUserRequest, request_pydantic_model.dict()
     )
@@ -58,9 +87,17 @@ def create_user_route(request_pydantic_model: user_p2p.CreateUserRequest) -> Any
     return gateway.make_response(gateway.msg_to_dict(grpc_msg))
 
 
-def delete_user_route(request_pydantic_model: user_p2p.DeleteUserRequest) -> Any:
+def delete_user_route(
+    request_pydantic_model: user_p2p.DeleteUserRequest,
+    token: str = Header.i(description="User Token"),
+    req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
+) -> Any:
     gateway = pait_context.get().app_helper.get_attributes("gateway_attr_gateway")
     stub: user_pb2_grpc.UserStub = pait_context.get().app_helper.get_attributes("gateway_attr_User")
+    # check token
+    result: user_pb2.GetUidByTokenResult = stub.get_uid_by_token(user_pb2.GetUidByTokenRequest(token=token))
+    if not result.uid:
+        raise RuntimeError("Not found user by token:" + token)
     request_msg: user_pb2.DeleteUserRequest = gateway.get_msg_from_dict(
         user_p2p.DeleteUserRequest, request_pydantic_model.dict()
     )
@@ -72,10 +109,10 @@ class UserByOptionEmptyJsonResponseModel(JsonResponseModel):
     class CustomerJsonResponseRespModel(BaseModel):
         code: int = Field(0, description="api code")
         msg: str = Field("success", description="api status msg")
-        data: None = Field(description="api response data")  # type: ignore
+        data: dict = Field(description="api response data")
 
     name: str = "user_by_option_Empty"
-    description: str = None.__doc__ or ""
+    description: str = dict.__doc__ or "" if dict.__module__ != "builtins" else ""
     response_data: Type[BaseModel] = CustomerJsonResponseRespModel
 
 
@@ -83,10 +120,10 @@ class UserByOptionLoginUserResultJsonResponseModel(JsonResponseModel):
     class CustomerJsonResponseRespModel(BaseModel):
         code: int = Field(0, description="api code")
         msg: str = Field("success", description="api status msg")
-        data: None = Field(description="api response data")  # type: ignore
+        data: dict = Field(description="api response data")
 
     name: str = "user_by_option_LoginUserResult"
-    description: str = None.__doc__ or ""
+    description: str = dict.__doc__ or "" if dict.__module__ != "builtins" else ""
     response_data: Type[BaseModel] = CustomerJsonResponseRespModel
 
 
@@ -154,5 +191,5 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
             SimpleRoute(url="/user/delete", methods=["POST"], route=pait_delete_user_route),
             prefix=self.prefix,
             title=self.title,
-            **self.kwargs
+            **self.kwargs,
         )

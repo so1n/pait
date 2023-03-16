@@ -1,11 +1,13 @@
 # This is an automatically generated file, please do not change
 # gen by pait[0.7.8.3](https://github.com/so1n/pait)
-# type: ignore
-
 from typing import Any, List, Type
 
 from google.protobuf.empty_pb2 import Empty  # type: ignore
 from google.protobuf.message import Message  # type: ignore
+from protobuf_to_pydantic.customer_validator import check_one_of
+from pydantic import BaseModel, Field, root_validator
+from pydantic.fields import FieldInfo
+
 from pait import field
 from pait.app.any import SimpleRoute, add_multi_simple_route, set_app_attribute
 from pait.field import Query
@@ -13,9 +15,6 @@ from pait.g import pait_context
 from pait.grpc.plugin.gateway import BaseStaticGrpcGatewayRoute
 from pait.model.response import BaseResponseModel, JsonResponseModel
 from pait.model.tag import Tag
-from protobuf_to_pydantic.customer_validator import check_one_of
-from pydantic import BaseModel, Field, root_validator
-from pydantic.fields import FieldInfo
 
 from . import manager_p2p, manager_pb2, manager_pb2_grpc, social_p2p, social_pb2, social_pb2_grpc
 
@@ -74,10 +73,10 @@ class BookSocialByOptionEmptyJsonResponseModel(JsonResponseModel):
     class CustomerJsonResponseRespModel(BaseModel):
         code: int = Field(0, description="api code")
         msg: str = Field("success", description="api status msg")
-        data: None = Field(description="api response data")  # type: ignore
+        data: dict = Field(description="api response data")
 
     name: str = "book_social_by_option_Empty"
-    description: str = None.__doc__ or ""
+    description: str = dict.__doc__ or "" if dict.__module__ != "builtins" else ""
     response_data: Type[BaseModel] = CustomerJsonResponseRespModel
 
 
@@ -85,10 +84,10 @@ class BookSocialByOptionGetBookLikesListResultJsonResponseModel(JsonResponseMode
     class CustomerJsonResponseRespModel(BaseModel):
         code: int = Field(0, description="api code")
         msg: str = Field("success", description="api status msg")
-        data: None = Field(description="api response data")  # type: ignore
+        data: dict = Field(description="api response data")
 
     name: str = "book_social_by_option_GetBookLikesListResult"
-    description: str = None.__doc__ or ""
+    description: str = dict.__doc__ or "" if dict.__module__ != "builtins" else ""
     response_data: Type[BaseModel] = CustomerJsonResponseRespModel
 
 
@@ -96,10 +95,10 @@ class BookSocialByOptionGetBookCommentListResultJsonResponseModel(JsonResponseMo
     class CustomerJsonResponseRespModel(BaseModel):
         code: int = Field(0, description="api code")
         msg: str = Field("success", description="api status msg")
-        data: None = Field(description="api response data")  # type: ignore
+        data: dict = Field(description="api response data")
 
     name: str = "book_social_by_option_GetBookCommentListResult"
-    description: str = None.__doc__ or ""
+    description: str = dict.__doc__ or "" if dict.__module__ != "builtins" else ""
     response_data: Type[BaseModel] = CustomerJsonResponseRespModel
 
 
@@ -191,5 +190,5 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
             ),
             prefix=self.prefix,
             title=self.title,
-            **self.kwargs
+            **self.kwargs,
         )

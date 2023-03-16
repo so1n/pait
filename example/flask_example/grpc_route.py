@@ -76,13 +76,13 @@ def add_grpc_gateway_route(app: Flask) -> None:
     )
     channel = grpc.intercept_channel(grpc.insecure_channel("0.0.0.0:9000"))
     grpc_gateway_route.init_channel(channel)
-    user_pait_route.StaticGrpcGatewayRoute(  # type: ignore
+    user_pait_route.StaticGrpcGatewayRoute(
         app, channel, prefix="/api/static", pait=pait, title="static_user", make_response=_make_response
     )
-    manager_pait_route.StaticGrpcGatewayRoute(  # type: ignore
+    manager_pait_route.StaticGrpcGatewayRoute(
         app, channel, prefix="/api/static", pait=pait, title="static_manager", make_response=_make_response
     )
-    social_pait_route.StaticGrpcGatewayRoute(  # type: ignore
+    social_pait_route.StaticGrpcGatewayRoute(
         app, channel, prefix="/api/static", pait=pait, title="static_social", make_response=_make_response
     )
     set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest

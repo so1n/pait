@@ -1,5 +1,4 @@
 import logging
-import sys
 from textwrap import dedent
 from typing import TYPE_CHECKING, List
 
@@ -23,7 +22,6 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
     head_content: str = (
         "# This is an automatically generated file, please do not change\n"
         f"# gen by pait[{__version__}](https://github.com/so1n/pait)\n"
-        "# type: ignore\n\n"
     )
     indent: int = 4
     attr_prefix: str = "gateway_attr"
@@ -66,10 +64,13 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
 
     response_template_str: str = dedent(
         """
-        class {response_class_name}(JsonResponseModel):
-            name: str = "{package}_{response_message_model}"
-            description: str = {model_module_name}.{response_message_model}.__doc__ or ""
-            response_data: Type[BaseModel] = {model_module_name}.{response_message_model}
+    class {response_class_name}(JsonResponseModel):
+        name: str = "{package}_{response_message_model}"
+        description: str = (
+            {model_module_name}.{response_message_model}.__doc__ or ""
+            if {model_module_name}.{response_message_model}.__module__ != "builtins" else ""
+        )
+        response_data: Type[BaseModel] = {model_module_name}.{response_message_model}
     """
     )
 
@@ -81,7 +82,6 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
             code_indent=config.code_indent,
         )
         self.config: "ConfigModel" = config
-        self._add_import_code("pait.g", "pait_context")
         self._fd: FileDescriptorProto = fd
         self._descriptors: Descriptors = descriptors
         self._desc_template: DescTemplate = config.desc_template_instance
@@ -90,8 +90,6 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
 
     def get_route_template(self, service: ServiceDescriptorProto, method: MethodDescriptorProto) -> str:
         """Can customize the template that generates the route according to different methods"""
-        self._add_import_code("typing", "Callable")
-        self._add_import_code("typing", "Any")
         if self.config.gateway_model == "sync":
             return self.template_str
         else:
@@ -106,11 +104,14 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
         self._add_import_code("pait.app.any", "add_multi_simple_route")
         self._add_import_code("pait.app.any", "SimpleRoute")
         self._add_import_code("pait.app.any", "set_app_attribute")
+        self._add_import_code("pait.g", "pait_context")
         self._add_import_code("pait.grpc.plugin.gateway", "BaseStaticGrpcGatewayRoute")
         self._add_import_code("pait.model.tag", "Tag")
         self._add_import_code("pait.model.response", "BaseResponseModel")
         self._add_import_code("pait.model.response", "JsonResponseModel")
         self._add_import_code("pydantic", "BaseModel")
+        self._add_import_code("typing", "Any")
+        self._add_import_code("typing", "Callable")
         self._add_import_code("typing", "List")
         self._add_import_code("typing", "Type")
 
@@ -197,7 +198,8 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
             grpc_model.template_dict["response_class_name"] = response_class_name
             response_class_str: str = self.response_template_str.format(**grpc_model.template_dict)
             response_class_str = response_class_str.replace(
-                "{model_module_name}.{response_message_model}".format(**grpc_model.template_dict), "None"
+                "{model_module_name}.{response_message_model}".format(**grpc_model.template_dict),
+                self._get_value_code(self.config.empty_type),
             )
             self._content_deque.append(response_class_str + "\n")
             wrapper_route_str_list.append(
@@ -242,5 +244,4 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
             f"{tab_str * 2})\n"
         )
         logger.debug(class_str)
-        print(class_str, file=sys.stderr)
         self._content_deque.append(class_str)

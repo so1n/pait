@@ -1,15 +1,14 @@
 # This is an automatically generated file, please do not change
 # gen by protobuf_to_pydantic(https://github.com/so1n/protobuf_to_pydantic)
-# type: ignore
-
 import typing
 from datetime import datetime
 
 from google.protobuf.message import Message  # type: ignore
-from pait.field import Query
 from protobuf_to_pydantic.customer_validator import check_one_of
 from pydantic import BaseModel, Field, root_validator
 from pydantic.fields import FieldInfo
+
+from pait.field import Query
 
 
 class CreateBookRequest(BaseModel):
