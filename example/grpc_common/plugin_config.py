@@ -53,57 +53,107 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
     """
     )
 
-    def get_route_template(self, service: ServiceDescriptorProto, method: MethodDescriptorProto) -> str:
+    def get_route_template(self, service: ServiceDescriptorProto, method: MethodDescriptorProto, is_async: bool) -> str:
         if service.name != "User":
-            return super().get_route_template(service, method)
+            return super().get_route_template(service, method, is_async)
+        if method.name in ("login_user", "create_user"):
+            return super().get_route_template(service, method, is_async)
         self._add_import_code("pait.field", "Header")
         self._add_import_code("uuid", "uuid4")
         if method.name == "logout_user":
-            return dedent(
-                """
-                def {func_name}(
-                    request_pydantic_model: {model_module_name}.{request_message_model},
-                    token: str = Header.i(description="User Token"),
-                    req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
-                ) -> Any:
-                    gateway = pait_context.get().app_helper.get_attributes("{attr_prefix}_gateway")
-                    stub: {stub_module_name}.{service_name}Stub = pait_context.get().app_helper.get_attributes(
-                        "{attr_prefix}_{service_name}"
-                    )
-                    request_dict: dict = request_pydantic_model.dict()
-                    request_dict["token"] = token
-                    request_msg: {request_message} = gateway.get_msg_from_dict(
-                        {model_module_name}.{request_message_model}, request_dict
-                    )
-                    grpc_msg: {response_message} = stub.{method}(request_msg)
-                    return gateway.make_response(gateway.msg_to_dict(grpc_msg))
-                """
-            )
+            if is_async:
+                return dedent(
+                    """
+                    async def {func_name}(
+                        request_pydantic_model: {model_module_name}.{request_message_model},
+                        token: str = Header.i(description="User Token"),
+                        req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
+                    ) -> Any:
+                        gateway = pait_context.get().app_helper.get_attributes("{attr_prefix}_gateway")
+                        stub: {stub_module_name}.{service_name}Stub = pait_context.get().app_helper.get_attributes(
+                            "{attr_prefix}_{service_name}"
+                        )
+                        request_dict: dict = request_pydantic_model.dict()
+                        request_dict["token"] = token
+                        request_msg: {request_message} = gateway.get_msg_from_dict(
+                            {model_module_name}.{request_message_model}, request_dict
+                        )
+                        grpc_msg: {response_message} = await stub.{method}(request_msg, metadata=[("req_id", req_id)])
+                        return gateway.make_response(gateway.msg_to_dict(grpc_msg))
+                    """
+                )
+            else:
+                return dedent(
+                    """
+                    def {func_name}(
+                        request_pydantic_model: {model_module_name}.{request_message_model},
+                        token: str = Header.i(description="User Token"),
+                        req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
+                    ) -> Any:
+                        gateway = pait_context.get().app_helper.get_attributes("{attr_prefix}_gateway")
+                        stub: {stub_module_name}.{service_name}Stub = pait_context.get().app_helper.get_attributes(
+                            "{attr_prefix}_{service_name}"
+                        )
+                        request_dict: dict = request_pydantic_model.dict()
+                        request_dict["token"] = token
+                        request_msg: {request_message} = gateway.get_msg_from_dict(
+                            {model_module_name}.{request_message_model}, request_dict
+                        )
+                        grpc_msg: {response_message} = stub.{method}(request_msg, metadata=[("req_id", req_id)])
+                        return gateway.make_response(gateway.msg_to_dict(grpc_msg))
+                    """
+                )
         else:
-            return dedent(
-                """
-                def {func_name}(
-                    request_pydantic_model: {model_module_name}.{request_message_model},
-                    token: str = Header.i(description="User Token"),
-                    req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
-                ) -> Any:
-                    gateway = pait_context.get().app_helper.get_attributes("{attr_prefix}_gateway")
-                    stub: {stub_module_name}.{service_name}Stub = pait_context.get().app_helper.get_attributes(
-                        "{attr_prefix}_{service_name}"
-                    )
-                    # check token
-                    result: {message_module_name}.GetUidByTokenResult = stub.get_uid_by_token(
-                        {message_module_name}.GetUidByTokenRequest(token=token)
-                    )
-                    if not result.uid:
-                        raise RuntimeError("Not found user by token:" + token)
-                    request_msg: {request_message} = gateway.get_msg_from_dict(
-                        {model_module_name}.{request_message_model}, request_pydantic_model.dict()
-                    )
-                    grpc_msg: {response_message} = stub.{method}(request_msg)
-                    return gateway.make_response(gateway.msg_to_dict(grpc_msg))
-                """
-            )
+            if is_async:
+                return dedent(
+                    """
+                    async def {func_name}(
+                        request_pydantic_model: {model_module_name}.{request_message_model},
+                        token: str = Header.i(description="User Token"),
+                        req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
+                    ) -> Any:
+                        gateway = pait_context.get().app_helper.get_attributes("{attr_prefix}_gateway")
+                        stub: {stub_module_name}.{service_name}Stub = pait_context.get().app_helper.get_attributes(
+                            "{attr_prefix}_{service_name}"
+                        )
+                        # check token
+                        result: {message_module_name}.GetUidByTokenResult = await stub.get_uid_by_token(
+                            {message_module_name}.GetUidByTokenRequest(token=token)
+                        )
+                        if not result.uid:
+                            raise RuntimeError("Not found user by token:" + token)
+                        request_msg: {request_message} = gateway.get_msg_from_dict(
+                            {model_module_name}.{request_message_model}, request_pydantic_model.dict()
+                        )
+                        grpc_msg: {response_message} = await stub.{method}(request_msg, metadata=[("req_id", req_id)])
+                        return gateway.make_response(gateway.msg_to_dict(grpc_msg))
+                    """
+                )
+            else:
+                return dedent(
+                    """
+                    def {func_name}(
+                        request_pydantic_model: {model_module_name}.{request_message_model},
+                        token: str = Header.i(description="User Token"),
+                        req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
+                    ) -> Any:
+                        gateway = pait_context.get().app_helper.get_attributes("{attr_prefix}_gateway")
+                        stub: {stub_module_name}.{service_name}Stub = pait_context.get().app_helper.get_attributes(
+                            "{attr_prefix}_{service_name}"
+                        )
+                        # check token
+                        result: {message_module_name}.GetUidByTokenResult = stub.get_uid_by_token(
+                            {message_module_name}.GetUidByTokenRequest(token=token)
+                        )
+                        if not result.uid:
+                            raise RuntimeError("Not found user by token:" + token)
+                        request_msg: {request_message} = gateway.get_msg_from_dict(
+                            {model_module_name}.{request_message_model}, request_pydantic_model.dict()
+                        )
+                        grpc_msg: {response_message} = stub.{method}(request_msg, metadata=[("req_id", req_id)])
+                        return gateway.make_response(gateway.msg_to_dict(grpc_msg))
+                    """
+                )
 
 
 customer_import_set: Set[str] = {"from pydantic import Field"}

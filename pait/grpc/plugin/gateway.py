@@ -17,6 +17,7 @@ class BaseStaticGrpcGatewayRoute(BaseGrpcGatewayRoute):
         self,
         app: Any,
         channel: Union[grpc.Channel, grpc.aio.Channel],
+        is_async: bool,
         parse_msg_desc: Optional[str] = None,
         prefix: str = "",
         title: str = "",
@@ -54,6 +55,7 @@ class BaseStaticGrpcGatewayRoute(BaseGrpcGatewayRoute):
             gen_response_model_handle=gen_response_model_handle,
             kwargs=kwargs,
         )
+        self.is_async: bool = is_async
         self.kwargs: Any = kwargs
         self.channel: Union[grpc.Channel, grpc.aio.Channel] = channel
         self.gen_route()

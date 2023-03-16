@@ -1,4 +1,5 @@
 import logging
+from dataclasses import asdict
 from textwrap import dedent
 from typing import TYPE_CHECKING, List
 
@@ -88,22 +89,25 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
 
         self._parse_field_descriptor()
 
-    def get_route_template(self, service: ServiceDescriptorProto, method: MethodDescriptorProto) -> str:
+    def get_route_template(self, service: ServiceDescriptorProto, method: MethodDescriptorProto, is_async: bool) -> str:
         """Can customize the template that generates the route according to different methods"""
-        if self.config.gateway_model == "sync":
-            return self.template_str
-        else:
+        if is_async:
             return self.async_template_str
+        else:
+            return self.template_str
 
     def _parse_field_descriptor(self) -> None:
         tab_str: str = self.indent * " "
         model_module_name = self._fd.name.split("/")[-1].replace(".proto", self.config.file_name_suffix)
         message_module_name = self._fd.name.split("/")[-1].replace(".proto", "_pb2")
         stub_module_name = self._fd.name.split("/")[-1].replace(".proto", "_pb2_grpc")
+
+        self._add_import_code("asyncio")
         self._add_import_code("pait", "field")
         self._add_import_code("pait.app.any", "add_multi_simple_route")
         self._add_import_code("pait.app.any", "SimpleRoute")
         self._add_import_code("pait.app.any", "set_app_attribute")
+        self._add_import_code("pait.core", "Pait")
         self._add_import_code("pait.g", "pait_context")
         self._add_import_code("pait.grpc.plugin.gateway", "BaseStaticGrpcGatewayRoute")
         self._add_import_code("pait.model.tag", "Tag")
@@ -119,6 +123,9 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
         self._add_import_code(".", message_module_name)
         self._add_import_code(".", stub_module_name)
 
+        ##########################################################
+        # Extract information in preparation for code generation #
+        ##########################################################
         service_name_list: list = []
         grpc_model_list: List[GrpcModel] = []
         for service in self._fd.service:
@@ -132,26 +139,9 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                     service_model_list.extend(get_grpc_service_model_from_option_message(option_message))
                 input_type_name = method.input_type.split(".")[-1]
                 output_type_name = method.output_type.split(".")[-1]
+                # TODO A more elegant implementation of the google.protocol type
                 if "Empty" in (input_type_name, output_type_name):
                     self._add_import_code("google.protobuf.empty_pb2", "Empty")
-                template_dict = {
-                    "attr_prefix": self.attr_prefix,
-                    "method": method.name,
-                    "func_name": func_name,
-                    "request_message": f"{message_module_name}.{input_type_name}"
-                    if input_type_name not in ("Empty",)
-                    else input_type_name,
-                    "response_message": f"{message_module_name}.{output_type_name}"
-                    if output_type_name not in ("Empty",)
-                    else output_type_name,
-                    "request_message_model": input_type_name,
-                    "response_message_model": output_type_name,
-                    "service_name": service.name,
-                    "model_module_name": model_module_name,
-                    "message_module_name": message_module_name,
-                    "stub_module_name": stub_module_name,
-                    "package": self._fd.package,
-                }
                 grpc_method_url: str = f"/{self._fd.package}/{service.name}/{method.name}"
                 if not service_model_list:
                     service_model_list.append(GrpcServiceOptionModel(url=grpc_method_url))
@@ -161,25 +151,45 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                     grpc_model_list.append(
                         GrpcModel(
                             index=model_index,
+                            attr_prefix=self.attr_prefix,
+                            method=method.name,
                             func_name=func_name,
+                            request_message=f"{message_module_name}.{input_type_name}"
+                            if input_type_name not in ("Empty",)
+                            else input_type_name,
+                            response_message=f"{message_module_name}.{output_type_name}"
+                            if output_type_name not in ("Empty",)
+                            else output_type_name,
+                            request_message_model=input_type_name,
+                            response_message_model=output_type_name,
+                            service_name=service.name,
+                            model_module_name=model_module_name,
+                            message_module_name=message_module_name,
+                            stub_module_name=stub_module_name,
+                            package=self._fd.package,
                             grpc_method_url=grpc_method_url,
-                            template_dict=template_dict,
                             grpc_service_option_model=grpc_service_option_model,
+                            grpc_descriptor_method=method,
+                            grpc_descriptor_service=service,
                         )
                     )
-                self._content_deque.append(self.get_route_template(service, method).format(**template_dict) + "\n\n")
 
-        set_service_stub_str_list: List[str] = [
-            f'set_app_attribute(self.app, "{self.attr_prefix}_{service_name}",'
-            f" {stub_module_name}.{service_name}Stub(self.channel))"
-            for service_name in set(service_name_list)
-        ]
+        #######################################################################
+        # Refine the information through the GRPC model and generate the code #
+        #######################################################################
+        route_code_str_list: List[str] = []
+        response_code_str_list: List[str] = []
+
         simple_route_str_list: List[str] = []
         wrapper_route_str_list = []
+
         for grpc_model in grpc_model_list:
+            # Specifies that the data is not parsed and skipped
             grpc_service_option_model = grpc_model.grpc_service_option_model
             if not grpc_service_option_model.enable:
                 continue
+
+            # Generate the data needed by `pait`
             group_list = grpc_service_option_model.group or grpc_service_option_model.url.split("/")[1]
             self._add_import_code("pait.model.tag", "Tag")
             tag_str_list: List[str] = [
@@ -187,23 +197,28 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                 for tag, desc in grpc_model.grpc_service_option_model.tag
                 + [("grpc" + "-" + grpc_model.grpc_method_url.split("/")[1].split(".")[0], "")]
             ]
-            real_func_name: str = "pait_" + grpc_model.func_name
-            if grpc_model.index:
-                real_func_name = real_func_name + "_" + str(grpc_model.index)
-            response_class_name: str = (
-                grpc_model.template_dict["package"].title().replace("_", "")
-                + grpc_model.template_dict["response_message_model"]
-                + "JsonResponseModel"
+            response_class_name: str = ""
+            if grpc_model.index == 0:
+                # The response model code only needs to be generated once
+                response_class_name = (
+                    grpc_model.package.title().replace("_", "")
+                    + grpc_model.response_message_model
+                    + "JsonResponseModel"
+                )
+                template_dict: dict = asdict(grpc_model)
+                template_dict["response_class_name"] = response_class_name
+                response_class_str: str = self.response_template_str.format(**template_dict)
+                response_class_str = response_class_str.replace(
+                    "{model_module_name}.{response_message_model}".format(**template_dict),
+                    self._get_value_code(self.config.empty_type),
+                )
+                response_code_str_list.append(response_class_str + "\n")
+
+            pait_name: str = (
+                grpc_model.func_name + "_" + str(grpc_model.index) if grpc_model.index else grpc_model.func_name
             )
-            grpc_model.template_dict["response_class_name"] = response_class_name
-            response_class_str: str = self.response_template_str.format(**grpc_model.template_dict)
-            response_class_str = response_class_str.replace(
-                "{model_module_name}.{response_message_model}".format(**grpc_model.template_dict),
-                self._get_value_code(self.config.empty_type),
-            )
-            self._content_deque.append(response_class_str + "\n")
             wrapper_route_str_list.append(
-                f"{tab_str * 2}{real_func_name} = self._pait(\n"
+                f"{tab_str * 2}{pait_name}_pait: Pait = self._pait.create_sub_pait(\n"
                 f'{tab_str * 3}name="{grpc_service_option_model.name}",\n'
                 f"{tab_str * 3}group={self._get_value_code(group_list)},\n"
                 f"{tab_str * 3}append_tag=({','.join(tag_str_list)},),\n"
@@ -212,28 +227,57 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                 f"{tab_str * 3}default_field_class="
                 f'{"field.Query" if grpc_service_option_model.http_method == "GET" else "field.Body"},\n'
                 f"{tab_str * 3}response_model_list=[{response_class_name}] + response_model_list ,\n"
-                f"{tab_str * 2})({grpc_model.func_name})"
+                f"{tab_str * 2})"
             )
-            if grpc_model.index:
+            for is_async in [True, False]:
+                if grpc_model.index == 0:
+                    # The routing function only needs to be generated once
+                    template_dict = asdict(grpc_model)
+                    if is_async:
+                        template_dict["func_name"] = "async_" + template_dict["func_name"]
+                    route_code_str_list.append(
+                        self.get_route_template(
+                            grpc_model.grpc_descriptor_service, grpc_model.grpc_descriptor_method, is_async
+                        ).format(**template_dict)
+                        + "\n\n"
+                    )
+                func_name = grpc_model.func_name
+                if is_async:
+                    func_name = "async_" + func_name
+                real_func_name: str = "pait_" + func_name
+                if grpc_model.index:
+                    real_func_name = real_func_name + "_" + str(grpc_model.index)
                 wrapper_route_str_list.append(
-                    f'{tab_str * 2}{real_func_name}.__name__ = "{real_func_name}"\n'
-                    f"{tab_str * 2}{real_func_name}.__qualname__ = "
-                    f'{real_func_name}.__qualname__.replace("{grpc_model.func_name}", "{real_func_name}")'
+                    f"{tab_str * 2}{real_func_name} = {grpc_model.func_name}_pait()({func_name})"
                 )
+
+                if grpc_model.index:
+                    wrapper_route_str_list.append(
+                        f'{tab_str * 2}{real_func_name}.__name__ = "{real_func_name}"\n'
+                        f"{tab_str * 2}{real_func_name}.__qualname__ = "
+                        f'{real_func_name}.__qualname__.replace("{func_name}", "{real_func_name}")'
+                    )
             simple_route_str_list.append(
                 f"{tab_str * 3}SimpleRoute(\n"
                 f'{tab_str * 4}url="{grpc_service_option_model.url}", \n'
                 f'{tab_str * 4}methods=["{grpc_service_option_model.http_method}"], \n'
-                f"{tab_str * 4}route={real_func_name}\n"
+                f"{tab_str * 4}route=pait_async_{grpc_model.func_name}"
+                f" if self.is_async else pait_{grpc_model.func_name}\n"
                 f"{tab_str * 3})"
             )
+
+        set_service_stub_str_list: List[str] = [
+            f'set_app_attribute(self.app, "{self.attr_prefix}_{service_name}",'
+            f" {stub_module_name}.{service_name}Stub(self.channel))"
+            for service_name in set(service_name_list)
+        ]
         class_str: str = (
             "class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):\n"
             f"{tab_str * 1}def gen_route(self) -> None:\n"
             f'{tab_str * 2}set_app_attribute(self.app, "{self.attr_prefix}_gateway", self)\n'
             f"{chr(10).join([tab_str * 2 + i for i in set_service_stub_str_list])}\n"
             f"{tab_str * 2}# The response model generated based on Protocol is important and needs to be put first\n"
-            f"{tab_str * 2}response_model_list: List[Type[BaseResponseModel]] = self._pait._response_model_list or []\n"
+            f"{tab_str * 2}response_model_list: List[Type[BaseResponseModel]] = self._pait.response_model_list or []\n"
             f"{chr(10).join(wrapper_route_str_list) if wrapper_route_str_list else ''}\n"
             f"{tab_str * 2}add_multi_simple_route(\n"
             f"{tab_str * 3}self.app,\n"
@@ -244,4 +288,8 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
             f"{tab_str * 2})\n"
         )
         logger.debug(class_str)
+        for response_code_str in response_code_str_list:
+            self._content_deque.append(response_code_str)
+        for route_code_str in route_code_str_list:
+            self._content_deque.append(route_code_str)
         self._content_deque.append(class_str)

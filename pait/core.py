@@ -111,6 +111,10 @@ class Pait(object):
         else:
             return target_container or self_container
 
+    @property
+    def response_model_list(self) -> List[Type[BaseResponseModel]]:
+        return self._response_model_list or []
+
     def create_sub_pait(
         self: "_PaitT",
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
@@ -180,7 +184,7 @@ class Pait(object):
         return self.__class__(
             pydantic_model_config=pydantic_model_config or self._pydantic_model_config,
             pydantic_basemodel=pydantic_basemodel or self._pydantic_basemodel,
-            default_field_class=default_field_class,
+            default_field_class=default_field_class or self._default_field_class,
             desc=desc or self._desc,
             summary=summary or self._summary,
             name=name or self._name,
@@ -308,7 +312,7 @@ class Pait(object):
                 post_plugin_list=post_plugin_list,
                 param_handler_plugin=param_handler_plugin or self._param_handler_plugin,
                 feature_code=feature_code,
-                default_field_class=default_field_class,
+                default_field_class=default_field_class or self._default_field_class,
                 **(kwargs or self.extra),
             )
             sync_config_data_to_pait_core_model(config, pait_core_model)
