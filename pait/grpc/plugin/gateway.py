@@ -1,4 +1,4 @@
-from typing import Any, Callable, Optional, Type, Union
+from typing import Any, Callable, List, Optional, Type, Union
 
 import grpc
 from any_api.openapi import BaseResponseModel
@@ -8,16 +8,18 @@ from pait.app import add_multi_simple_route as _add_multi_simple_route
 from pait.app.base.grpc_route import BaseGrpcGatewayRoute
 from pait.core import Pait
 from pait.grpc.plugin.model import GrpcModel
+from pait.util import get_real_annotation
 
 
 class BaseStaticGrpcGatewayRoute(BaseGrpcGatewayRoute):
     add_multi_simple_route: staticmethod = staticmethod(_add_multi_simple_route)
+    stub_str_list: List[str]
 
     def __init__(
         self,
         app: Any,
-        channel: Union[grpc.Channel, grpc.aio.Channel],
         is_async: bool,
+        channel: Union[grpc.Channel, grpc.aio.Channel, None] = None,
         parse_msg_desc: Optional[str] = None,
         prefix: str = "",
         title: str = "",
@@ -57,8 +59,16 @@ class BaseStaticGrpcGatewayRoute(BaseGrpcGatewayRoute):
         )
         self.is_async: bool = is_async
         self.kwargs: Any = kwargs
-        self.channel: Union[grpc.Channel, grpc.aio.Channel] = channel
+        if channel:
+            self.channel = channel
         self.gen_route()
 
     def gen_route(self) -> None:
         raise NotImplementedError
+
+    def reinit_channel(
+        self, channel: Union[grpc.Channel, grpc.aio.Channel], auto_close: bool = False
+    ) -> Union[grpc.Channel, grpc.aio.Channel, None]:
+        for stub_str in self.stub_str_list:
+            setattr(self, stub_str, get_real_annotation(self.__annotations__[stub_str], self)(channel))
+        return super().reinit_channel(channel, auto_close)

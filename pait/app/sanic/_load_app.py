@@ -18,9 +18,6 @@ def load_app(app: Sanic, project_name: str = "", auto_load_route: bool = False) 
         project_name = app.name
     _pait_data: Dict[str, PaitCoreModel] = {}
     for route in app.router.routes:
-        if "static" in route.name:
-            continue
-
         route_name: str = route.name
         method_set: Set[str] = route.methods
         path: str = route.path

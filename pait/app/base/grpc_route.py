@@ -7,6 +7,7 @@ import grpc
 from protobuf_to_pydantic import msg_to_pydantic_model
 from pydantic import BaseModel
 
+from pait.app.any.util import import_func_from_app
 from pait.app.base.simple_route import SimpleRoute
 from pait.core import Pait
 from pait.field import BaseField, Body, Query
@@ -68,8 +69,8 @@ class BaseGrpcGatewayRoute(object):
         self._parse_msg_desc: Optional[str] = parse_msg_desc
         self.msg_to_dict: Callable = msg_to_dict
         self.parse_dict: Optional[Callable] = parse_dict
-
-        self._pait: Pait = pait or self.pait
+        # If empty, try to get an available Pait
+        self._pait: Pait = pait or getattr(self, "pait", None) or import_func_from_app("pait", app=app)  # type: ignore
         self.make_response: Callable = make_response or self._make_response
         self._tag_dict: Dict[str, Tag] = {}
 
@@ -80,6 +81,21 @@ class BaseGrpcGatewayRoute(object):
         else:
             request_msg = msg(**request_dict)  # type: ignore
         return request_msg
+
+    def reinit_channel(
+        self, channel: Union[grpc.Channel, grpc.aio.Channel], auto_close: bool = False
+    ) -> Union[grpc.Channel, grpc.aio.Channel, None]:
+        """reload grpc channel"""
+        old_channel: Union[grpc.Channel, grpc.aio.Channel, None] = getattr(self, "channel", None)
+        self.channel = channel
+        # If it is grpc.aio.Channel, it will return the corresponding grpc.Channel first,
+        # and then close it asynchronously
+        if old_channel and auto_close:
+            old_channel.close()
+        return old_channel
+
+    def init_channel(self, channel: Union[grpc.Channel, grpc.aio.Channel]) -> None:
+        self.reinit_channel(channel, auto_close=True)
 
 
 class BaseDynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
@@ -159,7 +175,7 @@ class BaseDynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
         """Generate the corresponding pait instance according to the object of the grpc calling method"""
         tag_list: List[Tag] = [self._grpc_tag]
         for tag, desc in grpc_model.grpc_service_option_model.tag + [
-            ("grpc" + "-" + grpc_model.grpc_method_url.split("/")[1].split(".")[0], "")
+            ("grpc" + "-" + self.url_handler(grpc_model.grpc_method_url.split("/")[1]), "")
         ]:
             if tag in self._tag_dict:
                 pait_tag: Tag = self._tag_dict[tag]
@@ -235,9 +251,9 @@ class BaseDynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
                 app, *simple_route_list, prefix=self.prefix, title=self.title + parse_stub.name, **kwargs
             )
 
-    def _init_channel(self, channel: Union[grpc.Channel, grpc.aio.Channel]) -> None:
-        """init grpc channel"""
-        self.channel: Union[grpc.Channel, grpc.aio.Channel] = channel
+    def reinit_channel(
+        self, channel: Union[grpc.Channel, grpc.aio.Channel], auto_close: bool = False
+    ) -> Union[grpc.Channel, grpc.aio.Channel, None]:
         for stub_class in self.stub_list:
             stub = stub_class(channel)
             for func in stub.__dict__.values():
@@ -245,21 +261,7 @@ class BaseDynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
                 if isinstance(grpc_method_url, bytes):
                     grpc_method_url = grpc_method_url.decode()
                 self.grpc_method_url_func_dict[grpc_method_url] = func
-
-    def reinit_channel(
-        self, channel: Union[grpc.Channel, grpc.aio.Channel]
-    ) -> Union[grpc.Channel, grpc.aio.Channel, None]:
-        """reload grpc channel"""
-        old_channel: Union[grpc.Channel, grpc.aio.Channel, None] = getattr(self, "channel", None)
-        self.init_channel(channel)
-        # If it is grpc.aio.Channel, it will return the corresponding grpc.Channel first,
-        # and then close it asynchronously
-        if old_channel:
-            old_channel.close()
-        return old_channel
-
-    def init_channel(self, channel: Union[grpc.Channel, grpc.aio.Channel]) -> None:
-        raise NotImplementedError()
+        return super().reinit_channel(channel, auto_close)
 
 
 class GrpcGatewayRoute(BaseDynamicGrpcGatewayRoute, metaclass=ABCMeta):
@@ -274,8 +276,8 @@ class GrpcGatewayRoute(BaseDynamicGrpcGatewayRoute, metaclass=ABCMeta):
 
         return _route
 
-    def init_channel(self, channel: grpc.Channel) -> None:
-        self._init_channel(channel)
+    def reinit_channel(self, channel: grpc.Channel, auto_close: bool = False) -> Union[grpc.Channel, None]:
+        return super().reinit_channel(channel, auto_close)
 
 
 class AsyncGrpcGatewayRoute(BaseDynamicGrpcGatewayRoute, metaclass=ABCMeta):
@@ -298,4 +300,7 @@ class AsyncGrpcGatewayRoute(BaseDynamicGrpcGatewayRoute, metaclass=ABCMeta):
         return _route
 
     def init_channel(self, channel: grpc.aio.Channel) -> None:
-        self._init_channel(channel)
+        super().init_channel(channel)
+
+    def reinit_channel(self, channel: grpc.aio.Channel, auto_close: bool = False) -> Union[grpc.aio.Channel, None]:
+        return super().reinit_channel(channel, auto_close)

@@ -17,11 +17,13 @@ class GrpcModel(object):
     response_message: str
     request_message_model: str
     response_message_model: str
+    stub_service_name: str
     service_name: str
     model_module_name: str
     message_module_name: str
     stub_module_name: str
     package: str
+    response_class_name: str
     # option model
     grpc_service_option_model: GrpcServiceOptionModel
     # grpc descriptor

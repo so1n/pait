@@ -69,16 +69,22 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
                         token: str = Header.i(description="User Token"),
                         req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
                     ) -> Any:
-                        gateway = pait_context.get().app_helper.get_attributes("{attr_prefix}_gateway")
-                        stub: {stub_module_name}.{service_name}Stub = pait_context.get().app_helper.get_attributes(
-                            "{attr_prefix}_{service_name}"
-                        )
+                        gateway = pait_context.get().app_helper.get_attributes("{attr_prefix}_{package}_gateway")
                         request_dict: dict = request_pydantic_model.dict()
                         request_dict["token"] = token
                         request_msg: {request_message} = gateway.get_msg_from_dict(
-                            {model_module_name}.{request_message_model}, request_dict
+                            {message_module_name}.{request_message_model}, request_dict
                         )
-                        grpc_msg: {response_message} = await stub.{method}(request_msg, metadata=[("req_id", req_id)])
+                        loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
+                        if loop != gateway.{stub_service_name}.{method}._loop:  # type: ignore
+                            raise RuntimeError(
+                                "Loop is not same, "
+                                "the grpc channel must be initialized after the event loop"
+                                "of the api server is initialized"
+                            )
+                        grpc_msg: {response_message} = await gateway.{stub_service_name}.{method}(
+                            request_msg, metadata=[("req_id", req_id)]
+                        )
                         return gateway.make_response(gateway.msg_to_dict(grpc_msg))
                     """
                 )
@@ -90,16 +96,15 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
                         token: str = Header.i(description="User Token"),
                         req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
                     ) -> Any:
-                        gateway = pait_context.get().app_helper.get_attributes("{attr_prefix}_gateway")
-                        stub: {stub_module_name}.{service_name}Stub = pait_context.get().app_helper.get_attributes(
-                            "{attr_prefix}_{service_name}"
-                        )
+                        gateway = pait_context.get().app_helper.get_attributes("{attr_prefix}_{package}_gateway")
                         request_dict: dict = request_pydantic_model.dict()
                         request_dict["token"] = token
                         request_msg: {request_message} = gateway.get_msg_from_dict(
-                            {model_module_name}.{request_message_model}, request_dict
+                            {message_module_name}.{request_message_model}, request_dict
                         )
-                        grpc_msg: {response_message} = stub.{method}(request_msg, metadata=[("req_id", req_id)])
+                        grpc_msg: {response_message} = gateway.{stub_service_name}.{method}(
+                            request_msg, metadata=[("req_id", req_id)]
+                        )
                         return gateway.make_response(gateway.msg_to_dict(grpc_msg))
                     """
                 )
@@ -112,10 +117,15 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
                         token: str = Header.i(description="User Token"),
                         req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
                     ) -> Any:
-                        gateway = pait_context.get().app_helper.get_attributes("{attr_prefix}_gateway")
-                        stub: {stub_module_name}.{service_name}Stub = pait_context.get().app_helper.get_attributes(
-                            "{attr_prefix}_{service_name}"
-                        )
+                        gateway = pait_context.get().app_helper.get_attributes("{attr_prefix}_{package}_gateway")
+                        stub: {stub_module_name}.{service_name}Stub = gateway.{stub_service_name}
+                        loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
+                        if loop != stub.{method}._loop:  # type: ignore
+                            raise RuntimeError(
+                                "Loop is not same, "
+                                "the grpc channel must be initialized after the event loop"
+                                "of the api server is initialized"
+                            )
                         # check token
                         result: {message_module_name}.GetUidByTokenResult = await stub.get_uid_by_token(
                             {message_module_name}.GetUidByTokenRequest(token=token)
@@ -123,7 +133,7 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
                         if not result.uid:
                             raise RuntimeError("Not found user by token:" + token)
                         request_msg: {request_message} = gateway.get_msg_from_dict(
-                            {model_module_name}.{request_message_model}, request_pydantic_model.dict()
+                            {message_module_name}.{request_message_model}, request_pydantic_model.dict()
                         )
                         grpc_msg: {response_message} = await stub.{method}(request_msg, metadata=[("req_id", req_id)])
                         return gateway.make_response(gateway.msg_to_dict(grpc_msg))
@@ -137,10 +147,8 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
                         token: str = Header.i(description="User Token"),
                         req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
                     ) -> Any:
-                        gateway = pait_context.get().app_helper.get_attributes("{attr_prefix}_gateway")
-                        stub: {stub_module_name}.{service_name}Stub = pait_context.get().app_helper.get_attributes(
-                            "{attr_prefix}_{service_name}"
-                        )
+                        gateway = pait_context.get().app_helper.get_attributes("{attr_prefix}_{package}_gateway")
+                        stub: {stub_module_name}.{service_name}Stub = gateway.{stub_service_name}
                         # check token
                         result: {message_module_name}.GetUidByTokenResult = stub.get_uid_by_token(
                             {message_module_name}.GetUidByTokenRequest(token=token)
@@ -148,7 +156,7 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
                         if not result.uid:
                             raise RuntimeError("Not found user by token:" + token)
                         request_msg: {request_message} = gateway.get_msg_from_dict(
-                            {model_module_name}.{request_message_model}, request_pydantic_model.dict()
+                            {message_module_name}.{request_message_model}, request_pydantic_model.dict()
                         )
                         grpc_msg: {response_message} = stub.{method}(request_msg, metadata=[("req_id", req_id)])
                         return gateway.make_response(gateway.msg_to_dict(grpc_msg))

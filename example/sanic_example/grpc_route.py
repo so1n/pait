@@ -9,6 +9,11 @@ from sanic import Sanic
 from example.common.response_model import gen_response_model_handle
 from example.grpc_common.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
 from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2_grpc
+from example.grpc_common.python_example_proto_code.example_proto_by_option.book import (
+    manager_pait_route,
+    social_pait_route,
+)
+from example.grpc_common.python_example_proto_code.example_proto_by_option.user import user_pait_route
 from example.sanic_example.utils import create_app
 from pait.app import set_app_attribute
 from pait.app.sanic.grpc_route import GrpcGatewayRoute
@@ -68,11 +73,33 @@ def add_grpc_gateway_route(app: Sanic) -> None:
         make_response=_make_response,
     )
     set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest
+    user_grpc_route = user_pait_route.StaticGrpcGatewayRoute(
+        app, prefix="/api/static", title="static_user", make_response=_make_response, is_async=True
+    )
+    manager_grpc_route = manager_pait_route.StaticGrpcGatewayRoute(
+        app,
+        prefix="/api/static",
+        title="static_manager",
+        make_response=_make_response,
+        is_async=True,
+    )
+    social_group_route = social_pait_route.StaticGrpcGatewayRoute(
+        app,
+        prefix="/api/static",
+        title="static_social",
+        make_response=_make_response,
+        is_async=True,
+    )
 
     def _before_server_start(*_: Any) -> None:
-        grpc_gateway_route.init_channel(grpc.aio.insecure_channel("0.0.0.0:9000"))
+        channel = grpc.aio.insecure_channel("0.0.0.0:9000")
+        grpc_gateway_route.init_channel(channel)
+        user_grpc_route.init_channel(channel)
+        manager_grpc_route.init_channel(channel)
+        social_group_route.init_channel(channel)
 
     async def _after_server_stop(*_: Any) -> None:
+        # The reference is the same channel, and it can be called once
         await grpc_gateway_route.channel.close()
 
     app.before_server_start(_before_server_start)

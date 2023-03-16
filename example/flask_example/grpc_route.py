@@ -16,7 +16,6 @@ from example.grpc_common.python_example_proto_code.example_proto_by_option.book 
 )
 from example.grpc_common.python_example_proto_code.example_proto_by_option.user import user_pait_route
 from pait.app import set_app_attribute
-from pait.app.flask import pait
 from pait.app.flask.grpc_route import GrpcGatewayRoute
 from pait.field import Header
 
@@ -77,22 +76,20 @@ def add_grpc_gateway_route(app: Flask) -> None:
     channel = grpc.intercept_channel(grpc.insecure_channel("0.0.0.0:9000"))
     grpc_gateway_route.init_channel(channel)
     user_pait_route.StaticGrpcGatewayRoute(
-        app, channel, prefix="/api/static", pait=pait, title="static_user", make_response=_make_response, is_async=False
+        app, is_async=False, channel=channel, prefix="/api/static", title="static_user", make_response=_make_response
     )
     manager_pait_route.StaticGrpcGatewayRoute(
         app,
-        channel,
+        channel=channel,
         prefix="/api/static",
-        pait=pait,
         title="static_manager",
         make_response=_make_response,
         is_async=False,
     )
     social_pait_route.StaticGrpcGatewayRoute(
         app,
-        channel,
+        channel=channel,
         prefix="/api/static",
-        pait=pait,
         title="static_social",
         make_response=_make_response,
         is_async=False,

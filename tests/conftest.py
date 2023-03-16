@@ -65,6 +65,7 @@ class GrpcClientInterceptor(grpc.UnaryUnaryClientInterceptor):
         call_details: ClientCallDetailsType,
         request: Any,
     ) -> GRPC_RESPONSE:
+        print("put", request)
         self.queue.put(request)
         return continuation(call_details, request)
 
@@ -125,23 +126,36 @@ def fixture_loop(mock_close_loop: bool = False) -> Generator[asyncio.AbstractEve
 def grpc_test_create_user_request(app: Any) -> Generator[Queue, None, None]:
     from pait.app import get_app_attribute
     from pait.app.base.grpc_route import AsyncGrpcGatewayRoute, BaseDynamicGrpcGatewayRoute
+    from pait.grpc.plugin.gateway import BaseStaticGrpcGatewayRoute
 
-    def reinit_channel(grpc_gateway_route: BaseDynamicGrpcGatewayRoute, queue: Queue) -> None:
+    grpc_gateway_route: BaseDynamicGrpcGatewayRoute = get_app_attribute(app, "grpc_gateway_route")
+    user_gateway_route: BaseStaticGrpcGatewayRoute = get_app_attribute(app, "gateway_attr_user_by_option_gateway")
+    book_manager_gateway_route: BaseStaticGrpcGatewayRoute = get_app_attribute(
+        app, "gateway_attr_book_manager_by_option_gateway"
+    )
+    book_social_gateway_route: BaseStaticGrpcGatewayRoute = get_app_attribute(
+        app, "gateway_attr_book_social_by_option_gateway"
+    )
+
+    def reinit_channel(queue: Queue) -> None:
         if isinstance(grpc_gateway_route, AsyncGrpcGatewayRoute):
-            grpc_gateway_route.reinit_channel(
-                grpc.aio.insecure_channel("0.0.0.0:9000", interceptors=[AioGrpcClientInterceptor(queue)])
-            )
+            aio_channel = grpc.aio.insecure_channel("0.0.0.0:9000", interceptors=[AioGrpcClientInterceptor(queue)])
+            grpc_gateway_route.reinit_channel(aio_channel)
+            user_gateway_route.reinit_channel(aio_channel)
+            book_manager_gateway_route.reinit_channel(aio_channel)
+            book_social_gateway_route.reinit_channel(aio_channel)
         else:
-            grpc_gateway_route.reinit_channel(
-                grpc.intercept_channel(grpc.insecure_channel("0.0.0.0:9000"), GrpcClientInterceptor(queue)),
-            )
+            channel = grpc.intercept_channel(grpc.insecure_channel("0.0.0.0:9000"), GrpcClientInterceptor(queue))
+            grpc_gateway_route.reinit_channel(channel)
+            user_gateway_route.reinit_channel(channel)
+            book_manager_gateway_route.reinit_channel(channel)
+            book_social_gateway_route.reinit_channel(channel)
 
     with grpc_test_helper():
         queue: Queue = Queue()
-        grpc_gateway_route: BaseDynamicGrpcGatewayRoute = get_app_attribute(app, "grpc_gateway_route")
 
         def _before_server_start(*_: Any) -> None:
-            reinit_channel(grpc_gateway_route, queue)
+            reinit_channel(queue)
 
         async def _after_server_stop(*_: Any) -> None:
             await grpc_gateway_route.channel.close()
@@ -153,7 +167,7 @@ def grpc_test_create_user_request(app: Any) -> Generator[Queue, None, None]:
             app.add_event_handler("startup", _before_server_start)
             app.add_event_handler("shutdown", _after_server_stop)
         else:
-            reinit_channel(grpc_gateway_route, queue)
+            reinit_channel(queue)
 
         try:
             yield queue
@@ -211,9 +225,9 @@ def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api", option_str: str
             if url.endswith("/create") or url.endswith("/delete"):
                 assert "grpc-user-system" in path_dict[method]["tags"]
         elif url.startswith(f"{url_prefix}/book_manager"):
-            assert f"grpc-book_manager{option_str}" in path_dict[method]["tags"]
+            assert f"grpc-book_manager{option_str}-BookManager" in path_dict[method]["tags"]
         elif url.startswith(f"{url_prefix}/book_social"):
-            assert f"grpc-book_social{option_str}" in path_dict[method]["tags"]
+            assert f"grpc-book_social{option_str}-BookSocial" in path_dict[method]["tags"]
 
         # test summary
         if url == f"{url_prefix}/user/create":
@@ -224,7 +238,7 @@ def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api", option_str: str
                 "$ref"
             ]
             response_schema: dict = pait_openapi.dict["components"]["schemas"][response_schema_key.split("/")[-1]]
-            assert response_schema["title"] == "LoginUserResult"
+            assert response_schema["title"].endswith("LoginUserResult")
             for column in ["code", "msg", "data"]:
                 assert column in response_schema["properties"]
         elif url == f"{url_prefix}/user/logout":
