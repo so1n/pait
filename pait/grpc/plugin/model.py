@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from pait.grpc.grpc_inspect import GrpcServiceOptionModel
+from pait.grpc.inspect import GrpcServiceOptionModel
 from pait.grpc.types import MethodDescriptorProto, ServiceDescriptorProto
 
 

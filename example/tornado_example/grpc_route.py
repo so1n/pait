@@ -27,7 +27,7 @@ def add_grpc_gateway_route(app: Application) -> None:
     from typing_extensions import Self  # type: ignore
 
     from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2
-    from pait.grpc.grpc_inspect import GrpcModel, Message
+    from pait.grpc.inspect import GrpcModel, Message
 
     def _tornado_make_response(resp_dict: dict) -> dict:
         return {"code": 0, "msg": "", "data": resp_dict}

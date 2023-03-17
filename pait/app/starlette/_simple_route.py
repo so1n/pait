@@ -11,10 +11,8 @@ def add_simple_route(
     title: str = "",
 ) -> None:
     add_route_plugin(simple_route, UnifiedResponsePlugin)
-    if prefix == "/" and simple_route.url.startswith("/"):
-        url: str = simple_route.url
-    else:
-        url = prefix + simple_route.url
+    url: str = prefix + simple_route.url
+    url = url.replace("//", "/")
     app.add_route(url, simple_route.route, methods=simple_route.methods, name=title)
 
 

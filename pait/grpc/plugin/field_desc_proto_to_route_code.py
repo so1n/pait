@@ -9,7 +9,7 @@ from protobuf_to_pydantic.gen_model import DescTemplate
 from protobuf_to_pydantic.grpc_types import FileDescriptorProto
 
 from pait import __version__
-from pait.grpc.grpc_inspect import GrpcServiceOptionModel, get_grpc_service_model_from_option_message
+from pait.grpc.inspect import GrpcServiceOptionModel, get_grpc_service_model_from_option_message
 from pait.grpc.plugin.model import GrpcModel
 from pait.grpc.types import MethodDescriptorProto, ServiceDescriptorProto
 

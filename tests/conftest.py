@@ -65,7 +65,6 @@ class GrpcClientInterceptor(grpc.UnaryUnaryClientInterceptor):
         call_details: ClientCallDetailsType,
         request: Any,
     ) -> GRPC_RESPONSE:
-        print("put", request)
         self.queue.put(request)
         return continuation(call_details, request)
 
