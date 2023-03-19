@@ -200,10 +200,11 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                 # The response model code only needs to be generated once
                 template_dict: dict = asdict(grpc_model)
                 response_class_str: str = self.response_template_str.format(**template_dict)
-                response_class_str = response_class_str.replace(
-                    "{model_module_name}.{response_message_model}".format(**template_dict),
-                    self._get_value_code(self.config.empty_type),
-                )
+                if template_dict["response_message_model"] == "Empty":
+                    response_class_str = response_class_str.replace(
+                        "{model_module_name}.{response_message_model}".format(**template_dict),
+                        self._get_value_code(self.config.empty_type),
+                    )
                 response_code_str_list.append(response_class_str + "\n")
 
             base_func_name: str = grpc_model.func_name
@@ -272,7 +273,6 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
             f"{class_stub_str}\n"
             f"{tab_str * 1}def gen_route(self) -> None:\n"
             f'{tab_str * 2}set_app_attribute(self.app, "{self.attr_prefix}_{self._fd.package}_gateway", self)\n'
-            # f"{chr(10).join([tab_str * 2 + i for i in set_service_stub_str_list])}\n"
             f"{tab_str * 2}# The response model generated based on Protocol is important and needs to be put first\n"
             f"{tab_str * 2}response_model_list: List[Type[BaseResponseModel]] = self._pait.response_model_list or []\n"
             f"{chr(10).join(wrapper_route_str_list) if wrapper_route_str_list else ''}\n"

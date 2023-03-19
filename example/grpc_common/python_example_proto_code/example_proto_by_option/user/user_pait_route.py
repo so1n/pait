@@ -37,10 +37,12 @@ class UserByOptionLoginUserResultJsonResponseModel(JsonResponseModel):
     class CustomerJsonResponseRespModel(BaseModel):
         code: int = Field(0, description="api code")
         msg: str = Field("success", description="api status msg")
-        data: dict = Field(description="api response data")
+        data: user_p2p.LoginUserResult = Field(description="api response data")
 
     name: str = "user_by_option_LoginUserResult"
-    description: str = dict.__doc__ or "" if dict.__module__ != "builtins" else ""
+    description: str = (
+        user_p2p.LoginUserResult.__doc__ or "" if user_p2p.LoginUserResult.__module__ != "builtins" else ""
+    )
     response_data: Type[BaseModel] = CustomerJsonResponseRespModel
 
 

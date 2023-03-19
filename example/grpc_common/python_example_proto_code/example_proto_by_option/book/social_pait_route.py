@@ -38,10 +38,14 @@ class BookSocialByOptionGetBookLikesListResultJsonResponseModel(JsonResponseMode
     class CustomerJsonResponseRespModel(BaseModel):
         code: int = Field(0, description="api code")
         msg: str = Field("success", description="api status msg")
-        data: dict = Field(description="api response data")
+        data: social_p2p.GetBookLikesListResult = Field(description="api response data")
 
     name: str = "book_social_by_option_GetBookLikesListResult"
-    description: str = dict.__doc__ or "" if dict.__module__ != "builtins" else ""
+    description: str = (
+        social_p2p.GetBookLikesListResult.__doc__ or ""
+        if social_p2p.GetBookLikesListResult.__module__ != "builtins"
+        else ""
+    )
     response_data: Type[BaseModel] = CustomerJsonResponseRespModel
 
 
@@ -49,10 +53,14 @@ class BookSocialByOptionGetBookCommentListResultJsonResponseModel(JsonResponseMo
     class CustomerJsonResponseRespModel(BaseModel):
         code: int = Field(0, description="api code")
         msg: str = Field("success", description="api status msg")
-        data: dict = Field(description="api response data")
+        data: social_p2p.GetBookCommentListResult = Field(description="api response data")
 
     name: str = "book_social_by_option_GetBookCommentListResult"
-    description: str = dict.__doc__ or "" if dict.__module__ != "builtins" else ""
+    description: str = (
+        social_p2p.GetBookCommentListResult.__doc__ or ""
+        if social_p2p.GetBookCommentListResult.__module__ != "builtins"
+        else ""
+    )
     response_data: Type[BaseModel] = CustomerJsonResponseRespModel
 
 

@@ -38,10 +38,12 @@ class BookManagerByOptionGetBookResultJsonResponseModel(JsonResponseModel):
     class CustomerJsonResponseRespModel(BaseModel):
         code: int = Field(0, description="api code")
         msg: str = Field("success", description="api status msg")
-        data: dict = Field(description="api response data")
+        data: manager_p2p.GetBookResult = Field(description="api response data")
 
     name: str = "book_manager_by_option_GetBookResult"
-    description: str = dict.__doc__ or "" if dict.__module__ != "builtins" else ""
+    description: str = (
+        manager_p2p.GetBookResult.__doc__ or "" if manager_p2p.GetBookResult.__module__ != "builtins" else ""
+    )
     response_data: Type[BaseModel] = CustomerJsonResponseRespModel
 
 
@@ -49,10 +51,12 @@ class BookManagerByOptionGetBookListResultJsonResponseModel(JsonResponseModel):
     class CustomerJsonResponseRespModel(BaseModel):
         code: int = Field(0, description="api code")
         msg: str = Field("success", description="api status msg")
-        data: dict = Field(description="api response data")
+        data: manager_p2p.GetBookListResult = Field(description="api response data")
 
     name: str = "book_manager_by_option_GetBookListResult"
-    description: str = dict.__doc__ or "" if dict.__module__ != "builtins" else ""
+    description: str = (
+        manager_p2p.GetBookListResult.__doc__ or "" if manager_p2p.GetBookListResult.__module__ != "builtins" else ""
+    )
     response_data: Type[BaseModel] = CustomerJsonResponseRespModel
 
 

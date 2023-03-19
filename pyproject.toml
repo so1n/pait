@@ -70,7 +70,7 @@ mkdocs-material = "^8.1.7"
 [tool.autoflake]
 in-place = true
 remove-all-unused-imports = true
-remove-unused-variable = true
+remove-unused-variables = true
 ignore-init-module-imports = true
 
 [tool.black]
