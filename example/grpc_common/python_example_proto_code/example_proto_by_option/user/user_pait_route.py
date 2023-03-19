@@ -1,7 +1,8 @@
 # This is an automatically generated file, please do not change
 # gen by pait[0.7.8.3](https://github.com/so1n/pait)
 import asyncio
-from typing import Any, List, Type
+from enum import IntEnum
+from typing import Any, Callable, List, Type
 from uuid import uuid4
 
 from google.protobuf.empty_pb2 import Empty  # type: ignore

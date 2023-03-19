@@ -1,7 +1,9 @@
 # This is an automatically generated file, please do not change
 # gen by pait[0.7.8.3](https://github.com/so1n/pait)
 import asyncio
-from typing import Any, List, Type
+import typing
+from datetime import datetime
+from typing import Any, Callable, List, Type
 
 from google.protobuf.empty_pb2 import Empty  # type: ignore
 from google.protobuf.message import Message  # type: ignore
