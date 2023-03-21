@@ -43,12 +43,16 @@ class ApiModel(_ApiModel):
 
 class ParsePaitModel(object):
     def __init__(self, pait_model: PaitCoreModel) -> None:
+        self.pait_model: PaitCoreModel = pait_model
         self.http_param_type_dict: HttpParamTypeDictType = {}
         self.security_dict: Dict[str, openapi_model.security.SecurityModelType] = {}
         self.http_param_type_alias_dict: Dict[str, HttpParamTypeLiteral] = {"multiquery": "query"}
-        self._parse_call_type(pait_model.func, pait_model)
+        self._parse_call_type(pait_model.func)
         for pre_depend in pait_model.pre_depend_list:
-            self._parse_call_type(pre_depend, pait_model)
+            self._parse_call_type(pre_depend)
+
+        for extra_openapi_model in self.pait_model.extra_openapi_model_list:
+            self._parse_base_model(extra_openapi_model)
 
     def _parse_base_model(self, _pydantic_model: Type[BaseModel]) -> None:
         param_field_dict: Dict[str, BaseField] = {}
@@ -59,7 +63,9 @@ class ParsePaitModel(object):
             param_annotation = get_type_hints(_pydantic_model)[field_name]
             field = model_field.field_info
             if not isinstance(field, BaseField):
-                continue
+                if not self.pait_model.default_field_class:
+                    continue
+                field = self.pait_model.default_field_class.from_pydantic_field(field)
             if not field.openapi_include:
                 continue
             if isinstance(field, BaseField) and field.alias:
@@ -88,7 +94,6 @@ class ParsePaitModel(object):
         self,
         parameter_list: List["inspect.Parameter"],
         single_field_list: List[Tuple[str, "inspect.Parameter"]],
-        pait_model: PaitCoreModel,
     ) -> None:
         """parse parameter_list to field_dict and single_field_list"""
         for parameter in parameter_list:
@@ -120,7 +125,8 @@ class ParsePaitModel(object):
                         model=create_pydantic_model(
                             {parameter.name: (parameter.annotation, Field)},
                             class_name=(
-                                f"{pait_model.func_name.title()}{parameter.name.title()}{pait_model.pait_id.title()}"
+                                f"{self.pait_model.func_name.title()}{parameter.name.title()}"
+                                f"{self.pait_model.pait_id.title()}"
                             ),
                         )
                         if not pait_field.raw_return
@@ -132,7 +138,7 @@ class ParsePaitModel(object):
                 else:
                     # def test(pait_model_route: int = Body())
                     if isinstance(pait_field, Depends):
-                        self._parse_call_type(pait_field.func, pait_model)
+                        self._parse_call_type(pait_field.func)
                     else:
                         if not pait_field.openapi_include:
                             continue
@@ -143,7 +149,7 @@ class ParsePaitModel(object):
                 # def test(pait_model_route: PaitBaseModel)
                 self._parse_base_model(parameter.annotation)
 
-    def _parse_call_type(self, call_type: CallType, pait_model: PaitCoreModel) -> None:
+    def _parse_call_type(self, call_type: CallType) -> None:
         from pait.app.base.security.base import BaseSecurity
 
         if isinstance(call_type, BaseSecurity):
@@ -166,8 +172,8 @@ class ParsePaitModel(object):
 
         if inspect.isclass(class_):
             parameter_list: List["inspect.Parameter"] = get_parameter_list_from_class(class_)
-            self.parameter_list_handle(parameter_list, single_field_list, pait_model)
-        self.parameter_list_handle(func_type_sig.param_list, single_field_list, pait_model)
+            self.parameter_list_handle(parameter_list, single_field_list)
+        self.parameter_list_handle(func_type_sig.param_list, single_field_list)
 
         if single_field_list:
             annotation_dict: Dict[str, Tuple[Type, Any]] = {}
@@ -185,7 +191,8 @@ class ParsePaitModel(object):
                     _pydantic_model: Type[BaseModel] = create_pydantic_model(
                         {parameter.name: (parameter.annotation, field)},
                         class_name=(
-                            f"{pait_model.func_name.title()}{parameter.name.title()}{pait_model.pait_id.title()}"
+                            f"{self.pait_model.func_name.title()}"
+                            f"{parameter.name.title()}{self.pait_model.pait_id.title()}"
                         ),
                     )
                     self._parse_base_model(_pydantic_model)
@@ -194,12 +201,9 @@ class ParsePaitModel(object):
                     annotation_dict[parameter.name] = (parameter.annotation, field)
 
             _pydantic_model = create_pydantic_model(
-                annotation_dict, class_name=f"{pait_model.func_name.title()}{pait_model.pait_id.title()}"
+                annotation_dict, class_name=f"{self.pait_model.func_name.title()}{self.pait_model.pait_id.title()}"
             )
             self._parse_base_model(_pydantic_model)
-
-        for extra_openapi_model in pait_model.extra_openapi_model_list:
-            self._parse_base_model(extra_openapi_model)
 
 
 class OpenAPI(object):

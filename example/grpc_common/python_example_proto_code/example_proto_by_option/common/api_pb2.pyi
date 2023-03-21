@@ -30,6 +30,7 @@ class ApiRule(google.protobuf.message.Message):
     SUMMARY_FIELD_NUMBER: builtins.int
     DESC_FIELD_NUMBER: builtins.int
     NOT_ENABLE_FIELD_NUMBER: builtins.int
+    AUTHOR_FIELD_NUMBER: builtins.int
     @property
     def get(self) -> global___HttpMethod:
         """Maps to HTTP GET. Used for listing and getting information about
@@ -105,6 +106,10 @@ class ApiRule(google.protobuf.message.Message):
     not_enable: builtins.bool
     """whether to map the method"""
 
+    @property
+    def author(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[typing.Text]:
+        """Write the author of the API"""
+        pass
     def __init__(self,
         *,
         get: typing.Optional[global___HttpMethod] = ...,
@@ -122,9 +127,10 @@ class ApiRule(google.protobuf.message.Message):
         summary: typing.Text = ...,
         desc: typing.Text = ...,
         not_enable: builtins.bool = ...,
+        author: typing.Optional[typing.Iterable[typing.Text]] = ...,
         ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["any",b"any","custom",b"custom","delete",b"delete","get",b"get","http_method",b"http_method","patch",b"patch","post",b"post","put",b"put"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["additional_bindings",b"additional_bindings","any",b"any","body",b"body","custom",b"custom","delete",b"delete","desc",b"desc","get",b"get","group",b"group","http_method",b"http_method","not_enable",b"not_enable","patch",b"patch","post",b"post","put",b"put","response_body",b"response_body","summary",b"summary","tag",b"tag"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["additional_bindings",b"additional_bindings","any",b"any","author",b"author","body",b"body","custom",b"custom","delete",b"delete","desc",b"desc","get",b"get","group",b"group","http_method",b"http_method","not_enable",b"not_enable","patch",b"patch","post",b"post","put",b"put","response_body",b"response_body","summary",b"summary","tag",b"tag"]) -> None: ...
     def WhichOneof(self, oneof_group: typing_extensions.Literal["http_method",b"http_method"]) -> typing.Optional[typing_extensions.Literal["get","put","post","delete","patch","custom","any"]]: ...
 global___ApiRule = ApiRule
 

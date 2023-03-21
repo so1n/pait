@@ -7,6 +7,8 @@ from typing_extensions import NoReturn
 
 from pait.app.any.util import base_call_func, sniffing
 from pait.app.auto_load_app import auto_load_app_class
+from pait.app.base.simple_route import SimpleRoute
+from pait.field import BaseField
 from pait.model.core import PaitCoreModel
 from pait.model.response import BaseResponseModel
 from pait.model.status import PaitStatus
@@ -14,7 +16,6 @@ from pait.model.tag import Tag
 from pait.plugin.base import PluginManager, PostPluginProtocol, PrePluginProtocol
 
 if TYPE_CHECKING:
-    from pait.app.base.simple_route import SimpleRoute
     from pait.openapi.openapi import OpenAPI
     from pait.param_handle import BaseParamHandler
 
@@ -92,6 +93,7 @@ def add_doc_route(
 def pait(
     pydantic_model_config: Optional[Type[BaseConfig]] = None,
     pydantic_basemodel: Optional[Type[BaseModel]] = None,
+    default_field_class: Optional[Type[BaseField]] = None,
     # param check
     pre_depend_list: Optional[List[Callable]] = None,
     append_pre_depend_list: Optional[List[Callable]] = None,
@@ -127,6 +129,7 @@ def pait(
     return _pait(
         pydantic_basemodel=pydantic_basemodel,
         pydantic_model_config=pydantic_model_config,
+        default_field_class=default_field_class,
         pre_depend_list=pre_depend_list,
         append_pre_depend_list=append_pre_depend_list,
         author=author,

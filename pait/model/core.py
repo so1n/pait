@@ -14,6 +14,7 @@ from pait.util import ignore_pre_check
 
 if TYPE_CHECKING:
     from pait.app.base import BaseAppHelper
+    from pait.field import BaseField
 
 from pait.extra.config import MatchKeyLiteral, MatchRule
 
@@ -51,6 +52,7 @@ class PaitCoreModel(object):
         response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
         pydantic_basemodel: Optional[Type[BaseModel]] = None,
+        default_field_class: Optional[Type["BaseField"]] = None,
         plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
         post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
         param_handler_plugin: Optional[Type[BaseParamHandler]] = None,
@@ -59,6 +61,7 @@ class PaitCoreModel(object):
     ):
         # pait
         self.app_helper_class: "Type[BaseAppHelper]" = app_helper_class
+        self.default_field_class: Optional[Type["BaseField"]] = default_field_class
         self.func: Callable = func  # route func
         # self.qualname: str = func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0]
         self.pait_id: str = f"{func.__qualname__}_{self.func_md5}"

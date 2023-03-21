@@ -63,6 +63,8 @@ message ApiRule {
   string desc = 24;
   // whether to map the method
   bool not_enable= 25;
+  // Write the author of the API
+  repeated string author = 26;
 }
 
 // A custom pattern is used for defining custom HTTP verb.

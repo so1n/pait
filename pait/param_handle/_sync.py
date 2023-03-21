@@ -71,7 +71,10 @@ class ParamHandler(BaseParamHandler):
         # support pait_model param(def handle(model: PaitBaseModel))
         _pait_model: Type[BaseModel] = parameter.annotation
         _, kwargs = self.param_handle(
-            context, None, get_parameter_list_from_pydantic_basemodel(_pait_model), pydantic_model=_pait_model
+            context,
+            None,
+            get_parameter_list_from_pydantic_basemodel(_pait_model, context.pait_core_model.default_field_class),
+            pydantic_model=_pait_model,
         )
         # Data has been validated or is from a trusted source
         func_args.append(_pait_model.construct(**kwargs))

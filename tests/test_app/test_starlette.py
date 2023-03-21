@@ -319,54 +319,58 @@ class TestStarletteGrpc:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import CreateUserRequest
 
         with grpc_client() as grpc_client_tuple:
-            client, queue = grpc_client_tuple
-            body: bytes = client.post(
-                "/api/user/create",
-                json={"uid": "10086", "user_name": "so1n", "pw": "123456", "sex": 0},
-                headers={"token": "token"},
-            ).content
-            assert body == b'{"code":0,"msg":"","data":{}}'
-            message: CreateUserRequest = queue.get(timeout=1)
-            assert message.uid == "10086"
-            assert message.user_name == "so1n"
-            assert message.password == "123456"
-            assert message.sex == 0
+            for url in ("/api/user/create", "/api/static/user/create"):
+                client, queue = grpc_client_tuple
+                body: bytes = client.post(
+                    url,
+                    json={"uid": "10086", "user_name": "so1n", "pw": "123456", "sex": 0},
+                    headers={"token": "token"},
+                ).content
+                assert body == b'{"code":0,"msg":"","data":{}}'
+                message: CreateUserRequest = queue.get(timeout=1)
+                assert message.uid == "10086"
+                assert message.user_name == "so1n"
+                assert message.password == "123456"
+                assert message.sex == 0
 
     def test_login(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
 
         with grpc_client() as grpc_client_tuple:
             client, queue = grpc_client_tuple
-            body: bytes = client.post("/api/user/login", json={"uid": "10086", "password": "pw"}).content
-            assert body == b'{"code":0,"msg":"","data":{}}'
-            message: LoginUserRequest = queue.get(timeout=1)
-            assert message.uid == "10086"
-            assert message.password == "pw"
+            for url in ("/api/user/login", "/api/static/user/login"):
+                body: bytes = client.post(url, json={"uid": "10086", "password": "pw"}).content
+                assert body == b'{"code":0,"msg":"","data":{}}'
+                message: LoginUserRequest = queue.get(timeout=1)
+                assert message.uid == "10086"
+                assert message.password == "pw"
 
     def test_logout(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LogoutUserRequest
 
         with grpc_client() as grpc_client_tuple:
             client, queue = grpc_client_tuple
-            body: bytes = client.post("/api/user/logout", json={"uid": "10086"}, headers={"token": "token"}).content
-            assert body == b'{"code":0,"msg":"","data":{}}'
-            message: LogoutUserRequest = queue.get(timeout=1)
-            assert message.uid == "10086"
-            assert message.token == "token"
+            for url in ("/api/user/logout", "/api/static/user/logout"):
+                body: bytes = client.post(url, json={"uid": "10086"}, headers={"token": "token"}).content
+                assert body == b'{"code":0,"msg":"","data":{}}'
+                message: LogoutUserRequest = queue.get(timeout=1)
+                assert message.uid == "10086"
+                assert message.token == "token"
 
     def test_delete_fail_token(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import GetUidByTokenRequest
 
         with grpc_client() as grpc_client_tuple:
             client, queue = grpc_client_tuple
-            body: bytes = client.post(
-                "/api/user/delete",
-                json={"uid": "10086"},
-                headers={"token": "fail_token"},
-            ).content
-            assert body == b'{"code":-1,"msg":"Not found user by token:fail_token"}'
-            message: GetUidByTokenRequest = queue.get(timeout=1)
-            assert message.token == "fail_token"
+            for url in ("/api/user/delete", "/api/static/user/delete"):
+                body: bytes = client.post(
+                    url,
+                    json={"uid": "10086"},
+                    headers={"token": "fail_token"},
+                ).content
+                assert body == b'{"code":-1,"msg":"Not found user by token:fail_token"}'
+                message: GetUidByTokenRequest = queue.get(timeout=1)
+                assert message.token == "fail_token"
 
     def test_grpc_openapi(self) -> None:
         from pait.app.starlette import load_app
@@ -376,6 +380,7 @@ class TestStarletteGrpc:
 
         with TestClient(app) as client:
             grpc_test_openapi(load_app(client.app))
+            grpc_test_openapi(load_app(client.app), url_prefix="/api/static", option_str="_by_option")
 
     def test_grpc_openapi_by_protobuf_file(self, base_test: BaseTest) -> None:
         from pait.app.starlette import load_app

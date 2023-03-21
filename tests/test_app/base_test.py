@@ -7,7 +7,7 @@ from redis import Redis  # type: ignore
 
 from example.common.response_model import gen_response_model_handle
 from pait.app.base import BaseTestHelper, CheckResponseException
-from pait.app.base.grpc_route import BaseGrpcGatewayRoute
+from pait.app.base.grpc_route import BaseDynamicGrpcGatewayRoute
 from pait.model.response import BaseResponseModel, HtmlResponseModel, TextResponseModel
 from pait.plugin.cache_response import CacheResponsePlugin
 from tests.conftest import enable_plugin, grpc_test_openapi
@@ -498,7 +498,7 @@ class BaseTest(object):
 
     @staticmethod
     def grpc_openapi_by_protobuf_file(
-        app: Any, grpc_gateway_route: Type[BaseGrpcGatewayRoute], load_app: Callable
+        app: Any, grpc_gateway_route: Type[BaseDynamicGrpcGatewayRoute], load_app: Callable
     ) -> None:
         import os
 
@@ -532,7 +532,9 @@ class BaseTest(object):
         grpc_test_openapi(load_app(app), url_prefix=prefix)
 
     @staticmethod
-    def grpc_openapi_by_option(app: Any, grpc_gateway_route: Type[BaseGrpcGatewayRoute], load_app: Callable) -> None:
+    def grpc_openapi_by_option(
+        app: Any, grpc_gateway_route: Type[BaseDynamicGrpcGatewayRoute], load_app: Callable
+    ) -> None:
         from example.grpc_common.python_example_proto_code.example_proto_by_option.book import (
             manager_pb2_grpc,
             social_pb2_grpc,

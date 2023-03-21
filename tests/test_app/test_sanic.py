@@ -284,18 +284,19 @@ class TestSanicGrpc:
             main_example.add_grpc_gateway_route(client.app)
             main_example.add_api_doc_route(client.app)
 
-            with grpc_test_create_user_request(client.app) as queue:
-                request, response = client.post(
-                    "/api/user/create",
-                    json={"uid": "10086", "user_name": "so1n", "pw": "123456", "sex": 0},
-                    headers={"token": "token"},
-                )
-                assert response.body == b'{"code":0,"msg":"","data":{}}'
-                message: CreateUserRequest = queue.get(timeout=1)
-                assert message.uid == "10086"
-                assert message.user_name == "so1n"
-                assert message.password == "123456"
-                assert message.sex == 0
+            for url in ("/api/user/create", "/api/static/user/create"):
+                with grpc_test_create_user_request(client.app) as queue:
+                    request, response = client.post(
+                        url,
+                        json={"uid": "10086", "user_name": "so1n", "pw": "123456", "sex": 0},
+                        headers={"token": "token"},
+                    )
+                    assert response.body == b'{"code":0,"msg":"","data":{}}'
+                    message: CreateUserRequest = queue.get(timeout=1)
+                    assert message.uid == "10086"
+                    assert message.user_name == "so1n"
+                    assert message.password == "123456"
+                    assert message.sex == 0
 
     def test_login(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
@@ -304,12 +305,13 @@ class TestSanicGrpc:
             main_example.add_grpc_gateway_route(client.app)
             main_example.add_api_doc_route(client.app)
 
-            with grpc_test_create_user_request(client.app) as queue:
-                request, response = client.post("/api/user/login", json={"uid": "10086", "password": "pw"})
-                assert response.body == b'{"code":0,"msg":"","data":{}}'
-                message: LoginUserRequest = queue.get(timeout=1)
-                assert message.uid == "10086"
-                assert message.password == "pw"
+            for url in ("/api/user/login", "/api/static/user/login"):
+                with grpc_test_create_user_request(client.app) as queue:
+                    request, response = client.post(url, json={"uid": "10086", "password": "pw"})
+                    assert response.body == b'{"code":0,"msg":"","data":{}}'
+                    message: LoginUserRequest = queue.get(timeout=1)
+                    assert message.uid == "10086"
+                    assert message.password == "pw"
 
     def test_logout(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LogoutUserRequest
@@ -318,12 +320,13 @@ class TestSanicGrpc:
             main_example.add_grpc_gateway_route(client.app)
             main_example.add_api_doc_route(client.app)
 
-            with grpc_test_create_user_request(client.app) as queue:
-                request, response = client.post("/api/user/logout", json={"uid": "10086"}, headers={"token": "token"})
-                assert response.body == b'{"code":0,"msg":"","data":{}}'
-                message: LogoutUserRequest = queue.get(timeout=1)
-                assert message.uid == "10086"
-                assert message.token == "token"
+            for url in ("/api/user/logout", "/api/static/user/logout"):
+                with grpc_test_create_user_request(client.app) as queue:
+                    request, response = client.post(url, json={"uid": "10086"}, headers={"token": "token"})
+                    assert response.body == b'{"code":0,"msg":"","data":{}}'
+                    message: LogoutUserRequest = queue.get(timeout=1)
+                    assert message.uid == "10086"
+                    assert message.token == "token"
 
     def test_delete_fail_token(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import GetUidByTokenRequest
@@ -332,15 +335,16 @@ class TestSanicGrpc:
             main_example.add_grpc_gateway_route(client.app)
             main_example.add_api_doc_route(client.app)
 
-            with grpc_test_create_user_request(client.app) as queue:
-                request, response = client.post(
-                    "/api/user/delete",
-                    json={"uid": "10086"},
-                    headers={"token": "fail_token"},
-                )
-                assert response.body == b'{"code":-1,"msg":"Not found user by token:fail_token"}'
-                message: GetUidByTokenRequest = queue.get(timeout=1)
-                assert message.token == "fail_token"
+            for url in ("/api/user/delete", "/api/static/user/delete"):
+                with grpc_test_create_user_request(client.app) as queue:
+                    request, response = client.post(
+                        url,
+                        json={"uid": "10086"},
+                        headers={"token": "fail_token"},
+                    )
+                    assert response.body == b'{"code":-1,"msg":"Not found user by token:fail_token"}'
+                    message: GetUidByTokenRequest = queue.get(timeout=1)
+                    assert message.token == "fail_token"
 
     def test_grpc_openapi(self) -> None:
         from pait.app.sanic import load_app
@@ -348,6 +352,7 @@ class TestSanicGrpc:
         with client_ctx() as client:
             main_example.add_grpc_gateway_route(client.app)
             grpc_test_openapi(load_app(client.app))
+            grpc_test_openapi(load_app(client.app), url_prefix="/api/static", option_str="_by_option")
 
     def test_grpc_openapi_by_protobuf_file(self) -> None:
         from pait.app.sanic import load_app

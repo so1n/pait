@@ -27,7 +27,8 @@ class UnifiedResponsePluginProtocol(PrePluginProtocol):
             kwargs["response_model_class"] = pait_response
         else:
             raise ValueError(
-                f"The response model list cannot be empty, please add a response model to {pait_core_model.func}"
+                f"The response model list cannot be empty, please add a response model to"
+                f" {pait_core_model.func.__qualname__}"
             )
         return kwargs
 
