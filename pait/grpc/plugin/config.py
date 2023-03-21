@@ -4,12 +4,14 @@ from protobuf_to_pydantic.plugin.config import ConfigModel as _ConfigModel
 from pydantic import Field
 from typing_extensions import Literal
 
+from pait.grpc.desc_template import DescTemplate
 from pait.grpc.plugin.field_desc_proto_to_route_code import FileDescriptorProtoToRouteCode
 
 GatewayModelLiteral = Literal["sync", "asyncio"]
 
 
 class ConfigModel(_ConfigModel):
+    desc_template: Type[DescTemplate] = Field(default=DescTemplate)
     gateway_model: GatewayModelLiteral = Field(
         default="sync",
         description=(

@@ -17,6 +17,7 @@ class GrpcServiceOptionModel(BaseModel):
     """grpc service option"""
 
     name: str = Field("", description="service name")
+    author: Tuple[str] = Field(default_factory=tuple, description="service author")
     tag: List[Tuple[str, str]] = Field(default_factory=list, description="service openapi tag")
     group: str = Field("", description="service pait group")
     desc: str = Field("", description="service openapi description")

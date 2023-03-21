@@ -30,6 +30,7 @@ class ApiRule(google.protobuf.message.Message):
     SUMMARY_FIELD_NUMBER: builtins.int
     DESC_FIELD_NUMBER: builtins.int
     NOT_ENABLE_FIELD_NUMBER: builtins.int
+    AUTHOR_FIELD_NUMBER: builtins.int
     @property
     def get(self) -> global___HttpMethod:
         """Maps to HTTP GET. Used for listing and getting information about
@@ -81,6 +82,7 @@ class ApiRule(google.protobuf.message.Message):
     NOTE: The referred field must be present at the top-level of the response
     message type.
     """
+
     @property
     def additional_bindings(
         self,
@@ -92,6 +94,7 @@ class ApiRule(google.protobuf.message.Message):
         pass
     group: typing.Text
     """the group to which the method belongs"""
+
     @property
     def tag(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Tag]:
         """The tag corresponding to this method and the description of the tag"""
@@ -104,6 +107,11 @@ class ApiRule(google.protobuf.message.Message):
 
     not_enable: builtins.bool
     """whether to map the method"""
+
+    @property
+    def author(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[typing.Text]:
+        """Write the author of the API"""
+        pass
     def __init__(
         self,
         *,
@@ -122,6 +130,7 @@ class ApiRule(google.protobuf.message.Message):
         summary: typing.Text = ...,
         desc: typing.Text = ...,
         not_enable: builtins.bool = ...,
+        author: typing.Optional[typing.Iterable[typing.Text]] = ...,
     ) -> None: ...
     def HasField(
         self,
@@ -151,6 +160,8 @@ class ApiRule(google.protobuf.message.Message):
             b"additional_bindings",
             "any",
             b"any",
+            "author",
+            b"author",
             "body",
             b"body",
             "custom",
@@ -240,6 +251,7 @@ class HttpMethod(google.protobuf.message.Message):
 
     default: builtins.bool
     """If the value is True, the url is the url corresponding to the rpc method"""
+
     def __init__(
         self,
         *,

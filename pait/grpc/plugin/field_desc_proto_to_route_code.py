@@ -70,6 +70,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
     )
 
     def __init__(self, fd: FileDescriptorProto, descriptors: Descriptors, config: "ConfigModel"):
+        config = config.copy(deep=True)
         super().__init__(
             customer_import_set=config.customer_import_set,
             customer_deque=config.customer_deque,
@@ -98,7 +99,6 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
 
         self._add_import_code("asyncio")
         self._add_import_code("pait", "field")
-        self._add_import_code("pait.app.any", "add_multi_simple_route")
         self._add_import_code("pait.app.any", "SimpleRoute")
         self._add_import_code("pait.app.any", "set_app_attribute")
         self._add_import_code("pait.core", "Pait")
@@ -213,6 +213,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
             pait_name: str = base_func_name + "_pait"
             wrapper_route_str_list.append(
                 f"{tab_str * 2}{pait_name}: Pait = self._pait.create_sub_pait(\n"
+                f"{tab_str * 3}author={self._get_value_code(grpc_service_option_model.author)},\n"
                 f'{tab_str * 3}name="{grpc_service_option_model.name}",\n'
                 f"{tab_str * 3}group={self._get_value_code(group_list)},\n"
                 f"{tab_str * 3}append_tag=({','.join(tag_str_list)},),\n"
@@ -276,7 +277,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
             f"{tab_str * 2}# The response model generated based on Protocol is important and needs to be put first\n"
             f"{tab_str * 2}response_model_list: List[Type[BaseResponseModel]] = self._pait.response_model_list or []\n"
             f"{chr(10).join(wrapper_route_str_list) if wrapper_route_str_list else ''}\n"
-            f"{tab_str * 2}add_multi_simple_route(\n"
+            f"{tab_str * 2}self._add_multi_simple_route(\n"
             f"{tab_str * 3}self.app,\n"
             f"{(',' + chr(10)).join(simple_route_str_list) + ',' if simple_route_str_list else ''}\n"
             f"{tab_str * 3}prefix=self.prefix,\n"

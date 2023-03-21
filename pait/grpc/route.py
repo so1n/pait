@@ -27,6 +27,7 @@ class BaseGrpcGatewayRoute(object):
         parse_dict: Optional[Callable] = None,
         pait: Optional[Pait] = None,
         make_response: Optional[Callable] = None,
+        add_multi_simple_route: Optional[Callable] = None,
         **kwargs: Any,
     ):
         """
@@ -40,6 +41,7 @@ class BaseGrpcGatewayRoute(object):
         :param parse_dict: protobuf.json_format.parse_dict func
         :param pait: instance of pait
         :param make_response: The method of converting Message to Response object
+        :param add_multi_simple_route: A function that registers multiple routes with the app
         :param kwargs: Extended parameters supported by the `add multi simple route` function of different frameworks
         """
         self.app: Any = app
@@ -50,6 +52,11 @@ class BaseGrpcGatewayRoute(object):
         self.parse_dict: Optional[Callable] = parse_dict
         # If empty, try to get an available Pait
         self._pait: Pait = pait or getattr(self, "pait", None) or import_func_from_app("pait", app=app)  # type: ignore
+        self._add_multi_simple_route = (
+            add_multi_simple_route
+            or getattr(self, "add_multi_simple_route", None)
+            or import_func_from_app("pait", app=app)
+        )  # type: ignore
         self.make_response: Callable = make_response or self._make_response
         self._tag_dict: Dict[str, Tag] = {}
 

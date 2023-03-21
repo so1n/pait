@@ -22,7 +22,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n*example_proto_by_option/book/manager.proto\x12\x16\x62ook_manager_by_option\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x31\x65xample_proto_by_option/common/p2p_validate.proto\"n\n\x11\x43reateBookRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x11\n\tbook_name\x18\x02 \x01(\t\x12\x13\n\x0b\x62ook_author\x18\x03 \x01(\t\x12\x11\n\tbook_desc\x18\x04 \x01(\t\x12\x10\n\x08\x62ook_url\x18\x05 \x01(\t\"!\n\x11\x44\x65leteBookRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\"D\n\x0eGetBookRequest\x12\x32\n\x04isbn\x18\x01 \x01(\tB$\x8a\x43!r\x1f\x82\x02\x1cpait@import|pait.field|Query\"\xcc\x01\n\rGetBookResult\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x11\n\tbook_name\x18\x02 \x01(\t\x12\x13\n\x0b\x62ook_author\x18\x03 \x01(\t\x12\x11\n\tbook_desc\x18\x04 \x01(\t\x12\x10\n\x08\x62ook_url\x18\x05 \x01(\t\x12/\n\x0b\x63reate_time\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0bupdate_time\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"s\n\x12GetBookListRequest\x12\x39\n\x10next_create_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x00\x88\x01\x01\x12\r\n\x05limit\x18\x02 \x01(\x05\x42\x13\n\x11_next_create_time\"J\n\x11GetBookListResult\x12\x35\n\x06result\x18\x01 \x03(\x0b\x32%.book_manager_by_option.GetBookResult2\xf4\x02\n\x0b\x42ookManager\x12P\n\x0b\x63reate_book\x12).book_manager_by_option.CreateBookRequest\x1a\x16.google.protobuf.Empty\x12P\n\x0b\x64\x65lete_book\x12).book_manager_by_option.DeleteBookRequest\x1a\x16.google.protobuf.Empty\x12Y\n\x08get_book\x12&.book_manager_by_option.GetBookRequest\x1a%.book_manager_by_option.GetBookResult\x12\x66\n\rget_book_list\x12*.book_manager_by_option.GetBookListRequest\x1a).book_manager_by_option.GetBookListResultb\x06proto3'
+  serialized_pb=b'\n*example_proto_by_option/book/manager.proto\x12\x16\x62ook_manager_by_option\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x31\x65xample_proto_by_option/common/p2p_validate.proto\"n\n\x11\x43reateBookRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x11\n\tbook_name\x18\x02 \x01(\t\x12\x13\n\x0b\x62ook_author\x18\x03 \x01(\t\x12\x11\n\tbook_desc\x18\x04 \x01(\t\x12\x10\n\x08\x62ook_url\x18\x05 \x01(\t\"!\n\x11\x44\x65leteBookRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\"8\n\x0eGetBookRequest\x12&\n\x04isbn\x18\x01 \x01(\tB\x18\x8a\x43\x15r\x13\x82\x02\x10pait@field|Query\"\xcc\x01\n\rGetBookResult\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x11\n\tbook_name\x18\x02 \x01(\t\x12\x13\n\x0b\x62ook_author\x18\x03 \x01(\t\x12\x11\n\tbook_desc\x18\x04 \x01(\t\x12\x10\n\x08\x62ook_url\x18\x05 \x01(\t\x12/\n\x0b\x63reate_time\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0bupdate_time\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"s\n\x12GetBookListRequest\x12\x39\n\x10next_create_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x00\x88\x01\x01\x12\r\n\x05limit\x18\x02 \x01(\x05\x42\x13\n\x11_next_create_time\"J\n\x11GetBookListResult\x12\x35\n\x06result\x18\x01 \x03(\x0b\x32%.book_manager_by_option.GetBookResult2\xf4\x02\n\x0b\x42ookManager\x12P\n\x0b\x63reate_book\x12).book_manager_by_option.CreateBookRequest\x1a\x16.google.protobuf.Empty\x12P\n\x0b\x64\x65lete_book\x12).book_manager_by_option.DeleteBookRequest\x1a\x16.google.protobuf.Empty\x12Y\n\x08get_book\x12&.book_manager_by_option.GetBookRequest\x1a%.book_manager_by_option.GetBookResult\x12\x66\n\rget_book_list\x12*.book_manager_by_option.GetBookListRequest\x1a).book_manager_by_option.GetBookListResultb\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,example__proto__by__option_dot_common_dot_p2p__validate__pb2.DESCRIPTOR,])
 
@@ -135,7 +135,7 @@ _GETBOOKREQUEST = _descriptor.Descriptor(
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=b'\212C!r\037\202\002\034pait@import|pait.field|Query', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=b'\212C\025r\023\202\002\020pait@field|Query', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -149,7 +149,7 @@ _GETBOOKREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=330,
-  serialized_end=398,
+  serialized_end=386,
 )
 
 
@@ -222,8 +222,8 @@ _GETBOOKRESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=401,
-  serialized_end=605,
+  serialized_start=389,
+  serialized_end=593,
 )
 
 
@@ -266,8 +266,8 @@ _GETBOOKLISTREQUEST = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=607,
-  serialized_end=722,
+  serialized_start=595,
+  serialized_end=710,
 )
 
 
@@ -298,8 +298,8 @@ _GETBOOKLISTRESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=724,
-  serialized_end=798,
+  serialized_start=712,
+  serialized_end=786,
 )
 
 _GETBOOKRESULT.fields_by_name['create_time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
@@ -369,8 +369,8 @@ _BOOKMANAGER = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=801,
-  serialized_end=1173,
+  serialized_start=789,
+  serialized_end=1161,
   methods=[
   _descriptor.MethodDescriptor(
     name='create_book',

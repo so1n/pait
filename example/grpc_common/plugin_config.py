@@ -3,7 +3,6 @@ from textwrap import dedent
 from typing import List, Set, Type
 
 from google.protobuf.any_pb2 import Any  # type: ignore
-from protobuf_to_pydantic.gen_model import DescTemplate
 from pydantic import confloat, conint
 from pydantic.fields import FieldInfo
 
@@ -30,7 +29,7 @@ local_dict = {
     "customer_any": customer_any,
 }
 comment_prefix = "pait"
-desc_template: Type[DescTemplate] = DescTemplate
+# desc_template: Type[DescTemplate] = DescTemplate
 ignore_pkg_list: List[str] = ["validate", "p2p_validate", "pait.api"]
 empty_type = dict
 

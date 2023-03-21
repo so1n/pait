@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from pait.app.base.simple_route import SimpleRoute
 from pait.core import Pait
 from pait.field import BaseField, Body, Query
+from pait.grpc.desc_template import DescTemplate
 from pait.grpc.inspect import GrpcModel, Message, MessageToDict, ParseStub
 from pait.grpc.route import BaseGrpcGatewayRoute
 from pait.model.response import BaseResponseModel, JsonResponseModel
@@ -43,6 +44,7 @@ class BaseDynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
         pait: Optional[Pait] = None,
         make_response: Optional[Callable] = None,
         url_handler: Callable[[str], str] = lambda x: x.replace(".", "-"),
+        desc_template: Type[DescTemplate] = DescTemplate,
         gen_response_model_handle: Optional[Callable[[GrpcModel], Type[BaseResponseModel]]] = None,
         **kwargs: Any,
     ):
@@ -59,6 +61,8 @@ class BaseDynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
         :param pait: instance of pait
         :param make_response: The method of converting Message to Response object
         :param url_handler: url processing function, the default symbol: `.` is converted to `-`
+        :param desc_template:
+            DescTemplate object, which can extend and modify template adaptation rules through inheritance
         :param gen_response_model_handle: Methods for generating OpenAPI response objects
         :param kwargs: Extended parameters supported by the `add multi simple route` function of different frameworks
         """
@@ -77,6 +81,7 @@ class BaseDynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
         self._gen_response_model_handle: Callable[[GrpcModel], Type[BaseResponseModel]] = (
             gen_response_model_handle or _gen_response_model_handle
         )
+        self.desc_template: Type[DescTemplate] = desc_template
         self.stub_list: Tuple[Any, ...] = stub_list
         self.url_handler: Callable[[str], str] = url_handler
         self.grpc_method_url_func_dict: Dict[str, Callable] = {}
@@ -98,6 +103,7 @@ class BaseDynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
             grpc_model.request,
             default_field=default_field,
             comment_prefix="pait",
+            desc_template=self.desc_template,
             parse_msg_desc_method=getattr(grpc_model.request, "_message_module")
             if self._parse_msg_desc == "by_mypy"
             else self._parse_msg_desc,
@@ -118,8 +124,8 @@ class BaseDynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
 
         # The response model generated based on Protocol is important and needs to be put first
         response_model_list: List[Type[BaseResponseModel]] = [self._gen_response_model_handle(grpc_model)]
-        if self._pait._response_model_list:
-            response_model_list.extend(self._pait._response_model_list)
+        if self._pait.response_model_list:
+            response_model_list.extend(self._pait.response_model_list)
 
         return self._pait.create_sub_pait(
             name=grpc_model.grpc_service_option_model.name,

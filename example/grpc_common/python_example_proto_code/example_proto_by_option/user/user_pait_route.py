@@ -1,17 +1,14 @@
 # This is an automatically generated file, please do not change
 # gen by pait[0.7.8.3](https://github.com/so1n/pait)
 import asyncio
-from enum import IntEnum
 from typing import Any, Callable, List, Type
 from uuid import uuid4
 
 from google.protobuf.empty_pb2 import Empty  # type: ignore
-from google.protobuf.message import Message  # type: ignore
 from pydantic import BaseModel, Field
-from pydantic.fields import FieldInfo
 
 from pait import field
-from pait.app.any import SimpleRoute, add_multi_simple_route, set_app_attribute
+from pait.app.any import SimpleRoute, set_app_attribute
 from pait.core import Pait
 from pait.field import Header
 from pait.g import pait_context
@@ -181,6 +178,7 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
         # The response model generated based on Protocol is important and needs to be put first
         response_model_list: List[Type[BaseResponseModel]] = self._pait.response_model_list or []
         logout_user_route_pait: Pait = self._pait.create_sub_pait(
+            author=(),
             name="",
             group="user",
             append_tag=(
@@ -196,6 +194,7 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
         pait_async_logout_user_route = logout_user_route_pait(feature_code="0")(async_logout_user_route)
         pait_logout_user_route = logout_user_route_pait(feature_code="0")(logout_user_route)
         login_user_route_pait: Pait = self._pait.create_sub_pait(
+            author=(),
             name="",
             group="user",
             append_tag=(
@@ -211,6 +210,7 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
         pait_async_login_user_route = login_user_route_pait(feature_code="0")(async_login_user_route)
         pait_login_user_route = login_user_route_pait(feature_code="0")(login_user_route)
         create_user_route_pait: Pait = self._pait.create_sub_pait(
+            author=(),
             name="",
             group="user",
             append_tag=(
@@ -227,6 +227,7 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
         pait_async_create_user_route = create_user_route_pait(feature_code="0")(async_create_user_route)
         pait_create_user_route = create_user_route_pait(feature_code="0")(create_user_route)
         delete_user_route_pait: Pait = self._pait.create_sub_pait(
+            author=(),
             name="",
             group="user",
             append_tag=(
@@ -242,7 +243,7 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
         )
         pait_async_delete_user_route = delete_user_route_pait(feature_code="0")(async_delete_user_route)
         pait_delete_user_route = delete_user_route_pait(feature_code="0")(delete_user_route)
-        add_multi_simple_route(
+        self._add_multi_simple_route(
             self.app,
             SimpleRoute(
                 url="/user/logout",

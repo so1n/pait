@@ -8,8 +8,6 @@ from protobuf_to_pydantic.customer_validator import check_one_of
 from pydantic import BaseModel, Field, root_validator
 from pydantic.fields import FieldInfo
 
-from pait.field import Query
-
 
 class LikeBookRequest(BaseModel):
 

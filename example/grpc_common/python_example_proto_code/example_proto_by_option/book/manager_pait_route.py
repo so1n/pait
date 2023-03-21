@@ -1,20 +1,14 @@
 # This is an automatically generated file, please do not change
 # gen by pait[0.7.8.3](https://github.com/so1n/pait)
 import asyncio
-import typing
-from datetime import datetime
 from typing import Any, Callable, List, Type
 
 from google.protobuf.empty_pb2 import Empty  # type: ignore
-from google.protobuf.message import Message  # type: ignore
-from protobuf_to_pydantic.customer_validator import check_one_of
-from pydantic import BaseModel, Field, root_validator
-from pydantic.fields import FieldInfo
+from pydantic import BaseModel, Field
 
 from pait import field
-from pait.app.any import SimpleRoute, add_multi_simple_route, set_app_attribute
+from pait.app.any import SimpleRoute, set_app_attribute
 from pait.core import Pait
-from pait.field import Query
 from pait.g import pait_context
 from pait.grpc.plugin.gateway import BaseStaticGrpcGatewayRoute
 from pait.model.response import BaseResponseModel, JsonResponseModel
@@ -169,6 +163,7 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
         # The response model generated based on Protocol is important and needs to be put first
         response_model_list: List[Type[BaseResponseModel]] = self._pait.response_model_list or []
         create_book_route_pait: Pait = self._pait.create_sub_pait(
+            author=(),
             name="",
             group="book_manager_by_option-BookManager",
             append_tag=(
@@ -183,6 +178,7 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
         pait_async_create_book_route = create_book_route_pait(feature_code="0")(async_create_book_route)
         pait_create_book_route = create_book_route_pait(feature_code="0")(create_book_route)
         delete_book_route_pait: Pait = self._pait.create_sub_pait(
+            author=(),
             name="",
             group="book_manager_by_option-BookManager",
             append_tag=(
@@ -197,6 +193,7 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
         pait_async_delete_book_route = delete_book_route_pait(feature_code="0")(async_delete_book_route)
         pait_delete_book_route = delete_book_route_pait(feature_code="0")(delete_book_route)
         get_book_route_pait: Pait = self._pait.create_sub_pait(
+            author=(),
             name="",
             group="book_manager_by_option-BookManager",
             append_tag=(
@@ -211,6 +208,7 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
         pait_async_get_book_route = get_book_route_pait(feature_code="0")(async_get_book_route)
         pait_get_book_route = get_book_route_pait(feature_code="0")(get_book_route)
         get_book_list_route_pait: Pait = self._pait.create_sub_pait(
+            author=(),
             name="",
             group="book_manager_by_option-BookManager",
             append_tag=(
@@ -224,7 +222,7 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
         )
         pait_async_get_book_list_route = get_book_list_route_pait(feature_code="0")(async_get_book_list_route)
         pait_get_book_list_route = get_book_list_route_pait(feature_code="0")(get_book_list_route)
-        add_multi_simple_route(
+        self._add_multi_simple_route(
             self.app,
             SimpleRoute(
                 url="/book_manager_by_option-BookManager/create_book",

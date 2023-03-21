@@ -27,6 +27,7 @@ class BaseStaticGrpcGatewayRoute(BaseGrpcGatewayRoute):
         parse_dict: Optional[Callable] = None,
         pait: Optional[Pait] = None,
         make_response: Optional[Callable] = None,
+        add_multi_simple_route: Optional[Callable] = None,
         gen_response_model_handle: Optional[Callable[[GrpcModel], Type[BaseResponseModel]]] = None,
         **kwargs: Any,
     ):
@@ -42,6 +43,7 @@ class BaseStaticGrpcGatewayRoute(BaseGrpcGatewayRoute):
         :param parse_dict: protobuf.json_format.parse_dict func
         :param pait: instance of pait
         :param make_response: The method of converting Message to Response object
+        :param add_multi_simple_route: A function that registers multiple routes with the app
         :param gen_response_model_handle: Methods for generating OpenAPI response objects
         :param kwargs: Extended parameters supported by the `add multi simple route` function of different frameworks
         """
@@ -55,6 +57,7 @@ class BaseStaticGrpcGatewayRoute(BaseGrpcGatewayRoute):
             pait=pait,
             make_response=make_response,
             gen_response_model_handle=gen_response_model_handle,
+            add_multi_simple_route=add_multi_simple_route,
             kwargs=kwargs,
         )
         self.is_async: bool = is_async

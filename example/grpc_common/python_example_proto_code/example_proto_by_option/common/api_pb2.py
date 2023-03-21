@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n(example_proto_by_option/common/api.proto\x12\x08pait.api\x1a google/protobuf/descriptor.proto\"\xde\x03\n\x07\x41piRule\x12#\n\x03get\x18\x02 \x01(\x0b\x32\x14.pait.api.HttpMethodH\x00\x12#\n\x03put\x18\x03 \x01(\x0b\x32\x14.pait.api.HttpMethodH\x00\x12$\n\x04post\x18\x04 \x01(\x0b\x32\x14.pait.api.HttpMethodH\x00\x12&\n\x06\x64\x65lete\x18\x05 \x01(\x0b\x32\x14.pait.api.HttpMethodH\x00\x12%\n\x05patch\x18\x06 \x01(\x0b\x32\x14.pait.api.HttpMethodH\x00\x12-\n\x06\x63ustom\x18\x08 \x01(\x0b\x32\x1b.pait.api.CustomHttpPatternH\x00\x12#\n\x03\x61ny\x18\t \x01(\x0b\x32\x14.pait.api.HttpMethodH\x00\x12\x0c\n\x04\x62ody\x18\x07 \x01(\t\x12\x15\n\rresponse_body\x18\x0c \x01(\t\x12.\n\x13\x61\x64\x64itional_bindings\x18\x0b \x03(\x0b\x32\x11.pait.api.ApiRule\x12\r\n\x05group\x18\x15 \x01(\t\x12\x1a\n\x03tag\x18\x16 \x03(\x0b\x32\r.pait.api.Tag\x12\x0f\n\x07summary\x18\x17 \x01(\t\x12\x0c\n\x04\x64\x65sc\x18\x18 \x01(\t\x12\x12\n\nnot_enable\x18\x19 \x01(\x08\x42\r\n\x0bhttp_method\"[\n\x11\x43ustomHttpPattern\x12\"\n\x04kind\x18\x01 \x01(\x0b\x32\x14.pait.api.HttpMethod\x12\"\n\x04path\x18\x02 \x01(\x0b\x32\x14.pait.api.HttpMethod\"!\n\x03Tag\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x65sc\x18\x02 \x01(\t\":\n\nHttpMethod\x12\r\n\x03url\x18\x01 \x01(\tH\x00\x12\x11\n\x07\x64\x65\x66\x61ult\x18\x02 \x01(\x08H\x00\x42\n\n\x08http_url:B\n\x04http\x12\x1e.google.protobuf.MethodOptions\x18\xb1\xca\xbc\" \x01(\x0b\x32\x11.pait.api.ApiRuleb\x06proto3'
+  serialized_pb=b'\n(example_proto_by_option/common/api.proto\x12\x08pait.api\x1a google/protobuf/descriptor.proto\"\xee\x03\n\x07\x41piRule\x12#\n\x03get\x18\x02 \x01(\x0b\x32\x14.pait.api.HttpMethodH\x00\x12#\n\x03put\x18\x03 \x01(\x0b\x32\x14.pait.api.HttpMethodH\x00\x12$\n\x04post\x18\x04 \x01(\x0b\x32\x14.pait.api.HttpMethodH\x00\x12&\n\x06\x64\x65lete\x18\x05 \x01(\x0b\x32\x14.pait.api.HttpMethodH\x00\x12%\n\x05patch\x18\x06 \x01(\x0b\x32\x14.pait.api.HttpMethodH\x00\x12-\n\x06\x63ustom\x18\x08 \x01(\x0b\x32\x1b.pait.api.CustomHttpPatternH\x00\x12#\n\x03\x61ny\x18\t \x01(\x0b\x32\x14.pait.api.HttpMethodH\x00\x12\x0c\n\x04\x62ody\x18\x07 \x01(\t\x12\x15\n\rresponse_body\x18\x0c \x01(\t\x12.\n\x13\x61\x64\x64itional_bindings\x18\x0b \x03(\x0b\x32\x11.pait.api.ApiRule\x12\r\n\x05group\x18\x15 \x01(\t\x12\x1a\n\x03tag\x18\x16 \x03(\x0b\x32\r.pait.api.Tag\x12\x0f\n\x07summary\x18\x17 \x01(\t\x12\x0c\n\x04\x64\x65sc\x18\x18 \x01(\t\x12\x12\n\nnot_enable\x18\x19 \x01(\x08\x12\x0e\n\x06\x61uthor\x18\x1a \x03(\tB\r\n\x0bhttp_method\"[\n\x11\x43ustomHttpPattern\x12\"\n\x04kind\x18\x01 \x01(\x0b\x32\x14.pait.api.HttpMethod\x12\"\n\x04path\x18\x02 \x01(\x0b\x32\x14.pait.api.HttpMethod\"!\n\x03Tag\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x65sc\x18\x02 \x01(\t\":\n\nHttpMethod\x12\r\n\x03url\x18\x01 \x01(\tH\x00\x12\x11\n\x07\x64\x65\x66\x61ult\x18\x02 \x01(\x08H\x00\x42\n\n\x08http_url:B\n\x04http\x12\x1e.google.protobuf.MethodOptions\x18\xb1\xca\xbc\" \x01(\x0b\x32\x11.pait.api.ApiRuleb\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_descriptor__pb2.DESCRIPTOR,])
 
@@ -148,6 +148,13 @@ _APIRULE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='author', full_name='pait.api.ApiRule.author', index=15,
+      number=26, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -166,7 +173,7 @@ _APIRULE = _descriptor.Descriptor(
     fields=[]),
   ],
   serialized_start=89,
-  serialized_end=567,
+  serialized_end=583,
 )
 
 
@@ -204,8 +211,8 @@ _CUSTOMHTTPPATTERN = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=569,
-  serialized_end=660,
+  serialized_start=585,
+  serialized_end=676,
 )
 
 
@@ -243,8 +250,8 @@ _TAG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=662,
-  serialized_end=695,
+  serialized_start=678,
+  serialized_end=711,
 )
 
 
@@ -287,8 +294,8 @@ _HTTPMETHOD = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=697,
-  serialized_end=755,
+  serialized_start=713,
+  serialized_end=771,
 )
 
 _APIRULE.fields_by_name['get'].message_type = _HTTPMETHOD
