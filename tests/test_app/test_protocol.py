@@ -112,6 +112,14 @@ class TestDocRouteProtocol(BaseTestProtocol):
         self._check_func_type_hint(any_app.AddDocRoute.__name__)  # type: ignore
 
 
+class TestAttributeProtocol(BaseTestProtocol):
+    def test_set_app_attribute(self) -> None:
+        self._check_func_type_hint(any_app.set_app_attribute.__name__)
+
+    def test_get_app_attribute(self) -> None:
+        self._check_func_type_hint(any_app.get_app_attribute.__name__)
+
+
 class TestGrpcRouteProtocol(BaseTestProtocol):
     def test_grpc_gateway_route(self) -> None:
         self._check_func_type_hint_by_other_module("grpc_route", "GrpcGatewayRoute")

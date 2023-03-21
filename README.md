@@ -54,6 +54,9 @@ Pait is an api tool that can be used in any python web framework (currently only
 >
 > The following code does not specify, all default to use the `starlette` framework.
 
+# Warning
+There are changes between the current version and the 0.8 version of the API, For more information, please refer to [0.9.0version change](https://github.com/so1n/pait/blob/master/CHANGELOG.md)
+
 # Feature
  - [x] Parameter checksum automatic conversion (parameter check depends on `Pydantic`)
  - [x] Parameter dependency verification

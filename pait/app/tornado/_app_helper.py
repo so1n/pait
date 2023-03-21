@@ -5,6 +5,7 @@ from tornado.httputil import HTTPServerRequest
 from tornado.web import RequestHandler
 
 from pait.app.base import BaseAppHelper
+from pait.app.tornado._attribute import get_app_attribute
 from pait.app.tornado.adapter.request import Request, RequestExtend
 
 __all__ = ["AppHelper", "RequestExtend"]
@@ -25,7 +26,4 @@ class AppHelper(BaseAppHelper[HTTPServerRequest, RequestExtend]):
         return self.cbv_instance.request
 
     def get_attributes(self, key: str, default: Any = MISSING) -> Any:
-        if default is MISSING:
-            return self.cbv_instance.application.settings[key]
-        else:
-            return self.cbv_instance.application.settings.get(key, default)
+        return get_app_attribute(self.cbv_instance.application, key, default)

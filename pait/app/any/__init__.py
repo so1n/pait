@@ -154,45 +154,14 @@ def pait(
 
 
 def set_app_attribute(app: Any, key: str, value: Any) -> None:
-    app_name: str = sniffing(app)
-    if app_name == "flask":
-        app.config[key] = value
-        from flask import g
-
-        def _before_request() -> None:
-            setattr(g, key, value)
-
-        app.before_request(_before_request)
-    elif app_name == "sanic":
-        setattr(app.ctx, key, value)
-    elif app_name == "starlette":
-        setattr(app.state, key, value)
-    elif app_name == "tornado":
-        app.settings[key] = value
+    base_call_func("set_app_attribute", app, key, value, app=app)
 
 
-def get_app_attribute(app: Any, key: str) -> Any:
-    app_name: str = sniffing(app)
-    if app_name == "flask":
-        value: Any = app.config.get(key, MISSING)
-        if value is not MISSING:
-            return value
-
-        from flask import g
-
-        return getattr(g, key)
-    elif app_name == "starlette":
-        return getattr(app.state, key)
-    elif app_name == "sanic":
-        return getattr(app.ctx, key)
-    elif app_name == "tornado":
-        return app.settings[key]
+def get_app_attribute(app: Any, key: str, default_value: Any = MISSING) -> Any:
+    return base_call_func("get_app_attribute", app, key, default_value, app=app)
 
 
-def add_simple_route(
-    app: Any,
-    simple_route: "SimpleRoute",
-) -> None:
+def add_simple_route(app: Any, simple_route: "SimpleRoute") -> None:
     base_call_func("add_simple_route", app, simple_route, app=app)
 
 
