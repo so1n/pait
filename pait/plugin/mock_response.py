@@ -2,7 +2,6 @@ import sys
 from tempfile import NamedTemporaryFile
 from typing import IO, TYPE_CHECKING, Any, Callable, Dict, Generic, Optional, Type, TypeVar
 
-import aiofiles  # type: ignore
 from typing_extensions import Literal
 
 from pait.model import response
@@ -88,6 +87,8 @@ class MockPluginProtocol(PrePluginProtocol, Generic[RESP_T]):
 
     async def async_mock_response(self) -> RESP_T:
         if issubclass(self.pait_response_model, response.FileResponseModel):
+            import aiofiles  # type: ignore
+
             tf: aiofiles.tempfile.AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()  # type: ignore
             f: Any = await tf.__aenter__()
             try:
