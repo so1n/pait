@@ -1,5 +1,6 @@
 import inspect
 import json
+import logging
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
 
 from any_api.openapi import ApiModel as _ApiModel
@@ -227,28 +228,32 @@ class OpenAPI(object):
         )
         api_model_list: List[ApiModel] = []
         for pait_id, pait_model in pait_dict.items():
-            parse_pait_model: ParsePaitModel = ParsePaitModel(pait_model)
-            api_model_list.append(
-                ApiModel(
-                    path=pait_model.openapi_path,
-                    http_method_list=pait_model.openapi_method_list,
-                    tags=[i.to_tag_model() for i in pait_model.tag],
-                    operation_id=pait_model.operation_id,
-                    summary=pait_model.summary,
-                    request_dict=parse_pait_model.http_param_type_dict,
-                    response_list=pait_model.response_model_list,
-                    description=pait_model.desc,
-                    deprecated=pait_model.status
-                    in (
-                        PaitStatus.abnormal,
-                        PaitStatus.maintenance,
-                        PaitStatus.archive,
-                        PaitStatus.abandoned,
-                    ),
-                    pait_core_model=pait_model,
-                    security=parse_pait_model.security_dict,
+            try:
+                parse_pait_model: ParsePaitModel = ParsePaitModel(pait_model)
+                api_model_list.append(
+                    ApiModel(
+                        path=pait_model.openapi_path,
+                        http_method_list=pait_model.openapi_method_list,
+                        tags=[i.to_tag_model() for i in pait_model.tag],
+                        operation_id=pait_model.operation_id,
+                        summary=pait_model.summary,
+                        request_dict=parse_pait_model.http_param_type_dict,
+                        response_list=pait_model.response_model_list,
+                        description=pait_model.desc,
+                        deprecated=pait_model.status
+                        in (
+                            PaitStatus.abnormal,
+                            PaitStatus.maintenance,
+                            PaitStatus.archive,
+                            PaitStatus.abandoned,
+                        ),
+                        pait_core_model=pait_model,
+                        security=parse_pait_model.security_dict,
+                    )
                 )
-            )
+            except Exception as e:
+                logging.error(f"parse pait model error by func: {pait_model.func_path}/{pait_model.func_name}")
+                raise e
         # In order to be compatible with the link, it must be imported in batches
         self._openapi.add_api_model(*api_model_list)
 

@@ -12,11 +12,9 @@ from ._app_helper import AppHelper
 __all__ = ["load_app"]
 
 
-def load_app(app: Flask, project_name: str = "", auto_load_route: bool = False) -> Dict[str, PaitCoreModel]:
+def load_app(app: Flask, auto_load_route: bool = False) -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`"""
     _pait_data: Dict[str, PaitCoreModel] = {}
-    if not project_name:
-        project_name = app.import_name.split(".")[0]
     for route in app.url_map.iter_rules():
         path: str = route.rule
         method_set: Set[str] = route.methods
@@ -52,9 +50,7 @@ def load_app(app: Flask, project_name: str = "", auto_load_route: bool = False) 
                     endpoint = pait()(endpoint)
                     pait_id = getattr(endpoint, "_pait_id")
                     app.view_functions[route_name] = endpoint
-                    pait_data.add_route_info(
-                        AppHelper.app_name, pait_id, path, openapi_path, method_set, route_name, project_name
-                    )
+                    pait_data.add_route_info(AppHelper.app_name, pait_id, path, openapi_path, method_set, route_name)
                 else:
                     logging.warning(
                         f"loan path:{path} fail, endpoint:{endpoint} not `view_class` attributes"
@@ -75,12 +71,10 @@ def load_app(app: Flask, project_name: str = "", auto_load_route: bool = False) 
                     setattr(view_class_endpoint, method, endpoint)
 
                 pait_data.add_route_info(
-                    AppHelper.app_name, pait_id, path, openapi_path, method_set, f"{route_name}.{method}", project_name
+                    AppHelper.app_name, pait_id, path, openapi_path, method_set, f"{route_name}.{method}"
                 )
                 _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
         else:
-            pait_data.add_route_info(
-                AppHelper.app_name, pait_id, path, openapi_path, method_set, route_name, project_name
-            )
+            pait_data.add_route_info(AppHelper.app_name, pait_id, path, openapi_path, method_set, route_name)
         _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
     return _pait_data
