@@ -11,8 +11,8 @@ from pait.grpc.plugin.config import ConfigModel
 
 # If want to parse option, need to import the corresponding file
 #   see details:https://stackoverflow.com/a/59301849
-from protobuf_to_pydantic.protos import p2p_validate_pb2  # isort:skip
-from protobuf_to_pydantic.protos import validate_pb2  # isort:skip
+from protobuf_to_pydantic.plugin.code_gen import p2p_validate_pb2  # isort:skip
+from protobuf_to_pydantic.plugin.code_gen import validate_pb2  # isort:skip
 from pait.grpc.proto import api_pb2  # isort:skip
 
 
