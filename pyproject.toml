@@ -13,12 +13,13 @@ protoc-gen-pait-route = "pait.grpc.plugin.main:main"
 
 [tool.poetry.dependencies]
 python = "^3.7"
+
+any-api = "0.1.0.3"
 pydantic = "^1.7.3"
 typing-extensions = "^4.1.1"
-# protobuf-to-pydantic = { version="^0.1.6.1", optional = true}
-protobuf-to-pydantic = { git="https://github.com/so1n/protobuf_to_pydantic.git", branch="master"}
+protobuf-to-pydantic = { version="^0.1.7", optional = true}
+jinja2 = { version="2.11.3", optional=true}
 redis = { version = "^4.2.2", optional = true }
-any-api = "0.1.0.3"
 
 [tool.poetry.urls]
 "Source" = "https://github.com/so1n/pait"
@@ -29,8 +30,8 @@ any-api = "0.1.0.3"
 
 [tool.poetry.extras]
 redis = ["redis"]
-protobuf = ["protobuf-to-pydantic"]
-all = ["redis", "protobuf-to-pydantic"]
+grpc = ["protobuf-to-pydantic", "jinja2"]
+all = ["redis", "protobuf-to-pydantic", "jinja2"]
 
 [tool.poetry.group.framework.dependencies]
 werkzeug = "1.0.1"
@@ -40,7 +41,6 @@ sanic-testing = "0.3.0"
 tornado = "6.1"
 uvicorn = "0.13.4"
 starlette = "0.14.1"
-jinja2 = "2.11.3"
 markupsafe = "2.0.1"
 itsdangerous = "1.1.0"
 protobuf = "3.20.1"
@@ -69,6 +69,11 @@ pre-commit = "2.14.0"
 autoflake = "1.4"
 flake8 = "3.9.2"
 mkdocs-material = "^8.1.7"
+
+[tool.protobuf-to-pydantic.format]
+black = true
+isort = true
+autoflake = true
 
 [tool.autoflake]
 in-place = true

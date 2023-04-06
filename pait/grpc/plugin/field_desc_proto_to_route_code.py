@@ -3,6 +3,7 @@ from dataclasses import asdict
 from textwrap import dedent
 from typing import TYPE_CHECKING, List
 
+from jinja2 import Template
 from mypy_protobuf.main import Descriptors
 from protobuf_to_pydantic.gen_code import BaseP2C
 from protobuf_to_pydantic.gen_model import DescTemplate
@@ -11,7 +12,6 @@ from protobuf_to_pydantic.grpc_types import FileDescriptorProto
 from pait import __version__
 from pait.grpc.inspect import GrpcServiceOptionModel, get_grpc_service_model_from_option_message
 from pait.grpc.plugin.model import GrpcModel
-from pait.grpc.types import MethodDescriptorProto, ServiceDescriptorProto
 
 if TYPE_CHECKING:
     from pait.grpc.plugin.config import ConfigModel
@@ -26,46 +26,47 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
     )
     indent: int = 4
     attr_prefix: str = "gateway_attr"
-    template_str: str = dedent(
+    route_func_jinja_template_str: str = dedent(
         """
-    def {func_name}(request_pydantic_model: {model_module_name}.{request_message_model}) -> Any:
-        gateway = pait_context.get().app_helper.get_attributes("{attr_prefix}_{package}_gateway")
-        request_msg: {request_message} = gateway.get_msg_from_dict(
-            {message_module_name}.{request_message_model}, request_pydantic_model.dict()
+    {% if  request_message_model in ("Empty") %}
+    {{ 'async def' if is_async else 'def' }} {{func_name}}() -> Any:
+    {% else %}
+    {{ 'async def' if is_async else 'def' }} {{func_name}}(
+        request_pydantic_model: {{model_module_name}}.{{request_message_model}}
+    ) -> Any:
+    {% endif %}
+        gateway = pait_context.get().app_helper.get_attributes("{{attr_prefix}}_{{package}}_gateway")
+    {% if  request_message_model in ("Empty") %}
+        request_msg: {{request_message_model}} = {{request_message_model}}()
+    {% else %}
+        request_msg: {{request_message}} = gateway.get_msg_from_dict(
+            {{message_module_name}}.{{request_message_model}}, request_pydantic_model.dict()
         )
-        grpc_msg: {response_message} = gateway.{stub_service_name}.{method}(request_msg)
-        return gateway.make_response(gateway.msg_to_dict(grpc_msg))
-    """
-    )
-
-    async_template_str: str = dedent(
-        """
-    async def {func_name}(request_pydantic_model: {model_module_name}.{request_message_model}) -> Any:
-        gateway = pait_context.get().app_helper.get_attributes("{attr_prefix}_{package}_gateway")
-        request_msg: {request_message} = gateway.get_msg_from_dict(
-            {message_module_name}.{request_message_model}, request_pydantic_model.dict()
-        )
+    {% endif %}
+    {% if is_async %}
         loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-        if loop != gateway.{stub_service_name}.{method}._loop:  # type: ignore
+        if loop != gateway.{{stub_service_name}}.{{method}}._loop:  # type: ignore
             raise RuntimeError(
                 "Loop is not same, "
                 "the grpc channel must be initialized after the event loop of the api server is initialized"
             )
         else:
-            grpc_msg: {response_message} = await gateway.{stub_service_name}.{method}(request_msg)
-        return gateway.make_response(gateway.msg_to_dict(grpc_msg))
-    """
+            grpc_msg: {{response_message}} = await gateway.{{stub_service_name}}.{{method}}(request_msg)
+    {% else %}
+        grpc_msg: {{response_message}} = gateway.{{stub_service_name}}.{{method}}(request_msg)
+    {% endif %}
+        return gateway.make_response(gateway.msg_to_dict(grpc_msg))"""
     )
 
-    response_template_str: str = dedent(
+    response_jinja_template_str: str = dedent(
         """
-    class {response_class_name}(JsonResponseModel):
-        name: str = "{package}_{response_message_model}"
+    class {{response_class_name}}(JsonResponseModel):
+        name: str = "{{package}}_{{response_message_model}}"
         description: str = (
-            {model_module_name}.{response_message_model}.__doc__ or ""
-            if {model_module_name}.{response_message_model}.__module__ != "builtins" else ""
+            {{model_module_name}}.{{response_message_model}}.__doc__ or ""
+            if {{model_module_name}}.{{response_message_model}}.__module__ != "builtins" else ""
         )
-        response_data: Type[BaseModel] = {model_module_name}.{response_message_model}
+        response_data: Type[BaseModel] = {{model_module_name}}.{{response_message_model}}
     """
     )
 
@@ -84,12 +85,24 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
 
         self._parse_field_descriptor()
 
-    def get_route_template(self, service: ServiceDescriptorProto, method: MethodDescriptorProto, is_async: bool) -> str:
+    def get_route_code(self, grpc_model: GrpcModel, template_dict: dict) -> str:
         """Can customize the template that generates the route according to different methods"""
-        if is_async:
-            return self.async_template_str
-        else:
-            return self.template_str
+        return Template(self.route_func_jinja_template_str, trim_blocks=True, lstrip_blocks=True).render(
+            **template_dict
+        )
+
+    def get_response_code(self, grpc_model: GrpcModel, template_dict: dict) -> str:
+        """Can customize the template that generates the response according to different methods"""
+        response_class_str: str = Template(
+            self.response_jinja_template_str, trim_blocks=True, lstrip_blocks=True
+        ).render(**template_dict)
+        # slack off
+        if template_dict["response_message_model"] == "Empty":
+            response_class_str = response_class_str.replace(
+                "{model_module_name}.{response_message_model}".format(**template_dict),
+                self._get_value_code(self.config.empty_type),
+            )
+        return response_class_str
 
     def _parse_field_descriptor(self) -> None:
         tab_str: str = self.indent * " "
@@ -199,13 +212,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
             if grpc_model.index == 0:
                 # The response model code only needs to be generated once
                 template_dict: dict = asdict(grpc_model)
-                response_class_str: str = self.response_template_str.format(**template_dict)
-                if template_dict["response_message_model"] == "Empty":
-                    response_class_str = response_class_str.replace(
-                        "{model_module_name}.{response_message_model}".format(**template_dict),
-                        self._get_value_code(self.config.empty_type),
-                    )
-                response_code_str_list.append(response_class_str + "\n")
+                response_code_str_list.append(self.get_response_code(grpc_model, template_dict) + "\n")
 
             base_func_name: str = grpc_model.func_name
             if grpc_model.index:
@@ -228,14 +235,10 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                 if grpc_model.index == 0:
                     # The routing function only needs to be generated once
                     template_dict = asdict(grpc_model)
+                    template_dict["is_async"] = is_async
                     if is_async:
                         template_dict["func_name"] = "async_" + template_dict["func_name"]
-                    route_code_str_list.append(
-                        self.get_route_template(
-                            grpc_model.grpc_descriptor_service, grpc_model.grpc_descriptor_method, is_async
-                        ).format(**template_dict)
-                        + "\n\n"
-                    )
+                    route_code_str_list.append(self.get_route_code(grpc_model, template_dict) + "\n")
                 func_name = grpc_model.func_name
                 if is_async:
                     func_name = "async_" + func_name

@@ -4,6 +4,7 @@
 """Generated protocol buffer code."""
 from google.protobuf.internal import enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
+from google.protobuf import descriptor_pool as _descriptor_pool
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
 from google.protobuf import symbol_database as _symbol_database
@@ -17,330 +18,21 @@ from example.grpc_common.python_example_proto_code.example_proto_by_option.commo
 from example.grpc_common.python_example_proto_code.example_proto_by_option.common import api_pb2 as example__proto__by__option_dot_common_dot_api__pb2
 
 
-DESCRIPTOR = _descriptor.FileDescriptor(
-  name='example_proto_by_option/user/user.proto',
-  package='user_by_option',
-  syntax='proto3',
-  serialized_options=None,
-  create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\'example_proto_by_option/user/user.proto\x12\x0euser_by_option\x1a\x1bgoogle/protobuf/empty.proto\x1a\x31\x65xample_proto_by_option/common/p2p_validate.proto\x1a(example_proto_by_option/common/api.proto\"\x8c\x02\n\x11\x43reateUserRequest\x12\x42\n\x03uid\x18\x01 \x01(\tB5\x8a\x43\x05r\x03\xd0\x01\x01\x8a\x43\nr\x08\xf2\x01\x05\x31\x30\x30\x38\x36\x8a\x43\x08r\x06\x92\x02\x03UID\x8a\x43\x12r\x10\xe2\x01\ruser union id\x12>\n\tuser_name\x18\x02 \x01(\tB+\x8a\x43\x0er\x0c\xe2\x01\tuser name\x8a\x43\x04r\x02\x18\x01\x8a\x43\x04r\x02 \n\x8a\x43\tr\x07\xf2\x01\x04so1n\x12M\n\x08password\x18\x03 \x01(\tB;\x8a\x43\x12r\x10\xe2\x01\ruser password\x8a\x43\x07r\x05\xda\x01\x02pw\x8a\x43\x04r\x02\x18\x06\x8a\x43\x04r\x02 \x12\x8a\x43\x0br\t\xf2\x01\x06\x31\x32\x33\x34\x35\x36\x12$\n\x03sex\x18\x04 \x01(\x0e\x32\x17.user_by_option.SexType\" \n\x11\x44\x65leteUserRequest\x12\x0b\n\x03uid\x18\x01 \x01(\t\"1\n\x10LoginUserRequest\x12\x0b\n\x03uid\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"\xb0\x01\n\x0fLoginUserResult\x12:\n\x03uid\x18\x01 \x01(\tB-\x8a\x43\nr\x08\xf2\x01\x05\x31\x30\x30\x38\x36\x8a\x43\x08r\x06\x92\x02\x03UID\x8a\x43\x12r\x10\xe2\x01\ruser union id\x12>\n\tuser_name\x18\x02 \x01(\tB+\x8a\x43\x0er\x0c\xe2\x01\tuser name\x8a\x43\x04r\x02\x18\x01\x8a\x43\x04r\x02 \n\x8a\x43\tr\x07\xf2\x01\x04so1n\x12!\n\x05token\x18\x03 \x01(\tB\x12\x8a\x43\x0fr\r\xe2\x01\nuser token\"9\n\x11LogoutUserRequest\x12\x0b\n\x03uid\x18\x01 \x01(\t\x12\x17\n\x05token\x18\x02 \x01(\tB\x08\x8a\x43\x05r\x03\xb8\x01\x00\"%\n\x14GetUidByTokenRequest\x12\r\n\x05token\x18\x01 \x01(\t\"\"\n\x13GetUidByTokenResult\x12\x0b\n\x03uid\x18\x01 \x01(\t*\x1d\n\x07SexType\x12\x07\n\x03man\x10\x00\x12\t\n\x05women\x10\x01\x32\x99\x07\n\x04User\x12\x90\x01\n\x10get_uid_by_token\x12$.user_by_option.GetUidByTokenRequest\x1a#.user_by_option.GetUidByTokenResult\"1\x8a\xd3\xe4\x93\x02+\xaa\x01\x04user\xb2\x01\x1e\n\tgrpc-user\x12\x11grpc_user_service\xc8\x01\x01\x12\x9d\x01\n\x0blogout_user\x12!.user_by_option.LogoutUserRequest\x1a\x16.google.protobuf.Empty\"S\x8a\xd3\xe4\x93\x02MJ\x0e\n\x0c/user/logout\xb2\x01\x1e\n\tgrpc-user\x12\x11grpc_user_service\xba\x01\x19User exit from the system\x12\x9e\x01\n\nlogin_user\x12 .user_by_option.LoginUserRequest\x1a\x1f.user_by_option.LoginUserResult\"M\x8a\xd3\xe4\x93\x02GJ\r\n\x0b/user/login\xb2\x01\x1e\n\tgrpc-user\x12\x11grpc_user_service\xba\x01\x14User login to system\x12\xcc\x01\n\x0b\x63reate_user\x12!.user_by_option.CreateUserRequest\x1a\x16.google.protobuf.Empty\"\x81\x01\x8a\xd3\xe4\x93\x02{J\x0e\n\x0c/user/create\xb2\x01\x1e\n\tgrpc-user\x12\x11grpc_user_service\xb2\x01%\n\x10grpc-user-system\x12\x11grpc_user_service\xba\x01\x1f\x43reate users through the system\x12\xed\x01\n\x0b\x64\x65lete_user\x12!.user_by_option.DeleteUserRequest\x1a\x16.google.protobuf.Empty\"\xa2\x01\x8a\xd3\xe4\x93\x02\x9b\x01J\x0e\n\x0c/user/delete\xb2\x01\x1e\n\tgrpc-user\x12\x11grpc_user_service\xb2\x01%\n\x10grpc-user-system\x12\x11grpc_user_service\xc2\x01?This interface performs a logical delete, not a physical deleteb\x06proto3'
-  ,
-  dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,example__proto__by__option_dot_common_dot_p2p__validate__pb2.DESCRIPTOR,example__proto__by__option_dot_common_dot_api__pb2.DESCRIPTOR,])
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\'example_proto_by_option/user/user.proto\x12\x0euser_by_option\x1a\x1bgoogle/protobuf/empty.proto\x1a\x31\x65xample_proto_by_option/common/p2p_validate.proto\x1a(example_proto_by_option/common/api.proto\"\x8c\x02\n\x11\x43reateUserRequest\x12\x42\n\x03uid\x18\x01 \x01(\tB5\x8a\x43\x05r\x03\xd0\x01\x01\x8a\x43\nr\x08\xf2\x01\x05\x31\x30\x30\x38\x36\x8a\x43\x08r\x06\x92\x02\x03UID\x8a\x43\x12r\x10\xe2\x01\ruser union id\x12>\n\tuser_name\x18\x02 \x01(\tB+\x8a\x43\x0er\x0c\xe2\x01\tuser name\x8a\x43\x04r\x02\x18\x01\x8a\x43\x04r\x02 \n\x8a\x43\tr\x07\xf2\x01\x04so1n\x12M\n\x08password\x18\x03 \x01(\tB;\x8a\x43\x12r\x10\xe2\x01\ruser password\x8a\x43\x07r\x05\xda\x01\x02pw\x8a\x43\x04r\x02\x18\x06\x8a\x43\x04r\x02 \x12\x8a\x43\x0br\t\xf2\x01\x06\x31\x32\x33\x34\x35\x36\x12$\n\x03sex\x18\x04 \x01(\x0e\x32\x17.user_by_option.SexType\" \n\x11\x44\x65leteUserRequest\x12\x0b\n\x03uid\x18\x01 \x01(\t\"1\n\x10LoginUserRequest\x12\x0b\n\x03uid\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\"\xb0\x01\n\x0fLoginUserResult\x12:\n\x03uid\x18\x01 \x01(\tB-\x8a\x43\nr\x08\xf2\x01\x05\x31\x30\x30\x38\x36\x8a\x43\x08r\x06\x92\x02\x03UID\x8a\x43\x12r\x10\xe2\x01\ruser union id\x12>\n\tuser_name\x18\x02 \x01(\tB+\x8a\x43\x0er\x0c\xe2\x01\tuser name\x8a\x43\x04r\x02\x18\x01\x8a\x43\x04r\x02 \n\x8a\x43\tr\x07\xf2\x01\x04so1n\x12!\n\x05token\x18\x03 \x01(\tB\x12\x8a\x43\x0fr\r\xe2\x01\nuser token\"9\n\x11LogoutUserRequest\x12\x0b\n\x03uid\x18\x01 \x01(\t\x12\x17\n\x05token\x18\x02 \x01(\tB\x08\x8a\x43\x05r\x03\xb8\x01\x00\"%\n\x14GetUidByTokenRequest\x12\r\n\x05token\x18\x01 \x01(\t\"\"\n\x13GetUidByTokenResult\x12\x0b\n\x03uid\x18\x01 \x01(\t*\x1d\n\x07SexType\x12\x07\n\x03man\x10\x00\x12\t\n\x05women\x10\x01\x32\x99\x07\n\x04User\x12\x90\x01\n\x10get_uid_by_token\x12$.user_by_option.GetUidByTokenRequest\x1a#.user_by_option.GetUidByTokenResult\"1\x8a\xd3\xe4\x93\x02+\xaa\x01\x04user\xb2\x01\x1e\n\tgrpc-user\x12\x11grpc_user_service\xc8\x01\x01\x12\x9d\x01\n\x0blogout_user\x12!.user_by_option.LogoutUserRequest\x1a\x16.google.protobuf.Empty\"S\x8a\xd3\xe4\x93\x02MJ\x0e\n\x0c/user/logout\xb2\x01\x1e\n\tgrpc-user\x12\x11grpc_user_service\xba\x01\x19User exit from the system\x12\x9e\x01\n\nlogin_user\x12 .user_by_option.LoginUserRequest\x1a\x1f.user_by_option.LoginUserResult\"M\x8a\xd3\xe4\x93\x02GJ\r\n\x0b/user/login\xb2\x01\x1e\n\tgrpc-user\x12\x11grpc_user_service\xba\x01\x14User login to system\x12\xcc\x01\n\x0b\x63reate_user\x12!.user_by_option.CreateUserRequest\x1a\x16.google.protobuf.Empty\"\x81\x01\x8a\xd3\xe4\x93\x02{J\x0e\n\x0c/user/create\xb2\x01\x1e\n\tgrpc-user\x12\x11grpc_user_service\xb2\x01%\n\x10grpc-user-system\x12\x11grpc_user_service\xba\x01\x1f\x43reate users through the system\x12\xed\x01\n\x0b\x64\x65lete_user\x12!.user_by_option.DeleteUserRequest\x1a\x16.google.protobuf.Empty\"\xa2\x01\x8a\xd3\xe4\x93\x02\x9b\x01J\x0e\n\x0c/user/delete\xb2\x01\x1e\n\tgrpc-user\x12\x11grpc_user_service\xb2\x01%\n\x10grpc-user-system\x12\x11grpc_user_service\xc2\x01?This interface performs a logical delete, not a physical deleteb\x06proto3')
 
-_SEXTYPE = _descriptor.EnumDescriptor(
-  name='SexType',
-  full_name='user_by_option.SexType',
-  filename=None,
-  file=DESCRIPTOR,
-  create_key=_descriptor._internal_create_key,
-  values=[
-    _descriptor.EnumValueDescriptor(
-      name='man', index=0, number=0,
-      serialized_options=None,
-      type=None,
-      create_key=_descriptor._internal_create_key),
-    _descriptor.EnumValueDescriptor(
-      name='women', index=1, number=1,
-      serialized_options=None,
-      type=None,
-      create_key=_descriptor._internal_create_key),
-  ],
-  containing_type=None,
-  serialized_options=None,
-  serialized_start=850,
-  serialized_end=879,
-)
-_sym_db.RegisterEnumDescriptor(_SEXTYPE)
-
+_SEXTYPE = DESCRIPTOR.enum_types_by_name['SexType']
 SexType = enum_type_wrapper.EnumTypeWrapper(_SEXTYPE)
 man = 0
 women = 1
 
 
-
-_CREATEUSERREQUEST = _descriptor.Descriptor(
-  name='CreateUserRequest',
-  full_name='user_by_option.CreateUserRequest',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='uid', full_name='user_by_option.CreateUserRequest.uid', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=b'\212C\005r\003\320\001\001\212C\nr\010\362\001\00510086\212C\010r\006\222\002\003UID\212C\022r\020\342\001\ruser union id', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='user_name', full_name='user_by_option.CreateUserRequest.user_name', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=b'\212C\016r\014\342\001\tuser name\212C\004r\002\030\001\212C\004r\002 \n\212C\tr\007\362\001\004so1n', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='password', full_name='user_by_option.CreateUserRequest.password', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=b'\212C\022r\020\342\001\ruser password\212C\007r\005\332\001\002pw\212C\004r\002\030\006\212C\004r\002 \022\212C\013r\t\362\001\006123456', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='sex', full_name='user_by_option.CreateUserRequest.sex', index=3,
-      number=4, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=182,
-  serialized_end=450,
-)
-
-
-_DELETEUSERREQUEST = _descriptor.Descriptor(
-  name='DeleteUserRequest',
-  full_name='user_by_option.DeleteUserRequest',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='uid', full_name='user_by_option.DeleteUserRequest.uid', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=452,
-  serialized_end=484,
-)
-
-
-_LOGINUSERREQUEST = _descriptor.Descriptor(
-  name='LoginUserRequest',
-  full_name='user_by_option.LoginUserRequest',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='uid', full_name='user_by_option.LoginUserRequest.uid', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='password', full_name='user_by_option.LoginUserRequest.password', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=486,
-  serialized_end=535,
-)
-
-
-_LOGINUSERRESULT = _descriptor.Descriptor(
-  name='LoginUserResult',
-  full_name='user_by_option.LoginUserResult',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='uid', full_name='user_by_option.LoginUserResult.uid', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=b'\212C\nr\010\362\001\00510086\212C\010r\006\222\002\003UID\212C\022r\020\342\001\ruser union id', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='user_name', full_name='user_by_option.LoginUserResult.user_name', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=b'\212C\016r\014\342\001\tuser name\212C\004r\002\030\001\212C\004r\002 \n\212C\tr\007\362\001\004so1n', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='token', full_name='user_by_option.LoginUserResult.token', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=b'\212C\017r\r\342\001\nuser token', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=538,
-  serialized_end=714,
-)
-
-
-_LOGOUTUSERREQUEST = _descriptor.Descriptor(
-  name='LogoutUserRequest',
-  full_name='user_by_option.LogoutUserRequest',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='uid', full_name='user_by_option.LogoutUserRequest.uid', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='token', full_name='user_by_option.LogoutUserRequest.token', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=b'\212C\005r\003\270\001\000', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=716,
-  serialized_end=773,
-)
-
-
-_GETUIDBYTOKENREQUEST = _descriptor.Descriptor(
-  name='GetUidByTokenRequest',
-  full_name='user_by_option.GetUidByTokenRequest',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='token', full_name='user_by_option.GetUidByTokenRequest.token', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=775,
-  serialized_end=812,
-)
-
-
-_GETUIDBYTOKENRESULT = _descriptor.Descriptor(
-  name='GetUidByTokenResult',
-  full_name='user_by_option.GetUidByTokenResult',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='uid', full_name='user_by_option.GetUidByTokenResult.uid', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=814,
-  serialized_end=848,
-)
-
-_CREATEUSERREQUEST.fields_by_name['sex'].enum_type = _SEXTYPE
-DESCRIPTOR.message_types_by_name['CreateUserRequest'] = _CREATEUSERREQUEST
-DESCRIPTOR.message_types_by_name['DeleteUserRequest'] = _DELETEUSERREQUEST
-DESCRIPTOR.message_types_by_name['LoginUserRequest'] = _LOGINUSERREQUEST
-DESCRIPTOR.message_types_by_name['LoginUserResult'] = _LOGINUSERRESULT
-DESCRIPTOR.message_types_by_name['LogoutUserRequest'] = _LOGOUTUSERREQUEST
-DESCRIPTOR.message_types_by_name['GetUidByTokenRequest'] = _GETUIDBYTOKENREQUEST
-DESCRIPTOR.message_types_by_name['GetUidByTokenResult'] = _GETUIDBYTOKENRESULT
-DESCRIPTOR.enum_types_by_name['SexType'] = _SEXTYPE
-_sym_db.RegisterFileDescriptor(DESCRIPTOR)
-
+_CREATEUSERREQUEST = DESCRIPTOR.message_types_by_name['CreateUserRequest']
+_DELETEUSERREQUEST = DESCRIPTOR.message_types_by_name['DeleteUserRequest']
+_LOGINUSERREQUEST = DESCRIPTOR.message_types_by_name['LoginUserRequest']
+_LOGINUSERRESULT = DESCRIPTOR.message_types_by_name['LoginUserResult']
+_LOGOUTUSERREQUEST = DESCRIPTOR.message_types_by_name['LogoutUserRequest']
+_GETUIDBYTOKENREQUEST = DESCRIPTOR.message_types_by_name['GetUidByTokenRequest']
+_GETUIDBYTOKENRESULT = DESCRIPTOR.message_types_by_name['GetUidByTokenResult']
 CreateUserRequest = _reflection.GeneratedProtocolMessageType('CreateUserRequest', (_message.Message,), {
   'DESCRIPTOR' : _CREATEUSERREQUEST,
   '__module__' : 'example_proto_by_option.user.user_pb2'
@@ -390,78 +82,50 @@ GetUidByTokenResult = _reflection.GeneratedProtocolMessageType('GetUidByTokenRes
   })
 _sym_db.RegisterMessage(GetUidByTokenResult)
 
+_USER = DESCRIPTOR.services_by_name['User']
+if _descriptor._USE_C_DESCRIPTORS == False:
 
-_CREATEUSERREQUEST.fields_by_name['uid']._options = None
-_CREATEUSERREQUEST.fields_by_name['user_name']._options = None
-_CREATEUSERREQUEST.fields_by_name['password']._options = None
-_LOGINUSERRESULT.fields_by_name['uid']._options = None
-_LOGINUSERRESULT.fields_by_name['user_name']._options = None
-_LOGINUSERRESULT.fields_by_name['token']._options = None
-_LOGOUTUSERREQUEST.fields_by_name['token']._options = None
-
-_USER = _descriptor.ServiceDescriptor(
-  name='User',
-  full_name='user_by_option.User',
-  file=DESCRIPTOR,
-  index=0,
-  serialized_options=None,
-  create_key=_descriptor._internal_create_key,
-  serialized_start=882,
-  serialized_end=1803,
-  methods=[
-  _descriptor.MethodDescriptor(
-    name='get_uid_by_token',
-    full_name='user_by_option.User.get_uid_by_token',
-    index=0,
-    containing_service=None,
-    input_type=_GETUIDBYTOKENREQUEST,
-    output_type=_GETUIDBYTOKENRESULT,
-    serialized_options=b'\212\323\344\223\002+\252\001\004user\262\001\036\n\tgrpc-user\022\021grpc_user_service\310\001\001',
-    create_key=_descriptor._internal_create_key,
-  ),
-  _descriptor.MethodDescriptor(
-    name='logout_user',
-    full_name='user_by_option.User.logout_user',
-    index=1,
-    containing_service=None,
-    input_type=_LOGOUTUSERREQUEST,
-    output_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
-    serialized_options=b'\212\323\344\223\002MJ\016\n\014/user/logout\262\001\036\n\tgrpc-user\022\021grpc_user_service\272\001\031User exit from the system',
-    create_key=_descriptor._internal_create_key,
-  ),
-  _descriptor.MethodDescriptor(
-    name='login_user',
-    full_name='user_by_option.User.login_user',
-    index=2,
-    containing_service=None,
-    input_type=_LOGINUSERREQUEST,
-    output_type=_LOGINUSERRESULT,
-    serialized_options=b'\212\323\344\223\002GJ\r\n\013/user/login\262\001\036\n\tgrpc-user\022\021grpc_user_service\272\001\024User login to system',
-    create_key=_descriptor._internal_create_key,
-  ),
-  _descriptor.MethodDescriptor(
-    name='create_user',
-    full_name='user_by_option.User.create_user',
-    index=3,
-    containing_service=None,
-    input_type=_CREATEUSERREQUEST,
-    output_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
-    serialized_options=b'\212\323\344\223\002{J\016\n\014/user/create\262\001\036\n\tgrpc-user\022\021grpc_user_service\262\001%\n\020grpc-user-system\022\021grpc_user_service\272\001\037Create users through the system',
-    create_key=_descriptor._internal_create_key,
-  ),
-  _descriptor.MethodDescriptor(
-    name='delete_user',
-    full_name='user_by_option.User.delete_user',
-    index=4,
-    containing_service=None,
-    input_type=_DELETEUSERREQUEST,
-    output_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
-    serialized_options=b'\212\323\344\223\002\233\001J\016\n\014/user/delete\262\001\036\n\tgrpc-user\022\021grpc_user_service\262\001%\n\020grpc-user-system\022\021grpc_user_service\302\001?This interface performs a logical delete, not a physical delete',
-    create_key=_descriptor._internal_create_key,
-  ),
-])
-_sym_db.RegisterServiceDescriptor(_USER)
-
-DESCRIPTOR.services_by_name['User'] = _USER
-
+  DESCRIPTOR._options = None
+  _CREATEUSERREQUEST.fields_by_name['uid']._options = None
+  _CREATEUSERREQUEST.fields_by_name['uid']._serialized_options = b'\212C\005r\003\320\001\001\212C\nr\010\362\001\00510086\212C\010r\006\222\002\003UID\212C\022r\020\342\001\ruser union id'
+  _CREATEUSERREQUEST.fields_by_name['user_name']._options = None
+  _CREATEUSERREQUEST.fields_by_name['user_name']._serialized_options = b'\212C\016r\014\342\001\tuser name\212C\004r\002\030\001\212C\004r\002 \n\212C\tr\007\362\001\004so1n'
+  _CREATEUSERREQUEST.fields_by_name['password']._options = None
+  _CREATEUSERREQUEST.fields_by_name['password']._serialized_options = b'\212C\022r\020\342\001\ruser password\212C\007r\005\332\001\002pw\212C\004r\002\030\006\212C\004r\002 \022\212C\013r\t\362\001\006123456'
+  _LOGINUSERRESULT.fields_by_name['uid']._options = None
+  _LOGINUSERRESULT.fields_by_name['uid']._serialized_options = b'\212C\nr\010\362\001\00510086\212C\010r\006\222\002\003UID\212C\022r\020\342\001\ruser union id'
+  _LOGINUSERRESULT.fields_by_name['user_name']._options = None
+  _LOGINUSERRESULT.fields_by_name['user_name']._serialized_options = b'\212C\016r\014\342\001\tuser name\212C\004r\002\030\001\212C\004r\002 \n\212C\tr\007\362\001\004so1n'
+  _LOGINUSERRESULT.fields_by_name['token']._options = None
+  _LOGINUSERRESULT.fields_by_name['token']._serialized_options = b'\212C\017r\r\342\001\nuser token'
+  _LOGOUTUSERREQUEST.fields_by_name['token']._options = None
+  _LOGOUTUSERREQUEST.fields_by_name['token']._serialized_options = b'\212C\005r\003\270\001\000'
+  _USER.methods_by_name['get_uid_by_token']._options = None
+  _USER.methods_by_name['get_uid_by_token']._serialized_options = b'\212\323\344\223\002+\252\001\004user\262\001\036\n\tgrpc-user\022\021grpc_user_service\310\001\001'
+  _USER.methods_by_name['logout_user']._options = None
+  _USER.methods_by_name['logout_user']._serialized_options = b'\212\323\344\223\002MJ\016\n\014/user/logout\262\001\036\n\tgrpc-user\022\021grpc_user_service\272\001\031User exit from the system'
+  _USER.methods_by_name['login_user']._options = None
+  _USER.methods_by_name['login_user']._serialized_options = b'\212\323\344\223\002GJ\r\n\013/user/login\262\001\036\n\tgrpc-user\022\021grpc_user_service\272\001\024User login to system'
+  _USER.methods_by_name['create_user']._options = None
+  _USER.methods_by_name['create_user']._serialized_options = b'\212\323\344\223\002{J\016\n\014/user/create\262\001\036\n\tgrpc-user\022\021grpc_user_service\262\001%\n\020grpc-user-system\022\021grpc_user_service\272\001\037Create users through the system'
+  _USER.methods_by_name['delete_user']._options = None
+  _USER.methods_by_name['delete_user']._serialized_options = b'\212\323\344\223\002\233\001J\016\n\014/user/delete\262\001\036\n\tgrpc-user\022\021grpc_user_service\262\001%\n\020grpc-user-system\022\021grpc_user_service\302\001?This interface performs a logical delete, not a physical delete'
+  _SEXTYPE._serialized_start=850
+  _SEXTYPE._serialized_end=879
+  _CREATEUSERREQUEST._serialized_start=182
+  _CREATEUSERREQUEST._serialized_end=450
+  _DELETEUSERREQUEST._serialized_start=452
+  _DELETEUSERREQUEST._serialized_end=484
+  _LOGINUSERREQUEST._serialized_start=486
+  _LOGINUSERREQUEST._serialized_end=535
+  _LOGINUSERRESULT._serialized_start=538
+  _LOGINUSERRESULT._serialized_end=714
+  _LOGOUTUSERREQUEST._serialized_start=716
+  _LOGOUTUSERREQUEST._serialized_end=773
+  _GETUIDBYTOKENREQUEST._serialized_start=775
+  _GETUIDBYTOKENREQUEST._serialized_end=812
+  _GETUIDBYTOKENRESULT._serialized_start=814
+  _GETUIDBYTOKENRESULT._serialized_end=848
+  _USER._serialized_start=882
+  _USER._serialized_end=1803
 # @@protoc_insertion_point(module_scope)

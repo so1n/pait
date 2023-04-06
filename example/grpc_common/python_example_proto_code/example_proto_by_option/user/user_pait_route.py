@@ -56,10 +56,10 @@ async def async_logout_user_route(
     if loop != gateway.User_stub.logout_user._loop:  # type: ignore
         raise RuntimeError(
             "Loop is not same, "
-            "the grpc channel must be initialized after the event loop"
-            "of the api server is initialized"
+            "the grpc channel must be initialized after the event loop of the api server is initialized"
         )
-    grpc_msg: Empty = await gateway.User_stub.logout_user(request_msg, metadata=[("req_id", req_id)])
+    else:
+        grpc_msg: Empty = await gateway.User_stub.logout_user(request_msg, metadata=[("req_id", req_id)])
     return gateway.make_response(gateway.msg_to_dict(grpc_msg))
 
 
@@ -133,20 +133,19 @@ async def async_delete_user_route(
 ) -> Any:
     gateway = pait_context.get().app_helper.get_attributes("gateway_attr_user_by_option_gateway")
     stub: user_pb2_grpc.UserStub = gateway.User_stub
+    request_msg: user_pb2.DeleteUserRequest = gateway.get_msg_from_dict(
+        user_pb2.DeleteUserRequest, request_pydantic_model.dict()
+    )
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-    if loop != stub.delete_user._loop:  # type: ignore
+    if loop != gateway.User_stub.delete_user._loop:  # type: ignore
         raise RuntimeError(
             "Loop is not same, "
-            "the grpc channel must be initialized after the event loop"
-            "of the api server is initialized"
+            "the grpc channel must be initialized after the event loop of the api server is initialized"
         )
     # check token
     result: user_pb2.GetUidByTokenResult = await stub.get_uid_by_token(user_pb2.GetUidByTokenRequest(token=token))
     if not result.uid:
         raise RuntimeError("Not found user by token:" + token)
-    request_msg: user_pb2.DeleteUserRequest = gateway.get_msg_from_dict(
-        user_pb2.DeleteUserRequest, request_pydantic_model.dict()
-    )
     grpc_msg: Empty = await stub.delete_user(request_msg, metadata=[("req_id", req_id)])
     return gateway.make_response(gateway.msg_to_dict(grpc_msg))
 
@@ -158,13 +157,13 @@ def delete_user_route(
 ) -> Any:
     gateway = pait_context.get().app_helper.get_attributes("gateway_attr_user_by_option_gateway")
     stub: user_pb2_grpc.UserStub = gateway.User_stub
+    request_msg: user_pb2.DeleteUserRequest = gateway.get_msg_from_dict(
+        user_pb2.DeleteUserRequest, request_pydantic_model.dict()
+    )
     # check token
     result: user_pb2.GetUidByTokenResult = stub.get_uid_by_token(user_pb2.GetUidByTokenRequest(token=token))
     if not result.uid:
         raise RuntimeError("Not found user by token:" + token)
-    request_msg: user_pb2.DeleteUserRequest = gateway.get_msg_from_dict(
-        user_pb2.DeleteUserRequest, request_pydantic_model.dict()
-    )
     grpc_msg: Empty = stub.delete_user(request_msg, metadata=[("req_id", req_id)])
     return gateway.make_response(gateway.msg_to_dict(grpc_msg))
 
