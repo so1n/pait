@@ -1,12 +1,12 @@
 import copy
 from typing import Any, Dict, Optional, Type
 
-from any_api.openapi.model.response_model import BaseResponseModel
-from any_api.openapi.model.response_model import FileResponseModel as _FileResponseModel
-from any_api.openapi.model.response_model import HtmlResponseModel as _HtmlResponseModel
-from any_api.openapi.model.response_model import JsonResponseModel as _JsonResponseModel
-from any_api.openapi.model.response_model import TextResponseModel as _TextResponseModel
-from any_api.openapi.model.response_model import XmlResponseModel as _XmlResponseModel
+from any_api.openapi.model.responses import BaseResponseModel
+from any_api.openapi.model.responses import FileResponseModel as _FileResponseModel
+from any_api.openapi.model.responses import HtmlResponseModel as _HtmlResponseModel
+from any_api.openapi.model.responses import JsonResponseModel as _JsonResponseModel
+from any_api.openapi.model.responses import TextResponseModel as _TextResponseModel
+from any_api.openapi.model.responses import XmlResponseModel as _XmlResponseModel
 from pydantic import BaseModel
 
 from pait.util import gen_example_dict_from_pydantic_base_model

@@ -69,7 +69,6 @@ class AddDocRoute(Generic[APP_T]):
         prefix: str = "",
         pin_code: str = "",
         title: str = "",
-        project_name: str = "",
         doc_fn_dict: Optional[Dict[str, Callable]] = None,
         openapi: Optional[Type[OpenAPI]] = None,
     ):
@@ -92,7 +91,6 @@ class AddDocRoute(Generic[APP_T]):
         :param title: Doc route group name,
             the title of multiple doc routes registered for the same app instance must be different
         :param openapi: OpenAPI class
-        :param project_name: see `pait.app.{web framework}._load_app.load_app`
         :param doc_fn_dict: doc ui dict, default `pait.app.base.doc_route.default_doc_fn_dict`
         """
         if pin_code:
@@ -103,7 +101,6 @@ class AddDocRoute(Generic[APP_T]):
         self.pin_code: str = pin_code
         self.title: str = title or "Pait Doc"
         self.openapi: Type[OpenAPI] = openapi or OpenAPI
-        self.project_name: str = project_name
         self._is_gen: bool = False
         self._doc_fn_dict: Dict[str, Callable] = doc_fn_dict or default_doc_fn_dict
         self._doc_pait: Pait = self.pait_class(
@@ -210,7 +207,7 @@ class AddDocRoute(Generic[APP_T]):
         ) -> dict:
             re = pait_context.get().app_helper.request.request_extend()
             _scheme: str = self.scheme or re.scheme
-            pait_dict: Dict[str, PaitCoreModel] = self.load_app(app, project_name=self.project_name)
+            pait_dict: Dict[str, PaitCoreModel] = self.load_app(app)
             with TemplateContext(url_dict):
                 pait_openapi: OpenAPI = OpenAPI(
                     pait_dict,

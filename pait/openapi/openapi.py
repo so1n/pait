@@ -9,7 +9,7 @@ from any_api.openapi import OpenAPI as _OpenAPI
 from any_api.openapi import SecurityModelType, ServerModel, TagModel, openapi_model
 from any_api.openapi.model.links import LinksModel
 from any_api.openapi.model.openapi import OpenAPIModel
-from any_api.openapi.model.request_model import RequestModel
+from any_api.openapi.model.requests import RequestModel
 from pydantic import BaseModel, Field
 from pydantic.fields import FieldInfo, Undefined
 
@@ -48,48 +48,57 @@ class ParsePaitModel(object):
         self.http_param_type_dict: HttpParamTypeDictType = {}
         self.security_dict: Dict[str, openapi_model.security.SecurityModelType] = {}
         self.http_param_type_alias_dict: Dict[str, HttpParamTypeLiteral] = {"multiquery": "query"}
+
+        self.param_field_dict: Dict[str, BaseField] = {}
+        self.http_param_type_annotation_dict: Dict[HttpParamTypeLiteral, Dict[str, Tuple[Type, FieldInfo]]] = {}
+
         self._parse_call_type(pait_model.func)
         for pre_depend in pait_model.pre_depend_list:
             self._parse_call_type(pre_depend)
-
         for extra_openapi_model in self.pait_model.extra_openapi_model_list:
             self._parse_base_model(extra_openapi_model)
 
-    def _parse_base_model(self, _pydantic_model: Type[BaseModel]) -> None:
-        param_field_dict: Dict[str, BaseField] = {}
-        http_param_type_annotation_dict: Dict[HttpParamTypeLiteral, Dict[str, Tuple[Type, FieldInfo]]] = {}
-        from typing import get_type_hints
-
-        for field_name, model_field in _pydantic_model.__fields__.items():
-            param_annotation = get_type_hints(_pydantic_model)[field_name]
-            field = model_field.field_info
-            if not isinstance(field, BaseField):
-                if not self.pait_model.default_field_class:
-                    continue
-                field = self.pait_model.default_field_class.from_pydantic_field(field)
-            if not field.openapi_include:
-                continue
-            if isinstance(field, BaseField) and field.alias:
-                field_name = field.alias
-            http_param_type: HttpParamTypeLiteral = field.get_field_name()  # type: ignore
-            http_param_type = self.http_param_type_alias_dict.get(http_param_type, http_param_type)
-            if http_param_type not in http_param_type_annotation_dict:
-                http_param_type_annotation_dict[http_param_type] = {}
-            http_param_type_annotation_dict[http_param_type][field_name] = (param_annotation, field)
-            param_field_dict[http_param_type] = field
-
-        for http_param_type, annotation_dict in http_param_type_annotation_dict.items():
+        for http_param_type, annotation_dict in self.http_param_type_annotation_dict.items():
             http_param_type = self.http_param_type_alias_dict.get(http_param_type, http_param_type)
             if http_param_type not in self.http_param_type_dict:
                 self.http_param_type_dict[http_param_type] = []
             self.http_param_type_dict[http_param_type].append(
                 RequestModel(
                     description="",
-                    media_type_list=[param_field_dict[http_param_type].media_type],
-                    openapi_serialization=param_field_dict[http_param_type].openapi_serialization,
-                    model=create_pydantic_model(annotation_dict, class_name=_pydantic_model.__name__),
+                    media_type_list=[self.param_field_dict[http_param_type].media_type],
+                    openapi_serialization=self.param_field_dict[http_param_type].openapi_serialization,
+                    model=create_pydantic_model(
+                        annotation_dict,
+                        class_name=f"{self.pait_model.func_name.title()}{self.pait_model.pait_id.title()}",
+                    ),
                 )
             )
+
+    def _parse_base_model(
+        self, _pydantic_model: Type[BaseModel], default_field_class: Optional[Type[BaseField]] = None
+    ) -> None:
+        from typing import get_type_hints
+
+        for field_name, model_field in _pydantic_model.__fields__.items():
+            param_annotation = get_type_hints(_pydantic_model)[field_name]
+            field = model_field.field_info
+            if not isinstance(field, BaseField):
+                if self.pait_model.default_field_class:
+                    field = self.pait_model.default_field_class.from_pydantic_field(field)
+                elif default_field_class:
+                    field = default_field_class.from_pydantic_field(field)
+                else:
+                    continue
+            if not field.openapi_include:
+                continue
+            if isinstance(field, BaseField) and field.alias:
+                field_name = field.alias
+            http_param_type: HttpParamTypeLiteral = field.get_field_name()  # type: ignore
+            http_param_type = self.http_param_type_alias_dict.get(http_param_type, http_param_type)
+            if http_param_type not in self.http_param_type_annotation_dict:
+                self.http_param_type_annotation_dict[http_param_type] = {}
+            self.http_param_type_annotation_dict[http_param_type][field_name] = (param_annotation, field)
+            self.param_field_dict[http_param_type] = field
 
     def parameter_list_handle(
         self,
@@ -109,33 +118,13 @@ class ParsePaitModel(object):
                     # support def test(pait_model_route: BaseModel = Body())
                     if not pait_field.openapi_include:
                         continue
-                    http_param_type: HttpParamTypeLiteral = pait_field.get_field_name()  # type: ignore
-                    http_param_type = self.http_param_type_alias_dict.get(http_param_type, http_param_type)
-                    required: bool = True
-                    if pait_field.default is not Undefined:
-                        required = True
-                    elif pait_field.default_factory is not None:
-                        required = True
-
-                    request_model: RequestModel = RequestModel(
-                        description=annotation.__doc__ or "",
-                        required=required,
-                        media_type_list=[pait_field.media_type],
-                        openapi_serialization=pait_field.openapi_serialization,
-                        # support raw_return is True
-                        model=create_pydantic_model(
-                            {parameter.name: (parameter.annotation, Field)},
-                            class_name=(
-                                f"{self.pait_model.func_name.title()}{parameter.name.title()}"
-                                f"{self.pait_model.pait_id.title()}"
-                            ),
+                    if not pait_field.raw_return:
+                        self._parse_base_model(
+                            create_pydantic_model({parameter.name: (parameter.annotation, pait_field)}),
+                            pait_field.__class__,
                         )
-                        if not pait_field.raw_return
-                        else annotation,
-                    )
-                    if http_param_type not in self.http_param_type_dict:
-                        self.http_param_type_dict[http_param_type] = []
-                    self.http_param_type_dict[http_param_type].append(request_model)
+                    else:
+                        self._parse_base_model(annotation, pait_field.__class__)
                 else:
                     # def test(pait_model_route: int = Body())
                     if isinstance(pait_field, Depends):

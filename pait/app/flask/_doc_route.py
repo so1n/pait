@@ -41,7 +41,6 @@ def add_doc_route(
     pin_code: str = "",
     title: str = "",
     openapi: Optional[Type["OpenAPI"]] = None,
-    project_name: str = "",
 ) -> None:
     AddDocRoute(
         scheme=scheme,
@@ -49,7 +48,6 @@ def add_doc_route(
         prefix=prefix,
         pin_code=pin_code,
         title=title,
-        project_name=project_name,
         app=app,
         openapi=openapi,
     )

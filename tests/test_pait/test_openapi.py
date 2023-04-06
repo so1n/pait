@@ -14,7 +14,7 @@ class TestApiDoc:
 
         for app_name in app_list:
             module = importlib.import_module(f"example.{app_name}_example.main_example")  # type: ignore
-            pait_dict: Dict[str, PaitCoreModel] = module.load_app(module.create_app(), project_name="")  # type: ignore
+            pait_dict: Dict[str, PaitCoreModel] = module.load_app(module.create_app())  # type: ignore
 
             OpenAPI(pait_dict).content()  # type: ignore
             OpenAPI(pait_dict).content(serialization_callback=my_serialization)  # type: ignore

@@ -59,11 +59,11 @@ except RuntimeError:  # pragma: no cover
     pait_app_path = ""  # pragma: no cover
 
 
-def load_app(app: Any, project_name: str = "", auto_load_route: bool = False) -> Dict[str, PaitCoreModel]:
+def load_app(app: Any, auto_load_route: bool = False) -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`
     Note:This is an implicit method
     """
-    return base_call_func("load_app", app, project_name=project_name, app=app, auto_load_route=auto_load_route)
+    return base_call_func("load_app", app, app=app, auto_load_route=auto_load_route)
 
 
 def add_doc_route(
@@ -74,7 +74,6 @@ def add_doc_route(
     pin_code: str = "",
     title: str = "",
     openapi: Optional[Type["OpenAPI"]] = None,
-    project_name: str = "",
 ) -> None:
     return base_call_func(
         "add_doc_route",
@@ -86,7 +85,6 @@ def add_doc_route(
         pin_code=pin_code,
         title=title,
         openapi=openapi,
-        project_name=project_name,
     )
 
 
