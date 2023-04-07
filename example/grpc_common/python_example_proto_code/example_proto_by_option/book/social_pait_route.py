@@ -59,7 +59,9 @@ class BookSocialByOptionGetBookCommentListResultJsonResponseModel(JsonResponseMo
 
 
 async def async_like_book_route(request_pydantic_model: social_p2p.LikeBookRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_book_social_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_book_social_by_option_gateway"
+    )
     request_msg: social_pb2.LikeBookRequest = gateway.get_msg_from_dict(
         social_pb2.LikeBookRequest, request_pydantic_model.dict()
     )
@@ -75,7 +77,9 @@ async def async_like_book_route(request_pydantic_model: social_p2p.LikeBookReque
 
 
 def like_book_route(request_pydantic_model: social_p2p.LikeBookRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_book_social_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_book_social_by_option_gateway"
+    )
     request_msg: social_pb2.LikeBookRequest = gateway.get_msg_from_dict(
         social_pb2.LikeBookRequest, request_pydantic_model.dict()
     )
@@ -84,7 +88,9 @@ def like_book_route(request_pydantic_model: social_p2p.LikeBookRequest) -> Any:
 
 
 async def async_like_multi_book_route(request_pydantic_model: social_p2p.LikeBookMapRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_book_social_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_book_social_by_option_gateway"
+    )
     request_msg: social_pb2.LikeBookMapRequest = gateway.get_msg_from_dict(
         social_pb2.LikeBookMapRequest, request_pydantic_model.dict()
     )
@@ -100,7 +106,9 @@ async def async_like_multi_book_route(request_pydantic_model: social_p2p.LikeBoo
 
 
 def like_multi_book_route(request_pydantic_model: social_p2p.LikeBookMapRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_book_social_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_book_social_by_option_gateway"
+    )
     request_msg: social_pb2.LikeBookMapRequest = gateway.get_msg_from_dict(
         social_pb2.LikeBookMapRequest, request_pydantic_model.dict()
     )
@@ -109,7 +117,9 @@ def like_multi_book_route(request_pydantic_model: social_p2p.LikeBookMapRequest)
 
 
 async def async_get_book_like_route(request_pydantic_model: social_p2p.GetBookLikesRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_book_social_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_book_social_by_option_gateway"
+    )
     request_msg: social_pb2.GetBookLikesRequest = gateway.get_msg_from_dict(
         social_pb2.GetBookLikesRequest, request_pydantic_model.dict()
     )
@@ -125,7 +135,9 @@ async def async_get_book_like_route(request_pydantic_model: social_p2p.GetBookLi
 
 
 def get_book_like_route(request_pydantic_model: social_p2p.GetBookLikesRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_book_social_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_book_social_by_option_gateway"
+    )
     request_msg: social_pb2.GetBookLikesRequest = gateway.get_msg_from_dict(
         social_pb2.GetBookLikesRequest, request_pydantic_model.dict()
     )
@@ -134,7 +146,9 @@ def get_book_like_route(request_pydantic_model: social_p2p.GetBookLikesRequest) 
 
 
 async def async_comment_book_route(request_pydantic_model: social_p2p.CommentBookRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_book_social_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_book_social_by_option_gateway"
+    )
     request_msg: social_pb2.CommentBookRequest = gateway.get_msg_from_dict(
         social_pb2.CommentBookRequest, request_pydantic_model.dict()
     )
@@ -150,7 +164,9 @@ async def async_comment_book_route(request_pydantic_model: social_p2p.CommentBoo
 
 
 def comment_book_route(request_pydantic_model: social_p2p.CommentBookRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_book_social_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_book_social_by_option_gateway"
+    )
     request_msg: social_pb2.CommentBookRequest = gateway.get_msg_from_dict(
         social_pb2.CommentBookRequest, request_pydantic_model.dict()
     )
@@ -159,7 +175,9 @@ def comment_book_route(request_pydantic_model: social_p2p.CommentBookRequest) ->
 
 
 async def async_get_book_comment_route(request_pydantic_model: social_p2p.GetBookCommentRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_book_social_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_book_social_by_option_gateway"
+    )
     request_msg: social_pb2.GetBookCommentRequest = gateway.get_msg_from_dict(
         social_pb2.GetBookCommentRequest, request_pydantic_model.dict()
     )
@@ -175,7 +193,9 @@ async def async_get_book_comment_route(request_pydantic_model: social_p2p.GetBoo
 
 
 def get_book_comment_route(request_pydantic_model: social_p2p.GetBookCommentRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_book_social_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_book_social_by_option_gateway"
+    )
     request_msg: social_pb2.GetBookCommentRequest = gateway.get_msg_from_dict(
         social_pb2.GetBookCommentRequest, request_pydantic_model.dict()
     )

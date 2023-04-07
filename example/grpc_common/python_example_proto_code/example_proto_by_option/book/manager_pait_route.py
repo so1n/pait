@@ -55,7 +55,9 @@ class BookManagerByOptionGetBookListResultJsonResponseModel(JsonResponseModel):
 
 
 async def async_create_book_route(request_pydantic_model: manager_p2p.CreateBookRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_book_manager_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_book_manager_by_option_gateway"
+    )
     request_msg: manager_pb2.CreateBookRequest = gateway.get_msg_from_dict(
         manager_pb2.CreateBookRequest, request_pydantic_model.dict()
     )
@@ -71,7 +73,9 @@ async def async_create_book_route(request_pydantic_model: manager_p2p.CreateBook
 
 
 def create_book_route(request_pydantic_model: manager_p2p.CreateBookRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_book_manager_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_book_manager_by_option_gateway"
+    )
     request_msg: manager_pb2.CreateBookRequest = gateway.get_msg_from_dict(
         manager_pb2.CreateBookRequest, request_pydantic_model.dict()
     )
@@ -80,7 +84,9 @@ def create_book_route(request_pydantic_model: manager_p2p.CreateBookRequest) -> 
 
 
 async def async_delete_book_route(request_pydantic_model: manager_p2p.DeleteBookRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_book_manager_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_book_manager_by_option_gateway"
+    )
     request_msg: manager_pb2.DeleteBookRequest = gateway.get_msg_from_dict(
         manager_pb2.DeleteBookRequest, request_pydantic_model.dict()
     )
@@ -96,7 +102,9 @@ async def async_delete_book_route(request_pydantic_model: manager_p2p.DeleteBook
 
 
 def delete_book_route(request_pydantic_model: manager_p2p.DeleteBookRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_book_manager_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_book_manager_by_option_gateway"
+    )
     request_msg: manager_pb2.DeleteBookRequest = gateway.get_msg_from_dict(
         manager_pb2.DeleteBookRequest, request_pydantic_model.dict()
     )
@@ -105,7 +113,9 @@ def delete_book_route(request_pydantic_model: manager_p2p.DeleteBookRequest) -> 
 
 
 async def async_get_book_route(request_pydantic_model: manager_p2p.GetBookRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_book_manager_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_book_manager_by_option_gateway"
+    )
     request_msg: manager_pb2.GetBookRequest = gateway.get_msg_from_dict(
         manager_pb2.GetBookRequest, request_pydantic_model.dict()
     )
@@ -121,7 +131,9 @@ async def async_get_book_route(request_pydantic_model: manager_p2p.GetBookReques
 
 
 def get_book_route(request_pydantic_model: manager_p2p.GetBookRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_book_manager_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_book_manager_by_option_gateway"
+    )
     request_msg: manager_pb2.GetBookRequest = gateway.get_msg_from_dict(
         manager_pb2.GetBookRequest, request_pydantic_model.dict()
     )
@@ -130,7 +142,9 @@ def get_book_route(request_pydantic_model: manager_p2p.GetBookRequest) -> Any:
 
 
 async def async_get_book_list_route(request_pydantic_model: manager_p2p.GetBookListRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_book_manager_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_book_manager_by_option_gateway"
+    )
     request_msg: manager_pb2.GetBookListRequest = gateway.get_msg_from_dict(
         manager_pb2.GetBookListRequest, request_pydantic_model.dict()
     )
@@ -146,7 +160,9 @@ async def async_get_book_list_route(request_pydantic_model: manager_p2p.GetBookL
 
 
 def get_book_list_route(request_pydantic_model: manager_p2p.GetBookListRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_book_manager_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_book_manager_by_option_gateway"
+    )
     request_msg: manager_pb2.GetBookListRequest = gateway.get_msg_from_dict(
         manager_pb2.GetBookListRequest, request_pydantic_model.dict()
     )

@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, Optional, Type, Union
+from typing import Any, Callable, Dict, Optional, Type, TypeVar, Union
 
 import grpc
 from google.protobuf.json_format import MessageToDict
@@ -7,6 +7,8 @@ from google.protobuf.message import Message
 from pait import Tag
 from pait.app.any.util import import_func_from_app
 from pait.core import Pait
+
+MessageT = TypeVar("MessageT", bound=Message)
 
 
 class BaseGrpcGatewayRoute(object):
@@ -60,10 +62,10 @@ class BaseGrpcGatewayRoute(object):
         self.make_response: Callable = make_response or self._make_response
         self._tag_dict: Dict[str, Tag] = {}
 
-    def get_msg_from_dict(self, msg: Type[Message], request_dict: dict) -> Message:
+    def get_msg_from_dict(self, msg: Type[MessageT], request_dict: dict) -> MessageT:
         """Convert the Json data to the corresponding grpc Message object"""
         if self.parse_dict:
-            request_msg: Message = self.parse_dict(request_dict, msg)
+            request_msg: MessageT = self.parse_dict(request_dict, msg)
         else:
             request_msg = msg(**request_dict)  # type: ignore
         return request_msg

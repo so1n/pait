@@ -26,6 +26,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
     )
     indent: int = 4
     attr_prefix: str = "gateway_attr"
+    gateway_name: str = "StaticGrpcGatewayRoute"
     route_func_jinja_template_str: str = dedent(
         """
     {% if  request_message_model in ("Empty") %}
@@ -35,7 +36,9 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
         request_pydantic_model: {{model_module_name}}.{{request_message_model}}
     ) -> Any:
     {% endif %}
-        gateway = pait_context.get().app_helper.get_attributes("{{attr_prefix}}_{{package}}_gateway")
+        gateway: "{{gateway_name}}" = pait_context.get().app_helper.get_attributes(
+            "{{attr_prefix}}_{{package}}_gateway"
+        )
     {% if  request_message_model in ("Empty") %}
         request_msg: {{request_message_model}} = {{request_message_model}}()
     {% else %}
@@ -159,6 +162,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                         GrpcModel(
                             index=model_index,
                             attr_prefix=self.attr_prefix,
+                            gateway_name=self.gateway_name,
                             method=method.name,
                             func_name=func_name,
                             request_message=f"{message_module_name}.{input_type_name}"
@@ -273,7 +277,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
 
         class_stub_str += f"{tab_str * 1}stub_str_list: List[str] = {self._get_value_code(stub_service_name_list)}\n"
         class_str: str = (
-            "class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):\n"
+            f"class {self.gateway_name}(BaseStaticGrpcGatewayRoute):\n"
             f"{class_stub_str}\n"
             f"{tab_str * 1}def gen_route(self) -> None:\n"
             f'{tab_str * 2}set_app_attribute(self.app, "{self.attr_prefix}_{self._fd.package}_gateway", self)\n'

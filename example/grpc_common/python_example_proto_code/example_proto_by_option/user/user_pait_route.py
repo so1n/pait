@@ -48,7 +48,9 @@ async def async_logout_user_route(
     token: str = Header.i(description="User Token"),
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_user_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_user_by_option_gateway"
+    )
     request_dict: dict = request_pydantic_model.dict()
     request_dict["token"] = token
     request_msg: user_pb2.LogoutUserRequest = gateway.get_msg_from_dict(user_pb2.LogoutUserRequest, request_dict)
@@ -68,7 +70,9 @@ def logout_user_route(
     token: str = Header.i(description="User Token"),
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_user_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_user_by_option_gateway"
+    )
     request_dict: dict = request_pydantic_model.dict()
     request_dict["token"] = token
     request_msg: user_pb2.LogoutUserRequest = gateway.get_msg_from_dict(user_pb2.LogoutUserRequest, request_dict)
@@ -77,7 +81,9 @@ def logout_user_route(
 
 
 async def async_login_user_route(request_pydantic_model: user_p2p.LoginUserRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_user_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_user_by_option_gateway"
+    )
     request_msg: user_pb2.LoginUserRequest = gateway.get_msg_from_dict(
         user_pb2.LoginUserRequest, request_pydantic_model.dict()
     )
@@ -93,7 +99,9 @@ async def async_login_user_route(request_pydantic_model: user_p2p.LoginUserReque
 
 
 def login_user_route(request_pydantic_model: user_p2p.LoginUserRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_user_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_user_by_option_gateway"
+    )
     request_msg: user_pb2.LoginUserRequest = gateway.get_msg_from_dict(
         user_pb2.LoginUserRequest, request_pydantic_model.dict()
     )
@@ -102,7 +110,9 @@ def login_user_route(request_pydantic_model: user_p2p.LoginUserRequest) -> Any:
 
 
 async def async_create_user_route(request_pydantic_model: user_p2p.CreateUserRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_user_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_user_by_option_gateway"
+    )
     request_msg: user_pb2.CreateUserRequest = gateway.get_msg_from_dict(
         user_pb2.CreateUserRequest, request_pydantic_model.dict()
     )
@@ -118,7 +128,9 @@ async def async_create_user_route(request_pydantic_model: user_p2p.CreateUserReq
 
 
 def create_user_route(request_pydantic_model: user_p2p.CreateUserRequest) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_user_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_user_by_option_gateway"
+    )
     request_msg: user_pb2.CreateUserRequest = gateway.get_msg_from_dict(
         user_pb2.CreateUserRequest, request_pydantic_model.dict()
     )
@@ -131,7 +143,9 @@ async def async_delete_user_route(
     token: str = Header.i(description="User Token"),
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_user_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_user_by_option_gateway"
+    )
     stub: user_pb2_grpc.UserStub = gateway.User_stub
     request_msg: user_pb2.DeleteUserRequest = gateway.get_msg_from_dict(
         user_pb2.DeleteUserRequest, request_pydantic_model.dict()
@@ -155,7 +169,9 @@ def delete_user_route(
     token: str = Header.i(description="User Token"),
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
-    gateway = pait_context.get().app_helper.get_attributes("gateway_attr_user_by_option_gateway")
+    gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
+        "gateway_attr_user_by_option_gateway"
+    )
     stub: user_pb2_grpc.UserStub = gateway.User_stub
     request_msg: user_pb2.DeleteUserRequest = gateway.get_msg_from_dict(
         user_pb2.DeleteUserRequest, request_pydantic_model.dict()

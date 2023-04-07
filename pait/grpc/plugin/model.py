@@ -9,6 +9,7 @@ class GrpcModel(object):
     # meta data
     index: int
     attr_prefix: str
+    gateway_name: str
     # real template value
     grpc_method_url: str
     method: str
