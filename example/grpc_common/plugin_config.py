@@ -79,7 +79,7 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
                 )
             {% if is_async %}
                 loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-                if loop != gateway.{{stub_service_name}}.{{method}}._loop:  # type: ignore
+                if loop != getattr(gateway.{{stub_service_name}}.{{method}}, "_loop", None):
                     raise RuntimeError(
                         "Loop is not same, "
                         "the grpc channel must be initialized after the event loop of the api server is initialized"
@@ -110,7 +110,7 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
                 )
             {% if is_async %}
                 loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-                if loop != gateway.{{stub_service_name}}.{{method}}._loop:  # type: ignore
+                if loop != getattr(gateway.{{stub_service_name}}.{{method}}, "_loop", None):
                     raise RuntimeError(
                         "Loop is not same, "
                         "the grpc channel must be initialized after the event loop of the api server is initialized"

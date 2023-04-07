@@ -39,7 +39,7 @@ class ContextModel(object):
         self._init_state()
         self.state[key] = value
 
-    def get_form_state(self, key: str, default_value: Any = MISSING) -> None:
+    def get_form_state(self, key: str, default_value: Any = MISSING) -> Any:
         value: Any = self.state.get(key, default_value)
         if value is MISSING:
             raise KeyError(key)

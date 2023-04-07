@@ -55,7 +55,7 @@ async def async_logout_user_route(
     request_dict["token"] = token
     request_msg: user_pb2.LogoutUserRequest = gateway.get_msg_from_dict(user_pb2.LogoutUserRequest, request_dict)
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-    if loop != gateway.User_stub.logout_user._loop:  # type: ignore
+    if loop != getattr(gateway.User_stub.logout_user, "_loop", None):
         raise RuntimeError(
             "Loop is not same, "
             "the grpc channel must be initialized after the event loop of the api server is initialized"
@@ -88,7 +88,7 @@ async def async_login_user_route(request_pydantic_model: user_p2p.LoginUserReque
         user_pb2.LoginUserRequest, request_pydantic_model.dict()
     )
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-    if loop != gateway.User_stub.login_user._loop:  # type: ignore
+    if loop != getattr(gateway.User_stub.login_user, "_loop", None):
         raise RuntimeError(
             "Loop is not same, "
             "the grpc channel must be initialized after the event loop of the api server is initialized"
@@ -117,7 +117,7 @@ async def async_create_user_route(request_pydantic_model: user_p2p.CreateUserReq
         user_pb2.CreateUserRequest, request_pydantic_model.dict()
     )
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-    if loop != gateway.User_stub.create_user._loop:  # type: ignore
+    if loop != getattr(gateway.User_stub.create_user, "_loop", None):
         raise RuntimeError(
             "Loop is not same, "
             "the grpc channel must be initialized after the event loop of the api server is initialized"
@@ -151,7 +151,7 @@ async def async_delete_user_route(
         user_pb2.DeleteUserRequest, request_pydantic_model.dict()
     )
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-    if loop != gateway.User_stub.delete_user._loop:  # type: ignore
+    if loop != getattr(gateway.User_stub.delete_user, "_loop", None):
         raise RuntimeError(
             "Loop is not same, "
             "the grpc channel must be initialized after the event loop of the api server is initialized"

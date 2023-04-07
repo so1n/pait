@@ -62,7 +62,7 @@ async def async_create_book_route(request_pydantic_model: manager_p2p.CreateBook
         manager_pb2.CreateBookRequest, request_pydantic_model.dict()
     )
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-    if loop != gateway.BookManager_stub.create_book._loop:  # type: ignore
+    if loop != getattr(gateway.BookManager_stub.create_book, "_loop", None):
         raise RuntimeError(
             "Loop is not same, "
             "the grpc channel must be initialized after the event loop of the api server is initialized"
@@ -91,7 +91,7 @@ async def async_delete_book_route(request_pydantic_model: manager_p2p.DeleteBook
         manager_pb2.DeleteBookRequest, request_pydantic_model.dict()
     )
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-    if loop != gateway.BookManager_stub.delete_book._loop:  # type: ignore
+    if loop != getattr(gateway.BookManager_stub.delete_book, "_loop", None):
         raise RuntimeError(
             "Loop is not same, "
             "the grpc channel must be initialized after the event loop of the api server is initialized"
@@ -120,7 +120,7 @@ async def async_get_book_route(request_pydantic_model: manager_p2p.GetBookReques
         manager_pb2.GetBookRequest, request_pydantic_model.dict()
     )
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-    if loop != gateway.BookManager_stub.get_book._loop:  # type: ignore
+    if loop != getattr(gateway.BookManager_stub.get_book, "_loop", None):
         raise RuntimeError(
             "Loop is not same, "
             "the grpc channel must be initialized after the event loop of the api server is initialized"
@@ -149,7 +149,7 @@ async def async_get_book_list_route(request_pydantic_model: manager_p2p.GetBookL
         manager_pb2.GetBookListRequest, request_pydantic_model.dict()
     )
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-    if loop != gateway.BookManager_stub.get_book_list._loop:  # type: ignore
+    if loop != getattr(gateway.BookManager_stub.get_book_list, "_loop", None):
         raise RuntimeError(
             "Loop is not same, "
             "the grpc channel must be initialized after the event loop of the api server is initialized"

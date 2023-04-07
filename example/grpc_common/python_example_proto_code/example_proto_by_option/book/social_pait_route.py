@@ -66,7 +66,7 @@ async def async_like_book_route(request_pydantic_model: social_p2p.LikeBookReque
         social_pb2.LikeBookRequest, request_pydantic_model.dict()
     )
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-    if loop != gateway.BookSocial_stub.like_book._loop:  # type: ignore
+    if loop != getattr(gateway.BookSocial_stub.like_book, "_loop", None):
         raise RuntimeError(
             "Loop is not same, "
             "the grpc channel must be initialized after the event loop of the api server is initialized"
@@ -95,7 +95,7 @@ async def async_like_multi_book_route(request_pydantic_model: social_p2p.LikeBoo
         social_pb2.LikeBookMapRequest, request_pydantic_model.dict()
     )
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-    if loop != gateway.BookSocial_stub.like_multi_book._loop:  # type: ignore
+    if loop != getattr(gateway.BookSocial_stub.like_multi_book, "_loop", None):
         raise RuntimeError(
             "Loop is not same, "
             "the grpc channel must be initialized after the event loop of the api server is initialized"
@@ -124,7 +124,7 @@ async def async_get_book_like_route(request_pydantic_model: social_p2p.GetBookLi
         social_pb2.GetBookLikesRequest, request_pydantic_model.dict()
     )
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-    if loop != gateway.BookSocial_stub.get_book_like._loop:  # type: ignore
+    if loop != getattr(gateway.BookSocial_stub.get_book_like, "_loop", None):
         raise RuntimeError(
             "Loop is not same, "
             "the grpc channel must be initialized after the event loop of the api server is initialized"
@@ -153,7 +153,7 @@ async def async_comment_book_route(request_pydantic_model: social_p2p.CommentBoo
         social_pb2.CommentBookRequest, request_pydantic_model.dict()
     )
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-    if loop != gateway.BookSocial_stub.comment_book._loop:  # type: ignore
+    if loop != getattr(gateway.BookSocial_stub.comment_book, "_loop", None):
         raise RuntimeError(
             "Loop is not same, "
             "the grpc channel must be initialized after the event loop of the api server is initialized"
@@ -182,7 +182,7 @@ async def async_get_book_comment_route(request_pydantic_model: social_p2p.GetBoo
         social_pb2.GetBookCommentRequest, request_pydantic_model.dict()
     )
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-    if loop != gateway.BookSocial_stub.get_book_comment._loop:  # type: ignore
+    if loop != getattr(gateway.BookSocial_stub.get_book_comment, "_loop", None):
         raise RuntimeError(
             "Loop is not same, "
             "the grpc channel must be initialized after the event loop of the api server is initialized"
