@@ -40,7 +40,7 @@ repos:
           language: python
           language_version: python3
           pass_filenames: false
-          args: ["-o", "requirements.txt", "--without-hashes", "--with-credentials" ]
+          args: ["-o", "requirements.txt", "--without-hashes", "--with-credentials", "--only=main"]
         - id: local-poetry-export-test
           name: my-poetry-export-test
           entry: poetry export

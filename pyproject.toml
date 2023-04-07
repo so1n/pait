@@ -14,11 +14,11 @@ protoc-gen-pait-route = "pait.grpc.plugin.main:main"
 [tool.poetry.dependencies]
 python = "^3.7"
 
-any-api = "0.1.0.3"
+any-api = "^0.1.0.3"
 pydantic = "^1.7.3"
 typing-extensions = "^4.1.1"
 protobuf-to-pydantic = { version="^0.1.7", optional = true}
-jinja2 = { version="^2.11.3", optional=true}
+jinja2 = {version = ">=2.0.0", optional = true }
 redis = { version = "^4.2.2", optional = true }
 
 [tool.poetry.urls]
