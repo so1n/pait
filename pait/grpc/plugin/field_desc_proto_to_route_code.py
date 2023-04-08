@@ -107,6 +107,28 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
             )
         return response_class_str
 
+    def get_pait_code(self, tab_str: str, pait_name: str, grpc_model: GrpcModel) -> str:
+        # can't change tab_str, pait_name value
+        tag_str_list: List[str] = [
+            f'Tag("{tag}", "{desc}")'
+            for tag, desc in grpc_model.grpc_service_option_model.tag
+            + [("grpc" + "-" + grpc_model.grpc_method_url.split("/")[1].split(".")[0], "")]
+        ]
+        tag_str_list.append("self._grpc_tag")
+        return (
+            f"{tab_str * 2}{pait_name}: Pait = self._pait.create_sub_pait(\n"
+            f"{tab_str * 3}author={self._get_value_code(grpc_model.grpc_service_option_model.author)},\n"
+            f'{tab_str * 3}name="{grpc_model.grpc_service_option_model.name}",\n'
+            f"{tab_str * 3}group={self._get_value_code(grpc_model.grpc_service_option_model.group)},\n"
+            f"{tab_str * 3}append_tag=({','.join(tag_str_list)},),\n"
+            f'{tab_str * 3}desc="{grpc_model.grpc_service_option_model.desc}",\n'
+            f'{tab_str * 3}summary="{grpc_model.grpc_service_option_model.summary}",\n'
+            f"{tab_str * 3}default_field_class="
+            f'{"field.Query" if grpc_model.grpc_service_option_model.http_method == "GET" else "field.Body"},\n'
+            f"{tab_str * 3}response_model_list=[{grpc_model.response_class_name}] + response_model_list ,\n"
+            f"{tab_str * 2})"
+        )
+
     def _parse_field_descriptor(self) -> None:
         tab_str: str = self.indent * " "
         model_module_name = self._fd.name.split("/")[-1].replace(".proto", self.config.file_name_suffix)
@@ -205,14 +227,8 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                 continue
 
             # Generate the data needed by `pait`
-            group_list = grpc_service_option_model.group or grpc_service_option_model.url.split("/")[1]
             self._add_import_code("pait.model.tag", "Tag")
-            tag_str_list: List[str] = [
-                f'Tag("{tag}", "{desc}")'
-                for tag, desc in grpc_model.grpc_service_option_model.tag
-                + [("grpc" + "-" + grpc_model.grpc_method_url.split("/")[1].split(".")[0], "")]
-            ]
-            tag_str_list.append("self._grpc_tag")
+
             if grpc_model.index == 0:
                 # The response model code only needs to be generated once
                 template_dict: dict = asdict(grpc_model)
@@ -222,19 +238,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
             if grpc_model.index:
                 base_func_name = base_func_name + "_" + str(grpc_model.index)
             pait_name: str = base_func_name + "_pait"
-            wrapper_route_str_list.append(
-                f"{tab_str * 2}{pait_name}: Pait = self._pait.create_sub_pait(\n"
-                f"{tab_str * 3}author={self._get_value_code(grpc_service_option_model.author)},\n"
-                f'{tab_str * 3}name="{grpc_service_option_model.name}",\n'
-                f"{tab_str * 3}group={self._get_value_code(group_list)},\n"
-                f"{tab_str * 3}append_tag=({','.join(tag_str_list)},),\n"
-                f'{tab_str * 3}desc="{grpc_service_option_model.desc}",\n'
-                f'{tab_str * 3}summary="{grpc_service_option_model.summary}",\n'
-                f"{tab_str * 3}default_field_class="
-                f'{"field.Query" if grpc_service_option_model.http_method == "GET" else "field.Body"},\n'
-                f"{tab_str * 3}response_model_list=[{grpc_model.response_class_name}] + response_model_list ,\n"
-                f"{tab_str * 2})"
-            )
+            wrapper_route_str_list.append(self.get_pait_code(tab_str, pait_name, grpc_model))
             for is_async in [True, False]:
                 if grpc_model.index == 0:
                     # The routing function only needs to be generated once
