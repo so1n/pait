@@ -19,7 +19,7 @@ pydantic = "^1.7.3"
 typing-extensions = "^4.1.1"
 protobuf-to-pydantic = { version="^0.1.7", optional = true}
 redis = { version = "^4.2.2", optional = true }
-jinja2 = {version = "^2.0.0", optional = true}
+jinja2 = {version = ">=2.0.0", optional = true}
 
 [tool.poetry.urls]
 "Source" = "https://github.com/so1n/pait"
@@ -36,6 +36,7 @@ all = ["redis", "protobuf-to-pydantic", "jinja2"]
 [tool.poetry.group.framework.dependencies]
 werkzeug = "1.0.1"
 Flask = "1.1.2"
+jinja2 = "^2.0.0"
 sanic = "21.3.4"
 sanic-testing = "0.3.0"
 tornado = "6.1"

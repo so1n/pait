@@ -47,7 +47,7 @@ repos:
           language: python
           language_version: python3
           pass_filenames: false
-          args: ["-o", "requirements-test.txt", "--without-hashes", "--with-credentials", "--with", "test", "--with","framework",  "--extras=all" ]
+          args: ["-o", "requirements-test.txt", "--without-hashes", "--with-credentials", "--with", "test", "--with", "framework",  "--extras=all" ]
         - id: local-poetry-export-no-framework-test
           name: my-poetry-export-no-framework-test
           entry: poetry export
