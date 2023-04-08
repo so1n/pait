@@ -11,7 +11,7 @@ gRPC基于HTTP/2.0进行通信，理论上很容易自动转换成一个RESTful�
 from typing import Any
 import grpc
 from starlette.applications import Starlette
-from pait.app.starlette.grpc_route import GrpcGatewayRoute
+from pait.grpc.gateway import GrpcGatewayRoute
 from pait.app.starlette import AddDocRoute
 
 # 引入根据Protobuf文件生成的对应代码

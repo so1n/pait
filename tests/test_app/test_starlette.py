@@ -384,13 +384,13 @@ class TestStarletteGrpc:
 
     def test_grpc_openapi_by_protobuf_file(self, base_test: BaseTest) -> None:
         from pait.app.starlette import load_app
-        from pait.app.starlette.grpc_route import GrpcGatewayRoute
+        from pait.grpc.gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 
         base_test.grpc_openapi_by_protobuf_file(base_test.client.app, GrpcGatewayRoute, load_app)
 
     def test_grpc_openapi_by_option(self) -> None:
         from pait.app.starlette import load_app
-        from pait.app.starlette.grpc_route import GrpcGatewayRoute
+        from pait.grpc.gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 
         with base_test_ctx() as base_test:
             base_test.grpc_openapi_by_option(base_test.client.app, GrpcGatewayRoute, load_app)

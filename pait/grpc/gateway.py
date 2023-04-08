@@ -31,7 +31,7 @@ def _gen_response_model_handle(grpc_model: GrpcModel) -> Type[BaseResponseModel]
     return CustomerJsonResponseModel
 
 
-class BaseDynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
+class DynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
     def __init__(
         self,
         app: Any,
@@ -185,7 +185,7 @@ class BaseDynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
                             methods=[grpc_model.grpc_service_option_model.http_method],
                         )
                     )
-            self.add_multi_simple_route(
+            self._add_multi_simple_route(
                 app, *simple_route_list, prefix=self.prefix, title=self.title + parse_stub.name, **kwargs
             )
 
@@ -202,7 +202,7 @@ class BaseDynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
         return super().reinit_channel(channel, auto_close)
 
 
-class GrpcGatewayRoute(BaseDynamicGrpcGatewayRoute, metaclass=ABCMeta):
+class GrpcGatewayRoute(DynamicGrpcGatewayRoute, metaclass=ABCMeta):
     def gen_route(self, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]) -> Callable:
         def _route(request_pydantic_model: request_pydantic_model_class) -> Any:  # type: ignore
             func: Callable = self.get_grpc_func(grpc_model)
@@ -218,7 +218,7 @@ class GrpcGatewayRoute(BaseDynamicGrpcGatewayRoute, metaclass=ABCMeta):
         return super().reinit_channel(channel, auto_close)
 
 
-class AsyncGrpcGatewayRoute(BaseDynamicGrpcGatewayRoute, metaclass=ABCMeta):
+class AsyncGrpcGatewayRoute(DynamicGrpcGatewayRoute, metaclass=ABCMeta):
     def gen_route(self, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]) -> Callable:
         async def _route(request_pydantic_model: request_pydantic_model_class) -> Any:  # type: ignore
             func: Callable = self.get_grpc_func(grpc_model)

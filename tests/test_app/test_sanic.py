@@ -356,14 +356,14 @@ class TestSanicGrpc:
 
     def test_grpc_openapi_by_protobuf_file(self) -> None:
         from pait.app.sanic import load_app
-        from pait.app.sanic.grpc_route import GrpcGatewayRoute
+        from pait.grpc.gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 
         with base_test_ctx() as base_test:
             base_test.grpc_openapi_by_protobuf_file(base_test.client.app, GrpcGatewayRoute, load_app)
 
     def test_grpc_openapi_by_option(self) -> None:
         from pait.app.sanic import load_app
-        from pait.app.sanic.grpc_route import GrpcGatewayRoute
+        from pait.grpc.gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 
         with base_test_ctx() as base_test:
             base_test.grpc_openapi_by_option(base_test.client.app, GrpcGatewayRoute, load_app)

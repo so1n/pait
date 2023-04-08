@@ -83,21 +83,6 @@ class TestAddDocRoute(BaseTestApp):
             assert any.AddDocRoute == getattr(importlib.import_module(f"pait.app.{i}"), "AddDocRoute")
 
 
-class TestGrpcRoute(BaseTestApp):
-    def test_grpc_route_class(self) -> None:
-        from pait.app.any import grpc_route
-
-        for i in app_list:
-            self._clean_app_from_sys_module()
-            # import web app
-            importlib.import_module(i)
-            # reload pait.app
-            importlib.reload(grpc_route)
-            assert grpc_route.GrpcGatewayRoute == getattr(
-                importlib.import_module(f"pait.app.{i}.grpc_route"), "GrpcGatewayRoute"
-            )
-
-
 class TestSecurity(BaseTestApp):
     def test_security_api_key(self) -> None:
         for i in app_list:

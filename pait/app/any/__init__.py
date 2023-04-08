@@ -46,7 +46,6 @@ try:
 
     if TYPE_CHECKING:
         from pait.app.base.doc_route import AddDocRoute as _AddDocRoute
-        from pait.app.base.grpc_route import GrpcGatewayRoute as _GrpcGatewayRoute
         from pait.core import Pait as _Pait
 
     Pait: "_Pait" = getattr(import_module(pait_app_path), "Pait")

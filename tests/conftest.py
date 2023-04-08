@@ -124,10 +124,10 @@ def fixture_loop(mock_close_loop: bool = False) -> Generator[asyncio.AbstractEve
 @contextmanager
 def grpc_test_create_user_request(app: Any) -> Generator[Queue, None, None]:
     from pait.app import get_app_attribute
-    from pait.app.base.grpc_route import AsyncGrpcGatewayRoute, BaseDynamicGrpcGatewayRoute
+    from pait.grpc.gateway import AsyncGrpcGatewayRoute, DynamicGrpcGatewayRoute
     from pait.grpc.plugin.gateway import BaseStaticGrpcGatewayRoute
 
-    grpc_gateway_route: BaseDynamicGrpcGatewayRoute = get_app_attribute(app, "grpc_gateway_route")
+    grpc_gateway_route: DynamicGrpcGatewayRoute = get_app_attribute(app, "grpc_gateway_route")
     user_gateway_route: BaseStaticGrpcGatewayRoute = get_app_attribute(app, "gateway_attr_user_by_option_gateway")
     book_manager_gateway_route: BaseStaticGrpcGatewayRoute = get_app_attribute(
         app, "gateway_attr_book_manager_by_option_gateway"

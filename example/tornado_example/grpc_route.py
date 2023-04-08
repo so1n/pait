@@ -14,8 +14,8 @@ from example.grpc_common.python_example_proto_code.example_proto_by_option.book 
 from example.grpc_common.python_example_proto_code.example_proto_by_option.user import user_pait_route
 from example.tornado_example.utils import MyHandler, create_app
 from pait.app import set_app_attribute
-from pait.app.tornado.grpc_route import GrpcGatewayRoute
 from pait.field import Header
+from pait.grpc.gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 
 
 def add_grpc_gateway_route(app: Application) -> None:

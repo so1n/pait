@@ -57,7 +57,7 @@ class BaseGrpcGatewayRoute(object):
         self._add_multi_simple_route = (
             add_multi_simple_route
             or getattr(self, "add_multi_simple_route", None)
-            or import_func_from_app("pait", app=app)
+            or import_func_from_app("add_multi_simple_route", app=app)
         )  # type: ignore
         self.make_response: Callable = make_response or self._make_response
         self._tag_dict: Dict[str, Tag] = {}
