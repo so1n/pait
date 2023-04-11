@@ -52,12 +52,18 @@ class GetBookRequest(google.protobuf.message.Message):
     """get book by user"""
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
     ISBN_FIELD_NUMBER: builtins.int
+    NOT_USE_FIELD1_FIELD_NUMBER: builtins.int
+    NOT_USE_FIELD2_FIELD_NUMBER: builtins.int
     isbn: typing.Text
+    not_use_field1: typing.Text
+    not_use_field2: typing.Text
     def __init__(self,
         *,
         isbn: typing.Text = ...,
+        not_use_field1: typing.Text = ...,
+        not_use_field2: typing.Text = ...,
         ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["isbn",b"isbn"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["isbn",b"isbn","not_use_field1",b"not_use_field1","not_use_field2",b"not_use_field2"]) -> None: ...
 global___GetBookRequest = GetBookRequest
 
 class GetBookResult(google.protobuf.message.Message):

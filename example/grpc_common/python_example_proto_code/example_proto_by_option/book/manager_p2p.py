@@ -28,6 +28,8 @@ class DeleteBookRequest(BaseModel):
 class GetBookRequest(BaseModel):
 
     isbn: str = Query(default="")
+    not_use_field1: str = FieldInfo(default="")
+    not_use_field2: str = FieldInfo(default="")
 
 
 class GetBookResult(BaseModel):

@@ -3,6 +3,7 @@ package book_manager_by_option;
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "example_proto_by_option/common/p2p_validate.proto";
+import "example_proto_by_option/common/api.proto";
 
 
 // create book by admin
@@ -22,6 +23,8 @@ message DeleteBookRequest {
 // get book by user
 message GetBookRequest {
   string isbn = 1 [(p2p_validate.rules).string.field = "pait@field|Query"];
+  string not_use_field1 = 2;
+  string not_use_field2 = 3;
 }
 
 message GetBookResult {
@@ -48,6 +51,16 @@ message GetBookListResult {
 service BookManager {
   rpc create_book (CreateBookRequest) returns (google.protobuf.Empty);
   rpc delete_book (DeleteBookRequest) returns (google.protobuf.Empty);
-  rpc get_book (GetBookRequest) returns (GetBookResult);
-  rpc get_book_list (GetBookListRequest) returns (GetBookListResult);
+  rpc get_book (GetBookRequest) returns (GetBookResult){
+    option (pait.api.http) = {
+     post: {url: "/book/get"},
+     request_message: {exclude_column_name: "not_use_field1,not_use_field2"}
+   };
+  };
+  rpc get_book_list (GetBookListRequest) returns (GetBookListResult){
+   option (pait.api.http) = {
+     post: {url: "/book/get-list"},
+     response_message: {nested: "/result"}
+   };
+  };
 }

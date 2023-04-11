@@ -21,7 +21,7 @@ from pait.app.flask import TestHelper as _TestHelper
 from pait.app.flask import load_app
 from pait.model import response
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
-from tests.conftest import enable_plugin, grpc_test_create_user_request, grpc_test_openapi
+from tests.conftest import enable_plugin, grpc_request_test, grpc_test_openapi
 from tests.test_app.base_test import BaseTest
 
 
@@ -289,7 +289,7 @@ class TestFlaskGrpc:
             main_example.add_api_doc_route(client.application)
 
             for url in ("/api/user/create", "/api/static/user/create"):
-                with grpc_test_create_user_request(client.application) as queue:
+                with grpc_request_test(client.application) as queue:
                     body: bytes = client.post(
                         url,
                         json={"uid": "10086", "user_name": "so1n", "pw": "123456", "sex": 0},
@@ -301,6 +301,74 @@ class TestFlaskGrpc:
                     assert message.password == "123456"
                     assert message.sex == 0
 
+    def test_get_book(self) -> None:
+        from example.grpc_common.python_example_proto_code.example_proto.book.manager_pb2 import GetBookRequest
+
+        with client_ctx() as client:
+            grpc_route.add_grpc_gateway_route(client.application)
+            main_example.add_api_doc_route(client.application)
+
+            for url in (
+                "/api/book/get",
+                "/api/static/book/get",
+            ):
+                with grpc_request_test(client.application) as queue:
+                    body: bytes = client.post(url + "?isbn=xxxa", headers={"token": "token"}).data
+                    assert body == (
+                        b'{"code":0,'
+                        b'"data":{"bookAuthor":"","bookDesc":"","bookName":"","bookUrl":"","isbn":""},"msg":""}\n'
+                    )
+                    queue.get(timeout=1)
+                    message: GetBookRequest = queue.get(timeout=1)
+                    assert message.isbn == "xxxa"
+
+    def test_get_book_list(self) -> None:
+        from example.grpc_common.python_example_proto_code.example_proto.book.manager_pb2 import GetBookListRequest
+
+        with client_ctx() as client:
+            grpc_route.add_grpc_gateway_route(client.application)
+            main_example.add_api_doc_route(client.application)
+
+            for url in (
+                "/api/book/get-list",
+                "/api/static/book/get-list",
+            ):
+                with grpc_request_test(client.application) as queue:
+                    body: bytes = client.post(
+                        url, json={"limit": 0, "next_create_time": "2023-04-10 18:44:36"}, headers={"token": "token"}
+                    ).data
+                    assert body == (b'{"code":0,"data":{"result":[]},"msg":""}\n')
+                    queue.get(timeout=1)
+                    message: GetBookListRequest = queue.get(timeout=1)
+                    assert message.limit == 0
+
+    def test_get_book_like(self) -> None:
+        from example.grpc_common.python_example_proto_code.example_proto.book.social_pb2 import (
+            GetBookLikesRequest,
+            NestedGetBookLikesRequest,
+        )
+
+        with client_ctx() as client:
+            grpc_route.add_grpc_gateway_route(client.application)
+            main_example.add_api_doc_route(client.application)
+
+            for url in (
+                "/api/book/get-book-like",
+                "/api/book/get-book-like-other",
+                "/api/static/book/get-book-like",
+                "/api/static/book/get-book-like-other",
+            ):
+                with grpc_request_test(client.application) as queue:
+                    body: bytes = client.post(url, json={"isbn": ["xxxa", "xxxb"]}, headers={"token": "token"}).data
+                    assert body == b'{"code":0,"data":{"result":[]},"msg":""}\n'
+                    queue.get(timeout=1)
+                    if not url.endswith("other"):
+                        message1: GetBookLikesRequest = queue.get(timeout=1)
+                        assert message1.isbn == ["xxxa", "xxxb"]
+                    else:
+                        message2: NestedGetBookLikesRequest = queue.get(timeout=1)
+                        assert message2.nested.isbn == ["xxxa", "xxxb"]
+
     def test_login(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
 
@@ -309,9 +377,9 @@ class TestFlaskGrpc:
             main_example.add_api_doc_route(client.application)
 
             for url in ("/api/user/login", "/api/static/user/login"):
-                with grpc_test_create_user_request(client.application) as queue:
+                with grpc_request_test(client.application) as queue:
                     body: bytes = client.post(url, json={"uid": "10086", "password": "pw"}).data
-                    assert body == b'{"code":0,"data":{},"msg":""}\n'
+                    assert body == b'{"code":0,"data":{"token":"","uid":"","userName":""},"msg":""}\n'
                     message: LoginUserRequest = queue.get(timeout=1)
                     assert message.uid == "10086"
                     assert message.password == "pw"
@@ -324,7 +392,7 @@ class TestFlaskGrpc:
             main_example.add_api_doc_route(client.application)
 
             for url in ("/api/user/logout", "/api/static/user/logout"):
-                with grpc_test_create_user_request(client.application) as queue:
+                with grpc_request_test(client.application) as queue:
                     body: bytes = client.post(url, json={"uid": "10086"}, headers={"token": "token"}).data
                     assert body == b'{"code":0,"data":{},"msg":""}\n'
                     message: LogoutUserRequest = queue.get(timeout=1)
@@ -339,7 +407,7 @@ class TestFlaskGrpc:
             main_example.add_api_doc_route(client.application)
 
             for url in ("/api/user/delete", "/api/static/user/delete"):
-                with grpc_test_create_user_request(client.application) as queue:
+                with grpc_request_test(client.application) as queue:
                     body: bytes = client.post(
                         url,
                         json={"uid": "10086"},

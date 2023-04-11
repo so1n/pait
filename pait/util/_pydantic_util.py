@@ -10,10 +10,10 @@ __all__ = ["create_pydantic_model"]
 
 
 def create_pydantic_model(
-    annotation_dict: Dict[str, Tuple[Type, Any]],
+    annotation_dict: Optional[Dict[str, Tuple[Type, Any]]] = None,
     class_name: str = "DynamicModel",
-    pydantic_config: Optional["BaseConfig"] = None,
-    pydantic_base: Optional["BaseModel"] = None,
+    pydantic_config: Optional[Type["BaseConfig"]] = None,
+    pydantic_base: Optional[Type["BaseModel"]] = None,
     pydantic_module: str = "pydantic.main",
     pydantic_validators: Optional[Dict[str, classmethod]] = None,
 ) -> Type["BaseModel"]:
@@ -26,5 +26,5 @@ def create_pydantic_model(
         __base__=pydantic_base,
         __module__=pydantic_module,
         __validators__=pydantic_validators,
-        **annotation_dict,
+        **(annotation_dict or {}),
     )

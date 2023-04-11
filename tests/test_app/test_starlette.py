@@ -24,7 +24,7 @@ from pait.app.starlette import load_app
 from pait.app.starlette.plugin.mock_response import MockPlugin
 from pait.model import response
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
-from tests.conftest import enable_plugin, grpc_test_create_user_request, grpc_test_openapi
+from tests.conftest import enable_plugin, grpc_request_test, grpc_test_openapi
 from tests.test_app.base_test import BaseTest
 
 
@@ -74,7 +74,7 @@ def grpc_client() -> Generator[Tuple[TestClient, Queue], None, None]:
     app = main_example.create_app()
     main_example.add_grpc_gateway_route(app)
     main_example.add_api_doc_route(app)
-    with grpc_test_create_user_request(app) as queue:
+    with grpc_request_test(app) as queue:
         with TestClient(app) as client:
             yield client, queue
 
@@ -333,6 +333,63 @@ class TestStarletteGrpc:
                 assert message.password == "123456"
                 assert message.sex == 0
 
+    def test_get_book(self) -> None:
+        from example.grpc_common.python_example_proto_code.example_proto.book.manager_pb2 import GetBookRequest
+
+        with grpc_client() as grpc_client_tuple:
+            client, queue = grpc_client_tuple
+
+            for url in ("/api/book/get", "/api/static/book/get"):
+                body: bytes = client.post(url + "?isbn=xxxa", headers={"token": "token"}).content
+                assert json.loads(body.decode()) == {
+                    "code": 0,
+                    "data": {"bookAuthor": "", "bookDesc": "", "bookName": "", "bookUrl": "", "isbn": ""},
+                    "msg": "",
+                }
+                queue.get(timeout=1)
+                message: GetBookRequest = queue.get(timeout=1)
+                assert message.isbn == "xxxa"
+
+    def test_get_book_list(self) -> None:
+        from example.grpc_common.python_example_proto_code.example_proto.book.manager_pb2 import GetBookListRequest
+
+        with grpc_client() as grpc_client_tuple:
+            client, queue = grpc_client_tuple
+
+            for url in ("/api/book/get-list", "/api/static/book/get-list"):
+                body: bytes = client.post(
+                    url, json={"limit": 0, "next_create_time": "2023-04-10 18:44:36"}, headers={"token": "token"}
+                ).content
+                assert json.loads(body.decode()) == {"code": 0, "data": {"result": []}, "msg": ""}
+                queue.get(timeout=1)
+                message: GetBookListRequest = queue.get(timeout=1)
+                assert message.limit == 0
+
+    def test_get_book_like(self) -> None:
+        from example.grpc_common.python_example_proto_code.example_proto.book.social_pb2 import (
+            GetBookLikesRequest,
+            NestedGetBookLikesRequest,
+        )
+
+        with grpc_client() as grpc_client_tuple:
+            client, queue = grpc_client_tuple
+
+            for url in (
+                "/api/book/get-book-like",
+                "/api/book/get-book-like-other",
+                "/api/static/book/get-book-like",
+                "/api/static/book/get-book-like-other",
+            ):
+                body: bytes = client.post(url, json={"isbn": ["xxxa", "xxxb"]}, headers={"token": "token"}).content
+                assert json.loads(body.decode()) == {"code": 0, "data": {"result": []}, "msg": ""}
+                queue.get(timeout=1)
+                if not url.endswith("other"):
+                    message1: GetBookLikesRequest = queue.get(timeout=1)
+                    assert message1.isbn == ["xxxa", "xxxb"]
+                else:
+                    message2: NestedGetBookLikesRequest = queue.get(timeout=1)
+                    assert message2.nested.isbn == ["xxxa", "xxxb"]
+
     def test_login(self) -> None:
         from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
 
@@ -340,7 +397,7 @@ class TestStarletteGrpc:
             client, queue = grpc_client_tuple
             for url in ("/api/user/login", "/api/static/user/login"):
                 body: bytes = client.post(url, json={"uid": "10086", "password": "pw"}).content
-                assert body == b'{"code":0,"msg":"","data":{}}'
+                assert body == b'{"code":0,"msg":"","data":{"uid":"","userName":"","token":""}}'
                 message: LoginUserRequest = queue.get(timeout=1)
                 assert message.uid == "10086"
                 assert message.password == "pw"

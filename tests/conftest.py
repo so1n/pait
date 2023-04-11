@@ -122,7 +122,7 @@ def fixture_loop(mock_close_loop: bool = False) -> Generator[asyncio.AbstractEve
 
 
 @contextmanager
-def grpc_test_create_user_request(app: Any) -> Generator[Queue, None, None]:
+def grpc_request_test(app: Any) -> Generator[Queue, None, None]:
     from pait.app import get_app_attribute
     from pait.grpc.gateway import AsyncGrpcGatewayRoute, DynamicGrpcGatewayRoute
     from pait.grpc.plugin.gateway import BaseStaticGrpcGatewayRoute
@@ -185,10 +185,10 @@ def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api", option_str: str
         f"{url_prefix}/user/delete",
         f"{url_prefix}/user/login",
         f"{url_prefix}/user/logout",
-        f"{url_prefix}/book_manager{option_str}-BookManager/get_book_list",
+        f"{url_prefix}/book/get-list",
+        f"{url_prefix}/book/get",
         f"{url_prefix}/book_manager{option_str}-BookManager/create_book",
         f"{url_prefix}/book_manager{option_str}-BookManager/delete_book",
-        f"{url_prefix}/book_manager{option_str}-BookManager/get_book",
         f"{url_prefix}/book_social{option_str}-BookSocial/get_book_comment",
         f"{url_prefix}/book_social{option_str}-BookSocial/like_multi_book",
         f"{url_prefix}/book_social{option_str}-BookSocial/get_book_like",
@@ -279,3 +279,14 @@ def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api", option_str: str
                     assert item["in"] == "query"
                 else:
                     assert item["in"] == "header"
+
+        # # test rebuild message
+        # if url == f"{url_prefix}/book/get-list":
+        #     response_schema_key: str = path_dict["post"]["responses"]["200"]["content"]["application/json"]["schema"][
+        #         "$ref"
+        #     ].split("/")[-1]
+        #     response_schema: dict = pait_openapi.dict["components"]["schemas"][response_schema_key]
+        #     response_schema_key = response_schema["properties"]["data"]["allOf"][0]["$ref"].split("/")[-1]
+        #     assert pait_openapi.dict["components"]["schemas"][response_schema_key]["title"] == ["GetBookResult"]
+        # if url == f"{url_prefix}/book/get":
+        #     print(path_dict)

@@ -4,6 +4,7 @@ from sys import modules
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 import grpc
+from google.protobuf.empty_pb2 import Empty  # type: ignore
 from protobuf_to_pydantic import msg_to_pydantic_model
 from pydantic import BaseModel
 
@@ -13,20 +14,31 @@ from pait.field import BaseField, Body, Query
 from pait.grpc.desc_template import DescTemplate
 from pait.grpc.inspect import GrpcModel, Message, MessageToDict, ParseStub
 from pait.grpc.route import BaseGrpcGatewayRoute
+from pait.grpc.util import rebuild_message_type
 from pait.model.response import BaseResponseModel, JsonResponseModel
 from pait.model.tag import Tag
 
 
 def _gen_response_model_handle(grpc_model: GrpcModel) -> Type[BaseResponseModel]:
+    if grpc_model.response is Empty:
+        response_model: Any = dict
+    elif grpc_model.grpc_service_option_model.response_message:
+        response_model = rebuild_message_type(
+            msg_to_pydantic_model(grpc_model.response),
+            grpc_model.invoke_name,
+            exclude_column_name=grpc_model.grpc_service_option_model.response_message.exclude_column_name,
+            nested=grpc_model.grpc_service_option_model.response_message.nested,
+        )
+    else:
+        response_model = msg_to_pydantic_model(grpc_model.response)
+
     class CustomerJsonResponseModel(JsonResponseModel):
         name: str = grpc_model.response.DESCRIPTOR.name
         description: str = grpc_model.response.__doc__ or ""
 
         # Rename it,
         # otherwise it will overwrite the existing scheme with the same name when generating OpenAPI documents.
-        response_data: Type[BaseModel] = type(
-            f"{grpc_model.grpc_method_url}RespModel", (msg_to_pydantic_model(grpc_model.response),), {}
-        )
+        response_data: Type[BaseModel] = type(f"{grpc_model.grpc_method_url}RespModel", (response_model,), {})
 
     return CustomerJsonResponseModel
 
@@ -87,7 +99,7 @@ class DynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
         self.grpc_method_url_func_dict: Dict[str, Callable] = {}
         self._add_route(app, **kwargs)
 
-    def _gen_request_pydantic_class(self, grpc_model: GrpcModel) -> Type[BaseModel]:
+    def _gen_request_pydantic_class(self, grpc_model: GrpcModel) -> Type:
         """
         Generate a pydantic class that automatically generates the corresponding request according to the Protocol
          Message (Field is pait.field)
@@ -99,7 +111,7 @@ class DynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
             default_field = Body
         else:
             raise RuntimeError(f"{http_method} is not supported")
-        return msg_to_pydantic_model(
+        request_model: Type[BaseModel] = msg_to_pydantic_model(
             grpc_model.request,
             default_field=default_field,
             comment_prefix="pait",
@@ -108,6 +120,15 @@ class DynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
             if self._parse_msg_desc == "by_mypy"
             else self._parse_msg_desc,
         )
+        if grpc_model.grpc_service_option_model.request_message:
+            return rebuild_message_type(
+                request_model,
+                grpc_model.invoke_name,
+                exclude_column_name=grpc_model.grpc_service_option_model.request_message.exclude_column_name,
+                nested=grpc_model.grpc_service_option_model.request_message.nested,
+            )
+        else:
+            return request_model
 
     def _gen_pait_from_grpc_model(self, grpc_model: GrpcModel) -> Pait:
         """Generate the corresponding pait instance according to the object of the grpc calling method"""
@@ -145,7 +166,7 @@ class DynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
             )
         return func
 
-    def gen_route(self, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]) -> Callable:
+    def gen_route(self, grpc_model: GrpcModel, request_pydantic_model_class: Type) -> Callable:
         """Generate the routing function corresponding to grpc invoke fun"""
         raise NotImplementedError()
 
@@ -153,7 +174,7 @@ class DynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
         if grpc_model.grpc_service_option_model.enable is False:
             return None
 
-        request_pydantic_model_class: Type[BaseModel] = self._gen_request_pydantic_class(grpc_model)
+        request_pydantic_model_class: Type = self._gen_request_pydantic_class(grpc_model)
         pait: Pait = self._gen_pait_from_grpc_model(grpc_model)
         _route = self.gen_route(grpc_model, request_pydantic_model_class)
 
@@ -206,11 +227,18 @@ class GrpcGatewayRoute(DynamicGrpcGatewayRoute, metaclass=ABCMeta):
     def gen_route(self, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]) -> Callable:
         def _route(request_pydantic_model: request_pydantic_model_class) -> Any:  # type: ignore
             func: Callable = self.get_grpc_func(grpc_model)
-            request_msg: Message = self.get_msg_from_dict(
-                grpc_model.request, request_pydantic_model.dict()  # type: ignore
+            request_msg: Message = self.msg_from_dict_handle(
+                grpc_model.request,
+                request_pydantic_model.dict(),  # type: ignore
+                grpc_model.grpc_service_option_model.request_message.nested,
             )
+
             grpc_msg: Message = func(request_msg)
-            return self.make_response(self.msg_to_dict(grpc_msg))
+            return self.msg_to_dict_handle(
+                grpc_msg,
+                grpc_model.grpc_service_option_model.response_message.exclude_column_name,
+                grpc_model.grpc_service_option_model.response_message.nested,
+            )
 
         return _route
 
@@ -222,8 +250,10 @@ class AsyncGrpcGatewayRoute(DynamicGrpcGatewayRoute, metaclass=ABCMeta):
     def gen_route(self, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]) -> Callable:
         async def _route(request_pydantic_model: request_pydantic_model_class) -> Any:  # type: ignore
             func: Callable = self.get_grpc_func(grpc_model)
-            request_msg: Message = self.get_msg_from_dict(
-                grpc_model.request, request_pydantic_model.dict()  # type: ignore
+            request_msg: Message = self.msg_from_dict_handle(
+                grpc_model.request,
+                request_pydantic_model.dict(),  # type: ignore
+                grpc_model.grpc_service_option_model.request_message.nested,
             )
             loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
             if loop != func._loop:  # type: ignore
@@ -233,7 +263,11 @@ class AsyncGrpcGatewayRoute(DynamicGrpcGatewayRoute, metaclass=ABCMeta):
                 )
             else:
                 grpc_msg: Message = await func(request_msg)
-            return self.make_response(self.msg_to_dict(grpc_msg))
+            return self.msg_to_dict_handle(
+                grpc_msg,
+                grpc_model.grpc_service_option_model.response_message.exclude_column_name,
+                grpc_model.grpc_service_option_model.response_message.nested,
+            )
 
         return _route
 

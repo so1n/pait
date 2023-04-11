@@ -54,11 +54,17 @@ message GetBookCommentListResult {
   repeated GetBookCommentResult result = 1;
 }
 
+message NestedGetBookLikesRequest{
+  GetBookLikesRequest nested = 1;
+}
+
 service BookSocial {
   rpc like_book (LikeBookRequest) returns (google.protobuf.Empty);
   rpc like_multi_book (LikeBookMapRequest) returns (google.protobuf.Empty);
-  // pait: {"http_method": "GET"}
+  // pait: {"http_method": "GET", "additional_bindings": {"http_method": "POST", "url": "/book/get-book-like"}}
   rpc get_book_like (GetBookLikesRequest) returns (GetBookLikesListResult);
+  // pait: {"http_method": "POST", "url": "/book/get-book-like-other", "request_message": {"nested": "/nested"}}
+  rpc get_book_like_other (NestedGetBookLikesRequest) returns (GetBookLikesListResult);
   rpc comment_book (CommentBookRequest) returns (google.protobuf.Empty);
   rpc get_book_comment (GetBookCommentRequest) returns (GetBookCommentListResult);
 

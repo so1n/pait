@@ -21,6 +21,8 @@ message DeleteBookRequest {
 // get book by user
 message GetBookRequest {
   string isbn = 1; // pait: {"field": "pait@import|pait.field|Query"}
+  string not_use_field1 = 2;
+  string not_use_field2 = 3;
 }
 
 message GetBookResult {
@@ -47,6 +49,8 @@ message GetBookListResult {
 service BookManager {
   rpc create_book (CreateBookRequest) returns (google.protobuf.Empty);
   rpc delete_book (DeleteBookRequest) returns (google.protobuf.Empty);
+  // pait: {"url": "/book/get", "request_message": {"exclude_column_name": "not_use_field1,not_use_field2"}}
   rpc get_book (GetBookRequest) returns (GetBookResult);
+  // pait: {"url": "/book/get-list", "response_message": {"nested": "/result"}}
   rpc get_book_list (GetBookListRequest) returns (GetBookListResult);
 }

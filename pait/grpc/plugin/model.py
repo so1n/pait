@@ -1,7 +1,11 @@
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from pait.grpc.inspect import GrpcServiceOptionModel
 from pait.grpc.types import MethodDescriptorProto, ServiceDescriptorProto
+
+if TYPE_CHECKING:
+    from pait.grpc.plugin.field_desc_proto_to_route_code import FileDescriptorProtoToRouteCode
 
 
 @dataclass()
@@ -11,13 +15,15 @@ class GrpcModel(object):
     attr_prefix: str
     gateway_name: str
     # real template value
+    input_type_name: str
+    output_type_name: str
     grpc_method_url: str
     method: str
     func_name: str
-    request_message: str
-    response_message: str
-    request_message_model: str
-    response_message_model: str
+    request_message_model_name: str
+    response_message_model_name: str
+    request_message_name: str
+    response_message_name: str
     stub_service_name: str
     service_name: str
     model_module_name: str
@@ -30,3 +36,5 @@ class GrpcModel(object):
     # grpc descriptor
     grpc_descriptor_service: ServiceDescriptorProto
     grpc_descriptor_method: MethodDescriptorProto
+    # plugin gen code
+    gen_code: "FileDescriptorProtoToRouteCode"

@@ -21,6 +21,10 @@ class BookSocialStub:
         example_proto_by_option.book.social_pb2.GetBookLikesRequest,
         example_proto_by_option.book.social_pb2.GetBookLikesListResult]
 
+    get_book_like_other: grpc.UnaryUnaryMultiCallable[
+        example_proto_by_option.book.social_pb2.NestedGetBookLikesRequest,
+        example_proto_by_option.book.social_pb2.GetBookLikesListResult]
+
     comment_book: grpc.UnaryUnaryMultiCallable[
         example_proto_by_option.book.social_pb2.CommentBookRequest,
         google.protobuf.empty_pb2.Empty]
@@ -46,6 +50,12 @@ class BookSocialServicer(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_book_like(self,
         request: example_proto_by_option.book.social_pb2.GetBookLikesRequest,
+        context: grpc.ServicerContext,
+    ) -> example_proto_by_option.book.social_pb2.GetBookLikesListResult: ...
+
+    @abc.abstractmethod
+    def get_book_like_other(self,
+        request: example_proto_by_option.book.social_pb2.NestedGetBookLikesRequest,
         context: grpc.ServicerContext,
     ) -> example_proto_by_option.book.social_pb2.GetBookLikesListResult: ...
 

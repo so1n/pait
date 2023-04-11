@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from functools import partial
 from typing import Any
 
 import grpc
 from flask import Flask
 from pydantic import BaseModel
 
+from example.common.json_formant import parse_dict
 from example.common.response_model import gen_response_model_handle
 from example.flask_example.utils import create_app
 from example.grpc_common.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
@@ -17,7 +19,7 @@ from example.grpc_common.python_example_proto_code.example_proto_by_option.book 
 from example.grpc_common.python_example_proto_code.example_proto_by_option.user import user_pait_route
 from pait.app import set_app_attribute
 from pait.field import Header
-from pait.grpc.gateway import GrpcGatewayRoute
+from pait.grpc.gateway import GrpcGatewayRoute, MessageToDict
 
 
 def add_grpc_gateway_route(app: Flask) -> None:
@@ -54,10 +56,16 @@ def add_grpc_gateway_route(app: Flask) -> None:
                         )
                         if not result.uid:
                             raise RuntimeError(f"Not found user by token:{token}")
-                    request_msg: Message = self.get_msg_from_dict(grpc_model.request, request_dict)
+                    request_msg: Message = self.msg_from_dict_handle(
+                        grpc_model.request, request_dict, grpc_model.grpc_service_option_model.request_message.nested
+                    )
                     # add req_id to request
                     grpc_msg: Message = func(request_msg, metadata=[("req_id", req_id)])
-                    return self.make_response(self.msg_to_dict(grpc_msg))
+                    return self.msg_to_dict_handle(
+                        grpc_msg,
+                        grpc_model.grpc_service_option_model.response_message.exclude_column_name,
+                        grpc_model.grpc_service_option_model.response_message.nested,
+                    )
 
                 return _route
 
@@ -71,12 +79,21 @@ def add_grpc_gateway_route(app: Flask) -> None:
         parse_msg_desc="by_mypy",
         gen_response_model_handle=gen_response_model_handle,
         make_response=_make_response,
+        msg_to_dict=partial(MessageToDict, including_default_value_fields=True),
+        parse_dict=parse_dict,
         import_name=__name__,
     )
     channel = grpc.intercept_channel(grpc.insecure_channel("0.0.0.0:9000"))
     grpc_gateway_route.init_channel(channel)
     user_pait_route.StaticGrpcGatewayRoute(
-        app, is_async=False, channel=channel, prefix="/api/static", title="static_user", make_response=_make_response
+        app,
+        channel=channel,
+        prefix="/api/static",
+        title="static_user",
+        make_response=_make_response,
+        is_async=False,
+        msg_to_dict=partial(MessageToDict, including_default_value_fields=True),
+        parse_dict=parse_dict,
     )
     manager_pait_route.StaticGrpcGatewayRoute(
         app,
@@ -85,6 +102,8 @@ def add_grpc_gateway_route(app: Flask) -> None:
         title="static_manager",
         make_response=_make_response,
         is_async=False,
+        msg_to_dict=partial(MessageToDict, including_default_value_fields=True),
+        parse_dict=parse_dict,
     )
     social_pait_route.StaticGrpcGatewayRoute(
         app,
@@ -93,6 +112,8 @@ def add_grpc_gateway_route(app: Flask) -> None:
         title="static_social",
         make_response=_make_response,
         is_async=False,
+        msg_to_dict=partial(MessageToDict, including_default_value_fields=True),
+        parse_dict=parse_dict,
     )
     set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest
 

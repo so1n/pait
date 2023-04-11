@@ -29,21 +29,23 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
     gateway_name: str = "StaticGrpcGatewayRoute"
     route_func_jinja_template_str: str = dedent(
         """
-    {% if  request_message_model in ("Empty") %}
+    {% if  request_message_model in ("Empty",) %}
     {{ 'async def' if is_async else 'def' }} {{func_name}}() -> Any:
     {% else %}
     {{ 'async def' if is_async else 'def' }} {{func_name}}(
-        request_pydantic_model: {{model_module_name}}.{{request_message_model}}
+        request_pydantic_model: {{request_message_model_name}}
     ) -> Any:
     {% endif %}
         gateway: "{{gateway_name}}" = pait_context.get().app_helper.get_attributes(
             "{{attr_prefix}}_{{package}}_gateway"
         )
-    {% if  request_message_model in ("Empty") %}
-        request_msg: {{request_message_model}} = {{request_message_model}}()
+    {% if  request_message_model in ("Empty", ) %}
+        request_msg: {{request_message_name}} = {{request_message_name}}()
     {% else %}
-        request_msg: {{request_message}} = gateway.get_msg_from_dict(
-            {{message_module_name}}.{{request_message_model}}, request_pydantic_model.dict()
+        request_msg: {{request_message_name}} = gateway.msg_from_dict_handle(
+            {{request_message_name}},
+            request_pydantic_model.dict(),
+            {{gen_code._get_value_code(grpc_service_option_model.request_message.nested)}}
         )
     {% endif %}
     {% if is_async %}
@@ -54,22 +56,39 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                 "the grpc channel must be initialized after the event loop of the api server is initialized"
             )
         else:
-            grpc_msg: {{response_message}} = await gateway.{{stub_service_name}}.{{method}}(request_msg)
+            grpc_msg: {{response_message_name}} = await gateway.{{stub_service_name}}.{{method}}(
+                request_msg
+            )
     {% else %}
-        grpc_msg: {{response_message}} = gateway.{{stub_service_name}}.{{method}}(request_msg)
+        grpc_msg: {{response_message_name}} = gateway.{{stub_service_name}}.{{method}}(request_msg)
     {% endif %}
-        return gateway.make_response(gateway.msg_to_dict(grpc_msg))"""
+        return gateway.msg_to_dict_handle(
+            grpc_msg,
+            {{gen_code._get_value_code(grpc_service_option_model.response_message.exclude_column_name)}},
+            {{gen_code._get_value_code(grpc_service_option_model.response_message.nested)}}
+        )
+        """
     )
 
     response_jinja_template_str: str = dedent(
         """
     class {{response_class_name}}(JsonResponseModel):
-        name: str = "{{package}}_{{response_message_model}}"
+        name: str = "{{package}}_{{response_message_model_name}}"
+        {% if response_message_model_name == "Empty" %}
         description: str = (
-            {{model_module_name}}.{{response_message_model}}.__doc__ or ""
-            if {{model_module_name}}.{{response_message_model}}.__module__ != "builtins" else ""
+            {{gen_code._get_value_code(gen_code.config.empty_type)}}.__doc__ or ""
+            if {{gen_code._get_value_code(gen_code.config.empty_type)}}.__module__ != "builtins" else ""
         )
-        response_data: Type[BaseModel] = {{model_module_name}}.{{response_message_model}}
+        response_data: {{
+            gen_code._get_value_code(gen_code.config.empty_type)
+        }} = {{gen_code._get_value_code(gen_code.config.empty_type)}}
+        {% else %}
+        description: str = (
+            {{response_message_model_name}}.__doc__ or ""
+            if {{response_message_model_name}}.__module__ != "builtins" else ""
+        )
+        response_data: Type[BaseModel] = {{response_message_model_name}}
+        {% endif %}
     """
     )
 
@@ -99,12 +118,6 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
         response_class_str: str = Template(
             self.response_jinja_template_str, trim_blocks=True, lstrip_blocks=True
         ).render(**template_dict)
-        # slack off
-        if template_dict["response_message_model"] == "Empty":
-            response_class_str = response_class_str.replace(
-                "{model_module_name}.{response_message_model}".format(**template_dict),
-                self._get_value_code(self.config.empty_type),
-            )
         return response_class_str
 
     def get_pait_code(self, tab_str: str, pait_name: str, grpc_model: GrpcModel) -> str:
@@ -180,6 +193,69 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                 for model_index, grpc_service_option_model in enumerate(service_model_list):
                     if not grpc_service_option_model.url:
                         grpc_service_option_model.url = grpc_method_url
+                    request_message_model_name = f"{model_module_name}.{input_type_name}"
+                    response_message_model_name = f"{model_module_name}.{output_type_name}"
+
+                    ###################
+                    # rebuild Message #
+                    ###################
+                    # Generating code directly would be very cumbersome, so here is a simplification
+                    if (
+                        grpc_service_option_model.request_message.exclude_column_name
+                        or grpc_service_option_model.request_message.nested
+                    ) and input_type_name != "Empty":
+                        exclude_column_name_str = self._get_value_code(
+                            grpc_service_option_model.request_message.exclude_column_name
+                        )
+                        nested_str = self._get_value_code(grpc_service_option_model.request_message.nested)
+                        # self._add_import_code(f".{model_module_name}", input_type_name)
+                        self._add_import_code("pait.grpc.util", "rebuild_message")
+                        request_message_model_name = (
+                            f"{input_type_name}{''.join([i.title() for i in func_name.split('_')])}"
+                        )
+                        self._add_import_code(
+                            f".{model_module_name}", input_type_name, f" as {request_message_model_name}"
+                        )
+                        self._content_deque.append(
+                            dedent(
+                                f"""
+                            {request_message_model_name} = rebuild_message(  # type: ignore[misc]
+                                {request_message_model_name},
+                                "{func_name}",
+                                exclude_column_name={exclude_column_name_str},
+                                nested={nested_str},
+                            )
+                            """
+                            )
+                        )
+                    if (
+                        grpc_service_option_model.response_message.exclude_column_name
+                        or grpc_service_option_model.response_message.nested
+                    ) and output_type_name != "Empty":
+                        # self._add_import_code(f".{model_module_name}", output_type_name)
+                        self._add_import_code("pait.grpc.util", "rebuild_message_type")
+                        exclude_column_name_str = self._get_value_code(
+                            grpc_service_option_model.response_message.exclude_column_name
+                        )
+                        nested_str = self._get_value_code(grpc_service_option_model.response_message.nested)
+                        response_message_model_name = (
+                            f"{output_type_name}{''.join([i.title() for i in func_name.split('_')])}"
+                        )
+                        self._add_import_code(
+                            f".{model_module_name}", output_type_name, f" as {response_message_model_name}"
+                        )
+                        self._content_deque.append(
+                            dedent(
+                                f"""
+                            {response_message_model_name} = rebuild_message_type(  # type: ignore[misc]
+                                {response_message_model_name},
+                                "{func_name}",
+                                exclude_column_name={exclude_column_name_str},
+                                nested={nested_str},
+                            )
+                            """
+                            )
+                        )
                     grpc_model_list.append(
                         GrpcModel(
                             index=model_index,
@@ -187,14 +263,20 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                             gateway_name=self.gateway_name,
                             method=method.name,
                             func_name=func_name,
-                            request_message=f"{message_module_name}.{input_type_name}"
+                            input_type_name=input_type_name,
+                            output_type_name=output_type_name,
+                            request_message_model_name=request_message_model_name
                             if input_type_name not in ("Empty",)
                             else input_type_name,
-                            response_message=f"{message_module_name}.{output_type_name}"
+                            response_message_model_name=response_message_model_name
                             if output_type_name not in ("Empty",)
                             else output_type_name,
-                            request_message_model=input_type_name,
-                            response_message_model=output_type_name,
+                            request_message_name=f"{message_module_name}.{input_type_name}"
+                            if input_type_name not in ("Empty",)
+                            else input_type_name,
+                            response_message_name=f"{message_module_name}.{output_type_name}"
+                            if output_type_name not in ("Empty",)
+                            else output_type_name,
                             stub_service_name=f"{service.name}_stub",
                             service_name=service.name,
                             model_module_name=model_module_name,
@@ -208,6 +290,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                             response_class_name=(
                                 self._fd.package.title().replace("_", "") + output_type_name + "JsonResponseModel"
                             ),
+                            gen_code=self,
                         )
                     )
 

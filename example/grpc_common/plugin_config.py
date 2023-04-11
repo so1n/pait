@@ -42,20 +42,29 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
             class CustomerJsonResponseRespModel(BaseModel):
                 code: int = Field(0, description="api code")
                 msg: str = Field("success", description="api status msg")
-                data: {{model_module_name}}.{{response_message_model}} = Field(description="api response data")
+                {% if response_message_model_name == "Empty" %}
+                data: {{gen_code._get_value_code(gen_code.config.empty_type)}} = Field(description="api response data")
+                {% else %}
+                data: {{response_message_model_name}} = Field(description="api response data")
+                {% endif %}
 
-            name: str = "{{package}}_{{response_message_model}}"
+            name: str = "{{package}}_{{response_message_model_name}}"
+            {% if response_message_model_name == "Empty" %}
             description: str = (
-                {{model_module_name}}.{{response_message_model}}.__doc__ or ""
-                 if {{model_module_name}}.{{response_message_model}}.__module__ != "builtins" else ""
+                {{gen_code._get_value_code(gen_code.config.empty_type)}}.__doc__ or ""
+                if {{gen_code._get_value_code(gen_code.config.empty_type)}}.__module__ != "builtins" else ""
             )
+            {% else %}
+            description: str = (
+                {{response_message_model_name}}.__doc__ or ""
+                if {{response_message_model_name}}.__module__ != "builtins" else ""
+            )
+            {% endif %}
             response_data: Type[BaseModel] = CustomerJsonResponseRespModel
     """
     )
 
     def get_route_code(self, grpc_model: GrpcModel, template_dict: dict) -> str:
-        if grpc_model.grpc_descriptor_service.name != "User":
-            return super().get_route_code(grpc_model, template_dict)
         if grpc_model.grpc_descriptor_method.name in ("login_user", "create_user"):
             return super().get_route_code(grpc_model, template_dict)
 
@@ -65,7 +74,7 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
             route_func_jinja_template_str: str = dedent(
                 """
             {{ 'async def' if is_async else 'def' }} {{func_name}}(
-                request_pydantic_model: {{model_module_name}}.{{request_message_model}},
+                request_pydantic_model: {{request_message_model_name}},
                 token: str = Header.i(description="User Token"),
                 req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
             ) -> Any:
@@ -74,8 +83,10 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
                 )
                 request_dict: dict = request_pydantic_model.dict()
                 request_dict["token"] = token
-                request_msg: {{request_message}} = gateway.get_msg_from_dict(
-                    {{message_module_name}}.{{request_message_model}}, request_dict
+                request_msg: {{request_message_name}} = gateway.msg_from_dict_handle(
+                    {{request_message_name}},
+                    request_dict,
+                    {{gen_code._get_value_code(grpc_service_option_model.request_message.nested)}}
                 )
             {% if is_async %}
                 loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
@@ -85,19 +96,24 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
                         "the grpc channel must be initialized after the event loop of the api server is initialized"
                     )
                 else:
-                    grpc_msg: {{response_message}} = await gateway.{{stub_service_name}}.{{method}}(
+                    grpc_msg: {{response_message_name}} = await gateway.{{stub_service_name}}.{{method}}(
                         request_msg, metadata=[("req_id", req_id)])
             {% else %}
-                grpc_msg: {{response_message}} = gateway.{{stub_service_name}}.{{method}}(
+                grpc_msg: {{response_message_name}} = gateway.{{stub_service_name}}.{{method}}(
                     request_msg, metadata=[("req_id", req_id)])
             {% endif %}
-                return gateway.make_response(gateway.msg_to_dict(grpc_msg))"""
+                return gateway.msg_to_dict_handle(
+                    grpc_msg,
+                    {{gen_code._get_value_code(grpc_service_option_model.response_message.exclude_column_name)}},
+                    {{gen_code._get_value_code(grpc_service_option_model.response_message.nested)}}
+                )
+                """
             )
         else:
             route_func_jinja_template_str = dedent(
                 """
             {{ 'async def' if is_async else 'def' }} {{func_name}}(
-                request_pydantic_model: {{model_module_name}}.{{request_message_model}},
+                request_pydantic_model: {{request_message_model_name}},
                 token: str = Header.i(description="User Token"),
                 req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
             ) -> Any:
@@ -105,8 +121,10 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
                     "{{attr_prefix}}_{{package}}_gateway"
                 )
                 stub: {{stub_module_name}}.{{service_name}}Stub = gateway.{{stub_service_name}}
-                request_msg: {{request_message}} = gateway.get_msg_from_dict(
-                    {{message_module_name}}.{{request_message_model}}, request_pydantic_model.dict()
+                request_msg: {{request_message_name}} = gateway.msg_from_dict_handle(
+                    {{request_message_name}},
+                    request_pydantic_model.dict(),
+                    {{gen_code._get_value_code(grpc_service_option_model.request_message.nested)}}
                 )
             {% if is_async %}
                 loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
@@ -116,24 +134,36 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
                         "the grpc channel must be initialized after the event loop of the api server is initialized"
                     )
                 # check token
-                result: {{message_module_name}}.GetUidByTokenResult = await stub.get_uid_by_token(
-                    {{message_module_name}}.GetUidByTokenRequest(token=token)
+                result: user_pb2.GetUidByTokenResult = await user_pb2_grpc.UserStub(gateway.channel).get_uid_by_token(
+                    user_pb2.GetUidByTokenRequest(token=token)
                 )
                 if not result.uid:
                     raise RuntimeError("Not found user by token:" + token)
-                grpc_msg: {{response_message}} = await stub.{{method}}(request_msg, metadata=[("req_id", req_id)])
+                grpc_msg: {{response_message_name}} = await stub.{{method}}(
+                    request_msg, metadata=[("req_id", req_id)]
+                )
             {% else %}
                 # check token
-                result: {{message_module_name}}.GetUidByTokenResult = stub.get_uid_by_token(
-                    {{message_module_name}}.GetUidByTokenRequest(token=token)
+                result: user_pb2.GetUidByTokenResult = user_pb2_grpc.UserStub(gateway.channel).get_uid_by_token(
+                    user_pb2.GetUidByTokenRequest(token=token)
                 )
                 if not result.uid:
                     raise RuntimeError("Not found user by token:" + token)
-                grpc_msg: {{response_message}} = stub.{{method}}(request_msg, metadata=[("req_id", req_id)])
+                grpc_msg: {{response_message_name}} = stub.{{method}}(request_msg, metadata=[("req_id", req_id)])
             {% endif %}
-                return gateway.make_response(gateway.msg_to_dict(grpc_msg))"""
+                return gateway.msg_to_dict_handle(
+                    grpc_msg,
+                    {{gen_code._get_value_code(grpc_service_option_model.response_message.exclude_column_name)}},
+                    {{gen_code._get_value_code(grpc_service_option_model.response_message.nested)}}
+                )
+            """
             )
         return Template(route_func_jinja_template_str, trim_blocks=True, lstrip_blocks=True).render(**template_dict)
+
+    def _parse_field_descriptor(self) -> None:
+        self._add_import_code("..user", "user_pb2")
+        self._add_import_code("..user", "user_pb2_grpc")
+        super()._parse_field_descriptor()
 
 
 customer_import_set: Set[str] = {"from pydantic import Field"}

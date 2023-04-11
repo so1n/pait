@@ -4,13 +4,30 @@ import logging
 import re
 from dataclasses import dataclass
 from types import ModuleType
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 from google.protobuf.descriptor import MethodDescriptor, ServiceDescriptor  # type: ignore
 from google.protobuf.json_format import MessageToDict  # type: ignore
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 from pait.grpc.types import Message
+
+
+class BuildMessageModel(BaseModel):
+    exclude_column_name: list = Field(default_factory=list)
+    nested: list = Field(default_factory=list)
+
+    @validator("exclude_column_name", pre=True)
+    def exclude_column_name_validator(cls, v: Union[str, list]) -> list:
+        if isinstance(v, str):
+            return [i for i in v.split(",") if i]
+        return v
+
+    @validator("nested", pre=True)
+    def nested_validator(cls, v: Union[str, list]) -> list:
+        if isinstance(v, str):
+            return [i for i in v.split("/") if i]
+        return v
 
 
 class GrpcServiceOptionModel(BaseModel):
@@ -25,6 +42,8 @@ class GrpcServiceOptionModel(BaseModel):
     url: str = Field("", description="service url")
     enable: bool = Field(True, description="Whether to enable this service")
     http_method: str = Field("POST")
+    request_message: BuildMessageModel = Field(default_factory=BuildMessageModel, description="request message")
+    response_message: BuildMessageModel = Field(default_factory=BuildMessageModel, description="response message")
 
 
 @dataclass()
@@ -60,8 +79,14 @@ def get_grpc_service_model_from_option_message(option_message: Message) -> List[
         elif key == "additional_bindings":
             for item in value:
                 grpc_service_model_list.extend(get_grpc_service_model_from_option_message(item))
+        elif key in ("request_message", "response_message"):
+            if isinstance(value, dict):
+                pait_dict[key] = value
+            else:
+                pait_dict[key] = MessageToDict(value, preserving_proto_field_name=True)
         else:
             pait_dict[key] = value
+
     grpc_service_model: GrpcServiceOptionModel = GrpcServiceOptionModel(**pait_dict)
     grpc_service_model.http_method = grpc_service_model.http_method.upper()
     grpc_service_model_list.append(grpc_service_model)
@@ -119,7 +144,8 @@ class ParseStub(object):
         return []
 
     @staticmethod
-    def get_service_option_from_grpc_desc(desc: str, service_desc: str) -> GrpcServiceOptionModel:
+    def get_service_option_from_grpc_desc(desc: str, service_desc: str) -> List[GrpcServiceOptionModel]:
+        grpc_pait_model_list: List[GrpcServiceOptionModel] = []
         pait_dict: dict = {}
         for line in service_desc.split("\n") + desc.split("\n"):
             line = line.strip()
@@ -127,9 +153,16 @@ class ParseStub(object):
                 continue
             line = line.replace("pait:", "")
             pait_dict.update(json.loads(line))
-        grpc_pait_model: GrpcServiceOptionModel = GrpcServiceOptionModel(**pait_dict)
-        grpc_pait_model.http_method = grpc_pait_model.http_method.upper()
-        return grpc_pait_model
+
+        while True:
+            grpc_pait_model: GrpcServiceOptionModel = GrpcServiceOptionModel(**pait_dict)
+            grpc_pait_model.http_method = grpc_pait_model.http_method.upper()
+            grpc_pait_model_list.append(grpc_pait_model)
+            pait_dict = pait_dict.pop("additional_bindings", None)
+            if not pait_dict:
+                break
+
+        return grpc_pait_model_list
 
     def _parse(self) -> None:
         # get stub source code
@@ -168,7 +201,7 @@ class ParseStub(object):
             )
             if not grpc_service_option_model_list:
                 # Get the Option for each method in the gRPC Service through comment
-                grpc_service_option_model_list = [self.get_service_option_from_grpc_desc(desc, service_desc)]
+                grpc_service_option_model_list = self.get_service_option_from_grpc_desc(desc, service_desc)
             grpc_model_list: List[GrpcModel] = []
             for model_index, grpc_service_option_model in enumerate(grpc_service_option_model_list):
                 if not grpc_service_option_model.url:

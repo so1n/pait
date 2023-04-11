@@ -16,6 +16,7 @@ from pait.grpc.plugin.gateway import BaseStaticGrpcGatewayRoute
 from pait.model.response import BaseResponseModel, JsonResponseModel
 from pait.model.tag import Tag
 
+from ..user import user_pb2, user_pb2_grpc
 from . import user_p2p, user_pb2, user_pb2_grpc
 
 
@@ -36,7 +37,7 @@ class UserByOptionLoginUserResultJsonResponseModel(JsonResponseModel):
         msg: str = Field("success", description="api status msg")
         data: user_p2p.LoginUserResult = Field(description="api response data")
 
-    name: str = "user_by_option_LoginUserResult"
+    name: str = "user_by_option_user_p2p.LoginUserResult"
     description: str = (
         user_p2p.LoginUserResult.__doc__ or "" if user_p2p.LoginUserResult.__module__ != "builtins" else ""
     )
@@ -53,7 +54,7 @@ async def async_logout_user_route(
     )
     request_dict: dict = request_pydantic_model.dict()
     request_dict["token"] = token
-    request_msg: user_pb2.LogoutUserRequest = gateway.get_msg_from_dict(user_pb2.LogoutUserRequest, request_dict)
+    request_msg: user_pb2.LogoutUserRequest = gateway.msg_from_dict_handle(user_pb2.LogoutUserRequest, request_dict, [])
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
     if loop != getattr(gateway.User_stub.logout_user, "_loop", None):
         raise RuntimeError(
@@ -62,7 +63,7 @@ async def async_logout_user_route(
         )
     else:
         grpc_msg: Empty = await gateway.User_stub.logout_user(request_msg, metadata=[("req_id", req_id)])
-    return gateway.make_response(gateway.msg_to_dict(grpc_msg))
+    return gateway.msg_to_dict_handle(grpc_msg, [], [])
 
 
 def logout_user_route(
@@ -75,17 +76,17 @@ def logout_user_route(
     )
     request_dict: dict = request_pydantic_model.dict()
     request_dict["token"] = token
-    request_msg: user_pb2.LogoutUserRequest = gateway.get_msg_from_dict(user_pb2.LogoutUserRequest, request_dict)
+    request_msg: user_pb2.LogoutUserRequest = gateway.msg_from_dict_handle(user_pb2.LogoutUserRequest, request_dict, [])
     grpc_msg: Empty = gateway.User_stub.logout_user(request_msg, metadata=[("req_id", req_id)])
-    return gateway.make_response(gateway.msg_to_dict(grpc_msg))
+    return gateway.msg_to_dict_handle(grpc_msg, [], [])
 
 
 async def async_login_user_route(request_pydantic_model: user_p2p.LoginUserRequest) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
         "gateway_attr_user_by_option_gateway"
     )
-    request_msg: user_pb2.LoginUserRequest = gateway.get_msg_from_dict(
-        user_pb2.LoginUserRequest, request_pydantic_model.dict()
+    request_msg: user_pb2.LoginUserRequest = gateway.msg_from_dict_handle(
+        user_pb2.LoginUserRequest, request_pydantic_model.dict(), []
     )
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
     if loop != getattr(gateway.User_stub.login_user, "_loop", None):
@@ -95,26 +96,26 @@ async def async_login_user_route(request_pydantic_model: user_p2p.LoginUserReque
         )
     else:
         grpc_msg: user_pb2.LoginUserResult = await gateway.User_stub.login_user(request_msg)
-    return gateway.make_response(gateway.msg_to_dict(grpc_msg))
+    return gateway.msg_to_dict_handle(grpc_msg, [], [])
 
 
 def login_user_route(request_pydantic_model: user_p2p.LoginUserRequest) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
         "gateway_attr_user_by_option_gateway"
     )
-    request_msg: user_pb2.LoginUserRequest = gateway.get_msg_from_dict(
-        user_pb2.LoginUserRequest, request_pydantic_model.dict()
+    request_msg: user_pb2.LoginUserRequest = gateway.msg_from_dict_handle(
+        user_pb2.LoginUserRequest, request_pydantic_model.dict(), []
     )
     grpc_msg: user_pb2.LoginUserResult = gateway.User_stub.login_user(request_msg)
-    return gateway.make_response(gateway.msg_to_dict(grpc_msg))
+    return gateway.msg_to_dict_handle(grpc_msg, [], [])
 
 
 async def async_create_user_route(request_pydantic_model: user_p2p.CreateUserRequest) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
         "gateway_attr_user_by_option_gateway"
     )
-    request_msg: user_pb2.CreateUserRequest = gateway.get_msg_from_dict(
-        user_pb2.CreateUserRequest, request_pydantic_model.dict()
+    request_msg: user_pb2.CreateUserRequest = gateway.msg_from_dict_handle(
+        user_pb2.CreateUserRequest, request_pydantic_model.dict(), []
     )
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
     if loop != getattr(gateway.User_stub.create_user, "_loop", None):
@@ -124,18 +125,18 @@ async def async_create_user_route(request_pydantic_model: user_p2p.CreateUserReq
         )
     else:
         grpc_msg: Empty = await gateway.User_stub.create_user(request_msg)
-    return gateway.make_response(gateway.msg_to_dict(grpc_msg))
+    return gateway.msg_to_dict_handle(grpc_msg, [], [])
 
 
 def create_user_route(request_pydantic_model: user_p2p.CreateUserRequest) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
         "gateway_attr_user_by_option_gateway"
     )
-    request_msg: user_pb2.CreateUserRequest = gateway.get_msg_from_dict(
-        user_pb2.CreateUserRequest, request_pydantic_model.dict()
+    request_msg: user_pb2.CreateUserRequest = gateway.msg_from_dict_handle(
+        user_pb2.CreateUserRequest, request_pydantic_model.dict(), []
     )
     grpc_msg: Empty = gateway.User_stub.create_user(request_msg)
-    return gateway.make_response(gateway.msg_to_dict(grpc_msg))
+    return gateway.msg_to_dict_handle(grpc_msg, [], [])
 
 
 async def async_delete_user_route(
@@ -147,8 +148,8 @@ async def async_delete_user_route(
         "gateway_attr_user_by_option_gateway"
     )
     stub: user_pb2_grpc.UserStub = gateway.User_stub
-    request_msg: user_pb2.DeleteUserRequest = gateway.get_msg_from_dict(
-        user_pb2.DeleteUserRequest, request_pydantic_model.dict()
+    request_msg: user_pb2.DeleteUserRequest = gateway.msg_from_dict_handle(
+        user_pb2.DeleteUserRequest, request_pydantic_model.dict(), []
     )
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
     if loop != getattr(gateway.User_stub.delete_user, "_loop", None):
@@ -157,11 +158,13 @@ async def async_delete_user_route(
             "the grpc channel must be initialized after the event loop of the api server is initialized"
         )
     # check token
-    result: user_pb2.GetUidByTokenResult = await stub.get_uid_by_token(user_pb2.GetUidByTokenRequest(token=token))
+    result: user_pb2.GetUidByTokenResult = await user_pb2_grpc.UserStub(gateway.channel).get_uid_by_token(
+        user_pb2.GetUidByTokenRequest(token=token)
+    )
     if not result.uid:
         raise RuntimeError("Not found user by token:" + token)
     grpc_msg: Empty = await stub.delete_user(request_msg, metadata=[("req_id", req_id)])
-    return gateway.make_response(gateway.msg_to_dict(grpc_msg))
+    return gateway.msg_to_dict_handle(grpc_msg, [], [])
 
 
 def delete_user_route(
@@ -173,15 +176,17 @@ def delete_user_route(
         "gateway_attr_user_by_option_gateway"
     )
     stub: user_pb2_grpc.UserStub = gateway.User_stub
-    request_msg: user_pb2.DeleteUserRequest = gateway.get_msg_from_dict(
-        user_pb2.DeleteUserRequest, request_pydantic_model.dict()
+    request_msg: user_pb2.DeleteUserRequest = gateway.msg_from_dict_handle(
+        user_pb2.DeleteUserRequest, request_pydantic_model.dict(), []
     )
     # check token
-    result: user_pb2.GetUidByTokenResult = stub.get_uid_by_token(user_pb2.GetUidByTokenRequest(token=token))
+    result: user_pb2.GetUidByTokenResult = user_pb2_grpc.UserStub(gateway.channel).get_uid_by_token(
+        user_pb2.GetUidByTokenRequest(token=token)
+    )
     if not result.uid:
         raise RuntimeError("Not found user by token:" + token)
     grpc_msg: Empty = stub.delete_user(request_msg, metadata=[("req_id", req_id)])
-    return gateway.make_response(gateway.msg_to_dict(grpc_msg))
+    return gateway.msg_to_dict_handle(grpc_msg, [], [])
 
 
 class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
@@ -195,7 +200,7 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
         logout_user_route_pait: Pait = self._pait.create_sub_pait(
             author=(),
             name="",
-            group="user",
+            group="",
             append_tag=(
                 Tag("grpc-user", "grpc_user_service"),
                 Tag("grpc-user_by_option-User", ""),
@@ -211,7 +216,7 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
         login_user_route_pait: Pait = self._pait.create_sub_pait(
             author=(),
             name="",
-            group="user",
+            group="",
             append_tag=(
                 Tag("grpc-user", "grpc_user_service"),
                 Tag("grpc-user_by_option-User", ""),
@@ -227,7 +232,7 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
         create_user_route_pait: Pait = self._pait.create_sub_pait(
             author=(),
             name="",
-            group="user",
+            group="",
             append_tag=(
                 Tag("grpc-user", "grpc_user_service"),
                 Tag("grpc-user-system", "grpc_user_service"),
@@ -244,7 +249,7 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
         delete_user_route_pait: Pait = self._pait.create_sub_pait(
             author=(),
             name="",
-            group="user",
+            group="",
             append_tag=(
                 Tag("grpc-user", "grpc_user_service"),
                 Tag("grpc-user-system", "grpc_user_service"),

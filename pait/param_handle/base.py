@@ -198,7 +198,7 @@ class BaseParamHandler(PluginProtocol):
                     # support model: model: ModelType
                     if parameter.annotation == Self:
                         continue
-                    if not issubclass(parameter.annotation, BaseModel):
+                    if not (inspect.isclass(parameter.annotation) and issubclass(parameter.annotation, BaseModel)):
                         continue
                     # cache and get parameter_list
                     param_list = get_parameter_list_from_pydantic_basemodel(

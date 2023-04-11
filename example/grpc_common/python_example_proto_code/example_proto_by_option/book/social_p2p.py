@@ -69,3 +69,8 @@ class GetBookCommentResult(BaseModel):
 class GetBookCommentListResult(BaseModel):
 
     result: typing.List[GetBookCommentResult] = FieldInfo(default_factory=list)
+
+
+class NestedGetBookLikesRequest(BaseModel):
+
+    nested: GetBookLikesRequest = FieldInfo()

@@ -17,7 +17,7 @@ from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__
 from example.grpc_common.python_example_proto_code.example_proto_by_option.common import api_pb2 as example__proto__by__option_dot_common_dot_api__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n)example_proto_by_option/book/social.proto\x12\x15\x62ook_social_by_option\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(example_proto_by_option/common/api.proto\":\n\x0fLikeBookRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x0c\n\x04like\x18\x02 \x01(\x08\x12\x0b\n\x03uid\x18\x03 \x01(\t\"\x9b\x01\n\x12LikeBookMapRequest\x12H\n\x08like_map\x18\x01 \x03(\x0b\x32\x36.book_social_by_option.LikeBookMapRequest.LikeMapEntry\x12\x0b\n\x03uid\x18\x02 \x01(\t\x1a.\n\x0cLikeMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x08:\x02\x38\x01\"#\n\x13GetBookLikesRequest\x12\x0c\n\x04isbn\x18\x01 \x03(\t\"5\n\x12GetBookLikesResult\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x11\n\tbook_like\x18\x02 \x01(\x05\"S\n\x16GetBookLikesListResult\x12\x39\n\x06result\x18\x01 \x03(\x0b\x32).book_social_by_option.GetBookLikesResult\"@\n\x12\x43ommentBookRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t\x12\x0b\n\x03uid\x18\x03 \x01(\t\"\x93\x01\n\x15GetBookCommentRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x39\n\x10next_create_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x00\x88\x01\x01\x12\x12\n\x05limit\x18\x03 \x01(\x05H\x01\x88\x01\x01\x42\x13\n\x11_next_create_timeB\x08\n\x06_limit\"s\n\x14GetBookCommentResult\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t\x12\x0b\n\x03uid\x18\x03 \x01(\t\x12/\n\x0b\x63reate_time\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"W\n\x18GetBookCommentListResult\x12;\n\x06result\x18\x01 \x03(\x0b\x32+.book_social_by_option.GetBookCommentResult2\xa2\x04\n\nBookSocial\x12K\n\tlike_book\x12&.book_social_by_option.LikeBookRequest\x1a\x16.google.protobuf.Empty\x12T\n\x0flike_multi_book\x12).book_social_by_option.LikeBookMapRequest\x1a\x16.google.protobuf.Empty\x12\xaa\x01\n\rget_book_like\x12*.book_social_by_option.GetBookLikesRequest\x1a-.book_social_by_option.GetBookLikesListResult\">\x8a\xd3\xe4\x93\x02\x38\x12\x02\x10\x01Z2\"\x15\n\x13/book/get-book-like\xc2\x01\x18test additional bindings\x12Q\n\x0c\x63omment_book\x12).book_social_by_option.CommentBookRequest\x1a\x16.google.protobuf.Empty\x12q\n\x10get_book_comment\x12,.book_social_by_option.GetBookCommentRequest\x1a/.book_social_by_option.GetBookCommentListResultb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n)example_proto_by_option/book/social.proto\x12\x15\x62ook_social_by_option\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a(example_proto_by_option/common/api.proto\":\n\x0fLikeBookRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x0c\n\x04like\x18\x02 \x01(\x08\x12\x0b\n\x03uid\x18\x03 \x01(\t\"\x9b\x01\n\x12LikeBookMapRequest\x12H\n\x08like_map\x18\x01 \x03(\x0b\x32\x36.book_social_by_option.LikeBookMapRequest.LikeMapEntry\x12\x0b\n\x03uid\x18\x02 \x01(\t\x1a.\n\x0cLikeMapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x08:\x02\x38\x01\"#\n\x13GetBookLikesRequest\x12\x0c\n\x04isbn\x18\x01 \x03(\t\"5\n\x12GetBookLikesResult\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x11\n\tbook_like\x18\x02 \x01(\x05\"S\n\x16GetBookLikesListResult\x12\x39\n\x06result\x18\x01 \x03(\x0b\x32).book_social_by_option.GetBookLikesResult\"@\n\x12\x43ommentBookRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t\x12\x0b\n\x03uid\x18\x03 \x01(\t\"\x93\x01\n\x15GetBookCommentRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x39\n\x10next_create_time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x00\x88\x01\x01\x12\x12\n\x05limit\x18\x03 \x01(\x05H\x01\x88\x01\x01\x42\x13\n\x11_next_create_timeB\x08\n\x06_limit\"s\n\x14GetBookCommentResult\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t\x12\x0b\n\x03uid\x18\x03 \x01(\t\x12/\n\x0b\x63reate_time\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"W\n\x18GetBookCommentListResult\x12;\n\x06result\x18\x01 \x03(\x0b\x32+.book_social_by_option.GetBookCommentResult\"W\n\x19NestedGetBookLikesRequest\x12:\n\x06nested\x18\x01 \x01(\x0b\x32*.book_social_by_option.GetBookLikesRequest2\xcc\x05\n\nBookSocial\x12K\n\tlike_book\x12&.book_social_by_option.LikeBookRequest\x1a\x16.google.protobuf.Empty\x12T\n\x0flike_multi_book\x12).book_social_by_option.LikeBookMapRequest\x1a\x16.google.protobuf.Empty\x12\xaa\x01\n\rget_book_like\x12*.book_social_by_option.GetBookLikesRequest\x1a-.book_social_by_option.GetBookLikesListResult\">\x8a\xd3\xe4\x93\x02\x38\x12\x02\x10\x01Z2\"\x15\n\x13/book/get-book-like\xc2\x01\x18test additional bindings\x12\xa7\x01\n\x13get_book_like_other\x12\x30.book_social_by_option.NestedGetBookLikesRequest\x1a-.book_social_by_option.GetBookLikesListResult\"/\x8a\xd3\xe4\x93\x02)\"\x1b\n\x19/book/get-book-like-other\xda\x01\t\x12\x07/nested\x12Q\n\x0c\x63omment_book\x12).book_social_by_option.CommentBookRequest\x1a\x16.google.protobuf.Empty\x12q\n\x10get_book_comment\x12,.book_social_by_option.GetBookCommentRequest\x1a/.book_social_by_option.GetBookCommentListResultb\x06proto3')
 
 
 
@@ -31,6 +31,7 @@ _COMMENTBOOKREQUEST = DESCRIPTOR.message_types_by_name['CommentBookRequest']
 _GETBOOKCOMMENTREQUEST = DESCRIPTOR.message_types_by_name['GetBookCommentRequest']
 _GETBOOKCOMMENTRESULT = DESCRIPTOR.message_types_by_name['GetBookCommentResult']
 _GETBOOKCOMMENTLISTRESULT = DESCRIPTOR.message_types_by_name['GetBookCommentListResult']
+_NESTEDGETBOOKLIKESREQUEST = DESCRIPTOR.message_types_by_name['NestedGetBookLikesRequest']
 LikeBookRequest = _reflection.GeneratedProtocolMessageType('LikeBookRequest', (_message.Message,), {
   'DESCRIPTOR' : _LIKEBOOKREQUEST,
   '__module__' : 'example_proto_by_option.book.social_pb2'
@@ -102,6 +103,13 @@ GetBookCommentListResult = _reflection.GeneratedProtocolMessageType('GetBookComm
   })
 _sym_db.RegisterMessage(GetBookCommentListResult)
 
+NestedGetBookLikesRequest = _reflection.GeneratedProtocolMessageType('NestedGetBookLikesRequest', (_message.Message,), {
+  'DESCRIPTOR' : _NESTEDGETBOOKLIKESREQUEST,
+  '__module__' : 'example_proto_by_option.book.social_pb2'
+  # @@protoc_insertion_point(class_scope:book_social_by_option.NestedGetBookLikesRequest)
+  })
+_sym_db.RegisterMessage(NestedGetBookLikesRequest)
+
 _BOOKSOCIAL = DESCRIPTOR.services_by_name['BookSocial']
 if _descriptor._USE_C_DESCRIPTORS == False:
 
@@ -110,6 +118,8 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _LIKEBOOKMAPREQUEST_LIKEMAPENTRY._serialized_options = b'8\001'
   _BOOKSOCIAL.methods_by_name['get_book_like']._options = None
   _BOOKSOCIAL.methods_by_name['get_book_like']._serialized_options = b'\212\323\344\223\0028\022\002\020\001Z2\"\025\n\023/book/get-book-like\302\001\030test additional bindings'
+  _BOOKSOCIAL.methods_by_name['get_book_like_other']._options = None
+  _BOOKSOCIAL.methods_by_name['get_book_like_other']._serialized_options = b'\212\323\344\223\002)\"\033\n\031/book/get-book-like-other\332\001\t\022\007/nested'
   _LIKEBOOKREQUEST._serialized_start=172
   _LIKEBOOKREQUEST._serialized_end=230
   _LIKEBOOKMAPREQUEST._serialized_start=233
@@ -130,6 +140,8 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _GETBOOKCOMMENTRESULT._serialized_end=898
   _GETBOOKCOMMENTLISTRESULT._serialized_start=900
   _GETBOOKCOMMENTLISTRESULT._serialized_end=987
-  _BOOKSOCIAL._serialized_start=990
-  _BOOKSOCIAL._serialized_end=1536
+  _NESTEDGETBOOKLIKESREQUEST._serialized_start=989
+  _NESTEDGETBOOKLIKESREQUEST._serialized_end=1076
+  _BOOKSOCIAL._serialized_start=1079
+  _BOOKSOCIAL._serialized_end=1795
 # @@protoc_insertion_point(module_scope)

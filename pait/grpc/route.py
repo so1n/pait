@@ -7,6 +7,7 @@ from google.protobuf.message import Message
 from pait import Tag
 from pait.app.any.util import import_func_from_app
 from pait.core import Pait
+from pait.grpc.util import rebuild_dict
 
 MessageT = TypeVar("MessageT", bound=Message)
 
@@ -65,10 +66,28 @@ class BaseGrpcGatewayRoute(object):
     def get_msg_from_dict(self, msg: Type[MessageT], request_dict: dict) -> MessageT:
         """Convert the Json data to the corresponding grpc Message object"""
         if self.parse_dict:
-            request_msg: MessageT = self.parse_dict(request_dict, msg)
+            request_msg: MessageT = self.parse_dict(request_dict, msg())
         else:
             request_msg = msg(**request_dict)  # type: ignore
         return request_msg
+
+    def msg_from_dict_handle(self, msg: Type[MessageT], request_dict: dict, nested: Optional[list] = None) -> MessageT:
+        if nested:
+            for column in nested:
+                request_dict = {column: request_dict}
+        return self.get_msg_from_dict(msg, request_dict)
+
+    def msg_to_dict_handle(
+        self, message: Message, exclude_column_name: Optional[list] = None, nested: Optional[list] = None
+    ) -> dict:
+        message_dict = self.msg_to_dict(message)
+        if exclude_column_name and nested:
+            message_dict = rebuild_dict(
+                message_dict,
+                exclude_column_name=exclude_column_name,
+                nested=nested,
+            )
+        return self.make_response(message_dict)
 
     def reinit_channel(
         self, channel: Union[grpc.Channel, grpc.aio.Channel], auto_close: bool = False

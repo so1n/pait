@@ -55,7 +55,7 @@ def auto_gen_service_method(stub: Any, service: Any) -> None:
             def gen_func(response: Any) -> Callable:
                 if method_name == "get_uid_by_token":
 
-                    def _func(self: Any, request: Any, context: Any) -> Any:
+                    def _func(self: Any, request: Any, context: Any = None) -> Any:
                         logger.info(f"{self.__class__.__name__} receive request:{request}")
                         token: str = request.token
                         if token == "fail_token":
@@ -66,7 +66,7 @@ def auto_gen_service_method(stub: Any, service: Any) -> None:
 
                 else:
 
-                    def _func(self: Any, request: Any, context: Any) -> Any:
+                    def _func(self: Any, request: Any, context: Any = None) -> Any:
                         logger.info(f"{self.__class__.__name__} receive request:{request}")
                         return response()
 
