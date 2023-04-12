@@ -2,7 +2,7 @@ from typing import Any, Type
 
 from flask import Response, jsonify, make_response
 
-from pait.model.response import BaseResponseModel, JsonResponseModel
+from pait.model import BaseResponseModel, JsonResponseModel
 
 
 def gen_response(response_value: Any, response_model_class: Type[BaseResponseModel], *args: Any, **kwargs: Any) -> Any:

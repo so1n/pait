@@ -11,12 +11,13 @@ from pydantic import BaseModel
 from pait.app.base.simple_route import SimpleRoute
 from pait.core import Pait
 from pait.field import BaseField, Body, Query
+from pait.grpc.base_gateway import BaseGrpcGatewayRoute
 from pait.grpc.desc_template import DescTemplate
 from pait.grpc.inspect import GrpcModel, Message, MessageToDict, ParseStub
-from pait.grpc.route import BaseGrpcGatewayRoute
 from pait.grpc.util import rebuild_message_type
-from pait.model.response import BaseResponseModel, JsonResponseModel
-from pait.model.tag import Tag
+from pait.model import BaseResponseModel, JsonResponseModel, Tag
+
+__all__ = ["DynamicGrpcGatewayRoute", "AsyncGrpcGatewayRoute", "GrpcGatewayRoute"]
 
 
 def _gen_response_model_handle(grpc_model: GrpcModel) -> Type[BaseResponseModel]:

@@ -10,11 +10,7 @@ from pydantic import BaseModel, Field
 from pait.core import Pait, PluginManager
 from pait.field import Depends, Path, Query
 from pait.g import config, pait_context
-from pait.model.core import PaitCoreModel
-from pait.model.response import HtmlResponseModel, JsonResponseModel
-from pait.model.status import PaitStatus
-from pait.model.tag import Tag
-from pait.model.template import TemplateContext
+from pait.model import HtmlResponseModel, JsonResponseModel, PaitCoreModel, PaitStatus, Tag, TemplateContext
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 
 logger: logging.Logger = logging.getLogger(__name__)

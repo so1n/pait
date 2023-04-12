@@ -9,7 +9,7 @@ from starlette.responses import HTMLResponse, JSONResponse, Response
 
 from pait.app.starlette import Pait
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
-from pait.model.status import PaitStatus
+from pait.model import PaitStatus
 
 global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
 

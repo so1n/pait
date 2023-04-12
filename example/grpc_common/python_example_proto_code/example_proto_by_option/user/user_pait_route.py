@@ -13,8 +13,8 @@ from pait.core import Pait
 from pait.field import Header
 from pait.g import pait_context
 from pait.grpc.plugin.gateway import BaseStaticGrpcGatewayRoute
-from pait.model.response import BaseResponseModel, JsonResponseModel
-from pait.model.tag import Tag
+from pait.model import BaseResponseModel, JsonResponseModel
+from pait.model import Tag
 
 from ..user import user_pb2, user_pb2_grpc
 from . import user_p2p, user_pb2, user_pb2_grpc

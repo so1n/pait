@@ -10,7 +10,7 @@ from example.common import response_model, tag
 from example.starlette_example.utils import create_app, global_pait
 from pait.app.starlette import Pait
 from pait.field import Query
-from pait.model.status import PaitStatus
+from pait.model import PaitStatus
 
 check_resp_pait: Pait = global_pait.create_sub_pait(
     group="check_resp", tag=(tag.check_resp_tag,), status=PaitStatus.release

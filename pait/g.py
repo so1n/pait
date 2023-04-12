@@ -3,8 +3,7 @@ from typing import TYPE_CHECKING, Any
 
 from pait.data import PaitData
 from pait.extra.util import sync_config_data_to_pait_core_model
-from pait.model import tag
-from pait.model.config import Config
+from pait.model import Config, tag
 
 if TYPE_CHECKING:
     from pait.model.context import ContextModel

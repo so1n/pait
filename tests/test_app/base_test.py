@@ -7,13 +7,13 @@ from redis import Redis  # type: ignore
 
 from example.common.response_model import gen_response_model_handle
 from pait.app.base import BaseTestHelper, CheckResponseException
-from pait.grpc.gateway import DynamicGrpcGatewayRoute
-from pait.model.response import BaseResponseModel, HtmlResponseModel, TextResponseModel
+from pait.grpc import DynamicGrpcGatewayRoute
+from pait.model import BaseResponseModel, HtmlResponseModel, TextResponseModel
 from pait.plugin.cache_response import CacheResponsePlugin
 from tests.conftest import enable_plugin, grpc_test_openapi
 
 if TYPE_CHECKING:
-    from pait.model.core import PaitCoreModel
+    from pait.model import PaitCoreModel
 
 
 class BaseTest(object):

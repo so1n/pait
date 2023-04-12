@@ -6,8 +6,7 @@ from google.protobuf.json_format import MessageToDict
 
 from pait.app import add_multi_simple_route as _add_multi_simple_route
 from pait.core import Pait
-from pait.grpc.plugin.model import GrpcModel
-from pait.grpc.route import BaseGrpcGatewayRoute
+from pait.grpc import BaseGrpcGatewayRoute, GrpcModel
 from pait.util import get_real_annotation
 
 

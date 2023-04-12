@@ -7,8 +7,7 @@ import pytest
 from pydantic import BaseModel, Field
 
 from example.common.request_model import SexEnum
-from pait.model import response, tag
-from pait.model.config import Config
+from pait.model import Config, response, tag
 from pait.openapi.openapi import LinksModel
 
 

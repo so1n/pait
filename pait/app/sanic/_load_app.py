@@ -5,7 +5,7 @@ from sanic.app import Sanic
 from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
 
 from pait.g import pait_data
-from pait.model.core import PaitCoreModel
+from pait.model import PaitCoreModel
 
 from ._app_helper import AppHelper
 

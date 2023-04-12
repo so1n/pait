@@ -4,7 +4,7 @@ from requests import Response as _Response  # type: ignore
 from starlette.testclient import TestClient
 
 from pait.app.base import BaseTestHelper
-from pait.model.core import PaitCoreModel
+from pait.model import PaitCoreModel
 
 from ._load_app import load_app
 

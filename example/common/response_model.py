@@ -6,11 +6,10 @@ from protobuf_to_pydantic import msg_to_pydantic_model
 from pydantic import BaseModel, Field
 
 from example.common.request_model import SexEnum
-from pait import FileResponseModel, HtmlResponseModel, JsonResponseModel
-from pait import ResponseModel as PaitResponseModel
-from pait import TextResponseModel
-from pait.grpc.inspect import GrpcModel
-from pait.grpc.util import rebuild_message_type
+from pait.grpc import GrpcModel, rebuild_message_type
+from pait.model import FileResponseModel, HtmlResponseModel, JsonResponseModel
+from pait.model import ResponseModel as PaitResponseModel
+from pait.model import TextResponseModel
 from pait.openapi.openapi import LinksModel
 
 

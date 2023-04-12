@@ -9,6 +9,9 @@ if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
 
 
+__all__ = ["ContextModel"]
+
+
 @dataclass
 class ContextModel(object):
     cbv_instance: Optional[Any]

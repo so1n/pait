@@ -5,6 +5,8 @@ from protobuf_to_pydantic.gen_model import DescTemplate as _DescTemplate
 
 from pait import field as pait_field
 
+__all__ = ["DescTemplate"]
+
 
 class DescTemplate(_DescTemplate):
     def template_field(self, field: str) -> Any:

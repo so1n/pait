@@ -1,9 +1,8 @@
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import Any, Dict, Optional
 
-if TYPE_CHECKING:
-    from any_api.openapi.model.openapi import ExternalDocumentationModel, TagModel
+from any_api.openapi.model.openapi import ExternalDocumentationModel, TagModel
 
-__all__ = ["Tag", "ExternalDocumentationModel"]
+__all__ = ["Tag", "ExternalDocumentationModel", "TagModel"]
 _tag_dict: Dict[str, dict] = {}
 
 

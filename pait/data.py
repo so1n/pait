@@ -3,7 +3,7 @@ from types import CodeType
 from typing import TYPE_CHECKING, Dict, Set
 
 if TYPE_CHECKING:
-    from pait.model.core import PaitCoreModel
+    from pait.model import PaitCoreModel
 
 
 class PaitData(object):

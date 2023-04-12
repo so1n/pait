@@ -67,8 +67,7 @@ from pait.exceptions import PaitBaseException
 from pait.extra.config import MatchRule, apply_block_http_method_set, apply_extra_openapi_model
 from pait.field import Header, Json, Query
 from pait.g import config
-from pait.model.status import PaitStatus
-from pait.model.template import TemplateVar
+from pait.model import PaitStatus, TemplateVar
 
 user_pait: Pait = global_pait.create_sub_pait(group="user")
 link_pait: Pait = global_pait.create_sub_pait(

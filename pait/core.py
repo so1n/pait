@@ -8,11 +8,7 @@ from pait.app.base import BaseAppHelper
 from pait.extra.util import sync_config_data_to_pait_core_model
 from pait.field import BaseField
 from pait.g import config, pait_context, pait_data
-from pait.model.context import ContextModel
-from pait.model.core import PaitCoreModel
-from pait.model.response import BaseResponseModel
-from pait.model.status import PaitStatus
-from pait.model.tag import Tag
+from pait.model import BaseResponseModel, ContextModel, PaitCoreModel, PaitStatus, Tag
 from pait.plugin.base import PluginManager, PluginProtocol, PostPluginProtocol, PrePluginProtocol
 from pait.util import get_func_sig
 

@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from pait.grpc.inspect import GrpcServiceOptionModel
-from pait.grpc.types import MethodDescriptorProto, ServiceDescriptorProto
+from pait.grpc import GrpcServiceOptionModel, MethodDescriptorProto, ServiceDescriptorProto
 
 if TYPE_CHECKING:
     from pait.grpc.plugin.field_desc_proto_to_route_code import FileDescriptorProtoToRouteCode

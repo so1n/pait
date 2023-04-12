@@ -71,8 +71,7 @@ from pait.app.sanic.plugin.cache_response import CacheResponsePlugin
 from pait.exceptions import PaitBaseException
 from pait.extra.config import MatchRule
 from pait.field import Header, Json, Query
-from pait.model.status import PaitStatus
-from pait.model.template import TemplateVar
+from pait.model import PaitStatus, TemplateVar
 
 test_filename: str = ""
 

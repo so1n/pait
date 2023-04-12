@@ -8,7 +8,7 @@ from starlette.applications import Starlette
 from starlette.endpoints import HTTPEndpoint
 
 from pait.g import pait_data
-from pait.model.core import PaitCoreModel
+from pait.model import PaitCoreModel
 from pait.util import http_method_tuple
 
 from ._app_helper import AppHelper

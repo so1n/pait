@@ -7,7 +7,7 @@ from example.starlette_example.main_example import create_app
 from pait.app import load_app
 from pait.extra.config import apply_block_http_method_set
 from pait.g import config
-from pait.model.core import PaitCoreModel
+from pait.model import PaitCoreModel
 from pait.openapi.openapi import OpenAPI
 
 if __name__ == "__main__":

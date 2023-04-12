@@ -5,7 +5,7 @@ from flask import Flask
 from flask.views import MethodView
 
 from pait.g import pait_data
-from pait.model.core import PaitCoreModel
+from pait.model import PaitCoreModel
 
 from ._app_helper import AppHelper
 

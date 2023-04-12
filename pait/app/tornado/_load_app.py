@@ -4,7 +4,7 @@ from typing import Callable, Dict, Optional
 from tornado.web import Application, RequestHandler
 
 from pait.g import pait_data
-from pait.model.core import PaitCoreModel
+from pait.model import PaitCoreModel
 
 from ._app_helper import AppHelper
 

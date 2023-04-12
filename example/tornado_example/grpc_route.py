@@ -2,6 +2,7 @@ from functools import partial
 from typing import Any
 
 import grpc
+from google.protobuf.json_format import MessageToDict  # type: ignore
 from pydantic import BaseModel
 from tornado.web import Application
 
@@ -17,8 +18,7 @@ from example.grpc_common.python_example_proto_code.example_proto_by_option.user 
 from example.tornado_example.utils import MyHandler, create_app
 from pait.app import set_app_attribute
 from pait.field import Header
-from pait.grpc.gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
-from pait.grpc.gateway import MessageToDict
+from pait.grpc import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 
 
 def add_grpc_gateway_route(app: Application) -> None:
@@ -30,7 +30,7 @@ def add_grpc_gateway_route(app: Application) -> None:
     from typing_extensions import Self  # type: ignore
 
     from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2
-    from pait.grpc.inspect import GrpcModel, Message
+    from pait.grpc import GrpcModel, Message
 
     def _tornado_make_response(resp_dict: dict) -> dict:
         return {"code": 0, "msg": "", "data": resp_dict}

@@ -1,5 +1,7 @@
 from enum import Enum
 
+__all__ = ["PaitStatus"]
+
 
 class PaitStatus(Enum):
     """Interface life cycle"""

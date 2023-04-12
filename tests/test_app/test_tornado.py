@@ -475,13 +475,13 @@ class TestTornadoGrpc(BaseTestTornado):
 
     def test_grpc_openapi_by_protobuf_file(self) -> None:
         from pait.app.tornado import load_app
-        from pait.grpc.gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
+        from pait.grpc import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 
         self.base_test.grpc_openapi_by_protobuf_file(self._app, GrpcGatewayRoute, load_app)
 
     def test_grpc_openapi_by_option(self) -> None:
         from pait.app.tornado import load_app
-        from pait.grpc.gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
+        from pait.grpc import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 
         self.setUp()
         self.base_test.grpc_openapi_by_option(self._app, GrpcGatewayRoute, load_app)

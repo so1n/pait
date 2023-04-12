@@ -67,8 +67,7 @@ from pait.app.tornado import AddDocRoute, Pait, add_doc_route, load_app, pait
 from pait.app.tornado.plugin.cache_response import CacheResponsePlugin
 from pait.extra.config import MatchRule
 from pait.field import Header, Json, Query
-from pait.model.status import PaitStatus
-from pait.model.template import TemplateVar
+from pait.model import PaitStatus, TemplateVar
 
 user_pait: Pait = global_pait.create_sub_pait(group="user")
 link_pait: Pait = global_pait.create_sub_pait(

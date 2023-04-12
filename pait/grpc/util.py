@@ -8,6 +8,9 @@ from pait.util import create_pydantic_model
 _T = TypeVar("_T", bound=Type[BaseModel])
 
 
+__all__ = ["rebuild_message", "rebuild_message_type", "rebuild_dict"]
+
+
 def _rebuild_message_by_exclude_column_name(
     pydantic_model: _T,
     route_func_name: str,

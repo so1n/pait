@@ -1,8 +1,7 @@
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from pait.model.config import Config
-    from pait.model.core import PaitCoreModel
+    from pait.model import Config, PaitCoreModel
 
 
 __all__ = ["sync_config_data_to_pait_core_model"]

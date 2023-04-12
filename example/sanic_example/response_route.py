@@ -8,7 +8,7 @@ from example.common import response_model, tag
 from example.sanic_example.utils import create_app, global_pait
 from pait.app.sanic import Pait
 from pait.field import Query
-from pait.model.status import PaitStatus
+from pait.model import PaitStatus
 
 try:
     from sanic.response import StreamingHTTPResponse

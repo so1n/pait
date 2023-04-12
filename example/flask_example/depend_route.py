@@ -8,7 +8,7 @@ from example.common.response_model import FailRespModel, SimpleRespModel
 from example.flask_example.utils import create_app, global_pait
 from pait.app.flask import Pait
 from pait.field import Depends, Query
-from pait.model.status import PaitStatus
+from pait.model import PaitStatus
 
 depend_pait: Pait = global_pait.create_sub_pait(
     group="depend",

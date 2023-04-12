@@ -4,12 +4,14 @@ import grpc
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
 
-from pait import Tag
 from pait.app.any.util import import_func_from_app
 from pait.core import Pait
 from pait.grpc.util import rebuild_dict
+from pait.model import Tag
 
 MessageT = TypeVar("MessageT", bound=Message)
+
+__all__ = ["BaseGrpcGatewayRoute"]
 
 
 class BaseGrpcGatewayRoute(object):

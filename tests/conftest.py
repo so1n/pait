@@ -13,7 +13,7 @@ from pait.g import config
 from pait.plugin.base import PluginManager, PrePluginProtocol
 
 if TYPE_CHECKING:
-    from pait.model.core import PaitCoreModel
+    from pait.model import PaitCoreModel
 
 config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
 
@@ -124,7 +124,7 @@ def fixture_loop(mock_close_loop: bool = False) -> Generator[asyncio.AbstractEve
 @contextmanager
 def grpc_request_test(app: Any) -> Generator[Queue, None, None]:
     from pait.app import get_app_attribute
-    from pait.grpc.gateway import AsyncGrpcGatewayRoute, DynamicGrpcGatewayRoute
+    from pait.grpc import AsyncGrpcGatewayRoute, DynamicGrpcGatewayRoute
     from pait.grpc.plugin.gateway import BaseStaticGrpcGatewayRoute
 
     grpc_gateway_route: DynamicGrpcGatewayRoute = get_app_attribute(app, "grpc_gateway_route")

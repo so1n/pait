@@ -9,8 +9,8 @@ from protobuf_to_pydantic.gen_code import BaseP2C
 from protobuf_to_pydantic.gen_model import DescTemplate
 from protobuf_to_pydantic.grpc_types import FileDescriptorProto
 
-from pait import __version__
-from pait.grpc.inspect import GrpcServiceOptionModel, get_grpc_service_model_from_option_message
+from pait.__version__ import __version__
+from pait.grpc import GrpcServiceOptionModel, get_grpc_service_model_from_option_message
 from pait.grpc.plugin.model import GrpcModel
 
 if TYPE_CHECKING:
@@ -209,7 +209,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                         )
                         nested_str = self._get_value_code(grpc_service_option_model.request_message.nested)
                         # self._add_import_code(f".{model_module_name}", input_type_name)
-                        self._add_import_code("pait.grpc.util", "rebuild_message")
+                        self._add_import_code("pait.grpc", "rebuild_message")
                         request_message_model_name = (
                             f"{input_type_name}{''.join([i.title() for i in func_name.split('_')])}"
                         )
@@ -233,7 +233,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                         or grpc_service_option_model.response_message.nested
                     ) and output_type_name != "Empty":
                         # self._add_import_code(f".{model_module_name}", output_type_name)
-                        self._add_import_code("pait.grpc.util", "rebuild_message_type")
+                        self._add_import_code("pait.grpc", "rebuild_message_type")
                         exclude_column_name_str = self._get_value_code(
                             grpc_service_option_model.response_message.exclude_column_name
                         )

@@ -12,10 +12,10 @@ from pait.app.any import SimpleRoute, set_app_attribute
 from pait.core import Pait
 from pait.field import Header
 from pait.g import pait_context
+from pait.grpc import rebuild_message
 from pait.grpc.plugin.gateway import BaseStaticGrpcGatewayRoute
-from pait.grpc.util import rebuild_message
-from pait.model.response import BaseResponseModel, JsonResponseModel
-from pait.model.tag import Tag
+from pait.model import BaseResponseModel, JsonResponseModel
+from pait.model import Tag
 
 from ..user import user_pb2, user_pb2_grpc
 from . import social_p2p, social_pb2, social_pb2_grpc
