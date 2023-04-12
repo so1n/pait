@@ -29,15 +29,10 @@ def parse_typing(_type: Any) -> Union[List[Type[Any]], Type]:
             # support Union, Optional
             type_list: List[Type[Any]] = []
             for i in _type.__args__:
-                if isinstance(i, list):
-                    for j in i:
-                        value: Union[List[Type[Any]], Type] = parse_typing(j)
-                        if isinstance(value, list):
-                            type_list.extend(value)
-                        else:
-                            type_list.append(value)
-                else:
-                    value = parse_typing(i)
+                if not isinstance(i, list):
+                    i = [i]
+                for j in i:
+                    value: Union[List[Type[Any]], Type] = parse_typing(j)
                     if isinstance(value, list):
                         type_list.extend(value)
                     else:

@@ -47,7 +47,9 @@ class JsonResponseModel(_JsonResponseModel):
     def get_default_dict(cls, **extra: Any) -> dict:
         default_dict: dict = getattr(cls.response_data, "JsonResponseModel_default_dict", {})
         if not default_dict:
-            default_dict = gen_example_dict_from_pydantic_base_model(cls.response_data, example_column_name=None)
+            default_dict = gen_example_dict_from_pydantic_base_model(
+                cls.response_data, example_column_name=extra.pop("example_column_name", "")
+            )
             setattr(cls.response_data, "JsonResponseModel_default_dict", default_dict)
         return copy.deepcopy(default_dict)
 
@@ -61,7 +63,9 @@ class XmlResponseModel(_XmlResponseModel):
     def get_default_dict(cls, **extra: Any) -> dict:
         default_dict: dict = getattr(cls.response_data, "XmlResponseModel_default_dict", {})
         if not default_dict:
-            default_dict = gen_example_dict_from_pydantic_base_model(cls.response_data, example_column_name=None)
+            default_dict = gen_example_dict_from_pydantic_base_model(
+                cls.response_data, example_column_name=extra.pop("example_column_name", "")
+            )
             setattr(cls.response_data, "XmlJsonResponseModel_default_dict", default_dict)
         return copy.deepcopy(default_dict)
 

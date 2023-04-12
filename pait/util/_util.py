@@ -8,8 +8,7 @@ from decimal import Decimal
 from enum import Enum
 from functools import wraps
 from json import JSONEncoder
-from typing import _eval_type  # type: ignore
-from typing import (
+from typing import (  # type: ignore
     TYPE_CHECKING,
     Any,
     Callable,
@@ -22,6 +21,8 @@ from typing import (
     Type,
     TypeVar,
     Union,
+    _eval_type,
+    _GenericAlias,
     get_type_hints,
 )
 
@@ -113,19 +114,33 @@ def partial_wrapper(func: Callable[P, R_T], **_customer_kwargs: Any) -> Callable
 
 
 def example_value_handle(example_value: Any) -> Any:
-    if getattr(example_value, "__call__", None):
-        example_value = example_value()
-    elif isinstance(example_value, Enum):
+    if isinstance(example_value, Enum):
         example_value = example_value.value
     elif isinstance(example_value, TemplateVar):
         example_value = example_value.get_value_from_template_context()
+    elif getattr(example_value, "__call__", None):
+        example_value = example_value()
     return example_value
 
 
 def get_real_annotation(annotation: Union[Type, str], target_obj: Any) -> Type:
-    """Used to get the real annotation(Compatible with postponed annotations)"""
+    """
+    get the real annotation from postponed annotations/annotations
+    :param annotation: type hints
+    :param target_obj: The object on which the annotation resides
+    :return: the real annotation
+
+    e.g:
+    >>> def demo(a: "int") -> int: pass
+    >>> assert int = get_real_annotation(demo.__annotations__["a"], demo)
+
+    >>> class Demo:
+    >>>     a: "int"
+    >>> assert int = get_real_annotation(Demo.__annotations__["a"], Demo)
+    """
     global_dict = sys.modules[target_obj.__module__].__dict__
     if not isinstance(annotation, str):
+        # Option["Dict[str, int]"]
         return _eval_type(annotation, global_dict, None)
     if inspect.isclass(target_obj) and annotation in target_obj.__dict__:
         new_annotation: Type = target_obj.__dict__[annotation]
@@ -151,7 +166,7 @@ def get_pydantic_annotation(key: str, pydantic_base_model: Type[BaseModel]) -> T
             annotation = ann
             break
     if annotation is MISSING:
-        raise RuntimeError(f"get annotation from {pydantic_base_model} fail")  # pragma: no cover
+        raise RuntimeError(f"get {key}'s annotation from {pydantic_base_model} fail")  # pragma: no cover
     annotation = get_real_annotation(annotation, pydantic_base_model)
 
     if getattr(annotation, "real", None) and annotation != bool:
@@ -181,17 +196,57 @@ def get_pait_response_model(
 
 def gen_example_value_from_python(obj: Any) -> Any:
     if isinstance(obj, dict):
-        new_dict: dict = {}
-        for key, value in obj.items():
-            new_dict[key] = gen_example_value_from_python(value)
-        return new_dict
+        return {key: gen_example_value_from_python(value) for key, value in obj.items()}
     else:
         return python_type_default_value_dict.get(type(obj), obj)
 
 
+def gen_example_value_from_type(value_type: type, example_column_name: str = "example") -> Any:
+    """
+    Gets the default value for type
+    :param value_type: type of the value
+    :param example_column_name: Gets sample values from the properties specified by pydantic.FieldInfo
+    """
+    if isinstance(value_type, _GenericAlias):
+        sub_type: Optional[Type] = None
+        try:
+            parse_typing_result: Union[List[Type[Any]], Type] = parse_typing(value_type)
+            if isinstance(parse_typing_result, list):
+                # If there is more than one type value, only the first one is used
+                real_type: Type = parse_typing_result[0]
+            else:
+                real_type = parse_typing_result
+            annotation_arg_list: list = getattr(value_type, "__args__", [])
+            if annotation_arg_list:
+                sub_type_set: Set[Type] = set(annotation_arg_list)
+                if len(sub_type_set) == 1:
+                    sub_type = sub_type_set.pop()
+        except ParseTypeError:
+            real_type = value_type
+        if real_type is list and sub_type:
+            return [gen_example_value_from_type(sub_type, example_column_name=example_column_name)]
+        else:
+            # if real_type is Option[xxx], sub_type is None
+            # so must parse real_type
+            return gen_example_value_from_type(real_type, example_column_name=example_column_name)
+    elif not inspect.isclass(value_type):
+        return python_type_default_value_dict[value_type]
+    elif issubclass(value_type, Enum):
+        return [i for i in value_type.__members__.values()][0].value
+    elif issubclass(value_type, BaseModel):
+        return gen_example_dict_from_pydantic_base_model(value_type, example_column_name=example_column_name)
+    else:
+        return python_type_default_value_dict[value_type]
+
+
 def gen_example_dict_from_pydantic_base_model(
-    pydantic_base_model: Type[BaseModel], example_column_name: Optional[str] = "example"
+    pydantic_base_model: Type[BaseModel], example_column_name: str = "example"
 ) -> dict:
+    """
+    Gets the default value for pydantic.BaseModel
+    :param pydantic_base_model: pydantic.BaseModel
+    :param example_column_name: Gets sample values from the properties specified by pydantic.FieldInfo
+    """
     gen_dict: Dict[str, Any] = {}
     for key, model_field in pydantic_base_model.__fields__.items():
         if model_field.alias:
@@ -210,45 +265,11 @@ def gen_example_dict_from_pydantic_base_model(
             gen_dict[key] = model_field.field_info.default_factory()
         else:
             annotation: Type = get_pydantic_annotation(key, pydantic_base_model)
-
-            if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
-                gen_dict[key] = gen_example_dict_from_pydantic_base_model(
-                    annotation, example_column_name=example_column_name
-                )
-            else:
-                sub_type: Optional[Type] = None
-                try:
-                    parse_typing_result: Union[List[Type[Any]], Type] = parse_typing(annotation)
-                    if isinstance(parse_typing_result, list):
-                        real_type: Type = parse_typing_result[0]
-                    else:
-                        real_type = parse_typing_result
-                    if getattr(annotation, "__args__", None):
-                        sub_type_set: Set[Type] = set(annotation.__args__)
-                        if len(sub_type_set) == 1:
-                            sub_type = sub_type_set.pop()
-                except ParseTypeError:
-                    real_type = annotation
-                if (
-                    real_type is list
-                    and sub_type is not None
-                    and inspect.isclass(sub_type)
-                    and issubclass(sub_type, BaseModel)
-                ):
-                    gen_dict[key] = [
-                        gen_example_dict_from_pydantic_base_model(sub_type, example_column_name=example_column_name)
-                    ]
-                elif inspect.isclass(sub_type) and issubclass(real_type, Enum):
-                    gen_dict[key] = [i for i in real_type.__members__.values()][0].value
-                else:
-                    gen_dict[key] = python_type_default_value_dict[real_type]
+            gen_dict[key] = gen_example_value_from_type(annotation, example_column_name=example_column_name)
     return gen_dict
 
 
-def gen_example_dict_from_schema(
-    schema_dict: Dict[str, Any],
-    definition_dict: Optional[dict] = None,
-) -> Dict[str, Any]:
+def gen_example_dict_from_schema(schema_dict: Dict[str, Any], definition_dict: Optional[dict] = None) -> Dict[str, Any]:
     gen_dict: Dict[str, Any] = {}
     if "properties" not in schema_dict:
         return gen_dict

@@ -175,7 +175,7 @@ class TestAutoCompleteJsonPlugin:
         assert plugin.merge({"code": 0}) == {
             "code": 0,
             "msg": "success",
-            "data": {"uid": 100, "music_list": [{"name": "", "url": "", "singer": ""}], "image_list": []},
+            "data": {"uid": 100, "music_list": [{"name": "", "url": "", "singer": ""}], "image_list": [{}]},
         }
 
 
