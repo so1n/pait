@@ -72,7 +72,7 @@ json_type_default_value_dict: Dict[str, Any] = {
     "array": [],
 }
 
-python_type_default_value_dict: Dict[type, Any] = {
+python_type_default_value_dict: Dict = {
     bool: True,
     float: 0.0,
     int: 0,
@@ -82,6 +82,7 @@ python_type_default_value_dict: Dict[type, Any] = {
     dict: {},
     datetime: datetime.fromtimestamp(0),
     Decimal: Decimal("0.0"),
+    Any: {},
 }
 
 
@@ -237,7 +238,7 @@ def gen_example_dict_from_pydantic_base_model(
                     gen_dict[key] = [
                         gen_example_dict_from_pydantic_base_model(sub_type, example_column_name=example_column_name)
                     ]
-                elif issubclass(real_type, Enum):
+                elif inspect.isclass(sub_type) and issubclass(real_type, Enum):
                     gen_dict[key] = [i for i in real_type.__members__.values()][0].value
                 else:
                     gen_dict[key] = python_type_default_value_dict[real_type]
