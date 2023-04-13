@@ -1,7 +1,9 @@
 import inspect
-from typing import Any, AsyncIterator, Dict, Iterator, List, Optional, Type, Union
+import typing
+from typing import Any, Dict, List, Optional, Type, Union
 
 import pytest
+import typing_extensions
 from pydantic import BaseModel
 from pytest_mock import MockFixture
 
@@ -13,19 +15,42 @@ pytestmark = pytest.mark.asyncio
 
 class TestUtil:
     def test_parse_typing(self) -> None:
-        assert dict is util.parse_typing(dict)
-        assert list is util.parse_typing(List)
-        assert dict is util.parse_typing(Dict)
-        assert dict is util.parse_typing(Union[dict])
-        assert dict is util.parse_typing(Union[Dict])
-        assert dict is util.parse_typing(Union[Dict[str, Any]])
-        assert dict is util.parse_typing(AsyncIterator[Dict])
-        assert dict is util.parse_typing(Iterator[Dict])
-        assert dict in util.parse_typing(Union[Dict, str, int])
-        assert dict in set(util.parse_typing(Optional[Dict]))  # type: ignore
-        assert type(None) in set(util.parse_typing(Optional[Dict]))  # type: ignore
-        assert dict in set(util.parse_typing(Optional[dict]))  # type: ignore
-        assert type(None) in set(util.parse_typing(Optional[dict]))  # type: ignore
+        assert [dict] == util.parse_typing(dict)
+        assert [list] == util.parse_typing(List)
+        assert [list] == util.parse_typing(List[str])
+        assert [dict] == util.parse_typing(Dict)
+        assert [set] == util.parse_typing(typing.Set)
+        assert [dict] == util.parse_typing(Union[dict])
+        assert [dict] == util.parse_typing(Union[Dict])
+        assert [dict] == util.parse_typing(Union[Dict[str, Any]])
+        assert [dict] == util.parse_typing(typing.AsyncIterator[Dict])
+        assert [dict] == util.parse_typing(typing.Iterator[Dict])
+        assert [dict] == util.parse_typing(typing.Generator[Dict, None, None])
+        assert [dict] == util.parse_typing(typing.AsyncGenerator[Dict, None])
+        assert [tuple] == util.parse_typing(typing.Tuple[str, int])
+        assert [dict] == util.parse_typing(typing_extensions.TypedDict)
+        # multi value
+        assert [dict, str, int] == util.parse_typing(Union[Dict, str, int])
+        assert [dict, type(None)] == util.parse_typing(Optional[Dict])
+        assert [dict, type(None)] == util.parse_typing(Optional[dict])
+        # Relatively rarely used scenes
+        assert [int] == util.parse_typing(typing.NewType("UserId", int))
+        assert [int] == util.parse_typing(typing.Callable[[], int])
+        assert [int] == util.parse_typing(typing.Callable[[], typing.Awaitable[int]])
+        s = typing.TypeVar("s", int, str)
+        assert [int, str] == util.parse_typing(s)
+        assert [str] == util.parse_typing(typing_extensions.Literal["a", "b"])
+        assert [str] == util.parse_typing(typing_extensions.LiteralString)
+
+        class Demo:
+            pass
+
+        assert [int] == util.parse_typing(typing_extensions.Annotated[int, Demo])
+        # Unresolved type, returned directly
+        from pait.util._types import _TYPING_NOT_PARSE_TYPE_SET
+
+        for i in _TYPING_NOT_PARSE_TYPE_SET:
+            assert [i] == util.parse_typing(i)
 
     def test_get_real_annotation(self) -> None:
         class Demo:

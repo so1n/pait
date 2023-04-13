@@ -1,69 +1,67 @@
 import inspect
+import typing
 from typing import Any, Generator, List, Optional, Set, Type, Union, _GenericAlias  # type: ignore
+
+import typing_extensions
 
 from pait.exceptions import ParseTypeError
 
-_CAN_JSON_TYPE_SET: Set[Optional[type]] = {bool, dict, float, int, list, str, tuple, type(None), None}
+_PYTHON_ORIGIN_TYPE_SET: Set[Optional[type]] = {bool, dict, float, int, list, str, tuple, type(None), None, set}
+_TYPING_NOT_PARSE_TYPE_SET: set = {
+    typing.Any,
+    typing.Generic,
+    typing_extensions.Never,
+    typing_extensions.NoReturn,
+    typing_extensions.Self,
+    typing_extensions.ClassVar,
+    typing_extensions.Final,
+}
 __all__ = ["parse_typing", "is_type"]
 
 
-def parse_typing(_type: Any) -> Union[List[Type[Any]], Type]:
-    """
-    parse typing.type to Python.type
-    >>> from typing import Dict, Optional
-    >>> assert dict is parse_typing(dict)
-    >>> assert list is parse_typing(List)
-    >>> assert dict is parse_typing(Dict)
-    >>> assert dict in set(parse_typing(Optional[Dict]))
-    >>> assert type(None) in set(parse_typing(Optional[Dict]))
-    >>> assert dict in set(parse_typing(Optional[dict]))
-    >>> assert type(None) in set(parse_typing(Optional[dict]))
-    >>> assert type(None) is parse_typing(Optional)
-    >>> assert dict is parse_typing(Union[dict])
-    >>> assert dict is parse_typing(Union[Dict])
-    >>> assert dict is parse_typing(Union[Dict[str, Any]])
-    """
+def parse_typing(_type: Any) -> List[Type]:
+    """Get Python Type through typing as much as possible"""
     origin: Optional[type] = getattr(_type, "__origin__", None)  # get typing.xxx's raw type
     if origin:
         if origin is Union:
             # support Union, Optional
             type_list: List[Type[Any]] = []
             for i in _type.__args__:
-                if not isinstance(i, list):
-                    i = [i]
-                for j in i:
-                    value: Union[List[Type[Any]], Type] = parse_typing(j)
-                    if isinstance(value, list):
-                        type_list.extend(value)
-                    else:
-                        type_list.append(value)
+                type_list.extend(parse_typing((i)))
             return type_list
-        elif origin in _CAN_JSON_TYPE_SET:
-            return origin
+        elif origin is typing_extensions.Literal:
+            return [str]
+        elif origin in _PYTHON_ORIGIN_TYPE_SET:
+            return [origin]
         arg_list: List = getattr(_type, "__args__", [])
         if arg_list:
             # support AsyncIterator, Iterator
             return parse_typing(arg_list[0])
-        return origin
+        return [origin]
     elif _type is Generator:
         return parse_typing(_type.__args__[0])
-    elif _type in _CAN_JSON_TYPE_SET:
-        return _type
+    elif _type in _PYTHON_ORIGIN_TYPE_SET:
+        return [_type]
     elif getattr(_type, "_name", "") == "Optional":
-        return type(None)
+        return [type(None)]
+    elif getattr(_type, "_name", "") == "LiteralString":
+        return [str]
+    elif typing_extensions.is_typeddict(_type):
+        return [dict]
+    elif hasattr(_type, "__supertype__"):
+        # support NewType
+        return [getattr(_type, "__supertype__")]
+    elif hasattr(_type, "__constraints__"):
+        # support TypeVar
+        return list(getattr(_type, "__constraints__"))
     elif inspect.isclass(_type):
-        return _type
+        return [_type]
+    elif _type in _TYPING_NOT_PARSE_TYPE_SET:
+        return [_type]
     else:
         raise ParseTypeError(f"Can not parse {_type} origin type")
 
 
 def is_type(source_type: Type, target_type: Union[Type, object]) -> bool:
     """Determine whether the two types are consistent"""
-    parse_source_type: Union[List[Type], Type] = parse_typing(source_type)
-    if not isinstance(parse_source_type, list):
-        parse_source_type = [parse_source_type]
-
-    parse_target_type: Union[List[Type], Type] = parse_typing(target_type)
-    if not isinstance(parse_target_type, list):
-        parse_target_type = [parse_target_type]
-    return bool(set(parse_target_type) & set(parse_source_type))
+    return bool(set(parse_typing(target_type)) & set(parse_typing(source_type)))

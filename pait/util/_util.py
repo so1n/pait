@@ -3,7 +3,7 @@ import json
 import os
 import sys
 from dataclasses import MISSING
-from datetime import date, datetime
+from datetime import datetime
 from decimal import Decimal
 from enum import Enum
 from functools import wraps
@@ -28,9 +28,9 @@ from typing import (  # type: ignore
 
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo, Undefined, UndefinedType
+from typing_extensions import is_typeddict
 
 from pait.field import BaseField, Depends, is_pait_field
-from pait.model.template import TemplateVar
 from pait.types import ParamSpec
 
 from ._types import ParseTypeError, parse_typing
@@ -44,7 +44,6 @@ __all__ = [
     "gen_example_json_from_schema",
     "get_parameter_list_from_pydantic_basemodel",
     "get_parameter_list_from_class",
-    "CustomJSONEncoder",
     "http_method_tuple",
     "json_type_default_value_dict",
     "python_type_default_value_dict",
@@ -116,8 +115,6 @@ def partial_wrapper(func: Callable[P, R_T], **_customer_kwargs: Any) -> Callable
 def example_value_handle(example_value: Any) -> Any:
     if isinstance(example_value, Enum):
         example_value = example_value.value
-    elif isinstance(example_value, TemplateVar):
-        example_value = example_value.get_value_from_template_context()
     elif getattr(example_value, "__call__", None):
         example_value = example_value()
     return example_value
@@ -207,15 +204,14 @@ def gen_example_value_from_type(value_type: type, example_column_name: str = "ex
     :param value_type: type of the value
     :param example_column_name: Gets sample values from the properties specified by pydantic.FieldInfo
     """
-    if isinstance(value_type, _GenericAlias):
+    if is_typeddict(value_type):
+        return {k: gen_example_value_from_type(v) for k, v in value_type.__annotations__.items()}
+    elif isinstance(value_type, _GenericAlias):
         sub_type: Optional[Type] = None
         try:
-            parse_typing_result: Union[List[Type[Any]], Type] = parse_typing(value_type)
-            if isinstance(parse_typing_result, list):
-                # If there is more than one type value, only the first one is used
-                real_type: Type = parse_typing_result[0]
-            else:
-                real_type = parse_typing_result
+            parse_typing_result = parse_typing(value_type)
+            # If there is more than one type value, only the first one is used
+            real_type: Type = parse_typing_result[0]
             annotation_arg_list: list = getattr(value_type, "__args__", [])
             if annotation_arg_list:
                 sub_type_set: Set[Type] = set(annotation_arg_list)
@@ -364,22 +360,3 @@ def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:
             parameter_list.append(parameter)
     _class_parameter_list_dict[cbv_class] = parameter_list
     return parameter_list
-
-
-class CustomJSONEncoder(JSONEncoder):
-    def default(self, obj: Any) -> Any:
-        if isinstance(obj, datetime):
-            return int(obj.timestamp())
-        elif isinstance(obj, date):
-            return obj.strftime("%Y-%m-%d")
-        elif isinstance(obj, Decimal):
-            return float(obj)
-        elif isinstance(obj, Enum):
-            return obj.value
-        elif isinstance(obj, TemplateVar):
-            obj = obj.get_value_from_template_context()
-            if isinstance(obj, UndefinedType):
-                obj = None
-            return obj
-        else:
-            return super().default(obj)  # pragma: no cover

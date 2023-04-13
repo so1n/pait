@@ -5,9 +5,9 @@ from pydantic import BaseConfig
 
 from pait.model.response import BaseResponseModel
 from pait.model.status import PaitStatus
-from pait.util import CustomJSONEncoder
 from pait.util import json_type_default_value_dict as pait_json_type_default_value_dict
 from pait.util import python_type_default_value_dict as pait_python_type_default_value_dict
+from pait.util.encoder import CustomJSONEncoder
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
