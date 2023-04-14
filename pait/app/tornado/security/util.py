@@ -1,12 +1,9 @@
 from typing import Dict, Optional
 
-from tornado.web import HTTPError
+from pait.app.tornado import http_exception
 
 
 class GetException(object):
     @classmethod
     def get_exception(cls, *, status_code: int, message: str, headers: Optional[Dict] = None) -> Exception:
-        exc: HTTPError = HTTPError(reason=message, status_code=status_code)
-        if headers:
-            exc.headers = headers
-        return exc
+        return http_exception(status_code=status_code, message=message, headers=headers)
