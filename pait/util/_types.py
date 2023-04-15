@@ -20,7 +20,44 @@ __all__ = ["parse_typing", "is_type"]
 
 
 def parse_typing(_type: Any) -> List[Type]:
-    """Get Python Type through typing as much as possible"""
+    """Get Python Type through typing as much as possible
+    >>> assert [dict] == parse_typing(dict)
+    >>> assert [list] == parse_typing(List)
+    >>> assert [list] == parse_typing(List[str])
+    >>> assert [dict] == parse_typing(Dict)
+    >>> assert [set] == parse_typing(typing.Set)
+    >>> assert [dict] == parse_typing(Union[dict])
+    >>> assert [dict] == parse_typing(Union[Dict])
+    >>> assert [dict] == parse_typing(Union[Dict[str, Any]])
+    >>> assert [dict] == parse_typing(typing.AsyncIterator[Dict])
+    >>> assert [dict] == parse_typing(typing.Iterator[Dict])
+    >>> assert [dict] == parse_typing(typing.Generator[Dict, None, None])
+    >>> assert [dict] == parse_typing(typing.AsyncGenerator[Dict, None])
+    >>> assert [tuple] == parse_typing(typing.Tuple[str, int])
+    >>> assert [dict] == parse_typing(typing_extensions.TypedDict)
+    >>> # multi value
+    >>> assert [dict, str, int] == parse_typing(Union[Dict, str, int])
+    >>> assert [dict, type(None)] == parse_typing(Optional[Dict])
+    >>> assert [dict, type(None)] == parse_typing(Optional[dict])
+    >>> # Relatively rarely used scenes
+    >>> assert [int] == parse_typing(typing.NewType("UserId", int))
+    >>> assert [int] == parse_typing(typing.Callable[[], int])
+    >>> assert [int] == parse_typing(typing.Callable[[], typing.Awaitable[int]])
+    >>> s = typing.TypeVar("s", int, str)
+    >>> assert [int, str] == parse_typing(s)
+    >>> assert [str] == parse_typing(typing_extensions.Literal["a", "b"])
+    >>> assert [str] == parse_typing(typing_extensions.LiteralString)
+
+    >>> class Demo:
+    >>>     pass
+
+    >>> assert [int] == parse_typing(typing_extensions.Annotated[int, Demo])
+    >>> # Unresolved type, returned directly
+    >>> from pait.util._types import _TYPING_NOT_PARSE_TYPE_SET
+
+    >>> for i in _TYPING_NOT_PARSE_TYPE_SET:
+    >>>     assert [i] == parse_typing(i)
+    """
     origin: Optional[type] = getattr(_type, "__origin__", None)  # get typing.xxx's raw type
     if origin:
         if origin is Union:

@@ -48,9 +48,9 @@ def create_app() -> Iterator[MyApplication]:
 
     from tornado.ioloop import IOLoop
 
-    from pait.app.tornado import add_doc_route
     from pait.extra.config import apply_block_http_method_set
     from pait.g import config
+    from pait.openapi.doc_route import add_doc_route
 
     logging.basicConfig(
         format="[%(asctime)s %(levelname)s] %(message)s", datefmt="%y-%m-%d %H:%M:%S", level=logging.DEBUG

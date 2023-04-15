@@ -66,12 +66,13 @@ from example.sanic_example.security_route import (
     oauth2_user_name,
 )
 from example.sanic_example.utils import api_exception, global_pait
-from pait.app.sanic import AddDocRoute, Pait, add_doc_route, load_app, pait
+from pait.app.sanic import Pait, load_app, pait
 from pait.app.sanic.plugin.cache_response import CacheResponsePlugin
 from pait.exceptions import PaitBaseException
 from pait.extra.config import MatchRule
 from pait.field import Header, Json, Query
 from pait.model import PaitStatus, TemplateVar
+from pait.openapi.doc_route import AddDocRoute, add_doc_route
 
 test_filename: str = ""
 

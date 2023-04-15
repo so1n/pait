@@ -1,3 +1,5 @@
+from typing import Callable
+
 from starlette.applications import Starlette
 
 from pait.app.base.simple_route import SimpleRoute, add_route_plugin
@@ -9,11 +11,12 @@ def add_simple_route(
     simple_route: "SimpleRoute",
     prefix: str = "/",
     title: str = "",
+    _replace_openapi_url_to_url: Callable[[str], str] = lambda x: x,
 ) -> None:
     add_route_plugin(simple_route, UnifiedResponsePlugin)
     url: str = prefix + simple_route.url
     url = url.replace("//", "/")
-    app.add_route(url, simple_route.route, methods=simple_route.methods, name=title)
+    app.add_route(_replace_openapi_url_to_url(url), simple_route.route, methods=simple_route.methods, name=title)
 
 
 def add_multi_simple_route(
@@ -21,6 +24,7 @@ def add_multi_simple_route(
     *simple_route_list: "SimpleRoute",
     prefix: str = "/",
     title: str = "",
+    _replace_openapi_url_to_url: Callable[[str], str] = lambda x: x,
 ) -> None:
     for simple_route in simple_route_list:
         add_simple_route(app, simple_route, prefix=prefix, title=title)

@@ -57,30 +57,17 @@ class TestAutoLoadApp(BaseTestApp):
         assert exec_msg.startswith("Pait unable to make a choice")
 
 
-class TestAddDocRoute(BaseTestApp):
-    def test_add_doc_route(self, mocker: MockFixture) -> None:
-        for i in app_list:
-            patch = mocker.patch(f"pait.app.{i}.add_doc_route")
-            any.add_doc_route(importlib.import_module(f"example.{i}_example.main_example").create_app())  # type: ignore
-            patch.assert_called()
-
-        class Demo:
-            pass
-
-        with pytest.raises(NotImplementedError) as e:
-            any.add_doc_route(Demo)
-
-        exec_msg: str = e.value.args[0]
-        assert exec_msg.startswith("Pait not support")
-
-    def test_add_doc_route_class(self) -> None:
+class TestHttpException(BaseTestApp):
+    def test_http_exception(self, mocker: MockFixture) -> None:
         for i in app_list:
             self._clean_app_from_sys_module()
             # import web app
             importlib.import_module(i)
             # reload pait.app
-            importlib.reload(any)
-            assert any.AddDocRoute == getattr(importlib.import_module(f"pait.app.{i}"), "AddDocRoute")
+            importlib.reload(importlib.import_module("pait.app.any"))
+            any.http_exception(status_code=200, message="foo")
+
+            assert any.http_exception == getattr(importlib.import_module(f"pait.app.{i}"), "http_exception")
 
 
 class TestSecurity(BaseTestApp):

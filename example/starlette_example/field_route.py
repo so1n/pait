@@ -5,7 +5,7 @@ from starlette.responses import JSONResponse
 from example.common import tag
 from example.common.request_model import SexEnum, TestPaitModel, UserModel, UserOtherModel
 from example.common.response_model import FailRespModel, SimpleRespModel, UserSuccessRespModel
-from example.starlette_example.utils import api_exception, create_app, global_pait
+from example.starlette_example.utils import create_app, global_pait
 from pait.app.starlette import Pait
 from pait.field import Cookie, File, Form, Header, Json, MultiForm, MultiQuery, Path, Query
 from pait.model import PaitStatus
@@ -104,29 +104,6 @@ async def pait_model_route(test_pait_model: TestPaitModel) -> JSONResponse:
 
 
 if __name__ == "__main__":
-    import uvicorn
-    from starlette.applications import Starlette
-    from starlette.routing import Route
-
-    from pait.app.starlette import add_doc_route
-    from pait.extra.config import apply_block_http_method_set
-    from pait.g import config
-
-    config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
-
-    app: Starlette = Starlette(
-        routes=[
-            Route("/api/post", post_route, methods=["POST"]),
-            Route("/api/pait-base-field/{age}", pait_base_field_route, methods=["POST"]),
-            Route("/api/field-default-factory", field_default_factory_route, methods=["POST"]),
-            Route("/api/same-alias", same_alias_route, methods=["GET"]),
-            Route("/api/pait-model", pait_model_route, methods=["POST"]),
-        ]
-    )
-    app.add_exception_handler(Exception, api_exception)
-    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
-    uvicorn.run(app)
-
     with create_app() as app:
         app.add_route("/api/post", post_route, methods=["POST"])
         app.add_route("/api/pait-base-field/{age}", pait_base_field_route, methods=["POST"])

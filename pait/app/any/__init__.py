@@ -42,17 +42,16 @@ try:
     from typing import TYPE_CHECKING
 
     if TYPE_CHECKING:
-        from pait.app.base.doc_route import AddDocRoute as _AddDocRoute
         from pait.core import Pait as _Pait
 
     Pait: "_Pait" = getattr(import_module(pait_app_path), "Pait")
-    AddDocRoute: "_AddDocRoute" = getattr(import_module(pait_app_path), "AddDocRoute")
+    http_exception = getattr(import_module(pait_app_path), "http_exception")
 except RuntimeError:  # pragma: no cover
     # Automatic loading of classes, loading failure when the user can not use
     load_class_app = Empty()
     Pait = Empty()  # type: ignore
-    AddDocRoute = Empty()  # type: ignore
     pait_app_path = ""  # pragma: no cover
+    http_exception = Empty()  # type: ignore
 
 
 def load_app(app: Any, auto_load_route: bool = False) -> Dict[str, PaitCoreModel]:
@@ -60,28 +59,6 @@ def load_app(app: Any, auto_load_route: bool = False) -> Dict[str, PaitCoreModel
     Note:This is an implicit method
     """
     return base_call_func("load_app", app, app=app, auto_load_route=auto_load_route)
-
-
-def add_doc_route(
-    app: Any,
-    scheme: Optional[str] = None,
-    openapi_json_url_only_path: bool = False,
-    prefix: str = "",
-    pin_code: str = "",
-    title: str = "",
-    openapi: Optional[Type["OpenAPI"]] = None,
-) -> None:
-    return base_call_func(
-        "add_doc_route",
-        app,
-        app=app,
-        scheme=scheme,
-        openapi_json_url_only_path=openapi_json_url_only_path,
-        prefix=prefix,
-        pin_code=pin_code,
-        title=title,
-        openapi=openapi,
-    )
 
 
 def pait(

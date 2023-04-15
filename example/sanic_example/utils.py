@@ -32,9 +32,9 @@ async def api_exception(request: Request, exc: Exception) -> response.HTTPRespon
 
 @contextmanager
 def create_app(name: str) -> Iterator[Sanic]:
-    from pait.app.sanic import add_doc_route
     from pait.extra.config import apply_block_http_method_set
     from pait.g import config
+    from pait.openapi.doc_route import add_doc_route
 
     config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
 

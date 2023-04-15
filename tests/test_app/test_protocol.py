@@ -104,12 +104,9 @@ class TestProtocol(BaseTestProtocol):
             assert parameters == init_signature.parameters[name]
 
 
-class TestDocRouteProtocol(BaseTestProtocol):
-    def test_add_doc_route(self) -> None:
-        self._check_func_type_hint(any_app.add_doc_route.__name__)
-
-    def test_add_doc_route_class(self) -> None:
-        self._check_func_type_hint(any_app.AddDocRoute.__name__)  # type: ignore
+class TestHttpExceptionProtocol(BaseTestProtocol):
+    def test_http_exception(self) -> None:
+        self._check_func_type_hint(any_app.http_exception.__name__)
 
 
 class TestAttributeProtocol(BaseTestProtocol):

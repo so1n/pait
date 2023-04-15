@@ -72,12 +72,13 @@ from example.starlette_example.security_route import (
     oauth2_user_name,
 )
 from example.starlette_example.utils import api_exception, global_pait
-from pait.app.starlette import AddDocRoute, Pait, add_doc_route, load_app, pait
+from pait.app.starlette import Pait, load_app, pait
 from pait.app.starlette.plugin.cache_response import CacheResponsePlugin
 from pait.exceptions import PaitBaseException
 from pait.extra.config import MatchRule
 from pait.field import Header, Json, Query
 from pait.model import PaitStatus, TemplateVar
+from pait.openapi.doc_route import AddDocRoute, add_doc_route
 
 user_pait: Pait = global_pait.create_sub_pait(group="user")
 link_pait: Pait = global_pait.create_sub_pait(

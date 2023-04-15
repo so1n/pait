@@ -63,11 +63,12 @@ from example.tornado_example.security_route import (
     UserNameByHttpDigestHandler,
 )
 from example.tornado_example.utils import MyHandler, global_pait
-from pait.app.tornado import AddDocRoute, Pait, add_doc_route, load_app, pait
+from pait.app.tornado import Pait, load_app, pait
 from pait.app.tornado.plugin.cache_response import CacheResponsePlugin
 from pait.extra.config import MatchRule
 from pait.field import Header, Json, Query
 from pait.model import PaitStatus, TemplateVar
+from pait.openapi.doc_route import AddDocRoute, add_doc_route
 
 user_pait: Pait = global_pait.create_sub_pait(group="user")
 link_pait: Pait = global_pait.create_sub_pait(

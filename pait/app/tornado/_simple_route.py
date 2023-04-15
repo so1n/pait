@@ -1,4 +1,5 @@
-from typing import Type
+import re
+from typing import Callable, Type
 
 from tornado.routing import _RuleList
 from tornado.web import AnyMatches, Application, RequestHandler, Rule, _ApplicationRouter
@@ -9,9 +10,18 @@ from pait.app.tornado.plugin.unified_response import UnifiedResponsePlugin
 __all__ = ["SimpleRoute", "add_simple_route", "add_multi_simple_route"]
 
 
+def replace_openapi_url_to_url(url: str) -> str:
+    """Convert the OpenAPI URL format to a format supported by the web framework"""
+    matches = re.findall(r"{([a-zA-Z_]+)}", url)
+    for match in matches:
+        url = url.replace(f"{{{match}}}", "(?P<" + match + r">\w+)")
+    return r"{}".format(url)
+
+
 def _add_route(
     app: Application,
     request_handler: Type[RequestHandler],
+    _replace_openapi_url_to_url: Callable[[str], str],
     *simple_route_list: "SimpleRoute",
     prefix: str = "",
     title: str = "",
@@ -39,7 +49,7 @@ def _add_route(
                 url = simple_route.url[1:]
             url = f"{prefix}/{url}"
 
-        rule_list.append((r"{}".format(url), route_class))
+        rule_list.append((_replace_openapi_url_to_url(url), route_class))
 
     # Method 1
     # app.add_handlers(r".*$", rule_list)
@@ -53,9 +63,12 @@ def _add_route(
 
 
 def add_simple_route(
-    app: Application, simple_route: "SimpleRoute", request_handler: Type[RequestHandler] = RequestHandler
+    app: Application,
+    simple_route: "SimpleRoute",
+    request_handler: Type[RequestHandler] = RequestHandler,
+    _replace_openapi_url_to_url: Callable[[str], str] = replace_openapi_url_to_url,
 ) -> None:
-    _add_route(app, request_handler, simple_route)
+    _add_route(app, request_handler, _replace_openapi_url_to_url, simple_route)
 
 
 def add_multi_simple_route(
@@ -64,5 +77,6 @@ def add_multi_simple_route(
     prefix: str = "/",
     title: str = "",
     request_handler: Type[RequestHandler] = RequestHandler,
+    _replace_openapi_url_to_url: Callable[[str], str] = replace_openapi_url_to_url,
 ) -> None:
-    _add_route(app, request_handler, *simple_route_list, prefix=prefix, title=title)
+    _add_route(app, request_handler, _replace_openapi_url_to_url, *simple_route_list, prefix=prefix, title=title)
