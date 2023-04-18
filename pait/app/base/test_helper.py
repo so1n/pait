@@ -49,7 +49,7 @@ class BaseTestHelper(Generic[RESP_T]):
         path_dict: Optional[dict] = None,
         query_dict: Optional[dict] = None,
         strict_inspection_check_json_content: bool = True,
-        find_coro_response_model: bool = False,
+        find_response_model: bool = False,
         target_pait_response_class: Optional[Type["response.BaseResponseModel"]] = None,
     ):
         """
@@ -107,7 +107,7 @@ class BaseTestHelper(Generic[RESP_T]):
         if not self.path.startswith("/"):
             self.path = "/" + self.path
 
-        self.find_coro_response_model: bool = find_coro_response_model
+        self.find_response_model: bool = find_response_model
         self.target_pait_response_class: Optional[Type["response.BaseResponseModel"]] = target_pait_response_class
         self._app_init_field()
 
@@ -185,12 +185,11 @@ class BaseTestHelper(Generic[RESP_T]):
         model_check_msg_dict: Dict[Type[response.BaseResponseModel], List[str]] = {}
         response_model_list: List[Type[response.BaseResponseModel]] = (
             self.pait_core_model.response_model_list
-            if not self.find_coro_response_model
+            if not self.find_response_model
             else [
                 get_pait_response_model(
                     self.pait_core_model.response_model_list,
                     target_pait_response_class=self.target_pait_response_class,
-                    find_core_response_model=self.find_coro_response_model,
                 )
             ]
         )

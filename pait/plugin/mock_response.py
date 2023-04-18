@@ -51,7 +51,6 @@ class MockPluginProtocol(PrePluginProtocol, Generic[RESP_T]):
             pait_response = get_pait_response_model(
                 pait_core_model.response_model_list,
                 target_pait_response_class=kwargs.pop("target_pait_response_class", False),
-                find_core_response_model=kwargs.pop("find_coro_response_model", None),
             )
         kwargs["pait_response_model"] = pait_response
         return kwargs
@@ -109,12 +108,10 @@ class MockPluginProtocol(PrePluginProtocol, Generic[RESP_T]):
         cls,  # type: ignore
         enable_mock_response_filter_fn: Optional[Callable] = None,  # type: ignore
         target_pait_response_class: Optional[Type["response.BaseResponseModel"]] = None,  # type: ignore
-        find_core_response_model: bool = False,  # type: ignore
         example_column_name: Literal["example", "mock"] = "example",  # type: ignore
     ) -> "PluginManager":  # type: ignore
         return super().build(
             enable_mock_response_filter_fn=enable_mock_response_filter_fn,
             target_pait_response_class=target_pait_response_class,
-            find_core_response_model=find_core_response_model,
             example_column_name=example_column_name,
         )

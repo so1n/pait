@@ -20,7 +20,6 @@ class UnifiedResponsePluginProtocol(PrePluginProtocol):
             pait_response: Type[BaseResponseModel] = get_pait_response_model(
                 pait_core_model.response_model_list,
                 target_pait_response_class=kwargs.pop("target_pait_response_class", False),
-                find_core_response_model=kwargs.pop("find_coro_response_model", None),
             )
             if issubclass(pait_response, FileResponseModel):
                 raise ValueError(f"Not Support {FileResponseModel.__name__}")

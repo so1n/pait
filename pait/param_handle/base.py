@@ -250,7 +250,7 @@ class BaseParamHandler(PluginProtocol):
         ):
             # first parma must self param, looking forward to the appearance of `self type
             func_args.append(context.cbv_instance)
-        elif issubclass(parameter.annotation, BaseModel):
+        elif inspect.isclass(parameter.annotation) and issubclass(parameter.annotation, BaseModel):
             return True
         elif context.app_helper.request.check_request_type(parameter.annotation):
             # support request param(def handle(request: Request))

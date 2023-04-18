@@ -175,20 +175,10 @@ def get_pydantic_annotation(key: str, pydantic_base_model: Type[BaseModel]) -> T
 def get_pait_response_model(
     response_model_list: List[Type["BaseResponseModel"]],
     target_pait_response_class: Optional[Type["BaseResponseModel"]] = None,
-    find_core_response_model: bool = False,
 ) -> Type["BaseResponseModel"]:
     if target_pait_response_class:
-        core_response_list: List[Type["BaseResponseModel"]] = [
-            i for i in response_model_list if i.is_core and issubclass(i, target_pait_response_class)
-        ]
-    else:
-        core_response_list = [i for i in response_model_list if i.is_core]
-    if find_core_response_model:
-        if len(core_response_list) != 1:
-            raise RuntimeError("Multiple pait response models were found")
-        return core_response_list[0]
-    else:
-        return (core_response_list or response_model_list)[0]
+        response_model_list = [i for i in response_model_list if issubclass(i, target_pait_response_class)]
+    return response_model_list[0]
 
 
 def gen_example_value_from_python(obj: Any) -> Any:

@@ -39,9 +39,7 @@ class AutoCompleteJsonRespPlugin(PrePluginProtocol):
     @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         kwargs = super().pre_load_hook(pait_core_model, kwargs)
-        pait_response_model: Type[BaseResponseModel] = get_pait_response_model(
-            pait_core_model.response_model_list, find_core_response_model=True
-        )
+        pait_response_model: Type[BaseResponseModel] = get_pait_response_model(pait_core_model.response_model_list)
         if not issubclass(pait_response_model, JsonResponseModel):
             raise ValueError(f"pait_response_model must `{JsonResponseModel.__name__}` not {pait_response_model}")
         kwargs["default_response_dict"] = pait_response_model.get_default_dict()
