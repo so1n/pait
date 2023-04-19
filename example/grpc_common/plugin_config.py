@@ -79,7 +79,7 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
                 req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
             ) -> Any:
                 gateway: "{{gateway_name}}" = pait_context.get().app_helper.get_attributes(
-                    "{{attr_prefix}}_{{package}}_gateway"
+                    "{{attr_prefix}}_{{filename}}_gateway"
                 )
                 request_dict: dict = request_pydantic_model.dict()
                 request_dict["token"] = token
@@ -118,7 +118,7 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
                 req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
             ) -> Any:
                 gateway: "{{gateway_name}}" = pait_context.get().app_helper.get_attributes(
-                    "{{attr_prefix}}_{{package}}_gateway"
+                    "{{attr_prefix}}_{{filename}}_gateway"
                 )
                 stub: {{stub_module_name}}.{{service_name}}Stub = gateway.{{stub_service_name}}
                 request_msg: {{request_message_name}} = gateway.msg_from_dict_handle(

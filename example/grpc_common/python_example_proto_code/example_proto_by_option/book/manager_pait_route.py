@@ -1,5 +1,5 @@
 # This is an automatically generated file, please do not change
-# gen by pait[0.7.8.3](https://github.com/so1n/pait)
+# gen by pait[0.0.0](https://github.com/so1n/pait)
 import asyncio
 from typing import Any, Callable, List, Type
 from uuid import uuid4
@@ -14,8 +14,8 @@ from pait.field import Header
 from pait.g import pait_context
 from pait.grpc import rebuild_message, rebuild_message_type
 from pait.grpc.plugin.gateway import BaseStaticGrpcGatewayRoute
-from pait.model import BaseResponseModel, JsonResponseModel
-from pait.model import Tag
+from pait.model.response import BaseResponseModel, JsonResponseModel
+from pait.model.tag import Tag
 
 from ..user import user_pb2, user_pb2_grpc
 from . import manager_p2p, manager_pb2, manager_pb2_grpc
@@ -83,7 +83,7 @@ async def async_create_book_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_manager_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/manager.proto_gateway"
     )
     stub: manager_pb2_grpc.BookManagerStub = gateway.BookManager_stub
     request_msg: manager_pb2.CreateBookRequest = gateway.msg_from_dict_handle(
@@ -111,7 +111,7 @@ def create_book_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_manager_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/manager.proto_gateway"
     )
     stub: manager_pb2_grpc.BookManagerStub = gateway.BookManager_stub
     request_msg: manager_pb2.CreateBookRequest = gateway.msg_from_dict_handle(
@@ -133,7 +133,7 @@ async def async_delete_book_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_manager_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/manager.proto_gateway"
     )
     stub: manager_pb2_grpc.BookManagerStub = gateway.BookManager_stub
     request_msg: manager_pb2.DeleteBookRequest = gateway.msg_from_dict_handle(
@@ -161,7 +161,7 @@ def delete_book_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_manager_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/manager.proto_gateway"
     )
     stub: manager_pb2_grpc.BookManagerStub = gateway.BookManager_stub
     request_msg: manager_pb2.DeleteBookRequest = gateway.msg_from_dict_handle(
@@ -183,7 +183,7 @@ async def async_get_book_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_manager_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/manager.proto_gateway"
     )
     stub: manager_pb2_grpc.BookManagerStub = gateway.BookManager_stub
     request_msg: manager_pb2.GetBookRequest = gateway.msg_from_dict_handle(
@@ -211,7 +211,7 @@ def get_book_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_manager_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/manager.proto_gateway"
     )
     stub: manager_pb2_grpc.BookManagerStub = gateway.BookManager_stub
     request_msg: manager_pb2.GetBookRequest = gateway.msg_from_dict_handle(
@@ -233,7 +233,7 @@ async def async_get_book_list_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_manager_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/manager.proto_gateway"
     )
     stub: manager_pb2_grpc.BookManagerStub = gateway.BookManager_stub
     request_msg: manager_pb2.GetBookListRequest = gateway.msg_from_dict_handle(
@@ -261,7 +261,7 @@ def get_book_list_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_manager_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/manager.proto_gateway"
     )
     stub: manager_pb2_grpc.BookManagerStub = gateway.BookManager_stub
     request_msg: manager_pb2.GetBookListRequest = gateway.msg_from_dict_handle(
@@ -282,7 +282,7 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
     stub_str_list: List[str] = ["BookManager_stub"]
 
     def gen_route(self) -> None:
-        set_app_attribute(self.app, "gateway_attr_book_manager_by_option_gateway", self)
+        set_app_attribute(self.app, "gateway_attr_example_proto_by_option/book/manager.proto_gateway", self)
         # The response model generated based on Protocol is important and needs to be put first
         response_model_list: List[Type[BaseResponseModel]] = self._pait.response_model_list or []
         create_book_route_pait: Pait = self._pait.create_sub_pait(

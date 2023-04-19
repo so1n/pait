@@ -62,7 +62,7 @@ class BaseStaticGrpcGatewayRoute(BaseGrpcGatewayRoute):
         self.is_async: bool = is_async
         self.kwargs: Any = kwargs
         if channel:
-            self.channel = channel
+            self.reinit_channel(channel)
         self.gen_route()
 
     def gen_route(self) -> None:

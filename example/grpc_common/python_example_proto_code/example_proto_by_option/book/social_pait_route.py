@@ -1,5 +1,5 @@
 # This is an automatically generated file, please do not change
-# gen by pait[0.7.8.3](https://github.com/so1n/pait)
+# gen by pait[0.0.0](https://github.com/so1n/pait)
 import asyncio
 from typing import Any, Callable, List, Type
 from uuid import uuid4
@@ -14,8 +14,8 @@ from pait.field import Header
 from pait.g import pait_context
 from pait.grpc import rebuild_message
 from pait.grpc.plugin.gateway import BaseStaticGrpcGatewayRoute
-from pait.model import BaseResponseModel, JsonResponseModel
-from pait.model import Tag
+from pait.model.response import BaseResponseModel, JsonResponseModel
+from pait.model.tag import Tag
 
 from ..user import user_pb2, user_pb2_grpc
 from . import social_p2p, social_pb2, social_pb2_grpc
@@ -76,7 +76,7 @@ async def async_like_book_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_social_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/social.proto_gateway"
     )
     stub: social_pb2_grpc.BookSocialStub = gateway.BookSocial_stub
     request_msg: social_pb2.LikeBookRequest = gateway.msg_from_dict_handle(
@@ -104,7 +104,7 @@ def like_book_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_social_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/social.proto_gateway"
     )
     stub: social_pb2_grpc.BookSocialStub = gateway.BookSocial_stub
     request_msg: social_pb2.LikeBookRequest = gateway.msg_from_dict_handle(
@@ -126,7 +126,7 @@ async def async_like_multi_book_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_social_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/social.proto_gateway"
     )
     stub: social_pb2_grpc.BookSocialStub = gateway.BookSocial_stub
     request_msg: social_pb2.LikeBookMapRequest = gateway.msg_from_dict_handle(
@@ -154,7 +154,7 @@ def like_multi_book_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_social_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/social.proto_gateway"
     )
     stub: social_pb2_grpc.BookSocialStub = gateway.BookSocial_stub
     request_msg: social_pb2.LikeBookMapRequest = gateway.msg_from_dict_handle(
@@ -176,7 +176,7 @@ async def async_get_book_like_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_social_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/social.proto_gateway"
     )
     stub: social_pb2_grpc.BookSocialStub = gateway.BookSocial_stub
     request_msg: social_pb2.GetBookLikesRequest = gateway.msg_from_dict_handle(
@@ -204,7 +204,7 @@ def get_book_like_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_social_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/social.proto_gateway"
     )
     stub: social_pb2_grpc.BookSocialStub = gateway.BookSocial_stub
     request_msg: social_pb2.GetBookLikesRequest = gateway.msg_from_dict_handle(
@@ -226,7 +226,7 @@ async def async_get_book_like_other_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_social_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/social.proto_gateway"
     )
     stub: social_pb2_grpc.BookSocialStub = gateway.BookSocial_stub
     request_msg: social_pb2.NestedGetBookLikesRequest = gateway.msg_from_dict_handle(
@@ -256,7 +256,7 @@ def get_book_like_other_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_social_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/social.proto_gateway"
     )
     stub: social_pb2_grpc.BookSocialStub = gateway.BookSocial_stub
     request_msg: social_pb2.NestedGetBookLikesRequest = gateway.msg_from_dict_handle(
@@ -278,7 +278,7 @@ async def async_comment_book_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_social_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/social.proto_gateway"
     )
     stub: social_pb2_grpc.BookSocialStub = gateway.BookSocial_stub
     request_msg: social_pb2.CommentBookRequest = gateway.msg_from_dict_handle(
@@ -306,7 +306,7 @@ def comment_book_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_social_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/social.proto_gateway"
     )
     stub: social_pb2_grpc.BookSocialStub = gateway.BookSocial_stub
     request_msg: social_pb2.CommentBookRequest = gateway.msg_from_dict_handle(
@@ -328,7 +328,7 @@ async def async_get_book_comment_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_social_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/social.proto_gateway"
     )
     stub: social_pb2_grpc.BookSocialStub = gateway.BookSocial_stub
     request_msg: social_pb2.GetBookCommentRequest = gateway.msg_from_dict_handle(
@@ -358,7 +358,7 @@ def get_book_comment_route(
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
     gateway: "StaticGrpcGatewayRoute" = pait_context.get().app_helper.get_attributes(
-        "gateway_attr_book_social_by_option_gateway"
+        "gateway_attr_example_proto_by_option/book/social.proto_gateway"
     )
     stub: social_pb2_grpc.BookSocialStub = gateway.BookSocial_stub
     request_msg: social_pb2.GetBookCommentRequest = gateway.msg_from_dict_handle(
@@ -379,7 +379,7 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
     stub_str_list: List[str] = ["BookSocial_stub"]
 
     def gen_route(self) -> None:
-        set_app_attribute(self.app, "gateway_attr_book_social_by_option_gateway", self)
+        set_app_attribute(self.app, "gateway_attr_example_proto_by_option/book/social.proto_gateway", self)
         # The response model generated based on Protocol is important and needs to be put first
         response_model_list: List[Type[BaseResponseModel]] = self._pait.response_model_list or []
         like_book_route_pait: Pait = self._pait.create_sub_pait(

@@ -37,7 +37,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
     ) -> Any:
     {% endif %}
         gateway: "{{gateway_name}}" = pait_context.get().app_helper.get_attributes(
-            "{{attr_prefix}}_{{package}}_gateway"
+            "{{attr_prefix}}_{{filename}}_gateway"
         )
     {% if  request_message_model in ("Empty", ) %}
         request_msg: {{request_message_name}} = {{request_message_name}}()
@@ -260,6 +260,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                         GrpcModel(
                             index=model_index,
                             attr_prefix=self.attr_prefix,
+                            filename=self._fd.name,
                             gateway_name=self.gateway_name,
                             method=method.name,
                             func_name=func_name,
@@ -367,7 +368,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
             f"class {self.gateway_name}(BaseStaticGrpcGatewayRoute):\n"
             f"{class_stub_str}\n"
             f"{tab_str * 1}def gen_route(self) -> None:\n"
-            f'{tab_str * 2}set_app_attribute(self.app, "{self.attr_prefix}_{self._fd.package}_gateway", self)\n'
+            f'{tab_str * 2}set_app_attribute(self.app, "{self.attr_prefix}_{self._fd.name}_gateway", self)\n'
             f"{tab_str * 2}# The response model generated based on Protocol is important and needs to be put first\n"
             f"{tab_str * 2}response_model_list: List[Type[BaseResponseModel]] = self._pait.response_model_list or []\n"
             f"{chr(10).join(wrapper_route_str_list) if wrapper_route_str_list else ''}\n"

@@ -12,6 +12,7 @@ class GrpcModel(object):
     # meta data
     index: int
     attr_prefix: str
+    filename: str
     gateway_name: str
     # real template value
     input_type_name: str

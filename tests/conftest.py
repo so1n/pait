@@ -128,12 +128,14 @@ def grpc_request_test(app: Any) -> Generator[Queue, None, None]:
     from pait.grpc.plugin.gateway import BaseStaticGrpcGatewayRoute
 
     grpc_gateway_route: DynamicGrpcGatewayRoute = get_app_attribute(app, "grpc_gateway_route")
-    user_gateway_route: BaseStaticGrpcGatewayRoute = get_app_attribute(app, "gateway_attr_user_by_option_gateway")
+    user_gateway_route: BaseStaticGrpcGatewayRoute = get_app_attribute(
+        app, "gateway_attr_example_proto_by_option/user/user.proto_gateway"
+    )
     book_manager_gateway_route: BaseStaticGrpcGatewayRoute = get_app_attribute(
-        app, "gateway_attr_book_manager_by_option_gateway"
+        app, "gateway_attr_example_proto_by_option/book/manager.proto_gateway"
     )
     book_social_gateway_route: BaseStaticGrpcGatewayRoute = get_app_attribute(
-        app, "gateway_attr_book_social_by_option_gateway"
+        app, "gateway_attr_example_proto_by_option/book/social.proto_gateway"
     )
 
     def reinit_channel(queue: Queue) -> None:
