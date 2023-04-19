@@ -2,7 +2,6 @@ import time
 from typing import List, Optional
 
 from redis.asyncio import Redis  # type: ignore
-from typing_extensions import TypedDict
 
 from example.common import tag
 from example.common.request_model import SexEnum
@@ -33,24 +32,6 @@ plugin_pait: Pait = global_pait.create_sub_pait(
     group="plugin",
     status=PaitStatus.release,
     tag=(tag.plugin_tag,),
-)
-
-
-_sub_typed_dict = TypedDict(
-    "_sub_typed_dict",
-    {
-        "uid": int,
-        "user_name": str,
-        "email": str,
-    },
-)
-_typed_dict = TypedDict(
-    "_typed_dict",
-    {
-        "code": int,
-        "msg": str,
-        "data": _sub_typed_dict,
-    },
 )
 
 
@@ -157,32 +138,7 @@ class CheckJsonPluginHandler(MyHandler):
         user_name: str = Query.i(description="user name", min_length=2, max_length=4),
         age: int = Query.i(description="age", gt=1, lt=100),
         display_age: int = Query.i(0, description="display_age"),
-    ) -> dict:
-        """Test json plugin by resp type is dict"""
-        return_dict: dict = {
-            "code": 0,
-            "msg": "",
-            "data": {
-                "uid": uid,
-                "user_name": user_name,
-                "email": email,
-            },
-        }
-        if display_age == 1:
-            return_dict["data"]["age"] = age
-        return return_dict
-
-
-class CheckJsonPlugin1Handler(MyHandler):
-    @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[CheckJsonRespPlugin.build()])
-    async def get(
-        self,
-        uid: int = Query.i(description="user id", gt=10, lt=1000),
-        email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
-        user_name: str = Query.i(description="user name", min_length=2, max_length=4),
-        age: int = Query.i(description="age", gt=1, lt=100),
-        display_age: int = Query.i(0, description="display_age"),
-    ) -> _typed_dict:
+    ) -> None:
         """Test json plugin by resp type is typed dict"""
         return_dict: dict = {
             "code": 0,
@@ -195,7 +151,7 @@ class CheckJsonPlugin1Handler(MyHandler):
         }
         if display_age == 1:
             return_dict["data"]["age"] = age
-        return return_dict  # type: ignore
+        self.write(return_dict)
 
 
 class ParamAtMostOneOfHandler(MyHandler):
@@ -327,7 +283,6 @@ if __name__ == "__main__":
                 (r"/api/cache-response", CacheResponseHandler),
                 (r"/api/cache-response1", CacheResponse1Handler),
                 (r"/api/check-json-plugin", CheckJsonPluginHandler),
-                (r"/api/check-json-plugin-1", CheckJsonPlugin1Handler),
                 (r"/api/mock/(?P<age>\w+)", MockHandler),
                 (r"/api/at-most-one-of-by-extra-param", ParamAtMostOneOfByExtraParamHandler),
                 (r"/api/at-most-one-of", ParamAtMostOneOfHandler),

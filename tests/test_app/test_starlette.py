@@ -141,13 +141,9 @@ class TestStarlette:
                 -1,
             ),
             ("/api/plugin/check-json-plugin?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
-            ("/api/plugin/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10", -1),
-            ("/api/plugin/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
             # async route
             ("/api/plugin/async-check-json-plugin?uid=123&user_name=appl&sex=man&age=10", -1),
             ("/api/plugin/async-check-json-plugin?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
-            ("/api/plugin/async-check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10", -1),
-            ("/api/plugin/async-check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
         ]:
             resp: dict = client.get(url).json()
             assert resp["code"] == api_code

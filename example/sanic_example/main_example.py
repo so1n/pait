@@ -41,7 +41,6 @@ from example.sanic_example.plugin_route import (
     cache_response,
     cache_response1,
     check_json_plugin_route,
-    check_json_plugin_route1,
     mock_route,
     param_at_most_one_of_route,
     param_at_most_one_of_route_by_extra_param,
@@ -246,7 +245,6 @@ def create_app(configure_logging: bool = True) -> Sanic:
     app.add_route(cache_response1, "/api/plugin/cache-response1", methods={"GET"})
     app.add_route(check_json_plugin_route, "/api/plugin/check-json-plugin", methods={"GET"})
     app.add_route(auto_complete_json_route, "/api/plugin/auto-complete-json-plugin", methods={"GET"})
-    app.add_route(check_json_plugin_route1, "/api/plugin/check-json-plugin-1", methods={"GET"})
     app.add_route(
         param_at_most_one_of_route_by_extra_param, "/api/plugin/at-most-one-of-by-extra-param", methods={"GET"}
     )

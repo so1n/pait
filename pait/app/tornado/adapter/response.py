@@ -6,6 +6,8 @@ from pait.model import BaseResponseModel
 
 
 def gen_response(response_value: Any, response_model_class: Type[BaseResponseModel], *args: Any, **kwargs: Any) -> Any:
+    if response_value is None:
+        return None
     tornado_handle: RequestHandler = args[0]
     tornado_handle.set_status(response_model_class.status_code[0])
 

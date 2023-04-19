@@ -3,7 +3,6 @@ from typing import List, Optional
 
 from redis.asyncio import Redis  # type: ignore
 from starlette.responses import JSONResponse, PlainTextResponse
-from typing_extensions import TypedDict
 
 from example.common import tag
 from example.common.request_model import SexEnum
@@ -100,7 +99,7 @@ def check_json_plugin_route(
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
     age: int = Query.i(description="age", gt=1, lt=100),
     display_age: int = Query.i(0, description="display_age"),
-) -> dict:
+) -> JSONResponse:
     """Test json plugin by resp type is dict"""
     return_dict: dict = {
         "code": 0,
@@ -113,48 +112,7 @@ def check_json_plugin_route(
     }
     if display_age == 1:
         return_dict["data"]["age"] = age
-    return return_dict
-
-
-@plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[CheckJsonRespPlugin.build()])
-async def async_check_json_plugin_route(
-    uid: int = Query.i(description="user id", gt=10, lt=1000),
-    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
-    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
-    age: int = Query.i(description="age", gt=1, lt=100),
-    display_age: int = Query.i(0, description="display_age"),
-) -> dict:
-    """Test json plugin by resp type is dict"""
-    return_dict: dict = {
-        "code": 0,
-        "msg": "",
-        "data": {
-            "uid": uid,
-            "user_name": user_name,
-            "email": email,
-        },
-    }
-    if display_age == 1:
-        return_dict["data"]["age"] = age
-    return return_dict
-
-
-_sub_typed_dict = TypedDict(
-    "_sub_typed_dict",
-    {
-        "uid": int,
-        "user_name": str,
-        "email": str,
-    },
-)
-_typed_dict = TypedDict(
-    "_typed_dict",
-    {
-        "code": int,
-        "msg": str,
-        "data": _sub_typed_dict,
-    },
-)
+    return JSONResponse(return_dict)
 
 
 @plugin_pait(
@@ -188,13 +146,13 @@ async def cache_response1() -> PlainTextResponse:
 
 
 @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[CheckJsonRespPlugin.build()])
-def check_json_plugin_route1(
+async def async_check_json_plugin_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
     age: int = Query.i(description="age", gt=1, lt=100),
     display_age: int = Query.i(0, description="display_age"),
-) -> _typed_dict:
+) -> JSONResponse:
     """Test json plugin by resp type is typed dict"""
     return_dict: dict = {
         "code": 0,
@@ -207,30 +165,7 @@ def check_json_plugin_route1(
     }
     if display_age == 1:
         return_dict["data"]["age"] = age
-    return return_dict  # type: ignore
-
-
-@plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[CheckJsonRespPlugin.build()])
-async def async_check_json_plugin_route1(
-    uid: int = Query.i(description="user id", gt=10, lt=1000),
-    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
-    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
-    age: int = Query.i(description="age", gt=1, lt=100),
-    display_age: int = Query.i(0, description="display_age"),
-) -> _typed_dict:
-    """Test json plugin by resp type is typed dict"""
-    return_dict: dict = {
-        "code": 0,
-        "msg": "",
-        "data": {
-            "uid": uid,
-            "user_name": user_name,
-            "email": email,
-        },
-    }
-    if display_age == 1:
-        return_dict["data"]["age"] = age
-    return return_dict  # type: ignore
+    return JSONResponse(return_dict)
 
 
 @plugin_pait(
@@ -417,9 +352,7 @@ if __name__ == "__main__":
         app.add_route("/api/cache-response", cache_response, methods=["GET"])
         app.add_route("/api/cache-response1", cache_response1, methods=["GET"])
         app.add_route("/api/check-json-plugin", check_json_plugin_route, methods=["GET"])
-        app.add_route("/api/check-json-plugin-1", check_json_plugin_route1, methods=["GET"])
         app.add_route("/api/async-check-json-plugin", async_check_json_plugin_route, methods=["GET"])
-        app.add_route("/api/async-check-json-plugin-1", async_check_json_plugin_route1, methods=["GET"])
         app.add_route("/api/at-most-one-of-by-extra-param", param_at_most_one_of_route_by_extra_param, methods=["GET"])
         app.add_route("/api/at-most-one-of", param_at_most_one_of_route, methods=["GET"])
         app.add_route("/api/required-by-extra-param", param_required_route_by_extra_param, methods=["GET"])

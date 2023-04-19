@@ -3,7 +3,6 @@ from typing import List, Optional
 
 from redis.asyncio import Redis  # type: ignore
 from sanic import Request, response
-from typing_extensions import TypedDict
 
 from example.common import tag
 from example.common.request_model import SexEnum
@@ -72,8 +71,8 @@ async def check_json_plugin_route(
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
     age: int = Query.i(description="age", gt=1, lt=100),
     display_age: int = Query.i(0, description="display_age"),
-) -> dict:
-    """Test json plugin by resp type is dict"""
+) -> response.HTTPResponse:
+    """Test json plugin by resp type is typed dict"""
     return_dict: dict = {
         "code": 0,
         "msg": "",
@@ -85,25 +84,7 @@ async def check_json_plugin_route(
     }
     if display_age == 1:
         return_dict["data"]["age"] = age
-    return return_dict
-
-
-_sub_typed_dict = TypedDict(
-    "_sub_typed_dict",
-    {
-        "uid": int,
-        "user_name": str,
-        "email": str,
-    },
-)
-_typed_dict = TypedDict(
-    "_typed_dict",
-    {
-        "code": int,
-        "msg": str,
-        "data": _sub_typed_dict,
-    },
-)
+    return response.json(return_dict)
 
 
 @plugin_pait(
@@ -134,29 +115,6 @@ async def cache_response(raise_exc: Optional[int] = Query.i(default=None)) -> re
 )
 async def cache_response1(request: Request) -> response.HTTPResponse:
     return response.text(str(time.time()))
-
-
-@plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[CheckJsonRespPlugin.build()])
-async def check_json_plugin_route1(
-    uid: int = Query.i(description="user id", gt=10, lt=1000),
-    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
-    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
-    age: int = Query.i(description="age", gt=1, lt=100),
-    display_age: int = Query.i(0, description="display_age"),
-) -> _typed_dict:
-    """Test json plugin by resp type is typed dict"""
-    return_dict: dict = {
-        "code": 0,
-        "msg": "",
-        "data": {
-            "uid": uid,
-            "user_name": user_name,
-            "email": email,
-        },
-    }
-    if display_age == 1:
-        return_dict["data"]["age"] = age
-    return return_dict  # type: ignore
 
 
 @plugin_pait(
@@ -310,7 +268,6 @@ if __name__ == "__main__":
         app.add_route(cache_response1, "/api/plugin/cache-response1", methods={"GET"})
         app.add_route(check_json_plugin_route, "/api/plugin/check-json-plugin", methods={"GET"})
         app.add_route(auto_complete_json_route, "/api/plugin/auto-complete-json-plugin", methods={"GET"})
-        app.add_route(check_json_plugin_route1, "/api/plugin/check-json-plugin-1", methods={"GET"})
         app.add_route(param_at_most_one_of_route_by_extra_param, "/api/at-most-one-of-by-extra-param", methods={"GET"})
         app.add_route(param_at_most_one_of_route, "/api/at-most-one-of", methods={"GET"})
         app.add_route(param_required_route_by_extra_param, "/api/required-by-extra-param", methods={"GET"})

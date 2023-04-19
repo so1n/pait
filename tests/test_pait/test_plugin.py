@@ -98,36 +98,6 @@ class TestJsonPlugin:
         exec_msg: str = e.value.args[0]
         assert "pait_response_model must " in exec_msg
 
-    def test_fun_not_return_type(self) -> None:
-        class DemoCoreJsonResponseModel(response.JsonResponseModel):
-            is_core = True
-
-        def demo() -> None:
-            pass
-
-        with pytest.raises(ValueError) as e:
-            CheckJsonRespPlugin.pre_load_hook(
-                PaitCoreModel(demo, BaseAppHelper, response_model_list=[DemoCoreJsonResponseModel]), {}
-            )
-
-        exec_msg: str = e.value.args[0]
-        assert "Can not found return type by func" in exec_msg
-
-    def test_fun_return_type_is_not_dict_and_typed_dict(self) -> None:
-        class DemoCoreJsonResponseModel(response.JsonResponseModel):
-            is_core = True
-
-        def demo() -> int:
-            return 0
-
-        with pytest.raises(ValueError) as e:
-            CheckJsonRespPlugin.pre_load_hook(
-                PaitCoreModel(demo, BaseAppHelper, response_model_list=[DemoCoreJsonResponseModel]), {}
-            )
-
-        exec_msg: str = e.value.args[0]
-        assert "Can not found CheckJsonRespPlugin support return type" == exec_msg
-
 
 class TestAutoCompleteJsonPlugin:
     def test_param(self) -> None:

@@ -1,18 +1,21 @@
+import json
 from typing import Any
+
+from starlette.responses import Response
 
 from pait.plugin.base import PluginContext
 from pait.plugin.check_json_resp import CheckJsonRespPlugin as _CheckJsonRespPlugin
 
-from .unified_response import UnifiedResponsePluginProtocol
-
 __all__ = ["CheckJsonRespPlugin"]
 
 
-class CheckJsonRespPlugin(UnifiedResponsePluginProtocol, _CheckJsonRespPlugin):
-    def _sync_call(self, context: PluginContext) -> Any:
-        response: Any = super()._sync_call(context)
-        return self._gen_response(response, context)
-
-    async def _async_call(self, context: PluginContext) -> Any:
-        response: Any = await super()._async_call(context)
-        return self._gen_response(response, context)
+class CheckJsonRespPlugin(_CheckJsonRespPlugin):
+    @staticmethod
+    def get_json(response_data: Any, context: PluginContext) -> dict:
+        if isinstance(response_data, Response):
+            if response_data.media_type == "application/json":
+                return json.loads(response_data.body.decode())
+            else:
+                raise ValueError(f"Expected 'application/json', but got '{response_data.media_type}'")
+        else:
+            raise TypeError(f"Expected type must {Response} but got type {type(response_data)}")

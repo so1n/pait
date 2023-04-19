@@ -36,7 +36,6 @@ from example.flask_example.plugin_route import (
     cache_response,
     cache_response1,
     check_json_plugin_route,
-    check_json_plugin_route1,
     mock_route,
     param_at_most_onf_of_route,
     param_at_most_onf_of_route_by_extra_param,
@@ -225,7 +224,6 @@ def create_app() -> Flask:
     app.add_url_rule("/api/plugin/check-json-plugin", view_func=check_json_plugin_route, methods=["GET"])
     app.add_url_rule("/api/plugin/cache-response", view_func=cache_response, methods=["GET"])
     app.add_url_rule("/api/plugin/cache-response-1", view_func=cache_response1, methods=["GET"])
-    app.add_url_rule("/api/plugin/check-json-plugin-1", view_func=check_json_plugin_route1, methods=["GET"])
     app.add_url_rule("/api/plugin/auto-complete-json-plugin", view_func=auto_complete_json_route, methods=["GET"])
     app.add_url_rule(
         "/api/plugin/at-most-one-of-by-extra-param",

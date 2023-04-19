@@ -1,9 +1,8 @@
 import time
 from typing import List, Optional
 
-from flask import Response, make_response
+from flask import Response, jsonify, make_response
 from redis.client import Redis  # type: ignore
-from typing_extensions import TypedDict
 
 from example.common import tag
 from example.common.request_model import SexEnum
@@ -72,7 +71,7 @@ def check_json_plugin_route(
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
     age: int = Query.i(description="age", gt=1, lt=100),
     display_age: int = Query.i(0, description="display_age"),
-) -> dict:
+) -> Response:
     """Test json plugin by resp type is dict"""
     return_dict: dict = {
         "code": 0,
@@ -85,25 +84,7 @@ def check_json_plugin_route(
     }
     if display_age == 1:
         return_dict["data"]["age"] = age
-    return return_dict
-
-
-_sub_typed_dict = TypedDict(
-    "_sub_typed_dict",
-    {
-        "uid": int,
-        "user_name": str,
-        "email": str,
-    },
-)
-_typed_dict = TypedDict(
-    "_typed_dict",
-    {
-        "code": int,
-        "msg": str,
-        "data": _sub_typed_dict,
-    },
-)
+    return jsonify(return_dict)
 
 
 @plugin_pait(
@@ -134,29 +115,6 @@ def cache_response(raise_exc: Optional[int] = Query.i(default=None)) -> Response
 )
 def cache_response1() -> Response:
     return make_response(str(time.time()), 200)
-
-
-@plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[CheckJsonRespPlugin.build()])
-def check_json_plugin_route1(
-    uid: int = Query.i(description="user id", gt=10, lt=1000),
-    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
-    user_name: str = Query.i(description="user name", min_length=2, max_length=4),
-    age: int = Query.i(description="age", gt=1, lt=100),
-    display_age: int = Query.i(0, description="display_age"),
-) -> _typed_dict:
-    """Test json plugin by resp type is typed dict"""
-    return_dict: dict = {
-        "code": 0,
-        "msg": "",
-        "data": {
-            "uid": uid,
-            "user_name": user_name,
-            "email": email,
-        },
-    }
-    if display_age == 1:
-        return_dict["data"]["age"] = age
-    return return_dict  # type: ignore
 
 
 @plugin_pait(
@@ -298,7 +256,6 @@ if __name__ == "__main__":
         app.add_url_rule("/api/check-json-plugin", view_func=check_json_plugin_route, methods=["GET"])
         app.add_url_rule("/api/cache-response", view_func=cache_response, methods=["GET"])
         app.add_url_rule("/api/cache-response-1", view_func=cache_response1, methods=["GET"])
-        app.add_url_rule("/api/check-json-plugin-1", view_func=check_json_plugin_route1, methods=["GET"])
         app.add_url_rule("/api/auto-complete-json-plugin", view_func=auto_complete_json_route, methods=["GET"])
         app.add_url_rule("/api/mock/<age>", view_func=mock_route, methods=["GET"])
         app.add_url_rule(

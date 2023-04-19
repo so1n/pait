@@ -82,13 +82,8 @@ class TestTornado(BaseTestTornado):
 
     def test_check_json_route(self) -> None:
         for url, api_code in [
-            (
-                "/api/plugin/check-json-plugin?uid=123&user_name=appl&sex=man&age=10",
-                -1,
-            ),
+            ("/api/plugin/check-json-plugin?uid=123&user_name=appl&sex=man&age=10", -1),
             ("/api/plugin/check-json-plugin?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
-            ("/api/plugin/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10", -1),
-            ("/api/plugin/check-json-plugin-1?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
         ]:
             resp: dict = json.loads(self.fetch(url).body.decode())
             assert resp["code"] == api_code

@@ -1,11 +1,8 @@
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Type
-
-import pydantic
+from typing import TYPE_CHECKING, Any, Callable, Dict, Type
 
 from pait.model.response import BaseResponseModel, JsonResponseModel
 from pait.plugin.base import PluginContext, PrePluginProtocol
-from pait.types import is_typeddict
-from pait.util import gen_example_dict_from_pydantic_base_model, get_pait_response_model, get_real_annotation
+from pait.util import get_pait_response_model
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
@@ -14,7 +11,11 @@ if TYPE_CHECKING:
 class CheckJsonRespPlugin(PrePluginProtocol):
     """Check if the json response result is legal"""
 
-    check_resp_fn: Callable
+    check_resp_fn: Callable[[Any, PluginContext], None]
+
+    @staticmethod
+    def get_json(response_data: Any, context: PluginContext) -> dict:
+        raise NotImplementedError()
 
     @classmethod
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
@@ -29,34 +30,22 @@ class CheckJsonRespPlugin(PrePluginProtocol):
         if not issubclass(pait_response_model, JsonResponseModel):
             raise ValueError(f"pait_response_model must {JsonResponseModel} not {pait_response_model}")
 
-        return_type: Optional[Type] = pait_core_model.func.__annotations__.get("return", None)  # type: ignore
-        if not return_type:
-            raise ValueError(f"Can not found return type by func:{pait_core_model.func}")
-        return_type = get_real_annotation(return_type, pait_core_model.func)
-
-        if is_typeddict(return_type):
-            base_model_class: Type[pydantic.BaseModel] = pydantic.create_model_from_typeddict(
-                return_type  # type: ignore
-            )
-            base_model_class(**gen_example_dict_from_pydantic_base_model(pait_response_model.response_data))
-
-        elif not issubclass(return_type, dict):
-            raise ValueError(f"Can not found {cls.__name__} support return type")
-
-        def check_resp_by_dict(response_dict: dict) -> None:
-            pait_response_model.response_data(**response_dict)  # type: ignore
+        def check_resp_by_dict(response_data: Any, context: PluginContext) -> None:
+            if not isinstance(response_data, dict):
+                response_data = cls.get_json(response_data, context)
+            pait_response_model.response_data(**response_data)  # type: ignore
 
         kwargs["check_resp_fn"] = check_resp_by_dict
         return kwargs
 
     def _sync_call(self, context: PluginContext) -> Any:
         response: Any = super().__call__(context)
-        self.check_resp_fn(response)
+        self.check_resp_fn(response, context)
         return response
 
     async def _async_call(self, context: PluginContext) -> Any:
         response: Any = await super().__call__(context)
-        self.check_resp_fn(response)
+        self.check_resp_fn(response, context)
         return response
 
     def __call__(self, context: PluginContext) -> Any:

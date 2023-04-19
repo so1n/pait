@@ -6,7 +6,9 @@ from pait.model import BaseResponseModel, JsonResponseModel
 
 
 def gen_response(response_value: Any, response_model_class: Type[BaseResponseModel], *args: Any, **kwargs: Any) -> Any:
-    if issubclass(response_model_class, JsonResponseModel):
+    if isinstance(response_value, Response):
+        return response_value
+    elif issubclass(response_model_class, JsonResponseModel):
         resp: Response = JSONResponse(response_value)
     else:
         resp = Response(response_value, media_type=response_model_class.media_type)
