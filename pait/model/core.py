@@ -10,7 +10,7 @@ from pait.model.status import PaitStatus
 from pait.model.tag import Tag
 from pait.param_handle import AsyncParamHandler, BaseParamHandler, ParamHandler
 from pait.plugin import PluginManager, PluginProtocol, PostPluginProtocol, PrePluginProtocol
-from pait.util import ignore_pre_check
+from pait.util import gen_tip_exc, ignore_pre_check
 
 if TYPE_CHECKING:
     from pait.app.base import BaseAppHelper
@@ -132,9 +132,12 @@ class PaitCoreModel(object):
                 param_handler_plugin = ParamHandler
         self._param_handler_plugin = PluginManager(param_handler_plugin)
 
-        if not ignore_pre_check:
-            self._param_handler_plugin.pre_check_hook(self)
-        self._param_handler_plugin.pre_load_hook(self)
+        try:
+            if not ignore_pre_check:
+                self._param_handler_plugin.pre_check_hook(self)
+            self._param_handler_plugin.pre_load_hook(self)
+        except Exception as e:
+            raise gen_tip_exc(self.func, RuntimeError("set param plugin error")) from e
         self.add_plugin([], [])
 
     @property
@@ -219,6 +222,6 @@ class PaitCoreModel(object):
         except Exception as e:
             self._plugin_list = raw_plugin_list
             self._post_plugin_list = raw_post_plugin_list
-            raise e
+            raise gen_tip_exc(self.func, RuntimeError(f"{self.func} add plugin error")) from e
         else:
             self.build_plugin_stack()

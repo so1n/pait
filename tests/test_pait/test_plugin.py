@@ -1,4 +1,5 @@
 import datetime
+import traceback
 from typing import Callable, Generator, List, Type
 
 import pytest
@@ -10,7 +11,6 @@ from redis import Redis  # type: ignore
 from example.flask_example import main_example
 from pait import field
 from pait.app.base.app_helper import BaseAppHelper
-from pait.exceptions import TipException
 from pait.model import PaitCoreModel, response
 from pait.param_handle import ParamHandler
 from pait.plugin import PluginManager
@@ -53,15 +53,20 @@ class TestPlugin:
         raw_plugin_list: List[PluginManager] = core_model._plugin_list
         raw_post_plugin_list: List[PluginManager] = core_model._post_plugin_list
 
-        with pytest.raises(ValueError) as e:
+        try:
             core_model.add_plugin([PluginManager(NotPrePlugin)], [PluginManager(NotPrePlugin)])  # type: ignore
-        exec_msg: str = e.value.args[0]
-        assert "is post plugin" in exec_msg
+        except Exception:
+            assert "is post plugin" in traceback.format_exc()
+        else:
+            raise RuntimeError("Test Fail")
 
-        with pytest.raises(ValueError) as e:
+        try:
             core_model.add_plugin([PluginManager(PrePlugin)], [PluginManager(PrePlugin)])  # type: ignore
-        exec_msg = e.value.args[0]
-        assert "is pre plugin" in exec_msg
+        except Exception:
+            assert "is pre plugin" in traceback.format_exc()
+        else:
+            raise RuntimeError("Test Fail")
+
         assert core_model._plugin_list == raw_plugin_list
         assert core_model._post_plugin_list == raw_post_plugin_list
 
@@ -219,7 +224,7 @@ class TestParamPlugin:
         def demo(value: str = field.Query.i(default=datetime.datetime.now())) -> None:
             pass
 
-        with pytest.raises(TipException) as e:
+        try:
             ParamHandler.pre_check_hook(
                 PaitCoreModel(
                     demo,
@@ -228,15 +233,16 @@ class TestParamPlugin:
                 ),
                 {},
             )
-
-        exec_msg: str = e.value.args[0]
-        assert "default type must <class 'str'>" in exec_msg
+        except Exception:
+            assert "default type must <class 'str'>" in traceback.format_exc()
+        else:
+            raise RuntimeError("Test Fail")
 
     def test_error_default_factory_value(self) -> None:
         def demo(value: str = field.Query.i(default_factory=datetime.datetime.now)) -> None:
             pass
 
-        with pytest.raises(TipException) as e:
+        try:
             ParamHandler.pre_check_hook(
                 PaitCoreModel(
                     demo,
@@ -245,15 +251,16 @@ class TestParamPlugin:
                 ),
                 {},
             )
-
-        exec_msg: str = e.value.args[0]
-        assert "default_factory type must <class 'str'>" in exec_msg
+        except Exception:
+            assert "default_factory type must <class 'str'>" in traceback.format_exc()
+        else:
+            raise RuntimeError("Test Fail")
 
     def test_error_example_value(self) -> None:
         def demo(value: str = field.Query.i(example=datetime.datetime.now())) -> None:
             pass
 
-        with pytest.raises(TipException) as e:
+        try:
             ParamHandler.pre_check_hook(
                 PaitCoreModel(
                     demo,
@@ -262,14 +269,15 @@ class TestParamPlugin:
                 ),
                 {},
             )
-
-        exec_msg: str = e.value.args[0]
-        assert "example type must <class 'str'>" in exec_msg
+        except Exception:
+            assert "example type must <class 'str'>" in traceback.format_exc()
+        else:
+            raise RuntimeError("Test Fail")
 
         def demo1(value: str = field.Query.i(example=datetime.datetime.now())) -> None:
             pass
 
-        with pytest.raises(TipException) as e:
+        try:
             ParamHandler.pre_check_hook(
                 PaitCoreModel(
                     demo1,
@@ -278,9 +286,10 @@ class TestParamPlugin:
                 ),
                 {},
             )
-
-        exec_msg = e.value.args[0]
-        assert "example type must <class 'str'>" in exec_msg
+        except Exception:
+            assert "example type must <class 'str'>" in traceback.format_exc()
+        else:
+            raise RuntimeError("Test Fail")
 
 
 class TestCacheResponsePlugin:
