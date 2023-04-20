@@ -98,14 +98,19 @@ class Pait(object):
 
     @staticmethod
     def _append_data(
+        key: str,
         target_container: Optional[_AppendT],
         append_container: Optional[_AppendT],
         self_container: Optional[_AppendT],
     ) -> Optional[_AppendT]:
+        if target_container and append_container:
+            raise KeyError(f"{key} and append_{key} cannot be used together")
         if append_container:
             return (self_container or append_container.__class__()) + append_container
+        elif target_container is None:
+            return self_container
         else:
-            return target_container or self_container
+            return target_container
 
     @property
     def response_model_list(self) -> List[Type[BaseResponseModel]]:
@@ -168,14 +173,18 @@ class Pait(object):
         :param param_handler_plugin: The param handler plugin of the routing function,
          the default is pait.param_handler.x
         """
-        pre_depend_list = self._append_data(pre_depend_list, append_pre_depend_list, self._pre_depend_list)
-        author = self._append_data(author, append_author, self._author)
-        tag = self._append_data(tag, append_tag, self._tag)
-        response_model_list = self._append_data(
-            response_model_list, append_response_model_list, self._response_model_list
+        pre_depend_list = self._append_data(
+            "pre_depend_list", pre_depend_list, append_pre_depend_list, self._pre_depend_list
         )
-        plugin_list = self._append_data(plugin_list, append_plugin_list, self._plugin_list)
-        post_plugin_list = self._append_data(post_plugin_list, append_post_plugin_list, self._post_plugin_list)
+        author = self._append_data("author", author, append_author, self._author)
+        tag = self._append_data("tag", tag, append_tag, self._tag)
+        response_model_list = self._append_data(
+            "response_model_list", response_model_list, append_response_model_list, self._response_model_list
+        )
+        plugin_list = self._append_data("plugin_list", plugin_list, append_plugin_list, self._plugin_list)
+        post_plugin_list = self._append_data(
+            "post_plugin_list", post_plugin_list, append_post_plugin_list, self._post_plugin_list
+        )
 
         return self.__class__(
             pydantic_model_config=pydantic_model_config or self._pydantic_model_config,
@@ -277,14 +286,18 @@ class Pait(object):
         name = name or self._name
         group = group or self._group
 
-        pre_depend_list = self._append_data(pre_depend_list, append_pre_depend_list, self._pre_depend_list)
-        author = self._append_data(author, append_author, self._author)
-        tag = self._append_data(tag, append_tag, self._tag)
-        response_model_list = self._append_data(
-            response_model_list, append_response_model_list, self._response_model_list
+        pre_depend_list = self._append_data(
+            "pre_depend_list", pre_depend_list, append_pre_depend_list, self._pre_depend_list
         )
-        plugin_list = self._append_data(plugin_list, append_plugin_list, self._plugin_list)
-        post_plugin_list = self._append_data(post_plugin_list, append_post_plugin_list, self._post_plugin_list)
+        author = self._append_data("author", author, append_author, self._author)
+        tag = self._append_data("tag", tag, append_tag, self._tag)
+        response_model_list = self._append_data(
+            "response_model_list", response_model_list, append_response_model_list, self._response_model_list
+        )
+        plugin_list = self._append_data("plugin_list", plugin_list, append_plugin_list, self._plugin_list)
+        post_plugin_list = self._append_data(
+            "post_plugin_list", post_plugin_list, append_post_plugin_list, self._post_plugin_list
+        )
 
         def wrapper(func: Callable) -> Callable:
             # Pre-parsing function signatures
