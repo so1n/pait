@@ -16,9 +16,8 @@ if TYPE_CHECKING:
     from pait.app.base import BaseAppHelper
     from pait.field import BaseField
 
-from pait.extra.config import MatchKeyLiteral, MatchRule
 
-__all__ = ["PaitCoreModel", "MatchRule", "MatchKeyLiteral", "get_core_model"]
+__all__ = ["PaitCoreModel", "get_core_model"]
 ChangeNotifyType = Callable[["PaitCoreModel", str, Any], None]
 
 
