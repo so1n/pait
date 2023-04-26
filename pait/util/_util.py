@@ -312,6 +312,9 @@ def get_parameter_list_from_pydantic_basemodel(
                     f"{field.__class__} must instance {BaseField} or {Depends} by model {pait_model}"
                 )
             field = default_field_class.from_pydantic_field(field)
+
+            if getattr(field, "alias", None) is None:
+                field.request_key = key
         parameter = inspect.Parameter(
             key,
             inspect.Parameter.POSITIONAL_ONLY,
