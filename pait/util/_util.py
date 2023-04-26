@@ -299,7 +299,8 @@ def get_parameter_list_from_pydantic_basemodel(
     pait_model: Type[BaseModel], default_field_class: Optional[Type[BaseField]] = None
 ) -> List["inspect.Parameter"]:
     """get class parameter list by attributes, if attributes not default value, it will be set `Undefined`"""
-    parameter_list: Optional[List["inspect.Parameter"]] = getattr(pait_model, "_parameter_list", None)
+    key = f"_parameter_list:{default_field_class}"
+    parameter_list: Optional[List["inspect.Parameter"]] = getattr(pait_model, key, None)
     if parameter_list is not None:
         return parameter_list
     parameter_list = []
@@ -319,7 +320,7 @@ def get_parameter_list_from_pydantic_basemodel(
         )
         parameter_list.append(parameter)
 
-    setattr(pait_model, "_parameter_list", parameter_list)
+    setattr(pait_model, key, parameter_list)
     return parameter_list
 
 
