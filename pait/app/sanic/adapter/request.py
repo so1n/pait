@@ -52,9 +52,8 @@ class Request(BaseRequest[_Request, RequestExtend]):
     def path(self) -> Mapping[str, Any]:
         return self.request_kwargs
 
-    @LazyProperty()
-    def query(self) -> dict:
-        return {key: value[0] for key, value in self.request.args.items()}
+    def query(self) -> RequestParameters:
+        return self.request.get_args()
 
     @LazyProperty()
     def multiform(self) -> Dict[str, List[Any]]:

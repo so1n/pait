@@ -34,7 +34,7 @@ class ParamHandler(BaseParamHandler):
         args_param_list: List[Any] = []
         kwargs_param_dict: Dict[str, Any] = {}
 
-        single_field_dict: Dict["inspect.Parameter", Any] = {}
+        single_field_dict: Optional[Dict["inspect.Parameter", Any]] = {} if pydantic_model else None
 
         for parameter in param_list:
             try:
@@ -53,13 +53,13 @@ class ParamHandler(BaseParamHandler):
             except PaitBaseException as e:
                 raise gen_tip_exc(_object, e, parameter, tip_exception_class=self.tip_exception_class)
         # support field: def demo(demo_param: int = pait.field.BaseField())
-        if single_field_dict:
-            if pydantic_model:
-                self.valid_and_merge_kwargs_by_pydantic_model(
-                    single_field_dict, kwargs_param_dict, pydantic_model, _object
-                )
-            else:
-                self.valid_and_merge_kwargs_by_single_field_dict(context, single_field_dict, kwargs_param_dict, _object)
+        if single_field_dict is not None and pydantic_model is not None:
+            # if pydantic_model:
+            self.valid_and_merge_kwargs_by_pydantic_model(single_field_dict, kwargs_param_dict, pydantic_model, _object)
+            # else:
+            #     self.valid_and_merge_kwargs_by_single_field_dict(
+            #       context, single_field_dict, kwargs_param_dict, _object
+            #     )
         return args_param_list, kwargs_param_dict
 
     def set_parameter_value_to_args(

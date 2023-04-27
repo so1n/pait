@@ -1,6 +1,7 @@
 import logging
 import time
 from contextlib import contextmanager
+from pprint import pprint
 from typing import Callable, Generator
 
 from flask import Flask
@@ -122,7 +123,7 @@ if __name__ == "__main__":
     run_starlette()
     run_tornado()
     run_sanic()
-    from pprint import pprint
 
+    for _, bucket in state_result.items():
+        bucket["diff"] = bucket["use-pait"] - bucket["raw"]
     pprint(state_result)
-    # print(state_result)

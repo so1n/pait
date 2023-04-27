@@ -3,7 +3,8 @@ import logging
 from typing import TYPE_CHECKING, Any, Callable, Coroutine, Dict, Generator, List, Optional, Set, Tuple, Type, Union
 
 from pydantic import BaseConfig, BaseModel
-from pydantic.fields import Undefined, UndefinedType
+from pydantic.error_wrappers import ValidationError
+from pydantic.fields import ModelField, Undefined, UndefinedType
 from typing_extensions import Self  # type: ignore
 
 from pait import field
@@ -263,8 +264,8 @@ class BaseParamHandler(PluginProtocol):
     def request_value_handle(
         parameter: inspect.Parameter,
         request_value: Any,
-        base_model_dict: Dict[str, Any],
-        parameter_value_dict: Dict["inspect.Parameter", Any],
+        kwargs_param_dict: Dict[str, Any],
+        parameter_value_dict: Optional[Dict["inspect.Parameter", Any]] = None,
     ) -> None:
         """parse request_value and set to base_model_dict or parameter_value_dict"""
         pait_field: BaseField = parameter.default
@@ -285,10 +286,25 @@ class BaseParamHandler(PluginProtocol):
 
         if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
             # parse annotation is pydantic.BaseModel and base_model_dict not None
-            base_model_dict[parameter.name] = annotation(**request_value)
+            kwargs_param_dict[parameter.name] = annotation(**request_value)
         else:
             # parse annotation is python type and pydantic.field
-            parameter_value_dict[parameter] = request_value
+            if parameter_value_dict:
+                parameter_value_dict[parameter] = request_value
+            else:
+                temp_dict: dict = {}
+                v, e = ModelField(
+                    name=parameter.name,
+                    type_=parameter.annotation,
+                    field_info=pait_field,
+                    class_validators={},
+                    model_config=BaseConfig,
+                ).validate(request_value, temp_dict, loc=pait_field.get_field_name())
+                if temp_dict:
+                    raise ValueError(temp_dict)
+                if e:
+                    raise ValidationError(e, BaseModel)
+                kwargs_param_dict[parameter.name] = v
 
     def get_request_value_from_parameter(
         self, context: "ContextModel", parameter: inspect.Parameter
@@ -304,19 +320,19 @@ class BaseParamHandler(PluginProtocol):
             )  # pragma: no cover
         return app_field_func()
 
-    def valid_and_merge_kwargs_by_single_field_dict(
-        self,
-        context: "ContextModel",
-        single_field_dict: Dict["inspect.Parameter", Any],
-        kwargs_param_dict: Dict[str, Any],
-        _object: Union[FuncSig, Type, None],
-    ) -> None:
-        for parse_dict in parameter_2_dict(
-            single_field_dict,
-            context.pait_core_model.pydantic_model_config,
-            context.pait_core_model.pydantic_basemodel,
-        ):
-            kwargs_param_dict.update(parse_dict)
+    # def valid_and_merge_kwargs_by_single_field_dict(
+    #     self,
+    #     context: "ContextModel",
+    #     single_field_dict: Dict["inspect.Parameter", Any],
+    #     kwargs_param_dict: Dict[str, Any],
+    #     _object: Union[FuncSig, Type, None],
+    # ) -> None:
+    #     for parse_dict in parameter_2_dict(
+    #         single_field_dict,
+    #         context.pait_core_model.pydantic_model_config,
+    #         context.pait_core_model.pydantic_basemodel,
+    #     ):
+    #         kwargs_param_dict.update(parse_dict)
 
     @staticmethod
     def valid_and_merge_kwargs_by_pydantic_model(
