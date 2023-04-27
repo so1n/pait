@@ -38,6 +38,16 @@ class Request(BaseRequest[_Request, RequestExtend]):
     def cookie(self) -> dict:
         return self.request.cookies
 
+    def header(self) -> HeaderIterable:
+        return self.request.headers
+
+    def path(self) -> Mapping[str, Any]:
+        return self.request_kwargs
+
+    ##################################################
+    # sanic return result like: {"a": [1], "b": [2]} #
+    # not support raw_return future                  #
+    ##################################################
     @LazyProperty()
     def file(self) -> Dict[str, File]:
         return {key: value[0] for key, value in self.request.files.items()}
@@ -46,14 +56,9 @@ class Request(BaseRequest[_Request, RequestExtend]):
     def form(self) -> dict:
         return {key: value[0] for key, value in self.request.form.items()}
 
-    def header(self) -> HeaderIterable:
-        return self.request.headers
-
-    def path(self) -> Mapping[str, Any]:
-        return self.request_kwargs
-
-    def query(self) -> RequestParameters:
-        return self.request.get_args()
+    @LazyProperty()
+    def query(self) -> dict:
+        return {key: value[0] for key, value in self.request.args.items()}
 
     @LazyProperty()
     def multiform(self) -> Dict[str, List[Any]]:

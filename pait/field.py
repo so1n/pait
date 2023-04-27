@@ -88,7 +88,7 @@ class BaseField(FieldInfo):
         self.not_value_exception: Optional[Exception] = not_value_exception
         self.media_type = media_type or self.__class__.media_type
         # if not alias, pait will set the key name to request_key in the preload phase
-        self.request_key: Optional[str] = alias
+        self.request_key: str = alias or ""
         self.openapi_serialization = openapi_serialization or self.__class__.openapi_serialization
         self.extra_param_list: List[ExtraParam] = extra_param_list or []
 
@@ -114,7 +114,8 @@ class BaseField(FieldInfo):
 
     def set_alias(self, value: Optional[str]) -> None:
         self.alias = value
-        self.request_key = value
+        if value is not None:
+            self.request_key = value
 
     def request_value_handle(self, request_value: Mapping) -> Any:
         return request_value.get(self.request_key, Undefined)
