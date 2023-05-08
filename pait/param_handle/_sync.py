@@ -1,7 +1,7 @@
 import inspect
 import sys
 from contextlib import AbstractContextManager
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Type, Union
 
 from pydantic import BaseModel
 from typing_extensions import Self  # type: ignore
@@ -42,7 +42,9 @@ class ParamHandler(BaseParamHandler):
                     if isinstance(parameter.default, field.Depends):
                         kwargs_param_dict[parameter.name] = self._depend_handle(context, parameter.default.func)
                     else:
-                        request_value: Any = self.get_request_value_from_parameter(context, parameter)
+                        request_value: Mapping = getattr(
+                            context.app_helper.request, parameter.default.get_field_name(), lambda: {}
+                        )()
                         self.request_value_handle(parameter, request_value, kwargs_param_dict, pydantic_model)
                 else:
                     # args param

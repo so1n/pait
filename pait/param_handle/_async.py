@@ -2,7 +2,7 @@ import asyncio
 import inspect
 import sys
 from contextlib import AbstractAsyncContextManager, AbstractContextManager
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union
 
 from pydantic import BaseModel
 from typing_extensions import Self  # type: ignore
@@ -44,10 +44,14 @@ class AsyncParamHandler(BaseParamHandler):
                     if isinstance(parameter.default, field.Depends):
                         kwargs_param_dict[parameter.name] = await self._depend_handle(context, parameter.default.func)
                     else:
-                        request_value: Any = self.get_request_value_from_parameter(context, parameter)
+                        request_value: Union[Mapping, Coroutine[Any, Any, Mapping]] = getattr(
+                            context.app_helper.request, parameter.default.get_field_name(), lambda: {}
+                        )()
                         if asyncio.iscoroutine(request_value) or asyncio.isfuture(request_value):
                             request_value = await request_value
-                        self.request_value_handle(parameter, request_value, kwargs_param_dict, pydantic_model)
+                        self.request_value_handle(
+                            parameter, request_value, kwargs_param_dict, pydantic_model  # type: ignore[arg-type]
+                        )
                 else:
                     # args param
                     # support model: model: ModelType

@@ -136,7 +136,7 @@ class PaitCoreModel(object):
                 self._param_handler_plugin.pre_check_hook(self)
             self._param_handler_plugin.pre_load_hook(self)
         except Exception as e:
-            raise gen_tip_exc(self.func, RuntimeError("set param plugin error")) from e
+            raise gen_tip_exc(self.func, RuntimeError(f"set param plugin error: {e}")) from e
         self.add_plugin([], [])
 
     @property
