@@ -83,7 +83,7 @@ class BaseGrpcGatewayRoute(object):
         self, message: Message, exclude_column_name: Optional[list] = None, nested: Optional[list] = None
     ) -> dict:
         message_dict = self.msg_to_dict(message)
-        if exclude_column_name and nested:
+        if exclude_column_name or nested:
             message_dict = rebuild_dict(
                 message_dict,
                 exclude_column_name=exclude_column_name,
