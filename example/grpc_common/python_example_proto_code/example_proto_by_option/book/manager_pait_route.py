@@ -12,7 +12,7 @@ from pait.app.any import SimpleRoute, set_app_attribute
 from pait.core import Pait
 from pait.field import Header
 from pait.g import pait_context
-from pait.grpc import rebuild_message, rebuild_message_type
+from pait.grpc import rebuild_message_type
 from pait.grpc.plugin.gateway import BaseStaticGrpcGatewayRoute
 from pait.model.response import BaseResponseModel, JsonResponseModel
 from pait.model.tag import Tag
@@ -22,7 +22,7 @@ from . import manager_p2p, manager_pb2, manager_pb2_grpc
 from .manager_p2p import GetBookListResult as GetBookListResultGetBookListRoute
 from .manager_p2p import GetBookRequest as GetBookRequestGetBookRoute
 
-GetBookRequestGetBookRoute = rebuild_message(  # type: ignore[misc]
+GetBookRequestGetBookRoute = rebuild_message_type(  # type: ignore[misc]
     GetBookRequestGetBookRoute,
     "get_book_route",
     exclude_column_name=["not_use_field1", "not_use_field2"],

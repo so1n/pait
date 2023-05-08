@@ -38,6 +38,14 @@ class BuildMessageModel(BaseModel):
         return v
 
 
+class RequestBuildMessageModel(BuildMessageModel):
+    @validator("nested", pre=True)
+    def nested_validator(cls, v: Union[str, list]) -> list:
+        if isinstance(v, str):
+            return [i for i in v.split("/") if i if not i.startswith("$")]
+        return v
+
+
 class GrpcServiceOptionModel(BaseModel):
     """grpc service option"""
 
@@ -50,7 +58,9 @@ class GrpcServiceOptionModel(BaseModel):
     url: str = Field("", description="service url")
     enable: bool = Field(True, description="Whether to enable this service")
     http_method: str = Field("POST")
-    request_message: BuildMessageModel = Field(default_factory=BuildMessageModel, description="request message")
+    request_message: RequestBuildMessageModel = Field(
+        default_factory=RequestBuildMessageModel, description="request message"
+    )
     response_message: BuildMessageModel = Field(default_factory=BuildMessageModel, description="response message")
 
 

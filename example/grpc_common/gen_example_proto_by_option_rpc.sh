@@ -14,7 +14,7 @@ target_p='python_example_proto_code'
 # project proto path
 source_p='example_proto_by_option'
 # service
-service_list=("book" "user" "common")
+service_list=("book" "user" "common" "other")
 plugin_p='../../pait/grpc/plugin/main.py'
 
 rm -r "${target_p:?}/${source_p:?}"*

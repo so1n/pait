@@ -12,7 +12,7 @@ from pait.app.any import SimpleRoute, set_app_attribute
 from pait.core import Pait
 from pait.field import Header
 from pait.g import pait_context
-from pait.grpc import rebuild_message
+from pait.grpc import rebuild_message_type
 from pait.grpc.plugin.gateway import BaseStaticGrpcGatewayRoute
 from pait.model.response import BaseResponseModel, JsonResponseModel
 from pait.model.tag import Tag
@@ -21,7 +21,7 @@ from ..user import user_pb2, user_pb2_grpc
 from . import social_p2p, social_pb2, social_pb2_grpc
 from .social_p2p import NestedGetBookLikesRequest as NestedGetBookLikesRequestGetBookLikeOtherRoute
 
-NestedGetBookLikesRequestGetBookLikeOtherRoute = rebuild_message(  # type: ignore[misc]
+NestedGetBookLikesRequestGetBookLikeOtherRoute = rebuild_message_type(  # type: ignore[misc]
     NestedGetBookLikesRequestGetBookLikeOtherRoute,
     "get_book_like_other_route",
     exclude_column_name=[],

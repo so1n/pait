@@ -12,11 +12,13 @@ from example.common.json_formant import parse_dict
 from example.common.response_model import gen_response_model_handle
 from example.flask_example.utils import create_app
 from example.grpc_common.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
+from example.grpc_common.python_example_proto_code.example_proto.other import other_pb2_grpc
 from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2_grpc
 from example.grpc_common.python_example_proto_code.example_proto_by_option.book import (
     manager_pait_route,
     social_pait_route,
 )
+from example.grpc_common.python_example_proto_code.example_proto_by_option.other import other_pait_route
 from example.grpc_common.python_example_proto_code.example_proto_by_option.user import user_pait_route
 from pait.app import set_app_attribute
 from pait.field import Header
@@ -75,6 +77,7 @@ def add_grpc_gateway_route(app: Flask) -> None:
         user_pb2_grpc.UserStub,
         social_pb2_grpc.BookSocialStub,
         manager_pb2_grpc.BookManagerStub,
+        other_pb2_grpc.OtherStub,
         prefix="/api",
         title="Grpc",
         parse_msg_desc="by_mypy",
@@ -111,6 +114,16 @@ def add_grpc_gateway_route(app: Flask) -> None:
         channel=channel,
         prefix="/api/static",
         title="static_social",
+        make_response=_make_response,
+        is_async=False,
+        msg_to_dict=partial(MessageToDict, including_default_value_fields=True),
+        parse_dict=parse_dict,
+    )
+    other_pait_route.StaticGrpcGatewayRoute(
+        app,
+        channel=channel,
+        prefix="/api/static",
+        title="static_other",
         make_response=_make_response,
         is_async=False,
         msg_to_dict=partial(MessageToDict, including_default_value_fields=True),

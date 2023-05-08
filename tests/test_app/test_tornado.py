@@ -377,7 +377,7 @@ class TestTornadoGrpc(BaseTestTornado):
                     body='{"limit": 0, "next_create_time": "2023-04-10 18:44:36"}',
                     headers={"token": "token"},
                 ).body
-                assert json.loads(body.decode()) == {"code": 0, "data": {"result": []}, "msg": ""}
+                assert json.loads(body.decode()) == {"code": 0, "data": [], "msg": ""}
                 queue.get(timeout=1)
                 message: GetBookListRequest = queue.get(timeout=1)
                 assert message.limit == 0

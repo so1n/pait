@@ -11,11 +11,13 @@ from starlette.applications import Starlette
 from example.common.json_formant import parse_dict
 from example.common.response_model import gen_response_model_handle
 from example.grpc_common.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
+from example.grpc_common.python_example_proto_code.example_proto.other import other_pb2_grpc
 from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2_grpc
 from example.grpc_common.python_example_proto_code.example_proto_by_option.book import (
     manager_pait_route,
     social_pait_route,
 )
+from example.grpc_common.python_example_proto_code.example_proto_by_option.other import other_pait_route
 from example.grpc_common.python_example_proto_code.example_proto_by_option.user import user_pait_route
 from example.starlette_example.utils import create_app
 from pait.app import set_app_attribute
@@ -68,7 +70,6 @@ def add_grpc_gateway_route(app: Starlette) -> None:
                         grpc_model.grpc_service_option_model.response_message.exclude_column_name,
                         grpc_model.grpc_service_option_model.response_message.nested,
                     )
-                    return self.make_response(self.msg_to_dict(grpc_msg))
 
                 return _route
 
@@ -77,6 +78,7 @@ def add_grpc_gateway_route(app: Starlette) -> None:
         user_pb2_grpc.UserStub,
         social_pb2_grpc.BookSocialStub,
         manager_pb2_grpc.BookManagerStub,
+        other_pb2_grpc.OtherStub,
         prefix="/api",
         title="Grpc",
         parse_msg_desc="by_mypy",
@@ -113,6 +115,15 @@ def add_grpc_gateway_route(app: Starlette) -> None:
         msg_to_dict=partial(MessageToDict, including_default_value_fields=True),
         parse_dict=parse_dict,
     )
+    other_group_route = other_pait_route.StaticGrpcGatewayRoute(
+        app,
+        prefix="/api/static",
+        title="static_other",
+        make_response=_make_response,
+        is_async=False,
+        msg_to_dict=partial(MessageToDict, including_default_value_fields=True),
+        parse_dict=parse_dict,
+    )
 
     def _before_server_start(*_: Any) -> None:
         channel = grpc.aio.insecure_channel("0.0.0.0:9000")
@@ -120,6 +131,7 @@ def add_grpc_gateway_route(app: Starlette) -> None:
         user_grpc_route.init_channel(channel)
         manager_grpc_route.init_channel(channel)
         social_group_route.init_channel(channel)
+        other_group_route.init_channel(channel)
 
     async def _after_server_stop(*_: Any) -> None:
         # The reference is the same channel, and it can be called once

@@ -130,9 +130,9 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
         tag_str_list.append("self._grpc_tag")
         return (
             f"{tab_str * 2}{pait_name}: Pait = self._pait.create_sub_pait(\n"
-            f"{tab_str * 3}author={self._get_value_code(grpc_model.grpc_service_option_model.author)},\n"
+            f"{tab_str * 3}author={self._get_value_code(grpc_model.grpc_service_option_model.author, sort=False)},\n"
             f'{tab_str * 3}name="{grpc_model.grpc_service_option_model.name}",\n'
-            f"{tab_str * 3}group={self._get_value_code(grpc_model.grpc_service_option_model.group)},\n"
+            f"{tab_str * 3}group={self._get_value_code(grpc_model.grpc_service_option_model.group, sort=False)},\n"
             f"{tab_str * 3}append_tag=({','.join(tag_str_list)},),\n"
             f'{tab_str * 3}desc="{grpc_model.grpc_service_option_model.desc}",\n'
             f'{tab_str * 3}summary="{grpc_model.grpc_service_option_model.summary}",\n'
@@ -205,11 +205,12 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                         or grpc_service_option_model.request_message.nested
                     ) and input_type_name != "Empty":
                         exclude_column_name_str = self._get_value_code(
-                            grpc_service_option_model.request_message.exclude_column_name
+                            grpc_service_option_model.request_message.exclude_column_name, sort=False
                         )
-                        nested_str = self._get_value_code(grpc_service_option_model.request_message.nested)
+                        nested_str = self._get_value_code(grpc_service_option_model.request_message.nested, sort=False)
+
                         # self._add_import_code(f".{model_module_name}", input_type_name)
-                        self._add_import_code("pait.grpc", "rebuild_message")
+                        self._add_import_code("pait.grpc", "rebuild_message_type")
                         request_message_model_name = (
                             f"{input_type_name}{''.join([i.title() for i in func_name.split('_')])}"
                         )
@@ -219,7 +220,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                         self._content_deque.append(
                             dedent(
                                 f"""
-                            {request_message_model_name} = rebuild_message(  # type: ignore[misc]
+                            {request_message_model_name} = rebuild_message_type(  # type: ignore[misc]
                                 {request_message_model_name},
                                 "{func_name}",
                                 exclude_column_name={exclude_column_name_str},
@@ -235,9 +236,9 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                         # self._add_import_code(f".{model_module_name}", output_type_name)
                         self._add_import_code("pait.grpc", "rebuild_message_type")
                         exclude_column_name_str = self._get_value_code(
-                            grpc_service_option_model.response_message.exclude_column_name
+                            grpc_service_option_model.response_message.exclude_column_name, sort=False
                         )
-                        nested_str = self._get_value_code(grpc_service_option_model.response_message.nested)
+                        nested_str = self._get_value_code(grpc_service_option_model.response_message.nested, sort=False)
                         response_message_model_name = (
                             f"{output_type_name}{''.join([i.title() for i in func_name.split('_')])}"
                         )
@@ -363,7 +364,9 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
             stub_service_name_list.append(stub_service_name)
             class_stub_str += f"{tab_str * 1}{stub_service_name}: {stub_module_name}.{service_name}Stub\n"
 
-        class_stub_str += f"{tab_str * 1}stub_str_list: List[str] = {self._get_value_code(stub_service_name_list)}\n"
+        class_stub_str += (
+            f"{tab_str * 1}stub_str_list: List[str] = {self._get_value_code(stub_service_name_list, sort=False)}\n"
+        )
         class_str: str = (
             f"class {self.gateway_name}(BaseStaticGrpcGatewayRoute):\n"
             f"{class_stub_str}\n"

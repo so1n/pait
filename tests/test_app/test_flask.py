@@ -335,7 +335,7 @@ class TestFlaskGrpc:
                     body: bytes = client.post(
                         url, json={"limit": 0, "next_create_time": "2023-04-10 18:44:36"}, headers={"token": "token"}
                     ).data
-                    assert body == (b'{"code":0,"data":{"result":[]},"msg":""}\n')
+                    assert body == (b'{"code":0,"data":[],"msg":""}\n')
                     queue.get(timeout=1)
                     message: GetBookListRequest = queue.get(timeout=1)
                     assert message.limit == 0
