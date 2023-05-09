@@ -22,13 +22,15 @@ state_result = {
 
 
 def run_and_calculate_time(func: Callable) -> float:
-    total_duration = 0.0
-    cnt: int = 100
+    cnt: int = 1000
+    duration_list = []
     for _ in range(cnt):
         s_t = time.monotonic()
         func()
-        total_duration += time.monotonic() - s_t
-    return total_duration / cnt
+        diff = time.monotonic() - s_t
+        duration_list.append(diff)
+    duration_list.sort()
+    return sum(duration_list[int(cnt * 0.1) : int(cnt * 0.9)]) / int(cnt * 0.8)
 
 
 def run_flask() -> None:
@@ -50,7 +52,7 @@ def run_flask() -> None:
                 headers={"token": "xxx"},
             )
         )
-
+    with client_ctx() as client:
         state_result["flask"]["use-pait"] = run_and_calculate_time(
             lambda: client.get(
                 "/api/user-info-by-pait?name=John&age=18&sex=man",
@@ -69,6 +71,8 @@ def run_sanic() -> None:
             headers={"token": "xxx"},
         )
     )
+    app = _sanic.create_app()
+    app.config.ACCESS_LOG = False
     state_result["sanic"]["use-pait"] = run_and_calculate_time(
         lambda: app.test_client.get(
             "/api/user-info-by-pait?name=John&age=18&sex=man",
@@ -85,6 +89,7 @@ def run_starlette() -> None:
                 headers={"token": "xxx"},
             )
         )
+    with TestClient(_starlette.create_app()) as client:
         state_result["starlette"]["use-pait"] = run_and_calculate_time(
             lambda: client.get(
                 "/api/user-info-by-pait?name=John&age=18&sex=man",
@@ -108,6 +113,15 @@ def run_tornado() -> None:
                     headers={"token": "xxx"},
                 )
             )
+
+    class RawTestTornado(BaseTestTornado):
+        def runTest(self) -> None:
+            state_result["tornado"]["raw"] = run_and_calculate_time(
+                lambda: self.fetch(
+                    "/api/user-info?name=John&age=18&sex=man",
+                    headers={"token": "xxx"},
+                )
+            )
             state_result["tornado"]["use-pait"] = run_and_calculate_time(
                 lambda: self.fetch(
                     "/api/user-info-by-pait?name=John&age=18&sex=man",
@@ -115,7 +129,17 @@ def run_tornado() -> None:
                 )
             )
 
-    BaseTestTornado().run()
+    class UserPaitTestTornado(BaseTestTornado):
+        def runTest(self) -> None:
+            state_result["tornado"]["use-pait"] = run_and_calculate_time(
+                lambda: self.fetch(
+                    "/api/user-info-by-pait?name=John&age=18&sex=man",
+                    headers={"token": "xxx"},
+                )
+            )
+
+    RawTestTornado().run()
+    UserPaitTestTornado().run()
 
 
 if __name__ == "__main__":
