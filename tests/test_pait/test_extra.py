@@ -6,6 +6,7 @@ from pydantic import BaseConfig, BaseModel, Field
 from pait.app.base import BaseAppHelper
 from pait.extra import config
 from pait.model import BaseResponseModel, JsonResponseModel, PaitCoreModel, PaitStatus, Tag
+from pait.param_handle import ParamHandler
 from pait.plugin.base import PluginManager, PostPluginProtocol, PrePluginProtocol
 
 
@@ -22,13 +23,17 @@ class TestApplyFun:
 
     _demo_func._pait_id = "fake_pait_id"  # type: ignore
 
-    test_status_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper, status=PaitStatus.test)
-    test_group_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper, group="test")
-    test_tag_core_model: PaitCoreModel = PaitCoreModel(
-        _demo_func, FakeAppHelper, tag=(Tag("test"), Tag("test_priority"))
+    test_status_core_model: PaitCoreModel = PaitCoreModel(
+        _demo_func, FakeAppHelper, ParamHandler, status=PaitStatus.test
     )
-    test_path_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper)
-    test_method_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper, tag=(Tag("test_priority"),))
+    test_group_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper, ParamHandler, group="test")
+    test_tag_core_model: PaitCoreModel = PaitCoreModel(
+        _demo_func, FakeAppHelper, ParamHandler, tag=(Tag("test"), Tag("test_priority"))
+    )
+    test_path_core_model: PaitCoreModel = PaitCoreModel(_demo_func, FakeAppHelper, ParamHandler)
+    test_method_core_model: PaitCoreModel = PaitCoreModel(
+        _demo_func, FakeAppHelper, ParamHandler, tag=(Tag("test_priority"),)
+    )
 
     core_model_list: List[PaitCoreModel] = [
         test_status_core_model,

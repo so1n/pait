@@ -1,5 +1,4 @@
 import copy
-import inspect
 import logging
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
 
@@ -8,7 +7,7 @@ from pydantic import BaseConfig, BaseModel
 from pait.model.response import BaseResponseModel, PaitResponseModel
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
-from pait.param_handle import AsyncParamHandler, BaseParamHandler, ParamHandler
+from pait.param_handle import BaseParamHandler
 from pait.plugin import PluginManager, PluginProtocol, PostPluginProtocol, PrePluginProtocol
 from pait.util import gen_tip_exc, ignore_pre_check
 
@@ -36,6 +35,7 @@ class PaitCoreModel(object):
         self,
         func: Callable,
         app_helper_class: "Type[BaseAppHelper]",
+        param_handler_plugin: Type[BaseParamHandler],
         pre_depend_list: Optional[List[Callable]] = None,
         path: Optional[str] = None,
         openapi_path: Optional[str] = None,
@@ -54,7 +54,6 @@ class PaitCoreModel(object):
         default_field_class: Optional[Type["BaseField"]] = None,
         plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
         post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
-        param_handler_plugin: Optional[Type[BaseParamHandler]] = None,
         feature_code: str = "",
         **kwargs: Any,
     ):
@@ -123,12 +122,7 @@ class PaitCoreModel(object):
         return self._param_handler_plugin.plugin_class
 
     @param_handler_plugin.setter
-    def param_handler_plugin(self, param_handler_plugin: Optional[Type[BaseParamHandler]]) -> None:
-        if param_handler_plugin is None:
-            if inspect.iscoroutinefunction(self.func):
-                param_handler_plugin = AsyncParamHandler
-            else:
-                param_handler_plugin = ParamHandler
+    def param_handler_plugin(self, param_handler_plugin: Type[BaseParamHandler]) -> None:
         self._param_handler_plugin = PluginManager(param_handler_plugin)
 
         try:

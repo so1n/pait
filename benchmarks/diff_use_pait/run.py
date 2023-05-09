@@ -30,7 +30,7 @@ def run_and_calculate_time(func: Callable) -> float:
         diff = time.monotonic() - s_t
         duration_list.append(diff)
     duration_list.sort()
-    return sum(duration_list[int(cnt * 0.1) : int(cnt * 0.9)]) / int(cnt * 0.8)
+    return sum(duration_list[int(cnt * 0.05) : int(cnt * 0.95)]) / int(cnt * 0.9)
 
 
 def run_flask() -> None:

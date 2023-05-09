@@ -9,6 +9,7 @@ from pait.extra.util import sync_config_data_to_pait_core_model
 from pait.field import BaseField
 from pait.g import config, pait_context, pait_data
 from pait.model import BaseResponseModel, ContextModel, PaitCoreModel, PaitStatus, Tag
+from pait.param_handle import AsyncParamHandler, ParamHandler
 from pait.plugin.base import PluginManager, PluginProtocol, PostPluginProtocol, PrePluginProtocol
 from pait.util import get_func_sig
 
@@ -21,6 +22,8 @@ _PluginT = TypeVar("_PluginT", bound="PluginProtocol")
 
 class Pait(object):
     app_helper_class: "Type[BaseAppHelper]"
+    param_handler_plugin_class: Type[ParamHandler] = ParamHandler
+    async_param_handler_plugin_class: Type[AsyncParamHandler] = AsyncParamHandler
 
     def __init__(
         self: "_PaitT",
@@ -302,6 +305,14 @@ class Pait(object):
         def wrapper(func: Callable) -> Callable:
             # Pre-parsing function signatures
             get_func_sig(func)
+
+            # load param handler plugin
+            _param_handler_plugin = param_handler_plugin or self._param_handler_plugin
+            if _param_handler_plugin is None:
+                if inspect.iscoroutinefunction(func):
+                    _param_handler_plugin = self.async_param_handler_plugin_class
+                else:
+                    _param_handler_plugin = self.param_handler_plugin_class
             # gen pait core model and register to pait data
             pait_core_model: PaitCoreModel = PaitCoreModel(
                 func,
@@ -319,7 +330,7 @@ class Pait(object):
                 pydantic_basemodel=pydantic_basemodel,
                 plugin_list=plugin_list,
                 post_plugin_list=post_plugin_list,
-                param_handler_plugin=param_handler_plugin or self._param_handler_plugin,
+                param_handler_plugin=_param_handler_plugin,
                 feature_code=feature_code,
                 default_field_class=default_field_class or self._default_field_class,
                 **(kwargs or self.extra),
