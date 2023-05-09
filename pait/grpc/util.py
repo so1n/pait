@@ -84,18 +84,18 @@ def rebuild_dict(
             if column == "$[]":
                 if not isinstance(raw_dict, list):
                     raise ValueError(f"Parse `{column}({nested})` is error: {raw_dict} is not a list. ")
-                raw_dict = [rebuild_dict(item, nested=[nested[index + 1 :]]) for item in raw_dict]
+                raw_dict = [rebuild_dict(item, nested=nested[index + 1 :]) for item in raw_dict]
                 break
             elif column == "${}":
                 if not isinstance(raw_dict, dict):
                     raise ValueError(f"Parse `{column}({nested})` is error: {raw_dict} is not a dict. ")
-                raw_dict = {k: rebuild_dict(v, nested=[nested[index + 1 :]]) for k, v in raw_dict.items()}
+                raw_dict = {k: rebuild_dict(v, nested=nested[index + 1 :]) for k, v in raw_dict.items()}
                 break
             elif column.startswith("$."):
                 if not isinstance(raw_dict, dict):
                     raise ValueError(f"Parse `{column}({nested})` is error: {raw_dict} is not a dict. ")
                 key = column[2:]
-                raw_dict[key] = rebuild_dict(raw_dict[key], nested=[nested[index + 1 :]])
+                raw_dict[key] = rebuild_dict(raw_dict[key], nested=nested[index + 1 :])
                 break
             else:
                 raw_dict = raw_dict[column]
