@@ -1,7 +1,7 @@
 import inspect
 import sys
 from contextlib import AbstractContextManager
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Type, Union
 
 from pydantic import BaseModel
 from typing_extensions import Self  # type: ignore
@@ -34,8 +34,6 @@ class ParamHandler(BaseParamHandler):
         args_param_list: List[Any] = []
         kwargs_param_dict: Dict[str, Any] = {}
 
-        single_field_dict: Dict["inspect.Parameter", Any] = {}
-
         for parameter in param_list:
             try:
                 if parameter.default != parameter.empty:
@@ -44,22 +42,16 @@ class ParamHandler(BaseParamHandler):
                     if isinstance(parameter.default, field.Depends):
                         kwargs_param_dict[parameter.name] = self._depend_handle(context, parameter.default.func)
                     else:
-                        request_value: Any = self.get_request_value_from_parameter(context, parameter)
-                        self.request_value_handle(parameter, request_value, kwargs_param_dict, single_field_dict)
+                        request_value: Mapping = getattr(
+                            context.app_helper.request, parameter.default.get_field_name(), lambda: {}
+                        )()
+                        self.request_value_handle(parameter, request_value, kwargs_param_dict, pydantic_model)
                 else:
                     # args param
                     # support model: model: ModelType
                     self.set_parameter_value_to_args(context, parameter, args_param_list)
             except PaitBaseException as e:
                 raise gen_tip_exc(_object, e, parameter, tip_exception_class=self.tip_exception_class)
-        # support field: def demo(demo_param: int = pait.field.BaseField())
-        if single_field_dict:
-            if pydantic_model:
-                self.valid_and_merge_kwargs_by_pydantic_model(
-                    single_field_dict, kwargs_param_dict, pydantic_model, _object
-                )
-            else:
-                self.valid_and_merge_kwargs_by_single_field_dict(context, single_field_dict, kwargs_param_dict, _object)
         return args_param_list, kwargs_param_dict
 
     def set_parameter_value_to_args(
@@ -74,10 +66,9 @@ class ParamHandler(BaseParamHandler):
             context,
             None,
             get_parameter_list_from_pydantic_basemodel(_pait_model, context.pait_core_model.default_field_class),
-            pydantic_model=_pait_model,
+            _pait_model,
         )
-        # Data has been validated or is from a trusted source
-        func_args.append(_pait_model.construct(**kwargs))
+        func_args.append(_pait_model(**kwargs))
 
     def _depend_handle(self, context: "ParamHandleContext", func: Any) -> Any:
         class_: Optional[type] = getattr(func, "__class__", None)

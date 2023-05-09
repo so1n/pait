@@ -13,7 +13,7 @@ class BaseAppHelper(Generic[RequestT, RequestExtendT]):
     CbvType: tuple = (Type,)  # The class that defines the cbv object corresponding to the framework
     app_name: str = "BaseAppHelper"  # Define the name corresponding to the framework
 
-    request_class: Type[BaseRequest[RequestT, RequestExtendT]]
+    request_class: Type[BaseRequest[RequestT, RequestExtendT]] = BaseRequest
 
     def __init__(self, args: List[Any], kwargs: Mapping[str, Any]):
         """

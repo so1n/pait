@@ -48,6 +48,7 @@ class TestPlugin:
         core_model: PaitCoreModel = PaitCoreModel(
             demo,
             BaseAppHelper,
+            ParamHandler,
         )
 
         raw_plugin_list: List[PluginManager] = core_model._plugin_list
@@ -81,6 +82,7 @@ class TestJsonPlugin:
                 PaitCoreModel(
                     demo,
                     BaseAppHelper,
+                    ParamHandler,
                 ),
                 {"check_resp_fn": ""},
             )
@@ -97,7 +99,7 @@ class TestJsonPlugin:
 
         with pytest.raises(ValueError) as e:
             CheckJsonRespPlugin.pre_load_hook(
-                PaitCoreModel(demo, BaseAppHelper, response_model_list=[DemoCoreTestResponseModel]), {}
+                PaitCoreModel(demo, BaseAppHelper, ParamHandler, response_model_list=[DemoCoreTestResponseModel]), {}
             )
 
         exec_msg: str = e.value.args[0]
@@ -114,6 +116,7 @@ class TestAutoCompleteJsonPlugin:
                 PaitCoreModel(
                     demo,
                     BaseAppHelper,
+                    ParamHandler,
                 ),
                 {"default_response_dict": ""},
             )
@@ -130,7 +133,7 @@ class TestAutoCompleteJsonPlugin:
 
         with pytest.raises(ValueError) as e:
             AutoCompleteJsonRespPlugin.pre_load_hook(
-                PaitCoreModel(demo, BaseAppHelper, response_model_list=[DemoCoreTestResponseModel]), {}
+                PaitCoreModel(demo, BaseAppHelper, ParamHandler, response_model_list=[DemoCoreTestResponseModel]), {}
             )
 
         exec_msg: str = e.value.args[0]
@@ -164,6 +167,7 @@ class TestMockPlugin:
                 PaitCoreModel(
                     demo,
                     BaseAppHelper,
+                    ParamHandler,
                 ),
                 {},
             )
@@ -177,7 +181,7 @@ class TestMockPlugin:
 
         with pytest.raises(RuntimeError) as e:
             MockPluginProtocol.pre_check_hook(
-                PaitCoreModel(demo, BaseAppHelper, response_model_list=[response.JsonResponseModel]),
+                PaitCoreModel(demo, BaseAppHelper, ParamHandler, response_model_list=[response.JsonResponseModel]),
                 {"pait_response_model": ""},
             )
 
@@ -198,6 +202,7 @@ class TestMockPlugin:
             PaitCoreModel(
                 demo,
                 BaseAppHelper,
+                ParamHandler,
                 response_model_list=[response.JsonResponseModel, response.TextResponseModel],
             ),
             {"enable_mock_response_filter_fn": filter_response},
@@ -212,6 +217,7 @@ class TestMockPlugin:
             PaitCoreModel(
                 demo,
                 BaseAppHelper,
+                ParamHandler,
                 response_model_list=[response.JsonResponseModel, response.TextResponseModel],
             ),
             {},
@@ -229,6 +235,7 @@ class TestParamPlugin:
                 PaitCoreModel(
                     demo,
                     BaseAppHelper,
+                    ParamHandler,
                     response_model_list=[response.JsonResponseModel, response.TextResponseModel],
                 ),
                 {},
@@ -247,6 +254,7 @@ class TestParamPlugin:
                 PaitCoreModel(
                     demo,
                     BaseAppHelper,
+                    ParamHandler,
                     response_model_list=[response.JsonResponseModel, response.TextResponseModel],
                 ),
                 {},
@@ -265,6 +273,7 @@ class TestParamPlugin:
                 PaitCoreModel(
                     demo,
                     BaseAppHelper,
+                    ParamHandler,
                     response_model_list=[response.JsonResponseModel, response.TextResponseModel],
                 ),
                 {},
@@ -282,6 +291,7 @@ class TestParamPlugin:
                 PaitCoreModel(
                     demo1,
                     BaseAppHelper,
+                    ParamHandler,
                     response_model_list=[response.JsonResponseModel, response.TextResponseModel],
                 ),
                 {},
@@ -302,6 +312,7 @@ class TestCacheResponsePlugin:
                 PaitCoreModel(
                     demo,
                     BaseAppHelper,
+                    ParamHandler,
                 ),
             )
 
@@ -314,7 +325,7 @@ class TestCacheResponsePlugin:
 
         with pytest.raises(RuntimeError) as e:
             CacheResponsePlugin.build(redis=Redis()).pre_check_hook(
-                PaitCoreModel(demo, BaseAppHelper, response_model_list=[response.FileResponseModel]),
+                PaitCoreModel(demo, BaseAppHelper, ParamHandler, response_model_list=[response.FileResponseModel]),
             )
 
         exec_msg = e.value.args[0]
@@ -329,6 +340,7 @@ class TestCacheResponsePlugin:
                 PaitCoreModel(
                     demo,
                     BaseAppHelper,
+                    ParamHandler,
                     response_model_list=[response.JsonResponseModel, response.TextResponseModel],
                 ),
             )

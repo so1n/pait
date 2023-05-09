@@ -1,9 +1,10 @@
 import inspect
 import logging
-from typing import TYPE_CHECKING, Any, Callable, Coroutine, Dict, Generator, List, Optional, Set, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Mapping, Optional, Type, Union
 
 from pydantic import BaseConfig, BaseModel
-from pydantic.fields import Undefined, UndefinedType
+from pydantic.error_wrappers import ValidationError
+from pydantic.fields import ModelField, Undefined, UndefinedType
 from typing_extensions import Self  # type: ignore
 
 from pait import field
@@ -44,46 +45,6 @@ def raise_multiple_exc(exc_list: List[Exception]) -> None:
         raise exc_list.pop()
     finally:
         raise_multiple_exc(exc_list)
-
-
-def parameter_2_dict(
-    parameter_value_dict: Dict["inspect.Parameter", Any],
-    pydantic_config: Optional[Type[BaseConfig]] = None,
-    pydantic_basemodel: Optional[Type[BaseModel]] = None,
-    validators: Optional[Dict[str, classmethod]] = None,
-) -> Generator[dict, None, None]:
-    """Convert all parameters into pydantic mods"""
-    annotation_dict: Dict[str, Tuple[Type, Any]] = {}
-    param_value_dict: Dict[str, Any] = {}
-
-    # Resolve
-    #   the key mismatch between Field.alias and request value
-    #   different Fields but same alias
-    key_set: Set[str] = set()
-
-    for parameter, value in parameter_value_dict.items():
-        param_field = parameter.default
-        class_name = parameter.name
-        value_key = parameter.default.request_key
-        if value_key in key_set:
-            yield create_pydantic_model(
-                annotation_dict,
-                pydantic_config=pydantic_config,
-                pydantic_base=pydantic_basemodel,
-                pydantic_validators=validators,
-            )(**param_value_dict).__dict__
-            key_set = set()
-            annotation_dict = {}
-            param_value_dict = {}
-
-        key_set.add(value_key)
-        param_value_dict[value_key] = value
-        annotation_dict[class_name] = (parameter.annotation, param_field)
-    yield create_pydantic_model(
-        annotation_dict,
-        pydantic_config=pydantic_config,
-        pydantic_validators=validators,
-    )(**param_value_dict).__dict__
 
 
 class BaseParamHandler(PluginProtocol):
@@ -155,6 +116,12 @@ class BaseParamHandler(PluginProtocol):
                     parameter.name,
                     f"{parameter.name}'s Field.alias type must str. value: {parameter.default.alias}",
                 )
+            if parameter.default.get_field_name() not in pait_core_model.app_helper_class.request_class.__dict__:
+                raise NotFoundFieldException(
+                    parameter.name,
+                    f"field name: {parameter.default.get_field_name()}"
+                    f" not found in {pait_core_model.app_helper_class.request_class}",
+                )  # pragma: no cover
             try:
                 cls.check_field_type(
                     parameter.default.default,
@@ -262,70 +229,43 @@ class BaseParamHandler(PluginProtocol):
     @staticmethod
     def request_value_handle(
         parameter: inspect.Parameter,
-        request_value: Any,
-        base_model_dict: Dict[str, Any],
-        parameter_value_dict: Dict["inspect.Parameter", Any],
+        request_value: Mapping,
+        kwargs_param_dict: Dict[str, Any],
+        pydantic_model: Optional[Type[BaseModel]] = None,
     ) -> None:
         """parse request_value and set to base_model_dict or parameter_value_dict"""
         pait_field: BaseField = parameter.default
-        if request_value is None:
-            if pait_field.not_value_exception:
-                raise pait_field.not_value_exception
-            raise NotFoundValueException(parameter.name, f"Can not found {parameter.name} value")
         annotation: Type[BaseModel] = parameter.annotation
 
-        # some type like dict, but not isinstance Mapping, e.g: werkzeug.datastructures.EnvironHeaders
-        # assert getattr(request_value, "get", None), f"{parameter.name}'s request value must like dict"
         if not pait_field.raw_return:
             request_value = pait_field.request_value_handle(request_value)
             if request_value is Undefined:
-                if pait_field.not_value_exception:
-                    raise pait_field.not_value_exception
-                raise NotFoundValueException(parameter.name, f"Can not found {parameter.name} value")
-
-        if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
+                raise (
+                    pait_field.not_value_exception
+                    or NotFoundValueException(parameter.name, f"Can not found {parameter.name} value")
+                )
+        if pydantic_model:
+            # If it belongs to the field of the PaitModel,
+            # it does not need to be verified, but is returned to the PaitModel for processing
+            kwargs_param_dict[pait_field.request_key] = request_value
+        elif inspect.isclass(annotation) and issubclass(annotation, BaseModel):
             # parse annotation is pydantic.BaseModel and base_model_dict not None
-            base_model_dict[parameter.name] = annotation(**request_value)
+            kwargs_param_dict[parameter.name] = annotation(**request_value)
         else:
             # parse annotation is python type and pydantic.field
-            parameter_value_dict[parameter] = request_value
-
-    def get_request_value_from_parameter(
-        self, context: "ContextModel", parameter: inspect.Parameter
-    ) -> Union[Any, Coroutine]:
-        field_name: str = parameter.default.get_field_name()
-        # Note: not use hasattr with LazyProperty (
-        #   because hasattr will calling getattr(obj, name) and catching AttributeError,
-        # )
-        app_field_func: Optional[Callable] = getattr(context.app_helper.request, field_name, None)
-        if app_field_func is None:
-            raise NotFoundFieldException(
-                parameter.name, f"field: {field_name} not found in {context.app_helper.request}"
-            )  # pragma: no cover
-        return app_field_func()
-
-    def valid_and_merge_kwargs_by_single_field_dict(
-        self,
-        context: "ContextModel",
-        single_field_dict: Dict["inspect.Parameter", Any],
-        kwargs_param_dict: Dict[str, Any],
-        _object: Union[FuncSig, Type, None],
-    ) -> None:
-        for parse_dict in parameter_2_dict(
-            single_field_dict,
-            context.pait_core_model.pydantic_model_config,
-            context.pait_core_model.pydantic_basemodel,
-        ):
-            kwargs_param_dict.update(parse_dict)
-
-    @staticmethod
-    def valid_and_merge_kwargs_by_pydantic_model(
-        single_field_dict: Dict["inspect.Parameter", Any],
-        kwargs_param_dict: Dict[str, Any],
-        pydantic_model: Type[BaseModel],
-        _object: Union[FuncSig, Type, None],
-    ) -> None:
-        request_dict: Dict[str, Any] = kwargs_param_dict.copy()
-        for k, v in single_field_dict.items():
-            request_dict[k.default.request_key] = v
-        kwargs_param_dict.update(pydantic_model(**request_dict))
+            request_value, e = ModelField(
+                name=parameter.name,
+                type_=parameter.annotation,
+                model_config=BaseConfig,
+                field_info=pait_field,
+                class_validators={},
+                # Since the corresponding value has already been processed, there is no need to process it again
+                # default: Any = None,
+                # default_factory: Optional[NoArgAnyCallable] = None,
+                # required: 'BoolUndefined' = Undefined,
+                # final: bool = False,
+                # alias: Optional[str] = None,
+            ).validate(request_value, kwargs_param_dict, loc=pait_field.get_field_name())
+            if e:
+                raise ValidationError(e, BaseModel)
+            kwargs_param_dict[parameter.name] = request_value
