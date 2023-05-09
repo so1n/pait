@@ -1,10 +1,10 @@
-### 0.10.x[Future]
+### 1.x.0[Future]
 Rewrite some old methods to increase the extensibility of the corresponding modules
 
 - 1 Add a user-friendly doc ui
 - 2 Plugin Panel
 
-### 0.9.0[Dev]
+### 1.0.0[Dev]
 Improve Open API related functions and refactor some APIs that affect performance
 > Note: This version will have syntax changes that are not backward compatible, and the library status will change from alpha to beta
 

@@ -1,6 +1,6 @@
 ![](https://cdn.jsdelivr.net/gh/so1n/so1n_blog_photo@master/blog_photo/1652600629491%E6%9C%AA%E5%91%BD%E5%90%8D.jpg)
 <p align="center">
-    <em>Python Modern API Tools, fast to code</em>
+    Pait(π tool) - <em>Python Modern API Tools, easier to use web frameworks/write API routing</em>
 </p>
 <p align="center">
     <a href="https://codecov.io/gh/so1n/pait" target="_blank">
@@ -40,35 +40,38 @@
 
 ---
 
+# Warning
+There are changes between the current version and the 0.8 version of the API, For more information, please refer to [1.0.0version change](https://github.com/so1n/pait/blob/master/CHANGELOG.md)
+
 # pait
 
-Pait is an api tool that can be used in any python web framework (currently only `flask`, `starlette`, `sanic`, `tornado` are supported, other frameworks will be supported once Pait is stable).
-
-> Note:
->
-> mypy check 100%
->
-> test coverage 95%+ (exclude api_doc)
->
-> python version >= 3.7 (support postponed annotations)
->
-> The following code does not specify, all default to use the `starlette` framework.
-
-# Warning
-There are changes between the current version and the 0.8 version of the API, For more information, please refer to [0.9.0version change](https://github.com/so1n/pait/blob/master/CHANGELOG.md)
-
-# Feature
+Pait is an api tool that can be used in any python web framework, the features provided are as follows:
  - [x] Parameter checksum automatic conversion (parameter check depends on `Pydantic`)
  - [x] Parameter dependency verification
  - [x] Automatically generate openapi files
- - [x] Swagger, Redoc route
+ - [x] Swagger, Redoc, Rapidoc, Elements, OpenAPI route
  - [x] gRPC Gateway route
  - [x] TestClient support, support response result verification
- - [x] Support for plugin extensions, such as the Mock plugin
+ - [x] Support for plugin extensions, such as the Mock plugin, CheckResponse Plugin, Cache Response Plugin
+ - [ ] WebSocket support
+ - [ ] Auto API Test support
+
+
+> Note:
+>
+> - mypy check 100%
+>
+> - python version >= 3.7 (support postponed annotations)
+
+
 
 # Installation
 ```Bash
-pip install pait
+pip install pait --pre
+```
+If want to use the gRPC gateway feature, need to add a 'grpc' dependency:
+```bash
+pip install pait[grpc] --pre
 ```
 # Simple Example
 ```python
@@ -78,13 +81,15 @@ from starlette.applications import Starlette
 from starlette.responses import JSONResponse
 from starlette.routing import Route
 
-from pait.app.starlette import pait, add_doc_route
+from pait.app.starlette import pait
 from pait.field import Body
-from pait.model.response import PaitResponseModel
+from pait.openapi.doc_route import add_doc_route
+from pait.model.response import JsonResponseModel
 from pydantic import BaseModel, Field
 
 
-class DemoResponseModel(PaitResponseModel):
+class DemoResponseModel(JsonResponseModel):
+    """demo post api response model"""
     class ResponseModel(BaseModel):
         uid: int = Field()
         user_name: str = Field()
@@ -105,17 +110,30 @@ app = Starlette(routes=[Route('/api', demo_post, methods=['POST'])])
 add_doc_route(app)
 uvicorn.run(app)
 ```
+See [documentation](https://so1n.me/pait/) for more features
 
-# How to used in other web framework?
-If the web framework is not supported, which you are using.
+# Support Web framework
+
+| Framework | Description            |
+|-----------|------------------------|
+| Flask     | All features supported |
+| Sanic     | All features supported |
+| Starlette | All features supported |
+| Tornado   | All features supported |
+| Django    | Coming soon            |
+
+
+If the web framework is not supported(which you are using).
 
 Can be modified sync web framework according to [pait.app.flask](https://github.com/so1n/pait/blob/master/pait/app/flask.py)
 
 Can be modified async web framework according to [pait.app.starlette](https://github.com/so1n/pait/blob/master/pait/app/starlette.py)
-# IDE Support
-While pydantic will work well with any IDE out of the box.
-- [PyCharm plugin](https://pydantic-docs.helpmanual.io/pycharm_plugin/)
-- [Mypy plugin](https://pydantic-docs.helpmanual.io/mypy_plugin/)
+
+# Performance
+For the parameter validation and transformation feature, Pait is mainly responsible for injecting the request data dependency into the `Pydantic` model, and then the `Pydanitc` verifies and transforms the data.
+
+The time consumed by this process <=0.0003 (s), for benchmarks data and subsequent optimization, see [#27](https://github.com/so1n/pait/issues/27)
+
 
 # Full example
 For more complete examples, please refer to [example](https://github.com/so1n/pait/tree/master/example)
