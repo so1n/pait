@@ -38,7 +38,7 @@ class ApiModel(_ApiModel):
             "group": self.pait_core_model.group,
             "status": self.pait_core_model.status.value,
             "author": self.pait_core_model.author,
-            "md5": self.pait_core_model.func_md5,
+            "pait_id": self.pait_core_model.pait_id,
         }
 
 

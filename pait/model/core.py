@@ -61,8 +61,7 @@ class PaitCoreModel(object):
         self.app_helper_class: "Type[BaseAppHelper]" = app_helper_class
         self.default_field_class: Optional[Type["BaseField"]] = default_field_class
         self.func: Callable = func  # route func
-        # self.qualname: str = func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0]
-        self.pait_id: str = f"{func.__qualname__}_{self.func_md5}"
+        self.pait_id: str = f"{func.__module__}_{func.__qualname__}"
         # Some functions have the same md5 as the name and need to be distinguished by the feature code
         if feature_code:
             self.pait_id = f"{feature_code}_{self.pait_id}"
