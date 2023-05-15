@@ -179,7 +179,7 @@ def grpc_request_test(app: Any) -> Generator[Queue, None, None]:
                 # For tornado, the channel cannot be reclaimed
 
 
-def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api", option_str: str = "") -> None:
+def grpc_test_openapi(app: Any, url_prefix: str = "/api", option_str: str = "") -> None:
     from pait.openapi.openapi import OpenAPI
 
     url_list: List[str] = [
@@ -197,7 +197,7 @@ def grpc_test_openapi(pait_dict: dict, url_prefix: str = "/api", option_str: str
         f"{url_prefix}/book_social{option_str}-BookSocial/comment_book",
         f"{url_prefix}/book_social{option_str}-BookSocial/like_book",
     ]
-    pait_openapi: OpenAPI = OpenAPI(pait_dict)
+    pait_openapi: OpenAPI = OpenAPI(app)
 
     # test not enable grpc method
     for url in pait_openapi.model.paths:

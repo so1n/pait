@@ -12,7 +12,7 @@ from pait.app.base.simple_route import SimpleRoute
 from pait.core import Pait
 from pait.field import Depends, Path, Query
 from pait.g import config, pait_context
-from pait.model import HtmlResponseModel, JsonResponseModel, PaitCoreModel, PaitStatus, Tag, TemplateContext
+from pait.model import HtmlResponseModel, JsonResponseModel, PaitStatus, Tag, TemplateContext
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -55,7 +55,6 @@ class DocEnum(str, Enum):
 class AddDocRoute(object):
     not_found_exc: Exception
     pait: Pait
-    load_app: staticmethod
     add_multi_simple_route: staticmethod
 
     def __init__(
@@ -70,7 +69,6 @@ class AddDocRoute(object):
         openapi: Optional[Type[OpenAPI]] = None,
         pait: Optional[Pait] = None,
         add_multi_simple_route: Optional[Callable] = None,
-        load_app: Optional[Callable] = None,
         not_found_exc: Optional[Exception] = None,
     ):
         """
@@ -95,7 +93,6 @@ class AddDocRoute(object):
         :param doc_fn_dict: doc ui dict, default `pait.app.base.doc_route.default_doc_fn_dict`
         :param pait: instance of pait
         :param add_multi_simple_route: add_multi_simple_route
-        :param load_app: load_app
         :param not_found_exc:  not_found_exc
         """
         if pin_code:
@@ -121,7 +118,6 @@ class AddDocRoute(object):
             or getattr(self, "add_multi_simple_route", None)
             or import_func_from_app("add_multi_simple_route", app=app)
         )
-        self._load_app = load_app or getattr(self, "load_app", None) or import_func_from_app("load_app", app=app)
         self._not_found_exc = (
             not_found_exc
             or getattr(self, "not_found_exc", None)
@@ -217,10 +213,9 @@ class AddDocRoute(object):
         ) -> dict:
             re = pait_context.get().app_helper.request.request_extend()
             _scheme: str = self.scheme or re.scheme
-            pait_dict: Dict[str, PaitCoreModel] = self._load_app(app)
             with TemplateContext(url_dict):
                 pait_openapi: OpenAPI = OpenAPI(
-                    pait_dict,
+                    app,
                     openapi_info_model=InfoModel(title=self.title),
                     server_model_list=[ServerModel(url=f"{_scheme}://{re.hostname}")],
                 )
@@ -240,7 +235,6 @@ def add_doc_route(
     openapi: Optional[Type[OpenAPI]] = None,
     pait: Optional[Pait] = None,
     add_multi_simple_route: Optional[Callable] = None,
-    load_app: Optional[Callable] = None,
     not_found_exc: Optional[Exception] = None,
 ) -> None:
     AddDocRoute(
@@ -254,6 +248,5 @@ def add_doc_route(
         doc_fn_dict=doc_fn_dict,
         pait=pait,
         add_multi_simple_route=add_multi_simple_route,
-        load_app=load_app,
         not_found_exc=not_found_exc,
     )

@@ -5,10 +5,12 @@ import pytest
 from pytest_mock import MockFixture
 from redis import Redis  # type: ignore
 
+from example.common import response_model
 from example.common.response_model import gen_response_model_handle
 from pait.app.base import BaseTestHelper, CheckResponseException
 from pait.grpc import DynamicGrpcGatewayRoute
 from pait.model import BaseResponseModel, HtmlResponseModel, TextResponseModel
+from pait.openapi.openapi import OpenAPI
 from pait.plugin.cache_response import CacheResponsePlugin
 from tests.conftest import enable_plugin, grpc_test_openapi
 
@@ -497,9 +499,7 @@ class BaseTest(object):
             assert test_helper1.json() != test_helper2.json()
 
     @staticmethod
-    def grpc_openapi_by_protobuf_file(
-        app: Any, grpc_gateway_route: Type[DynamicGrpcGatewayRoute], load_app: Callable
-    ) -> None:
+    def grpc_openapi_by_protobuf_file(app: Any, grpc_gateway_route: Type[DynamicGrpcGatewayRoute]) -> None:
         import os
 
         from example.grpc_common.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
@@ -529,10 +529,10 @@ class BaseTest(object):
             parse_msg_desc=grpc_path,
             gen_response_model_handle=gen_response_model_handle,
         )
-        grpc_test_openapi(load_app(app), url_prefix=prefix)
+        grpc_test_openapi(app, url_prefix=prefix)
 
     @staticmethod
-    def grpc_openapi_by_option(app: Any, grpc_gateway_route: Type[DynamicGrpcGatewayRoute], load_app: Callable) -> None:
+    def grpc_openapi_by_option(app: Any, grpc_gateway_route: Type[DynamicGrpcGatewayRoute]) -> None:
         from example.grpc_common.python_example_proto_code.example_proto_by_option.book import (
             manager_pb2_grpc,
             social_pb2_grpc,
@@ -550,14 +550,68 @@ class BaseTest(object):
             title="Grpc-test",
             gen_response_model_handle=gen_response_model_handle,
         )
-        grpc_test_openapi(load_app(app), url_prefix=prefix, option_str="_by_option")
+        grpc_test_openapi(app, url_prefix=prefix, option_str="_by_option")
 
-        from pait.openapi.openapi import OpenAPI
-
-        pait_openapi: OpenAPI = OpenAPI(load_app(app))
+        pait_openapi: OpenAPI = OpenAPI(app)
         assert (
-            pait_openapi.dict["paths"]["/api-test-by-option/book/get-book-like"]["post"]["pait_info"]["md5"]
+            pait_openapi.dict["paths"]["/api-test-by-option/book/get-book-like"]["post"]["pait_info"]["pait_id"][:-1]
             == pait_openapi.dict["paths"]["/api-test-by-option/book_social_by_option-BookSocial/get_book_like"]["get"][
                 "pait_info"
-            ]["md5"]
+            ]["pait_id"][:-1]
+        )
+
+
+class BaseTestOpenAPI(object):
+    def test_depend_route(self, app: Any) -> None:
+        pait_openapi: OpenAPI = OpenAPI(app)
+        depend_openapi = pait_openapi.model.paths.pop("/api/depend/depend")
+        assert len(depend_openapi) == 1
+        assert depend_openapi["post"].description == "Testing depend and using request parameters"
+        assert depend_openapi["post"].operation_id == "depend_route"
+        assert depend_openapi["post"].pait_info["group"] == "depend"  # type: ignore
+        assert depend_openapi["post"].pait_info["status"] == "release"  # type: ignore
+        assert "depend" in depend_openapi["post"].pait_info["pait_id"]  # type: ignore
+        assert depend_openapi["post"].tags == ["depend", "user"]
+        assert depend_openapi["post"].parameters[0].name == "user-agent"
+        assert depend_openapi["post"].parameters[0].description == "user agent"
+        assert depend_openapi["post"].parameters[0].in_ == "header"
+        assert depend_openapi["post"].parameters[0].required
+        assert depend_openapi["post"].parameters[0].schema_ == {"type": "string"}
+
+        assert depend_openapi["post"].parameters[1].name == "user_name"
+        assert depend_openapi["post"].parameters[1].in_ == "query"
+        assert depend_openapi["post"].parameters[1].required
+        assert depend_openapi["post"].parameters[1].schema_ == {"type": "string"}
+
+        assert depend_openapi["post"].parameters[2].name == "uid"
+        assert depend_openapi["post"].parameters[2].in_ == "query"
+        assert depend_openapi["post"].parameters[2].required
+        assert depend_openapi["post"].parameters[2].schema_ == {"type": "integer"}
+
+        rb_schema_key: str = depend_openapi["post"].request_body.content["application/json"].schema_["$ref"]
+        rb_schema_key = rb_schema_key.split("/")[-1]
+        rb_schema: dict = pait_openapi.model.components["schemas"][rb_schema_key]
+        assert rb_schema["required"] == ["age"]
+        assert rb_schema["properties"] == {
+            "age": {
+                "title": "Age",
+                "description": "age",
+                "exclusiveMinimum": 1,
+                "exclusiveMaximum": 100,
+                "type": "integer",
+            }
+        }
+
+        assert depend_openapi["post"].responses["200"].description == "success response|fail response"
+        resp_schema_dict: dict = depend_openapi["post"].responses["200"].content["application/json"].schema_["oneOf"]
+
+        success_resp_model_key: str = resp_schema_dict[0]["$ref"].split("/")[-1]
+        fail_resp_model_key: str = resp_schema_dict[1]["$ref"].split("/")[-1]
+        assert (
+            pait_openapi.model.components["schemas"][success_resp_model_key]
+            == response_model.SimpleRespModel.response_data.schema()
+        )
+        assert (
+            pait_openapi.model.components["schemas"][fail_resp_model_key]
+            == response_model.FailRespModel.response_data.schema()
         )

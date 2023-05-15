@@ -282,12 +282,6 @@ class Pait(object):
             In this case, different feature_code is needed to generate different pait_id(feature_code + md5(func))
         """
         app_name: str = self.app_helper_class.app_name
-        pydantic_model_config = pydantic_model_config or self._pydantic_model_config
-        pydantic_basemodel = pydantic_basemodel or self._pydantic_basemodel
-        desc = desc or self._desc
-        summary = summary or self._summary
-        name = name or self._name
-        group = group or self._group
 
         pre_depend_list = self._append_data(
             "pre_depend_list", pre_depend_list, append_pre_depend_list, self._pre_depend_list
@@ -318,16 +312,16 @@ class Pait(object):
                 func,
                 self.app_helper_class,
                 author=author,
-                desc=desc,
-                summary=summary,
-                func_name=name,
-                status=status,
-                group=group,
+                desc=desc or self._desc,
+                summary=summary or self._summary,
+                func_name=name or self._name,
+                status=status or self._status,
+                group=group or self._group,
                 tag=tag,
                 response_model_list=response_model_list,
                 pre_depend_list=pre_depend_list,
-                pydantic_model_config=pydantic_model_config,
-                pydantic_basemodel=pydantic_basemodel,
+                pydantic_model_config=pydantic_model_config or self._pydantic_model_config,
+                pydantic_basemodel=pydantic_basemodel or self._pydantic_basemodel,
                 plugin_list=plugin_list,
                 post_plugin_list=post_plugin_list,
                 param_handler_plugin=_param_handler_plugin,

@@ -20,7 +20,6 @@ from example.starlette_example import main_example
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.starlette import TestHelper as _TestHelper
-from pait.app.starlette import load_app
 from pait.app.starlette.plugin.mock_response import MockPlugin
 from pait.model import response
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
@@ -191,7 +190,7 @@ class TestStarlette:
                 str(client.get("/openapi.json?pin-code=6666").text),
                 str(
                     OpenAPI(
-                        load_app(client.app),  # type: ignore
+                        client.app,  # type: ignore
                         openapi_info_model=InfoModel(title="Pait Doc"),
                         server_model_list=[ServerModel(url="http://localhost")],
                     ).content()
@@ -426,24 +425,20 @@ class TestStarletteGrpc:
                 assert message.token == "fail_token"
 
     def test_grpc_openapi(self) -> None:
-        from pait.app.starlette import load_app
-
         app = main_example.create_app()
         main_example.add_grpc_gateway_route(app)
 
         with TestClient(app) as client:
-            grpc_test_openapi(load_app(client.app))
-            grpc_test_openapi(load_app(client.app), url_prefix="/api/static", option_str="_by_option")
+            grpc_test_openapi(client.app)
+            grpc_test_openapi(client.app, url_prefix="/api/static", option_str="_by_option")
 
     def test_grpc_openapi_by_protobuf_file(self, base_test: BaseTest) -> None:
-        from pait.app.starlette import load_app
         from pait.grpc import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 
-        base_test.grpc_openapi_by_protobuf_file(base_test.client.app, GrpcGatewayRoute, load_app)
+        base_test.grpc_openapi_by_protobuf_file(base_test.client.app, GrpcGatewayRoute)
 
     def test_grpc_openapi_by_option(self) -> None:
-        from pait.app.starlette import load_app
         from pait.grpc import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 
         with base_test_ctx() as base_test:
-            base_test.grpc_openapi_by_option(base_test.client.app, GrpcGatewayRoute, load_app)
+            base_test.grpc_openapi_by_option(base_test.client.app, GrpcGatewayRoute)

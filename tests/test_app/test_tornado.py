@@ -16,7 +16,6 @@ from example.tornado_example import main_example
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.tornado import TestHelper as _TestHelper
-from pait.app.tornado import load_app
 from pait.model import response
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin, grpc_request_test, grpc_test_openapi
@@ -115,7 +114,7 @@ class TestTornado(BaseTestTornado):
                 None,
                 self.fetch("/openapi.json?pin-code=6666").body.decode(),
                 OpenAPI(
-                    load_app(self._app),
+                    self._app,
                     openapi_info_model=InfoModel(title="Pait Doc"),
                     server_model_list=[ServerModel(url="http://localhost")],
                 ).content(),
@@ -463,20 +462,16 @@ class TestTornadoGrpc(BaseTestTornado):
     def test_grpc_openapi(self) -> None:
         main_example.add_grpc_gateway_route(self._app)
 
-        from pait.app.tornado import load_app
-
-        grpc_test_openapi(load_app(self._app))
-        grpc_test_openapi(load_app(self._app), url_prefix="/api/static", option_str="_by_option")
+        grpc_test_openapi(self._app)
+        grpc_test_openapi(self._app, url_prefix="/api/static", option_str="_by_option")
 
     def test_grpc_openapi_by_protobuf_file(self) -> None:
-        from pait.app.tornado import load_app
         from pait.grpc import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 
-        self.base_test.grpc_openapi_by_protobuf_file(self._app, GrpcGatewayRoute, load_app)
+        self.base_test.grpc_openapi_by_protobuf_file(self._app, GrpcGatewayRoute)
 
     def test_grpc_openapi_by_option(self) -> None:
-        from pait.app.tornado import load_app
         from pait.grpc import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 
         self.setUp()
-        self.base_test.grpc_openapi_by_option(self._app, GrpcGatewayRoute, load_app)
+        self.base_test.grpc_openapi_by_option(self._app, GrpcGatewayRoute)
