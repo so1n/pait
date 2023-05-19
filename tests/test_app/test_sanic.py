@@ -23,7 +23,8 @@ from pait.app.sanic import TestHelper as _TestHelper
 from pait.model import response
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin, fixture_loop, grpc_request_test, grpc_test_openapi
-from tests.test_app.base_test import BaseTest
+from tests.test_app.base_api_test import BaseTest
+from tests.test_app.base_openapi_test import BaseTestOpenAPI
 
 
 @contextmanager
@@ -426,3 +427,6 @@ class TestSanicGrpc:
 
         with base_test_ctx() as base_test:
             base_test.grpc_openapi_by_option(base_test.client.app, GrpcGatewayRoute)
+
+    def test_openapi_content(self, base_test: BaseTest) -> None:
+        BaseTestOpenAPI(base_test.client.app).test_all()

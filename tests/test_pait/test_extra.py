@@ -177,16 +177,12 @@ class TestApplyFun:
 
     def test_apply_response_model(self) -> None:
         class CoreResponseModel(BaseResponseModel):
-            is_core: bool = True
+            pass
 
         for i in self.core_model_list:
             assert i.response_model_list == []
             config.apply_response_model([JsonResponseModel])(i)
             assert i.response_model_list == [JsonResponseModel]
-
-        for i in self.core_model_list:
-            with pytest.raises(ValueError):
-                config.apply_response_model([CoreResponseModel])(i)
 
     def test_apply_block_http_method_set(self) -> None:
         for i in self.core_model_list:

@@ -1,4 +1,4 @@
-any-api==0.1.0.3 ; python_version >= "3.7" and python_version < "4.0"
+any-api==0.1.0.4 ; python_version >= "3.7" and python_version < "4.0"
 grpcio-tools==1.48.2 ; python_version >= "3.7" and python_version < "4.0"
 grpcio==1.54.2 ; python_version >= "3.7" and python_version < "4.0"
 jinja2==2.11.3 ; python_version >= "3.7" and python_version < "4.0"

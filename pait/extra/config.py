@@ -121,9 +121,6 @@ def apply_response_model(
     """
     Add a default response structure for routing handles
     """
-    for response_model in response_model_list:
-        if response_model.is_core:
-            raise ValueError(f"{response_model} is core response model can not set to default_response_model_list")
 
     def _apply(pait_core_model: "PaitCoreModel") -> None:
         if _is_match(pait_core_model, match_rule):

@@ -3,7 +3,7 @@ import json
 import random
 import sys
 from tempfile import NamedTemporaryFile
-from typing import TYPE_CHECKING, Any, Callable, Type
+from typing import Any, Callable, Type
 from unittest import mock
 
 import pytest
@@ -19,10 +19,8 @@ from pait.app.tornado import TestHelper as _TestHelper
 from pait.model import response
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin, grpc_request_test, grpc_test_openapi
-from tests.test_app.base_test import BaseTest
-
-if TYPE_CHECKING:
-    pass
+from tests.test_app.base_api_test import BaseTest
+from tests.test_app.base_openapi_test import BaseTestOpenAPI
 
 
 class BaseTestTornado(AsyncHTTPTestCase):
@@ -216,7 +214,7 @@ class TestTornado(BaseTestTornado):
         self.base_test.mock_route(main_example.MockHandler.get, response_model.UserSuccessRespModel2)
 
     def test_pait_model(self) -> None:
-        self.base_test.pait_model(main_example.PaitModelHanler.post)
+        self.base_test.pait_model(main_example.PaitModelHandler.post)
 
     def test_depend_route(self) -> None:
         self.base_test.depend_route(main_example.DependHandler.post)
@@ -258,9 +256,9 @@ class TestTornado(BaseTestTornado):
         )
 
     def test_api_key_route(self) -> None:
-        self.base_test.api_key_route(main_example.APIKeyCookieHanler.get, {"cookie_dict": {"token": "my-token"}})
-        self.base_test.api_key_route(main_example.APIKeyHeaderHanler.get, {"header_dict": {"token": "my-token"}})
-        self.base_test.api_key_route(main_example.APIKeyQueryHanler.get, {"query_dict": {"token": "my-token"}})
+        self.base_test.api_key_route(main_example.APIKeyCookieHandler.get, {"cookie_dict": {"token": "my-token"}})
+        self.base_test.api_key_route(main_example.APIKeyHeaderHandler.get, {"header_dict": {"token": "my-token"}})
+        self.base_test.api_key_route(main_example.APIKeyQueryHandler.get, {"query_dict": {"token": "my-token"}})
 
     def test_oauth2_password_route(self) -> None:
         self.base_test.oauth2_password_route(
@@ -475,3 +473,6 @@ class TestTornadoGrpc(BaseTestTornado):
 
         self.setUp()
         self.base_test.grpc_openapi_by_option(self._app, GrpcGatewayRoute)
+
+    def test_openapi_content(self) -> None:
+        BaseTestOpenAPI(self._app).test_all()

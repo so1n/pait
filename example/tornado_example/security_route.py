@@ -46,19 +46,19 @@ api_key_pait = security_pait.create_sub_pait(
 )
 
 
-class APIKeyCookieHanler(MyHandler):
+class APIKeyCookieHandler(MyHandler):
     @api_key_pait()
     async def get(self, token: str = Depends.i(token_cookie_api_key)) -> None:
         self.write({"code": 0, "msg": "", "data": token})
 
 
-class APIKeyHeaderHanler(MyHandler):
+class APIKeyHeaderHandler(MyHandler):
     @api_key_pait()
     async def get(self, token: str = Depends.i(token_header_api_key)) -> None:
         self.write({"code": 0, "msg": "", "data": token})
 
 
-class APIKeyQueryHanler(MyHandler):
+class APIKeyQueryHandler(MyHandler):
     @api_key_pait()
     async def get(self, token: str = Depends.i(token_query_api_key)) -> None:
         self.write({"code": 0, "msg": "", "data": token})
@@ -66,7 +66,7 @@ class APIKeyQueryHanler(MyHandler):
 
 oauth2_pb: oauth2.OAuth2PasswordBearer = oauth2.OAuth2PasswordBearer(
     scopes={
-        "user": "get all user info",
+        "user-info": "get all user info",
         "user-name": "only get user name",
     }
 )
@@ -95,7 +95,7 @@ class OAuth2UserNameHandler(MyHandler):
         append_tag=(tag.oauth2_tag,),
         response_model_list=[SuccessRespModel, Http400RespModel, Http401RespModel],
     )
-    def get(self, user_model: User = Depends.t(get_current_user(["user-name"], oauth2_pb))) -> None:
+    def get(self, user_model: User = Depends.t(get_current_user(oauth2_pb.get_depend(["user-name"])))) -> None:
         self.write({"code": 0, "msg": "", "data": user_model.name})
 
 
@@ -105,7 +105,7 @@ class OAuth2UserInfoHandler(MyHandler):
         append_tag=(tag.oauth2_tag,),
         response_model_list=[SuccessRespModel, Http400RespModel, Http401RespModel],
     )
-    def get(self, user_model: User = Depends.t(get_current_user(["user"], oauth2_pb))) -> None:
+    def get(self, user_model: User = Depends.t(get_current_user(oauth2_pb.get_depend(["user-info"])))) -> None:
         self.write({"code": 0, "msg": "", "data": user_model.dict()})
 
 
@@ -147,9 +147,9 @@ if __name__ == "__main__":
     with create_app() as app:
         app.add_route(
             [
-                (r"/api/security/api-key-cookie-route", APIKeyCookieHanler),
-                (r"/api/security/api-key-header-route", APIKeyHeaderHanler),
-                (r"/api/security/api-key-query-route", APIKeyQueryHanler),
+                (r"/api/security/api-cookie-key", APIKeyCookieHandler),
+                (r"/api/security/api-header-key", APIKeyHeaderHandler),
+                (r"/api/security/api-query-key", APIKeyQueryHandler),
                 (r"/api/security/oauth2-login", OAuth2LoginHandler),
                 (r"/api/security/oauth2-user-name", OAuth2UserNameHandler),
                 (r"/api/security/oauth2-user-info", OAuth2UserInfoHandler),

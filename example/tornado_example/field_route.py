@@ -25,7 +25,7 @@ class PostHandler(MyHandler):
         model: UserModel = Json.i(raw_return=True),
         other_model: UserOtherModel = Json.i(raw_return=True),
         sex: SexEnum = Json.i(description="sex"),
-        content_type: str = Header.i(alias="Content-Type", description="content-type"),
+        content_type: str = Header.i(alias="Content-Type", description="Content-Type"),
     ) -> None:
         """Test Method:Post Pydantic Model"""
         return_dict = model.dict()
@@ -43,6 +43,7 @@ class SameAliasHandler(MyHandler):
     def get(
         self, query_token: str = Query.i("", alias="token"), header_token: str = Header.i("", alias="token")
     ) -> None:
+        """Test different request types, but they have the same alias and different parameter names"""
         self.write({"code": 0, "msg": "", "data": {"query_token": query_token, "header_token": header_token}})
 
 
@@ -79,6 +80,7 @@ class PaitBaseFieldHandler(MyHandler):
         email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
         sex: SexEnum = Query.i(description="sex"),
     ) -> None:
+        """Test the use of all BaseField-based"""
         self.write(
             {
                 "code": 0,
@@ -101,7 +103,7 @@ class PaitBaseFieldHandler(MyHandler):
         )
 
 
-class PaitModelHanler(MyHandler):
+class PaitModelHandler(MyHandler):
     @field_pait(status=PaitStatus.test, response_model_list=[SimpleRespModel, FailRespModel])
     async def post(self, test_model: TestPaitModel) -> None:
         """Test pait model"""
@@ -116,6 +118,6 @@ if __name__ == "__main__":
                 (r"/api/pait-base-field/(?P<age>\w+)", PaitBaseFieldHandler),
                 (r"/api/field-default-factory", FieldDefaultFactoryHandler),
                 (r"/api/same-alias", SameAliasHandler),
-                (r"/api/pait-model", PaitModelHanler),
+                (r"/api/pait-model", PaitModelHandler),
             ]
         )

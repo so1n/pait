@@ -65,7 +65,7 @@ async def api_key_query_route(token: str = Depends.i(token_query_api_key)) -> JS
 
 oauth2_pb: oauth2.OAuth2PasswordBearer = oauth2.OAuth2PasswordBearer(
     scopes={
-        "user": "get all user info",
+        "user-info": "get all user info",
         "user-name": "only get user name",
     }
 )
@@ -99,7 +99,9 @@ oauth2_pb.with_route(oauth2_login)
         Http401RespModel.clone(resp_model=TextResponseModel),
     ],
 )
-def oauth2_user_name(user_model: User = Depends.t(get_current_user(["user-name"], oauth2_pb))) -> JSONResponse:
+def oauth2_user_name(
+    user_model: User = Depends.t(get_current_user(oauth2_pb.get_depend(["user-name"]))),
+) -> JSONResponse:
     return JSONResponse({"code": 0, "msg": "", "data": user_model.name})
 
 
@@ -112,7 +114,9 @@ def oauth2_user_name(user_model: User = Depends.t(get_current_user(["user-name"]
         Http401RespModel.clone(resp_model=TextResponseModel),
     ],
 )
-def oauth2_user_info(user_model: User = Depends.t(get_current_user(["user"], oauth2_pb))) -> JSONResponse:
+def oauth2_user_info(
+    user_model: User = Depends.t(get_current_user(oauth2_pb.get_depend(["user-info"]))),
+) -> JSONResponse:
     return JSONResponse({"code": 0, "msg": "", "data": user_model.dict()})
 
 
@@ -153,9 +157,9 @@ async def get_user_name_by_http_digest(credentials: Optional[str] = Depends.t(ht
 
 if __name__ == "__main__":
     with create_app() as app:
-        app.add_route("/api/api-key-cookie-route", api_key_cookie_route, methods=["GET"])
-        app.add_route("/api/api-key-header-route", api_key_header_route, methods=["GET"])
-        app.add_route("/api/api-key-query-route", api_key_query_route, methods=["GET"])
+        app.add_route("/api/api-cookie-key", api_key_cookie_route, methods=["GET"])
+        app.add_route("/api/api-header-key", api_key_header_route, methods=["GET"])
+        app.add_route("/api/api-query-key", api_key_query_route, methods=["GET"])
         app.add_route("/api/oauth2-login", oauth2_login, methods=["POST"])
         app.add_route("/api/oauth2-user-name", oauth2_user_name, methods=["GET"])
         app.add_route("/api/oauth2-user-info", oauth2_user_name, methods=["GET"])

@@ -19,6 +19,7 @@ check_resp_pait: Pait = global_pait.create_sub_pait(
 
 @check_resp_pait(response_model_list=[response_model.TextRespModel])
 async def async_text_response_route() -> PlainTextResponse:
+    """test return text response"""
     response: PlainTextResponse = PlainTextResponse(str(time.time()))
     response.media_type = "text/plain"
     response.headers.append("X-Example-Type", "text")
@@ -27,6 +28,7 @@ async def async_text_response_route() -> PlainTextResponse:
 
 @check_resp_pait(response_model_list=[response_model.TextRespModel])
 def text_response_route() -> PlainTextResponse:
+    """test return text response"""
     response: PlainTextResponse = PlainTextResponse(str(time.time()))
     response.media_type = "text/plain"
     response.headers.append("X-Example-Type", "text")
@@ -35,6 +37,7 @@ def text_response_route() -> PlainTextResponse:
 
 @check_resp_pait(response_model_list=[response_model.HtmlRespModel])
 async def async_html_response_route() -> HTMLResponse:
+    """test return html response"""
     response: HTMLResponse = HTMLResponse("<H1>" + str(time.time()) + "</H1>")
     response.media_type = "text/html"
     response.headers.append("X-Example-Type", "html")
@@ -43,6 +46,7 @@ async def async_html_response_route() -> HTMLResponse:
 
 @check_resp_pait(response_model_list=[response_model.HtmlRespModel])
 def html_response_route() -> HTMLResponse:
+    """test return html response"""
     response: HTMLResponse = HTMLResponse("<H1>" + str(time.time()) + "</H1>")
     response.media_type = "text/html"
     response.headers.append("X-Example-Type", "html")
@@ -51,6 +55,7 @@ def html_response_route() -> HTMLResponse:
 
 @check_resp_pait(response_model_list=[response_model.FileRespModel])
 def file_response_route() -> FileResponse:
+    """test return file response"""
     named_temporary_file = NamedTemporaryFile(delete=True)
     f: Any = named_temporary_file.__enter__()
     f.write("Hello Word!".encode())
@@ -68,6 +73,7 @@ def file_response_route() -> FileResponse:
 
 @check_resp_pait(response_model_list=[response_model.FileRespModel])
 async def async_file_response_route() -> FileResponse:
+    """test return file response"""
     named_temporary_file: AsyncContextManager = aiofiles.tempfile.NamedTemporaryFile()  # type: ignore
     f: Any = await named_temporary_file.__aenter__()
     await f.write("Hello Word!".encode())
@@ -92,7 +98,7 @@ async def check_response_route(
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
     age: int = Query.i(description="age", gt=1, lt=100),
-    display_age: int = Query.i(0, description="display_age"),
+    display_age: int = Query.i(0, description="display age"),
 ) -> JSONResponse:
     """Test test-helper check response"""
     return_dict: dict = {

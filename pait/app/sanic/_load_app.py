@@ -19,6 +19,8 @@ def load_app(app: Sanic, auto_load_route: bool = False) -> Dict[str, PaitCoreMod
         route_name: str = route.name
         method_set: Set[str] = route.methods
         path: str = route.path
+        if not path.startswith("/"):
+            path = "/" + path
         openapi_path: str = path
         handler: Callable = route.handler
 
@@ -26,6 +28,8 @@ def load_app(app: Sanic, auto_load_route: bool = False) -> Dict[str, PaitCoreMod
         if "<" in openapi_path and ">" in openapi_path:
             new_path_list: list = []
             for sub_path in openapi_path.split("/"):
+                if not sub_path:
+                    continue
                 if sub_path[0] == "<" and sub_path[-1] == ">":
                     real_sub_path: str = sub_path[1:-1]
                     if ":" in real_sub_path:

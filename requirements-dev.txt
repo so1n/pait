@@ -1,5 +1,5 @@
 aiofiles==0.8.0 ; python_version >= "3.7" and python_version < "4.0"
-any-api==0.1.0.3 ; python_version >= "3.7" and python_version < "4.0"
+any-api==0.1.0.4 ; python_version >= "3.7" and python_version < "4.0"
 appdirs==1.4.4 ; python_version >= "3.7" and python_version < "4.0"
 async-timeout==4.0.2 ; python_version >= "3.7" and python_full_version <= "3.11.2"
 atomicwrites==1.4.1 ; python_version >= "3.7" and python_version < "4.0" and sys_platform == "win32"

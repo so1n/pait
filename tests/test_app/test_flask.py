@@ -21,7 +21,8 @@ from pait.app.flask import TestHelper as _TestHelper
 from pait.model import response
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin, grpc_request_test, grpc_test_openapi
-from tests.test_app.base_test import BaseTest, BaseTestOpenAPI
+from tests.test_app.base_api_test import BaseTest
+from tests.test_app.base_openapi_test import BaseTestOpenAPI
 
 
 @contextmanager
@@ -434,4 +435,4 @@ class TestFlaskGrpc:
             base_test.grpc_openapi_by_option(base_test.client.application, GrpcGatewayRoute)
 
     def test_openapi_content(self, base_test: BaseTest) -> None:
-        BaseTestOpenAPI().test_depend_route(base_test.client.application)
+        BaseTestOpenAPI(base_test.client.application).test_all()

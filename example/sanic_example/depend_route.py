@@ -24,7 +24,7 @@ async def depend_route(
     depend_tuple: Tuple[str, int] = Depends.i(depend.demo_depend),
     user_model: UserModel = Depends.i(depend.AsyncGetUserDepend()),
 ) -> response.HTTPResponse:
-    """Test Method:Post request, Pydantic Model"""
+    """Testing depend and using request parameters"""
     assert request is not None, "Not found request"
     return response.json(
         {
@@ -70,9 +70,7 @@ async def pre_depend_async_contextmanager_route(is_raise: bool = Query.i(default
 if __name__ == "__main__":
     with create_app(__name__) as app:
         app.add_route(depend_route, "/api/depend", methods={"POST"})
-        app.add_route(depend_contextmanager_route, "/api/check-depend-contextmanager", methods={"GET"})
-        app.add_route(pre_depend_contextmanager_route, "/api/check-pre-depend-contextmanager", methods={"GET"})
-        app.add_route(depend_async_contextmanager_route, "/api/check-depend-async-contextmanager", methods={"GET"})
-        app.add_route(
-            pre_depend_async_contextmanager_route, "/api/check-pre-depend-async-contextmanager", methods={"GET"}
-        )
+        app.add_route(depend_contextmanager_route, "/api/depend-contextmanager", methods={"GET"})
+        app.add_route(pre_depend_contextmanager_route, "/api/pre-depend-contextmanager", methods={"GET"})
+        app.add_route(depend_async_contextmanager_route, "/api/depend-async-contextmanager", methods={"GET"})
+        app.add_route(pre_depend_async_contextmanager_route, "/api/pre-depend-async-contextmanager", methods={"GET"})

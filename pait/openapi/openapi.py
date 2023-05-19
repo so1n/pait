@@ -53,11 +53,11 @@ class ParsePaitModel(object):
         self.param_field_dict: Dict[str, BaseField] = {}
         self.http_param_type_annotation_dict: Dict[HttpParamTypeLiteral, Dict[str, Tuple[Type, FieldInfo]]] = {}
 
-        self._parse_call_type(pait_model.func)
-        for pre_depend in pait_model.pre_depend_list:
-            self._parse_call_type(pre_depend)
         for extra_openapi_model in self.pait_model.extra_openapi_model_list:
             self._parse_base_model(extra_openapi_model)
+        for pre_depend in pait_model.pre_depend_list:
+            self._parse_call_type(pre_depend)
+        self._parse_call_type(pait_model.func)
 
         for http_param_type, annotation_dict in self.http_param_type_annotation_dict.items():
             http_param_type = self.http_param_type_alias_dict.get(http_param_type, http_param_type)

@@ -16,6 +16,8 @@ def load_app(app: Application, auto_load_route: bool = False) -> Dict[str, PaitC
     _pait_data: Dict[str, PaitCoreModel] = {}
     for rule in app.wildcard_router.rules:
         path: str = rule.matcher.regex.pattern  # type: ignore
+        if path.endswith("$"):
+            path = path[:-1]
         openapi_path: str = path
         # replace path regex to {xxx}
         if "<" in openapi_path and ">" in openapi_path:

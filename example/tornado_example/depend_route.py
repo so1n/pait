@@ -26,7 +26,7 @@ class DependHandler(MyHandler):
         depend_tuple: Tuple[str, int] = Depends.i(depend.demo_depend),
         user_model: UserModel = Depends.i(depend.AsyncGetUserDepend()),
     ) -> None:
-        """Test Method:Post request, Pydantic Model"""
+        """Testing depend and using request parameters"""
         assert request is not None, "Not found request"
         self.write(
             {
@@ -76,9 +76,9 @@ if __name__ == "__main__":
         app.add_route(
             [
                 (r"/api/depend", DependHandler),
-                (r"/api/check-depend-contextmanager", DependContextmanagerHanler),
-                (r"/api/check-depend-async-contextmanager", DependAsyncContextmanagerHanler),
-                (r"/api/check-pre-depend-contextmanager", PreDependContextmanagerHanler),
-                (r"/api/check-pre-depend-async-contextmanager", PreDependAsyncContextmanagerHanler),
+                (r"/api/depend-contextmanager", DependContextmanagerHanler),
+                (r"/api/depend-async-contextmanager", DependAsyncContextmanagerHanler),
+                (r"/api/pre-depend-contextmanager", PreDependContextmanagerHanler),
+                (r"/api/pre-depend-async-contextmanager", PreDependAsyncContextmanagerHanler),
             ]
         )

@@ -28,7 +28,7 @@ from example.tornado_example.depend_route import (
 from example.tornado_example.field_route import (
     FieldDefaultFactoryHandler,
     PaitBaseFieldHandler,
-    PaitModelHanler,
+    PaitModelHandler,
     PostHandler,
     SameAliasHandler,
 )
@@ -51,9 +51,9 @@ from example.tornado_example.response_route import (
     TextResponseHanler,
 )
 from example.tornado_example.security_route import (
-    APIKeyCookieHanler,
-    APIKeyHeaderHanler,
-    APIKeyQueryHanler,
+    APIKeyCookieHandler,
+    APIKeyHeaderHandler,
+    APIKeyQueryHandler,
     OAuth2LoginHandler,
     OAuth2UserInfoHandler,
     OAuth2UserNameHandler,
@@ -87,7 +87,7 @@ class RaiseTipHandler(MyHandler):
     )
     async def post(
         self,
-        content__type: str = Header.i(description="content-type"),
+        content__type: str = Header.i(description="Content-Type"),
     ) -> None:
         """Test Method: error tip"""
         self.write({"code": 0, "msg": "", "data": {"content_type": content__type}})
@@ -103,7 +103,7 @@ class RaiseNotTipHandler(MyHandler):
     )
     async def post(
         self,
-        content__type: str = Header.i(description="content-type"),
+        content__type: str = Header.i(description="Content-Type"),
     ) -> None:
         """Test Method: error tip"""
         self.write({"code": 0, "msg": "", "data": {"content_type": content__type}})
@@ -113,6 +113,7 @@ class CbvHandler(MyHandler):
     content_type: str = Header.i(alias="Content-Type")
 
     @user_pait(
+        desc="Text cbv route get",
         status=PaitStatus.release,
         tag=(tag.cbv_tag,),
         response_model_list=[UserSuccessRespModel, FailRespModel],
@@ -177,7 +178,7 @@ class NotPaitCbvHandler(MyHandler):
         self.write(self.user_name)
 
 
-class LoginHanlder(MyHandler):
+class LoginHandler(MyHandler):
     @link_pait(response_model_list=[LoginRespModel])
     async def post(
         self, uid: str = Json.i(description="user id"), password: str = Json.i(description="password")
@@ -213,7 +214,7 @@ def add_api_doc_route(app: Application) -> None:
 def create_app() -> Application:
     app: Application = Application(
         [
-            (r"/api/login", LoginHanlder),
+            (r"/api/login", LoginHandler),
             (r"/api/user", GetUserHandler),
             (r"/api/raise-tip", RaiseTipHandler),
             (r"/api/raise-not-tip", RaiseNotTipHandler),
@@ -223,7 +224,7 @@ def create_app() -> Application:
             (r"/api/field/pait-base-field/(?P<age>\w+)", PaitBaseFieldHandler),
             (r"/api/field/field-default-factory", FieldDefaultFactoryHandler),
             (r"/api/field/same-alias", SameAliasHandler),
-            (r"/api/field/pait-model", PaitModelHanler),
+            (r"/api/field/pait-model", PaitModelHandler),
             (r"/api/resp/check-resp", CheckRespHandler),
             (r"/api/resp/text-resp", TextResponseHanler),
             (r"/api/resp/html-resp", HtmlResponseHanler),
@@ -238,13 +239,13 @@ def create_app() -> Application:
             (r"/api/plugin/required-by-extra-param", ParamRequiredByExtraParamHandler),
             (r"/api/plugin/required", ParamRequiredHandler),
             (r"/api/depend/depend", DependHandler),
-            (r"/api/depend/check-depend-contextmanager", DependContextmanagerHanler),
-            (r"/api/depend/check-depend-async-contextmanager", DependAsyncContextmanagerHanler),
-            (r"/api/depend/check-pre-depend-contextmanager", PreDependContextmanagerHanler),
-            (r"/api/depend/check-pre-depend-async-contextmanager", PreDependAsyncContextmanagerHanler),
-            (r"/api/security/api-key-cookie-route", APIKeyCookieHanler),
-            (r"/api/security/api-key-header-route", APIKeyHeaderHanler),
-            (r"/api/security/api-key-query-route", APIKeyQueryHanler),
+            (r"/api/depend/depend-contextmanager", DependContextmanagerHanler),
+            (r"/api/depend/depend-async-contextmanager", DependAsyncContextmanagerHanler),
+            (r"/api/depend/pre-depend-contextmanager", PreDependContextmanagerHanler),
+            (r"/api/depend/pre-depend-async-contextmanager", PreDependAsyncContextmanagerHanler),
+            (r"/api/security/api-cookie-key", APIKeyCookieHandler),
+            (r"/api/security/api-header-key", APIKeyHeaderHandler),
+            (r"/api/security/api-query-key", APIKeyQueryHandler),
             (r"/api/security/oauth2-login", OAuth2LoginHandler),
             (r"/api/security/oauth2-user-name", OAuth2UserNameHandler),
             (r"/api/security/oauth2-user-info", OAuth2UserInfoHandler),

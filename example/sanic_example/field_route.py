@@ -42,6 +42,7 @@ async def post_route(
 def same_alias_route(
     query_token: str = Query.i("", alias="token"), header_token: str = Header.i("", alias="token")
 ) -> response.HTTPResponse:
+    """Test different request types, but they have the same alias and different parameter names"""
     return response.json({"code": 0, "msg": "", "data": {"query_token": query_token, "header_token": header_token}})
 
 
