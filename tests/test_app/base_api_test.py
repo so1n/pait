@@ -9,6 +9,7 @@ from example.common.response_model import gen_response_model_handle
 from pait.app.base import BaseTestHelper, CheckResponseException
 from pait.grpc import DynamicGrpcGatewayRoute
 from pait.model import BaseResponseModel, HtmlResponseModel, TextResponseModel
+from pait.openapi.openapi import OpenAPI
 from pait.plugin.cache_response import CacheResponsePlugin
 from tests.conftest import enable_plugin, grpc_test_openapi
 
@@ -306,21 +307,26 @@ class BaseTest(object):
         assert 400 == test_helper._get_status_code(test_helper.post())
 
         for test_dict in [
-            {"scopes": [], "status_code": 401, "route": user_name_route, "data": None},
-            {"scopes": [], "status_code": 401, "route": user_info_route, "data": None},
+            # not scopes
+            {"scopes": "", "status_code": 401, "route": user_name_route, "data": None},
+            {"scopes": "", "status_code": 401, "route": user_info_route, "data": None},
+            # error scopes
+            {"scopes": "user-info", "status_code": 401, "route": user_name_route, "data": None},
+            {"scopes": "user-name", "status_code": 401, "route": user_info_route, "data": None},
+            # right scopes
             {"scopes": "user-name", "status_code": 200, "route": user_name_route, "data": "so1n"},
             {
-                "scopes": "user",
+                "scopes": "user-info",
                 "status_code": 200,
                 "route": user_info_route,
-                "data": {"age": 23, "name": "so1n", "scopes": ["user"], "sex": "M", "uid": "123"},
+                "data": {"age": 23, "name": "so1n", "scopes": ["user-info"], "sex": "M", "uid": "123"},
             },
-            {"scopes": "user user-name", "status_code": 200, "route": user_name_route, "data": "so1n"},
+            {"scopes": "user-info user-name", "status_code": 200, "route": user_name_route, "data": "so1n"},
             {
-                "scopes": "user user-name",
+                "scopes": "user-info user-name",
                 "status_code": 200,
                 "route": user_info_route,
-                "data": {"age": 23, "name": "so1n", "scopes": ["user", "user-name"], "sex": "M", "uid": "123"},
+                "data": {"age": 23, "name": "so1n", "scopes": ["user-info", "user-name"], "sex": "M", "uid": "123"},
             },
         ]:
             from example.common.security import temp_token_dict
@@ -497,9 +503,7 @@ class BaseTest(object):
             assert test_helper1.json() != test_helper2.json()
 
     @staticmethod
-    def grpc_openapi_by_protobuf_file(
-        app: Any, grpc_gateway_route: Type[DynamicGrpcGatewayRoute], load_app: Callable
-    ) -> None:
+    def grpc_openapi_by_protobuf_file(app: Any, grpc_gateway_route: Type[DynamicGrpcGatewayRoute]) -> None:
         import os
 
         from example.grpc_common.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
@@ -529,10 +533,10 @@ class BaseTest(object):
             parse_msg_desc=grpc_path,
             gen_response_model_handle=gen_response_model_handle,
         )
-        grpc_test_openapi(load_app(app), url_prefix=prefix)
+        grpc_test_openapi(app, url_prefix=prefix)
 
     @staticmethod
-    def grpc_openapi_by_option(app: Any, grpc_gateway_route: Type[DynamicGrpcGatewayRoute], load_app: Callable) -> None:
+    def grpc_openapi_by_option(app: Any, grpc_gateway_route: Type[DynamicGrpcGatewayRoute]) -> None:
         from example.grpc_common.python_example_proto_code.example_proto_by_option.book import (
             manager_pb2_grpc,
             social_pb2_grpc,
@@ -550,14 +554,12 @@ class BaseTest(object):
             title="Grpc-test",
             gen_response_model_handle=gen_response_model_handle,
         )
-        grpc_test_openapi(load_app(app), url_prefix=prefix, option_str="_by_option")
+        grpc_test_openapi(app, url_prefix=prefix, option_str="_by_option")
 
-        from pait.openapi.openapi import OpenAPI
-
-        pait_openapi: OpenAPI = OpenAPI(load_app(app))
+        pait_openapi: OpenAPI = OpenAPI(app)
         assert (
-            pait_openapi.dict["paths"]["/api-test-by-option/book/get-book-like"]["post"]["pait_info"]["md5"]
+            pait_openapi.dict["paths"]["/api-test-by-option/book/get-book-like"]["post"]["pait_info"]["pait_id"][:-1]
             == pait_openapi.dict["paths"]["/api-test-by-option/book_social_by_option-BookSocial/get_book_like"]["get"][
                 "pait_info"
-            ]["md5"]
+            ]["pait_id"][:-1]
         )

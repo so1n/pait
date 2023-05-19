@@ -17,6 +17,7 @@ check_resp_pait: Pait = global_pait.create_sub_pait(
 class TextResponseHanler(MyHandler):
     @check_resp_pait(response_model_list=[response_model.TextRespModel])
     async def get(self) -> None:
+        """test return text response"""
         self.write(str(time.time()))
         self.set_header("X-Example-Type", "text")
         self.set_header("Content-Type", "text/plain")
@@ -25,6 +26,7 @@ class TextResponseHanler(MyHandler):
 class HtmlResponseHanler(MyHandler):
     @check_resp_pait(response_model_list=[response_model.HtmlRespModel])
     async def get(self) -> None:
+        """test return html response"""
         self.write("<H1>" + str(time.time()) + "</H1>")
         self.set_header("X-Example-Type", "html")
         self.set_header("Content-Type", "text/html")
@@ -33,6 +35,7 @@ class HtmlResponseHanler(MyHandler):
 class FileResponseHanler(MyHandler):
     @check_resp_pait(response_model_list=[response_model.FileRespModel])
     async def get(self) -> None:
+        """test return file response"""
         async with aiofiles.tempfile.NamedTemporaryFile() as f:  # type: ignore
             await f.write("Hello Word!".encode())
             await f.seek(0)
@@ -54,7 +57,7 @@ class CheckRespHandler(MyHandler):
         email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
         user_name: str = Query.i(description="user name", min_length=2, max_length=4),
         age: int = Query.i(description="age", gt=1, lt=100),
-        display_age: int = Query.i(0, description="display_age"),
+        display_age: int = Query.i(0, description="display age"),
     ) -> None:
         """Test test-helper check response"""
         return_dict: dict = {

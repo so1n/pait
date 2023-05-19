@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 from pait.core import Pait, PluginManager
 from pait.field import Depends, Path, Query
 from pait.g import config, pait_context
-from pait.model import HtmlResponseModel, JsonResponseModel, PaitCoreModel, PaitStatus, Tag, TemplateContext
+from pait.model import HtmlResponseModel, JsonResponseModel, PaitStatus, Tag, TemplateContext
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -203,10 +203,9 @@ class AddDocRoute(Generic[APP_T]):
         ) -> dict:
             re = pait_context.get().app_helper.request.request_extend()
             _scheme: str = self.scheme or re.scheme
-            pait_dict: Dict[str, PaitCoreModel] = self.load_app(app)
             with TemplateContext(url_dict):
                 pait_openapi: OpenAPI = OpenAPI(
-                    pait_dict,
+                    app,
                     openapi_info_model=InfoModel(title=self.title),
                     server_model_list=[ServerModel(url=f"{_scheme}://{re.hostname}")],
                 )

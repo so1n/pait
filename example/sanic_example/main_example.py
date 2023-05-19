@@ -207,9 +207,9 @@ def get_user_route(
 
 
 async def not_pait_route(
-    uid: int = Query.i(description="user id", gt=10, lt=1000),
+    user_name: str = Query.i(),
 ) -> response.HTTPResponse:
-    return response.text(str(uid), 200)
+    return response.text(user_name, 200)
 
 
 def add_api_doc_route(app: Sanic) -> None:
@@ -253,16 +253,14 @@ def create_app(configure_logging: bool = True) -> Sanic:
     app.add_route(param_required_route, "/api/plugin/required", methods={"GET"})
 
     app.add_route(depend_route, "/api/depend/depend", methods={"POST"})
-    app.add_route(depend_contextmanager_route, "/api/depend/check-depend-contextmanager", methods={"GET"})
-    app.add_route(pre_depend_contextmanager_route, "/api/depend/check-pre-depend-contextmanager", methods={"GET"})
-    app.add_route(depend_async_contextmanager_route, "/api/depend/check-depend-async-contextmanager", methods={"GET"})
-    app.add_route(
-        pre_depend_async_contextmanager_route, "/api/depend/check-pre-depend-async-contextmanager", methods={"GET"}
-    )
+    app.add_route(depend_contextmanager_route, "/api/depend/depend-contextmanager", methods={"GET"})
+    app.add_route(pre_depend_contextmanager_route, "/api/depend/pre-depend-contextmanager", methods={"GET"})
+    app.add_route(depend_async_contextmanager_route, "/api/depend/depend-async-contextmanager", methods={"GET"})
+    app.add_route(pre_depend_async_contextmanager_route, "/api/depend/pre-depend-async-contextmanager", methods={"GET"})
 
-    app.add_route(api_key_cookie_route, "/api/security/api-key-cookie-route", methods={"GET"})
-    app.add_route(api_key_query_route, "/api/security/api-key-header-route", methods={"GET"})
-    app.add_route(api_key_header_route, "/api/security/api-key-query-route", methods={"GET"})
+    app.add_route(api_key_cookie_route, "/api/security/api-cookie-key", methods={"GET"})
+    app.add_route(api_key_query_route, "/api/security/api-query-key", methods={"GET"})
+    app.add_route(api_key_header_route, "/api/security/api-header-key", methods={"GET"})
 
     app.add_route(oauth2_login, "/api/security/oauth2-login", methods={"POST"})
     app.add_route(oauth2_user_name, "/api/security/oauth2-user-name", methods={"GET"})

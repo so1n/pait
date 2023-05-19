@@ -16,7 +16,7 @@ python = "^3.7"
 pydantic = "^1.7.3"
 typing-extensions = "^4.1.1"
 
-any-api = "^0.1.0.3"
+any-api = "^0.1.0.4"
 protobuf-to-pydantic = "^0.1.7.3"
 
 redis = { version = "^4.2.2", optional = true }

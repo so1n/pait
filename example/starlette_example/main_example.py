@@ -118,6 +118,7 @@ class CbvRoute(HTTPEndpoint):
     content_type: str = Header.i(alias="Content-Type")
 
     @user_pait(
+        desc="Text cbv route get",
         status=PaitStatus.release,
         tag=(tag.cbv_tag,),
         response_model_list=[UserSuccessRespModel, FailRespModel],
@@ -129,7 +130,6 @@ class CbvRoute(HTTPEndpoint):
         sex: SexEnum = Query.i(description="sex"),
         model: UserOtherModel = Query.i(raw_return=True),
     ) -> JSONResponse:
-        """Text cbv route get"""
         return JSONResponse(
             {
                 "code": 0,
@@ -227,7 +227,7 @@ def create_app() -> Starlette:
             Route("/api/raise-tip", raise_tip_route, methods=["POST"]),
             Route("/api/raise-not-tip", raise_not_tip_route, methods=["POST"]),
             Route("/api/cbv", CbvRoute),
-            Route("/api/not-pait-route", not_pait_route, methods=["GET"]),
+            Route("/api/not-pait", not_pait_route, methods=["GET"]),
             Route("/api/not-pait-cbv", NotPaitCbvRoute),
             Route("/api/field/post", post_route, methods=["POST"]),
             Route("/api/field/pait-base-field/{age}", pait_base_field_route, methods=["POST"]),
@@ -249,28 +249,34 @@ def create_app() -> Starlette:
             Route("/api/plugin/cache-response1", cache_response1, methods=["GET"]),
             Route("/api/plugin/check-json-plugin", check_json_plugin_route, methods=["GET"]),
             Route("/api/plugin/async-check-json-plugin", async_check_json_plugin_route, methods=["GET"]),
-            Route("/api/at-most-one-of-by-extra-param", param_at_most_one_of_route_by_extra_param, methods=["GET"]),
-            Route("/api/at-most-one-of", param_at_most_one_of_route, methods=["GET"]),
-            Route("/api/required-by-extra-param", param_required_route_by_extra_param, methods=["GET"]),
-            Route("/api/required", param_required_route, methods=["GET"]),
-            Route("/api/depend/depend", depend_route, methods=["POST"]),
-            Route("/api/depend/check_depend_contextmanager", depend_contextmanager_route, methods=["GET"]),
-            Route("/api/depend/check_depend_async_contextmanager", depend_async_contextmanager_route, methods=["GET"]),
-            Route("/api/depend/check_pre_depend_contextmanager", pre_depend_contextmanager_route, methods=["GET"]),
             Route(
-                "/api/depend/check_pre_depend_async_contextmanager",
+                "/api/plugin/at-most-one-of-by-extra-param", param_at_most_one_of_route_by_extra_param, methods=["GET"]
+            ),
+            Route("/api/plugin/at-most-one-of", param_at_most_one_of_route, methods=["GET"]),
+            Route("/api/plugin/required-by-extra-param", param_required_route_by_extra_param, methods=["GET"]),
+            Route("/api/plugin/required", param_required_route, methods=["GET"]),
+            Route("/api/depend/depend", depend_route, methods=["POST"]),
+            Route("/api/depend/depend-contextmanager", depend_contextmanager_route, methods=["GET"]),
+            Route("/api/depend/depend-async-contextmanager", depend_async_contextmanager_route, methods=["GET"]),
+            Route("/api/depend/pre-depend-contextmanager", pre_depend_contextmanager_route, methods=["GET"]),
+            Route(
+                "/api/depend/pre-depend-async-contextmanager",
                 pre_depend_async_contextmanager_route,
                 methods=["GET"],
             ),
-            Route("/api/security/api-key-cookie-route", api_key_cookie_route, methods=["GET"]),
-            Route("/api/security/api-key-header-route", api_key_header_route, methods=["GET"]),
-            Route("/api/security/api-key-query-route", api_key_query_route, methods=["GET"]),
+            Route("/api/security/api-cookie-key", api_key_cookie_route, methods=["GET"]),
+            Route("/api/security/api-header-key", api_key_header_route, methods=["GET"]),
+            Route("/api/security/api-query-key", api_key_query_route, methods=["GET"]),
             Route("/api/security/oauth2-login", oauth2_login, methods=["POST"]),
             Route("/api/security/oauth2-user-name", oauth2_user_name, methods=["GET"]),
             Route("/api/security/oauth2-user-info", oauth2_user_info, methods=["GET"]),
-            Route("/api/user-name-by-http-basic-credentials", get_user_name_by_http_basic_credentials, methods=["GET"]),
-            Route("/api/user-name-by-http-bearer", get_user_name_by_http_bearer, methods=["GET"]),
-            Route("/api/user-name-by-http-digest", get_user_name_by_http_digest, methods=["GET"]),
+            Route(
+                "/api/security/user-name-by-http-basic-credentials",
+                get_user_name_by_http_basic_credentials,
+                methods=["GET"],
+            ),
+            Route("/api/security/user-name-by-http-bearer", get_user_name_by_http_bearer, methods=["GET"]),
+            Route("/api/security/user-name-by-http-digest", get_user_name_by_http_digest, methods=["GET"]),
         ]
     )
     CacheResponsePlugin.set_redis_to_app(app, redis=Redis(decode_responses=True))

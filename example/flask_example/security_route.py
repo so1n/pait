@@ -63,7 +63,7 @@ def api_key_query_route(token: str = Depends.i(token_query_api_key)) -> dict:
 
 oauth2_pb: oauth2.OAuth2PasswordBearer = oauth2.OAuth2PasswordBearer(
     scopes={
-        "user": "get all user info",
+        "user-info": "get all user info",
         "user-name": "only get user name",
     }
 )
@@ -90,7 +90,7 @@ oauth2_pb.with_route(oauth2_login)
     append_tag=(tag.oauth2_tag,),
     response_model_list=[SuccessRespModel, Http400RespModel, Http401RespModel],
 )
-def oauth2_user_name(user_model: User = Depends.t(get_current_user(["user-name"], oauth2_pb))) -> dict:
+def oauth2_user_name(user_model: User = Depends.t(get_current_user(oauth2_pb.get_depend(["user-name"])))) -> dict:
     return {"code": 0, "msg": "", "data": user_model.name}
 
 
@@ -99,7 +99,7 @@ def oauth2_user_name(user_model: User = Depends.t(get_current_user(["user-name"]
     append_tag=(tag.oauth2_tag,),
     response_model_list=[SuccessRespModel, Http400RespModel, Http401RespModel],
 )
-def oauth2_user_info(user_model: User = Depends.t(get_current_user(["user"], oauth2_pb))) -> dict:
+def oauth2_user_info(user_model: User = Depends.t(get_current_user(oauth2_pb.get_depend(["user-info"])))) -> dict:
     return {"code": 0, "msg": "", "data": user_model.dict()}
 
 

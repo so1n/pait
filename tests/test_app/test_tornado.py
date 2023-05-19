@@ -3,7 +3,7 @@ import json
 import random
 import sys
 from tempfile import NamedTemporaryFile
-from typing import TYPE_CHECKING, Any, Callable, Type
+from typing import Any, Callable, Type
 from unittest import mock
 
 import pytest
@@ -16,14 +16,11 @@ from example.tornado_example import main_example
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.tornado import TestHelper as _TestHelper
-from pait.app.tornado import load_app
 from pait.model import response
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin, grpc_request_test, grpc_test_openapi
-from tests.test_app.base_test import BaseTest
-
-if TYPE_CHECKING:
-    pass
+from tests.test_app.base_api_test import BaseTest
+from tests.test_app.base_openapi_test import BaseTestOpenAPI
 
 
 class BaseTestTornado(AsyncHTTPTestCase):
@@ -115,7 +112,7 @@ class TestTornado(BaseTestTornado):
                 None,
                 self.fetch("/openapi.json?pin-code=6666").body.decode(),
                 OpenAPI(
-                    load_app(self._app),
+                    self._app,
                     openapi_info_model=InfoModel(title="Pait Doc"),
                     server_model_list=[ServerModel(url="http://localhost")],
                 ).content(),
@@ -217,7 +214,7 @@ class TestTornado(BaseTestTornado):
         self.base_test.mock_route(main_example.MockHandler.get, response_model.UserSuccessRespModel2)
 
     def test_pait_model(self) -> None:
-        self.base_test.pait_model(main_example.PaitModelHanler.post)
+        self.base_test.pait_model(main_example.PaitModelHandler.post)
 
     def test_depend_route(self) -> None:
         self.base_test.depend_route(main_example.DependHandler.post)
@@ -259,9 +256,9 @@ class TestTornado(BaseTestTornado):
         )
 
     def test_api_key_route(self) -> None:
-        self.base_test.api_key_route(main_example.APIKeyCookieHanler.get, {"cookie_dict": {"token": "my-token"}})
-        self.base_test.api_key_route(main_example.APIKeyHeaderHanler.get, {"header_dict": {"token": "my-token"}})
-        self.base_test.api_key_route(main_example.APIKeyQueryHanler.get, {"query_dict": {"token": "my-token"}})
+        self.base_test.api_key_route(main_example.APIKeyCookieHandler.get, {"cookie_dict": {"token": "my-token"}})
+        self.base_test.api_key_route(main_example.APIKeyHeaderHandler.get, {"header_dict": {"token": "my-token"}})
+        self.base_test.api_key_route(main_example.APIKeyQueryHandler.get, {"query_dict": {"token": "my-token"}})
 
     def test_oauth2_password_route(self) -> None:
         self.base_test.oauth2_password_route(
@@ -463,20 +460,19 @@ class TestTornadoGrpc(BaseTestTornado):
     def test_grpc_openapi(self) -> None:
         main_example.add_grpc_gateway_route(self._app)
 
-        from pait.app.tornado import load_app
-
-        grpc_test_openapi(load_app(self._app))
-        grpc_test_openapi(load_app(self._app), url_prefix="/api/static", option_str="_by_option")
+        grpc_test_openapi(self._app)
+        grpc_test_openapi(self._app, url_prefix="/api/static", option_str="_by_option")
 
     def test_grpc_openapi_by_protobuf_file(self) -> None:
-        from pait.app.tornado import load_app
         from pait.grpc import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 
-        self.base_test.grpc_openapi_by_protobuf_file(self._app, GrpcGatewayRoute, load_app)
+        self.base_test.grpc_openapi_by_protobuf_file(self._app, GrpcGatewayRoute)
 
     def test_grpc_openapi_by_option(self) -> None:
-        from pait.app.tornado import load_app
         from pait.grpc import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 
         self.setUp()
-        self.base_test.grpc_openapi_by_option(self._app, GrpcGatewayRoute, load_app)
+        self.base_test.grpc_openapi_by_option(self._app, GrpcGatewayRoute)
+
+    def test_openapi_content(self) -> None:
+        BaseTestOpenAPI(self._app).test_all()

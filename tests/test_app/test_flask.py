@@ -18,11 +18,11 @@ from example.flask_example import grpc_route, main_example
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.flask import TestHelper as _TestHelper
-from pait.app.flask import load_app
 from pait.model import response
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin, grpc_request_test, grpc_test_openapi
-from tests.test_app.base_test import BaseTest
+from tests.test_app.base_api_test import BaseTest
+from tests.test_app.base_openapi_test import BaseTestOpenAPI
 
 
 @contextmanager
@@ -148,7 +148,7 @@ class TestFlask:
                     str(client.get("/openapi.json?pin-code=6666").get_data().decode()),
                     str(
                         OpenAPI(
-                            load_app(client.application),
+                            client.application,
                             openapi_info_model=InfoModel(title="Pait Doc"),
                             server_model_list=[ServerModel(url="http://localhost")],
                         ).content()
@@ -419,21 +419,20 @@ class TestFlaskGrpc:
         with client_ctx() as client:
             grpc_route.add_grpc_gateway_route(client.application)
 
-            from pait.app.flask import load_app
-
-            grpc_test_openapi(load_app(client.application))
-            grpc_test_openapi(load_app(client.application), url_prefix="/api/static", option_str="_by_option")
+            grpc_test_openapi(client.application)
+            grpc_test_openapi(client.application, url_prefix="/api/static", option_str="_by_option")
 
     def test_grpc_openapi_by_protobuf_file(self) -> None:
-        from pait.app.flask import load_app
         from pait.grpc import GrpcGatewayRoute
 
         with base_test_ctx() as base_test:
-            base_test.grpc_openapi_by_protobuf_file(base_test.client.application, GrpcGatewayRoute, load_app)
+            base_test.grpc_openapi_by_protobuf_file(base_test.client.application, GrpcGatewayRoute)
 
     def test_grpc_openapi_by_option(self) -> None:
-        from pait.app.flask import load_app
         from pait.grpc import GrpcGatewayRoute
 
         with base_test_ctx() as base_test:
-            base_test.grpc_openapi_by_option(base_test.client.application, GrpcGatewayRoute, load_app)
+            base_test.grpc_openapi_by_option(base_test.client.application, GrpcGatewayRoute)
+
+    def test_openapi_content(self, base_test: BaseTest) -> None:
+        BaseTestOpenAPI(base_test.client.application).test_all()

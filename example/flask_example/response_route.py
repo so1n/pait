@@ -17,7 +17,7 @@ check_resp_pait: Pait = global_pait.create_sub_pait(
 
 @check_resp_pait(response_model_list=[response_model.TextRespModel])
 def text_response_route() -> Response:
-    """test return test response"""
+    """test return text response"""
     response: Response = make_response(str(time.time()), 200)
     response.mimetype = "text/plain"
     response.headers.add_header("X-Example-Type", "text")
@@ -55,7 +55,7 @@ def check_response_route(
     email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
     age: int = Query.i(description="age", gt=1, lt=100),
-    display_age: int = Query.i(0, description="display_age"),
+    display_age: int = Query.i(0, description="display age"),
 ) -> dict:
     """Test test-helper check response"""
     return_dict: dict = {
