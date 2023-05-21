@@ -104,28 +104,43 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
             {% endif %}
                 return gateway.msg_to_dict_handle(
                     grpc_msg,
-                    {{gen_code._get_value_code(grpc_service_option_model.response_message.exclude_column_name)}},
-                    {{gen_code._get_value_code(grpc_service_option_model.response_message.nested)}}
+                    {{gen_code._get_value_code(
+                        grpc_service_option_model.response_message.exclude_column_name,
+                        sort=False)
+                    }},
+                    {{gen_code._get_value_code(grpc_service_option_model.response_message.nested, sort=False)}}
                 )
                 """
             )
         else:
             route_func_jinja_template_str = dedent(
                 """
+            {% if  request_message_model_name in ("Empty", ) %}
+            {{ 'async def' if is_async else 'def' }} {{func_name}}(
+                token: str = Header.i(description="User Token"),
+                req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
+            ) -> Any:
+            {% else %}
             {{ 'async def' if is_async else 'def' }} {{func_name}}(
                 request_pydantic_model: {{request_message_model_name}},
                 token: str = Header.i(description="User Token"),
                 req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
             ) -> Any:
+            {% endif %}
                 gateway: "{{gateway_name}}" = pait_context.get().app_helper.get_attributes(
                     "{{attr_prefix}}_{{filename}}_gateway"
                 )
                 stub: {{stub_module_name}}.{{service_name}}Stub = gateway.{{stub_service_name}}
+            {% if  request_message_model_name in ("Empty", ) %}
+                request_msg: Empty = Empty()
+            {% else %}
                 request_msg: {{request_message_name}} = gateway.msg_from_dict_handle(
                     {{request_message_name}},
                     request_pydantic_model.dict(),
-                    {{gen_code._get_value_code(grpc_service_option_model.request_message.nested)}}
+                    {{gen_code._get_value_code(grpc_service_option_model.request_message.nested, sort=False)}}
                 )
+            {% endif %}
+
             {% if is_async %}
                 loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
                 if loop != getattr(gateway.{{stub_service_name}}.{{method}}, "_loop", None):
@@ -153,8 +168,11 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
             {% endif %}
                 return gateway.msg_to_dict_handle(
                     grpc_msg,
-                    {{gen_code._get_value_code(grpc_service_option_model.response_message.exclude_column_name)}},
-                    {{gen_code._get_value_code(grpc_service_option_model.response_message.nested)}}
+                    {{gen_code._get_value_code(
+                        grpc_service_option_model.response_message.exclude_column_name,
+                        sort=False)
+                    }},
+                    {{gen_code._get_value_code(grpc_service_option_model.response_message.nested, sort=False)}}
                 )
             """
             )

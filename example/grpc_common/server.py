@@ -3,15 +3,20 @@ from concurrent import futures
 from typing import Any, Callable, List, Optional
 
 import grpc
+from google.protobuf.json_format import ParseDict
 
 from example.grpc_common.python_example_proto_code.example_proto.book import manager_pb2_grpc as manager_service
 from example.grpc_common.python_example_proto_code.example_proto.book import social_pb2_grpc as social_service
+from example.grpc_common.python_example_proto_code.example_proto.other import other_pb2_grpc as other_service
 from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2_grpc as user_service
 from example.grpc_common.python_example_proto_code.example_proto_by_option.book import (
     manager_pb2_grpc as manager_by_option_service,
 )
 from example.grpc_common.python_example_proto_code.example_proto_by_option.book import (
     social_pb2_grpc as social_by_option_service,
+)
+from example.grpc_common.python_example_proto_code.example_proto_by_option.other import (
+    other_pb2_grpc as other_by_option_service,
 )
 from example.grpc_common.python_example_proto_code.example_proto_by_option.user import (
     user_pb2_grpc as user_by_option_service,
@@ -33,6 +38,10 @@ class SocialService(social_service.BookSocialServicer):
     pass
 
 
+class OtherService(other_service.OtherServicer):
+    pass
+
+
 class UserByOptionService(user_by_option_service.UserServicer):
     pass
 
@@ -42,6 +51,10 @@ class ManagerByOptionService(manager_by_option_service.BookManagerServicer):
 
 
 class SocialByOptionService(social_by_option_service.BookSocialServicer):
+    pass
+
+
+class OtherByOptionService(other_by_option_service.OtherServicer):
     pass
 
 
@@ -64,6 +77,23 @@ def auto_gen_service_method(stub: Any, service: Any) -> None:
                         else:
                             return response(uid=request.token)
 
+                elif method_name == "nested_demo":
+
+                    def _func(self: Any, request: Any, context: Any = None) -> Any:
+                        logger.info(f"{self.__class__.__name__} receive request:{request}")
+                        return ParseDict(
+                            {
+                                "map_demo": {
+                                    "a": {
+                                        "repeated_demo": [
+                                            {"map_demo": {"c": {"repeated_demo": [{"a": 1, "b": "foo"}]}}}
+                                        ]
+                                    },
+                                }
+                            },
+                            response(),
+                        )
+
                 else:
 
                     def _func(self: Any, request: Any, context: Any = None) -> Any:
@@ -78,10 +108,12 @@ def auto_gen_service_method(stub: Any, service: Any) -> None:
 auto_gen_service_method(user_service.UserStub, UserService)
 auto_gen_service_method(manager_service.BookManagerStub, ManagerService)
 auto_gen_service_method(social_service.BookSocialStub, SocialService)
+auto_gen_service_method(other_service.OtherStub, OtherService)
 
 auto_gen_service_method(user_by_option_service.UserStub, UserByOptionService)
 auto_gen_service_method(manager_by_option_service.BookManagerStub, ManagerByOptionService)
 auto_gen_service_method(social_by_option_service.BookSocialStub, SocialByOptionService)
+auto_gen_service_method(other_by_option_service.OtherStub, OtherByOptionService)
 
 
 def create_app(
@@ -94,9 +126,11 @@ def create_app(
     manager_service.add_BookManagerServicer_to_server(ManagerService(), server)  # type: ignore
     user_service.add_UserServicer_to_server(UserService(), server)  # type: ignore
     social_service.add_BookSocialServicer_to_server(SocialService(), server)  # type: ignore
+    other_service.add_OtherServicer_to_server(OtherService(), server)  # type: ignore
     manager_by_option_service.add_BookManagerServicer_to_server(ManagerByOptionService, server)  # type: ignore
     user_by_option_service.add_UserServicer_to_server(UserByOptionService(), server)  # type: ignore
     social_by_option_service.add_BookSocialServicer_to_server(SocialByOptionService(), server)  # type: ignore
+    other_by_option_service.add_OtherServicer_to_server(OtherByOptionService(), server)  # type: ignore
     server.add_insecure_port(host_post)
     return server
 

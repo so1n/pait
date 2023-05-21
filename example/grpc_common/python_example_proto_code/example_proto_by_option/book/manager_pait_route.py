@@ -89,6 +89,7 @@ async def async_create_book_route(
     request_msg: manager_pb2.CreateBookRequest = gateway.msg_from_dict_handle(
         manager_pb2.CreateBookRequest, request_pydantic_model.dict(), []
     )
+
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
     if loop != getattr(gateway.BookManager_stub.create_book, "_loop", None):
         raise RuntimeError(
@@ -117,6 +118,7 @@ def create_book_route(
     request_msg: manager_pb2.CreateBookRequest = gateway.msg_from_dict_handle(
         manager_pb2.CreateBookRequest, request_pydantic_model.dict(), []
     )
+
     # check token
     result: user_pb2.GetUidByTokenResult = user_pb2_grpc.UserStub(gateway.channel).get_uid_by_token(
         user_pb2.GetUidByTokenRequest(token=token)
@@ -139,6 +141,7 @@ async def async_delete_book_route(
     request_msg: manager_pb2.DeleteBookRequest = gateway.msg_from_dict_handle(
         manager_pb2.DeleteBookRequest, request_pydantic_model.dict(), []
     )
+
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
     if loop != getattr(gateway.BookManager_stub.delete_book, "_loop", None):
         raise RuntimeError(
@@ -167,6 +170,7 @@ def delete_book_route(
     request_msg: manager_pb2.DeleteBookRequest = gateway.msg_from_dict_handle(
         manager_pb2.DeleteBookRequest, request_pydantic_model.dict(), []
     )
+
     # check token
     result: user_pb2.GetUidByTokenResult = user_pb2_grpc.UserStub(gateway.channel).get_uid_by_token(
         user_pb2.GetUidByTokenRequest(token=token)
@@ -189,6 +193,7 @@ async def async_get_book_route(
     request_msg: manager_pb2.GetBookRequest = gateway.msg_from_dict_handle(
         manager_pb2.GetBookRequest, request_pydantic_model.dict(), []
     )
+
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
     if loop != getattr(gateway.BookManager_stub.get_book, "_loop", None):
         raise RuntimeError(
@@ -217,6 +222,7 @@ def get_book_route(
     request_msg: manager_pb2.GetBookRequest = gateway.msg_from_dict_handle(
         manager_pb2.GetBookRequest, request_pydantic_model.dict(), []
     )
+
     # check token
     result: user_pb2.GetUidByTokenResult = user_pb2_grpc.UserStub(gateway.channel).get_uid_by_token(
         user_pb2.GetUidByTokenRequest(token=token)
@@ -239,6 +245,7 @@ async def async_get_book_list_route(
     request_msg: manager_pb2.GetBookListRequest = gateway.msg_from_dict_handle(
         manager_pb2.GetBookListRequest, request_pydantic_model.dict(), []
     )
+
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
     if loop != getattr(gateway.BookManager_stub.get_book_list, "_loop", None):
         raise RuntimeError(
@@ -267,6 +274,7 @@ def get_book_list_route(
     request_msg: manager_pb2.GetBookListRequest = gateway.msg_from_dict_handle(
         manager_pb2.GetBookListRequest, request_pydantic_model.dict(), []
     )
+
     # check token
     result: user_pb2.GetUidByTokenResult = user_pb2_grpc.UserStub(gateway.channel).get_uid_by_token(
         user_pb2.GetUidByTokenRequest(token=token)

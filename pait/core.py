@@ -107,7 +107,7 @@ class Pait(object):
         self_container: Optional[_AppendT],
     ) -> Optional[_AppendT]:
         if target_container and append_container:
-            raise KeyError(f"{key} and append_{key} cannot be used together")
+            raise KeyError(f"{key} and append_{key} cannot be used together")  # pragma: no cover
         if append_container:
             return (self_container or append_container.__class__()) + append_container
         elif target_container is None:

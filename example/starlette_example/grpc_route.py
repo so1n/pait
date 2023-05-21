@@ -24,6 +24,8 @@ from pait.app import set_app_attribute
 from pait.field import Header
 from pait.grpc import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 
+message_to_dict = partial(MessageToDict, including_default_value_fields=True, preserving_proto_field_name=True)
+
 
 def add_grpc_gateway_route(app: Starlette) -> None:
     """Split out to improve the speed of test cases"""
@@ -40,6 +42,36 @@ def add_grpc_gateway_route(app: Starlette) -> None:
         def gen_route(self, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]) -> Callable:
             if grpc_model.grpc_method_url in ("/user.User/login_user", "/user.User/create_user"):
                 return super().gen_route(grpc_model, request_pydantic_model_class)
+            elif grpc_model.grpc_method_url.endswith("nested_demo"):
+
+                async def _route1(
+                    token: str = Header.i(description="User Token"),
+                    req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
+                ) -> Any:
+                    func: Callable = self.get_grpc_func(grpc_model)
+                    request_dict: dict = {}
+                    if grpc_model.grpc_method_url == "/user.User/logout_user":
+                        # logout user need token param
+                        request_dict["token"] = token
+                    else:
+                        # check token
+                        result: user_pb2.GetUidByTokenResult = await user_pb2_grpc.UserStub(
+                            self.channel
+                        ).get_uid_by_token(user_pb2.GetUidByTokenRequest(token=token))
+                        if not result.uid:
+                            raise RuntimeError(f"Not found user by token:{token}")
+                    request_msg: Message = self.msg_from_dict_handle(
+                        grpc_model.request, request_dict, grpc_model.grpc_service_option_model.request_message.nested
+                    )
+                    # add req_id to request
+                    grpc_msg: Message = await func(request_msg, metadata=[("req_id", req_id)])
+                    return self.msg_to_dict_handle(
+                        grpc_msg,
+                        grpc_model.grpc_service_option_model.response_message.exclude_column_name,
+                        grpc_model.grpc_service_option_model.response_message.nested,
+                    )
+
+                return _route1
             else:
 
                 async def _route(
@@ -84,7 +116,7 @@ def add_grpc_gateway_route(app: Starlette) -> None:
         parse_msg_desc="by_mypy",
         gen_response_model_handle=gen_response_model_handle,
         make_response=_make_response,
-        msg_to_dict=partial(MessageToDict, including_default_value_fields=True),
+        msg_to_dict=message_to_dict,
         parse_dict=parse_dict,
     )
     set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest
@@ -94,7 +126,7 @@ def add_grpc_gateway_route(app: Starlette) -> None:
         title="static_user",
         make_response=_make_response,
         is_async=True,
-        msg_to_dict=partial(MessageToDict, including_default_value_fields=True),
+        msg_to_dict=message_to_dict,
         parse_dict=parse_dict,
     )
     manager_grpc_route = manager_pait_route.StaticGrpcGatewayRoute(
@@ -103,7 +135,7 @@ def add_grpc_gateway_route(app: Starlette) -> None:
         title="static_manager",
         make_response=_make_response,
         is_async=True,
-        msg_to_dict=partial(MessageToDict, including_default_value_fields=True),
+        msg_to_dict=message_to_dict,
         parse_dict=parse_dict,
     )
     social_group_route = social_pait_route.StaticGrpcGatewayRoute(
@@ -112,7 +144,7 @@ def add_grpc_gateway_route(app: Starlette) -> None:
         title="static_social",
         make_response=_make_response,
         is_async=True,
-        msg_to_dict=partial(MessageToDict, including_default_value_fields=True),
+        msg_to_dict=message_to_dict,
         parse_dict=parse_dict,
     )
     other_group_route = other_pait_route.StaticGrpcGatewayRoute(
@@ -120,8 +152,8 @@ def add_grpc_gateway_route(app: Starlette) -> None:
         prefix="/api/static",
         title="static_other",
         make_response=_make_response,
-        is_async=False,
-        msg_to_dict=partial(MessageToDict, including_default_value_fields=True),
+        is_async=True,
+        msg_to_dict=message_to_dict,
         parse_dict=parse_dict,
     )
 

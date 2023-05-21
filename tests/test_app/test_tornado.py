@@ -14,9 +14,9 @@ from tornado.web import Application
 from example.common import response_model
 from example.tornado_example import main_example
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
-from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.tornado import TestHelper as _TestHelper
 from pait.model import response
+from pait.openapi.doc_route import default_doc_fn_dict
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin, grpc_request_test, grpc_test_openapi
 from tests.test_app.base_api_test import BaseTest
@@ -353,7 +353,7 @@ class TestTornadoGrpc(BaseTestTornado):
                 body: bytes = self.fetch(url + "?isbn=xxxa", method="POST", headers={"token": "token"}, body="").body
                 assert json.loads(body.decode()) == {
                     "code": 0,
-                    "data": {"bookAuthor": "", "bookDesc": "", "bookName": "", "bookUrl": "", "isbn": ""},
+                    "data": {"book_author": "", "book_desc": "", "book_name": "", "book_url": "", "isbn": ""},
                     "msg": "",
                 }
                 queue.get(timeout=1)
@@ -417,7 +417,7 @@ class TestTornadoGrpc(BaseTestTornado):
         with grpc_request_test(self._app) as queue:
             for url in ("/api/user/login", "/api/static/user/login"):
                 body: bytes = self.fetch(url, method="POST", body='{"uid": "10086", "password": "pw"}').body
-                assert body == b'{"code": 0, "msg": "", "data": {"uid": "", "userName": "", "token": ""}}'
+                assert body == b'{"code": 0, "msg": "", "data": {"uid": "", "user_name": "", "token": ""}}'
                 message: LoginUserRequest = queue.get(timeout=1)
                 assert message.uid == "10086"
                 assert message.password == "pw"
@@ -456,6 +456,16 @@ class TestTornadoGrpc(BaseTestTornado):
                 assert body == b'{"code": -1, "msg": "Not found user by token:fail_token"}'
                 message: GetUidByTokenRequest = queue.get(timeout=1)
                 assert message.token == "fail_token"
+
+    def test_nested_demo(self) -> None:
+        self.setUp()
+
+        main_example.add_grpc_gateway_route(self._app)
+        main_example.add_api_doc_route(self._app)
+        with grpc_request_test(self._app):
+            for url in ("/api/other/nested-demo", "/api/static/other/nested-demo"):
+                body: bytes = self.fetch(url, body="{}", method="POST", headers={"token": "token"}).body
+                assert body == b'{"code": 0, "msg": "", "data": {"a": [{"map_demo": {"c": [{"a": 1, "b": "foo"}]}}]}}'
 
     def test_grpc_openapi(self) -> None:
         main_example.add_grpc_gateway_route(self._app)

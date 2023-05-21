@@ -82,6 +82,7 @@ async def async_like_book_route(
     request_msg: social_pb2.LikeBookRequest = gateway.msg_from_dict_handle(
         social_pb2.LikeBookRequest, request_pydantic_model.dict(), []
     )
+
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
     if loop != getattr(gateway.BookSocial_stub.like_book, "_loop", None):
         raise RuntimeError(
@@ -110,6 +111,7 @@ def like_book_route(
     request_msg: social_pb2.LikeBookRequest = gateway.msg_from_dict_handle(
         social_pb2.LikeBookRequest, request_pydantic_model.dict(), []
     )
+
     # check token
     result: user_pb2.GetUidByTokenResult = user_pb2_grpc.UserStub(gateway.channel).get_uid_by_token(
         user_pb2.GetUidByTokenRequest(token=token)
@@ -132,6 +134,7 @@ async def async_like_multi_book_route(
     request_msg: social_pb2.LikeBookMapRequest = gateway.msg_from_dict_handle(
         social_pb2.LikeBookMapRequest, request_pydantic_model.dict(), []
     )
+
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
     if loop != getattr(gateway.BookSocial_stub.like_multi_book, "_loop", None):
         raise RuntimeError(
@@ -160,6 +163,7 @@ def like_multi_book_route(
     request_msg: social_pb2.LikeBookMapRequest = gateway.msg_from_dict_handle(
         social_pb2.LikeBookMapRequest, request_pydantic_model.dict(), []
     )
+
     # check token
     result: user_pb2.GetUidByTokenResult = user_pb2_grpc.UserStub(gateway.channel).get_uid_by_token(
         user_pb2.GetUidByTokenRequest(token=token)
@@ -182,6 +186,7 @@ async def async_get_book_like_route(
     request_msg: social_pb2.GetBookLikesRequest = gateway.msg_from_dict_handle(
         social_pb2.GetBookLikesRequest, request_pydantic_model.dict(), []
     )
+
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
     if loop != getattr(gateway.BookSocial_stub.get_book_like, "_loop", None):
         raise RuntimeError(
@@ -210,6 +215,7 @@ def get_book_like_route(
     request_msg: social_pb2.GetBookLikesRequest = gateway.msg_from_dict_handle(
         social_pb2.GetBookLikesRequest, request_pydantic_model.dict(), []
     )
+
     # check token
     result: user_pb2.GetUidByTokenResult = user_pb2_grpc.UserStub(gateway.channel).get_uid_by_token(
         user_pb2.GetUidByTokenRequest(token=token)
@@ -232,6 +238,7 @@ async def async_get_book_like_other_route(
     request_msg: social_pb2.NestedGetBookLikesRequest = gateway.msg_from_dict_handle(
         social_pb2.NestedGetBookLikesRequest, request_pydantic_model.dict(), ["nested"]
     )
+
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
     if loop != getattr(gateway.BookSocial_stub.get_book_like_other, "_loop", None):
         raise RuntimeError(
@@ -262,6 +269,7 @@ def get_book_like_other_route(
     request_msg: social_pb2.NestedGetBookLikesRequest = gateway.msg_from_dict_handle(
         social_pb2.NestedGetBookLikesRequest, request_pydantic_model.dict(), ["nested"]
     )
+
     # check token
     result: user_pb2.GetUidByTokenResult = user_pb2_grpc.UserStub(gateway.channel).get_uid_by_token(
         user_pb2.GetUidByTokenRequest(token=token)
@@ -284,6 +292,7 @@ async def async_comment_book_route(
     request_msg: social_pb2.CommentBookRequest = gateway.msg_from_dict_handle(
         social_pb2.CommentBookRequest, request_pydantic_model.dict(), []
     )
+
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
     if loop != getattr(gateway.BookSocial_stub.comment_book, "_loop", None):
         raise RuntimeError(
@@ -312,6 +321,7 @@ def comment_book_route(
     request_msg: social_pb2.CommentBookRequest = gateway.msg_from_dict_handle(
         social_pb2.CommentBookRequest, request_pydantic_model.dict(), []
     )
+
     # check token
     result: user_pb2.GetUidByTokenResult = user_pb2_grpc.UserStub(gateway.channel).get_uid_by_token(
         user_pb2.GetUidByTokenRequest(token=token)
@@ -334,6 +344,7 @@ async def async_get_book_comment_route(
     request_msg: social_pb2.GetBookCommentRequest = gateway.msg_from_dict_handle(
         social_pb2.GetBookCommentRequest, request_pydantic_model.dict(), []
     )
+
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
     if loop != getattr(gateway.BookSocial_stub.get_book_comment, "_loop", None):
         raise RuntimeError(
@@ -364,6 +375,7 @@ def get_book_comment_route(
     request_msg: social_pb2.GetBookCommentRequest = gateway.msg_from_dict_handle(
         social_pb2.GetBookCommentRequest, request_pydantic_model.dict(), []
     )
+
     # check token
     result: user_pb2.GetUidByTokenResult = user_pb2_grpc.UserStub(gateway.channel).get_uid_by_token(
         user_pb2.GetUidByTokenRequest(token=token)

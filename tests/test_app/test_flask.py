@@ -16,9 +16,9 @@ from werkzeug.test import _TestCookieJar
 from example.common import response_model
 from example.flask_example import grpc_route, main_example
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
-from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.flask import TestHelper as _TestHelper
 from pait.model import response
+from pait.openapi.doc_route import default_doc_fn_dict
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin, grpc_request_test, grpc_test_openapi
 from tests.test_app.base_api_test import BaseTest
@@ -314,7 +314,7 @@ class TestFlaskGrpc:
                     body: bytes = client.post(url + "?isbn=xxxa", headers={"token": "token"}).data
                     assert body == (
                         b'{"code":0,'
-                        b'"data":{"bookAuthor":"","bookDesc":"","bookName":"","bookUrl":"","isbn":""},"msg":""}\n'
+                        b'"data":{"book_author":"","book_desc":"","book_name":"","book_url":"","isbn":""},"msg":""}\n'
                     )
                     queue.get(timeout=1)
                     message: GetBookRequest = queue.get(timeout=1)
@@ -377,7 +377,7 @@ class TestFlaskGrpc:
             for url in ("/api/user/login", "/api/static/user/login"):
                 with grpc_request_test(client.application) as queue:
                     body: bytes = client.post(url, json={"uid": "10086", "password": "pw"}).data
-                    assert body == b'{"code":0,"data":{"token":"","uid":"","userName":""},"msg":""}\n'
+                    assert body == b'{"code":0,"data":{"token":"","uid":"","user_name":""},"msg":""}\n'
                     message: LoginUserRequest = queue.get(timeout=1)
                     assert message.uid == "10086"
                     assert message.password == "pw"
@@ -414,6 +414,18 @@ class TestFlaskGrpc:
                     assert body == b'{"code":-1,"msg":"Not found user by token:fail_token"}\n'
                     message: GetUidByTokenRequest = queue.get(timeout=1)
                     assert message.token == "fail_token"
+
+    def test_nested_demo(self) -> None:
+        pass
+
+        with client_ctx() as client:
+            grpc_route.add_grpc_gateway_route(client.application)
+            main_example.add_api_doc_route(client.application)
+
+            for url in ("/api/other/nested-demo", "/api/static/other/nested-demo"):
+                with grpc_request_test(client.application):
+                    body: bytes = client.post(url, headers={"token": "token"}).data
+                    assert body == b'{"code":0,"data":{"a":[{"map_demo":{"c":[{"a":1,"b":"foo"}]}}]},"msg":""}\n'
 
     def test_grpc_openapi(self) -> None:
         with client_ctx() as client:

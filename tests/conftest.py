@@ -137,6 +137,9 @@ def grpc_request_test(app: Any) -> Generator[Queue, None, None]:
     book_social_gateway_route: BaseStaticGrpcGatewayRoute = get_app_attribute(
         app, "gateway_attr_example_proto_by_option/book/social.proto_gateway"
     )
+    other_gatewat_route: BaseStaticGrpcGatewayRoute = get_app_attribute(
+        app, "gateway_attr_example_proto_by_option/other/other.proto_gateway"
+    )
 
     def reinit_channel(queue: Queue) -> None:
         if isinstance(grpc_gateway_route, AsyncGrpcGatewayRoute):
@@ -145,12 +148,14 @@ def grpc_request_test(app: Any) -> Generator[Queue, None, None]:
             user_gateway_route.reinit_channel(aio_channel)
             book_manager_gateway_route.reinit_channel(aio_channel)
             book_social_gateway_route.reinit_channel(aio_channel)
+            other_gatewat_route.reinit_channel(aio_channel)
         else:
             channel = grpc.intercept_channel(grpc.insecure_channel("0.0.0.0:9000"), GrpcClientInterceptor(queue))
             grpc_gateway_route.reinit_channel(channel)
             user_gateway_route.reinit_channel(channel)
             book_manager_gateway_route.reinit_channel(channel)
             book_social_gateway_route.reinit_channel(channel)
+            other_gatewat_route.reinit_channel(channel)
 
     with grpc_test_helper():
         queue: Queue = Queue()

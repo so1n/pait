@@ -18,9 +18,9 @@ from sanic_testing.testing import TestingResponse as Response  # type: ignore
 from example.common import response_model
 from example.sanic_example import main_example
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
-from pait.app.base.doc_route import default_doc_fn_dict
 from pait.app.sanic import TestHelper as _TestHelper
 from pait.model import response
+from pait.openapi.doc_route import default_doc_fn_dict
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin, fixture_loop, grpc_request_test, grpc_test_openapi
 from tests.test_app.base_api_test import BaseTest
@@ -310,7 +310,7 @@ class TestSanicGrpc:
                     request, response = client.post(url + "?isbn=xxxa", headers={"token": "token"})
                     assert json.loads(response.body.decode()) == {
                         "code": 0,
-                        "data": {"bookAuthor": "", "bookDesc": "", "bookName": "", "bookUrl": "", "isbn": ""},
+                        "data": {"book_author": "", "book_desc": "", "book_name": "", "book_url": "", "isbn": ""},
                         "msg": "",
                     }
                     queue.get(timeout=1)
@@ -372,7 +372,7 @@ class TestSanicGrpc:
             for url in ("/api/user/login", "/api/static/user/login"):
                 with grpc_request_test(client.app) as queue:
                     request, response = client.post(url, json={"uid": "10086", "password": "pw"})
-                    assert response.body == b'{"code":0,"msg":"","data":{"uid":"","userName":"","token":""}}'
+                    assert response.body == b'{"code":0,"msg":"","data":{"uid":"","user_name":"","token":""}}'
                     message: LoginUserRequest = queue.get(timeout=1)
                     assert message.uid == "10086"
                     assert message.password == "pw"
@@ -409,6 +409,16 @@ class TestSanicGrpc:
                     assert response.body == b'{"code":-1,"msg":"Not found user by token:fail_token"}'
                     message: GetUidByTokenRequest = queue.get(timeout=1)
                     assert message.token == "fail_token"
+
+    def test_nested_demo(self) -> None:
+        with client_ctx() as client:
+            main_example.add_grpc_gateway_route(client.app)
+            main_example.add_api_doc_route(client.app)
+
+            for url in ("/api/other/nested-demo", "/api/static/other/nested-demo"):
+                with grpc_request_test(client.app):
+                    body: bytes = client.post(url, headers={"token": "token"})[1].body
+                    assert body == b'{"code":0,"msg":"","data":{"a":[{"map_demo":{"c":[{"a":1,"b":"foo"}]}}]}}'
 
     def test_grpc_openapi(self) -> None:
         with client_ctx() as client:

@@ -108,7 +108,8 @@ testpaths = ["tests"]
 branch = true
 source = ["pait"]
 omit = [
-    "pait/api_doc/*",
+    "pait/grpc/plugin/*",
+    "pait/grpc/proto/*",
 ]
 
 [tool.coverage.report]

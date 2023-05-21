@@ -43,7 +43,6 @@ class OtherSocialByOptionNestedMessageJsonResponseModel(JsonResponseModel):
 
 
 async def async_nested_demo_route(
-    request_pydantic_model: Empty,
     token: str = Header.i(description="User Token"),
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
@@ -51,7 +50,8 @@ async def async_nested_demo_route(
         "gateway_attr_example_proto_by_option/other/other.proto_gateway"
     )
     stub: other_pb2_grpc.OtherStub = gateway.Other_stub
-    request_msg: Empty = gateway.msg_from_dict_handle(Empty, request_pydantic_model.dict(), [])
+    request_msg: Empty = Empty()
+
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
     if loop != getattr(gateway.Other_stub.nested_demo, "_loop", None):
         raise RuntimeError(
@@ -66,12 +66,11 @@ async def async_nested_demo_route(
         raise RuntimeError("Not found user by token:" + token)
     grpc_msg: other_pb2.NestedMessage = await stub.nested_demo(request_msg, metadata=[("req_id", req_id)])
     return gateway.msg_to_dict_handle(
-        grpc_msg, [], ["$.map_demo", "$[]", "${}", "${}", "map_demo", "repeated_demo", "repeated_demo"]
+        grpc_msg, [], ["map_demo", "${}", "repeated_demo", "$[]", "$.map_demo", "${}", "repeated_demo"]
     )
 
 
 def nested_demo_route(
-    request_pydantic_model: Empty,
     token: str = Header.i(description="User Token"),
     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
 ) -> Any:
@@ -79,7 +78,8 @@ def nested_demo_route(
         "gateway_attr_example_proto_by_option/other/other.proto_gateway"
     )
     stub: other_pb2_grpc.OtherStub = gateway.Other_stub
-    request_msg: Empty = gateway.msg_from_dict_handle(Empty, request_pydantic_model.dict(), [])
+    request_msg: Empty = Empty()
+
     # check token
     result: user_pb2.GetUidByTokenResult = user_pb2_grpc.UserStub(gateway.channel).get_uid_by_token(
         user_pb2.GetUidByTokenRequest(token=token)
@@ -88,7 +88,7 @@ def nested_demo_route(
         raise RuntimeError("Not found user by token:" + token)
     grpc_msg: other_pb2.NestedMessage = stub.nested_demo(request_msg, metadata=[("req_id", req_id)])
     return gateway.msg_to_dict_handle(
-        grpc_msg, [], ["$.map_demo", "$[]", "${}", "${}", "map_demo", "repeated_demo", "repeated_demo"]
+        grpc_msg, [], ["map_demo", "${}", "repeated_demo", "$[]", "$.map_demo", "${}", "repeated_demo"]
     )
 
 

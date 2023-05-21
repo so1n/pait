@@ -151,6 +151,7 @@ async def async_delete_user_route(
     request_msg: user_pb2.DeleteUserRequest = gateway.msg_from_dict_handle(
         user_pb2.DeleteUserRequest, request_pydantic_model.dict(), []
     )
+
     loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
     if loop != getattr(gateway.User_stub.delete_user, "_loop", None):
         raise RuntimeError(
@@ -179,6 +180,7 @@ def delete_user_route(
     request_msg: user_pb2.DeleteUserRequest = gateway.msg_from_dict_handle(
         user_pb2.DeleteUserRequest, request_pydantic_model.dict(), []
     )
+
     # check token
     result: user_pb2.GetUidByTokenResult = user_pb2_grpc.UserStub(gateway.channel).get_uid_by_token(
         user_pb2.GetUidByTokenRequest(token=token)
