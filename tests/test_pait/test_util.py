@@ -1,10 +1,12 @@
+import datetime
+import enum
 import inspect
 import typing
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, Generator, List, Optional, Type, Union
 
 import pytest
 import typing_extensions
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, conint, constr
 from pytest_mock import MockFixture
 
 import pait.util._pydantic_util
@@ -14,43 +16,33 @@ pytestmark = pytest.mark.asyncio
 
 
 class TestUtil:
-    def test_parse_typing(self) -> None:
-        assert [dict] == util.parse_typing(dict)
-        assert [list] == util.parse_typing(List)
-        assert [list] == util.parse_typing(List[str])
-        assert [dict] == util.parse_typing(Dict)
-        assert [set] == util.parse_typing(typing.Set)
-        assert [dict] == util.parse_typing(Union[dict])
-        assert [dict] == util.parse_typing(Union[Dict])
-        assert [dict] == util.parse_typing(Union[Dict[str, Any]])
-        assert [dict] == util.parse_typing(typing.AsyncIterator[Dict])
-        assert [dict] == util.parse_typing(typing.Iterator[Dict])
-        assert [dict] == util.parse_typing(typing.Generator[Dict, None, None])
-        assert [dict] == util.parse_typing(typing.AsyncGenerator[Dict, None])
-        assert [tuple] == util.parse_typing(typing.Tuple[str, int])
-        assert [dict] == util.parse_typing(typing_extensions.TypedDict)
-        # multi value
-        assert [dict, str, int] == util.parse_typing(Union[Dict, str, int])
-        assert [dict, type(None)] == util.parse_typing(Optional[Dict])
-        assert [dict, type(None)] == util.parse_typing(Optional[dict])
-        # Relatively rarely used scenes
-        assert [int] == util.parse_typing(typing.NewType("UserId", int))
-        assert [int] == util.parse_typing(typing.Callable[[], int])
-        assert [int] == util.parse_typing(typing.Callable[[], typing.Awaitable[int]])
-        s = typing.TypeVar("s", int, str)
-        assert [int, str] == util.parse_typing(s)
-        assert [str] == util.parse_typing(typing_extensions.Literal["a", "b"])
-        assert [str] == util.parse_typing(typing_extensions.LiteralString)
+    def test_create_factory(self) -> None:
+        def demo(a: int, b: int) -> int:
+            return a + b
 
-        class Demo:
-            pass
+        assert util.create_factory(demo)(1, 2)() == 3
 
-        assert [int] == util.parse_typing(typing_extensions.Annotated[int, Demo])
-        # Unresolved type, returned directly
-        from pait.util._types import _TYPING_NOT_PARSE_TYPE_SET
+    def test_partial_wrapper(self) -> None:
+        def demo(a: int, b: int = 1, c: int = 2) -> int:
+            return a + b + c
 
-        for i in _TYPING_NOT_PARSE_TYPE_SET:
-            assert [i] == util.parse_typing(i)
+        assert demo(1) == 4
+        demo1 = util.partial_wrapper(demo, b=3)
+        assert demo1(1) == 6
+        demo2 = util.partial_wrapper(demo, b=3, c=4)
+        assert demo2(1) == 8
+
+    def test_example_value_handle(self) -> None:
+        class DemoEnum(enum.Enum):
+            a = 1
+            b = 2
+
+        assert util.example_value_handle(DemoEnum.a) == 1
+
+        def demo() -> int:
+            return 1
+
+        assert util.example_value_handle(demo) == 1
 
     def test_get_real_annotation(self) -> None:
         class Demo:
@@ -88,6 +80,21 @@ class TestUtil:
 
         demo2()
 
+    def test_get_pydantic_annotation(self) -> None:
+        class SubDemo1(BaseModel):
+            a: int = Field()
+
+        class SubDemo2(BaseModel):
+            b: conint(ge=0) = Field(default=0)  # type: ignore[valid-type]
+            c: constr(min_length=0) = Field(default="")  # type: ignore[valid-type]
+
+        class Demo(SubDemo1, SubDemo2):
+            pass
+
+        assert util.get_pydantic_annotation("a", Demo) == int
+        assert util.get_pydantic_annotation("b", Demo) == int
+        assert util.get_pydantic_annotation("c", Demo) == str
+
     def test_get_pait_response_model(self) -> None:
         from example.common.response_model import TextRespModel, UserSuccessRespModel2, UserSuccessRespModel3
         from pait.model import JsonResponseModel
@@ -101,6 +108,113 @@ class TestUtil:
         )
 
         assert UserSuccessRespModel2 == util.get_pait_response_model([UserSuccessRespModel2])
+
+    def test_gen_example_value_from_python(self) -> None:
+        assert util.gen_example_value_from_python(
+            {
+                "a": 3,
+                "b": "xxx",
+                "c": False,
+                "d": {
+                    "a": [1, 2, 3],
+                    "b": {"c": 3, "d": 4},
+                },
+            }
+        ) == {"a": 0, "b": "", "c": True, "d": {"a": [], "b": {"c": 0, "d": 0}}}
+
+    def test_gen_example_value_from_type(self) -> None:
+        from typing_extensions import TypedDict
+
+        class Demo(TypedDict):
+            class SubDemo(TypedDict):  # type: ignore[misc]
+                a: bool
+                b: float
+
+            a: int
+            b: str
+            c: bool
+            d: SubDemo
+
+        assert util.gen_example_value_from_type(Demo) == {"a": 0, "b": "", "c": True, "d": {"a": True, "b": 0.0}}
+        assert util.gen_example_value_from_type(Optional[int]) == 0  # type: ignore[arg-type]
+        assert util.gen_example_value_from_type(Generator[int, None, None]) == 0
+
+    def test_gen_example_value_from_pydantic_model(self) -> None:
+        class SexEnum(enum.Enum):
+            man = "man"
+            woman = "woman"
+
+        class Empty(object):
+            pass
+
+        class Demo(BaseModel):
+            a: int = Field()
+            b: str = Field(example="mock")
+            c: bool = Field(alias="alias_c")
+            d: float = Field(default=2.1)
+            e: int = Field(default_factory=lambda: 10)
+            f: datetime.date = Field()
+            g: SexEnum = Field()
+            h: List[str] = Field()
+            i: Dict[str, List[int]] = Field()
+
+        assert util.gen_example_dict_from_pydantic_base_model(Demo) == {
+            "a": 0,
+            "b": "mock",
+            "alias_c": True,
+            "d": 2.1,
+            "e": 10,
+            "f": datetime.date.today(),
+            "g": "man",
+            "h": [""],
+            "i": {},
+        }
+
+        class Demo1(BaseModel):
+            a: int = Field(example=1)
+            b: int = Field(new_example_column=2)
+
+        assert util.gen_example_dict_from_pydantic_base_model(Demo1, example_column_name="new_example_column") == {
+            "a": 0,
+            "b": 2,
+        }
+
+    def test_gen_example_value_from_schema(self) -> None:
+        assert util.gen_example_dict_from_schema({}) == {}
+
+        class SexEnum(enum.Enum):
+            man = "man"
+            woman = "woman"
+
+        class Empty(object):
+            pass
+
+        class Demo(BaseModel):
+            a: int = Field()
+            b: str = Field(example="mock")
+            c: bool = Field(alias="alias_c")
+            d: float = Field(default=2.1)
+            e: int = Field(default_factory=lambda: 10)
+            f: datetime.date = Field()
+            g: SexEnum = Field()
+            h: List[str] = Field()
+            i: Dict[str, List[int]] = Field()
+
+        assert util.gen_example_dict_from_schema(Demo.schema()) == {
+            "a": 0,
+            "b": "mock",
+            "alias_c": True,
+            "d": 2.1,
+            "e": 0,
+            "f": "",
+            "g": "man",
+            "h": [],
+            "i": {},
+        }
+        assert (
+            util.gen_example_json_from_schema(Demo.schema())
+            == '{"a": 0, "b": "mock", "alias_c": true, "d": 2.1, "e": 0, "f": "", "g": "man", "h": [], "i": {}}'
+        )
 
     def test_create_pydantic_model(self) -> None:
         pydantic_model_class: Type[BaseModel] = pait.util._pydantic_util.create_pydantic_model(
@@ -148,11 +262,43 @@ class TestUtil:
         assert result[0].annotation == str
         assert result[0].default == value
 
-    def test_create_factory(self) -> None:
-        def demo(a: int, b: int) -> int:
-            return a + b
+    def test_parse_typing(self) -> None:
+        assert [dict] == util.parse_typing(dict)
+        assert [list] == util.parse_typing(List)
+        assert [list] == util.parse_typing(List[str])
+        assert [dict] == util.parse_typing(Dict)
+        assert [set] == util.parse_typing(typing.Set)
+        assert [dict] == util.parse_typing(Union[dict])
+        assert [dict] == util.parse_typing(Union[Dict])
+        assert [dict] == util.parse_typing(Union[Dict[str, Any]])
+        assert [dict] == util.parse_typing(typing.AsyncIterator[Dict])
+        assert [dict] == util.parse_typing(typing.Iterator[Dict])
+        assert [dict] == util.parse_typing(typing.Generator[Dict, None, None])
+        assert [dict] == util.parse_typing(typing.AsyncGenerator[Dict, None])
+        assert [tuple] == util.parse_typing(typing.Tuple[str, int])
+        assert [dict] == util.parse_typing(typing_extensions.TypedDict)
+        # multi value
+        assert [dict, str, int] == util.parse_typing(Union[Dict, str, int])
+        assert [dict, type(None)] == util.parse_typing(Optional[Dict])
+        assert [dict, type(None)] == util.parse_typing(Optional[dict])
+        # Relatively rarely used scenes
+        assert [int] == util.parse_typing(typing.NewType("UserId", int))
+        assert [int] == util.parse_typing(typing.Callable[[], int])
+        assert [int] == util.parse_typing(typing.Callable[[], typing.Awaitable[int]])
+        s = typing.TypeVar("s", int, str)
+        assert [int, str] == util.parse_typing(s)
+        assert [str] == util.parse_typing(typing_extensions.Literal["a", "b"])
+        assert [str] == util.parse_typing(typing_extensions.LiteralString)
 
-        assert util.create_factory(demo)(1, 2)() == 3
+        class Demo:
+            pass
+
+        assert [int] == util.parse_typing(typing_extensions.Annotated[int, Demo])
+        # Unresolved type, returned directly
+        from pait.util._types import _TYPING_NOT_PARSE_TYPE_SET
+
+        for i in _TYPING_NOT_PARSE_TYPE_SET:
+            assert [i] == util.parse_typing(i)
 
 
 class AnyStringWith(str):

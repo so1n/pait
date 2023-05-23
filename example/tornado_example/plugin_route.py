@@ -22,7 +22,7 @@ from pait.app.tornado.plugin import (
     RequiredPlugin,
 )
 from pait.app.tornado.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
-from pait.app.tornado.plugin.cache_response import CacheResponsePlugin
+from pait.app.tornado.plugin.cache_response import CacheRespExtraParam, CacheResponsePlugin
 from pait.app.tornado.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.tornado.plugin.mock_response import MockPlugin
 from pait.field import MultiQuery, Path, Query
@@ -123,9 +123,9 @@ class CacheResponseHandler(MyHandler):
 class CacheResponse1Handler(MyHandler):
     @plugin_pait(
         response_model_list=[HtmlResponseModel],
-        post_plugin_list=[CacheResponsePlugin.build(cache_time=10)],
+        post_plugin_list=[CacheResponsePlugin.build(cache_time=10, enable_cache_name_merge_param=True)],
     )
-    async def get(self) -> None:
+    async def get(self, key1: str = Query.i(extra_param_list=[CacheRespExtraParam()]), key2: str = Query.i()) -> None:
         self.write(str(time.time()))
 
 

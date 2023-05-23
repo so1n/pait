@@ -23,7 +23,7 @@ __all__ = ["DynamicGrpcGatewayRoute", "AsyncGrpcGatewayRoute", "GrpcGatewayRoute
 def _gen_response_model_handle(grpc_model: GrpcModel) -> Type[BaseResponseModel]:
     if grpc_model.response is Empty:
         response_model: Any = dict
-    elif grpc_model.grpc_service_option_model.response_message:
+    elif grpc_model.grpc_service_option_model.response_message.has_value():
         response_model = rebuild_message_type(
             msg_to_pydantic_model(grpc_model.response),
             grpc_model.invoke_name,
@@ -111,7 +111,7 @@ class DynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
         elif http_method == "POST":
             default_field = Body
         else:
-            raise RuntimeError(f"{http_method} is not supported")
+            raise RuntimeError(f"{http_method} is not supported")  # pragma: no cover
         request_model: Type[BaseModel] = msg_to_pydantic_model(
             grpc_model.request,
             default_field=default_field,
@@ -121,7 +121,7 @@ class DynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
             if self._parse_msg_desc == "by_mypy"
             else self._parse_msg_desc,
         )
-        if grpc_model.grpc_service_option_model.request_message:
+        if grpc_model.grpc_service_option_model.request_message.has_value():
             return rebuild_message_type(
                 request_model,
                 grpc_model.invoke_name,
@@ -162,7 +162,7 @@ class DynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
         """Get grpc invoke func"""
         func: Optional[Callable] = self.grpc_method_url_func_dict.get(grpc_model.grpc_method_url, None)
         if not func:
-            raise RuntimeError(
+            raise RuntimeError(  # pragma: no cover
                 f"{grpc_model.grpc_method_url}'s func is not found, Please call init_channel to register the channel"
             )
         return func
@@ -258,7 +258,7 @@ class AsyncGrpcGatewayRoute(DynamicGrpcGatewayRoute, metaclass=ABCMeta):
             )
             loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
             if loop != func._loop:  # type: ignore
-                raise RuntimeError(
+                raise RuntimeError(  # pragma: no cover
                     "Loop is not same, "
                     "the grpc channel must be initialized after the event loop of the api server is initialized"
                 )

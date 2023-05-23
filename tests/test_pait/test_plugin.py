@@ -346,3 +346,22 @@ class TestCacheResponsePlugin:
             )
         exec_msg = e.value.args[0]
         assert "Please set redis`s param:decode_responses to True" in exec_msg
+
+    #
+    # def test_not_found_redis(self) -> None:
+    #     def demo() -> None:
+    #         pass
+    #     with pytest.raises(ValueError) as e:
+    #         CacheResponsePlugin(
+    #             next_plugin=lambda : None,
+    #             pait_core_model=PaitCoreModel(
+    #                 demo,
+    #                 BaseAppHelper,
+    #                 ParamHandler,
+    #             ),
+    #             name="demo",
+    #             lock_name="demo:lock"
+    #         )._get_redis()
+    #
+    #     exec_msg = e.value.args[0]
+    #     assert exec_msg == "Not found redis client"

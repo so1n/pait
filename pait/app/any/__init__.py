@@ -24,16 +24,16 @@ _NotFoundFrameworkException = RuntimeError(
 
 class Empty(object):
     def __int__(self) -> NoReturn:
-        raise _NotFoundFrameworkException
+        raise _NotFoundFrameworkException  # pragma: no cover
 
     def __setattr__(self, key: Any, value: Any) -> NoReturn:
-        raise _NotFoundFrameworkException
+        raise _NotFoundFrameworkException  # pragma: no cover
 
     def __getattr__(self, item: Any) -> NoReturn:
-        raise _NotFoundFrameworkException
+        raise _NotFoundFrameworkException  # pragma: no cover
 
     def __call__(self, *args: Any, **kwargs: Any) -> NoReturn:
-        raise _NotFoundFrameworkException
+        raise _NotFoundFrameworkException  # pragma: no cover
 
 
 try:

@@ -59,10 +59,10 @@ class MockPluginProtocol(PrePluginProtocol, Generic[RESP_T]):
         raise NotImplementedError()
 
     def get_file_response(self, temporary_file: IO[bytes], f: Any) -> RESP_T:
-        raise RuntimeError("Not IMplemented")
+        raise RuntimeError("Not Implemented")  # pragma: no cover
 
     async def async_get_file_response(self, temporary_file: Any, f: Any) -> RESP_T:
-        raise RuntimeError("Not IMplemented")
+        raise RuntimeError("Not Implemented")  # pragma: no cover
 
     def set_info_to_response(self, resp: RESP_T) -> None:
         raise NotImplementedError()

@@ -2,8 +2,7 @@ import inspect
 import json
 import os
 import sys
-from dataclasses import MISSING
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
 from functools import wraps
@@ -43,6 +42,8 @@ __all__ = [
     "gen_example_dict_from_schema",
     "gen_example_json_from_schema",
     "get_parameter_list_from_pydantic_basemodel",
+    "gen_example_value_from_type",
+    "get_pydantic_annotation",
     "get_parameter_list_from_class",
     "http_method_tuple",
     "json_type_default_value_dict",
@@ -81,6 +82,7 @@ python_type_default_value_dict: Dict = {
     tuple: (),
     dict: {},
     datetime: datetime.fromtimestamp(0),
+    date: date.today(),
     Decimal: Decimal("0.0"),
     Any: {},
 }
@@ -146,7 +148,7 @@ def get_real_annotation(annotation: Union[Type, str], target_obj: Any) -> Type:
         value: ForwardRef = ForwardRef(annotation, is_argument=False)
 
         if sys.version_info >= (3, 9):
-            new_annotation = value._evaluate(global_dict, None, frozenset())  # type: ignore
+            new_annotation = value._evaluate(global_dict, None, frozenset())  # type: ignore    # pragma: no cover
         else:
             new_annotation = value._evaluate(global_dict, None)  # type: ignore
         if not new_annotation:
@@ -156,19 +158,14 @@ def get_real_annotation(annotation: Union[Type, str], target_obj: Any) -> Type:
 
 def get_pydantic_annotation(key: str, pydantic_base_model: Type[BaseModel]) -> Type:
     """Get the annotation from BaseModel's properties"""
-    annotation: Any = MISSING
-    for base in reversed(pydantic_base_model.__mro__):
-        ann: Union[str, Type] = base.__dict__.get("__annotations__", {}).get(key, MISSING)
-        if ann is not MISSING:
-            annotation = ann
-            break
-    if annotation is MISSING:
-        raise RuntimeError(f"get {key}'s annotation from {pydantic_base_model} fail")  # pragma: no cover
+    annotation = pydantic_base_model.__fields__[key].annotation
     annotation = get_real_annotation(annotation, pydantic_base_model)
-
     if getattr(annotation, "real", None) and annotation != bool:
         # support like pydantic.ConstrainedIntValue
-        annotation = annotation.real.__objclass__  # type: ignore
+        return annotation.real.__objclass__  # type: ignore
+    __base__ = getattr(annotation, "__base__", None)
+    if __base__ and getattr(__base__, "__module__", "") == "pydantic.types":
+        return annotation.__mro__[2]
     return annotation
 
 
@@ -208,7 +205,7 @@ def gen_example_value_from_type(value_type: type, example_column_name: str = "ex
                 if len(sub_type_set) == 1:
                     sub_type = sub_type_set.pop()
         except ParseTypeError:
-            real_type = value_type
+            real_type = value_type  # pragma: no cover
         if real_type is list and sub_type:
             return [gen_example_value_from_type(sub_type, example_column_name=example_column_name)]
         else:
@@ -216,7 +213,7 @@ def gen_example_value_from_type(value_type: type, example_column_name: str = "ex
             # so must parse real_type
             return gen_example_value_from_type(real_type, example_column_name=example_column_name)
     elif not inspect.isclass(value_type):
-        return python_type_default_value_dict[value_type]
+        return python_type_default_value_dict[value_type]  # pragma: no cover
     elif issubclass(value_type, Enum):
         return [i for i in value_type.__members__.values()][0].value
     elif issubclass(value_type, BaseModel):
@@ -236,28 +233,30 @@ def gen_example_dict_from_pydantic_base_model(
     gen_dict: Dict[str, Any] = {}
     for key, model_field in pydantic_base_model.__fields__.items():
         if model_field.alias:
-            key = model_field.alias
+            real_key = model_field.alias
         if example_column_name:
             example_value: Any = model_field.field_info.extra.get(example_column_name, Undefined)
             if not isinstance(example_value, UndefinedType):
-                gen_dict[key] = example_value_handle(example_value)
+                gen_dict[real_key] = example_value_handle(example_value)
                 continue
 
         if not isinstance(model_field.field_info.default, UndefinedType):
-            gen_dict[key] = model_field.field_info.default
+            gen_dict[real_key] = model_field.field_info.default
         elif model_field.field_info.default_factory and not isinstance(
             model_field.field_info.default_factory, UndefinedType
         ):
-            gen_dict[key] = model_field.field_info.default_factory()
+            gen_dict[real_key] = model_field.field_info.default_factory()
         else:
             annotation: Type = get_pydantic_annotation(key, pydantic_base_model)
-            gen_dict[key] = gen_example_value_from_type(annotation, example_column_name=example_column_name)
+            gen_dict[real_key] = gen_example_value_from_type(annotation, example_column_name=example_column_name)
     return gen_dict
 
 
 def gen_example_dict_from_schema(schema_dict: Dict[str, Any], definition_dict: Optional[dict] = None) -> Dict[str, Any]:
     gen_dict: Dict[str, Any] = {}
-    if "properties" not in schema_dict:
+    if "enum" in schema_dict:
+        return schema_dict["enum"][0]
+    elif "properties" not in schema_dict:
         return gen_dict
     property_dict: Dict[str, Any] = schema_dict["properties"]
     if not definition_dict:
@@ -286,8 +285,8 @@ def gen_example_dict_from_schema(schema_dict: Dict[str, Any], definition_dict: O
                     gen_dict[key] = json_type_default_value_dict[value["type"]]
                 else:
                     gen_dict[key] = "object"
-            if isinstance(gen_dict[key], Enum):
-                gen_dict[key] = gen_dict[key].value
+            # if isinstance(gen_dict[key], Enum):
+            #     gen_dict[key] = gen_dict[key].value
     return gen_dict
 
 

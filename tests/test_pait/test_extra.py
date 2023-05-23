@@ -6,7 +6,7 @@ from pydantic import BaseConfig, BaseModel, Field
 from pait.app.base import BaseAppHelper
 from pait.extra import config
 from pait.model import BaseResponseModel, JsonResponseModel, PaitCoreModel, PaitStatus, Tag
-from pait.param_handle import ParamHandler
+from pait.param_handle import BaseParamHandler, ParamHandler
 from pait.plugin.base import PluginManager, PostPluginProtocol, PrePluginProtocol
 
 
@@ -184,6 +184,15 @@ class TestApplyFun:
             config.apply_response_model([JsonResponseModel])(i)
             assert i.response_model_list == [JsonResponseModel]
 
+    def test_apply_default_pydantic_model(self) -> None:
+        class DemoBaseModel(BaseModel):
+            pass
+
+        for i in self.core_model_list:
+            assert i.pydantic_basemodel is None
+            config.apply_default_pydantic_basemodel(DemoBaseModel)(i)
+            assert i.pydantic_basemodel == DemoBaseModel
+
     def test_apply_block_http_method_set(self) -> None:
         for i in self.core_model_list:
             assert "GET" in i.method_list
@@ -219,3 +228,24 @@ class TestApplyFun:
             assert i.pre_depend_list == []
             config.apply_pre_depend(demo_pre_depend)(i)
             assert i.pre_depend_list == [demo_pre_depend]
+
+    def test_apply_param_handler(self) -> None:
+        for i in self.core_model_list:
+            raw_param_plugin = i.param_handler_plugin
+            assert i.param_handler_plugin != BaseParamHandler
+            config.apply_param_handler(BaseParamHandler)(i)
+            assert i.param_handler_plugin == BaseParamHandler
+            config.apply_param_handler(raw_param_plugin)(i)
+            assert i.param_handler_plugin == raw_param_plugin
+
+    def test_match_error_key(self) -> None:
+        with pytest.raises(KeyError) as e:
+            for i in self.core_model_list:
+                config.apply_param_handler(BaseParamHandler, config.MatchRule(key="error key"))(i)  # type: ignore
+        exec_msg: str = e.value.args[0]
+        assert exec_msg == "match fail, not found key:error key"
+        with pytest.raises(KeyError) as e:
+            for i in self.core_model_list:
+                config.apply_param_handler(BaseParamHandler, config.MatchRule(key="main_plugin"))(i)  # type: ignore
+        exec_msg = e.value.args[0]
+        assert exec_msg == "Not support key:main_plugin"

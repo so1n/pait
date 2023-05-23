@@ -50,6 +50,7 @@ class BaseTestHelper(Generic[RESP_T]):
         query_dict: Optional[dict] = None,
         strict_inspection_check_json_content: bool = True,
         find_response_model: bool = False,
+        enable_assert_response: bool = True,
         target_pait_response_class: Optional[Type["response.BaseResponseModel"]] = None,
     ):
         """
@@ -85,6 +86,7 @@ class BaseTestHelper(Generic[RESP_T]):
         self.path_dict: Optional[dict] = path_dict
         self.query_dict: Optional[dict] = query_dict
         self.strict_inspection_check_json_content: bool = strict_inspection_check_json_content
+        self.enable_assert_response: bool = enable_assert_response
 
         # path handle
         self.path: str = self.pait_core_model.path
@@ -279,9 +281,7 @@ class BaseTestHelper(Generic[RESP_T]):
 
         error_str = ""
         for k, v in model_check_msg_dict.items():
-            error_str += str(k)
-            error_str += ":\n"
-            error_str += "    \n".join(v)
+            error_str += str(k) + ":\n" + "    \n".join(v)
         raise CheckResponseException(
             status_code=self._get_status_code(resp),
             media_type=self._get_content_type(resp),
@@ -312,7 +312,7 @@ class BaseTestHelper(Generic[RESP_T]):
                     f"Pait Can not auto select method, please choice method in {self.pait_core_model.method_list}"
                 )
         resp: RESP_T = self._real_request(method)
-        if self.pait_core_model.response_model_list:
+        if self.pait_core_model.response_model_list and self.enable_assert_response:
             self._assert_response(resp)
         return resp
 

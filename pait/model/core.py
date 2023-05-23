@@ -70,7 +70,9 @@ class PaitCoreModel(object):
         self.pre_depend_list: List[Callable] = pre_depend_list or []
         self.func_path: str = ""
         self.block_http_method_set: Set[str] = set()
+        # TODO
         self.pydantic_model_config: Optional[Type[BaseConfig]] = pydantic_model_config
+        # TODO
         self.pydantic_basemodel: Optional[Type[BaseModel]] = pydantic_basemodel
         self.extra: dict = kwargs
 
@@ -133,14 +135,6 @@ class PaitCoreModel(object):
         self.add_plugin([], [])
 
     @property
-    def func_md5(self) -> str:
-        from hashlib import md5
-
-        h = md5()
-        h.update(self.func.__code__.co_code)  # type: ignore
-        return h.hexdigest()
-
-    @property
     def method_list(self) -> List[str]:
         _temp_set: Set[str] = set(self._method_list.copy())
         _temp_set.difference_update(self.block_http_method_set)
@@ -163,7 +157,7 @@ class PaitCoreModel(object):
             if response_model in self._response_model_list:
                 continue
             if issubclass(response_model, PaitResponseModel):
-                logging.warning(
+                logging.warning(  # pragma: no cover
                     f"Please replace {self.operation_id}'s response model {response_model}" f" with {BaseResponseModel}"
                 )
             self._response_model_list.append(response_model)

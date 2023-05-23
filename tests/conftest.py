@@ -2,7 +2,7 @@ import asyncio
 import copy
 from contextlib import contextmanager
 from queue import Queue
-from typing import TYPE_CHECKING, Any, Callable, Generator, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Callable, Generator, List, Optional, Tuple, Type, Union
 
 import grpc
 
@@ -10,7 +10,9 @@ from example.grpc_common.server import create_app
 from pait.app.any.util import sniffing
 from pait.extra.config import apply_block_http_method_set
 from pait.g import config
+from pait.model.response import BaseResponseModel
 from pait.plugin.base import PluginManager, PrePluginProtocol
+from pait.util import ignore_pre_check
 
 if TYPE_CHECKING:
     from pait.model import PaitCoreModel
@@ -19,7 +21,9 @@ config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTION
 
 
 @contextmanager
-def enable_plugin(route_handler: Callable, *plugin_manager_list: PluginManager) -> Generator[None, None, None]:
+def enable_plugin(
+    route_handler: Callable, *plugin_manager_list: PluginManager, is_replace: bool = False
+) -> Generator[None, None, None]:
     if not getattr(route_handler, "_pait_id", None):
         raise TypeError("route handler must pait func")
 
@@ -35,12 +39,37 @@ def enable_plugin(route_handler: Callable, *plugin_manager_list: PluginManager) 
         else:
             post_plugin_list.append(plugin_manager)
     try:
-        pait_core_model.add_plugin(plugin_list, post_plugin_list)
+        if is_replace:
+            for _plugin in plugin_list + post_plugin_list:
+                if not ignore_pre_check:
+                    plugin_manager.pre_check_hook(route_handler.pait_core_model)  # type: ignore[attr-defined]
+                plugin_manager.pre_load_hook(route_handler.pait_core_model)  # type: ignore[attr-defined]
+
+            pait_core_model._plugin_list = plugin_list
+            pait_core_model._post_plugin_list = post_plugin_list
+            pait_core_model.build_plugin_stack()
+        else:
+            pait_core_model.add_plugin(plugin_list, post_plugin_list)
         yield
     finally:
         pait_core_model._plugin_list = raw_plugin_list
         pait_core_model._post_plugin_list = raw_post_plugin_list
         pait_core_model.build_plugin_stack()
+
+
+@contextmanager
+def enable_resp_model(route_handler: Callable, *resp_list: Type[BaseResponseModel]) -> Generator[None, None, None]:
+    if not getattr(route_handler, "_pait_id", None):
+        raise TypeError("route handler must pait func")
+
+    pait_core_model: "PaitCoreModel" = getattr(route_handler, "pait_core_model")
+    raw_resp_list: List[Type[BaseResponseModel]] = copy.deepcopy(pait_core_model.response_model_list)
+
+    try:
+        pait_core_model._response_model_list = resp_list  # type: ignore[assignment]
+        yield
+    finally:
+        pait_core_model._response_model_list = raw_resp_list
 
 
 GRPC_RESPONSE = Union[grpc.Call, grpc.Future]
@@ -286,14 +315,3 @@ def grpc_test_openapi(app: Any, url_prefix: str = "/api", option_str: str = "") 
                     assert item["in"] == "query"
                 else:
                     assert item["in"] == "header"
-
-        # # test rebuild message
-        # if url == f"{url_prefix}/book/get-list":
-        #     response_schema_key: str = path_dict["post"]["responses"]["200"]["content"]["application/json"]["schema"][
-        #         "$ref"
-        #     ].split("/")[-1]
-        #     response_schema: dict = pait_openapi.dict["components"]["schemas"][response_schema_key]
-        #     response_schema_key = response_schema["properties"]["data"]["allOf"][0]["$ref"].split("/")[-1]
-        #     assert pait_openapi.dict["components"]["schemas"][response_schema_key]["title"] == ["GetBookResult"]
-        # if url == f"{url_prefix}/book/get":
-        #     print(path_dict)

@@ -36,6 +36,7 @@ class CacheResponsePlugin(PostPluginProtocol):
 
     def __post_init__(self, **kwargs: Any) -> None:
         self.lock_name: str = self.name + ":" + "lock"
+        self._cache_name_param_set = kwargs.pop("_cache_name_param_set")
 
     @classmethod
     def check_redis(cls, redis: Union[Redis, AsyncioRedis]) -> None:

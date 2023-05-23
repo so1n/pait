@@ -305,6 +305,9 @@ class TestTornado(BaseTestTornado):
             main_example.Redis(decode_responses=True),
         )
 
+    def test_openapi_content(self) -> None:
+        BaseTestOpenAPI(self._app).test_all()
+
 
 class TestTornadoGrpc(BaseTestTornado):
     # def test_create_user(self) -> None:
@@ -483,6 +486,3 @@ class TestTornadoGrpc(BaseTestTornado):
 
         self.setUp()
         self.base_test.grpc_openapi_by_option(self._app, GrpcGatewayRoute)
-
-    def test_openapi_content(self) -> None:
-        BaseTestOpenAPI(self._app).test_all()

@@ -8,10 +8,11 @@ from redis import Redis  # type: ignore
 from example.common.response_model import gen_response_model_handle
 from pait.app.base import BaseTestHelper, CheckResponseException
 from pait.grpc import DynamicGrpcGatewayRoute
-from pait.model import BaseResponseModel, HtmlResponseModel, TextResponseModel
+from pait.model import BaseResponseModel, FileResponseModel, HtmlResponseModel, TextResponseModel
 from pait.openapi.openapi import OpenAPI
 from pait.plugin.cache_response import CacheResponsePlugin
-from tests.conftest import enable_plugin, grpc_test_openapi
+from pait.plugin.mock_response import MockPluginProtocol
+from tests.conftest import enable_plugin, enable_resp_model, grpc_test_openapi
 
 if TYPE_CHECKING:
     from pait.model import PaitCoreModel
@@ -213,6 +214,19 @@ class BaseTest(object):
             ).json()
             == resp_model.get_example_value()
         )
+        # test mock file response fail and close contextmanager
+        with enable_resp_model(route, FileResponseModel):
+            with enable_plugin(route, MockPluginProtocol.build(), is_replace=True):
+                assert (
+                    self.test_helper(
+                        self.client,
+                        route,
+                        path_dict={"age": 3},
+                        query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
+                        enable_assert_response=False,
+                    ).json()["msg"]
+                    == "Not Implemented"
+                )
 
     def pait_model(self, route: Callable) -> None:
         assert {
@@ -354,8 +368,10 @@ class BaseTest(object):
 
     def get_user_name_by_http_bearer(self, route: Callable) -> None:
         for header_dict, status_code in [
-            ({}, 403),
-            ({"Authorization": "http-token"}, 403),
+            ({}, 403),  # not data
+            ({"Authorization": "http-token"}, 403),  # not schema
+            ({"Authorization": "Bearer token"}, 403),  # fail token
+            ({"Authorization": "Beare http-token"}, 403),  # fail schema
             ({"Authorization": "Bearer http-token"}, 200),
         ]:
             test_helper = self.test_helper(
@@ -365,8 +381,10 @@ class BaseTest(object):
 
     def get_user_name_by_http_digest(self, route: Callable) -> None:
         for header_dict, status_code in [
-            ({}, 403),
-            ({"Authorization": "http-token"}, 403),
+            ({}, 403),  # not data
+            ({"Authorization": "http-token"}, 403),  # not schema
+            ({"Authorization": "Digest token"}, 403),  # fail token
+            ({"Authorization": "Diges http-token"}, 403),  # fail schema
             ({"Authorization": "Digest http-token"}, 200),
         ]:
             test_helper = self.test_helper(
@@ -378,8 +396,10 @@ class BaseTest(object):
         from base64 import b64encode
 
         for header_dict, status_code in [
-            ({}, 401),
-            ({"Authorization": b64encode(b"http-token").decode()}, 401),
+            ({}, 401),  # not data
+            ({"Authorization": b64encode(b"http-token").decode()}, 401),  # not scheme
+            ({"Authorization": "Basic so1n:so1n"}, 401),  # can not decode
+            ({"Authorization": f"Basic {b64encode(b'so1n:').decode()}"}, 401),  # not pw
             ({"Authorization": f"Basic {b64encode(b'so1n:so1n').decode()}"}, 200),
         ]:
             test_helper = self.test_helper(
@@ -427,15 +447,21 @@ class BaseTest(object):
         del_key(key)
         result1: str = self.test_helper(self.client, cache_response).text()
         result2: str = self.test_helper(self.client, cache_response).text()
-        result3: str = self.test_helper(self.client, cache_response1).text()
-        result4: str = self.test_helper(self.client, cache_response1).text()
+        result3: str = self.test_helper(self.client, cache_response1, query_dict={"key1": 1, "key2": 2}).text()
+        result4: str = self.test_helper(self.client, cache_response1, query_dict={"key1": 1, "key2": 3}).text()
         assert result1 == result2
         assert result3 == result4
         assert result1 != result3
         assert result2 != result4
         del_key(key)
         assert result1 != self.test_helper(self.client, cache_response).text()
-        assert result3 != self.test_helper(self.client, cache_response1).text()
+        assert result3 != self.test_helper(self.client, cache_response1, query_dict={"key1": 1, "key2": 2}).text()
+
+        # test query key1 diff
+        assert (
+            self.test_helper(self.client, cache_response1, query_dict={"key1": 1, "key2": 2}).text()
+            != self.test_helper(self.client, cache_response1, query_dict={"key1": 2, "key2": 2}).text()
+        )
 
         # test not include exc
         del_key(key)

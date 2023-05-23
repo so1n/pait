@@ -16,4 +16,4 @@ class BaseSecurity:
 
     @classmethod
     def get_exception(cls, *, status_code: int, message: str, headers: Optional[Dict] = None) -> Exception:
-        return NotImplementedError()
+        return NotImplementedError()  # pragma: no cover

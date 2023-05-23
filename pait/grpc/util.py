@@ -18,7 +18,7 @@ def rebuild_message_type(
         return raw_type
     if exclude_column_name:
         if not issubclass(raw_type, BaseModel):
-            pass
+            raise TypeError("The value must be Base Model")
         raw_pydantic_model: Type[BaseModel] = raw_type
         annotation_dict: Dict[str, Tuple[Type, Any]] = {}
         pydantic_validators: Dict[str, classmethod] = {}
@@ -40,14 +40,18 @@ def rebuild_message_type(
         for index, column in enumerate(nested):
             if column == "$[]":
                 if not isinstance(raw_type, _GenericAlias) and not getattr(raw_type, "_name", "") == "List":
-                    raise ValueError(f"Parse `{column}({nested})` is error: {raw_type} is not a List. ")
+                    raise ValueError(  # pragma: no cover
+                        f"Parse `{column}({nested})` is error: {raw_type} is not a List. "
+                    )
                 raw_type = List[  # type: ignore[misc,index]
                     rebuild_message_type(raw_type.__args__[0], route_func_name, nested=nested[1 + index :])
                 ]
                 break
             elif column == "${}":
                 if not isinstance(raw_type, _GenericAlias) and not getattr(raw_type, "_name", "") == "Dict":
-                    raise ValueError(f"Parse `{column}({nested})` is error: {raw_type} is not a Dict. ")
+                    raise ValueError(  # pragma: no cover
+                        f"Parse `{column}({nested})` is error: {raw_type} is not a Dict. "
+                    )
                 raw_type = Dict[  # type: ignore[misc,index]
                     raw_type.__args__[0],  # type: ignore[name-defined]
                     rebuild_message_type(raw_type.__args__[1], route_func_name, nested=nested[1 + index :]),
@@ -55,7 +59,9 @@ def rebuild_message_type(
                 break
             elif column.startswith("$."):
                 if not issubclass(raw_type, BaseModel):
-                    raise ValueError(f"Parse `{column}({nested})` is error: {raw_type} is not a pydantic.BaseModel. ")
+                    raise ValueError(  # pragma: no cover
+                        f"Parse `{column}({nested})` is error: {raw_type} is not a pydantic.BaseModel. "
+                    )
                 key = column[2:]
                 raw_type.__fields__[key].outer_type_ = rebuild_message_type(
                     raw_type.__fields__[key].outer_type_, route_func_name, nested=nested[1 + index :]
@@ -63,7 +69,9 @@ def rebuild_message_type(
                 break
             else:
                 if not issubclass(raw_type, BaseModel):
-                    raise ValueError(f"Parse `{column}({nested})` is error: {raw_type} is not a pydantic.BaseModel. ")
+                    raise ValueError(  # pragma: no cover
+                        f"Parse `{column}({nested})` is error: {raw_type} is not a pydantic.BaseModel. "
+                    )
                 raw_type = raw_type.__fields__[column].outer_type_
             if not (inspect.isclass(raw_type) and issubclass(raw_type, BaseModel)):
                 continue
@@ -83,17 +91,23 @@ def rebuild_dict(
         for index, column in enumerate(nested):
             if column == "$[]":
                 if not isinstance(raw_dict, list):
-                    raise ValueError(f"Parse `{column}({nested})` is error: {raw_dict} is not a list. ")
+                    raise ValueError(  # pragma: no cover
+                        f"Parse `{column}({nested})` is error: {raw_dict} is not a list. "
+                    )
                 raw_dict = [rebuild_dict(item, nested=nested[index + 1 :]) for item in raw_dict]
                 break
             elif column == "${}":
                 if not isinstance(raw_dict, dict):
-                    raise ValueError(f"Parse `{column}({nested})` is error: {raw_dict} is not a dict. ")
+                    raise ValueError(  # pragma: no cover
+                        f"Parse `{column}({nested})` is error: {raw_dict} is not a dict. "
+                    )
                 raw_dict = {k: rebuild_dict(v, nested=nested[index + 1 :]) for k, v in raw_dict.items()}
                 break
             elif column.startswith("$."):
                 if not isinstance(raw_dict, dict):
-                    raise ValueError(f"Parse `{column}({nested})` is error: {raw_dict} is not a dict. ")
+                    raise ValueError(  # pragma: no cover
+                        f"Parse `{column}({nested})` is error: {raw_dict} is not a dict. "
+                    )
                 key = column[2:]
                 raw_dict[key] = rebuild_dict(raw_dict[key], nested=nested[index + 1 :])
                 break

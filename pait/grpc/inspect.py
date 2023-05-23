@@ -25,6 +25,9 @@ class BuildMessageModel(BaseModel):
     exclude_column_name: list = Field(default_factory=list)
     nested: list = Field(default_factory=list)
 
+    def has_value(self) -> bool:
+        return bool(self.exclude_column_name) or bool(self.nested)
+
     @validator("exclude_column_name", pre=True)
     def exclude_column_name_validator(cls, v: Union[str, list]) -> list:
         if isinstance(v, str):

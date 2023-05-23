@@ -273,6 +273,9 @@ class TestSanic:
                 main_example.post_route, main_example.CacheResponsePlugin, main_example.Redis(decode_responses=True)
             )
 
+    def test_openapi_content(self, base_test: BaseTest) -> None:
+        BaseTestOpenAPI(base_test.client.app).test_all()
+
 
 class TestSanicGrpc:
     def test_create_user(self) -> None:
@@ -437,6 +440,3 @@ class TestSanicGrpc:
 
         with base_test_ctx() as base_test:
             base_test.grpc_openapi_by_option(base_test.client.app, GrpcGatewayRoute)
-
-    def test_openapi_content(self, base_test: BaseTest) -> None:
-        BaseTestOpenAPI(base_test.client.app).test_all()

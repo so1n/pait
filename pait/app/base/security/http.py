@@ -39,7 +39,7 @@ class BaseHTTPBasic(BaseSecurity):
             and if you want to throw a 403 exception, you need to handle it through inheritance or other methods
         """
         if security_model.scheme != "basic":
-            raise ValueError(f"{self.__class__.__name__} only support basic scheme")
+            raise ValueError(f"{self.__class__.__name__} only support basic scheme")  # pragma: no cover
         self.model = security_model
         self.is_raise: bool = is_raise
         self.security_name = security_name or self.__class__.__name__

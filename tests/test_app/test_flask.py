@@ -277,6 +277,9 @@ class TestFlask:
             main_example.post_route, main_example.CacheResponsePlugin, main_example.Redis(decode_responses=True)
         )
 
+    def test_openapi_content(self, base_test: BaseTest) -> None:
+        BaseTestOpenAPI(base_test.client.application).test_all()
+
 
 class TestFlaskGrpc:
     def test_create_user(self) -> None:
@@ -445,6 +448,3 @@ class TestFlaskGrpc:
 
         with base_test_ctx() as base_test:
             base_test.grpc_openapi_by_option(base_test.client.application, GrpcGatewayRoute)
-
-    def test_openapi_content(self, base_test: BaseTest) -> None:
-        BaseTestOpenAPI(base_test.client.application).test_all()

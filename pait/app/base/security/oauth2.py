@@ -137,7 +137,7 @@ class BaseOAuth2PasswordBearer(BaseSecurity):
         return self._model
 
     def get_depend(self, use_scopes: Optional[List[str]] = None) -> "BaseOAuth2PasswordBearerProxy":
-        self._model  # It is only used to check whether a route is bound
+        self.model  # It is only used to check whether a route is bound
         return self._proxy(
             security=self,
             use_scopes=use_scopes,

@@ -24,7 +24,8 @@ class MockPlugin(MockPluginProtocol[Response]):
             return send_from_directory("/" + f_path, f_filename, mimetype=self.pait_response_model.media_type)
         finally:
             exc_type, exc_val, exc_tb = sys.exc_info()
-            temporary_file.__exit__(exc_type, exc_val, exc_tb)
+            if exc_type is None:
+                temporary_file.__exit__(None, None, None)
 
     def set_info_to_response(self, resp: Response) -> None:
         set_info_to_response(resp, self.pait_response_model)

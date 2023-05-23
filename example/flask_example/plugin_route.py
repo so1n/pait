@@ -23,7 +23,7 @@ from pait.app.flask.plugin import (
     RequiredPlugin,
 )
 from pait.app.flask.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
-from pait.app.flask.plugin.cache_response import CacheResponsePlugin
+from pait.app.flask.plugin.cache_response import CacheRespExtraParam, CacheResponsePlugin
 from pait.app.flask.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.flask.plugin.mock_response import MockPlugin
 from pait.field import MultiQuery, Path, Query
@@ -111,9 +111,9 @@ def cache_response(raise_exc: Optional[int] = Query.i(default=None)) -> Response
 
 @plugin_pait(
     response_model_list=[HtmlResponseModel],
-    post_plugin_list=[CacheResponsePlugin.build(cache_time=10)],
+    post_plugin_list=[CacheResponsePlugin.build(cache_time=10, enable_cache_name_merge_param=True)],
 )
-def cache_response1() -> Response:
+def cache_response1(key1: str = Query.i(extra_param_list=[CacheRespExtraParam()]), key2: str = Query.i()) -> Response:
     return make_response(str(time.time()), 200)
 
 

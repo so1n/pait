@@ -2,9 +2,10 @@ from typing import Any, Dict, Tuple
 
 from tornado.web import RequestHandler
 
+from pait.plugin.cache_response import CacheRespExtraParam
 from pait.plugin.cache_response import CacheResponsePlugin as _CacheResponsePlugin
 
-__all__ = ["CacheResponsePlugin"]
+__all__ = ["CacheResponsePlugin", "CacheRespExtraParam"]
 
 
 class CacheResponsePlugin(_CacheResponsePlugin):

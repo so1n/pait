@@ -1,14 +1,68 @@
 import json
 from datetime import datetime
 from decimal import Decimal
-from typing import Type, Union
+from typing import Any, Dict, Type, Union
 
 import pytest
 from pydantic import BaseModel, Field
 
 from example.common.request_model import SexEnum
-from pait.model import Config, response, tag
+from pait.app.base import BaseAppHelper
+from pait.model import Config, ContextModel, PaitCoreModel, response, tag
 from pait.openapi.openapi import LinksModel
+from pait.param_handle import BaseParamHandler
+
+
+class TestContextModel:
+    def test_state(self) -> None:
+        ctx = ContextModel(None, None, None, [], {})  # type: ignore[arg-type]
+
+        assert getattr(ctx, "state", None) is None
+        with pytest.raises(AttributeError):
+            assert ctx.get_form_state("aaa", 123) == 123
+
+        ctx._init_state()
+        assert ctx.get_form_state("aaa", 123) == 123
+
+        with pytest.raises(KeyError):
+            ctx.get_form_state("aaa")
+
+        ctx.set_to_state("aaa", 123)
+        assert ctx.get_form_state("aaa") == 123
+
+
+def demo() -> None:
+    pass
+
+
+class TestPaitCoreModel:
+    def test_pait_id_gen(self) -> None:
+        assert PaitCoreModel(demo, BaseAppHelper, BaseParamHandler).pait_id == "tests.test_pait.test_model_demo"
+        assert (
+            PaitCoreModel(demo, BaseAppHelper, BaseParamHandler, feature_code="luluwa").pait_id
+            == "luluwa_tests.test_pait.test_model_demo"
+        )
+
+    def test_change_notify(self) -> None:
+        change_dict: Dict[str, Any] = {}
+
+        def listen_core_model_change(_core_model: PaitCoreModel, key: str, value: Any) -> None:
+            change_dict[key] = value
+
+        core_model = PaitCoreModel(demo, BaseAppHelper, BaseParamHandler)
+        core_model.add_change_notify(listen_core_model_change)
+        # test listen value change
+        core_model.desc = "new desc"
+        assert change_dict == {"desc": "new desc"}
+
+        # The test does not listen for fields that begin with _
+        core_model._mock_column = "mock"
+        assert change_dict == {"desc": "new desc"}
+
+        # test remove change
+        core_model.remove_change_notify(listen_core_model_change)
+        core_model.desc = "otehr desc"
+        assert change_dict == {"desc": "new desc"}
 
 
 class TestConfigModel:
