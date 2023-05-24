@@ -32,13 +32,10 @@ class BaseAPIKey(BaseSecurity, metaclass=ABCMeta):
         )
         self.security_name = security_name or self.__class__.__name__
 
-        def __call__(authorization: str = field) -> str:
+        def pait_handler(authorization: str = field) -> str:
             return self.authorization_handler(authorization)
 
-        self._override_call_sig(__call__)
-
-    def __call__(self, authorization: str = Header.i()) -> Optional[str]:
-        return self.authorization_handler(authorization)
+        self.set_pait_handler(pait_handler)
 
     def authorization_handler(self, authorization: str) -> str:
         if self.verify_api_key_callable and not self.verify_api_key_callable(authorization):

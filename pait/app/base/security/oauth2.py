@@ -59,10 +59,10 @@ class BaseOAuth2PasswordBearerProxy(BaseSecurity):
         self.use_scopes = use_scopes
         self.security_name = security.security_name
 
-        def __call__(authorization: str = security.header_field) -> str:
+        def pait_handler(authorization: str = security.header_field) -> str:
             return self.authorization_handler(authorization)
 
-        self._override_call_sig(__call__)
+        self.set_pait_handler(pait_handler)
 
     @property
     def model(self) -> SecurityModelType:
@@ -74,9 +74,6 @@ class BaseOAuth2PasswordBearerProxy(BaseSecurity):
 
     def is_allow(self, scopes: List[str]) -> bool:
         return len(set(scopes) & set(self.model.get_security_scope())) > 0
-
-    def __call__(self, authorization: str = Header.i()) -> str:
-        return self.authorization_handler(authorization)
 
     def authorization_handler(self, authorization: str) -> str:
         scheme, param = get_authorization_scheme_param(authorization)

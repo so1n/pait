@@ -52,13 +52,10 @@ class BaseHTTPBasic(BaseSecurity):
         )
         set_and_check_field(self.header_field, "Authorization", self.not_authorization_exc if is_raise else None)
 
-        def __call__(authorization: str = self.header_field) -> Optional[HTTPBasicCredentials]:
+        def pait_handler(authorization: str = self.header_field) -> Optional[HTTPBasicCredentials]:
             return self.authorization_handler(authorization)
 
-        self._override_call_sig(__call__)
-
-    def __call__(self, authorization: str = Header.i()) -> Optional[HTTPBasicCredentials]:
-        return self.authorization_handler(authorization)
+        self.set_pait_handler(pait_handler)
 
     def authorization_handler(self, authorization: str) -> Optional[HTTPBasicCredentials]:
         scheme, param = get_authorization_scheme_param(authorization)
@@ -104,13 +101,10 @@ class BaseHTTP(BaseSecurity):
         self.not_authenticated_exc: Exception = self.get_exception(status_code=403, message="Not authenticated")
         set_and_check_field(self.header_field, "Authorization", self.not_authenticated_exc if is_raise else None)
 
-        def __call__(authorization: str = self.header_field) -> Optional[str]:
+        def pait_handler(authorization: str = self.header_field) -> Optional[str]:
             return self.authorization_handler(authorization)
 
-        self._override_call_sig(__call__)
-
-    def __call__(self, authorization: str = Header.i()) -> Optional[str]:
-        return self.authorization_handler(authorization)
+        self.set_pait_handler(pait_handler)
 
     def authorization_handler(self, authorization: str) -> Optional[str]:
         scheme, credentials = get_authorization_scheme_param(authorization)

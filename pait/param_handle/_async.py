@@ -87,7 +87,7 @@ class AsyncParamHandler(BaseParamHandler):
 
         func_sig: FuncSig = get_func_sig(func)
         _func_args, _func_kwargs = await self.param_handle(context, func_sig, func_sig.param_list)
-        func_result: Any = func(*_func_args, **_func_kwargs)
+        func_result: Any = func_sig.func(*_func_args, **_func_kwargs)
         if asyncio.iscoroutine(func_result):
             func_result = await func_result
         if isinstance(func_result, AbstractAsyncContextManager):

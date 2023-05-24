@@ -7,12 +7,10 @@ class BaseSecurity:
     model: SecurityModelType
     security_name: str
 
-    def _override_call_sig(self, func: Callable) -> None:
-        # Compatible with the following syntax
-        # BaseSecurity()()
-        # BaseSecurity().__call__()
-        setattr(self, "_override_call_sig", True)
-        setattr(self, "__call__", func)
+    def set_pait_handler(self, func: Callable) -> None:
+        if hasattr(func, "pait_handler"):
+            raise ValueError("'func' already has pait_handler")  # pragma: no cover
+        setattr(self, "pait_handler", func)
 
     @classmethod
     def get_exception(cls, *, status_code: int, message: str, headers: Optional[Dict] = None) -> Exception:

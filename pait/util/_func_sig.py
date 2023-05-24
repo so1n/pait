@@ -28,11 +28,10 @@ def get_func_sig(func: Callable) -> FuncSig:
     if func in _func_sig_dict:
         return _func_sig_dict[func]
 
-    # __call__ method that supports func override
-    if getattr(func, "_override_call_sig", False):
-        func = getattr(func, "__call__", func)
+    # support pait handler
+    pait_handler = getattr(func, "pait_handler", func)
 
-    sig: inspect.Signature = inspect.signature(func)
+    sig: inspect.Signature = inspect.signature(pait_handler)
     param_list: List[inspect.Parameter] = []
     for key in sig.parameters:
         # NOTE:
@@ -44,11 +43,14 @@ def get_func_sig(func: Callable) -> FuncSig:
                 # it will be ignored directly
                 continue
         parameter: inspect.Parameter = sig.parameters[key]
-        setattr(parameter, "_annotation", get_real_annotation(parameter.annotation, func))
+        setattr(parameter, "_annotation", get_real_annotation(parameter.annotation, pait_handler))
         param_list.append(parameter)
 
     func_sig: FuncSig = FuncSig(
-        func=func, sig=sig, param_list=param_list, return_param=get_real_annotation(sig.return_annotation, func)
+        func=pait_handler,
+        sig=sig,
+        param_list=param_list,
+        return_param=get_real_annotation(sig.return_annotation, pait_handler),
     )
     _func_sig_dict[func] = func_sig
     return func_sig
