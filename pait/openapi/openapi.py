@@ -17,7 +17,6 @@ from pait.app import load_app
 from pait.field import BaseField, Depends
 from pait.g import config
 from pait.model.core import PaitCoreModel
-from pait.model.status import PaitStatus
 from pait.types import CallType
 from pait.util import FuncSig, create_pydantic_model, get_func_sig, get_parameter_list_from_class
 
@@ -231,13 +230,7 @@ class OpenAPI(object):
                         request_dict=parse_pait_model.http_param_type_dict,
                         response_list=pait_model.response_model_list,
                         description=pait_model.desc,
-                        deprecated=pait_model.status
-                        in (
-                            PaitStatus.abnormal,
-                            PaitStatus.maintenance,
-                            PaitStatus.archive,
-                            PaitStatus.abandoned,
-                        ),
+                        deprecated=pait_model.status.is_deprecated(),
                         pait_core_model=pait_model,
                         security=parse_pait_model.security_dict,
                     )

@@ -25,3 +25,11 @@ class PaitStatus(Enum):
     maintenance = "maintenance"
     archive = "archive"
     abandoned = "abandoned"
+
+    def is_deprecated(self) -> bool:
+        return self in (
+            PaitStatus.abnormal,
+            PaitStatus.maintenance,
+            PaitStatus.archive,
+            PaitStatus.abandoned,
+        )
