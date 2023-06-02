@@ -130,6 +130,22 @@ class BaseTest(object):
                 path_dict={"age": 2},
                 strict_inspection_check_json_content=False,
             ).json()
+        with NamedTemporaryFile(delete=True) as f1:
+            f1.write(file_content.encode())
+            f1.seek(0)
+            assert (
+                "miss param: ['path', 'age']"
+                == self.test_helper(
+                    self.client,
+                    route,
+                    file_dict={"upload_file": f1},
+                    cookie_dict={"abcd": "abcd"},
+                    form_dict={"a": "1", "b": "2", "c": ["3", "4"]},
+                    query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
+                    path_dict={"age": 101},
+                    strict_inspection_check_json_content=False,
+                ).json()["msg"]
+            )
 
     def param_at_most_one_of_route(self, route: Callable) -> None:
         test_helper: BaseTestHelper = self.test_helper(

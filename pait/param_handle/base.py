@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Mapping, Optional, 
 from pydantic import BaseConfig, BaseModel
 from pydantic.error_wrappers import ValidationError
 from pydantic.fields import ModelField, Undefined, UndefinedType
+from pydantic.schema import get_annotation_from_field_info
 from typing_extensions import Self  # type: ignore
 
 from pait import field
@@ -257,7 +258,7 @@ class BaseParamHandler(PluginProtocol):
             # parse annotation is python type and pydantic.field
             request_value, e = ModelField(
                 name=parameter.name,
-                type_=parameter.annotation,
+                type_=get_annotation_from_field_info(annotation, pait_field, parameter.name),
                 model_config=BaseConfig,
                 field_info=pait_field,
                 class_validators={},
@@ -267,7 +268,7 @@ class BaseParamHandler(PluginProtocol):
                 # required: 'BoolUndefined' = Undefined,
                 # final: bool = False,
                 # alias: Optional[str] = None,
-            ).validate(request_value, kwargs_param_dict, loc=pait_field.get_field_name())
+            ).validate(request_value, kwargs_param_dict, loc=(pait_field.get_field_name(), parameter.name))
             if e:
-                raise ValidationError(e, BaseModel)
+                raise ValidationError([e], BaseModel)
             kwargs_param_dict[parameter.name] = request_value

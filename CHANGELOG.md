@@ -4,20 +4,34 @@ Rewrite some old methods to increase the extensibility of the corresponding modu
 - 1 Add a user-friendly doc ui
 - 2 Plugin Panel
 
-### 1.0.0[Dev]
+### 1.0.0[Alpha]
 Improve Open API related functions and refactor some APIs that affect performance
-> Note: This version will have syntax changes that are not backward compatible, and the library status will change from alpha to beta
+> Note: This version will have syntax changes that are not backward compatible, and the library api status will change from alpha to beta
 
 Function Changes List:
-- Depend enhances support for class instances
-- Add OpenAPI APIKey Feature
-- Field adds the parameter `not_authenticated_exc`, which allows developers to specify that the error value cannot be found
-- Field adds the parameter `openapi_include`, determines whether the field can be resolved to the Open API.
-- The Mock plugin adds a new parameter example_column_name to specify the value of the Field from which the mock data is to be retrieved
-- Refactor the Mock plugin's API to reduce duplicate code
-- Support for adding simple routing to web frameworks (experimental)
-- Plugin Record:
-  - No longer distinguish between front or back plugins by is_core, but by different classes to facilitate Type Hint checking
+- [Field] Depend enhances support for class instances
+- [Field] Depend support parse depend.pait_handler method
+- [Field] Adds the parameter `not_authenticated_exc`, which allows developers to specify that the error value cannot be found
+- [Field] Adds the parameter `openapi_include`, determines whether the field can be resolved to the Open API.
+- [gRPC Gateway] Supports generating routing codes from protobuf files
+- [OpenAPI] Support OpenAPI Security
+- [Pait] Modify the generation of Pait id to ensure that the Pait id is always the same
+- [Pait] Imported ParamHandler migration from PaitCoreModel to Pait
+- [Pait] Improving the speed of dependencyinjection
+- [Pait] Pait core model support extra param
+- [Pait] Pait core model support listen change callback
+- [Plugin] Optimize the internal implementation of the plug-in mechanism to speed up the execution of the plug-in
+- [Plugin] Refactor the Mock plugin's API to reduce duplicate code
+- [Plugin] The Mock plugin adds a new parameter example_column_name to specify the value of the Field from which the mock data is to be retrieved
+- [Plugin] No longer distinguish between front or back plugins by is_core, but by different classes to facilitate Type Hint checking
+- [Route] Support for adding simple routing to web frameworks (experimental)
+
+Fix:
+- [Util] Fix `get_parameter_list_from_pydantic_basemodel` not auto set request key and cache bug
+- [Util] Fix `gen_example_dict_from_pydantic_base_model` acn not parse sub pydantic model
+- [Util] Fix 'value._evaluate' in python3.9
+- [Pait] Fix sub pait cannot over parent pait value
+
 
 
 API Changes:
@@ -47,12 +61,7 @@ API Changes:
          header: BaseModel = HeaderModel
          description: str = "html response"
      ```
-- `pait.api_doc`: All APIs of the module have undergone drastic changes, please refer to the document changes
-- `DocRoute`:
-  - The `AddDocRoute` and `add_doc_route` function signatures of the `pait.xxx.doc_route` module have been changed, the `openapi` parameter has been added, and the `open_api_tag_list` parameter has been removed
-  - The `app` parameter of `AddDocRoute` is required.
-  - The `pin_code` parameter of url is no longer supported, only the normalized `pin-code` parameter is supported。
-- Use `pait.model.tag`,`pait.model.response` and `pait.openapi` module need to install `any-api`
+- All DocRoute and gRPC Gateway APIs of the module have undergone drastic changes, please refer to the document changes
 ### 0.8.0[Now]
 Rewrite part of the implementation of gRPC Gateway, and transfer some functions to [protobuf_to_pydantic](https://github.com/so1n/protobuf_to_pydantic)
 

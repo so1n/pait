@@ -45,7 +45,7 @@ class ParamHandler(BaseParamHandler):
                         request_value: Mapping = getattr(
                             context.app_helper.request, parameter.default.get_field_name(), lambda: {}
                         )()
-                        self.request_value_handle(parameter, request_value, kwargs_param_dict, pydantic_model)
+                        self.request_value_handle(parameter, request_value or {}, kwargs_param_dict, pydantic_model)
                 else:
                     # args param
                     # support model: model: ModelType

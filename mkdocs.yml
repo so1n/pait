@@ -1,5 +1,5 @@
 site_name: Pait
-site_description: Pait is a Python api tool. Pait enables your Python web framework to have type checking, parameter type conversion, interface document generation and can display your documents through Redoc or Swagger (power by inspect, pydantic)
+site_description: Pait(π tool) - Python Modern API Tools, easier to use web frameworks/write API routing
 
 theme:
     name: material
@@ -7,8 +7,26 @@ theme:
     logo: assets/logo.png
     favicon: assets/images/favicon.png
     features:
-        - navigation.top
         - content.code.annotate
+        - navigation.top
+        - navigation.path
+        - search.highlight
+        - search.share
+        - search.suggest
+    palette:
+      # Palette toggle for light mode
+      - media: "(prefers-color-scheme: light)"
+        scheme: default
+        toggle:
+          icon: material/brightness-7
+          name: Switch to dark mode
+
+      # Palette toggle for dark mode
+      - media: "(prefers-color-scheme: dark)"
+        scheme: slate
+        toggle:
+          icon: material/brightness-4
+          name: Switch to light mode
 
 repo_name: so1n/pait
 repo_url: https://github.com/so1n/pait

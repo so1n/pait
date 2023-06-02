@@ -50,7 +50,7 @@ class AsyncParamHandler(BaseParamHandler):
                         if asyncio.iscoroutine(request_value) or asyncio.isfuture(request_value):
                             request_value = await request_value
                         self.request_value_handle(
-                            parameter, request_value, kwargs_param_dict, pydantic_model  # type: ignore[arg-type]
+                            parameter, request_value or {}, kwargs_param_dict, pydantic_model  # type: ignore[arg-type]
                         )
                 else:
                     # args param
