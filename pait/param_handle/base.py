@@ -81,6 +81,8 @@ class BaseParamHandler(PluginProtocol):
 
     @staticmethod
     def check_field_type(value: Any, target_type: Any, error_msg: str) -> None:
+        if value is ...:
+            return
         if isinstance(value, UndefinedType):
             return
         if inspect.isclass(target_type) and isinstance(value, target_type):
