@@ -8,6 +8,8 @@ from ._util import get_real_annotation
 
 __all__ = ["FuncSig", "get_func_sig", "is_bounded_func"]
 
+from ..types import CallType
+
 
 @dataclass()
 class FuncSig:
@@ -20,16 +22,21 @@ class FuncSig:
     cbv_class: Optional[Type] = None
 
 
-_func_sig_dict: Dict[Callable, FuncSig] = {}
+_func_sig_dict: Dict[CallType, FuncSig] = {}
 
 
-def get_func_sig(func: Callable) -> FuncSig:
+def get_func_sig(func: CallType) -> FuncSig:
     """get func inspect.Signature model"""
     if func in _func_sig_dict:
         return _func_sig_dict[func]
 
     # support pait handler
-    pait_handler = getattr(func, "pait_handler", func)
+    if hasattr(func, "pait_handler"):
+        pait_handler = getattr(func, "pait_handler")
+    elif inspect.isclass(func) and hasattr(func, "__call__"):
+        pait_handler = getattr(func, "__call__")
+    else:
+        pait_handler = func
 
     sig: inspect.Signature = inspect.signature(pait_handler)
     param_list: List[inspect.Parameter] = []

@@ -1,6 +1,6 @@
 import inspect
 import logging
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Mapping, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Type, Union
 
 from pydantic import BaseConfig, BaseModel
 from pydantic.error_wrappers import ValidationError
@@ -19,6 +19,7 @@ from pait.exceptions import (
 )
 from pait.field import BaseField
 from pait.plugin.base import PluginProtocol
+from pait.types import CallType
 from pait.util import (
     FuncSig,
     create_pydantic_model,
@@ -73,7 +74,7 @@ class BaseParamHandler(PluginProtocol):
     #     self.pydantic_model_config: Type[BaseConfig] = pait_core_model.pydantic_model_config
 
     @classmethod
-    def check_depend_handle(cls, pait_core_model: "PaitCoreModel", func: Callable) -> Any:
+    def check_depend_handle(cls, pait_core_model: "PaitCoreModel", func: CallType) -> Any:
         if inspect.ismethod(func) and not is_bounded_func(func):
             raise ValueError(f"Method: {func.__qualname__} is not a bounded function")  # pragma: no cover
         func_sig: FuncSig = get_func_sig(func)  # get and cache func sig
