@@ -23,7 +23,7 @@ depend_pait: Pait = global_pait.create_sub_pait(
 async def depend_route(
     request: Request,
     depend_tuple: Tuple[str, int] = Depends.i(depend.demo_depend),
-    user_model: UserModel = Depends.i(depend.AsyncGetUserDepend()),
+    user_model: UserModel = Depends.i(depend.AsyncGetUserDepend),
 ) -> JSONResponse:
     """Testing depend and using request parameters"""
     assert request is not None, "Not found request"

@@ -32,6 +32,11 @@ class _CallType(Protocol):
         ...
 
 
-CallType = Union[Callable, _CallType]
+class _PaitCallType(Protocol):
+    def pait_handler(self, *args: Any, **kwargs: Any) -> Any:
+        ...
+
+
+CallType = Union[Callable, _CallType, _PaitCallType]
 
 __all__ = ["ParamSpec", "Literal", "is_typeddict", "CallType"]

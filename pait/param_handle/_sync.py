@@ -71,8 +71,8 @@ class ParamHandler(BaseParamHandler):
         func_args.append(_pait_model(**kwargs))
 
     def _depend_handle(self, context: "ParamHandleContext", func: Any) -> Any:
-        class_: Optional[type] = getattr(func, "__class__", None)
-        if class_ and not inspect.isfunction(func):
+        if inspect.isclass(func):
+            func = func()
             _, kwargs = self.param_handle(context, func.__class__, get_parameter_list_from_class(func.__class__))
             func.__dict__.update(kwargs)
 
