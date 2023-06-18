@@ -214,11 +214,9 @@ class AddDocRoute(object):
             re = pait_context.get().app_helper.request.request_extend()
             _scheme: str = self.scheme or re.scheme
             with TemplateContext(url_dict):
-                pait_openapi: OpenAPI = OpenAPI(
-                    app,
-                    openapi_info_model=InfoModel(title=self.title),
-                    server_model_list=[ServerModel(url=f"{_scheme}://{re.hostname}")],
-                )
+                pait_openapi: OpenAPI = self.openapi(app)
+                pait_openapi.model.info.title = self.title
+                pait_openapi.model.servers.insert(0, ServerModel(url=f"{_scheme}://{re.hostname}"))
                 return json.loads(pait_openapi.content())
 
         return _openapi_route
