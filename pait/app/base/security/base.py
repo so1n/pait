@@ -1,4 +1,4 @@
-from typing import Callable, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 
 from any_api.openapi import SecurityModelType
 
@@ -6,6 +6,9 @@ from any_api.openapi import SecurityModelType
 class BaseSecurity:
     model: SecurityModelType
     security_name: str
+
+    def pait_handler(self, *args: Any, **kwargs: Any) -> Any:
+        pass
 
     def set_pait_handler(self, func: Callable) -> None:
         if hasattr(func, "pait_handler"):

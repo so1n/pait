@@ -112,7 +112,7 @@ http_pait = security_pait.create_sub_pait(
 )
 
 
-def get_user_name(credentials: Optional[http.HTTPBasicCredentials] = Depends.t(http_basic)) -> str:
+def get_user_name(credentials: Optional[http.HTTPBasicCredentials] = Depends.i(http_basic)) -> str:
     if not credentials or credentials.username != credentials.password:
         raise http_basic.not_authorization_exc
     return credentials.username
@@ -124,12 +124,12 @@ def get_user_name_by_http_basic_credentials(user_name: str = Depends.t(get_user_
 
 
 @http_pait(response_model_list=[SuccessRespModel, Http403RespModel])
-def get_user_name_by_http_bearer(credentials: Optional[str] = Depends.t(http_bear)) -> dict:
+def get_user_name_by_http_bearer(credentials: Optional[str] = Depends.i(http_bear)) -> dict:
     return {"code": 0, "msg": "", "data": credentials}
 
 
 @http_pait(response_model_list=[SuccessRespModel, Http403RespModel])
-def get_user_name_by_http_digest(credentials: Optional[str] = Depends.t(http_digest)) -> dict:
+def get_user_name_by_http_digest(credentials: Optional[str] = Depends.i(http_digest)) -> dict:
     return {"code": 0, "msg": "", "data": credentials}
 
 
