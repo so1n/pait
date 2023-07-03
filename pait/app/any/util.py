@@ -21,6 +21,10 @@ def import_func_from_app(fun_name: str, app: Any = None, module_name: str = "") 
     from pait.app.auto_load_app import auto_load_app_class
 
     if app:
+        # support werkzeug LocalProxy
+        _get_current_object = getattr(app, "_get_current_object", None)
+        if _get_current_object:
+            app = _get_current_object()
         app_name: str = sniffing(app)
     else:
         app_name = auto_load_app_class().__name__.lower()
