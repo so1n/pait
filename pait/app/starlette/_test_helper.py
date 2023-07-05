@@ -66,4 +66,4 @@ class TestHelper(BaseTestHelper["ResponseType"]):
 
 
 class StarletteTestHelper(TestHelper):
-    """Will remove on version 1.0"""
+    pass

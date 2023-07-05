@@ -120,4 +120,4 @@ class TestHelper(BaseTestHelper[HTTPResponse]):
 
 
 class TornadoTestHelper(TestHelper):
-    """Will remove on version 1.0"""
+    pass

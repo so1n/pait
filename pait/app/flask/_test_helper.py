@@ -64,4 +64,4 @@ class TestHelper(BaseTestHelper[Response]):
 
 
 class FlaskTestHelper(TestHelper):
-    """Will remove on version 1.0"""
+    pass

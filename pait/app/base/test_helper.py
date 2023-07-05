@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from pait.model import PaitCoreModel
 
 RESP_T = TypeVar("RESP_T")
+_error_separator = "\n" + ">" * 20 + "\n"
 
 
 class CheckResponseException(Exception):
@@ -49,7 +50,6 @@ class BaseTestHelper(Generic[RESP_T]):
         path_dict: Optional[dict] = None,
         query_dict: Optional[dict] = None,
         strict_inspection_check_json_content: bool = True,
-        find_response_model: bool = False,
         enable_assert_response: bool = True,
         target_pait_response_class: Optional[Type["response.BaseResponseModel"]] = None,
     ):
@@ -109,7 +109,6 @@ class BaseTestHelper(Generic[RESP_T]):
         if not self.path.startswith("/"):
             self.path = "/" + self.path
 
-        self.find_response_model: bool = find_response_model
         self.target_pait_response_class: Optional[Type["response.BaseResponseModel"]] = target_pait_response_class
         self._app_init_field()
 
@@ -177,17 +176,17 @@ class BaseTestHelper(Generic[RESP_T]):
         except KeyError:
             raise RuntimeError(f"Can not found key from model, key:{' -> '.join(parent_key_list or '')}")
 
-    def _assert_response(self, resp: RESP_T) -> None:
+    def _assert_response(self, resp: RESP_T) -> Optional[Exception]:
         """Whether the structure of the check response is correct"""
         if not self.pait_core_model.response_model_list:
-            return
+            return None
 
         real_response_model: Optional[Type[response.BaseResponseModel]] = None
         max_quick_ratio: float = 0.0
         model_check_msg_dict: Dict[Type[response.BaseResponseModel], List[str]] = {}
         response_model_list: List[Type[response.BaseResponseModel]] = (
             self.pait_core_model.response_model_list
-            if not self.find_response_model
+            if not self.target_pait_response_class
             else [
                 get_pait_response_model(
                     self.pait_core_model.response_model_list,
@@ -229,7 +228,7 @@ class BaseTestHelper(Generic[RESP_T]):
                 except Exception:
                     pass
 
-                if not resp_dict:
+                if not resp_dict and not isinstance(resp_dict, dict):
                     continue
                 response_data_default_dict: dict = gen_example_dict_from_schema(response_data_model.schema())
                 ratio: float = difflib.SequenceMatcher(
@@ -246,7 +245,10 @@ class BaseTestHelper(Generic[RESP_T]):
                     if self.strict_inspection_check_json_content and not self._check_diff_resp_dict(
                         resp_dict, response_data_default_dict
                     ):
-                        error_msg_list.append("check json structure error")
+                        differ = difflib.Differ()
+                        diff_iterator = differ.compare(str(response_data_default_dict), str(resp_dict))
+                        diff_content = "\n".join(diff_iterator)
+                        error_msg_list.append(f"check json structure error, \n{diff_content}")
                 except (ValidationError, RuntimeError) as e:
                     error_msg_list.append(f"check json content error, exec: {e}")
 
@@ -261,36 +263,37 @@ class BaseTestHelper(Generic[RESP_T]):
                 if not isinstance(self._get_bytes(resp), type(response_model.response_data)):
                     error_msg_list.append("check bytes content type error")  # pragma: no cover
             else:
-                raise TypeError(f"Pait not support response model:{response_model}")
+                return TypeError(f"Pait not support response model:{response_model}")
             if not error_msg_list:
-                return
+                return None
             else:
                 model_check_msg_dict[response_model] = error_msg_list
         if real_response_model in model_check_msg_dict:
             error_str: str = "\n    ".join(model_check_msg_dict[real_response_model])
-            raise CheckResponseException(
+            return CheckResponseException(
                 status_code=self._get_status_code(resp),
                 media_type=self._get_content_type(resp),
                 headers=self._get_headers(resp),
                 resp=resp,
                 func=self.func,
                 message=(
-                    " maybe error result: \n" f"    {error_str}\n\n" f" by response model:{real_response_model}\n"
+                    f"maybe error result: {_error_separator}{error_str}\n"
+                    f"{_error_separator}by response model:{real_response_model}\n"
                 ),
             )
 
         error_str = ""
         for k, v in model_check_msg_dict.items():
             error_str += str(k) + ":\n" + "    \n".join(v)
-        raise CheckResponseException(
+        return CheckResponseException(
             status_code=self._get_status_code(resp),
             media_type=self._get_content_type(resp),
             headers=self._get_headers(resp),
             resp=resp,
             func=self.func,
             message=(
-                f"response error result:{error_str} \n"
-                f"by response model list:{self.pait_core_model.response_model_list}. \n"
+                f"response error result: {_error_separator}{error_str} \n"
+                f"{_error_separator}by response model list:{self.pait_core_model.response_model_list}.\n"
             ),
         )
 
@@ -313,7 +316,9 @@ class BaseTestHelper(Generic[RESP_T]):
                 )
         resp: RESP_T = self._real_request(method)
         if self.pait_core_model.response_model_list and self.enable_assert_response:
-            self._assert_response(resp)
+            exc = self._assert_response(resp)
+            if exc:
+                raise exc
         return resp
 
     def json(self, method: Optional[str] = None) -> dict:

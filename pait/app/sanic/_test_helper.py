@@ -69,4 +69,4 @@ class TestHelper(BaseTestHelper[TestingResponse]):
 
 
 class SanicTestHelper(TestHelper):
-    """Will remove on version 1.0"""
+    pass
