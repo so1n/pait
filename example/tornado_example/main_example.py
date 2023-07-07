@@ -281,5 +281,4 @@ if __name__ == "__main__":
     app: Application = create_app()
     add_api_doc_route(app)
     app.listen(8000)
-    app.settings["before_server_start"]()
     IOLoop.instance().start()

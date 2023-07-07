@@ -11,16 +11,20 @@ framework_location_dict: Dict[str, str] = {}
 
 
 def sniffing(app: Any) -> SupportAppLiteral:
-    app_name: str = app.__class__.__name__.lower()
-    if app_name in support_app_list:
-        return app_name  # type: ignore
-    elif app_name == "application" and app.__class__.__module__ == "tornado.web":
-        return "tornado"
+    try:
+        for base_class in [app.__class__, app.__class__.__base__]:
+            app_name: str = base_class.__name__.lower()
+            if app_name in support_app_list:
+                return app_name  # type: ignore
+            elif app_name == "application" and base_class.__module__ == "tornado.web":
+                return "tornado"
+    except Exception:
+        pass
 
     if app.__class__ in sniffing_dict:
         return sniffing_dict[app.__class__](app)  # type: ignore
 
-    raise NotImplementedError(f"Pait not support app name:{app_name}, please check app:{app}")
+    raise NotImplementedError(f"Pait not support app: {app}, please check app")
 
 
 def import_func_from_app(fun_name: str, app: Any = None, module_name: str = "") -> Callable:
