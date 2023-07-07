@@ -34,7 +34,6 @@ from example.starlette_example.field_route import (
     post_route,
     same_alias_route,
 )
-from example.starlette_example.grpc_route import add_grpc_gateway_route
 from example.starlette_example.plugin_route import (
     async_auto_complete_json_route,
     async_check_json_plugin_route,
@@ -73,7 +72,6 @@ from example.starlette_example.utils import api_exception, global_pait
 from pait.app.starlette import Pait, load_app, pait
 from pait.app.starlette.plugin.cache_response import CacheResponsePlugin
 from pait.exceptions import PaitBaseException
-from pait.extra.config import MatchRule
 from pait.field import Header, Json, Query
 from pait.model import PaitStatus, TemplateVar
 from pait.openapi.doc_route import AddDocRoute, add_doc_route
@@ -292,7 +290,7 @@ if __name__ == "__main__":
     import uvicorn  # type: ignore
     from pydantic import BaseModel
 
-    from pait.extra.config import apply_block_http_method_set, apply_extra_openapi_model
+    from pait.extra.config import apply_block_http_method_set
     from pait.g import config
 
     class ExtraModel(BaseModel):
@@ -302,10 +300,8 @@ if __name__ == "__main__":
     config.init_config(
         apply_func_list=[
             apply_block_http_method_set({"HEAD", "OPTIONS"}),
-            apply_extra_openapi_model(ExtraModel, match_rule=MatchRule(key="!tag", target="grpc")),
         ]
     )
-    starltte_app: Starlette = create_app()
-    add_grpc_gateway_route(starltte_app)
-    add_api_doc_route(starltte_app)
-    uvicorn.run(starltte_app, log_level="debug")
+    starlette_app: Starlette = create_app()
+    add_api_doc_route(starlette_app)
+    uvicorn.run(starlette_app, log_level="debug")

@@ -43,5 +43,5 @@ def create_app(name: str) -> Iterator[Flask]:
     app: Flask = Flask(name)
     yield app
     app.errorhandler(Exception)(api_exception)
-    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
+    add_doc_route(prefix="/api-doc", title="Api Doc", app=app)
     app.run(port=8000, debug=True)

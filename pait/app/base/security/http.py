@@ -57,6 +57,9 @@ class BaseHTTPBasic(BaseSecurity):
 
         self.set_pait_handler(pait_handler)
 
+    def __call__(self, authorization: str = Header.i()) -> Optional[HTTPBasicCredentials]:
+        raise RuntimeError("should not call this method")  # pragma: no cover
+
     def authorization_handler(self, authorization: str) -> Optional[HTTPBasicCredentials]:
         scheme, param = get_authorization_scheme_param(authorization)
         if not authorization or (scheme.lower() != "basic"):
@@ -105,6 +108,9 @@ class BaseHTTP(BaseSecurity):
             return self.authorization_handler(authorization)
 
         self.set_pait_handler(pait_handler)
+
+    def __call__(self, authorization: str = Header.i()) -> Optional[str]:
+        raise RuntimeError("should not call this method")  # pragma: no cover
 
     def authorization_handler(self, authorization: str) -> Optional[str]:
         scheme, credentials = get_authorization_scheme_param(authorization)

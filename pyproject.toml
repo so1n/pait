@@ -8,19 +8,13 @@ readme = "./README.md"
 repository = "https://github.com/so1n/pait"
 homepage = "https://github.com/so1n/pait"
 
-[tool.poetry.scripts]
-protoc-gen-pait-route = "pait.grpc.plugin.main:main"
-
 [tool.poetry.dependencies]
 python = "^3.7"
 pydantic = "^1.7.3"
 typing-extensions = "^4.1.1"
-
 any-api = "^0.1.0.4"
-protobuf-to-pydantic = "^0.1.7.3"
 
 redis = { version = "^4.2.2", optional = true }
-jinja2 = {version = ">=2.0.0", optional = true}
 
 [tool.poetry.urls]
 "Source" = "https://github.com/so1n/pait"
@@ -31,8 +25,7 @@ jinja2 = {version = ">=2.0.0", optional = true}
 
 [tool.poetry.extras]
 redis = ["redis"]
-grpc = ["protobuf-to-pydantic", "jinja2"]
-all = ["redis", "protobuf-to-pydantic", "jinja2"]
+all = ["redis"]
 
 [tool.poetry.group.framework.dependencies]
 werkzeug = "1.0.1"
@@ -96,10 +89,6 @@ line_length = 120
 ignore_missing_imports = true
 disallow_untyped_defs = true
 python_executable = ".venv/bin/python"
-exclude = [
-    "^example/example_grpc/python_example_proto_code/example_proto",
-    "^pait/http"
-]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -107,10 +96,7 @@ testpaths = ["tests"]
 [tool.coverage.run]
 branch = true
 source = ["pait"]
-omit = [
-    "pait/grpc/plugin/*",
-    "pait/grpc/proto/*",
-]
+omit = []
 
 [tool.coverage.report]
 exclude_lines = [

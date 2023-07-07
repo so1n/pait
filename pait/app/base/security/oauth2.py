@@ -64,6 +64,9 @@ class BaseOAuth2PasswordBearerProxy(BaseSecurity):
 
         self.set_pait_handler(pait_handler)
 
+    def __call__(self, authorization: str = Header.i()) -> str:
+        raise RuntimeError("should not call this method")  # pragma: no cover
+
     @property
     def model(self) -> SecurityModelType:
         if self.use_scopes:

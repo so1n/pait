@@ -37,6 +37,9 @@ class BaseAPIKey(BaseSecurity, metaclass=ABCMeta):
 
         self.set_pait_handler(pait_handler)
 
+    def __call__(self, authorization: str = Query.i()) -> str:
+        raise RuntimeError("should not call this method")  # pragma: no cover
+
     def authorization_handler(self, authorization: str) -> str:
         if self.verify_api_key_callable and not self.verify_api_key_callable(authorization):
             raise self.not_authenticated_exc

@@ -45,5 +45,5 @@ def create_app() -> Iterator[Starlette]:
     app: Starlette = Starlette()
     yield app
     app.add_exception_handler(Exception, api_exception)
-    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
+    add_doc_route(prefix="/api-doc", title="Api Doc", app=app)
     uvicorn.run(app)

@@ -30,7 +30,6 @@ from example.flask_example.field_route import (
     post_route,
     same_alias_route,
 )
-from example.flask_example.grpc_route import add_grpc_gateway_route
 from example.flask_example.plugin_route import (
     auto_complete_json_route,
     cache_response,
@@ -63,7 +62,7 @@ from example.flask_example.utils import api_exception, global_pait
 from pait.app.flask import Pait, load_app, pait
 from pait.app.flask.plugin.cache_response import CacheResponsePlugin
 from pait.exceptions import PaitBaseException
-from pait.extra.config import MatchRule, apply_block_http_method_set, apply_extra_openapi_model
+from pait.extra.config import apply_block_http_method_set
 from pait.field import Header, Json, Query
 from pait.g import config
 from pait.model import PaitStatus, TemplateVar
@@ -278,10 +277,8 @@ if __name__ == "__main__":
     config.init_config(
         apply_func_list=[
             apply_block_http_method_set({"HEAD", "OPTIONS"}),
-            apply_extra_openapi_model(ExtraModel, match_rule=MatchRule(key="!tag", target="grpc")),
         ]
     )
     flask_app: Flask = create_app()
-    add_grpc_gateway_route(flask_app)
     add_api_doc_route(flask_app)
     flask_app.run(port=8000, debug=True)

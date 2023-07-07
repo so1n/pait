@@ -48,19 +48,19 @@ api_key_pait = security_pait.create_sub_pait(
 
 class APIKeyCookieHandler(MyHandler):
     @api_key_pait()
-    async def get(self, token: str = Depends.i(token_cookie_api_key)) -> None:
+    async def get(self, token: str = Depends.t(token_cookie_api_key)) -> None:
         self.write({"code": 0, "msg": "", "data": token})
 
 
 class APIKeyHeaderHandler(MyHandler):
     @api_key_pait()
-    async def get(self, token: str = Depends.i(token_header_api_key)) -> None:
+    async def get(self, token: str = Depends.t(token_header_api_key)) -> None:
         self.write({"code": 0, "msg": "", "data": token})
 
 
 class APIKeyQueryHandler(MyHandler):
     @api_key_pait()
-    async def get(self, token: str = Depends.i(token_query_api_key)) -> None:
+    async def get(self, token: str = Depends.t(token_query_api_key)) -> None:
         self.write({"code": 0, "msg": "", "data": token})
 
 

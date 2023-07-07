@@ -32,7 +32,6 @@ from example.tornado_example.field_route import (
     PostHandler,
     SameAliasHandler,
 )
-from example.tornado_example.grpc_route import add_grpc_gateway_route
 from example.tornado_example.plugin_route import (
     AutoCompleteJsonHandler,
     CacheResponse1Handler,
@@ -64,7 +63,6 @@ from example.tornado_example.security_route import (
 from example.tornado_example.utils import MyHandler, global_pait
 from pait.app.tornado import Pait, load_app, pait
 from pait.app.tornado.plugin.cache_response import CacheResponsePlugin
-from pait.extra.config import MatchRule
 from pait.field import Header, Json, Query
 from pait.model import PaitStatus, TemplateVar
 from pait.openapi.doc_route import AddDocRoute, add_doc_route
@@ -264,7 +262,7 @@ if __name__ == "__main__":
 
     from pydantic import BaseModel
 
-    from pait.extra.config import apply_block_http_method_set, apply_extra_openapi_model
+    from pait.extra.config import apply_block_http_method_set
     from pait.g import config
 
     logging.basicConfig(
@@ -278,11 +276,9 @@ if __name__ == "__main__":
     config.init_config(
         apply_func_list=[
             apply_block_http_method_set({"HEAD", "OPTIONS"}),
-            apply_extra_openapi_model(ExtraModel, match_rule=MatchRule(key="!tag", target="grpc")),
         ]
     )
     app: Application = create_app()
-    add_grpc_gateway_route(app)
     add_api_doc_route(app)
     app.listen(8000)
     app.settings["before_server_start"]()

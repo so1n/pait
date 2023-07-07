@@ -35,7 +35,6 @@ from example.sanic_example.field_route import (
     post_route,
     same_alias_route,
 )
-from example.sanic_example.grpc_route import add_grpc_gateway_route
 from example.sanic_example.plugin_route import (
     auto_complete_json_route,
     cache_response,
@@ -68,7 +67,6 @@ from example.sanic_example.utils import api_exception, global_pait
 from pait.app.sanic import Pait, load_app, pait
 from pait.app.sanic.plugin.cache_response import CacheResponsePlugin
 from pait.exceptions import PaitBaseException
-from pait.extra.config import MatchRule
 from pait.field import Header, Json, Query
 from pait.model import PaitStatus, TemplateVar
 from pait.openapi.doc_route import AddDocRoute, add_doc_route
@@ -282,7 +280,7 @@ if __name__ == "__main__":
     import uvicorn  # type: ignore
     from pydantic import BaseModel
 
-    from pait.extra.config import apply_block_http_method_set, apply_extra_openapi_model
+    from pait.extra.config import apply_block_http_method_set
     from pait.g import config
 
     class ExtraModel(BaseModel):
@@ -292,10 +290,8 @@ if __name__ == "__main__":
     config.init_config(
         apply_func_list=[
             apply_block_http_method_set({"HEAD", "OPTIONS"}),
-            apply_extra_openapi_model(ExtraModel, match_rule=MatchRule(key="!tag", target="grpc")),
         ]
     )
     sanic_app: Sanic = create_app()
-    add_grpc_gateway_route(sanic_app)
     add_api_doc_route(sanic_app)
     uvicorn.run(sanic_app)

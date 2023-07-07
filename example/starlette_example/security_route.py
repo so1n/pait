@@ -49,17 +49,17 @@ api_key_pait = security_pait.create_sub_pait(
 
 
 @api_key_pait()
-async def api_key_cookie_route(token: str = Depends.i(token_cookie_api_key)) -> JSONResponse:
+async def api_key_cookie_route(token: str = Depends.t(token_cookie_api_key)) -> JSONResponse:
     return JSONResponse({"code": 0, "msg": "", "data": token})
 
 
 @api_key_pait()
-async def api_key_header_route(token: str = Depends.i(token_header_api_key)) -> JSONResponse:
+async def api_key_header_route(token: str = Depends.t(token_header_api_key)) -> JSONResponse:
     return JSONResponse({"code": 0, "msg": "", "data": token})
 
 
 @api_key_pait()
-async def api_key_query_route(token: str = Depends.i(token_query_api_key)) -> JSONResponse:
+async def api_key_query_route(token: str = Depends.t(token_query_api_key)) -> JSONResponse:
     return JSONResponse({"code": 0, "msg": "", "data": token})
 
 

@@ -28,7 +28,7 @@ def build_test(app_name: str, fixture_column_list: list, local_dict: dict, class
     for i in app_list:
         sys.modules.pop(i, None)
     app_test_module = importlib.import_module(f"tests.test_app.test_{app_name}")
-    for app_test_class_name in ["", "Grpc"]:
+    for app_test_class_name in [""]:
         app_test_class_name = f"Test{app_name.title()}{app_test_class_name}"
         app_test_class = getattr(app_test_module, app_test_class_name)
 

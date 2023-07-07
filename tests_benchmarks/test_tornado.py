@@ -11,7 +11,7 @@ for i in app_list:
 app_name = "tornado"
 
 app_test_module = importlib.import_module(f"tests.test_app.test_{app_name}")
-for app_test_class_name in ["", "Grpc"]:
+for app_test_class_name in [""]:
     app_test_class_name = f"Test{app_name.title()}{app_test_class_name}"
     app_test_class = getattr(app_test_module, app_test_class_name)
 

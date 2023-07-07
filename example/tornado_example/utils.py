@@ -61,5 +61,5 @@ def create_app() -> Iterator[MyApplication]:
     app: MyApplication = MyApplication()
     yield app
     app.listen(8000)
-    add_doc_route(prefix="/api-doc", title="Grpc Api Doc", app=app)
+    add_doc_route(prefix="/api-doc", title="Api Doc", app=app)
     IOLoop.instance().start()

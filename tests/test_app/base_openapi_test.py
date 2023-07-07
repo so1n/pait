@@ -1,5 +1,6 @@
 from typing import Any, Dict, List, Optional
 
+from any_api.openapi import BaseResponseModel
 from any_api.openapi.model.openapi import (
     ApiKeySecurityModel,
     HttpSecurityModel,
@@ -20,7 +21,7 @@ class BasicTestOpenAPI(object):
         self.pait_openapi: OpenAPI = OpenAPI(app)
 
     def _test_success_response_and_fail_response(
-        self, response_dict: Dict[str, ResponseModel], success_resp_model: response_model.BaseResponseModel
+        self, response_dict: Dict[str, ResponseModel], success_resp_model: BaseResponseModel
     ) -> None:
         assert response_dict["200"].description == "success response|fail response"
         resp_schema_dict: dict = response_dict["200"].content["application/json"].schema_["oneOf"]
@@ -711,7 +712,7 @@ class _TestResponseOpenAPI(BasicTestOpenAPI):
 
         self._test_success_response_and_fail_response(route_dict["get"].responses, response_model.UserSuccessRespModel3)
 
-    def _test_response(self, resp_type: str, resp_model: response_model.BaseResponseModel) -> None:
+    def _test_response(self, resp_type: str, resp_model: BaseResponseModel) -> None:
         for path in [f"/api/resp/{resp_type}-resp", f"/api/resp/async-{resp_type}-resp"]:
             if path not in self.pait_openapi.model.paths:
                 continue
