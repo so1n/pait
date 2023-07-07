@@ -1,10 +1,13 @@
 from importlib import import_module
-from typing import Any, Callable, List
+from typing import Any, Callable, Dict, List, Type
 
 from typing_extensions import Literal
 
 SupportAppLiteral = Literal["flask", "starlette", "sanic", "tornado"]
 support_app_list: List[SupportAppLiteral] = ["flask", "starlette", "sanic", "tornado"]
+
+sniffing_dict: Dict[Type, Callable[[Any], str]] = {}
+framework_location_dict: Dict[str, str] = {}
 
 
 def sniffing(app: Any) -> SupportAppLiteral:
@@ -13,8 +16,11 @@ def sniffing(app: Any) -> SupportAppLiteral:
         return app_name  # type: ignore
     elif app_name == "application" and app.__class__.__module__ == "tornado.web":
         return "tornado"
-    else:
-        raise NotImplementedError(f"Pait not support app name:{app_name}, please check app:{app}")
+
+    if app.__class__ in sniffing_dict:
+        return sniffing_dict[app.__class__](app)  # type: ignore
+
+    raise NotImplementedError(f"Pait not support app name:{app_name}, please check app:{app}")
 
 
 def import_func_from_app(fun_name: str, app: Any = None, module_name: str = "") -> Callable:
@@ -25,13 +31,15 @@ def import_func_from_app(fun_name: str, app: Any = None, module_name: str = "") 
         _get_current_object = getattr(app, "_get_current_object", None)
         if _get_current_object:
             app = _get_current_object()
+
         app_name: str = sniffing(app)
     else:
         app_name = auto_load_app_class().__name__.lower()
+    framework_location = framework_location_dict.get(app_name, "pait.app")
     if module_name:
-        return getattr(import_module(f"pait.app.{app_name}.{module_name}"), fun_name)
+        return getattr(import_module(f"{framework_location}.{app_name}.{module_name}"), fun_name)
     else:
-        return getattr(import_module(f"pait.app.{app_name}"), fun_name)
+        return getattr(import_module(f"{framework_location}.{app_name}"), fun_name)
 
 
 def base_call_func(fun_name: str, *args: Any, app: Any = None, module_name: str = "", **kwargs: Any) -> Any:
