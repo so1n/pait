@@ -929,9 +929,10 @@ class _TestOtherOpenAPI(BasicTestOpenAPI):
         )
 
         for key in [
-            "get_user_route/header/token",
-            "example.get_user_route/header/token",
-            "GetUserHandler.get/header/token",
+            "example.flask_example.main_example_get_user_route/header/token",
+            "example.sanic_example.main_example_get_user_route/header/token",
+            "example.starlette_example.main_example_get_user_route/header/token",
+            "example.tornado_example.main_example_GetUserHandler.get/header/token",
         ]:
             if key not in route_dict["post"].responses["200"].links:
                 continue

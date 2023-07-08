@@ -1,6 +1,7 @@
 import copy
 import logging
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
+from urllib.parse import quote_plus
 
 from pydantic import BaseConfig, BaseModel
 
@@ -81,7 +82,7 @@ class PaitCoreModel(object):
         self.openapi_path: str = openapi_path or ""
         self._method_list: List[str] = sorted(list(method_set or set()))  # request method set
         self.func_name: str = func_name or func.__name__
-        self.operation_id: str = operation_id or self.func_name  # route name
+        self.operation_id: str = operation_id or quote_plus(self.pait_id)
         self.author: Optional[Tuple[str, ...]] = author  # The main developer of this func
         self.summary: str = summary or ""
         self.desc: str = desc or func.__doc__ or ""  # desc of this func
@@ -101,6 +102,9 @@ class PaitCoreModel(object):
 
         # change notify
         self._change_notify_list: List[ChangeNotifyType] = []
+
+    def is_auto_gen_operation_id(self) -> bool:
+        return self.operation_id == quote_plus(self.pait_id)
 
     def add_change_notify(self, callback: ChangeNotifyType) -> None:
         self._change_notify_list.append(callback)

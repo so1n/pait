@@ -64,9 +64,9 @@ class TestPaitCore:
     def test_pait_id_in_data(self) -> None:
         pait_core_model: PaitCoreModel = PaitCoreModel(demo, FakeAppHelper, ParamHandler)
         pait_id: str = pait_core_model.pait_id
+        assert g.pait_data
         g.pait_data.register(app_name, pait_core_model)
         g.pait_data.add_route_info(app_name, pait_id, "/", "/", {"get"}, "fake")
         assert g.pait_data.pait_id_dict[app_name][pait_id].path == "/"
         assert g.pait_data.pait_id_dict[app_name][pait_id].method_list == ["get"]
         assert g.pait_data.pait_id_dict[app_name][pait_id].operation_id == "fake"
-        assert g.pait_data

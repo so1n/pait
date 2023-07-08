@@ -33,6 +33,7 @@ class Pait(object):
         # param check
         pre_depend_list: Optional[List[Callable]] = None,
         # doc
+        operation_id: Optional[str] = None,
         author: Optional[Tuple[str, ...]] = None,
         desc: Optional[str] = None,
         summary: Optional[str] = None,
@@ -52,6 +53,7 @@ class Pait(object):
         :param pydantic_basemodel: pydantic.BaseModel
         :param default_field_class: pait.field.BaseField
         :param pre_depend_list:  List of depend functions to execute before route functions
+        :param operation_id: The unique identifier of the routing function
         :param author:  The author who wrote this routing function
         :param desc:  Description of the routing function
         :param summary:  Introduction to Routing Functions
@@ -85,6 +87,7 @@ class Pait(object):
         # param check
         self._pre_depend_list: Optional[List[Callable]] = pre_depend_list
         # doc
+        self._operation_id: Optional[str] = operation_id
         self._author: Optional[Tuple[str, ...]] = author
         self._desc: Optional[str] = desc
         self._summary: Optional[str] = summary
@@ -128,6 +131,7 @@ class Pait(object):
         pre_depend_list: Optional[List[Callable]] = None,
         append_pre_depend_list: Optional[List[Callable]] = None,
         # doc
+        operation_id: Optional[str] = None,
         author: Optional[Tuple[str, ...]] = None,
         append_author: Optional[Tuple[str, ...]] = None,
         desc: Optional[str] = None,
@@ -153,6 +157,7 @@ class Pait(object):
         :param pre_depend_list:  List of depend functions to execute before route functions(
             Do not use the pre depend value specified when Pait is initialized)
         :param append_pre_depend_list: Append some author when creating child Pait
+        :param operation_id: The unique identifier of the routing function
         :param author:  The author who wrote this routing function(
             Do not use the author value specified when Pait is initialized)
         :param append_author: Append some author when creating child Pait
@@ -193,6 +198,7 @@ class Pait(object):
             pydantic_model_config=pydantic_model_config or self._pydantic_model_config,
             pydantic_basemodel=pydantic_basemodel or self._pydantic_basemodel,
             default_field_class=default_field_class or self._default_field_class,
+            operation_id=operation_id,
             desc=desc or self._desc,
             summary=summary or self._summary,
             name=name or self._name,
@@ -231,6 +237,7 @@ class Pait(object):
         pre_depend_list: Optional[List[Callable]] = None,
         append_pre_depend_list: Optional[List[Callable]] = None,
         # doc
+        operation_id: Optional[str] = None,
         author: Optional[Tuple[str, ...]] = None,
         append_author: Optional[Tuple[str, ...]] = None,
         desc: Optional[str] = None,
@@ -256,6 +263,7 @@ class Pait(object):
         :param pydantic_basemodel: pydantic.BaseModel
         :param default_field_class: pait.field.BaseField
         :param pre_depend_list:  List of depend functions to execute before route functions
+        :param operation_id: The unique identifier of the routing function
         :param author:  The author who wrote this routing function
         :param desc:  Description of the routing function
         :param summary:  Introduction to Routing Functions
@@ -311,6 +319,7 @@ class Pait(object):
             pait_core_model: PaitCoreModel = PaitCoreModel(
                 func,
                 self.app_helper_class,
+                operation_id=operation_id or self._operation_id,
                 author=author,
                 desc=desc or self._desc,
                 summary=summary or self._summary,

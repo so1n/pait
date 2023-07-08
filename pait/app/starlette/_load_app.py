@@ -22,6 +22,7 @@ def _load_route(
     _pait_data: Dict[str, PaitCoreModel],
     prefix_path: Optional[str] = None,
     auto_load_route: bool = False,
+    cover_operation_id: bool = False,
 ) -> None:
     path: str = route.path
     if prefix_path:
@@ -48,11 +49,18 @@ def _load_route(
                 setattr(endpoint, method, method_endpoint)
 
             pait_data.add_route_info(
-                AppHelper.app_name, pait_id, path, openapi_path, method_set, f"{route_name}.{method}"
+                AppHelper.app_name,
+                pait_id,
+                path,
+                openapi_path,
+                method_set,
+                f"{route_name}.{method}" if cover_operation_id else "",
             )
             _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
     elif pait_id:
-        pait_data.add_route_info(AppHelper.app_name, pait_id, path, openapi_path, method_set, route_name)
+        pait_data.add_route_info(
+            AppHelper.app_name, pait_id, path, openapi_path, method_set, route_name if cover_operation_id else ""
+        )
         _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
     elif auto_load_route:
         from pait.app.starlette import pait
@@ -71,13 +79,19 @@ def _load_route(
             # Endpoint is a class. Treat it as ASGI.
             route.app = endpoint
 
-        pait_data.add_route_info(AppHelper.app_name, pait_id, path, openapi_path, method_set, route_name)
+        pait_data.add_route_info(
+            AppHelper.app_name, pait_id, path, openapi_path, method_set, route_name if cover_operation_id else ""
+        )
         _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
     else:
         logging.warning(f"{route_name} can not found pait id")  # pragma: no cover
 
 
-def load_app(app: Starlette, auto_load_route: bool = False) -> Dict[str, PaitCoreModel]:
+def load_app(
+    app: Starlette,
+    auto_load_route: bool = False,
+    cover_operation_id: bool = False,
+) -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`"""
     _pait_data: Dict[str, PaitCoreModel] = {}
     for route in app.routes:

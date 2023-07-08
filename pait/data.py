@@ -28,7 +28,7 @@ class PaitData(object):
         path: str,
         openapi_path: str,
         method_set: Set[str],
-        route_name: str,
+        route_name: str = "",
     ) -> None:
         """Route handle information supplemented by load_app"""
         if pait_id in self.pait_id_dict[app_name]:
@@ -36,7 +36,8 @@ class PaitData(object):
             model.path = path
             model.openapi_path = openapi_path
             model.method_list = sorted(list(method_set or set()), reverse=True)
-            model.operation_id = route_name
+            if route_name:
+                model.operation_id = route_name
             func_code: CodeType = model.func.__code__  # type: ignore
             model.func_path = func_code.co_filename
         else:

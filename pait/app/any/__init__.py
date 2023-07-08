@@ -54,11 +54,13 @@ except RuntimeError:  # pragma: no cover
     http_exception = Empty()  # type: ignore
 
 
-def load_app(app: Any, auto_load_route: bool = False) -> Dict[str, PaitCoreModel]:
+def load_app(app: Any, auto_load_route: bool = False, cover_operation_id: bool = False) -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`
     Note:This is an implicit method
     """
-    return base_call_func("load_app", app, app=app, auto_load_route=auto_load_route)
+    return base_call_func(
+        "load_app", app, app=app, auto_load_route=auto_load_route, cover_operation_id=cover_operation_id
+    )
 
 
 def pait(
@@ -69,6 +71,7 @@ def pait(
     pre_depend_list: Optional[List[Callable]] = None,
     append_pre_depend_list: Optional[List[Callable]] = None,
     # doc
+    operation_id: Optional[str] = None,
     author: Optional[Tuple[str, ...]] = None,
     append_author: Optional[Tuple[str, ...]] = None,
     desc: Optional[str] = None,
@@ -103,6 +106,7 @@ def pait(
         default_field_class=default_field_class,
         pre_depend_list=pre_depend_list,
         append_pre_depend_list=append_pre_depend_list,
+        operation_id=operation_id,
         author=author,
         append_author=append_author,
         desc=desc,
