@@ -57,6 +57,7 @@ __all__ = [
     "partial_wrapper",
     "R_T",
     "P",
+    "get_func_param_kwargs",
 ]
 ignore_pre_check: bool = bool(os.environ.get("PAIT_IGNORE_PRE_CHECK", False))
 http_method_tuple: Tuple[str, ...] = ("get", "post", "head", "options", "delete", "put", "trace", "patch")
@@ -90,6 +91,23 @@ python_type_default_value_dict: Dict = {
 
 P = ParamSpec("P")
 R_T = TypeVar("R_T")
+
+
+def get_func_param_kwargs(func: Callable, kwargs_dict: dict) -> dict:
+    """
+    >>> kwargs_dict = {"a": 1, "b": 2, "c": 3}
+    >>> def demo1(a, b): pass
+    >>> assert {"a": 1, "b": 2} == get_func_param_kwargs(demo1, kwargs_dict)
+    >>> def demo2(a, b, **kwargs): pass
+    >>> assert {"a": 1, "b": 2, "c": 3} == get_func_param_kwargs(demo2, kwargs_dict)
+    """
+    new_kwargs_dict: dict = {}
+    for k, v in inspect.signature(func).parameters.items():
+        if v.kind is v.VAR_KEYWORD:
+            return kwargs_dict
+        if k in kwargs_dict:
+            new_kwargs_dict[k] = kwargs_dict[k]
+    return new_kwargs_dict
 
 
 def create_factory(func: Callable[P, R_T]) -> Callable[P, Callable[[], R_T]]:

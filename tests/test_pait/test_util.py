@@ -276,7 +276,15 @@ class TestUtil:
         assert [dict] == util.parse_typing(typing.Generator[Dict, None, None])
         assert [dict] == util.parse_typing(typing.AsyncGenerator[Dict, None])
         assert [tuple] == util.parse_typing(typing.Tuple[str, int])
-        assert [dict] == util.parse_typing(typing_extensions.TypedDict)
+
+        for TypedDict, is_typeddict in [
+            (typing.TypedDict, typing.is_typeddict),  # type: ignore[attr-defined]
+            (typing_extensions.TypedDict, typing_extensions.is_typeddict),  # type: ignore[attr-defined]
+        ]:
+            if inspect.isfunction(TypedDict):
+                assert [dict] == util.parse_typing(TypedDict("demo"), is_typeddict)
+            else:
+                assert [dict] == util.parse_typing(TypedDict, is_typeddict)
         # multi value
         assert [dict, str, int] == util.parse_typing(Union[Dict, str, int])
         assert [dict, type(None)] == util.parse_typing(Optional[Dict])

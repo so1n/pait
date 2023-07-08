@@ -6,6 +6,7 @@ from sanic import Blueprint, Sanic
 
 from pait.app.base.simple_route import SimpleRoute, add_route_plugin
 from pait.app.sanic.plugin.unified_response import UnifiedResponsePlugin
+from pait.util import get_func_param_kwargs
 
 
 def replace_openapi_url_to_url(url: str) -> str:
@@ -27,7 +28,12 @@ def add_simple_route(
     _replace_openapi_url_to_url: Callable[[str], str] = replace_openapi_url_to_url,
 ) -> None:
     add_route_plugin(simple_route, UnifiedResponsePlugin)
-    app.add_route(simple_route.route, _replace_openapi_url_to_url(simple_route.url), methods=set(simple_route.methods))
+    app.add_route(
+        simple_route.route,
+        _replace_openapi_url_to_url(simple_route.url),
+        methods=set(simple_route.methods),
+        **get_func_param_kwargs(app.add_route, simple_route.kwargs),
+    )
 
 
 def add_multi_simple_route(

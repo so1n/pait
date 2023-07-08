@@ -1,10 +1,15 @@
 import inspect
 import typing
-from typing import Any, Generator, List, Optional, Set, Type, Union, _GenericAlias  # type: ignore
+from typing import Any, Callable, Generator, List, Optional, Set, Type, Union, _GenericAlias  # type: ignore
 
 import typing_extensions
 
 from pait.exceptions import ParseTypeError
+
+try:
+    from typing import is_typeddict  # type: ignore[attr-defined]
+except ImportError:
+    from typing_extensions import is_typeddict
 
 _PYTHON_ORIGIN_TYPE_SET: Set[Optional[type]] = {bool, dict, float, int, list, str, tuple, type(None), None, set}
 _TYPING_NOT_PARSE_TYPE_SET: set = {
@@ -19,8 +24,9 @@ _TYPING_NOT_PARSE_TYPE_SET: set = {
 __all__ = ["parse_typing", "is_type"]
 
 
-def parse_typing(_type: Any) -> List[Type]:
+def parse_typing(_type: Any, _is_typeddict: Optional[Callable[[type], bool]] = None) -> List[Type]:
     """Get Python Type through typing as much as possible
+    >>> from typing import Dict
     >>> assert [dict] == parse_typing(dict)
     >>> assert [list] == parse_typing(List)
     >>> assert [list] == parse_typing(List[str])
@@ -58,6 +64,9 @@ def parse_typing(_type: Any) -> List[Type]:
     >>> for i in _TYPING_NOT_PARSE_TYPE_SET:
     >>>     assert [i] == parse_typing(i)
     """
+    if _is_typeddict or is_typeddict(_type):
+        return [dict]
+
     origin: Optional[type] = getattr(_type, "__origin__", None)  # get typing.xxx's raw type
     if origin:
         if origin is Union:
@@ -83,8 +92,6 @@ def parse_typing(_type: Any) -> List[Type]:
         return [type(None)]
     elif getattr(_type, "_name", "") == "LiteralString":
         return [str]
-    elif typing_extensions.is_typeddict(_type):
-        return [dict]
     elif hasattr(_type, "__supertype__"):
         # support NewType
         return [getattr(_type, "__supertype__")]

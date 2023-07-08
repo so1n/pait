@@ -5,6 +5,7 @@ from flask import Blueprint, Flask
 
 from pait.app.base.simple_route import SimpleRoute, add_route_plugin
 from pait.app.flask.plugin.unified_response import UnifiedResponsePlugin
+from pait.util import get_func_param_kwargs
 
 __all__ = ["SimpleRoute", "add_simple_route", "add_multi_simple_route"]
 
@@ -29,7 +30,10 @@ def add_simple_route(
 ) -> None:
     add_route_plugin(simple_route, UnifiedResponsePlugin)
     app.add_url_rule(
-        _replace_openapi_url_to_url(simple_route.url), view_func=simple_route.route, methods=simple_route.methods
+        _replace_openapi_url_to_url(simple_route.url),
+        view_func=simple_route.route,
+        methods=simple_route.methods,
+        **get_func_param_kwargs(app.add_url_rule, simple_route.kwargs),
     )
 
 

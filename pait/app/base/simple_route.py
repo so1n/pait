@@ -1,6 +1,6 @@
 from typing import Callable, List, Optional, Type
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from pait.model import PaitCoreModel
 from pait.plugin.unified_response import UnifiedResponsePlugin
@@ -10,6 +10,7 @@ class SimpleRoute(BaseModel):
     methods: List[str]
     route: Callable
     url: str
+    kwargs: dict = Field(default_factory=dict)
 
 
 def add_route_plugin(simple_route: SimpleRoute, plugin: Type[UnifiedResponsePlugin]) -> None:
