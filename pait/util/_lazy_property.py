@@ -1,12 +1,9 @@
 import asyncio
+import inspect
 from concurrent import futures
 from typing import Any, Callable, Optional
 
 __all__ = ["LazyProperty"]
-
-
-class _BoundClass(object):
-    pass
 
 
 class LazyProperty:
@@ -17,16 +14,20 @@ class LazyProperty:
     ...         return value * value
     """
 
+    def __init__(self, class_: Any = None) -> None:
+        self.class_ = class_
+
     def __call__(self, func: Callable) -> Callable:
         key: str = f"{self.__class__.__name__}_{func.__name__}_future"
-        _bound_class: _BoundClass = _BoundClass()
+
+        sig = inspect.signature(func)
+        if "self" not in sig.parameters and not self.class_:
+            raise ValueError("LazyProperty must be used in class method")
+
         if not asyncio.iscoroutinefunction(func):
 
             def wrapper(*args: Any, **kwargs: Any) -> Any:
-                if args and args[0].__class__.__name__ in func.__qualname__:
-                    class_: Any = args[0]
-                else:
-                    class_ = _bound_class
+                class_ = self.class_ or args[0]
                 future: Optional[futures.Future] = getattr(class_, key, None)
                 if not future:
                     future = futures.Future()
@@ -40,10 +41,7 @@ class LazyProperty:
         else:
 
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
-                if args and args[0].__class__.__name__ in func.__qualname__:
-                    class_: Any = args[0]
-                else:
-                    class_ = _bound_class
+                class_ = self.class_ or args[0]
                 future: Optional[asyncio.Future] = getattr(class_, key, None)
                 if not future:
                     future = asyncio.Future()

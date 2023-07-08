@@ -56,7 +56,7 @@ class Request(BaseRequest[_Request, RequestExtend]):
         return _()
 
     def form(self) -> Coroutine[Any, Any, Dict[str, Any]]:
-        @LazyProperty()
+        @LazyProperty(self)
         async def _form() -> Dict[str, Any]:
             form_data: FormData = await self.get_form()
             return {key: form_data.getlist(key)[0] for key, _ in form_data.items()}
@@ -73,7 +73,7 @@ class Request(BaseRequest[_Request, RequestExtend]):
         return dict(self.request.query_params)
 
     def multiform(self) -> Coroutine[Any, Any, Dict[str, List[Any]]]:
-        @LazyProperty()
+        @LazyProperty(self)
         async def _multiform() -> Dict[str, List[Any]]:
             form_data: FormData = await self.get_form()
             return {

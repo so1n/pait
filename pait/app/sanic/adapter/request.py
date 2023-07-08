@@ -1,5 +1,6 @@
 from typing import Any, Dict, List, Mapping
 
+from sanic import __version__
 from sanic.headers import HeaderIterable
 from sanic.request import File
 from sanic.request import Request as _Request
@@ -23,7 +24,7 @@ class RequestExtend(BaseRequestExtend[_Request]):
         return self.request.host
 
 
-class Request(BaseRequest[_Request, RequestExtend]):
+class SanicBaseRequest(BaseRequest[_Request, RequestExtend]):
     RequestType = _Request
     FormType = RequestParameters
     FileType = File
@@ -67,3 +68,20 @@ class Request(BaseRequest[_Request, RequestExtend]):
     @LazyProperty()
     def multiquery(self) -> Dict[str, Any]:
         return {key: self.request.args.getlist(key) for key, _ in self.request.args.items()}
+
+
+class RequestLt23(SanicBaseRequest):
+    def cookie(self) -> dict:
+        return self.request.cookies
+
+
+class RequestGt23(SanicBaseRequest):
+    @LazyProperty()
+    def cookie(self) -> dict:
+        return {key: value[0] for key, value in self.request.cookies.items()}
+
+
+if __version__ >= "23.0.0":
+    Request = RequestGt23
+else:
+    Request = RequestLt23  # type: ignore

@@ -277,14 +277,21 @@ class TestUtil:
         assert [dict] == util.parse_typing(typing.AsyncGenerator[Dict, None])
         assert [tuple] == util.parse_typing(typing.Tuple[str, int])
 
-        for TypedDict, is_typeddict in [
-            (typing.TypedDict, typing.is_typeddict),  # type: ignore[attr-defined]
+        typed_dict_test_list = [
             (typing_extensions.TypedDict, typing_extensions.is_typeddict),  # type: ignore[attr-defined]
-        ]:
-            if inspect.isfunction(TypedDict):
-                assert [dict] == util.parse_typing(TypedDict("demo"), is_typeddict)
+        ]
+        try:
+            from typing import TypedDict, is_typeddict  # type: ignore[attr-defined]
+
+            typed_dict_test_list.append((TypedDict, is_typeddict))
+        except ImportError:
+            pass
+
+        for _TypedDict, _is_typeddict in typed_dict_test_list:
+            if inspect.isfunction(_TypedDict):
+                assert [dict] == util.parse_typing(_TypedDict("demo"), _is_typeddict)
             else:
-                assert [dict] == util.parse_typing(TypedDict, is_typeddict)
+                assert [dict] == util.parse_typing(_TypedDict, _is_typeddict)
         # multi value
         assert [dict, str, int] == util.parse_typing(Union[Dict, str, int])
         assert [dict, type(None)] == util.parse_typing(Optional[Dict])
@@ -362,11 +369,11 @@ class TestGenTipExc:
 
 class TestLazyProperty:
     async def test_lazy_property_fun(self) -> None:
-        @util.LazyProperty()
+        @util.LazyProperty(self)
         def _demo(a: int, b: int) -> int:
             return a + b
 
-        @util.LazyProperty()
+        @util.LazyProperty(self)
         async def _async_demo(a: int, b: int) -> int:
             return a + b
 

@@ -11,7 +11,6 @@ from flask import Flask, Response
 from flask.ctx import AppContext
 from flask.testing import FlaskClient
 from pytest_mock import MockFixture
-from werkzeug.test import _TestCookieJar
 
 from example.common import response_model
 from example.flask_example import main_example
@@ -233,8 +232,6 @@ class TestFlask:
         base_test.pre_depend_contextmanager(main_example.pre_depend_contextmanager_route, mocker)
 
     def test_api_key_route(self, base_test: BaseTest) -> None:
-        # clear cookie
-        base_test.client.cookie_jar = _TestCookieJar()
         base_test.api_key_route(main_example.api_key_cookie_route, {"cookie_dict": {"token": "my-token"}})
         base_test.api_key_route(main_example.api_key_header_route, {"header_dict": {"token": "my-token"}})
         base_test.api_key_route(main_example.api_key_query_route, {"query_dict": {"token": "my-token"}})

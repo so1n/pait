@@ -122,7 +122,7 @@ class BaseParamHandler(PluginProtocol):
                     parameter.name,
                     f"{parameter.name}'s Field.alias type must str. value: {parameter.default.alias}",
                 )
-            if parameter.default.get_field_name() not in pait_core_model.app_helper_class.request_class.__dict__:
+            if not getattr(pait_core_model.app_helper_class.request_class, parameter.default.get_field_name()):
                 raise NotFoundFieldException(
                     parameter.name,
                     f"field name: {parameter.default.get_field_name()}"
