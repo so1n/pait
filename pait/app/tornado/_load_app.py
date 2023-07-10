@@ -12,7 +12,10 @@ __all__ = ["load_app"]
 
 
 def load_app(
-    app: Application, auto_load_route: bool = False, cover_operation_id: bool = False
+    app: Application,
+    auto_load_route: bool = False,
+    override_operation_id: bool = False,
+    overwrite_already_exists_data: bool = False,
 ) -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`"""
     _pait_data: Dict[str, PaitCoreModel] = {}
@@ -59,7 +62,13 @@ def load_app(
                 else:
                     logging.warning(f"{route_name} can not found pait id")  # pragma: no cover
             pait_data.add_route_info(
-                AppHelper.app_name, pait_id, path, openapi_path, {method}, route_name if cover_operation_id else ""
+                AppHelper.app_name,
+                pait_id,
+                path,
+                openapi_path,
+                {method},
+                route_name if override_operation_id else "",
+                overwrite_already_exists_data=overwrite_already_exists_data,
             )
             _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
     return _pait_data

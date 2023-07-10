@@ -3,6 +3,7 @@ import json
 import random
 import sys
 from contextlib import contextmanager
+from functools import partial
 from typing import Callable, Generator, Type
 from unittest import mock
 
@@ -16,12 +17,21 @@ from example.common import response_model
 from example.flask_example import main_example
 from pait.app import auto_load_app, get_app_attribute, set_app_attribute
 from pait.app.flask import TestHelper as _TestHelper
+from pait.app.flask import load_app
 from pait.model import response
 from pait.openapi.doc_route import default_doc_fn_dict
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin
 from tests.test_app.base_api_test import BaseTest
 from tests.test_app.base_openapi_test import BaseTestOpenAPI
+
+# Since the routing function has already been loaded,
+# it will be automatically skipped when calling the load app later,
+# and needs to be overwritten by overwrite already exists data=True
+# flake8: noqa: F811
+_TestHelper: Type[_TestHelper] = partial(  # type: ignore
+    _TestHelper, load_app=partial(load_app, overwrite_already_exists_data=True)
+)
 
 
 @contextmanager

@@ -22,7 +22,8 @@ def _load_route(
     _pait_data: Dict[str, PaitCoreModel],
     prefix_path: Optional[str] = None,
     auto_load_route: bool = False,
-    cover_operation_id: bool = False,
+    override_operation_id: bool = False,
+    overwrite_already_exists_data: bool = False,
 ) -> None:
     path: str = route.path
     if prefix_path:
@@ -54,12 +55,19 @@ def _load_route(
                 path,
                 openapi_path,
                 method_set,
-                f"{route_name}.{method}" if cover_operation_id else "",
+                f"{route_name}.{method}" if override_operation_id else "",
+                overwrite_already_exists_data=overwrite_already_exists_data,
             )
             _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
     elif pait_id:
         pait_data.add_route_info(
-            AppHelper.app_name, pait_id, path, openapi_path, method_set, route_name if cover_operation_id else ""
+            AppHelper.app_name,
+            pait_id,
+            path,
+            openapi_path,
+            method_set,
+            route_name if override_operation_id else "",
+            overwrite_already_exists_data=overwrite_already_exists_data,
         )
         _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
     elif auto_load_route:
@@ -80,7 +88,13 @@ def _load_route(
             route.app = endpoint
 
         pait_data.add_route_info(
-            AppHelper.app_name, pait_id, path, openapi_path, method_set, route_name if cover_operation_id else ""
+            AppHelper.app_name,
+            pait_id,
+            path,
+            openapi_path,
+            method_set,
+            route_name if override_operation_id else "",
+            overwrite_already_exists_data=overwrite_already_exists_data,
         )
         _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
     else:
@@ -90,13 +104,20 @@ def _load_route(
 def load_app(
     app: Starlette,
     auto_load_route: bool = False,
-    cover_operation_id: bool = False,
+    override_operation_id: bool = False,
+    overwrite_already_exists_data: bool = False,
 ) -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`"""
     _pait_data: Dict[str, PaitCoreModel] = {}
     for route in app.routes:
         if isinstance(route, routing.Route):
-            _load_route(route=route, _pait_data=_pait_data, auto_load_route=auto_load_route)
+            _load_route(
+                route=route,
+                _pait_data=_pait_data,
+                auto_load_route=auto_load_route,
+                override_operation_id=override_operation_id,
+                overwrite_already_exists_data=overwrite_already_exists_data,
+            )
         elif isinstance(route, routing.Mount):
             for sub_route in route.routes:
                 _load_route(
@@ -104,6 +125,8 @@ def load_app(
                     _pait_data=_pait_data,
                     prefix_path=route.path,
                     auto_load_route=auto_load_route,
+                    override_operation_id=override_operation_id,
+                    overwrite_already_exists_data=overwrite_already_exists_data,
                 )
         else:
             logging.info(f"load_app func not support route:{route.__class__}")

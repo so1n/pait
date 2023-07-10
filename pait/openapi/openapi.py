@@ -13,7 +13,7 @@ from any_api.openapi.model.requests import RequestModel
 from pydantic import BaseModel, Field
 from pydantic.fields import FieldInfo, Undefined
 
-from pait.app import load_app
+from pait.app.any.util import import_func_from_app
 from pait.field import BaseField, Depends
 from pait.g import config
 from pait.model.core import PaitCoreModel
@@ -197,10 +197,13 @@ class ParsePaitModel(object):
 
 
 class OpenAPI(object):
+    load_app: staticmethod
+
     def __init__(
         self,
         app: Any,
         undefined: Any = Undefined,
+        load_app: Optional[Callable] = None,
         openapi_info_model: Optional[InfoModel] = None,
         server_model_list: Optional[List[ServerModel]] = None,
         tag_model_list: Optional[List[TagModel]] = None,
@@ -215,7 +218,9 @@ class OpenAPI(object):
             external_docs=external_docs,
             security_dict=security_dict,
         )
-        self._pait_dict: Dict[str, PaitCoreModel] = load_app(app)
+        self._pait_dict: Dict[str, PaitCoreModel] = (
+            load_app or getattr(self, "load_app", None) or import_func_from_app("load_app", app=app)  # type: ignore
+        )(app)
         api_model_list: List[ApiModel] = []
         for pait_id, pait_model in self._pait_dict.items():
             try:

@@ -69,7 +69,8 @@ class PaitCoreModel(object):
         setattr(func, "_pait_id", self.pait_id)
         setattr(func, "pait_core_model", self)
         self.pre_depend_list: List[Callable] = pre_depend_list or []
-        self.func_path: str = ""
+        self.func_path: str = self.func.__code__.co_filename  # type: ignore
+
         self.block_http_method_set: Set[str] = set()
         # TODO
         self.pydantic_model_config: Optional[Type[BaseConfig]] = pydantic_model_config

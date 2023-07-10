@@ -1,5 +1,4 @@
 import logging
-from types import CodeType
 from typing import TYPE_CHECKING, Dict, Set
 
 if TYPE_CHECKING:
@@ -29,17 +28,18 @@ class PaitData(object):
         openapi_path: str,
         method_set: Set[str],
         route_name: str = "",
+        overwrite_already_exists_data: bool = False,
     ) -> None:
         """Route handle information supplemented by load_app"""
         if pait_id in self.pait_id_dict[app_name]:
             model: "PaitCoreModel" = self.pait_id_dict[app_name][pait_id]
+            if not overwrite_already_exists_data and model.path:
+                return
             model.path = path
             model.openapi_path = openapi_path
             model.method_list = sorted(list(method_set or set()), reverse=True)
             if route_name:
                 model.operation_id = route_name
-            func_code: CodeType = model.func.__code__  # type: ignore
-            model.func_path = func_code.co_filename
         else:
             logging.warning(f"load path:{path} fail, pait id:{pait_id}")
 

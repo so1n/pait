@@ -26,7 +26,10 @@ class TestHelper(BaseTestHelper[Response]):
                 self.client.set_cookie("localhost", key, value)
 
     def _gen_pait_dict(self) -> Dict[str, PaitCoreModel]:
-        return load_app(self.client.application)
+        _load_app = self._load_app
+        if not _load_app:
+            _load_app = load_app
+        return _load_app(self.client.application)
 
     @staticmethod
     def _get_status_code(resp: Response) -> int:

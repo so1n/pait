@@ -13,7 +13,6 @@ from pait.model import BaseResponseModel, PaitCoreModel, PaitStatus, Tag
 from pait.plugin.base import PluginManager, PostPluginProtocol, PrePluginProtocol
 
 if TYPE_CHECKING:
-    from pait.openapi.openapi import OpenAPI
     from pait.param_handle import BaseParamHandler
 
 
@@ -54,12 +53,22 @@ except RuntimeError:  # pragma: no cover
     http_exception = Empty()  # type: ignore
 
 
-def load_app(app: Any, auto_load_route: bool = False, cover_operation_id: bool = False) -> Dict[str, PaitCoreModel]:
+def load_app(
+    app: Any,
+    auto_load_route: bool = False,
+    override_operation_id: bool = False,
+    overwrite_already_exists_data: bool = False,
+) -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`
     Note:This is an implicit method
     """
     return base_call_func(
-        "load_app", app, app=app, auto_load_route=auto_load_route, cover_operation_id=cover_operation_id
+        "load_app",
+        app,
+        app=app,
+        auto_load_route=auto_load_route,
+        override_operation_id=override_operation_id,
+        overwrite_already_exists_data=overwrite_already_exists_data,
     )
 
 

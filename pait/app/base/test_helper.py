@@ -41,6 +41,7 @@ class BaseTestHelper(Generic[RESP_T]):
         self,
         client: Any,
         func: Callable,
+        load_app: Optional[Callable] = None,
         pait_dict: Optional[Dict[str, "PaitCoreModel"]] = None,
         body_dict: Optional[dict] = None,
         cookie_dict: Optional[dict] = None,
@@ -68,7 +69,7 @@ class BaseTestHelper(Generic[RESP_T]):
         pait_id: str = getattr(func, "_pait_id", "")
         if not pait_id:
             raise RuntimeError(f"Can not found pait id from {func}")
-
+        self._load_app = load_app or getattr(self, "load_app", None)
         self.client: Any = client
         self.func: Callable = func
         # pait dict handle

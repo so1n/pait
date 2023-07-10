@@ -26,7 +26,10 @@ class TestHelper(BaseTestHelper[HTTPResponse]):
             self.path = self.path[:-1]
 
     def _gen_pait_dict(self) -> Dict[str, PaitCoreModel]:
-        return load_app(self.client.get_app())
+        _load_app = self._load_app
+        if not _load_app:
+            _load_app = load_app
+        return _load_app(self.client.get_app())
 
     @staticmethod
     def _get_status_code(resp: HTTPResponse) -> int:
