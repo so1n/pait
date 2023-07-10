@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 from pydantic.fields import FieldInfo, Undefined
 
 from pait.app.any.util import import_func_from_app
+from pait.data import PaitCoreProxyModel
 from pait.field import BaseField, Depends
 from pait.g import config
 from pait.model.core import PaitCoreModel
@@ -223,6 +224,7 @@ class OpenAPI(object):
         )(app)
         api_model_list: List[ApiModel] = []
         for pait_id, pait_model in self._pait_dict.items():
+            pait_model = PaitCoreProxyModel.get_core_model(pait_model)
             try:
                 parse_pait_model: ParsePaitModel = ParsePaitModel(pait_model)
                 api_model_list.append(

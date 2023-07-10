@@ -49,7 +49,7 @@ def _load_route(
                 pait_id = getattr(method_endpoint, "_pait_id", "")
                 setattr(endpoint, method, method_endpoint)
 
-            pait_data.add_route_info(
+            core_model = pait_data.get_core_model(
                 AppHelper.app_name,
                 pait_id,
                 path,
@@ -58,9 +58,11 @@ def _load_route(
                 f"{route_name}.{method}" if override_operation_id else "",
                 overwrite_already_exists_data=overwrite_already_exists_data,
             )
-            _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
+
+            if core_model:
+                _pait_data[pait_id] = core_model
     elif pait_id:
-        pait_data.add_route_info(
+        core_model = pait_data.get_core_model(
             AppHelper.app_name,
             pait_id,
             path,
@@ -69,7 +71,8 @@ def _load_route(
             route_name if override_operation_id else "",
             overwrite_already_exists_data=overwrite_already_exists_data,
         )
-        _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
+        if core_model:
+            _pait_data[pait_id] = core_model
     elif auto_load_route:
         from pait.app.starlette import pait
 
@@ -87,7 +90,7 @@ def _load_route(
             # Endpoint is a class. Treat it as ASGI.
             route.app = endpoint
 
-        pait_data.add_route_info(
+        core_model = pait_data.get_core_model(
             AppHelper.app_name,
             pait_id,
             path,
@@ -96,7 +99,8 @@ def _load_route(
             route_name if override_operation_id else "",
             overwrite_already_exists_data=overwrite_already_exists_data,
         )
-        _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
+        if core_model:
+            _pait_data[pait_id] = core_model
     else:
         logging.warning(f"{route_name} can not found pait id")  # pragma: no cover
 

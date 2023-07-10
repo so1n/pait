@@ -21,6 +21,7 @@ def load_app(
 ) -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`"""
     _pait_data: Dict[str, PaitCoreModel] = {}
+
     for route in app.url_map.iter_rules():
         path: str = route.rule
         method_set: Set[str] = route.methods
@@ -56,7 +57,7 @@ def load_app(
                     endpoint = pait()(endpoint)
                     pait_id = getattr(endpoint, "_pait_id")
                     app.view_functions[route_name] = endpoint
-                    pait_data.add_route_info(
+                    core_model = pait_data.get_core_model(
                         AppHelper.app_name,
                         pait_id,
                         path,
@@ -65,6 +66,8 @@ def load_app(
                         route_name if override_operation_id else "",
                         overwrite_already_exists_data=overwrite_already_exists_data,
                     )
+                    if core_model:
+                        _pait_data[pait_id] = core_model
                 else:
                     logging.warning(
                         f"loan path:{path} fail, endpoint:{endpoint} not `view_class` attributes"
@@ -84,7 +87,7 @@ def load_app(
                     pait_id = getattr(endpoint, "_pait_id")
                     setattr(view_class_endpoint, method, endpoint)
 
-                pait_data.add_route_info(
+                core_model = pait_data.get_core_model(
                     AppHelper.app_name,
                     pait_id,
                     path,
@@ -93,9 +96,10 @@ def load_app(
                     f"{route_name}.{method}" if override_operation_id else "",
                     overwrite_already_exists_data=overwrite_already_exists_data,
                 )
-                _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
+                if core_model:
+                    _pait_data[pait_id] = core_model
         else:
-            pait_data.add_route_info(
+            core_model = pait_data.get_core_model(
                 AppHelper.app_name,
                 pait_id,
                 path,
@@ -104,5 +108,6 @@ def load_app(
                 route_name if override_operation_id else "",
                 overwrite_already_exists_data=overwrite_already_exists_data,
             )
-        _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
+            if core_model:
+                _pait_data[pait_id] = core_model
     return _pait_data

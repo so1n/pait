@@ -71,7 +71,7 @@ def load_app(
                     logging.warning(f"{route_name} can not found pait id")  # pragma: no cover
                     continue
 
-            pait_data.add_route_info(
+            core_model = pait_data.get_core_model(
                 AppHelper.app_name,
                 pait_id,
                 path,
@@ -80,7 +80,8 @@ def load_app(
                 route_name if override_operation_id else "",
                 overwrite_already_exists_data=overwrite_already_exists_data,
             )
-            _pait_data[pait_id] = pait_data.get_pait_data(AppHelper.app_name, pait_id)
+            if core_model:
+                _pait_data[pait_id] = core_model
 
         # old version
         # for path, handler_dict in route.handlers.items():
