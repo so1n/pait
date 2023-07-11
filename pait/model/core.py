@@ -83,7 +83,7 @@ class PaitCoreModel(object):
         self.openapi_path: str = openapi_path or ""
         self._method_list: List[str] = sorted(list(method_set or set()))  # request method set
         self.func_name: str = func_name or func.__name__
-        self.operation_id: str = operation_id or quote_plus(self.pait_id)
+        self.operation_id: str = operation_id or self.pait_id
         self.author: Optional[Tuple[str, ...]] = author  # The main developer of this func
         self.summary: str = summary or ""
         self.desc: str = desc or func.__doc__ or ""  # desc of this func
@@ -122,6 +122,14 @@ class PaitCoreModel(object):
             for callback in self._change_notify_list:
                 callback(self, key, value)
         return super().__setattr__(key, value)
+
+    @property
+    def operation_id(self) -> str:
+        return self._operation_id
+
+    @operation_id.setter
+    def operation_id(self, operation_id: str) -> None:
+        self._operation_id = quote_plus(operation_id)
 
     @property
     def param_handler_plugin(self) -> Type[BaseParamHandler]:
