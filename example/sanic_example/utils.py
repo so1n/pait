@@ -7,6 +7,7 @@ from sanic.exceptions import SanicException
 
 from pait.app.sanic import Pait
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
+from pait.exceptions import ValidationError as _ValidationError
 from pait.model import PaitStatus
 
 global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
@@ -20,7 +21,7 @@ async def api_exception(request: Request, exc: Exception) -> response.HTTPRespon
         return response.json({"code": -1, "msg": f"error param:{exc.param}, {exc.msg}"})
     elif isinstance(exc, PaitBaseException):
         return response.json({"code": -1, "msg": str(exc)})
-    elif isinstance(exc, ValidationError):
+    elif isinstance(exc, (ValidationError, _ValidationError)):
         error_param_list: list = []
         for i in exc.errors():
             error_param_list.extend(i["loc"])

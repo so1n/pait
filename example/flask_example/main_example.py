@@ -257,7 +257,7 @@ def create_app() -> Flask:
 
     app.errorhandler(PaitBaseException)(api_exception)
     app.errorhandler(ValidationError)(api_exception)
-    app.errorhandler(RuntimeError)(api_exception)
+    app.errorhandler(Exception)(api_exception)
     # support not user @pait route
     load_app(app, auto_load_route=True)
     return app

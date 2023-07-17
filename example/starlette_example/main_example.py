@@ -72,6 +72,7 @@ from example.starlette_example.utils import api_exception, global_pait
 from pait.app.starlette import Pait, load_app, pait
 from pait.app.starlette.plugin.cache_response import CacheResponsePlugin
 from pait.exceptions import PaitBaseException
+from pait.exceptions import ValidationError as _ValidationError
 from pait.field import Header, Json, Query
 from pait.model import PaitStatus, TemplateVar
 from pait.openapi.doc_route import AddDocRoute, add_doc_route
@@ -281,6 +282,7 @@ def create_app() -> Starlette:
 
     app.add_exception_handler(PaitBaseException, api_exception)
     app.add_exception_handler(ValidationError, api_exception)
+    app.add_exception_handler(_ValidationError, api_exception)
     app.add_exception_handler(RuntimeError, api_exception)
     load_app(app, auto_load_route=True)
     return app

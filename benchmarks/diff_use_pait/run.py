@@ -142,7 +142,7 @@ def run_tornado() -> None:
     UserPaitTestTornado().run()
 
 
-if __name__ == "__main__":
+def main() -> None:
     run_flask()
     run_starlette()
     run_tornado()
@@ -151,3 +151,7 @@ if __name__ == "__main__":
     for _, bucket in state_result.items():
         bucket["diff"] = bucket["use-pait"] - bucket["raw"]
     pprint(state_result)
+
+
+if __name__ == "__main__":
+    main()

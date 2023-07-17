@@ -39,7 +39,7 @@ def depend_contextmanager_route(
 ) -> dict:
     if is_raise:
         raise RuntimeError("test")
-    return {"code": 0, "msg": uid}
+    return {"code": 0, "msg": str(uid)}
 
 
 @depend_pait(status=PaitStatus.test, pre_depend_list=[depend.context_depend])

@@ -95,7 +95,7 @@ def auto_complete_json_route() -> dict:
 @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[CheckJsonRespPlugin.build()])
 def check_json_plugin_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
-    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    email: str = Query.i(default="example@xxx.com", description="user email"),
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
     age: int = Query.i(description="age", gt=1, lt=100),
     display_age: int = Query.i(0, description="display_age"),
@@ -150,7 +150,7 @@ async def cache_response1(
 @plugin_pait(response_model_list=[UserSuccessRespModel3], plugin_list=[CheckJsonRespPlugin.build()])
 async def async_check_json_plugin_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
-    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    email: str = Query.i(default="example@xxx.com", description="user email"),
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
     age: int = Query.i(description="age", gt=1, lt=100),
     display_age: int = Query.i(0, description="display_age"),
@@ -179,7 +179,7 @@ async def async_check_json_plugin_route(
 def mock_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
-    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    email: str = Query.i(default="example@xxx.com", description="user email"),
     multi_user_name: List[str] = MultiQuery.i(description="user name", min_length=2, max_length=4),
     age: int = Path.i(description="age", gt=1, lt=100),
     sex: SexEnum = Query.i(description="sex"),
@@ -210,7 +210,7 @@ def mock_route(
 async def async_mock_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
-    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    email: str = Query.i(default="example@xxx.com", description="user email"),
     multi_user_name: List[str] = MultiQuery.i(description="user name", min_length=2, max_length=4),
     age: int = Path.i(description="age", gt=1, lt=100),
     sex: SexEnum = Query.i(description="sex"),

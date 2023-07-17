@@ -41,7 +41,7 @@ async def depend_contextmanager_route(
 ) -> response.HTTPResponse:
     if is_raise:
         raise RuntimeError()
-    return response.json({"code": 0, "msg": uid})
+    return response.json({"code": 0, "msg": str(uid)})
 
 
 @depend_pait(status=PaitStatus.test, pre_depend_list=[depend.context_depend])
@@ -57,7 +57,7 @@ async def depend_async_contextmanager_route(
 ) -> response.HTTPResponse:
     if is_raise:
         raise RuntimeError()
-    return response.json({"code": 0, "msg": uid})
+    return response.json({"code": 0, "msg": str(uid)})
 
 
 @depend_pait(status=PaitStatus.test, pre_depend_list=[depend.async_context_depend])

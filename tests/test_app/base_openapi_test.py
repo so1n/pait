@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type
 
 from any_api.openapi import BaseResponseModel
 from any_api.openapi.model.openapi import (
@@ -11,8 +11,12 @@ from any_api.openapi.model.openapi import (
 )
 
 from example.common import response_model
+from pait import _pydanitc_adapter
 from pait.app.base.security.oauth2 import OAuth2PasswordRequestFrom
 from pait.openapi.openapi import OpenAPI
+
+if TYPE_CHECKING:
+    from any_api.openapi.model.util import HttpMethodLiteral  # isort:skip
 
 
 class BasicTestOpenAPI(object):
@@ -21,7 +25,7 @@ class BasicTestOpenAPI(object):
         self.pait_openapi: OpenAPI = OpenAPI(app)
 
     def _test_success_response_and_fail_response(
-        self, response_dict: Dict[str, ResponseModel], success_resp_model: BaseResponseModel
+        self, response_dict: Dict[str, ResponseModel], success_resp_model: Type[BaseResponseModel]
     ) -> None:
         assert response_dict["200"].description == "success response|fail response"
         resp_schema_dict: dict = response_dict["200"].content["application/json"].schema_["oneOf"]
@@ -30,14 +34,13 @@ class BasicTestOpenAPI(object):
         fail_resp_model_key: str = resp_schema_dict[1]["$ref"].split("/")[-1]
         self._test_nested_model(
             self.pait_openapi.model.components["schemas"][success_resp_model_key],
-            success_resp_model.response_data.schema(),
-            success_resp_model.response_data.schema(),
+            _pydanitc_adapter.model_json_schema(success_resp_model.response_data),
+            _pydanitc_adapter.model_json_schema(success_resp_model.response_data),
         )
 
-        assert (
-            self.pait_openapi.model.components["schemas"][fail_resp_model_key]
-            == response_model.FailRespModel.response_data.schema()
-        )
+        assert self.pait_openapi.model.components["schemas"][
+            fail_resp_model_key
+        ] == _pydanitc_adapter.model_json_schema(response_model.FailRespModel.response_data)
 
     def _test_simple_response_and_fail_response(self, response_dict: Dict[str, ResponseModel]) -> None:
         self._test_success_response_and_fail_response(response_dict, response_model.SimpleRespModel)
@@ -49,7 +52,7 @@ class BasicTestOpenAPI(object):
                 pydantic_k = pydantic_schema[k].split("/")[-1]
                 self._test_nested_model(
                     self.pait_openapi.model.components["schemas"][openapi_k],
-                    raw_pydantic_schema["definitions"][pydantic_k],
+                    raw_pydantic_schema["$defs"][pydantic_k],
                     raw_pydantic_schema,
                 )
             elif k == "allOf":
@@ -57,7 +60,7 @@ class BasicTestOpenAPI(object):
                 pydantic_k = pydantic_schema[k][0]["$ref"].split("/")[-1]
                 self._test_nested_model(
                     self.pait_openapi.model.components["schemas"][openapi_k],
-                    raw_pydantic_schema["definitions"][pydantic_k],
+                    raw_pydantic_schema["$defs"][pydantic_k],
                     raw_pydantic_schema,
                 )
             elif isinstance(v, dict):
@@ -358,6 +361,11 @@ class _TestFieldOpenAPI(BasicTestOpenAPI):
             "maxLength": 4,
             "minLength": 2,
             "type": "array",
+        } or route_dict["post"].parameters[2].schema_ == {
+            "items": {"type": "string"},
+            "type": "array",
+            "maxItems": 4,
+            "minItems": 2,
         }
 
         assert route_dict["post"].parameters[3].description == "user id"
@@ -517,9 +525,8 @@ class _TestSecurityOpenAPI(BasicTestOpenAPI):
 
         rp_schema_key = route_dict["get"].responses["200"].content["application/json"].schema_["$ref"]
         rp_schema_key = rp_schema_key.split("/")[-1]
-        assert (
-            self.pait_openapi.model.components["schemas"][rp_schema_key]
-            == response_model.SuccessRespModel.response_data.schema()
+        assert self.pait_openapi.model.components["schemas"][rp_schema_key] == _pydanitc_adapter.model_json_schema(
+            response_model.SuccessRespModel.response_data
         )
 
         for status_code in ["401", "403"]:
@@ -565,9 +572,8 @@ class _TestSecurityOpenAPI(BasicTestOpenAPI):
 
         rp_schema_key = route_dict["get"].responses["200"].content["application/json"].schema_["$ref"]
         rp_schema_key = rp_schema_key.split("/")[-1]
-        assert (
-            self.pait_openapi.model.components["schemas"][rp_schema_key]
-            == response_model.SuccessRespModel.response_data.schema()
+        assert self.pait_openapi.model.components["schemas"][rp_schema_key] == _pydanitc_adapter.model_json_schema(
+            response_model.SuccessRespModel.response_data
         )
         try:
             assert route_dict["get"].responses["403"].content["text/html"].schema_ == {
@@ -613,9 +619,8 @@ class _TestSecurityOpenAPI(BasicTestOpenAPI):
 
         rp_schema_key = route_dict["get"].responses["200"].content["application/json"].schema_["$ref"]
         rp_schema_key = rp_schema_key.split("/")[-1]
-        assert (
-            self.pait_openapi.model.components["schemas"][rp_schema_key]
-            == response_model.SuccessRespModel.response_data.schema()
+        assert self.pait_openapi.model.components["schemas"][rp_schema_key] == _pydanitc_adapter.model_json_schema(
+            response_model.SuccessRespModel.response_data
         )
         for status_code in ["400", "401"]:
             try:
@@ -653,7 +658,11 @@ class _TestSecurityOpenAPI(BasicTestOpenAPI):
         rb_schema_key = rb_schema_key.split("/")[-1]
         rb_schema: dict = self.pait_openapi.model.components["schemas"][rb_schema_key]
         rb_schema.pop("title")
-        self._test_nested_model(rb_schema, OAuth2PasswordRequestFrom.schema(), OAuth2PasswordRequestFrom.schema())
+        self._test_nested_model(
+            rb_schema,
+            _pydanitc_adapter.model_json_schema(OAuth2PasswordRequestFrom),
+            _pydanitc_adapter.model_json_schema(OAuth2PasswordRequestFrom),
+        )
 
 
 class _TestResponseOpenAPI(BasicTestOpenAPI):
@@ -712,7 +721,7 @@ class _TestResponseOpenAPI(BasicTestOpenAPI):
 
         self._test_success_response_and_fail_response(route_dict["get"].responses, response_model.UserSuccessRespModel3)
 
-    def _test_response(self, resp_type: str, resp_model: BaseResponseModel) -> None:
+    def _test_response(self, resp_type: str, resp_model: Type[BaseResponseModel]) -> None:
         for path in [f"/api/resp/{resp_type}-resp", f"/api/resp/async-{resp_type}-resp"]:
             if path not in self.pait_openapi.model.paths:
                 continue
@@ -884,7 +893,7 @@ class _TestOtherOpenAPI(BasicTestOpenAPI):
     def test_not_pait_cbv_route(self) -> None:
         route_dict = self.pait_openapi.model.paths.pop("/api/not-pait-cbv")
 
-        for http_method in ["get", "post"]:
+        for http_method in ["get", "post"]:  # type: HttpMethodLiteral
             assert any(
                 [
                     i in route_dict[http_method].operation_id
@@ -924,8 +933,8 @@ class _TestOtherOpenAPI(BasicTestOpenAPI):
 
         self._test_nested_model(
             self.pait_openapi.model.components["schemas"][rp_schema_key],
-            response_model.LoginRespModel.response_data.schema(),
-            response_model.LoginRespModel.response_data.schema(),
+            _pydanitc_adapter.model_json_schema(response_model.LoginRespModel.response_data),
+            _pydanitc_adapter.model_json_schema(response_model.LoginRespModel.response_data),
         )
 
         for key in [
@@ -968,8 +977,8 @@ class _TestOtherOpenAPI(BasicTestOpenAPI):
 
         self._test_nested_model(
             self.pait_openapi.model.components["schemas"][rp_schema_key],
-            response_model.SuccessRespModel.response_data.schema(),
-            response_model.SuccessRespModel.response_data.schema(),
+            _pydanitc_adapter.model_json_schema(response_model.SuccessRespModel.response_data),
+            _pydanitc_adapter.model_json_schema(response_model.SuccessRespModel.response_data),
         )
 
     def test_not_pait_route(self) -> None:

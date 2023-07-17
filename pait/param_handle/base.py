@@ -2,13 +2,11 @@ import inspect
 import logging
 from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Type, Union
 
-from pydantic import BaseConfig, BaseModel
-from pydantic.error_wrappers import ValidationError
-from pydantic.fields import ModelField, Undefined, UndefinedType
-from pydantic.schema import get_annotation_from_field_info
+from pydantic import BaseModel
 from typing_extensions import Self  # type: ignore
 
-from pait import field
+from pait import _pydanitc_adapter, field
+from pait._pydanitc_adapter import PydanticUndefined, PydanticUndefinedType, get_field_extra, is_v1
 from pait.exceptions import (
     FieldValueTypeException,
     NotFoundFieldException,
@@ -84,7 +82,7 @@ class BaseParamHandler(PluginProtocol):
     def check_field_type(value: Any, target_type: Any, error_msg: str) -> None:
         if value is ...:
             return
-        if isinstance(value, UndefinedType):
+        if isinstance(value, PydanticUndefinedType):
             return
         if inspect.isclass(target_type) and isinstance(value, target_type):
             return
@@ -142,7 +140,7 @@ class BaseParamHandler(PluginProtocol):
                         f"{parameter.name}'s Field.default_factory type must {parameter.annotation}."
                         f" value:{parameter.default.default_factory()}",
                     )
-                example_value: Any = parameter.default.extra.get("example", Undefined)
+                example_value: Any = get_field_extra(parameter.default).get("example", PydanticUndefined)
                 cls.check_field_type(
                     example_value_handle(example_value),
                     parameter.annotation,
@@ -244,8 +242,8 @@ class BaseParamHandler(PluginProtocol):
         annotation: Type[BaseModel] = parameter.annotation
 
         if not pait_field.raw_return:
-            request_value = pait_field.request_value_handle(request_value)
-            if request_value is Undefined:
+            request_value = pait_field.request_value_handle(request_value, request_key=pait_field.request_key)
+            if request_value is PydanticUndefined:
                 raise (
                     pait_field.not_value_exception
                     or NotFoundValueException(parameter.name, f"Can not found {parameter.name} value")
@@ -259,19 +257,19 @@ class BaseParamHandler(PluginProtocol):
             kwargs_param_dict[parameter.name] = annotation(**request_value)
         else:
             # parse annotation is python type and pydantic.field
-            request_value, e = ModelField(
-                name=parameter.name,
-                type_=get_annotation_from_field_info(annotation, pait_field, parameter.name),
-                model_config=BaseConfig,
+            if not is_v1:
+                # Fix _model_field.validate method not support like flask ImmutableMultiDict:
+                #    e.g:
+                #       intput: ImmutableMultiDict([('pin-code', '6666'), ('template-token', 'xxx')])
+                #       output:{"pin-code": ["6666"], "template-token": ["xxx"]}
+                #       But the desired result is: {"pin-code": "6666", "template-token": "xxx"}
+                if isinstance(request_value, dict):
+                    request_value = dict(request_value)
+            request_value = _pydanitc_adapter.validate_value_by_field(
+                value=request_value,
+                value_name=parameter.name,
+                annotation=annotation,
                 field_info=pait_field,
-                class_validators={},
-                # Since the corresponding value has already been processed, there is no need to process it again
-                # default: Any = None,
-                # default_factory: Optional[NoArgAnyCallable] = None,
-                # required: 'BoolUndefined' = Undefined,
-                # final: bool = False,
-                # alias: Optional[str] = None,
-            ).validate(request_value, kwargs_param_dict, loc=(pait_field.get_field_name(), parameter.name))
-            if e:
-                raise ValidationError([e], BaseModel)
+                request_param=pait_field.get_field_name(),
+            )
             kwargs_param_dict[parameter.name] = request_value

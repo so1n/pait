@@ -67,6 +67,7 @@ from example.sanic_example.utils import api_exception, global_pait
 from pait.app.sanic import Pait, load_app, pait
 from pait.app.sanic.plugin.cache_response import CacheResponsePlugin
 from pait.exceptions import PaitBaseException
+from pait.exceptions import ValidationError as _ValidationError
 from pait.field import Header, Json, Query
 from pait.model import PaitStatus, TemplateVar
 from pait.openapi.doc_route import AddDocRoute, add_doc_route
@@ -268,7 +269,7 @@ def create_app(configure_logging: bool = True) -> Sanic:
     )
     app.add_route(get_user_name_by_http_bearer, "/api/security/user-name-by-http-bearer", methods=["GET"])
     app.add_route(get_user_name_by_http_digest, "/api/security/user-name-by-http-digest", methods=["GET"])
-    app.exception(PaitBaseException, ValidationError, RuntimeError, SanicException)(api_exception)
+    app.exception(PaitBaseException, ValidationError, _ValidationError, RuntimeError, SanicException)(api_exception)
     # app.exception(ValidationError)(api_exception)
     # app.exception(RuntimeError)(api_exception)
     # app.exception(SanicException)(api_exception)

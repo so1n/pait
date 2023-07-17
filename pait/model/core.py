@@ -1,5 +1,6 @@
 import copy
 import logging
+import traceback
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
 from urllib.parse import quote_plus
 
@@ -144,7 +145,9 @@ class PaitCoreModel(object):
                 self._param_handler_plugin.pre_check_hook(self)
             self._param_handler_plugin.pre_load_hook(self)
         except Exception as e:
-            raise gen_tip_exc(self.func, RuntimeError(f"set param plugin error: {e}")) from e
+            raise gen_tip_exc(
+                self.func, RuntimeError(f"set param plugin error: {e}" + "\n\n" + traceback.format_exc())
+            ) from e
         self.add_plugin([], [])
 
     @property
@@ -221,6 +224,8 @@ class PaitCoreModel(object):
         except Exception as e:
             self._plugin_list = raw_plugin_list
             self._post_plugin_list = raw_post_plugin_list
-            raise gen_tip_exc(self.func, RuntimeError(f"{self.func} add plugin error")) from e
+            raise gen_tip_exc(
+                self.func, RuntimeError(f"{self.func} add plugin error" + "\n\n" + traceback.format_exc())
+            ) from e
         else:
             self.build_plugin_stack()

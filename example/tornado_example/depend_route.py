@@ -42,7 +42,7 @@ class DependContextmanagerHanler(MyHandler):
     async def get(self, uid: int = Depends.i(depend.context_depend), is_raise: bool = Query.i(default=False)) -> None:
         if is_raise:
             raise RuntimeError()
-        self.write({"code": 0, "msg": uid})
+        self.write({"code": 0, "msg": str(uid)})
 
 
 class DependAsyncContextmanagerHanler(MyHandler):
@@ -52,7 +52,7 @@ class DependAsyncContextmanagerHanler(MyHandler):
     ) -> None:
         if is_raise:
             raise RuntimeError()
-        self.write({"code": 0, "msg": uid})
+        self.write({"code": 0, "msg": str(uid)})
 
 
 class PreDependContextmanagerHanler(MyHandler):

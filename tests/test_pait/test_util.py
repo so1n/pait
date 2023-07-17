@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field, conint, constr
 from pytest_mock import MockFixture
 
 import pait.util._pydantic_util
-from pait import field, util
+from pait import _pydanitc_adapter, field, util
 
 pytestmark = pytest.mark.asyncio
 
@@ -200,7 +200,7 @@ class TestUtil:
             h: List[str] = Field()
             i: Dict[str, List[int]] = Field()
 
-        assert util.gen_example_dict_from_schema(Demo.schema()) == {
+        assert util.gen_example_dict_from_schema(_pydanitc_adapter.model_json_schema(Demo)) == {
             "a": 0,
             "b": "mock",
             "alias_c": True,
@@ -212,7 +212,7 @@ class TestUtil:
             "i": {},
         }
         assert (
-            util.gen_example_json_from_schema(Demo.schema())
+            util.gen_example_json_from_schema(_pydanitc_adapter.model_json_schema(Demo))
             == '{"a": 0, "b": "mock", "alias_c": true, "d": 2.1, "e": 0, "f": "", "g": "man", "h": [], "i": {}}'
         )
 
@@ -221,7 +221,7 @@ class TestUtil:
             {"a": (int, ...), "b": (str, ...)}
         )
         pydantic_model = pydantic_model_class(a=1, b="a")
-        assert pydantic_model.dict() == {"a": 1, "b": "a"}
+        assert _pydanitc_adapter.model_dump(pydantic_model) == {"a": 1, "b": "a"}
 
     def test_func_sig(self) -> None:
         def demo(a: int, b: str) -> int:
