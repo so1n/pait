@@ -1,4 +1,5 @@
 import copy
+import warnings
 from dataclasses import MISSING
 from typing import TYPE_CHECKING, Any, Callable, List, Mapping, Optional, TypeVar
 
@@ -60,7 +61,10 @@ class BaseField(FieldInfo):
         min_length: Optional[int] = None,
         max_length: Optional[int] = None,
         regex: Annotated[Optional[str], _regex_deprecated] = None,
+        # pydantic v2 param
         pattern: Optional[str] = None,
+        validation_alias: Optional[str] = None,
+        serialization_alias: Optional[str] = None,
         **extra: Any,
     ):
         """
@@ -105,16 +109,6 @@ class BaseField(FieldInfo):
         ##########################
         # pydantic V1 V2 adapter #
         ##########################
-        if regex and pattern:
-            raise ValueError("cannot specify both `regex` and `pattern`, should use pattern")  # pragma: no cover
-        if _pydanitc_adapter.is_v1:
-            extra["const"] = const
-            if pattern:
-                extra["regex"] = pattern
-        else:
-            if regex:
-                extra["pattern"] = regex
-            extra = {"json_schema_extra": copy.deepcopy(extra)}
         kwargs = dict(
             default=default,
             default_factory=default_factory,
@@ -131,19 +125,33 @@ class BaseField(FieldInfo):
             min_length=min_length,
             max_length=max_length,
         )
-        if not _pydanitc_adapter.is_v1:
-            # TODO support validation_alias and serialization_alias param
-            kwargs["validation_alias"] = alias
-            kwargs["serialization_alias"] = alias
-            # validation_alias=alias,
-            # serialization_alias=alias,
+        if regex and pattern:
+            raise ValueError("cannot specify both `regex` and `pattern`, should use pattern")  # pragma: no cover
+        if _pydanitc_adapter.is_v1:
+            extra["const"] = const
+            if pattern:
+                extra["regex"] = pattern
+            if validation_alias:
+                warnings.warn("Pydantic V1 not support param `validation_alias`")
+            if serialization_alias:
+                warnings.warn("Pydantic V1 not support param `serialization_alias`")
+        else:
+            if regex:
+                extra["pattern"] = regex
+            kwargs["validation_alias"] = validation_alias or alias
+            kwargs["serialization_alias"] = serialization_alias or alias
 
-        kwargs.update(extra)
+            extra = {"json_schema_extra": copy.deepcopy(extra)}
+
+        if extra:
+            kwargs.update(extra)
         super().__init__(**kwargs)
 
     def set_alias(self, value: Optional[str]) -> None:
-        # TODO support validation_alias and serialization_alias param
         self.alias = value
+        if not _pydanitc_adapter.is_v1:
+            self.validation_alias = value
+            self.serialization_alias = value
         if value is not None:
             self.request_key = value
 
