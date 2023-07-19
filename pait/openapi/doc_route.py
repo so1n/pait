@@ -183,7 +183,7 @@ class AddDocRoute(object):
 
     def _get_doc_route(self) -> Callable:
         dynamic_enum_class: Type[Enum] = DocEnum(  # type: ignore
-            "DynamicEnum", {key: key for key in self._doc_fn_dict.keys()}
+            f"OpenAPI{self.title.title()}DocEnum", {key: key for key in self._doc_fn_dict.keys()}
         )
 
         @self._doc_pait(

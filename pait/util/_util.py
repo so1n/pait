@@ -25,13 +25,14 @@ from typing import (  # type: ignore
     get_type_hints,
 )
 
+from packaging import version
 from pydantic import BaseModel
-from pydantic.fields import FieldInfo, Undefined, UndefinedType
 from typing_extensions import is_typeddict
 
 from pait.field import BaseField, Depends, is_pait_field
 from pait.types import ParamSpec
 
+from .. import _pydanitc_adapter
 from ._types import ParseTypeError, parse_typing
 
 if TYPE_CHECKING:
@@ -174,9 +175,18 @@ def get_real_annotation(annotation: Union[Type, str], target_obj: Any) -> Type:
     return _eval_type(new_annotation, global_dict, None)
 
 
+_is_lt_v_1_10 = version.Version(_pydanitc_adapter.VERSION) < version.Version("1.10")
+
+
 def get_pydantic_annotation(key: str, pydantic_base_model: Type[BaseModel]) -> Type:
     """Get the annotation from BaseModel's properties"""
-    annotation = pydantic_base_model.__fields__[key].annotation
+    if _is_lt_v_1_10:
+        from typing_extensions import get_type_hints
+
+        annotation = get_type_hints(pydantic_base_model)[key]
+    else:
+        # pydantic version > 1.10
+        annotation = _pydanitc_adapter.model_fields(pydantic_base_model)[key].annotation
     annotation = get_real_annotation(annotation, pydantic_base_model)
     if getattr(annotation, "real", None) and annotation != bool:
         # support like pydantic.ConstrainedIntValue
@@ -249,28 +259,34 @@ def gen_example_dict_from_pydantic_base_model(
     :param example_column_name: Gets sample values from the properties specified by pydantic.FieldInfo
     """
     gen_dict: Dict[str, Any] = {}
-    for key, model_field in pydantic_base_model.__fields__.items():
+    for key, model_field in _pydanitc_adapter.model_fields(pydantic_base_model).items():
+        field_info = _pydanitc_adapter.get_field_info(model_field)
+
         if model_field.alias:
             real_key = model_field.alias
+        else:
+            real_key = key
         if example_column_name:
-            example_value: Any = model_field.field_info.extra.get(example_column_name, Undefined)
-            if not isinstance(example_value, UndefinedType):
+            example_value: Any = _pydanitc_adapter.get_field_extra(field_info).get(
+                example_column_name, _pydanitc_adapter.PydanticUndefined
+            )
+            if example_value is not _pydanitc_adapter.PydanticUndefined:
                 gen_dict[real_key] = example_value_handle(example_value)
                 continue
 
-        if not isinstance(model_field.field_info.default, UndefinedType):
-            gen_dict[real_key] = model_field.field_info.default
-        elif model_field.field_info.default_factory and not isinstance(
-            model_field.field_info.default_factory, UndefinedType
-        ):
-            gen_dict[real_key] = model_field.field_info.default_factory()
+        if field_info.default is not _pydanitc_adapter.PydanticUndefined:
+            gen_dict[real_key] = field_info.default
+        elif field_info.default_factory and field_info.default_factory is not _pydanitc_adapter.PydanticUndefined:
+            gen_dict[real_key] = field_info.default_factory()
         else:
             annotation: Type = get_pydantic_annotation(key, pydantic_base_model)
             gen_dict[real_key] = gen_example_value_from_type(annotation, example_column_name=example_column_name)
     return gen_dict
 
 
-def gen_example_dict_from_schema(schema_dict: Dict[str, Any], definition_dict: Optional[dict] = None) -> Dict[str, Any]:
+def gen_example_dict_from_schema(
+    schema_dict: Dict[str, Any], definition_dict: Optional[dict] = None, definition_key: str = "$defs"
+) -> Dict[str, Any]:
     gen_dict: Dict[str, Any] = {}
     if "enum" in schema_dict:
         return schema_dict["enum"][0]
@@ -278,7 +294,7 @@ def gen_example_dict_from_schema(schema_dict: Dict[str, Any], definition_dict: O
         return gen_dict
     property_dict: Dict[str, Any] = schema_dict["properties"]
     if not definition_dict:
-        _definition_dict: dict = schema_dict.get("definitions", {})
+        _definition_dict: dict = schema_dict.get(definition_key, {})
     else:
         _definition_dict = definition_dict
     for key, value in property_dict.items():
@@ -321,8 +337,8 @@ def get_parameter_list_from_pydantic_basemodel(
     if parameter_list is not None:
         return parameter_list
     parameter_list = []
-    for key, model_field in pait_model.__fields__.items():
-        field: FieldInfo = model_field.field_info
+    for key, model_field in _pydanitc_adapter.model_fields(pait_model).items():
+        field = _pydanitc_adapter.get_field_info(model_field)
         if not is_pait_field(field):
             if not default_field_class:
                 raise TypeError(  # pragma: no cover
@@ -355,7 +371,7 @@ def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:
     parameter_list = []
     if hasattr(cbv_class, "__annotations__"):
         for param_name, param_annotation in get_type_hints(cbv_class).items():
-            default: Any = getattr(cbv_class, param_name, Undefined)
+            default: Any = getattr(cbv_class, param_name, _pydanitc_adapter.PydanticUndefined)
             if not is_pait_field(default):
                 continue
 

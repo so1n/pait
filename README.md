@@ -53,6 +53,7 @@ Pait is an api tool that can be used in any python web framework, the features p
  - [x] gRPC Gateway route
  - [x] TestClient support, support response result verification
  - [x] Support for plugin extensions, such as the Mock plugin, CheckResponse Plugin, Cache Response Plugin
+ - [X] Support Pydantic V1 and V2
  - [ ] WebSocket support
  - [ ] Auto API Test support
 

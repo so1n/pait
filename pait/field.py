@@ -1,17 +1,24 @@
+import copy
+import warnings
 from dataclasses import MISSING
 from typing import TYPE_CHECKING, Any, Callable, List, Mapping, Optional, TypeVar
 
 from pydantic import BaseModel
-from pydantic.fields import FieldInfo, Undefined
-from pydantic.typing import NoArgAnyCallable
+from pydantic.fields import FieldInfo
+from typing_extensions import deprecated  # type: ignore[attr-defined]
+from typing_extensions import Annotated
 
+from pait import _pydanitc_adapter
 from pait.types import CallType, ParamSpec
 
 if TYPE_CHECKING:
     from pait.openapi.openapi import LinksModel
 
+_regex_deprecated = deprecated("Deprecated in Pydantic v2, use `pattern` instead.")
+_const_deprecated = deprecated("Deprecated in Pydantic v2")
 
 _T = TypeVar("_T")
+PydanticUndefined = _pydanitc_adapter.PydanticUndefined
 
 
 class ExtraParam(BaseModel):
@@ -25,7 +32,7 @@ class BaseField(FieldInfo):
 
     def __init__(
         self,
-        default: Any = Undefined,
+        default: Any = PydanticUndefined,
         *,
         links: "Optional[LinksModel]" = None,
         media_type: str = "",
@@ -36,11 +43,14 @@ class BaseField(FieldInfo):
         openapi_include: bool = True,
         extra_param_list: Optional[List[ExtraParam]] = None,
         # pydantic.Field param
-        default_factory: Optional[NoArgAnyCallable] = None,
+        default_factory: Optional[Callable[[], Any]] = None,
         alias: Optional[str] = None,
         title: Optional[str] = None,
         description: Optional[str] = None,
-        const: Optional[bool] = None,
+        const: Annotated[
+            Optional[bool],
+            _const_deprecated,
+        ] = None,
         gt: Optional[float] = None,
         ge: Optional[float] = None,
         lt: Optional[float] = None,
@@ -50,7 +60,11 @@ class BaseField(FieldInfo):
         max_items: Optional[int] = None,
         min_length: Optional[int] = None,
         max_length: Optional[int] = None,
-        regex: Optional[str] = None,
+        regex: Annotated[Optional[str], _regex_deprecated] = None,
+        # pydantic v2 param
+        pattern: Optional[str] = None,
+        validation_alias: Optional[str] = None,
+        serialization_alias: Optional[str] = None,
         **extra: Any,
     ):
         """
@@ -66,11 +80,11 @@ class BaseField(FieldInfo):
         :param extra_param_list: Extended parameters for plug-ins to use
         """
         # Same checks as pydantic, checked in advance here
-        if default is not Undefined and default_factory is not None:
+        if default is not PydanticUndefined and default_factory is not None:
             raise ValueError("cannot specify both default and default_factory")  # pragma: no cover
 
         # Reduce runtime judgments by preloading
-        if default is not Undefined:
+        if default is not PydanticUndefined:
             self.request_value_handle = self.request_value_handle_by_default  # type: ignore
         elif default_factory is not None:
             self.request_value_handle = self.request_value_handle_by_default_factory  # type: ignore
@@ -92,13 +106,15 @@ class BaseField(FieldInfo):
         self.openapi_serialization = openapi_serialization or self.__class__.openapi_serialization
         self.extra_param_list: List[ExtraParam] = extra_param_list or []
 
-        super().__init__(
-            default,
+        ##########################
+        # pydantic V1 V2 adapter #
+        ##########################
+        kwargs = dict(
+            default=default,
             default_factory=default_factory,
             alias=alias,
             title=title,
             description=description,
-            const=const,
             gt=gt,
             ge=ge,
             lt=lt,
@@ -108,27 +124,60 @@ class BaseField(FieldInfo):
             max_items=max_items,
             min_length=min_length,
             max_length=max_length,
-            regex=regex,
-            **extra,
         )
+        if regex and pattern:
+            raise ValueError("cannot specify both `regex` and `pattern`, should use pattern")  # pragma: no cover
+        if _pydanitc_adapter.is_v1:
+            extra["const"] = const
+            if pattern:
+                extra["regex"] = pattern
+            if validation_alias:
+                warnings.warn("Pydantic V1 not support param `validation_alias`")
+            if serialization_alias:
+                warnings.warn("Pydantic V1 not support param `serialization_alias`")
+        else:
+            if regex:
+                extra["pattern"] = regex
+            kwargs["validation_alias"] = validation_alias or alias
+            kwargs["serialization_alias"] = serialization_alias or alias
+
+            extra = {"json_schema_extra": copy.deepcopy(extra)}
+
+        if extra:
+            kwargs.update(extra)
+        super().__init__(**kwargs)
 
     def set_alias(self, value: Optional[str]) -> None:
         self.alias = value
+        if not _pydanitc_adapter.is_v1:
+            self.validation_alias = value
+            self.serialization_alias = value
         if value is not None:
             self.request_key = value
 
-    def request_value_handle(self, request_value: Mapping) -> Any:
-        return request_value.get(self.request_key, Undefined)
+    #######################
+    # Fix pydantic v2 bug #
+    #######################
+    # e.g:
+    #   request_value_handle_by_default and request_value_handle_by_default_factory method is dynamically set,
+    #   so can't get the value through self:
+    #       self.request_key == ''
+    #   but:
+    #       Demo = Body()
+    #       Demo.set_alias('demo')
+    #       assert Demo.request_key == 'demo'
+    def request_value_handle(self, request_value: Mapping, request_key: str = "") -> Any:
+        return request_value.get(request_key or self.request_key, PydanticUndefined)
 
-    def request_value_handle_by_default(self, request_value: Mapping) -> Any:
-        return request_value.get(self.request_key, self.default)
+    def request_value_handle_by_default(self, request_value: Mapping, request_key: str = "") -> Any:
+        return request_value.get(request_key or self.request_key, self.default)
 
-    def request_value_handle_by_default_factory(self, request_value: Mapping) -> Any:
-        return request_value.get(self.request_key, self.default_factory())
+    def request_value_handle_by_default_factory(self, request_value: Mapping, request_key: str = "") -> Any:
+        return request_value.get(request_key or self.request_key, self.default_factory())
 
     @property
     def links(self) -> "Optional[LinksModel]":
-        return self.extra.get("links", None)
+        return _pydanitc_adapter.get_field_extra(self).get("links", None)
 
     @classmethod
     def get_field_name(cls) -> str:
@@ -137,7 +186,7 @@ class BaseField(FieldInfo):
     @classmethod
     def i(
         cls,
-        default: Any = Undefined,
+        default: Any = PydanticUndefined,
         *,
         links: "Optional[LinksModel]" = None,
         raw_return: bool = False,
@@ -146,11 +195,14 @@ class BaseField(FieldInfo):
         openapi_serialization: Any = None,
         not_value_exception: Optional[Exception] = None,
         openapi_include: bool = True,
-        default_factory: Optional[NoArgAnyCallable] = None,
+        default_factory: Optional[Callable[[], Any]] = None,
         alias: Optional[str] = None,
         title: Optional[str] = None,
         description: Optional[str] = None,
-        const: Optional[bool] = None,
+        const: Annotated[
+            Optional[bool],
+            _const_deprecated,
+        ] = None,
         gt: Optional[float] = None,
         ge: Optional[float] = None,
         lt: Optional[float] = None,
@@ -160,7 +212,8 @@ class BaseField(FieldInfo):
         max_items: Optional[int] = None,
         min_length: Optional[int] = None,
         max_length: Optional[int] = None,
-        regex: Optional[str] = None,
+        regex: Annotated[Optional[str], _regex_deprecated] = None,
+        pattern: Optional[str] = None,
         extra_param_list: Optional[List[ExtraParam]] = None,
         **extra: Any,
     ) -> Any:
@@ -189,6 +242,7 @@ class BaseField(FieldInfo):
             min_length=min_length,
             max_length=max_length,
             regex=regex,
+            pattern=pattern,
             extra_param_list=extra_param_list,
             **extra,
         )
@@ -196,7 +250,7 @@ class BaseField(FieldInfo):
     @classmethod
     def t(
         cls,
-        default: _T = Undefined,
+        default: _T = PydanticUndefined,
         *,
         links: "Optional[LinksModel]" = None,
         raw_return: bool = False,
@@ -209,7 +263,10 @@ class BaseField(FieldInfo):
         alias: Optional[str] = None,
         title: Optional[str] = None,
         description: Optional[str] = None,
-        const: Optional[bool] = None,
+        const: Annotated[
+            Optional[bool],
+            _const_deprecated,
+        ] = None,
         gt: Optional[float] = None,
         ge: Optional[float] = None,
         lt: Optional[float] = None,
@@ -219,7 +276,11 @@ class BaseField(FieldInfo):
         max_items: Optional[int] = None,
         min_length: Optional[int] = None,
         max_length: Optional[int] = None,
-        regex: Optional[str] = None,
+        regex: Annotated[
+            Optional[str],
+            _regex_deprecated,
+        ] = None,
+        pattern: Optional[str] = None,
         extra_param_list: Optional[List[ExtraParam]] = None,
         **extra: Any,
     ) -> _T:
@@ -248,6 +309,7 @@ class BaseField(FieldInfo):
             min_length=min_length,
             max_length=max_length,
             regex=regex,
+            pattern=pattern,
             extra_param_list=extra_param_list,
             **extra,
         )
@@ -255,25 +317,54 @@ class BaseField(FieldInfo):
     @classmethod
     def from_pydantic_field(cls, field: FieldInfo) -> "BaseField":
         """use replace pydantic property field"""
+        extra_dict = _pydanitc_adapter.get_field_extra(field)
+        extra_dict["extra_param_list"] = extra_dict.pop("extra_param_list", None)
+        if _pydanitc_adapter.is_v1:
+            for key in [
+                "const",
+                "gt",
+                "ge",
+                "lt",
+                "le",
+                "multiple_of",
+                "min_items",
+                "max_items",
+                "min_length",
+                "max_length",
+                "regex",
+                "pattern",
+            ]:
+                value = getattr(field, key, None)
+                if value is None:
+                    continue
+                extra_dict[key] = value
+        else:
+            param_key_set = {
+                "const",
+                "gt",
+                "ge",
+                "lt",
+                "le",
+                "multiple_of",
+                "min_items",
+                "max_items",
+                "min_length",
+                "max_length",
+                "regex",
+                "pattern",
+            }
+            for metadata in field.metadata:
+                metadata_set = set(dir(metadata))
+                for key in param_key_set & metadata_set:
+                    extra_dict[key] = getattr(metadata, key)
+
         return cls(
             field.default,
             default_factory=field.default_factory,
             alias=field.alias,
             title=field.title,
             description=field.description,
-            const=field.const,
-            gt=field.gt,
-            ge=field.ge,
-            lt=field.lt,
-            le=field.le,
-            multiple_of=field.multiple_of,
-            min_items=field.min_items,
-            max_items=field.max_items,
-            min_length=field.min_length,
-            max_length=field.max_length,
-            regex=field.regex,
-            extra_param_list=field.extra.pop("extra_param_list", None),
-            **field.extra,
+            **extra_dict,
         )
 
 

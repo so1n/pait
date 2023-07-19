@@ -1,9 +1,10 @@
-from typing import Any, Callable, Dict, Generator, List, Optional, Type
+from typing import Any, Callable, Dict, List, Optional, Type
 
 from any_api.openapi.model.openapi import Oauth2SecurityModel, OAuthFlowModel, OAuthFlowsModel
 from any_api.openapi.model.openapi.security import UserScopesOauth2SecurityModel
 from pydantic import BaseModel, Field
 
+from pait import _pydanitc_adapter
 from pait.field import Form, Header
 from pait.model import JsonResponseModel, PaitCoreModel, get_core_model
 
@@ -19,22 +20,19 @@ __all__ = [
 ]
 
 
-class ScopeType(List[str]):
-    @classmethod
-    def __get_validators__(cls) -> Generator[Callable, None, None]:
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v: str) -> List[str]:
-        return v.split(" ")
-
-
 class BaseOAuth2PasswordRequestFrom(BaseModel):
     username: str = Form()
     password: str = Form()
-    scope: ScopeType = Form("")
+    scope: List[str] = Form(default_factory=list)
     client_id: Optional[str] = Form(None)
     client_secret: Optional[str] = Form(None)
+
+    @_pydanitc_adapter.model_validator(mode="before")
+    def _post_init(cls, value: dict) -> dict:
+        scope = value.get("scope", "")
+        if isinstance(scope, str):
+            value["scope"] = scope.split(" ")
+        return value
 
 
 class OAuth2PasswordRequestFrom(BaseOAuth2PasswordRequestFrom):

@@ -5,6 +5,7 @@ from urllib.parse import urlencode
 
 from pydantic import BaseModel, ValidationError
 
+from pait import _pydanitc_adapter
 from pait.model import response
 from pait.util import gen_example_dict_from_schema, gen_example_value_from_python, get_pait_response_model
 
@@ -231,7 +232,10 @@ class BaseTestHelper(Generic[RESP_T]):
 
                 if not resp_dict and not isinstance(resp_dict, dict):
                     continue
-                response_data_default_dict: dict = gen_example_dict_from_schema(response_data_model.schema())
+
+                response_data_default_dict: dict = gen_example_dict_from_schema(
+                    _pydanitc_adapter.model_json_schema(response_data_model)
+                )
                 ratio: float = difflib.SequenceMatcher(
                     None,
                     str(gen_example_value_from_python(resp_dict)),

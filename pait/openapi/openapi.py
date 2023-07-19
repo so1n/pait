@@ -11,8 +11,9 @@ from any_api.openapi.model.links import LinksModel
 from any_api.openapi.model.openapi import OpenAPIModel
 from any_api.openapi.model.requests import RequestModel
 from pydantic import BaseModel, Field
-from pydantic.fields import FieldInfo, Undefined
+from pydantic.fields import FieldInfo
 
+from pait import _pydanitc_adapter
 from pait.app.any.util import import_func_from_app
 from pait.data import PaitCoreProxyModel
 from pait.field import BaseField, Depends
@@ -30,8 +31,13 @@ __all__ = ["LinksModel", "ApiModel", "ParsePaitModel", "OpenAPI"]
 class ApiModel(_ApiModel):
     pait_core_model: PaitCoreModel = Field()
 
-    class Config:
-        arbitrary_types_allowed = True
+    if _pydanitc_adapter.is_v1:
+
+        class Config:
+            arbitrary_types_allowed = True
+
+    else:
+        model_config: _pydanitc_adapter.ConfigDict = _pydanitc_adapter.ConfigDict(arbitrary_types_allowed=True)
 
     def add_to_operation_model(self, _openapi_model: openapi_model.OperationModel) -> None:
         # Not an openapi standard parameter
@@ -70,7 +76,10 @@ class ParsePaitModel(object):
                     openapi_serialization=self.param_field_dict[http_param_type].openapi_serialization,
                     model=create_pydantic_model(
                         annotation_dict,
-                        class_name=f"{self.pait_model.func_name.title()}{self.pait_model.pait_id.title()}",
+                        class_name=(
+                            f"{self.pait_model.func_name.title()}{self.pait_model.pait_id.title()}"
+                            f"{http_param_type.title()}HttpParamModel"
+                        ),
                     ),
                 )
             )
@@ -80,9 +89,9 @@ class ParsePaitModel(object):
     ) -> None:
         from typing import get_type_hints
 
-        for field_name, model_field in _pydantic_model.__fields__.items():
+        for field_name, model_field in _pydanitc_adapter.model_fields(_pydantic_model).items():
             param_annotation = get_type_hints(_pydantic_model)[field_name]
-            field = model_field.field_info
+            field = _pydanitc_adapter.get_field_info(model_field)
             if not isinstance(field, BaseField):
                 if self.pait_model.default_field_class:
                     field = self.pait_model.default_field_class.from_pydantic_field(field)
@@ -121,7 +130,13 @@ class ParsePaitModel(object):
                         continue
                     if not pait_field.raw_return:
                         self._parse_base_model(
-                            create_pydantic_model({parameter.name: (parameter.annotation, pait_field)}),
+                            create_pydantic_model(
+                                {parameter.name: (parameter.annotation, pait_field)},
+                                class_name=(
+                                    f"{self.pait_model.func_name.title()}{self.pait_model.pait_id.title()}"
+                                    f"{parameter.name.title()}RawReturnModel"
+                                ),
+                            ),
                             pait_field.__class__,
                         )
                     else:
@@ -183,7 +198,7 @@ class ParsePaitModel(object):
                         {parameter.name: (parameter.annotation, field)},
                         class_name=(
                             f"{self.pait_model.func_name.title()}"
-                            f"{parameter.name.title()}{self.pait_model.pait_id.title()}"
+                            f"{self.pait_model.pait_id.title()}{key.title()}SameNameModel"
                         ),
                     )
                     self._parse_base_model(_pydantic_model)
@@ -192,7 +207,8 @@ class ParsePaitModel(object):
                     annotation_dict[parameter.name] = (parameter.annotation, field)
 
             _pydantic_model = create_pydantic_model(
-                annotation_dict, class_name=f"{self.pait_model.func_name.title()}{self.pait_model.pait_id.title()}"
+                annotation_dict,
+                class_name=(f"{self.pait_model.func_name.title()}{self.pait_model.pait_id.title()}SingleFieldModel"),
             )
             self._parse_base_model(_pydantic_model)
 
@@ -203,7 +219,7 @@ class OpenAPI(object):
     def __init__(
         self,
         app: Any,
-        undefined: Any = Undefined,
+        undefined: Any = _pydanitc_adapter.PydanticUndefined,
         load_app: Optional[Callable] = None,
         openapi_info_model: Optional[InfoModel] = None,
         server_model_list: Optional[List[ServerModel]] = None,

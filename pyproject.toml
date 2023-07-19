@@ -10,10 +10,7 @@ homepage = "https://github.com/so1n/pait"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-pydantic = "^1.7.3"
-typing-extensions = "^4.1.1"
-any-api = "^0.1.0.4"
-
+any-api = "0.1.0.5"
 redis = { version = "^4.2.2", optional = true }
 
 [tool.poetry.urls]
@@ -38,7 +35,6 @@ uvicorn = "0.13.4"
 starlette = "0.14.1"
 markupsafe = "2.0.1"
 itsdangerous = "1.1.0"
-protobuf = "3.20.1"
 
 [tool.poetry.group.test.dependencies]
 pytest = "6.2.5"
@@ -49,8 +45,6 @@ python-multipart = "0.0.5"
 pytest-asyncio = "0.14.0"
 pytest-profiling = "1.7.0"
 aiofiles = "0.8.0"
-mypy-protobuf = "3.2.0"
-lark = "^1.1.2"
 pytest-benchmark = "^4.0.0"
 pyyaml = "6.0"
 # During development, if it is found that the project cannot be started, please specify the following dependencies forcibly

@@ -4,8 +4,9 @@ from json import JSONEncoder
 from typing import Any
 
 from _decimal import Decimal
-from pydantic.fields import UndefinedType
+from any_api.openapi.model import LinksModel
 
+from pait._pydanitc_adapter import PydanticUndefinedType
 from pait.model.template import TemplateVar
 
 
@@ -21,8 +22,11 @@ class CustomJSONEncoder(JSONEncoder):
             return obj.value
         elif isinstance(obj, TemplateVar):
             obj = obj.get_value_from_template_context()
-            if isinstance(obj, UndefinedType):
+            if isinstance(obj, PydanticUndefinedType):
                 obj = None
             return obj
+        elif isinstance(obj, LinksModel):
+            # TODO Now I don't know how to remove the Links Model from Field(pydantic v2)
+            return None
         else:
             return super().default(obj)  # pragma: no cover

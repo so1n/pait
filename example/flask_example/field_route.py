@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from example.common import tag
 from example.common.request_model import SexEnum, TestPaitModel, UserModel, UserOtherModel
@@ -68,7 +68,7 @@ def pait_base_field_route(
     age: int = Path.i(description="age", gt=1, lt=100),
     uid: int = Query.i(description="user id", gt=10, lt=1000),
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
-    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    email: str = Query.i(default="example@xxx.com", description="user email"),
     sex: SexEnum = Query.i(description="sex"),
 ) -> dict:
     """Test the use of all BaseField-based"""

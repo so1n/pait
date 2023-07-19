@@ -479,9 +479,16 @@ class BaseTest(object):
         # test not include exc
         del_key(key)
         if not app:
+            assert self.test_helper(self.client, cache_response, query_dict={"raise_exc": 1}).json()["code"] == -1
+            # with pytest.raises(CheckResponseException) as e:
+            #     self.test_helper(self.client, cache_response, query_dict={"raise_exc": 1}).text()
+            #
+            # assert e.value.status_code == 500
+        elif app == "sanic":
             with pytest.raises(CheckResponseException) as e:
                 self.test_helper(self.client, cache_response, query_dict={"raise_exc": 1}).text()
-                assert e.value.status_code == 500
+
+            assert e.value.status_code == 500
         elif app == "starlette":
             with pytest.raises(Exception):
                 self.test_helper(self.client, cache_response, query_dict={"raise_exc": 1}).text()

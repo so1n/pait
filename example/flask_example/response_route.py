@@ -1,6 +1,5 @@
 import time
 from tempfile import NamedTemporaryFile
-from typing import Optional
 
 from flask import Response, make_response, send_from_directory
 
@@ -52,7 +51,7 @@ def file_response_route() -> Response:
 )
 def check_response_route(
     uid: int = Query.i(description="user id", gt=10, lt=1000),
-    email: Optional[str] = Query.i(default="example@xxx.com", description="user email"),
+    email: str = Query.i(default="example@xxx.com", description="user email"),
     user_name: str = Query.i(description="user name", min_length=2, max_length=4),
     age: int = Query.i(description="age", gt=1, lt=100),
     display_age: int = Query.i(0, description="display age"),

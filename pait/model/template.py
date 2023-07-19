@@ -1,7 +1,7 @@
 from contextvars import ContextVar, Token
 from typing import Any, Dict, Optional
 
-from pydantic.fields import Undefined
+from pait._pydanitc_adapter import PydanticUndefined
 
 TEMPLATE_CONTEXT: ContextVar[Dict[str, Any]] = ContextVar("template_context", default={})
 
@@ -24,7 +24,7 @@ class TemplateContext(object):
 
 
 class TemplateVar(object):
-    def __init__(self, name: str, default_value: Any = Undefined) -> None:
+    def __init__(self, name: str, default_value: Any = PydanticUndefined) -> None:
         self._name: str = name
         self._default_value: Any = default_value
 

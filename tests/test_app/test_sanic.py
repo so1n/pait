@@ -266,7 +266,7 @@ class TestSanic:
 
     def test_cache_response(self, base_test: BaseTest) -> None:
         with fixture_loop(mock_close_loop=True):
-            base_test.cache_response(main_example.cache_response, main_example.cache_response1)
+            base_test.cache_response(main_example.cache_response, main_example.cache_response1, app="sanic")
 
     def test_cache_other_response_type(self, base_test: BaseTest) -> None:
         with fixture_loop(mock_close_loop=True):
