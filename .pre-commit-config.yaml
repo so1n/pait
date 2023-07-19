@@ -30,33 +30,40 @@ repos:
   - repo: local
     hooks:
         - id: local-poetry-export
-          name: my-poetry-export
+          name: my-poetry-export-prod
           entry: poetry export
           language: python
           language_version: python3
           pass_filenames: false
-          args: ["-o", "requirements.txt", "--without-hashes", "--with-credentials", "--only=main"]
+          args: ["-o", "requirements/requirements.txt", "--without-hashes", "--with-credentials", "--only=main"]
+        - id: local-poetry-export
+          name: my-poetry-export-prod-all
+          entry: poetry export
+          language: python
+          language_version: python3
+          pass_filenames: false
+          args: [ "-o", "requirements/requirements-all.txt", "--without-hashes", "--with-credentials", "--only=main",  "--extras=all"  ]
         - id: local-poetry-export-test
-          name: my-poetry-export-test
+          name: my-poetry-export-only-test
           entry: poetry export
           language: python
           language_version: python3
           pass_filenames: false
-          args: ["-o", "requirements-test.txt", "--without-hashes", "--with-credentials", "--with", "test", "--with", "framework",  "--extras=all" ]
-        - id: local-poetry-export-no-framework-test
-          name: my-poetry-export-no-framework-test
+          args: ["-o", "requirements/requirements-test.txt", "--without-hashes", "--with-credentials", "--only=test"]
+        - id: local-poetry-export-framework-test
+          name: my-poetry-export-framework-test
           entry: poetry export
           language: python
           language_version: python3
           pass_filenames: false
-          args: [ "-o", "requirements-no-framework-test.txt", "--without-hashes", "--with-credentials", "--with", "test", "--extras=all" ]
+          args: [ "-o", "requirements/requirements-framework-test.txt", "--without-hashes", "--with-credentials", "--only=framework"]
         - id: local-poetry-export-dev
           name: my-poetry-export
           entry: poetry export
           language: python
           language_version: python3
           pass_filenames: false
-          args: ["-o", "requirements-dev.txt", "--without-hashes", "--with-credentials", "--with", "test","--with", "framework","--with", "dev", "--extras=all" ]
+          args: ["-o", "requirements/requirements-dev.txt", "--without-hashes", "--with-credentials", "--only=dev"]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:

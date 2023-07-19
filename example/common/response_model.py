@@ -1,6 +1,5 @@
 from typing import List, Type
 
-from google.protobuf.empty_pb2 import Empty  # type: ignore
 from pydantic import BaseModel, Field
 
 from example.common.request_model import SexEnum
