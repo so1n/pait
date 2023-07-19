@@ -3,8 +3,6 @@ from typing import Any, Type
 from any_api.util import pydantic_adapter as _any_api_pydantic_adapter
 from pydantic import BaseModel
 
-from pait.exceptions import ValidationError as _ValidationError
-
 __all__ = ["PydanticUndefinedType", "PydanticUndefined", "is_v1", "ConfigDict"]
 
 is_v1 = _any_api_pydantic_adapter.is_v1
@@ -48,10 +46,7 @@ if _any_api_pydantic_adapter.is_v1:
         )
         ok_value, e = _model_field.validate(value, {}, loc=(request_param, value_name))
         if e:
-            raise _ValidationError(
-                [{"type": e.exc.__class__.__name__, "loc": e._loc, "msg": "", "input": value, "ctx": {"error": ""}}],
-                base_model,
-            )
+            raise ValidationError([e], base_model)
         return ok_value
 
     def get_field_extra(field: FieldInfo) -> dict:
@@ -73,7 +68,7 @@ else:
         use_errors: List[Any] = []
         for error in errors:
             if isinstance(error, ErrorWrapper):
-                new_errors = ValidationError(errors=[error], model=BaseModel).errors()  # type: ignore[call-arg]
+                new_errors = ValidationError.from_exception_data(title="", line_errors=[error]).errors()
                 use_errors.extend(new_errors)
             elif isinstance(error, list):
                 use_errors.extend(_normalize_errors(error))
@@ -102,8 +97,10 @@ else:
         try:
             return _type_adapter.validate_python(value, from_attributes=True)
         except ValidationError as exc:
-            raise _ValidationError(
-                _regenerate_error_with_loc(errors=exc.errors(), loc_prefix=(request_param, value_name)), base_model
+            # https://docs.pydantic.dev/latest/api/pydantic_core_init/#pydantic_core._pydantic_core.ValidationError.from_exception_data
+            raise exc.from_exception_data(
+                title=f"{request_param} {value_name} Validation Error",
+                line_errors=_regenerate_error_with_loc(errors=exc.errors(), loc_prefix=(request_param, value_name)),
             )
 
     def get_field_extra(field: FieldInfo) -> dict:

@@ -7,7 +7,6 @@ from werkzeug.exceptions import HTTPException
 
 from pait.app.flask import Pait
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
-from pait.exceptions import ValidationError as _ValidationError
 from pait.model import PaitStatus
 
 global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
@@ -21,7 +20,7 @@ def api_exception(exc: Exception) -> Union[Dict[str, Any], Response]:
         return {"code": -1, "msg": f"error param:{exc.param}, {exc.msg}"}
     elif isinstance(exc, PaitBaseException):
         return {"code": -1, "msg": str(exc)}
-    elif isinstance(exc, (ValidationError, _ValidationError)):
+    elif isinstance(exc, ValidationError):
         error_param_list: list = []
         for i in exc.errors():
             error_param_list.extend(i["loc"])

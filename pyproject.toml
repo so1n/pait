@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pait"
-version = "v1.0.0-alpha.10"
+version = "0.0.0"
 description = "Pait is a Python api tool. Pait enables your Python web framework to have type checking, parameter type conversion, interface document generation and can display your documents through Redoc or Swagger (power by inspect, pydantic)"
 authors = ["So1n <so1n897046026@gmail.com>"]
 license = "Apache Software License"
@@ -115,7 +115,7 @@ exclude_lines = [
 ]
 
 [tool.poetry-dynamic-versioning]
-enable = false
+enable = true
 metadata=false
 vcs = "git"
 format = "v{base}-{stage}.{revision}"
