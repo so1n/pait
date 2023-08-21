@@ -1,12 +1,13 @@
 import copy
-from typing import TYPE_CHECKING, Any, Dict, Type
+from typing import TYPE_CHECKING, Any, Dict, Optional, Type
 
 from pait.model.response import BaseResponseModel, JsonResponseModel
-from pait.plugin.base import PluginContext, PrePluginProtocol
-from pait.util import get_pait_response_model
+from pait.plugin.base import GetPaitResponseModelFuncType, PluginContext, PrePluginProtocol
+from pait.util import get_pait_response_model as _get_pait_response_model
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
+    from pait.plugin.base import PluginManager
 
 
 class AutoCompleteJsonRespPlugin(PrePluginProtocol):
@@ -39,6 +40,9 @@ class AutoCompleteJsonRespPlugin(PrePluginProtocol):
     @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         kwargs = super().pre_load_hook(pait_core_model, kwargs)
+        get_pait_response_model = kwargs.get("get_pait_response_model", None)
+        if not get_pait_response_model:
+            raise RuntimeError("Can not found get_pait_response_model func")
         pait_response_model: Type[BaseResponseModel] = get_pait_response_model(pait_core_model.response_model_list)
         if not issubclass(pait_response_model, JsonResponseModel):
             raise ValueError(f"pait_response_model must `{JsonResponseModel.__name__}` not {pait_response_model}")
@@ -58,3 +62,12 @@ class AutoCompleteJsonRespPlugin(PrePluginProtocol):
             return self._async_call(context)
         else:
             return self._sync_call(context)
+
+    @classmethod
+    def build(  # type: ignore
+        cls,  # type: ignore
+        get_pait_response_model: Optional[GetPaitResponseModelFuncType] = None,  # type: ignore
+    ) -> "PluginManager":  # type: ignore
+        return super().build(
+            get_pait_response_model=get_pait_response_model or _get_pait_response_model,
+        )

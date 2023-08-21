@@ -5,8 +5,8 @@ from typing import IO, TYPE_CHECKING, Any, Callable, Dict, Generic, Optional, Ty
 from typing_extensions import Literal
 
 from pait.model import response
-from pait.plugin.base import PluginContext, PluginManager, PrePluginProtocol
-from pait.util import get_pait_response_model
+from pait.plugin.base import GetPaitResponseModelFuncType, PluginContext, PluginManager, PrePluginProtocol
+from pait.util import get_pait_response_model as _get_pait_response_model
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
@@ -48,10 +48,10 @@ class MockPluginProtocol(PrePluginProtocol, Generic[RESP_T]):
                     break
 
         if not pait_response:
-            pait_response = get_pait_response_model(
-                pait_core_model.response_model_list,
-                target_pait_response_class=kwargs.pop("target_pait_response_class", False),
-            )
+            get_pait_response_model = kwargs.get("get_pait_response_model", None)
+            if not get_pait_response_model:
+                raise RuntimeError("Can not found get_pait_response_model func")
+            pait_response = get_pait_response_model(pait_core_model.response_model_list)
         kwargs["pait_response_model"] = pait_response
         return kwargs
 
@@ -107,11 +107,11 @@ class MockPluginProtocol(PrePluginProtocol, Generic[RESP_T]):
     def build(  # type: ignore
         cls,  # type: ignore
         enable_mock_response_filter_fn: Optional[Callable] = None,  # type: ignore
-        target_pait_response_class: Optional[Type["response.BaseResponseModel"]] = None,  # type: ignore
         example_column_name: Literal["example", "mock"] = "example",  # type: ignore
+        get_pait_response_model: Optional[GetPaitResponseModelFuncType] = None,  # type: ignore
     ) -> "PluginManager":  # type: ignore
         return super().build(
             enable_mock_response_filter_fn=enable_mock_response_filter_fn,
-            target_pait_response_class=target_pait_response_class,
             example_column_name=example_column_name,
+            get_pait_response_model=get_pait_response_model or _get_pait_response_model,
         )

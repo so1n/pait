@@ -1,15 +1,17 @@
 import inspect
 import logging
-from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, List, Type, TypeVar, Union
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
+    from pait.model.response import BaseResponseModel  # isort: skip
 
 from pait.model.context import ContextModel as PluginContext
 
 _PluginT = TypeVar("_PluginT", bound="PluginProtocol")
 _NextPluginT = Union[_PluginT, Callable]
 logger: logging.Logger = logging.getLogger(__name__)
+GetPaitResponseModelFuncType = Callable[[List[Type["BaseResponseModel"]]], Type["BaseResponseModel"]]
 
 
 class PluginProtocol(object):

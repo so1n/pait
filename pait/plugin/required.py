@@ -32,7 +32,7 @@ class RequiredPlugin(PostPluginProtocol):
     def check_param(self, context: PluginContext) -> None:
         try:
             for pre_param, param_list in self.required_dict.items():
-                if pre_param not in context.kwargs or not context.kwargs[pre_param]:
+                if not context.kwargs.get(pre_param, None):
                     continue
                 for param in param_list:
                     if context.kwargs.get(param, None) is None:
@@ -47,8 +47,8 @@ class RequiredPlugin(PostPluginProtocol):
         kwargs = super().pre_load_hook(pait_core_model, kwargs)
         fun_sig: FuncSig = get_func_sig(pait_core_model.func)
         required_dict: Dict[str, List[str]] = {}
-        temp_group_dict: Dict[str, List[str]] = {}
-        group_main_dict: Dict[str, str] = {}
+        _temp_group_dict: Dict[str, List[str]] = {}
+        _group_main_dict: Dict[str, str] = {}
         for param in fun_sig.param_list:
             default: Any = param.default
             if not isinstance(default, BaseField):
@@ -60,13 +60,13 @@ class RequiredPlugin(PostPluginProtocol):
                     required_dict[extra_param.main_column].append(column_name)
                 elif isinstance(extra_param, RequiredGroupExtraParam):
                     if extra_param.is_main:
-                        group_main_dict[extra_param.group] = column_name
+                        _group_main_dict[extra_param.group] = column_name
                     else:
-                        temp_group_dict.setdefault(extra_param.group, [])
-                        temp_group_dict[extra_param.group].append(column_name)
-        for group, column_name in group_main_dict.items():
+                        _temp_group_dict.setdefault(extra_param.group, [])
+                        _temp_group_dict[extra_param.group].append(column_name)
+        for group, column_name in _group_main_dict.items():
             required_dict.setdefault(column_name, [])
-            required_dict[column_name].extend(temp_group_dict[group])
+            required_dict[column_name].extend(_temp_group_dict[group])
         for k, v in required_dict.items():
             kwargs["required_dict"].setdefault(k, [])
             kwargs["required_dict"][k].extend(v)

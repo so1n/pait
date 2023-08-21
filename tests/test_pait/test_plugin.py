@@ -19,6 +19,7 @@ from pait.plugin.base import PostPluginProtocol, PrePluginProtocol
 from pait.plugin.cache_response import CacheResponsePlugin
 from pait.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.plugin.mock_response import MockPluginProtocol
+from pait.util import get_pait_response_model
 
 
 @pytest.fixture
@@ -99,7 +100,8 @@ class TestJsonPlugin:
 
         with pytest.raises(ValueError) as e:
             CheckJsonRespPlugin.pre_load_hook(
-                PaitCoreModel(demo, BaseAppHelper, ParamHandler, response_model_list=[DemoCoreTestResponseModel]), {}
+                PaitCoreModel(demo, BaseAppHelper, ParamHandler, response_model_list=[DemoCoreTestResponseModel]),
+                {"get_pait_response_model": get_pait_response_model},
             )
 
         exec_msg: str = e.value.args[0]
@@ -126,14 +128,15 @@ class TestAutoCompleteJsonPlugin:
 
     def test_response_model_is_not_json_resp(self) -> None:
         class DemoCoreTestResponseModel(response.TextResponseModel):
-            is_core = True
+            pass
 
         def demo() -> None:
             pass
 
         with pytest.raises(ValueError) as e:
             AutoCompleteJsonRespPlugin.pre_load_hook(
-                PaitCoreModel(demo, BaseAppHelper, ParamHandler, response_model_list=[DemoCoreTestResponseModel]), {}
+                PaitCoreModel(demo, BaseAppHelper, ParamHandler, response_model_list=[DemoCoreTestResponseModel]),
+                {"get_pait_response_model": get_pait_response_model},
             )
 
         exec_msg: str = e.value.args[0]
@@ -220,7 +223,7 @@ class TestMockPlugin:
                 ParamHandler,
                 response_model_list=[response.JsonResponseModel, response.TextResponseModel],
             ),
-            {},
+            {"get_pait_response_model": get_pait_response_model},
         )
         assert kwargs["pait_response_model"] == response.JsonResponseModel
 

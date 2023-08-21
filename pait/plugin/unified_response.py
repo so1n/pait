@@ -3,8 +3,8 @@ from typing import Any, Dict, Optional, Type
 
 from pait.model.core import PaitCoreModel
 from pait.model.response import BaseResponseModel, FileResponseModel
-from pait.plugin.base import PluginContext, PrePluginProtocol
-from pait.util import get_pait_response_model
+from pait.plugin.base import GetPaitResponseModelFuncType, PluginContext, PluginManager, PrePluginProtocol
+from pait.util import get_pait_response_model as _get_pait_response_model
 
 
 class UnifiedResponsePluginProtocol(PrePluginProtocol):
@@ -16,11 +16,11 @@ class UnifiedResponsePluginProtocol(PrePluginProtocol):
     @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         kwargs = super().pre_load_hook(pait_core_model, kwargs)
+        get_pait_response_model = kwargs.get("get_pait_response_model", None)
+        if not get_pait_response_model:
+            raise RuntimeError("Can not found get_pait_response_model func")
         if pait_core_model.response_model_list:
-            pait_response: Type[BaseResponseModel] = get_pait_response_model(
-                pait_core_model.response_model_list,
-                target_pait_response_class=kwargs.pop("target_pait_response_class", False),
-            )
+            pait_response: Type[BaseResponseModel] = get_pait_response_model(pait_core_model.response_model_list)
             if issubclass(pait_response, FileResponseModel):
                 raise ValueError(f"Not Support {FileResponseModel.__name__}")
             kwargs["response_model_class"] = pait_response
@@ -49,3 +49,12 @@ class UnifiedResponsePlugin(UnifiedResponsePluginProtocol, metaclass=ABCMeta):
     async def _async_call(self, context: PluginContext) -> Any:
         response: Any = await super(UnifiedResponsePlugin, self).__call__(context)
         return self._gen_response(response, context)
+
+    @classmethod
+    def build(  # type: ignore
+        cls,  # type: ignore
+        get_pait_response_model: Optional[GetPaitResponseModelFuncType] = None,  # type: ignore
+    ) -> "PluginManager":  # type: ignore
+        return super().build(
+            get_pait_response_model=get_pait_response_model or _get_pait_response_model,
+        )
