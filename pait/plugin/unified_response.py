@@ -1,16 +1,19 @@
 from abc import ABCMeta
-from typing import Any, Dict, Optional, Type
+from typing import TYPE_CHECKING, Any, Dict, Optional, Type
 
 from pait.model.core import PaitCoreModel
 from pait.model.response import BaseResponseModel, FileResponseModel
-from pait.plugin.base import GetPaitResponseModelFuncType, PluginContext, PluginManager, PrePluginProtocol
+from pait.plugin.base import GetPaitResponseModelFuncType, PluginManager, PrePluginProtocol
 from pait.util import get_pait_response_model as _get_pait_response_model
+
+if TYPE_CHECKING:
+    from pait.model.context import ContextModel as PluginContext
 
 
 class UnifiedResponsePluginProtocol(PrePluginProtocol):
     response_model_class: Type[BaseResponseModel]
 
-    def _gen_response(self, return_value: Any, context: PluginContext) -> Any:
+    def _gen_response(self, return_value: Any, context: "PluginContext") -> Any:
         raise NotImplementedError
 
     @classmethod
@@ -37,16 +40,16 @@ class UnifiedResponsePlugin(UnifiedResponsePluginProtocol, metaclass=ABCMeta):
     headers: Optional[dict]
     media_type: Optional[str]
 
-    def __call__(self, context: PluginContext) -> Any:
+    def __call__(self, context: "PluginContext") -> Any:
         if self._is_async_func:
             return self._async_call(context)
         return self._sync_call(context)
 
-    def _sync_call(self, context: PluginContext) -> Any:
+    def _sync_call(self, context: "PluginContext") -> Any:
         response: Any = super(UnifiedResponsePlugin, self).__call__(context)
         return self._gen_response(response, context)
 
-    async def _async_call(self, context: PluginContext) -> Any:
+    async def _async_call(self, context: "PluginContext") -> Any:
         response: Any = await super(UnifiedResponsePlugin, self).__call__(context)
         return self._gen_response(response, context)
 

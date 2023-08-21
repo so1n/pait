@@ -3,10 +3,10 @@ import logging
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, List, Type, TypeVar, Union
 
 if TYPE_CHECKING:
+    from pait.model.context import ContextModel as PluginContext
     from pait.model.core import PaitCoreModel
-    from pait.model.response import BaseResponseModel  # isort: skip
 
-from pait.model.context import ContextModel as PluginContext
+    from pait.model.response import BaseResponseModel  # isort: skip
 
 _PluginT = TypeVar("_PluginT", bound="PluginProtocol")
 _NextPluginT = Union[_PluginT, Callable]
@@ -55,7 +55,7 @@ class PluginProtocol(object):
         """Factory function for generating plugins"""
         return PluginManager(cls, **kwargs)  # type: ignore
 
-    def __call__(self, context: PluginContext) -> Any:
+    def __call__(self, context: "PluginContext") -> Any:
         """The entry function called by the plugin."""
         if isinstance(self.next_plugin, PluginProtocol):
             return self.next_plugin(context)

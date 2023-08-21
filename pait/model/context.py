@@ -47,3 +47,6 @@ class ContextModel(object):
         if value is MISSING:
             raise KeyError(key)
         return value
+
+
+PluginContext = ContextModel

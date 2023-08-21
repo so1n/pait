@@ -2,10 +2,11 @@ import copy
 from typing import TYPE_CHECKING, Any, Dict, Optional, Type
 
 from pait.model.response import BaseResponseModel, JsonResponseModel
-from pait.plugin.base import GetPaitResponseModelFuncType, PluginContext, PrePluginProtocol
+from pait.plugin.base import GetPaitResponseModelFuncType, PrePluginProtocol
 from pait.util import get_pait_response_model as _get_pait_response_model
 
 if TYPE_CHECKING:
+    from pait.model.context import ContextModel as PluginContext
     from pait.model.core import PaitCoreModel
     from pait.plugin.base import PluginManager
 
@@ -49,15 +50,15 @@ class AutoCompleteJsonRespPlugin(PrePluginProtocol):
         kwargs["default_response_dict"] = pait_response_model.get_default_dict()
         return kwargs
 
-    def _sync_call(self, context: PluginContext) -> Any:
+    def _sync_call(self, context: "PluginContext") -> Any:
         response_dict: dict = super().__call__(context)
         return self.merge(response_dict)
 
-    async def _async_call(self, context: PluginContext) -> Any:
+    async def _async_call(self, context: "PluginContext") -> Any:
         response_dict: dict = await super().__call__(context)
         return self.merge(response_dict)
 
-    def __call__(self, context: PluginContext) -> Any:
+    def __call__(self, context: "PluginContext") -> Any:
         if self._is_async_func:
             return self._async_call(context)
         else:

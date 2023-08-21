@@ -2,7 +2,7 @@ from typing import Any
 
 from flask import Response
 
-from pait.plugin.base import PluginContext
+from pait.model.context import ContextModel as PluginContext
 from pait.plugin.check_json_resp import CheckJsonRespPlugin as _CheckJsonRespPlugin
 
 __all__ = ["CheckJsonRespPlugin"]

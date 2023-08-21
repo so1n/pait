@@ -4,10 +4,11 @@ from pydantic import Field
 
 from pait.exceptions import CheckValueError
 from pait.field import BaseField, ExtraParam
-from pait.plugin.base import PluginContext, PluginManager, PostPluginProtocol
+from pait.plugin.base import PluginManager, PostPluginProtocol
 from pait.util import FuncSig, gen_tip_exc, get_func_sig
 
 if TYPE_CHECKING:
+    from pait.model.context import ContextModel as PluginContext
     from pait.model.core import PaitCoreModel
 
 __all__ = ["RequiredPlugin", "RequiredExtraParam", "RequiredGroupExtraParam"]
@@ -29,7 +30,7 @@ class RequiredPlugin(PostPluginProtocol):
 
     required_dict: Dict[str, List[str]]
 
-    def check_param(self, context: PluginContext) -> None:
+    def check_param(self, context: "PluginContext") -> None:
         try:
             for pre_param, param_list in self.required_dict.items():
                 if not context.kwargs.get(pre_param, None):
@@ -76,6 +77,6 @@ class RequiredPlugin(PostPluginProtocol):
     def build(cls, *, required_dict: Optional[Dict[str, List[str]]] = None) -> "PluginManager":  # type: ignore
         return super().build(required_dict=required_dict or {})
 
-    def __call__(self, context: PluginContext) -> Any:
+    def __call__(self, context: "PluginContext") -> Any:
         self.check_param(context)
         return super().__call__(context)

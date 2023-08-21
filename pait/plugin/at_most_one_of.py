@@ -2,10 +2,11 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from pait.exceptions import CheckValueError
 from pait.field import BaseField, ExtraParam
-from pait.plugin.base import PluginContext, PluginManager, PostPluginProtocol
+from pait.plugin.base import PluginManager, PostPluginProtocol
 from pait.util import FuncSig, gen_tip_exc, get_func_sig
 
 if TYPE_CHECKING:
+    from pait.model.context import ContextModel as PluginContext
     from pait.model.core import PaitCoreModel
 
 __all__ = ["AtMostOneOfPlugin", "AtMostOneOfExtraParam"]
@@ -22,7 +23,7 @@ class AtMostOneOfPlugin(PostPluginProtocol):
 
     at_most_one_of_list: List[List[str]]
 
-    def check_param(self, context: PluginContext) -> None:
+    def check_param(self, context: "PluginContext") -> None:
         try:
             for at_most_one_of in self.at_most_one_of_list:
                 if len([i for i in at_most_one_of if context.kwargs.get(i, None) is not None]) > 1:
@@ -52,6 +53,6 @@ class AtMostOneOfPlugin(PostPluginProtocol):
     def build(cls, *, at_most_one_of_list: Optional[List[List[str]]] = None) -> "PluginManager":  # type: ignore
         return super().build(at_most_one_of_list=at_most_one_of_list or [])
 
-    def __call__(self, context: PluginContext) -> Any:
+    def __call__(self, context: "PluginContext") -> Any:
         self.check_param(context)
         return super().__call__(context)

@@ -8,10 +8,11 @@ from pait.app import set_app_attribute
 from pait.field import BaseField, ExtraParam
 from pait.g import pait_context
 from pait.model.response import FileResponseModel
-from pait.plugin.base import PluginContext, PostPluginProtocol
+from pait.plugin.base import PostPluginProtocol
 from pait.util import FuncSig, get_func_sig
 
 if TYPE_CHECKING:
+    from pait.model.context import ContextModel as PluginContext
     from pait.model.core import PaitCoreModel
     from pait.plugin.base import PluginManager
 
@@ -116,7 +117,7 @@ class CacheResponsePlugin(PostPluginProtocol):
                 real_lock_key = f"{self.lock_name}:{key_join_str}"
         return real_key, real_lock_key
 
-    async def _async_cache(self, context: PluginContext) -> Any:
+    async def _async_cache(self, context: "PluginContext") -> Any:
         real_key, real_lock_key = self._gen_key(*context.args, **context.kwargs)
         redis: AsyncioRedis = self._get_redis()
         result: Any = await redis.get(real_key)
@@ -147,7 +148,7 @@ class CacheResponsePlugin(PostPluginProtocol):
             raise result
         return result
 
-    def _cache(self, context: PluginContext) -> Any:
+    def _cache(self, context: "PluginContext") -> Any:
         real_key, real_lock_key = self._gen_key(*context.args, **context.kwargs)
         redis: Redis = self._get_redis()
         result: Any = redis.get(real_key)
@@ -176,7 +177,7 @@ class CacheResponsePlugin(PostPluginProtocol):
             raise result
         return result
 
-    def __call__(self, context: PluginContext) -> Any:
+    def __call__(self, context: "PluginContext") -> Any:
         if self._is_async_func:
             return self._async_cache(context)
         else:

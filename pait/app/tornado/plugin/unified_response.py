@@ -4,7 +4,7 @@ from functools import partial
 from typing import Any
 
 from pait.app.tornado.adapter.response import gen_response
-from pait.plugin.base import PluginContext
+from pait.model.context import ContextModel as PluginContext
 from pait.plugin.unified_response import UnifiedResponsePlugin as BaseUnifiedResponsePlugin
 from pait.plugin.unified_response import UnifiedResponsePluginProtocol as BaseUnifiedResponsePluginProtocol
 

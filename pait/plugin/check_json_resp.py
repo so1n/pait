@@ -1,10 +1,11 @@
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Type
 
 from pait.model.response import BaseResponseModel, JsonResponseModel
-from pait.plugin.base import GetPaitResponseModelFuncType, PluginContext, PrePluginProtocol
+from pait.plugin.base import GetPaitResponseModelFuncType, PrePluginProtocol
 from pait.util import get_pait_response_model as _get_pait_response_model
 
 if TYPE_CHECKING:
+    from pait.model.context import ContextModel as PluginContext
     from pait.model.core import PaitCoreModel
     from pait.plugin.base import PluginManager
 
@@ -12,10 +13,10 @@ if TYPE_CHECKING:
 class CheckJsonRespPlugin(PrePluginProtocol):
     """Check if the json response result is legal"""
 
-    check_resp_fn: Callable[[Any, PluginContext], None]
+    check_resp_fn: Callable[[Any, "PluginContext"], None]
 
     @staticmethod
-    def get_json(response_data: Any, context: PluginContext) -> dict:
+    def get_json(response_data: Any, context: "PluginContext") -> dict:
         raise NotImplementedError()
 
     @classmethod
@@ -34,7 +35,7 @@ class CheckJsonRespPlugin(PrePluginProtocol):
         if not issubclass(pait_response_model, JsonResponseModel):
             raise ValueError(f"pait_response_model must {JsonResponseModel} not {pait_response_model}")
 
-        def check_resp_by_dict(response_data: Any, context: PluginContext) -> None:
+        def check_resp_by_dict(response_data: Any, context: "PluginContext") -> None:
             if not isinstance(response_data, dict):
                 response_data = cls.get_json(response_data, context)
             pait_response_model.response_data(**response_data)  # type: ignore
@@ -42,17 +43,17 @@ class CheckJsonRespPlugin(PrePluginProtocol):
         kwargs["check_resp_fn"] = check_resp_by_dict
         return kwargs
 
-    def _sync_call(self, context: PluginContext) -> Any:
+    def _sync_call(self, context: "PluginContext") -> Any:
         response: Any = super().__call__(context)
         self.check_resp_fn(response, context)
         return response
 
-    async def _async_call(self, context: PluginContext) -> Any:
+    async def _async_call(self, context: "PluginContext") -> Any:
         response: Any = await super().__call__(context)
         self.check_resp_fn(response, context)
         return response
 
-    def __call__(self, context: PluginContext) -> Any:
+    def __call__(self, context: "PluginContext") -> Any:
         if self._is_async_func:
             return self._async_call(context)
         else:

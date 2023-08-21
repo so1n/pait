@@ -11,7 +11,6 @@ from pait import field
 from pait.exceptions import PaitBaseException
 from pait.model.context import ContextModel
 from pait.param_handle.base import BaseParamHandler, raise_multiple_exc
-from pait.plugin.base import PluginContext
 from pait.util import (
     FuncSig,
     gen_tip_exc,
@@ -21,7 +20,7 @@ from pait.util import (
 )
 
 
-class AsyncParamHandleContext(PluginContext):
+class AsyncParamHandleContext(ContextModel):
     contextmanager_list: List[Union[AbstractAsyncContextManager, AbstractContextManager]]
 
 

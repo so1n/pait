@@ -8,8 +8,8 @@ from typing_extensions import Self  # type: ignore
 
 from pait import field
 from pait.exceptions import PaitBaseException
+from pait.model.context import ContextModel
 from pait.param_handle.base import BaseParamHandler, raise_multiple_exc
-from pait.plugin.base import PluginContext
 from pait.util import (
     FuncSig,
     gen_tip_exc,
@@ -19,7 +19,7 @@ from pait.util import (
 )
 
 
-class ParamHandleContext(PluginContext):
+class ParamHandleContext(ContextModel):
     contextmanager_list: List[AbstractContextManager]
 
 
@@ -100,7 +100,7 @@ class ParamHandler(BaseParamHandler):
             context.cbv_instance.__dict__.update(kwargs)
         return None
 
-    def __call__(self, context: PluginContext) -> Any:
+    def __call__(self, context: ContextModel) -> Any:
         error: Optional[Exception] = None
         result: Any = None
         exc_type, exc_val, exc_tb = None, None, None

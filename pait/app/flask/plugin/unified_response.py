@@ -1,7 +1,7 @@
 from typing import Any
 
 from pait.app.flask.adapter.response import gen_response
-from pait.plugin.unified_response import PluginContext
+from pait.model.context import ContextModel as PluginContext
 from pait.plugin.unified_response import UnifiedResponsePlugin as BaseUnifiedResponsePlugin
 from pait.plugin.unified_response import UnifiedResponsePluginProtocol as BaseUnifiedResponsePluginProtocol
 

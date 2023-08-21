@@ -5,10 +5,11 @@ from typing import IO, TYPE_CHECKING, Any, Callable, Dict, Generic, Optional, Ty
 from typing_extensions import Literal
 
 from pait.model import response
-from pait.plugin.base import GetPaitResponseModelFuncType, PluginContext, PluginManager, PrePluginProtocol
+from pait.plugin.base import GetPaitResponseModelFuncType, PluginManager, PrePluginProtocol
 from pait.util import get_pait_response_model as _get_pait_response_model
 
 if TYPE_CHECKING:
+    from pait.model.context import ContextModel as PluginContext
     from pait.model.core import PaitCoreModel
 
 
@@ -23,7 +24,7 @@ class MockPluginProtocol(PrePluginProtocol, Generic[RESP_T]):
     pait_response_model: Type[response.BaseResponseModel]
     example_column_name: Literal["example", "mock"]
 
-    def __call__(self, context: PluginContext) -> Any:
+    def __call__(self, context: "PluginContext") -> Any:
         if self._is_async_func:
             return self.async_mock_response()
         return self.mock_response()

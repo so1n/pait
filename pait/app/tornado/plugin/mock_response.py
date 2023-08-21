@@ -4,7 +4,7 @@ import aiofiles  # type: ignore
 from tornado.web import RequestHandler
 
 from pait.app.tornado.adapter.response import gen_response, set_info_to_response
-from pait.plugin.base import PluginContext
+from pait.model.context import ContextModel as PluginContext
 from pait.plugin.mock_response import MockPluginProtocol
 
 

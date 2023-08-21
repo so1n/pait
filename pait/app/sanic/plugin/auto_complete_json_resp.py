@@ -1,7 +1,7 @@
 from typing import Any
 
+from pait.model.context import ContextModel as PluginContext
 from pait.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin as _AutoCompleteJsonRespPlugin
-from pait.plugin.base import PluginContext
 
 from .unified_response import UnifiedResponsePluginProtocol
 
