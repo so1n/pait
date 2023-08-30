@@ -3,7 +3,7 @@ import logging
 from typing import TYPE_CHECKING, Any, Dict, Optional, Set, Union
 
 if TYPE_CHECKING:
-    from pait.model import PaitCoreModel
+    from pait.model.core import PaitCoreModel
 
 
 class PaitCoreProxyModel(object):

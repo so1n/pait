@@ -6,7 +6,8 @@ from pydantic import BaseModel, Field
 
 from pait import _pydanitc_adapter
 from pait.field import Form, Header
-from pait.model import JsonResponseModel, PaitCoreModel, get_core_model
+from pait.model.core import PaitCoreModel, get_core_model
+from pait.model.response import JsonResponseModel
 
 from .base import BaseSecurity, SecurityModelType
 from .util import get_authorization_scheme_param, set_and_check_field

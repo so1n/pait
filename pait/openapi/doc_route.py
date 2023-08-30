@@ -12,7 +12,10 @@ from pait.app.base.simple_route import SimpleRoute
 from pait.core import Pait
 from pait.field import Depends, Path, Query
 from pait.g import config, pait_context
-from pait.model import HtmlResponseModel, JsonResponseModel, PaitStatus, Tag, TemplateContext
+from pait.model.response import HtmlResponseModel, JsonResponseModel
+from pait.model.status import PaitStatus
+from pait.model.tag import Tag
+from pait.model.template import TemplateContext
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 
 logger: logging.Logger = logging.getLogger(__name__)

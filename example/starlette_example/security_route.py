@@ -12,7 +12,8 @@ from example.starlette_example.utils import create_app, global_pait
 from pait.app.starlette import Pait
 from pait.app.starlette.security import api_key, http, oauth2
 from pait.field import Cookie, Depends, Header, Query
-from pait.model import Http400RespModel, Http401RespModel, Http403RespModel, PaitStatus, TextResponseModel
+from pait.model.response import Http400RespModel, Http401RespModel, Http403RespModel, TextResponseModel
+from pait.model.status import PaitStatus
 
 security_pait: Pait = global_pait.create_sub_pait(
     group="security",

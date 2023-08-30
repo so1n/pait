@@ -12,7 +12,8 @@ from example.sanic_example.utils import create_app, global_pait
 from pait.app.sanic import Pait
 from pait.app.sanic.security import api_key, http, oauth2
 from pait.field import Cookie, Depends, Header, Query
-from pait.model import Http400RespModel, Http401RespModel, Http403RespModel, PaitStatus
+from pait.model.response import Http400RespModel, Http401RespModel, Http403RespModel
+from pait.model.status import PaitStatus
 
 security_pait: Pait = global_pait.create_sub_pait(
     group="security",

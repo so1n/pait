@@ -8,7 +8,7 @@ from example.common.response_model import FailRespModel, SimpleRespModel
 from example.sanic_example.utils import create_app, global_pait
 from pait.app.sanic import Pait
 from pait.field import Depends, Query
-from pait.model import PaitStatus
+from pait.model.status import PaitStatus
 
 depend_pait: Pait = global_pait.create_sub_pait(
     group="depend",

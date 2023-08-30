@@ -11,7 +11,8 @@ from redis import Redis  # type: ignore
 from example.flask_example import main_example
 from pait import field
 from pait.app.base.app_helper import BaseAppHelper
-from pait.model import PaitCoreModel, response
+from pait.model import response
+from pait.model.core import PaitCoreModel
 from pait.param_handle import ParamHandler
 from pait.plugin import PluginManager
 from pait.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin

@@ -2,7 +2,7 @@ from typing import Callable, List, Optional, Type
 
 from pydantic import BaseModel, Field
 
-from pait.model import PaitCoreModel
+from pait.model.core import PaitCoreModel
 from pait.plugin.unified_response import UnifiedResponsePlugin
 
 

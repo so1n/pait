@@ -3,7 +3,8 @@ from typing import TYPE_CHECKING, Any
 from pait.model.status import PaitStatus
 
 if TYPE_CHECKING:
-    from pait.model import Config, PaitCoreModel
+    from pait.model.config import Config
+    from pait.model.core import PaitCoreModel
 
 
 __all__ = ["sync_config_data_to_pait_core_model"]

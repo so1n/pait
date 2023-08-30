@@ -73,7 +73,8 @@ from pait.app.starlette import Pait, load_app, pait
 from pait.app.starlette.plugin.cache_response import CacheResponsePlugin
 from pait.exceptions import PaitBaseException
 from pait.field import Header, Json, Query
-from pait.model import PaitStatus, TemplateVar
+from pait.model.status import PaitStatus
+from pait.model.template import TemplateVar
 from pait.openapi.doc_route import AddDocRoute, add_doc_route
 
 user_pait: Pait = global_pait.create_sub_pait(group="user")

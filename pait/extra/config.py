@@ -9,7 +9,8 @@ from pait.types import Literal
 from pait.util import http_method_tuple
 
 if TYPE_CHECKING:
-    from pait.model import APPLY_FN, PaitCoreModel
+    from pait.model.config import APPLY_FN
+    from pait.model.core import PaitCoreModel
     from pait.param_handle import BaseParamHandler
 
 

@@ -6,7 +6,7 @@ from example.common.response_model import FailRespModel, SimpleRespModel, UserSu
 from example.flask_example.utils import create_app, global_pait
 from pait.app.flask import Pait
 from pait.field import Cookie, File, Form, Header, Json, MultiForm, MultiQuery, Path, Query
-from pait.model import PaitStatus
+from pait.model.status import PaitStatus
 
 field_pait: Pait = global_pait.create_sub_pait(
     group="field",

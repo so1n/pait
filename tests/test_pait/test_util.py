@@ -97,7 +97,7 @@ class TestUtil:
 
     def test_get_pait_response_model(self) -> None:
         from example.common.response_model import TextRespModel, UserSuccessRespModel2, UserSuccessRespModel3
-        from pait.model import JsonResponseModel
+        from pait.model.response import JsonResponseModel
 
         class DemoTestRespModel(TextRespModel):
             pass

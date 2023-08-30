@@ -65,7 +65,8 @@ from pait.exceptions import PaitBaseException
 from pait.extra.config import apply_block_http_method_set
 from pait.field import Header, Json, Query
 from pait.g import config
-from pait.model import PaitStatus, TemplateVar
+from pait.model.status import PaitStatus
+from pait.model.template import TemplateVar
 from pait.openapi.doc_route import AddDocRoute, add_doc_route
 
 user_pait: Pait = global_pait.create_sub_pait(group="user")

@@ -6,13 +6,13 @@ from pytest_mock import MockFixture
 from redis import Redis  # type: ignore
 
 from pait.app.base import BaseTestHelper, CheckResponseException
-from pait.model import BaseResponseModel, FileResponseModel, HtmlResponseModel, TextResponseModel
+from pait.model.response import BaseResponseModel, FileResponseModel, HtmlResponseModel, TextResponseModel
 from pait.plugin.cache_response import CacheResponsePlugin
 from pait.plugin.mock_response import MockPluginProtocol
 from tests.conftest import enable_plugin, enable_resp_model
 
 if TYPE_CHECKING:
-    from pait.model import PaitCoreModel
+    from pait.model.core import PaitCoreModel
 
 
 class BaseTest(object):

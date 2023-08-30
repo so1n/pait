@@ -2,7 +2,7 @@ from typing import Any, Type
 
 from tornado.web import RequestHandler
 
-from pait.model import BaseResponseModel
+from pait.model.response import BaseResponseModel
 
 
 def gen_response(response_value: Any, response_model_class: Type[BaseResponseModel], *args: Any, **kwargs: Any) -> Any:

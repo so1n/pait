@@ -3,9 +3,9 @@ from typing import List, Type
 from pydantic import BaseModel, Field
 
 from example.common.request_model import SexEnum
-from pait.model import FileResponseModel, HtmlResponseModel, JsonResponseModel
-from pait.model import ResponseModel as PaitResponseModel
-from pait.model import TextResponseModel
+from pait.model.response import FileResponseModel, HtmlResponseModel, JsonResponseModel
+from pait.model.response import ResponseModel as PaitResponseModel
+from pait.model.response import TextResponseModel
 from pait.openapi.openapi import LinksModel
 
 

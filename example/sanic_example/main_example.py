@@ -68,7 +68,8 @@ from pait.app.sanic import Pait, load_app, pait
 from pait.app.sanic.plugin.cache_response import CacheResponsePlugin
 from pait.exceptions import PaitBaseException
 from pait.field import Header, Json, Query
-from pait.model import PaitStatus, TemplateVar
+from pait.model.status import PaitStatus
+from pait.model.template import TemplateVar
 from pait.openapi.doc_route import AddDocRoute, add_doc_route
 
 test_filename: str = ""

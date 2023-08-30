@@ -3,7 +3,8 @@ from typing import TYPE_CHECKING, Any
 
 from pait.data import PaitData
 from pait.extra.util import sync_config_data_to_pait_core_model
-from pait.model import Config, tag
+from pait.model import config as config_model
+from pait.model import tag
 
 if TYPE_CHECKING:
     from pait.model.context import ContextModel
@@ -14,7 +15,7 @@ pait_context: ContextVar["ContextModel"] = ContextVar("pait_context")
 # In order to reduce the intrusion of pait to the application framework,
 # pait conducts data interaction through PaitData and Config
 pait_data: PaitData = PaitData()
-config: Config = Config()
+config: config_model.Config = config_model.Config()
 
 # pait_data and config cannot refer to each other within the module,
 # By replacing the init_config function, the user can change the pait_data data when calling config.init_config

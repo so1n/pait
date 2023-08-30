@@ -1,4 +1,4 @@
-from pait.model import Tag
+from pait.model.tag import Tag
 
 check_resp_tag: Tag = Tag("check resp", desc="check route response")
 check_param_tag: Tag = Tag("check param", desc="check route request param")

@@ -5,7 +5,10 @@ from pydantic import BaseConfig, BaseModel, Field
 
 from pait.app.base import BaseAppHelper
 from pait.extra import config
-from pait.model import BaseResponseModel, JsonResponseModel, PaitCoreModel, PaitStatus, Tag
+from pait.model.core import PaitCoreModel
+from pait.model.response import BaseResponseModel, JsonResponseModel
+from pait.model.status import PaitStatus
+from pait.model.tag import Tag
 from pait.param_handle import BaseParamHandler, ParamHandler
 from pait.plugin.base import PluginManager, PostPluginProtocol, PrePluginProtocol
 

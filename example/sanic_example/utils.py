@@ -7,7 +7,7 @@ from sanic.exceptions import SanicException
 
 from pait.app.sanic import Pait
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
-from pait.model import PaitStatus
+from pait.model.status import PaitStatus
 
 global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
 

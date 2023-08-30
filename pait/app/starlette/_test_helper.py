@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Dict, Mapping, Optional
 
 from pait.app.base import BaseTestHelper
-from pait.model import PaitCoreModel
+from pait.model.core import PaitCoreModel
 
 from ._load_app import load_app
 

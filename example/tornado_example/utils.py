@@ -7,7 +7,7 @@ from tornado.web import AnyMatches, Application, HTTPError, RequestHandler, Rule
 
 from pait.app.tornado import Pait
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
-from pait.model import PaitStatus
+from pait.model.status import PaitStatus
 
 global_pait: Pait = Pait(author=("so1n",), status=PaitStatus.test)
 

@@ -10,7 +10,7 @@ from pait.model import response
 from pait.util import gen_example_dict_from_schema, gen_example_value_from_python, get_pait_response_model
 
 if TYPE_CHECKING:
-    from pait.model import PaitCoreModel
+    from pait.model.core import PaitCoreModel
 
 RESP_T = TypeVar("RESP_T")
 _error_separator = "\n" + ">" * 20 + "\n"

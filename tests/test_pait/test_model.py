@@ -8,14 +8,15 @@ from pydantic import BaseModel, Field
 
 from example.common.request_model import SexEnum
 from pait.app.base import BaseAppHelper
-from pait.model import Config, ContextModel, PaitCoreModel, response, tag
+from pait.model import config as config_model
+from pait.model import context, core, response, tag
 from pait.openapi.openapi import LinksModel
 from pait.param_handle import BaseParamHandler
 
 
 class TestContextModel:
     def test_state(self) -> None:
-        ctx = ContextModel(None, None, None, [], {})  # type: ignore[arg-type]
+        ctx = context.ContextModel(None, None, None, [], {})  # type: ignore[arg-type]
 
         assert getattr(ctx, "state", None) is None
         with pytest.raises(AttributeError):
@@ -37,19 +38,19 @@ def demo() -> None:
 
 class TestPaitCoreModel:
     def test_pait_id_gen(self) -> None:
-        assert PaitCoreModel(demo, BaseAppHelper, BaseParamHandler).pait_id == "tests.test_pait.test_model_demo"
+        assert core.PaitCoreModel(demo, BaseAppHelper, BaseParamHandler).pait_id == "tests.test_pait.test_model_demo"
         assert (
-            PaitCoreModel(demo, BaseAppHelper, BaseParamHandler, feature_code="luluwa").pait_id
+            core.PaitCoreModel(demo, BaseAppHelper, BaseParamHandler, feature_code="luluwa").pait_id
             == "luluwa_tests.test_pait.test_model_demo"
         )
 
     def test_change_notify(self) -> None:
         change_dict: Dict[str, Any] = {}
 
-        def listen_core_model_change(_core_model: PaitCoreModel, key: str, value: Any) -> None:
+        def listen_core_model_change(_core_model: core.PaitCoreModel, key: str, value: Any) -> None:
             change_dict[key] = value
 
-        core_model = PaitCoreModel(demo, BaseAppHelper, BaseParamHandler)
+        core_model = core.PaitCoreModel(demo, BaseAppHelper, BaseParamHandler)
         core_model.add_change_notify(listen_core_model_change)
         # test listen value change
         core_model.desc = "new desc"
@@ -67,7 +68,7 @@ class TestPaitCoreModel:
 
 class TestConfigModel:
     def test_repeat_config_init(self) -> None:
-        config: Config = Config()
+        config: config_model.Config = config_model.Config()
         config.author = "so1n"  # type: ignore
         assert config.author == "so1n"
         assert not config.initialized
@@ -86,7 +87,7 @@ class TestConfigModel:
         assert "Can not set new value in runtime" in exec_msg
 
     def test_default_json_encoder(self) -> None:
-        config: Config = Config()
+        config: config_model.Config = config_model.Config()
         assert json.dumps(
             {
                 "date": datetime.fromtimestamp(0).date(),

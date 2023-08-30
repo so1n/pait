@@ -10,7 +10,7 @@ from pait.plugin.base import PluginManager, PrePluginProtocol
 from pait.util import ignore_pre_check
 
 if TYPE_CHECKING:
-    from pait.model import PaitCoreModel
+    from pait.model.core import PaitCoreModel
 
 config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
 

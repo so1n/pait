@@ -27,7 +27,8 @@ from pait.app.sanic.plugin.cache_response import CacheRespExtraParam, CacheRespo
 from pait.app.sanic.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.sanic.plugin.mock_response import MockPlugin
 from pait.field import MultiQuery, Path, Query
-from pait.model import PaitStatus, TextResponseModel
+from pait.model.response import TextResponseModel
+from pait.model.status import PaitStatus
 
 plugin_pait: Pait = global_pait.create_sub_pait(
     group="plugin",

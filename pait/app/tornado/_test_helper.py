@@ -7,7 +7,7 @@ from typing import Dict, Mapping, Optional, Tuple
 from tornado.testing import AsyncHTTPTestCase, HTTPResponse
 
 from pait.app.base import BaseTestHelper
-from pait.model import PaitCoreModel
+from pait.model.core import PaitCoreModel
 
 from ._load_app import load_app
 
