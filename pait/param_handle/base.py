@@ -15,7 +15,7 @@ from pait.exceptions import (
     ParseTypeError,
     TipException,
 )
-from pait.field import BaseField
+from pait.field import BaseRequestResourceField
 from pait.plugin.base import PluginProtocol
 from pait.types import CallType
 from pait.util import (
@@ -110,7 +110,7 @@ class BaseParamHandler(PluginProtocol):
                     f"{parameter.name}'s Depends.callable return annotation"
                     f" must:{parameter.annotation}, not {func_sig.return_param}",
                 )
-        elif isinstance(parameter.default, field.BaseField):
+        elif isinstance(parameter.default, field.BaseRequestResourceField):
             if not parameter.default.alias:
                 parameter.default.request_key = parameter.name
             if ignore_pre_check:
@@ -162,7 +162,7 @@ class BaseParamHandler(PluginProtocol):
             try:
                 if parameter.default != parameter.empty:
                     # kwargs param
-                    # support model: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseField())
+                    # support model: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseRequestResourceField())
                     cls.check_param_field_by_parameter(pait_core_model, parameter)
                 else:
                     # args param
@@ -238,7 +238,7 @@ class BaseParamHandler(PluginProtocol):
         pydantic_model: Optional[Type[BaseModel]] = None,
     ) -> None:
         """parse request_value and set to base_model_dict or parameter_value_dict"""
-        pait_field: BaseField = parameter.default
+        pait_field: BaseRequestResourceField = parameter.default
         annotation: Type[BaseModel] = parameter.annotation
 
         if not pait_field.raw_return:

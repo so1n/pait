@@ -40,7 +40,7 @@ class AsyncParamHandler(BaseParamHandler):
             try:
                 if parameter.default != parameter.empty:
                     # kwargs param
-                    # support like: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseField())
+                    # support like: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseRequestResourceField())
                     if isinstance(parameter.default, field.Depends):
                         kwargs_param_dict[parameter.name] = await self._depend_handle(context, parameter.default.func)
                     else:

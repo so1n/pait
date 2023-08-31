@@ -38,7 +38,7 @@ class ParamHandler(BaseParamHandler):
             try:
                 if parameter.default != parameter.empty:
                     # kwargs param
-                    # support model: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseField())
+                    # support model: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseRequestResourceField())
                     if isinstance(parameter.default, field.Depends):
                         kwargs_param_dict[parameter.name] = self._depend_handle(context, parameter.default.func)
                     else:

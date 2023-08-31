@@ -85,6 +85,7 @@ async def demo(demo_model: DemoModel) -> JSONResponse:
     return JSONResponse(demo_model.dict())
 ```
 这样`Pait`也能够跟之前一样正确地识别并处理了，在考虑复用后实际的代码可以编写成这样：
+
 ```py linenums="1" hl_lines="22-30 33 38"
 from typing import Type
 import uvicorn  # type: ignore
@@ -107,8 +108,7 @@ async def api_exception(request: Request, exc: Exception) -> JSONResponse:
     return JSONResponse({"data": str(exc)})
 
 
-def create_demo_model(pait_field: Type[field.BaseField]) -> Type[BaseModel]:
-
+def create_demo_model(pait_field: Type[field.BaseRequestResourceField]) -> Type[BaseModel]:
     class DemoModel(BaseModel):
         uid: str = pait_field.i(max_length=6, min_length=6, regex="^u")
         name: str = pait_field.i(min_length=4, max_length=10)
@@ -130,7 +130,6 @@ async def demo1(demo_model: create_demo_model(field.Body)) -> JSONResponse:
 
 app = Starlette(routes=[Route("/api/demo", demo, methods=["GET"]), Route("/api/demo1", demo1, methods=["POST"])])
 app.add_exception_handler(Exception, api_exception)
-
 
 uvicorn.run(app)
 ```

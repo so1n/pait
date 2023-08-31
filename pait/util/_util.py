@@ -29,7 +29,7 @@ from packaging import version
 from pydantic import BaseModel
 from typing_extensions import is_typeddict
 
-from pait.field import BaseField, Depends, is_pait_field
+from pait.field import BaseRequestResourceField, Depends, is_pait_field
 from pait.types import ParamSpec
 
 from .. import _pydanitc_adapter
@@ -329,7 +329,7 @@ def gen_example_json_from_schema(schema_dict: Dict[str, Any], cls: Optional[Type
 
 
 def get_parameter_list_from_pydantic_basemodel(
-    pait_model: Type[BaseModel], default_field_class: Optional[Type[BaseField]] = None
+    pait_model: Type[BaseModel], default_field_class: Optional[Type[BaseRequestResourceField]] = None
 ) -> List["inspect.Parameter"]:
     """get class parameter list by attributes, if attributes not default value, it will be set `Undefined`"""
     key = f"_parameter_list:{default_field_class}"
@@ -342,7 +342,7 @@ def get_parameter_list_from_pydantic_basemodel(
         if not is_pait_field(field):
             if not default_field_class:
                 raise TypeError(  # pragma: no cover
-                    f"{field.__class__} must instance {BaseField} or {Depends} by model {pait_model}"
+                    f"{field.__class__} must instance {BaseRequestResourceField} or {Depends} by model {pait_model}"
                 )
             field = default_field_class.from_pydantic_field(field)
 

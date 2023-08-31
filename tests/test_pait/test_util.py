@@ -330,7 +330,7 @@ class Demo:
     pass
 
 
-class FakeField(field.BaseField):
+class FakeRequestResourceField(field.BaseRequestResourceField):
     pass
 
 
@@ -349,7 +349,7 @@ class TestGenTipExc:
     def test_raise_and_tip_param_value_is_pait_field(self, mocker: MockFixture) -> None:
         patch = mocker.patch("pait.param_handle.base.logging.debug")
         parameter: inspect.Parameter = inspect.Parameter(
-            "b", inspect.Parameter.POSITIONAL_ONLY, annotation=str, default=FakeField.i()
+            "b", inspect.Parameter.POSITIONAL_ONLY, annotation=str, default=FakeRequestResourceField.i()
         )
         with pytest.raises(Exception):
             raise pait.util._gen_tip.gen_tip_exc(Demo(), Exception(), parameter)

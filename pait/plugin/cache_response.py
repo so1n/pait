@@ -5,7 +5,7 @@ from redis.asyncio import Redis  # type: ignore
 from redis.asyncio import Redis as AsyncioRedis
 
 from pait.app import set_app_attribute
-from pait.field import BaseField, ExtraParam
+from pait.field import BaseRequestResourceField, ExtraParam
 from pait.g import pait_context
 from pait.model.response import FileResponseModel
 from pait.plugin.base import PluginContext, PostPluginProtocol
@@ -73,7 +73,7 @@ class CacheResponsePlugin(PostPluginProtocol):
         fun_sig: FuncSig = get_func_sig(pait_core_model.func)
         for param in fun_sig.param_list:
             default: Any = param.default
-            if not isinstance(default, BaseField):
+            if not isinstance(default, BaseRequestResourceField):
                 continue
             for extra_param in default.extra_param_list:
                 if not isinstance(extra_param, CacheRespExtraParam):

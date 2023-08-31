@@ -16,7 +16,7 @@ from pydantic.fields import FieldInfo
 from pait import _pydanitc_adapter
 from pait.app.any.util import import_func_from_app
 from pait.data import PaitCoreProxyModel
-from pait.field import BaseField, Depends
+from pait.field import BaseRequestResourceField, Depends
 from pait.g import config
 from pait.model.core import PaitCoreModel
 from pait.types import CallType
@@ -56,7 +56,7 @@ class ParsePaitModel(object):
         self.security_dict: Dict[str, openapi_model.security.SecurityModelType] = {}
         self.http_param_type_alias_dict: Dict[str, HttpParamTypeLiteral] = {"multiquery": "query"}
 
-        self.param_field_dict: Dict[str, BaseField] = {}
+        self.param_field_dict: Dict[str, BaseRequestResourceField] = {}
         self.http_param_type_annotation_dict: Dict[HttpParamTypeLiteral, Dict[str, Tuple[Type, FieldInfo]]] = {}
 
         for extra_openapi_model in self.pait_model.extra_openapi_model_list:
@@ -85,14 +85,14 @@ class ParsePaitModel(object):
             )
 
     def _parse_base_model(
-        self, _pydantic_model: Type[BaseModel], default_field_class: Optional[Type[BaseField]] = None
+        self, _pydantic_model: Type[BaseModel], default_field_class: Optional[Type[BaseRequestResourceField]] = None
     ) -> None:
         from typing import get_type_hints
 
         for field_name, model_field in _pydanitc_adapter.model_fields(_pydantic_model).items():
             param_annotation = get_type_hints(_pydantic_model)[field_name]
             field = _pydanitc_adapter.get_field_info(model_field)
-            if not isinstance(field, BaseField):
+            if not isinstance(field, BaseRequestResourceField):
                 if self.pait_model.default_field_class:
                     field = self.pait_model.default_field_class.from_pydantic_field(field)
                 elif default_field_class:
@@ -101,7 +101,7 @@ class ParsePaitModel(object):
                     continue
             if not field.openapi_include:
                 continue
-            if isinstance(field, BaseField) and field.alias:
+            if isinstance(field, BaseRequestResourceField) and field.alias:
                 field_name = field.alias
             http_param_type: HttpParamTypeLiteral = field.get_field_name()  # type: ignore
             http_param_type = self.http_param_type_alias_dict.get(http_param_type, http_param_type)
@@ -119,7 +119,7 @@ class ParsePaitModel(object):
         for parameter in parameter_list:
             if parameter.default != parameter.empty:
                 annotation: type = parameter.annotation
-                pait_field: Union[BaseField, Depends] = parameter.default
+                pait_field: Union[BaseRequestResourceField, Depends] = parameter.default
                 if (
                     inspect.isclass(annotation)
                     and issubclass(annotation, BaseModel)
@@ -185,7 +185,7 @@ class ParsePaitModel(object):
             annotation_dict: Dict[str, Tuple[Type, Any]] = {}
             _column_name_set: Set[str] = set()
             for field_name, parameter in single_field_list:
-                field: BaseField = parameter.default
+                field: BaseRequestResourceField = parameter.default
                 key: str = field.alias or parameter.name
                 if key in _column_name_set:
                     # Since the same name cannot exist together in a Dict,

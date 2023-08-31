@@ -71,7 +71,7 @@ def pait_base_field_route(
     email: str = Query.i(default="example@xxx.com", description="user email"),
     sex: SexEnum = Query.i(description="sex"),
 ) -> dict:
-    """Test the use of all BaseField-based"""
+    """Test the use of all BaseRequestResourceField-based"""
     return {
         "code": 0,
         "msg": "",

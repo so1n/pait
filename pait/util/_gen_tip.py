@@ -5,7 +5,7 @@ from typing import Any, Optional, Type
 from pydantic import BaseModel
 
 from pait.exceptions import TipException
-from pait.field import BaseField
+from pait.field import BaseRequestResourceField
 from pait.util import FuncSig
 
 _indent: str = 4 * " "
@@ -24,7 +24,7 @@ def gen_tip_exc(
         return exception
 
     if parameter:
-        param_value: BaseField = parameter.default
+        param_value: BaseRequestResourceField = parameter.default
         annotation: Type[BaseModel] = parameter.annotation
         param_name: str = parameter.name
 
@@ -33,7 +33,7 @@ def gen_tip_exc(
             param_str: str = f"{param_name}: {annotation}"
         else:
             param_str = f"{param_name}: {annotation} = {parameter_value_name}"
-            if isinstance(param_value, BaseField):
+            if isinstance(param_value, BaseRequestResourceField):
                 param_str += f"({param_value})"
     else:
         param_str = ""

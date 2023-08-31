@@ -38,7 +38,7 @@ async def demo(
     email: Optional[str] = field.Query.i(default="example@xxx.com"),
     accept: str = field.Header.i()
 ) -> JSONResponse:
-    """Test the use of all BaseField-based"""
+    """Test the use of all BaseRequestResourceField-based"""
     return JSONResponse(
         {
             "code": 0,

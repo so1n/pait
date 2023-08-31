@@ -80,7 +80,7 @@ class PaitBaseFieldHandler(MyHandler):
         email: str = Query.i(default="example@xxx.com", description="user email"),
         sex: SexEnum = Query.i(description="sex"),
     ) -> None:
-        """Test the use of all BaseField-based"""
+        """Test the use of all BaseRequestResourceField-based"""
         self.write(
             {
                 "code": 0,

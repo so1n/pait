@@ -3,13 +3,12 @@ import warnings
 from dataclasses import MISSING
 from typing import TYPE_CHECKING, Any, Callable, List, Mapping, Optional, TypeVar
 
-from pydantic import BaseModel
 from pydantic.fields import FieldInfo
 from typing_extensions import deprecated  # type: ignore[attr-defined]
 from typing_extensions import Annotated
 
 from pait import _pydanitc_adapter
-from pait.types import CallType, ParamSpec
+from pait.field.base import BaseField, ExtraParam
 
 if TYPE_CHECKING:
     from pait.openapi.openapi import LinksModel
@@ -21,11 +20,7 @@ _T = TypeVar("_T")
 PydanticUndefined = _pydanitc_adapter.PydanticUndefined
 
 
-class ExtraParam(BaseModel):
-    pass
-
-
-class BaseField(FieldInfo):
+class BaseRequestResourceField(BaseField, FieldInfo):
     field_name: str = ""
     media_type: str = "*/*"
     openapi_serialization: Optional[dict] = None
@@ -315,7 +310,7 @@ class BaseField(FieldInfo):
         )
 
     @classmethod
-    def from_pydantic_field(cls, field: FieldInfo) -> "BaseField":
+    def from_pydantic_field(cls, field: FieldInfo) -> "BaseRequestResourceField":
         """use replace pydantic property field"""
         extra_dict = _pydanitc_adapter.get_field_extra(field)
         extra_dict["extra_param_list"] = extra_dict.pop("extra_param_list", None)
@@ -368,7 +363,7 @@ class BaseField(FieldInfo):
         )
 
 
-class Json(BaseField):
+class Json(BaseRequestResourceField):
     media_type: str = "application/json"
     field_name = "body"
 
@@ -377,59 +372,34 @@ class Body(Json):
     """Compatible with the old interface, it may be removed in the future"""
 
 
-class Cookie(BaseField):
+class Cookie(BaseRequestResourceField):
     pass
 
 
-class File(BaseField):
+class File(BaseRequestResourceField):
     media_type: str = "multipart/form-data"
 
 
-class Form(BaseField):
+class Form(BaseRequestResourceField):
     media_type: str = "application/x-www-form-urlencoded"
 
 
-class MultiForm(BaseField):
+class MultiForm(BaseRequestResourceField):
     media_type: str = "application/x-www-form-urlencoded"
     openapi_serialization: Optional[dict] = {"style": "form", "explode": True}
 
 
-class Header(BaseField):
+class Header(BaseRequestResourceField):
     pass
 
 
-class Path(BaseField):
+class Path(BaseRequestResourceField):
     pass
 
 
-class Query(BaseField):
+class Query(BaseRequestResourceField):
     pass
 
 
-class MultiQuery(BaseField):
+class MultiQuery(BaseRequestResourceField):
     pass
-
-
-P = ParamSpec("P")
-R_T = TypeVar("R_T")
-
-
-class Depends(object):
-    def __init__(self, func: CallType):
-        self.func: CallType = func
-
-    @classmethod
-    def i(cls, func: CallType) -> Any:
-        return cls(func)
-
-    @classmethod
-    def t(cls, func: Callable[P, R_T]) -> R_T:  # type: ignore
-        return cls(func)  # type: ignore
-
-
-def is_pait_field(pait_field: Any) -> bool:
-    return isinstance(pait_field, (BaseField, Depends))
-
-
-def is_pait_field_class(pait_field: Any) -> bool:
-    return issubclass(pait_field, (BaseField, Depends))

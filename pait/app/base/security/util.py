@@ -1,9 +1,11 @@
 from typing import Optional, Tuple
 
-from pait.field import BaseField
+from pait.field import BaseRequestResourceField
 
 
-def set_and_check_field(pait_field: BaseField, alias: str, not_authenticated_exc: Optional[Exception] = None) -> None:
+def set_and_check_field(
+    pait_field: BaseRequestResourceField, alias: str, not_authenticated_exc: Optional[Exception] = None
+) -> None:
     if pait_field.alias is not None:
         raise ValueError("Custom alias parameters are not allowed")
     if pait_field.not_value_exception is not None:

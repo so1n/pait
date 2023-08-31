@@ -5,13 +5,13 @@ import pytest
 from pait.app.base import BaseAppHelper
 from pait.app.base.security import api_key, http, oauth2, util
 from pait.core import Pait
-from pait.field import BaseField, Header
+from pait.field import BaseRequestResourceField, Header
 
 
 class TestAPIKey:
     def test_use_erroe_field(self) -> None:
         with pytest.raises(ValueError):
-            api_key.BaseAPIKey(name="test", field=BaseField)  # type: ignore[arg-type]
+            api_key.BaseAPIKey(name="test", field=BaseRequestResourceField)  # type: ignore[arg-type]
 
     def test_authorization_handler(self) -> None:
         with pytest.raises(NotImplementedError):

@@ -96,10 +96,10 @@ class TestProtocol(BaseTestProtocol):
             assert parameters == call_signature.parameters[name]
 
     def test_field(self) -> None:
-        from pait.field import BaseField
+        from pait.field import BaseRequestResourceField
 
-        init_signature: inspect.Signature = inspect.signature(BaseField.__init__)
-        ignore_signature: inspect.Signature = inspect.signature(BaseField.i)
+        init_signature: inspect.Signature = inspect.signature(BaseRequestResourceField.__init__)
+        ignore_signature: inspect.Signature = inspect.signature(BaseRequestResourceField.i)
         for name, parameters in ignore_signature.parameters.items():
             assert parameters == init_signature.parameters[name]
 
