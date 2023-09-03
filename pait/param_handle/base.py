@@ -142,14 +142,14 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
                 if parameter.default.default_factory:
                     check_list.append(("default_factory", parameter.default.default_factory()))
                 for title, value in check_list:
-                    if value is ...:
-                        return
-                    if isinstance(value, PydanticUndefinedType):
-                        return
-                    if inspect.isclass(parameter.annotation) and isinstance(value, parameter.annotation):
-                        return
                     if getattr(value, "__call__", None):
                         value = value()
+                    if value is ...:
+                        continue
+                    if isinstance(value, PydanticUndefinedType):
+                        continue
+                    if inspect.isclass(parameter.annotation) and isinstance(value, parameter.annotation):
+                        continue
                     try:
                         _pydanitc_adapter.PaitModelField(
                             value_name=parameter.name,
@@ -293,14 +293,14 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
         # TODO Will be initialized when the plugin's initialization completes
 
     @classmethod
+    def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
+        super().pre_check_hook(pait_core_model, kwargs)
+        cls.pre_hook(pait_core_model, kwargs)
+
+    @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         super().pre_load_hook(pait_core_model, kwargs)
         if ignore_pre_check:
             # pre_check has helped to do the same task as pre_load
             cls.pre_hook(pait_core_model, kwargs)  # pragma: no cover
         return kwargs
-
-    @classmethod
-    def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
-        super().pre_check_hook(pait_core_model, kwargs)
-        cls.pre_hook(pait_core_model, kwargs)
