@@ -60,6 +60,20 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
             return True
         return False
 
+    def get_cbv_prd(self, context: "ContextModel") -> rule.ParamRuleDict:
+        """
+        Due to a problem with the Python decorator mechanism,
+        the cbv prd cannot be obtained when the decorator is initialized,
+        so the prd data is obtained and cached on the first request.
+        """
+        cbv_prd: Optional[rule.ParamRuleDict] = getattr(context.cbv_instance, "_param_plugin_cbv_prd", None)
+        if cbv_prd:
+            return cbv_prd
+        param_list = get_parameter_list_from_class(context.cbv_instance.__class__)
+        prd = self._param_field_pre_handle(context.pait_core_model, context.cbv_instance.__class__, param_list)
+        setattr(context.cbv_instance, "_param_plugin_cbv_prd", prd)
+        return prd
+
     def prd_handle(
         self,
         context: _CtxT,

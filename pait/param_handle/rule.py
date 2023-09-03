@@ -65,15 +65,15 @@ def validate_request_value(
 ####################
 # ParamRule Handle #
 ####################
-def cbv_pr_func(pr: "ParamRule", context: ContextModel, param_plugin: "BaseParamHandler") -> Any:
+def cbv_pr_func(pr: "ParamRule", context: "ContextModel", param_plugin: "BaseParamHandler") -> Any:
     return context.app_helper.cbv_instance
 
 
-def request_pr_func(pr: "ParamRule", context: ContextModel, param_plugin: "BaseParamHandler") -> Any:
+def request_pr_func(pr: "ParamRule", context: "ContextModel", param_plugin: "BaseParamHandler") -> Any:
     return context.app_helper.request
 
 
-def pait_model_pr_func(pr: "ParamRule", context: ContextModel, param_plugin: "BaseParamHandler") -> Any:
+def pait_model_pr_func(pr: "ParamRule", context: "ContextModel", param_plugin: "BaseParamHandler") -> Any:
     pait_model: Type[BaseModel] = pr.parameter.annotation
     _, kwargs = param_plugin.prd_handle(context, pait_model, pr.sub.param)
     return pait_model(**kwargs)
@@ -85,19 +85,19 @@ async def async_pait_model_pr_func(pr: "ParamRule", context: "ContextModel", par
     return pait_model(**kwargs)
 
 
-def empty_pr_func(pr: "ParamRule", context: ContextModel, param_plugin: "BaseParamHandler") -> Any:
+def empty_pr_func(pr: "ParamRule", context: "ContextModel", param_plugin: "BaseParamHandler") -> Any:
     return MISSING
 
 
 def request_field_get_value_pr_func(
-    pr: "ParamRule", context: ContextModel, param_plugin: "BaseParamHandler"
+    pr: "ParamRule", context: "ContextModel", param_plugin: "BaseParamHandler"
 ) -> Mapping:
     request_value: Mapping = getattr(context.app_helper.request, pr.parameter.default.get_field_name(), lambda: {})()
     return get_real_request_value(pr.parameter, request_value)
 
 
 async def async_request_field_get_value_pr_func(
-    pr: "ParamRule", context: ContextModel, param_plugin: "BaseParamHandler"
+    pr: "ParamRule", context: "ContextModel", param_plugin: "BaseParamHandler"
 ) -> Any:
     request_value: Union[Mapping, Coroutine[Any, Any, Mapping]] = getattr(
         context.app_helper.request, pr.parameter.default.get_field_name(), lambda: {}
@@ -111,7 +111,7 @@ async def async_request_field_get_value_pr_func(
 
 def request_field_pr_func(
     pr: "ParamRule",
-    context: ContextModel,
+    context: "ContextModel",
     param_plugin: "BaseParamHandler",
     *,
     pait_model_field: _pydanitc_adapter.PaitModelField,
@@ -122,7 +122,7 @@ def request_field_pr_func(
 
 async def async_request_field_pr_func(
     pr: "ParamRule",
-    context: ContextModel,
+    context: "ContextModel",
     param_plugin: "BaseParamHandler",
     *,
     pait_model_field: _pydanitc_adapter.PaitModelField,
@@ -133,7 +133,7 @@ async def async_request_field_pr_func(
 
 def request_depend_pr_func(
     pr: "ParamRule",
-    context: ContextModel,
+    context: "ContextModel",
     param_plugin: "BaseParamHandler",
     func_class_prd: Optional["ParamRuleDict"] = None,
 ) -> Any:

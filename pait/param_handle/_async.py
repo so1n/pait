@@ -86,11 +86,10 @@ class AsyncParamHandler(BaseParamHandler[AsyncParamHandleContext]):
             context, self._pait_pre_load_dc.pait_handler, self._pait_pre_load_dc.param
         )
 
-        # TODO
-        # gen and check param from class
-        # if context.cbv_param_list:
-        #     _, kwargs = await self.param_handle(context, context.cbv_instance.__class__, context.cbv_param_list)
-        #     context.cbv_instance.__dict__.update(kwargs)
+        if context.cbv_instance:
+            prd = self.get_cbv_prd(context)
+            _, kwargs = await self.prd_handle(context, context.cbv_instance.__class__, prd)
+            context.cbv_instance.__dict__.update(kwargs)
         return None
 
     async def __call__(self, context: "ContextModel") -> Any:
