@@ -6,7 +6,6 @@ from pydantic import BaseModel
 
 from pait.exceptions import TipException
 from pait.field import BaseRequestResourceField
-from pait.util import FuncSig
 
 _indent: str = 4 * " "
 
@@ -39,8 +38,6 @@ def gen_tip_exc(
         param_str = ""
 
     file: Optional[str] = None
-    if isinstance(_object, FuncSig):
-        _object = _object.func
     if inspect.isfunction(_object):
         title: str = "def"
         if inspect.iscoroutinefunction(_object):
