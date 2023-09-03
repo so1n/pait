@@ -102,12 +102,12 @@ class TestUtil:
         exc = RuntimeError("abc")
         util.set_and_check_field(header, "aaa", exc)
         assert header.alias == "aaa"
-        assert header.not_value_exception == exc
+        assert header.not_value_exception_func("") == exc
 
         with pytest.raises(ValueError):
             util.set_and_check_field(Header.i(alias="demo"), "aaa")
         with pytest.raises(ValueError):
-            util.set_and_check_field(Header.i(not_value_exception=ValueError(0)), "aaa")
+            util.set_and_check_field(Header.i(not_value_exception_func=lambda x: ValueError(0)), "aaa")
 
     def test_get_authorization_scheme_param(self) -> None:
         assert util.get_authorization_scheme_param("") == ("", "")

@@ -35,10 +35,10 @@ def get_real_request_value(parameter: inspect.Parameter, request_value: Mapping)
     if not pait_field.raw_return:
         request_value = pait_field.request_value_handle(request_value, request_key=pait_field.request_key)
         if request_value is PydanticUndefined:
-            raise (
-                pait_field.not_value_exception
-                or NotFoundValueException(parameter.name, f"Can not found {parameter.name} value")
-            )
+            if pait_field.not_value_exception_func:
+                raise pait_field.not_value_exception_func(parameter)
+            else:
+                raise NotFoundValueException(parameter.name, f"Can not found {parameter.name} value")
     return request_value
 
 

@@ -1,4 +1,5 @@
 import copy
+import inspect
 import warnings
 from dataclasses import MISSING
 from typing import TYPE_CHECKING, Any, Callable, List, Mapping, Optional, TypeVar
@@ -34,7 +35,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         openapi_serialization: Any = None,
         raw_return: bool = False,
         example: Any = MISSING,
-        not_value_exception: Optional[Exception] = None,
+        not_value_exception_func: Optional[Callable[[inspect.Parameter], Exception]] = None,
         openapi_include: bool = True,
         extra_param_list: Optional[List[ExtraParam]] = None,
         # pydantic.Field param
@@ -77,6 +78,10 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         # Same checks as pydantic, checked in advance here
         if default is not PydanticUndefined and default_factory is not None:
             raise ValueError("cannot specify both default and default_factory")  # pragma: no cover
+        if (default is not PydanticUndefined or default_factory is not None) and not_value_exception_func:
+            raise ValueError(
+                "cannot set not_value_exception_func when the parameter default or `default_factory` is not empty."
+            )
 
         # Reduce runtime judgments by preloading
         if default is not PydanticUndefined:
@@ -94,7 +99,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         #######################################################
         self.openapi_include: bool = openapi_include
         self.raw_return = raw_return
-        self.not_value_exception: Optional[Exception] = not_value_exception
+        self.not_value_exception_func: Optional[Callable[[inspect.Parameter], Exception]] = not_value_exception_func
         self.media_type = media_type or self.__class__.media_type
         # if not alias, pait will set the key name to request_key in the preload phase
         self.request_key: str = alias or ""
@@ -188,7 +193,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         media_type: str = "",
         example: Any = MISSING,
         openapi_serialization: Any = None,
-        not_value_exception: Optional[Exception] = None,
+        not_value_exception_func: Optional[Callable[[inspect.Parameter], Exception]] = None,
         openapi_include: bool = True,
         default_factory: Optional[Callable[[], Any]] = None,
         alias: Optional[str] = None,
@@ -220,7 +225,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
             example=example,
             media_type=media_type,
             openapi_serialization=openapi_serialization,
-            not_value_exception=not_value_exception,
+            not_value_exception_func=not_value_exception_func,
             openapi_include=openapi_include,
             default_factory=default_factory,
             alias=alias,
@@ -252,7 +257,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         media_type: str = "",
         example: _T = MISSING,  # type: ignore
         openapi_serialization: Any = None,
-        not_value_exception: Optional[Exception] = None,
+        not_value_exception_func: Optional[Callable[[inspect.Parameter], Exception]] = None,
         openapi_include: bool = True,
         default_factory: Optional[Callable[[], _T]] = None,
         alias: Optional[str] = None,
@@ -287,7 +292,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
             example=example,
             media_type=media_type,
             openapi_serialization=openapi_serialization,
-            not_value_exception=not_value_exception,
+            not_value_exception_func=not_value_exception_func,
             openapi_include=openapi_include,
             default_factory=default_factory,
             alias=alias,
