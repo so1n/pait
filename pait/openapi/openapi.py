@@ -19,8 +19,9 @@ from pait.data import PaitCoreProxyModel
 from pait.field import BaseRequestResourceField, Depends
 from pait.g import config
 from pait.model.core import PaitCoreModel
+from pait.param_handle.util import get_parameter_list_from_class
 from pait.types import CallType
-from pait.util import FuncSig, create_pydantic_model, get_func_sig, get_parameter_list_from_class
+from pait.util import FuncSig, create_pydantic_model, get_func_sig
 
 HttpParamTypeDictType = Dict[HttpParamTypeLiteral, List[RequestModel]]
 

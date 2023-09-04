@@ -11,6 +11,7 @@ from pytest_mock import MockFixture
 
 import pait.util._pydantic_util
 from pait import _pydanitc_adapter, field, util
+from pait.param_handle import util as param_handle_util
 
 pytestmark = pytest.mark.asyncio
 
@@ -255,8 +256,8 @@ class TestUtil:
             b: str = ""
             c: str = value
 
-        assert [] == util.get_parameter_list_from_class(Demo1)
-        result: List["inspect.Parameter"] = util.get_parameter_list_from_class(Demo2)
+        assert [] == param_handle_util.get_parameter_list_from_class(Demo1)
+        result: List["inspect.Parameter"] = param_handle_util.get_parameter_list_from_class(Demo2)
         assert len(result) == 1
         assert result[0].name == "c"
         assert result[0].annotation == str

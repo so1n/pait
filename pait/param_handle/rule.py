@@ -33,7 +33,7 @@ def get_real_request_value(parameter: inspect.Parameter, request_value: Mapping)
     pait_field: BaseRequestResourceField = parameter.default
 
     if not pait_field.raw_return:
-        request_value = pait_field.request_value_handle(request_value, request_key=pait_field.request_key)
+        request_value = pait_field.request_value_handle(request_value)
         if request_value is PydanticUndefined:
             if pait_field.not_value_exception_func:
                 raise pait_field.not_value_exception_func(parameter)

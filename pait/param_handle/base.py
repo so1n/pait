@@ -16,18 +16,10 @@ from pait.exceptions import (
 )
 from pait.plugin.base import PluginProtocol
 from pait.types import CallType
-from pait.util import (
-    FuncSig,
-    gen_tip_exc,
-    get_func_sig,
-    get_parameter_list_from_class,
-    get_parameter_list_from_pydantic_basemodel,
-    ignore_pre_check,
-    is_bounded_func,
-    is_type,
-)
+from pait.util import FuncSig, gen_tip_exc, get_func_sig, ignore_pre_check, is_bounded_func, is_type
 
 from . import rule
+from .util import get_parameter_list_from_class, get_parameter_list_from_pydantic_basemodel
 
 if TYPE_CHECKING:
     from pait.model.context import ContextModel
@@ -173,7 +165,7 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
             raise ValueError(f"Method: {func.__qualname__} is not a bounded function")  # pragma: no cover
         func_sig: FuncSig = get_func_sig(func, cache_sig=False)
         _pre_load_obj_dc = rule.PreLoadDc(
-            pait_handler=func,  # depend func not get pait handler in pre-load
+            pait_handler=func,  # depend func gen pait handler in pre-load
             param=cls._param_field_pre_handle(pait_core_model, func_sig.func, func_sig.param_list),
         )
         return _pre_load_obj_dc
@@ -217,13 +209,12 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
 
                     elif isinstance(parameter.default, field.BaseRequestResourceField):
                         field_type_enum = rule.FieldTypeEnum.request_field
-                        if not parameter.default.alias:
-                            parameter.default.request_key = parameter.name
-                        # Creating a model field is very performance-intensive (especially for Pydantic V2),
-                        # so it needs to be cached
+                        parameter.default.set_request_key(parameter.name)
                         pait_model_field: _pydanitc_adapter.PaitModelField
                         param_func = partial(  # type: ignore
                             field_type_enum.value.async_func if cls._is_async else field_type_enum.value.func,
+                            # Creating a model field is very performance-intensive (especially for Pydantic V2),
+                            # so it needs to be cached
                             pait_model_field=_pydanitc_adapter.PaitModelField(
                                 value_name=parameter.name,
                                 annotation=parameter.annotation,
@@ -279,18 +270,17 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
     @classmethod
     def pre_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
         func_sig: FuncSig = get_func_sig(pait_core_model.func, cache_sig=False)
-        # check and load param from pre depend
         _pait_pre_load_dc = rule.PreLoadDc(pait_handler=func_sig.func)
+        # check and load param from pre depend
         for pre_depend in pait_core_model.pre_depend_list:
             _pait_pre_load_dc.pre_depend.append(cls._depend_pre_handle(pait_core_model, pre_depend))
 
         # check and load param from func
         _pait_pre_load_dc.param = cls._param_field_pre_handle(pait_core_model, func_sig.func, func_sig.param_list)
         kwargs["_pait_pre_load_dc"] = _pait_pre_load_dc
-        # TODO support cbv class Attribute
+        # TODO support cbv class Attribute in pre-load, now in first request
         # I don't know how to get the class of the decorated function at the initialization of the decorator,
-        # which may be an unattainable requirement
-        # TODO Will be initialized when the plugin's initialization completes
+        # which may be an unattainable feature
 
     @classmethod
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:

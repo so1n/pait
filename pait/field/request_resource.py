@@ -101,8 +101,18 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         self.raw_return = raw_return
         self.not_value_exception_func: Optional[Callable[[inspect.Parameter], Exception]] = not_value_exception_func
         self.media_type = media_type or self.__class__.media_type
-        # if not alias, pait will set the key name to request_key in the preload phase
-        self.request_key: str = alias or ""
+        # _state obj can fix pydantic v2 bug
+        # e.g:
+        #   request_value_handle_by_default and request_value_handle_by_default_factory method is dynamically set,
+        #   so can't get the value through self:
+        #       self.request_key == ''
+        #   but:
+        #       Demo = Body()
+        #       Demo.set_alias('demo')
+        #       assert Demo.request_key == 'demo'
+
+        # Note: if not alias, pait will set the key name to request_key in the preload phase
+        self._state: dict = {"request_key": alias or ""}
         self.openapi_serialization = openapi_serialization or self.__class__.openapi_serialization
         self.extra_param_list: List[ExtraParam] = extra_param_list or []
 
@@ -147,33 +157,33 @@ class BaseRequestResourceField(BaseField, FieldInfo):
             kwargs.update(extra)
         super().__init__(**kwargs)
 
+    @property
+    def request_key(self) -> str:
+        return self._state.get("request_key", "")
+
     def set_alias(self, value: Optional[str]) -> None:
+        """reset field alias,
+        In pydantic V2, if the model has been initialized, the `set_alias` method will be invalid.
+        """
         self.alias = value
         if not _pydanitc_adapter.is_v1:
             self.validation_alias = value
             self.serialization_alias = value
         if value is not None:
-            self.request_key = value
+            self._state["request_key"] = value
 
-    #######################
-    # Fix pydantic v2 bug #
-    #######################
-    # e.g:
-    #   request_value_handle_by_default and request_value_handle_by_default_factory method is dynamically set,
-    #   so can't get the value through self:
-    #       self.request_key == ''
-    #   but:
-    #       Demo = Body()
-    #       Demo.set_alias('demo')
-    #       assert Demo.request_key == 'demo'
-    def request_value_handle(self, request_value: Mapping, request_key: str = "") -> Any:
-        return request_value.get(request_key or self.request_key, PydanticUndefined)
+    def set_request_key(self, request_key: str) -> None:
+        if not self.alias:
+            self._state["request_key"] = request_key
 
-    def request_value_handle_by_default(self, request_value: Mapping, request_key: str = "") -> Any:
-        return request_value.get(request_key or self.request_key, self.default)
+    def request_value_handle(self, request_value: Mapping) -> Any:
+        return request_value.get(self.request_key, PydanticUndefined)
 
-    def request_value_handle_by_default_factory(self, request_value: Mapping, request_key: str = "") -> Any:
-        return request_value.get(request_key or self.request_key, self.default_factory())
+    def request_value_handle_by_default(self, request_value: Mapping) -> Any:
+        return request_value.get(self.request_key, self.default)
+
+    def request_value_handle_by_default_factory(self, request_value: Mapping) -> Any:
+        return request_value.get(self.request_key, self.default_factory())
 
     @property
     def links(self) -> "Optional[LinksModel]":
