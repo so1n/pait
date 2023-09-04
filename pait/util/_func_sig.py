@@ -6,7 +6,7 @@ from typing_extensions import Self  # type: ignore
 
 from ._util import get_real_annotation
 
-__all__ = ["FuncSig", "get_func_sig", "is_bounded_func"]
+__all__ = ["FuncSig", "get_func_sig", "is_bounded_func", "get_pait_handler"]
 
 from ..types import CallType
 
@@ -15,7 +15,7 @@ from ..types import CallType
 class FuncSig:
     """func inspect.Signature model"""
 
-    func: Callable
+    func: CallType
     sig: "inspect.Signature"
     param_list: List["inspect.Parameter"]
     return_param: Any
@@ -25,11 +25,7 @@ class FuncSig:
 _func_sig_dict: Dict[CallType, FuncSig] = {}
 
 
-def get_func_sig(func: CallType) -> FuncSig:
-    """get func inspect.Signature model"""
-    if func in _func_sig_dict:
-        return _func_sig_dict[func]
-
+def get_pait_handler(func: CallType) -> Callable:
     # support pait handler
     if hasattr(func, "pait_handler"):
         pait_handler = getattr(func, "pait_handler")
@@ -37,8 +33,18 @@ def get_func_sig(func: CallType) -> FuncSig:
         pait_handler = getattr(func, "__call__")
     else:
         pait_handler = func
+    return pait_handler
 
-    sig: inspect.Signature = inspect.signature(pait_handler)
+
+def get_func_sig(func: CallType, cache_sig: bool = True) -> FuncSig:
+    """get func inspect.Signature model"""
+    if func in _func_sig_dict:
+        return _func_sig_dict[func]
+
+    # support pait handler
+    pait_handler = get_pait_handler(func)
+
+    sig = inspect.signature(pait_handler)
     param_list: List[inspect.Parameter] = []
     for key in sig.parameters:
         # NOTE:
@@ -59,7 +65,8 @@ def get_func_sig(func: CallType) -> FuncSig:
         param_list=param_list,
         return_param=get_real_annotation(sig.return_annotation, pait_handler),
     )
-    _func_sig_dict[func] = func_sig
+    if cache_sig:
+        _func_sig_dict[func] = func_sig
     return func_sig
 
 

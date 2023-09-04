@@ -75,7 +75,7 @@ async def pait_base_field_route(
     email: str = Query.i(default="example@xxx.com", description="user email"),
     sex: SexEnum = Query.i(description="sex"),
 ) -> response.HTTPResponse:
-    """Test the use of all BaseField-based"""
+    """Test the use of all BaseRequestResourceField-based"""
     return response.json(
         {
             "code": 0,

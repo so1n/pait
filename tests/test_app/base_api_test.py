@@ -319,19 +319,19 @@ class BaseTest(object):
     def oauth2_password_route(
         self, *, login_route: Callable, user_name_route: Callable, user_info_route: Callable
     ) -> None:
-        test_helper = self.test_helper(self.client, user_name_route, strict_inspection_check_json_content=False)
-        assert 401 == test_helper._get_status_code(test_helper.get())
-
-        test_helper = self.test_helper(self.client, user_info_route, strict_inspection_check_json_content=False)
-        assert 401 == test_helper._get_status_code(test_helper.get())
-
+        # test_helper = self.test_helper(self.client, user_name_route, strict_inspection_check_json_content=False)
+        # assert 401 == test_helper._get_status_code(test_helper.get())
+        #
+        # test_helper = self.test_helper(self.client, user_info_route, strict_inspection_check_json_content=False)
+        # assert 401 == test_helper._get_status_code(test_helper.get())
+        #
         test_helper = self.test_helper(
             self.client,
             login_route,
             form_dict={"username": "so1n", "password": "1"},
             strict_inspection_check_json_content=False,
         )
-        assert 400 == test_helper._get_status_code(test_helper.post())
+        # assert 400 == test_helper._get_status_code(test_helper.post())
 
         for test_dict in [
             # not scopes

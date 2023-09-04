@@ -5,13 +5,13 @@ import pytest
 from pait.app.base import BaseAppHelper
 from pait.app.base.security import api_key, http, oauth2, util
 from pait.core import Pait
-from pait.field import BaseField, Header
+from pait.field import BaseRequestResourceField, Header
 
 
 class TestAPIKey:
     def test_use_erroe_field(self) -> None:
         with pytest.raises(ValueError):
-            api_key.BaseAPIKey(name="test", field=BaseField)  # type: ignore[arg-type]
+            api_key.BaseAPIKey(name="test", field=BaseRequestResourceField)  # type: ignore[arg-type]
 
     def test_authorization_handler(self) -> None:
         with pytest.raises(NotImplementedError):
@@ -102,12 +102,12 @@ class TestUtil:
         exc = RuntimeError("abc")
         util.set_and_check_field(header, "aaa", exc)
         assert header.alias == "aaa"
-        assert header.not_value_exception == exc
+        assert header.not_value_exception_func("") == exc
 
         with pytest.raises(ValueError):
             util.set_and_check_field(Header.i(alias="demo"), "aaa")
         with pytest.raises(ValueError):
-            util.set_and_check_field(Header.i(not_value_exception=ValueError(0)), "aaa")
+            util.set_and_check_field(Header.i(not_value_exception_func=lambda x: ValueError(0)), "aaa")
 
     def test_get_authorization_scheme_param(self) -> None:
         assert util.get_authorization_scheme_param("") == ("", "")

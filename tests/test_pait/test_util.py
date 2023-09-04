@@ -11,6 +11,7 @@ from pytest_mock import MockFixture
 
 import pait.util._pydantic_util
 from pait import _pydanitc_adapter, field, util
+from pait.param_handle import util as param_handle_util
 
 pytestmark = pytest.mark.asyncio
 
@@ -255,8 +256,8 @@ class TestUtil:
             b: str = ""
             c: str = value
 
-        assert [] == util.get_parameter_list_from_class(Demo1)
-        result: List["inspect.Parameter"] = util.get_parameter_list_from_class(Demo2)
+        assert [] == param_handle_util.get_parameter_list_from_class(Demo1)
+        result: List["inspect.Parameter"] = param_handle_util.get_parameter_list_from_class(Demo2)
         assert len(result) == 1
         assert result[0].name == "c"
         assert result[0].annotation == str
@@ -330,13 +331,13 @@ class Demo:
     pass
 
 
-class FakeField(field.BaseField):
+class FakeRequestResourceField(field.BaseRequestResourceField):
     pass
 
 
 class TestGenTipExc:
     def test_raise_and_tip_param_value_is_empty(self, mocker: MockFixture) -> None:
-        patch = mocker.patch("pait.param_handle.base.logging.debug")
+        patch = mocker.patch("pait.util._gen_tip.logging.debug")
         parameter: inspect.Parameter = inspect.Parameter(
             "b",
             inspect.Parameter.POSITIONAL_ONLY,
@@ -347,9 +348,9 @@ class TestGenTipExc:
         patch.assert_called_with(AnyStringWith("class: `Demo`  attributes error"))
 
     def test_raise_and_tip_param_value_is_pait_field(self, mocker: MockFixture) -> None:
-        patch = mocker.patch("pait.param_handle.base.logging.debug")
+        patch = mocker.patch("pait.util._gen_tip.logging.debug")
         parameter: inspect.Parameter = inspect.Parameter(
-            "b", inspect.Parameter.POSITIONAL_ONLY, annotation=str, default=FakeField.i()
+            "b", inspect.Parameter.POSITIONAL_ONLY, annotation=str, default=FakeRequestResourceField.i()
         )
         with pytest.raises(Exception):
             raise pait.util._gen_tip.gen_tip_exc(Demo(), Exception(), parameter)
@@ -357,7 +358,7 @@ class TestGenTipExc:
         patch.assert_called_with(AnyStringWith("class: `Demo`  attributes error"))
 
     def test_raise_and_tip_param_value_is_not_pait_field(self, mocker: MockFixture) -> None:
-        patch = mocker.patch("pait.param_handle.base.logging.debug")
+        patch = mocker.patch("pait.util._gen_tip.logging.debug")
         parameter: inspect.Parameter = inspect.Parameter(
             "b", inspect.Parameter.POSITIONAL_ONLY, annotation=str, default=""
         )

@@ -1,8 +1,5 @@
 from dataclasses import MISSING, dataclass, field
-from inspect import Parameter
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence
-
-from pait.util import get_parameter_list_from_class
+from typing import TYPE_CHECKING, Any, Dict, Optional, Sequence
 
 if TYPE_CHECKING:
     from pait.app.base import BaseAppHelper
@@ -24,15 +21,8 @@ class ContextModel(object):
     args: Sequence
     kwargs: dict
 
-    cbv_param_list: List[Parameter] = field(init=False)
     # If it is not used, then it is not initialized, saving memory footprint
     state: Dict[str, Any] = field(init=False)
-
-    def __post_init__(self) -> None:
-        if self.cbv_instance:
-            self.cbv_param_list = get_parameter_list_from_class(self.cbv_instance.__class__)
-        else:
-            self.cbv_param_list = []
 
     def _init_state(self) -> None:
         if not hasattr(self, "state"):

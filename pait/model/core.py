@@ -15,7 +15,7 @@ from pait.util import gen_tip_exc, ignore_pre_check
 
 if TYPE_CHECKING:
     from pait.app.base import BaseAppHelper
-    from pait.field import BaseField
+    from pait.field import BaseRequestResourceField
 
 
 __all__ = ["PaitCoreModel", "get_core_model"]
@@ -53,7 +53,7 @@ class PaitCoreModel(object):
         response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
         pydantic_model_config: Optional[Type[BaseConfig]] = None,
         pydantic_basemodel: Optional[Type[BaseModel]] = None,
-        default_field_class: Optional[Type["BaseField"]] = None,
+        default_field_class: Optional[Type["BaseRequestResourceField"]] = None,
         plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
         post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
         feature_code: str = "",
@@ -61,7 +61,7 @@ class PaitCoreModel(object):
     ):
         # pait
         self.app_helper_class: "Type[BaseAppHelper]" = app_helper_class
-        self.default_field_class: Optional[Type["BaseField"]] = default_field_class
+        self.default_field_class: Optional[Type["BaseRequestResourceField"]] = default_field_class
         self.func: Callable = func  # route func
         self.pait_id: str = f"{func.__module__}_{func.__qualname__}"
         # Some functions have the same md5 as the name and need to be distinguished by the feature code
