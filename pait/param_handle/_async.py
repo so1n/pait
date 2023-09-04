@@ -2,92 +2,70 @@ import asyncio
 import inspect
 import sys
 from contextlib import AbstractAsyncContextManager, AbstractContextManager
-from typing import Any, Coroutine, Dict, List, Mapping, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from pydantic import BaseModel
 from typing_extensions import Self  # type: ignore
 
-from pait import field
 from pait.exceptions import PaitBaseException
 from pait.model.context import ContextModel
+from pait.param_handle import rule
 from pait.param_handle.base import BaseParamHandler, raise_multiple_exc
 from pait.plugin.base import PluginContext
-from pait.util import (
-    FuncSig,
-    gen_tip_exc,
-    get_func_sig,
-    get_parameter_list_from_class,
-    get_parameter_list_from_pydantic_basemodel,
-)
+from pait.util import gen_tip_exc, get_pait_handler
 
 
 class AsyncParamHandleContext(PluginContext):
     contextmanager_list: List[Union[AbstractAsyncContextManager, AbstractContextManager]]
 
 
-class AsyncParamHandler(BaseParamHandler):
-    async def param_handle(
+class AsyncParamHandler(BaseParamHandler[AsyncParamHandleContext]):
+    _is_async = True
+
+    async def prd_handle(  # type: ignore[override]
         self,
         context: "AsyncParamHandleContext",
-        _object: Union[FuncSig, Type],
-        param_list: List["inspect.Parameter"],
-        pydantic_model: Optional[Type[BaseModel]] = None,
+        _object: Any,
+        prd: rule.ParamRuleDict,
     ) -> Tuple[List[Any], Dict[str, Any]]:
         args_param_list: List[Any] = []
         kwargs_param_dict: Dict[str, Any] = {}
 
-        for parameter in param_list:
+        for param_name, pr in prd.items():
             try:
-                if parameter.default != parameter.empty:
-                    # kwargs param
-                    # support like: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseField())
-                    if isinstance(parameter.default, field.Depends):
-                        kwargs_param_dict[parameter.name] = await self._depend_handle(context, parameter.default.func)
-                    else:
-                        request_value: Union[Mapping, Coroutine[Any, Any, Mapping]] = getattr(
-                            context.app_helper.request, parameter.default.get_field_name(), lambda: {}
-                        )()
-                        if asyncio.iscoroutine(request_value) or asyncio.isfuture(request_value):
-                            request_value = await request_value
-                        self.request_value_handle(
-                            parameter, request_value or {}, kwargs_param_dict, pydantic_model  # type: ignore[arg-type]
-                        )
+                value = pr.param_func(pr, context, self)
+                if value is rule.MISSING:
+                    continue
+                if asyncio.iscoroutine(value) or asyncio.isfuture(value) or asyncio.iscoroutinefunction(value):
+                    value = await value
+                if pr.parameter.default is pr.parameter.empty:
+                    args_param_list.append(value)
                 else:
-                    # args param
-                    # support model: model: ModelType
-                    await self.set_parameter_value_to_args(context, _object, parameter, args_param_list)
-            except PaitBaseException as closer_e:
-                raise gen_tip_exc(_object, closer_e, parameter, tip_exception_class=self.tip_exception_class)
+                    kwargs_param_dict[param_name] = value
+            except PaitBaseException as e:
+                raise gen_tip_exc(_object, e, pr.parameter, tip_exception_class=self.tip_exception_class)
+
         return args_param_list, kwargs_param_dict
 
-    async def set_parameter_value_to_args(
+    async def depend_handle(
         self,
         context: "AsyncParamHandleContext",
-        _object: Union[FuncSig, Type],
-        parameter: inspect.Parameter,
-        func_args: list,
-    ) -> None:
-        """use func_args param faster return and extend func_args"""
-        if not self._set_parameter_value_to_args(context, parameter, func_args):
-            return
-        _pait_model: Type[BaseModel] = parameter.annotation
-        _, kwargs = await self.param_handle(
-            context,
-            _object,
-            get_parameter_list_from_pydantic_basemodel(_pait_model, context.pait_core_model.default_field_class),
-            _pait_model,
-        )
-        func_args.append(_pait_model(**kwargs))
+        pld: "rule.PreLoadDc",
+        func_class_prd: Optional[rule.ParamRuleDict] = None,
+    ) -> Any:
+        pait_handler = pld.pait_handler
+        if inspect.isclass(pait_handler):
+            # support depend type is class
+            assert (
+                func_class_prd
+            ), f"`func_class_prd` param must not none, please check {self.__class__}.pre_load_hook method"
+            _, kwargs = await self.prd_handle(context, pait_handler.__class__, func_class_prd)
+            pait_handler = pait_handler()
+            pait_handler.__dict__.update(kwargs)
 
-    async def _depend_handle(self, context: "AsyncParamHandleContext", func: Any) -> Any:
-        if inspect.isclass(func):
-            func = func()
-            _, kwargs = await self.param_handle(context, func.__class__, get_parameter_list_from_class(func.__class__))
-            func.__dict__.update(kwargs)
-
-        func_sig: FuncSig = get_func_sig(func)
-        _func_args, _func_kwargs = await self.param_handle(context, func_sig, func_sig.param_list)
-        func_result: Any = func_sig.func(*_func_args, **_func_kwargs)
+        # Get the real pait_handler of the depend class
+        pait_handler = get_pait_handler(pait_handler)
+        _func_args, _func_kwargs = await self.prd_handle(context, pait_handler, pld.param)
+        func_result: Any = pait_handler(*_func_args, **_func_kwargs)
         if asyncio.iscoroutine(func_result):
             func_result = await func_result
         if isinstance(func_result, AbstractAsyncContextManager):
@@ -101,17 +79,16 @@ class AsyncParamHandler(BaseParamHandler):
 
     async def _gen_param(self, context: "AsyncParamHandleContext") -> None:
         # check param from pre depend
-        if context.pait_core_model.pre_depend_list:
-            for pre_depend in context.pait_core_model.pre_depend_list:
-                await self._depend_handle(context, pre_depend)
+        for index, pre_depend in enumerate(context.pait_core_model.pre_depend_list):
+            await self.depend_handle(context, self._pait_pre_load_dc.pre_depend[index])
 
-        # gen and check param from func
-        func_sig: FuncSig = get_func_sig(context.pait_core_model.func)
-        context.args, context.kwargs = await self.param_handle(context, func_sig, func_sig.param_list)
+        context.args, context.kwargs = await self.prd_handle(
+            context, self._pait_pre_load_dc.pait_handler, self._pait_pre_load_dc.param
+        )
 
-        # gen and check param from class
-        if context.cbv_param_list:
-            _, kwargs = await self.param_handle(context, context.cbv_instance.__class__, context.cbv_param_list)
+        if context.cbv_instance:
+            prd = self.get_cbv_prd(context)
+            _, kwargs = await self.prd_handle(context, context.cbv_instance.__class__, prd)
             context.cbv_instance.__dict__.update(kwargs)
         return None
 

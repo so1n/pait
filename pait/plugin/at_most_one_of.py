@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from pait.exceptions import CheckValueError
-from pait.field import BaseField, ExtraParam
-from pait.plugin.base import PluginContext, PluginManager, PostPluginProtocol
+from pait.field import BaseRequestResourceField, ExtraParam
+from pait.model.context import ContextModel as PluginContext
+from pait.plugin.base import PluginManager, PostPluginProtocol
 from pait.util import FuncSig, gen_tip_exc, get_func_sig
 
 if TYPE_CHECKING:
@@ -37,7 +38,7 @@ class AtMostOneOfPlugin(PostPluginProtocol):
         at_most_one_of_dict: Dict[str, List[str]] = {}
         for param in fun_sig.param_list:
             default: Any = param.default
-            if not isinstance(default, BaseField):
+            if not isinstance(default, BaseRequestResourceField):
                 continue
             for extra_param in default.extra_param_list:
                 if not isinstance(extra_param, AtMostOneOfExtraParam):

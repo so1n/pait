@@ -1,84 +1,61 @@
 import inspect
 import sys
 from contextlib import AbstractContextManager
-from typing import Any, Dict, List, Mapping, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple
 
-from pydantic import BaseModel
 from typing_extensions import Self  # type: ignore
 
-from pait import field
 from pait.exceptions import PaitBaseException
-from pait.param_handle.base import BaseParamHandler, raise_multiple_exc
+from pait.param_handle.base import BaseParamHandler, raise_multiple_exc, rule
 from pait.plugin.base import PluginContext
-from pait.util import (
-    FuncSig,
-    gen_tip_exc,
-    get_func_sig,
-    get_parameter_list_from_class,
-    get_parameter_list_from_pydantic_basemodel,
-)
+from pait.util import gen_tip_exc, get_pait_handler
 
 
 class ParamHandleContext(PluginContext):
     contextmanager_list: List[AbstractContextManager]
 
 
-class ParamHandler(BaseParamHandler):
-    def param_handle(
+class ParamHandler(BaseParamHandler[ParamHandleContext]):
+    def prd_handle(
         self,
         context: "ParamHandleContext",
-        _object: Union[FuncSig, Type, None],
-        param_list: List["inspect.Parameter"],
-        pydantic_model: Optional[Type[BaseModel]] = None,
+        _object: Any,
+        prd: rule.ParamRuleDict,
     ) -> Tuple[List[Any], Dict[str, Any]]:
         args_param_list: List[Any] = []
         kwargs_param_dict: Dict[str, Any] = {}
 
-        for parameter in param_list:
+        for param_name, pr in prd.items():
             try:
-                if parameter.default != parameter.empty:
-                    # kwargs param
-                    # support model: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseField())
-                    if isinstance(parameter.default, field.Depends):
-                        kwargs_param_dict[parameter.name] = self._depend_handle(context, parameter.default.func)
-                    else:
-                        request_value: Mapping = getattr(
-                            context.app_helper.request, parameter.default.get_field_name(), lambda: {}
-                        )()
-                        self.request_value_handle(parameter, request_value or {}, kwargs_param_dict, pydantic_model)
+                value = pr.param_func(pr, context, self)
+                if value is rule.MISSING:
+                    continue
+                if pr.parameter.default is pr.parameter.empty:
+                    args_param_list.append(value)
                 else:
-                    # args param
-                    # support model: model: ModelType
-                    self.set_parameter_value_to_args(context, parameter, args_param_list)
+                    kwargs_param_dict[param_name] = value
             except PaitBaseException as e:
-                raise gen_tip_exc(_object, e, parameter, tip_exception_class=self.tip_exception_class)
+                raise gen_tip_exc(_object, e, pr.parameter, tip_exception_class=self.tip_exception_class)
+
         return args_param_list, kwargs_param_dict
 
-    def set_parameter_value_to_args(
-        self, context: "ParamHandleContext", parameter: inspect.Parameter, func_args: list
-    ) -> None:
-        """use func_args param faster return and extend func_args"""
-        if not self._set_parameter_value_to_args(context, parameter, func_args):
-            return
-        # support pait_model param(def handle(model: PaitBaseModel))
-        _pait_model: Type[BaseModel] = parameter.annotation
-        _, kwargs = self.param_handle(
-            context,
-            None,
-            get_parameter_list_from_pydantic_basemodel(_pait_model, context.pait_core_model.default_field_class),
-            _pait_model,
-        )
-        func_args.append(_pait_model(**kwargs))
+    def depend_handle(
+        self, context: "ParamHandleContext", pld: "rule.PreLoadDc", func_class_prd: Optional[rule.ParamRuleDict] = None
+    ) -> Any:
+        pait_handler = pld.pait_handler
+        if inspect.isclass(pait_handler):
+            # support depend type is class
+            assert (
+                func_class_prd
+            ), f"`func_class_prd` param must not none, please check {self.__class__}.pre_load_hook method"
+            _, kwargs = self.prd_handle(context, pait_handler.__class__, func_class_prd)
+            pait_handler = pait_handler()
+            pait_handler.__dict__.update(kwargs)
 
-    def _depend_handle(self, context: "ParamHandleContext", func: Any) -> Any:
-        if inspect.isclass(func):
-            func = func()
-            _, kwargs = self.param_handle(context, func.__class__, get_parameter_list_from_class(func.__class__))
-            func.__dict__.update(kwargs)
-
-        func_sig: FuncSig = get_func_sig(func)
-        _func_args, _func_kwargs = self.param_handle(context, func_sig, func_sig.param_list)
-        func_result: Any = func_sig.func(*_func_args, **_func_kwargs)
+        # Get the real pait_handler of the depend class
+        pait_handler = get_pait_handler(pait_handler)
+        _func_args, _func_kwargs = self.prd_handle(context, pait_handler, pld.param)
+        func_result: Any = pait_handler(*_func_args, **_func_kwargs)
         if isinstance(func_result, AbstractContextManager):
             context.contextmanager_list.append(func_result)
             return func_result.__enter__()
@@ -87,16 +64,15 @@ class ParamHandler(BaseParamHandler):
 
     def _gen_param(self, context: "ParamHandleContext") -> None:
         # check param from pre depend
-        for pre_depend in context.pait_core_model.pre_depend_list:
-            self._depend_handle(context, pre_depend)
+        for index, pre_depend in enumerate(context.pait_core_model.pre_depend_list):
+            self.depend_handle(context, self._pait_pre_load_dc.pre_depend[index])
 
-        # gen and check param from func
-        func_sig: FuncSig = get_func_sig(context.pait_core_model.func)
-        context.args, context.kwargs = self.param_handle(context, func_sig, func_sig.param_list)
-
-        # gen and check param from class
-        if context.cbv_param_list:
-            _, kwargs = self.param_handle(context, context.cbv_instance.__class__, context.cbv_param_list)
+        context.args, context.kwargs = self.prd_handle(
+            context, self._pait_pre_load_dc.pait_handler, self._pait_pre_load_dc.param
+        )
+        if context.cbv_instance:
+            prd = self.get_cbv_prd(context)
+            _, kwargs = self.prd_handle(context, context.cbv_instance.__class__, prd)
             context.cbv_instance.__dict__.update(kwargs)
         return None
 

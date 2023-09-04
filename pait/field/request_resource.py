@@ -1,15 +1,15 @@
 import copy
+import inspect
 import warnings
 from dataclasses import MISSING
 from typing import TYPE_CHECKING, Any, Callable, List, Mapping, Optional, TypeVar
 
-from pydantic import BaseModel
 from pydantic.fields import FieldInfo
 from typing_extensions import deprecated  # type: ignore[attr-defined]
 from typing_extensions import Annotated
 
 from pait import _pydanitc_adapter
-from pait.types import CallType, ParamSpec
+from pait.field.base import BaseField, ExtraParam
 
 if TYPE_CHECKING:
     from pait.openapi.openapi import LinksModel
@@ -21,11 +21,7 @@ _T = TypeVar("_T")
 PydanticUndefined = _pydanitc_adapter.PydanticUndefined
 
 
-class ExtraParam(BaseModel):
-    pass
-
-
-class BaseField(FieldInfo):
+class BaseRequestResourceField(BaseField, FieldInfo):
     field_name: str = ""
     media_type: str = "*/*"
     openapi_serialization: Optional[dict] = None
@@ -39,7 +35,7 @@ class BaseField(FieldInfo):
         openapi_serialization: Any = None,
         raw_return: bool = False,
         example: Any = MISSING,
-        not_value_exception: Optional[Exception] = None,
+        not_value_exception_func: Optional[Callable[[inspect.Parameter], Exception]] = None,
         openapi_include: bool = True,
         extra_param_list: Optional[List[ExtraParam]] = None,
         # pydantic.Field param
@@ -82,6 +78,10 @@ class BaseField(FieldInfo):
         # Same checks as pydantic, checked in advance here
         if default is not PydanticUndefined and default_factory is not None:
             raise ValueError("cannot specify both default and default_factory")  # pragma: no cover
+        if (default is not PydanticUndefined or default_factory is not None) and not_value_exception_func:
+            raise ValueError(
+                "cannot set not_value_exception_func when the parameter default or `default_factory` is not empty."
+            )
 
         # Reduce runtime judgments by preloading
         if default is not PydanticUndefined:
@@ -99,10 +99,20 @@ class BaseField(FieldInfo):
         #######################################################
         self.openapi_include: bool = openapi_include
         self.raw_return = raw_return
-        self.not_value_exception: Optional[Exception] = not_value_exception
+        self.not_value_exception_func: Optional[Callable[[inspect.Parameter], Exception]] = not_value_exception_func
         self.media_type = media_type or self.__class__.media_type
-        # if not alias, pait will set the key name to request_key in the preload phase
-        self.request_key: str = alias or ""
+        # _state obj can fix pydantic v2 bug
+        # e.g:
+        #   request_value_handle_by_default and request_value_handle_by_default_factory method is dynamically set,
+        #   so can't get the value through self:
+        #       self.request_key == ''
+        #   but:
+        #       Demo = Body()
+        #       Demo.set_alias('demo')
+        #       assert Demo.request_key == 'demo'
+
+        # Note: if not alias, pait will set the key name to request_key in the preload phase
+        self._state: dict = {"request_key": alias or ""}
         self.openapi_serialization = openapi_serialization or self.__class__.openapi_serialization
         self.extra_param_list: List[ExtraParam] = extra_param_list or []
 
@@ -147,33 +157,33 @@ class BaseField(FieldInfo):
             kwargs.update(extra)
         super().__init__(**kwargs)
 
+    @property
+    def request_key(self) -> str:
+        return self._state.get("request_key", "")
+
     def set_alias(self, value: Optional[str]) -> None:
+        """reset field alias,
+        In pydantic V2, if the model has been initialized, the `set_alias` method will be invalid.
+        """
         self.alias = value
         if not _pydanitc_adapter.is_v1:
             self.validation_alias = value
             self.serialization_alias = value
         if value is not None:
-            self.request_key = value
+            self._state["request_key"] = value
 
-    #######################
-    # Fix pydantic v2 bug #
-    #######################
-    # e.g:
-    #   request_value_handle_by_default and request_value_handle_by_default_factory method is dynamically set,
-    #   so can't get the value through self:
-    #       self.request_key == ''
-    #   but:
-    #       Demo = Body()
-    #       Demo.set_alias('demo')
-    #       assert Demo.request_key == 'demo'
-    def request_value_handle(self, request_value: Mapping, request_key: str = "") -> Any:
-        return request_value.get(request_key or self.request_key, PydanticUndefined)
+    def set_request_key(self, request_key: str) -> None:
+        if not self.alias:
+            self._state["request_key"] = request_key
 
-    def request_value_handle_by_default(self, request_value: Mapping, request_key: str = "") -> Any:
-        return request_value.get(request_key or self.request_key, self.default)
+    def request_value_handle(self, request_value: Mapping) -> Any:
+        return request_value.get(self.request_key, PydanticUndefined)
 
-    def request_value_handle_by_default_factory(self, request_value: Mapping, request_key: str = "") -> Any:
-        return request_value.get(request_key or self.request_key, self.default_factory())
+    def request_value_handle_by_default(self, request_value: Mapping) -> Any:
+        return request_value.get(self.request_key, self.default)
+
+    def request_value_handle_by_default_factory(self, request_value: Mapping) -> Any:
+        return request_value.get(self.request_key, self.default_factory())
 
     @property
     def links(self) -> "Optional[LinksModel]":
@@ -193,7 +203,7 @@ class BaseField(FieldInfo):
         media_type: str = "",
         example: Any = MISSING,
         openapi_serialization: Any = None,
-        not_value_exception: Optional[Exception] = None,
+        not_value_exception_func: Optional[Callable[[inspect.Parameter], Exception]] = None,
         openapi_include: bool = True,
         default_factory: Optional[Callable[[], Any]] = None,
         alias: Optional[str] = None,
@@ -225,7 +235,7 @@ class BaseField(FieldInfo):
             example=example,
             media_type=media_type,
             openapi_serialization=openapi_serialization,
-            not_value_exception=not_value_exception,
+            not_value_exception_func=not_value_exception_func,
             openapi_include=openapi_include,
             default_factory=default_factory,
             alias=alias,
@@ -257,7 +267,7 @@ class BaseField(FieldInfo):
         media_type: str = "",
         example: _T = MISSING,  # type: ignore
         openapi_serialization: Any = None,
-        not_value_exception: Optional[Exception] = None,
+        not_value_exception_func: Optional[Callable[[inspect.Parameter], Exception]] = None,
         openapi_include: bool = True,
         default_factory: Optional[Callable[[], _T]] = None,
         alias: Optional[str] = None,
@@ -292,7 +302,7 @@ class BaseField(FieldInfo):
             example=example,
             media_type=media_type,
             openapi_serialization=openapi_serialization,
-            not_value_exception=not_value_exception,
+            not_value_exception_func=not_value_exception_func,
             openapi_include=openapi_include,
             default_factory=default_factory,
             alias=alias,
@@ -315,7 +325,7 @@ class BaseField(FieldInfo):
         )
 
     @classmethod
-    def from_pydantic_field(cls, field: FieldInfo) -> "BaseField":
+    def from_pydantic_field(cls, field: FieldInfo) -> "BaseRequestResourceField":
         """use replace pydantic property field"""
         extra_dict = _pydanitc_adapter.get_field_extra(field)
         extra_dict["extra_param_list"] = extra_dict.pop("extra_param_list", None)
@@ -368,7 +378,7 @@ class BaseField(FieldInfo):
         )
 
 
-class Json(BaseField):
+class Json(BaseRequestResourceField):
     media_type: str = "application/json"
     field_name = "body"
 
@@ -377,59 +387,34 @@ class Body(Json):
     """Compatible with the old interface, it may be removed in the future"""
 
 
-class Cookie(BaseField):
+class Cookie(BaseRequestResourceField):
     pass
 
 
-class File(BaseField):
+class File(BaseRequestResourceField):
     media_type: str = "multipart/form-data"
 
 
-class Form(BaseField):
+class Form(BaseRequestResourceField):
     media_type: str = "application/x-www-form-urlencoded"
 
 
-class MultiForm(BaseField):
+class MultiForm(BaseRequestResourceField):
     media_type: str = "application/x-www-form-urlencoded"
     openapi_serialization: Optional[dict] = {"style": "form", "explode": True}
 
 
-class Header(BaseField):
+class Header(BaseRequestResourceField):
     pass
 
 
-class Path(BaseField):
+class Path(BaseRequestResourceField):
     pass
 
 
-class Query(BaseField):
+class Query(BaseRequestResourceField):
     pass
 
 
-class MultiQuery(BaseField):
+class MultiQuery(BaseRequestResourceField):
     pass
-
-
-P = ParamSpec("P")
-R_T = TypeVar("R_T")
-
-
-class Depends(object):
-    def __init__(self, func: CallType):
-        self.func: CallType = func
-
-    @classmethod
-    def i(cls, func: CallType) -> Any:
-        return cls(func)
-
-    @classmethod
-    def t(cls, func: Callable[P, R_T]) -> R_T:  # type: ignore
-        return cls(func)  # type: ignore
-
-
-def is_pait_field(pait_field: Any) -> bool:
-    return isinstance(pait_field, (BaseField, Depends))
-
-
-def is_pait_field_class(pait_field: Any) -> bool:
-    return issubclass(pait_field, (BaseField, Depends))

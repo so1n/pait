@@ -42,4 +42,4 @@ class PaitCallType(Protocol[PaitCallTypeT]):
 
 CallType = Union[Callable, _CallType, PaitCallType]
 
-__all__ = ["ParamSpec", "Literal", "is_typeddict", "CallType", "PaitCallTypeT", "PaitCallType"]
+__all__ = ["ParamSpec", "Literal", "is_typeddict", "CallType", "PaitCallTypeT", "PaitCallType", "Protocol"]
