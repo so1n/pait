@@ -211,6 +211,10 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
                         field_type_enum = rule.FieldTypeEnum.request_field
                         parameter.default.set_request_key(parameter.name)
                         pait_model_field: _pydanitc_adapter.PaitModelField
+
+                        validate_request_value_cb = rule.validate_request_value
+                        if pait_core_model.app_helper_class.app_name == "flask":
+                            validate_request_value_cb = rule.flask_validate_request_value
                         param_func = partial(  # type: ignore
                             field_type_enum.value.async_func if cls._is_async else field_type_enum.value.func,
                             # Creating a model field is very performance-intensive (especially for Pydantic V2),
@@ -221,6 +225,7 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
                                 field_info=parameter.default,
                                 request_param=parameter.default.get_field_name(),
                             ),
+                            validate_request_value_cb=validate_request_value_cb,
                         )
                 elif cls.is_self_param(parameter) and _object is pait_core_model.func:
                     # self param

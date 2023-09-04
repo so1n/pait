@@ -3,7 +3,7 @@ import inspect
 from dataclasses import MISSING, dataclass
 from dataclasses import field as dc_field
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Coroutine, Dict, List, Mapping, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, Dict, List, Mapping, Optional, Type, Union
 
 from pydantic import BaseModel
 
@@ -42,7 +42,7 @@ def get_real_request_value(parameter: inspect.Parameter, request_value: Mapping)
     return request_value
 
 
-def validate_request_value(
+def flask_validate_request_value(
     parameter: inspect.Parameter, request_value: Mapping, pait_model_field: _pydanitc_adapter.PaitModelField
 ) -> Any:
     annotation: Type[BaseModel] = parameter.annotation
@@ -59,6 +59,18 @@ def validate_request_value(
             #       output:{"pin-code": ["6666"], "template-token": ["xxx"]}
             #       But the desired result is: {"pin-code": "6666", "template-token": "xxx"}
             request_value = dict(request_value)
+        return pait_model_field.validate(request_value)
+
+
+def validate_request_value(
+    parameter: inspect.Parameter, request_value: Mapping, pait_model_field: _pydanitc_adapter.PaitModelField
+) -> Any:
+    annotation: Type[BaseModel] = parameter.annotation
+
+    if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
+        # validate by BaseModel
+        return annotation(**request_value)
+    else:
         return pait_model_field.validate(request_value)
 
 
@@ -115,9 +127,12 @@ def request_field_pr_func(
     param_plugin: "BaseParamHandler",
     *,
     pait_model_field: _pydanitc_adapter.PaitModelField,
+    validate_request_value_cb: Callable[
+        [inspect.Parameter, Mapping, _pydanitc_adapter.PaitModelField], Any
+    ] = validate_request_value,
 ) -> Any:
     request_value = request_field_get_value_pr_func(pr, context, param_plugin)
-    return validate_request_value(pr.parameter, request_value, pait_model_field)
+    return validate_request_value_cb(pr.parameter, request_value, pait_model_field)
 
 
 async def async_request_field_pr_func(
@@ -126,9 +141,12 @@ async def async_request_field_pr_func(
     param_plugin: "BaseParamHandler",
     *,
     pait_model_field: _pydanitc_adapter.PaitModelField,
+    validate_request_value_cb: Callable[
+        [inspect.Parameter, Mapping, _pydanitc_adapter.PaitModelField], Any
+    ] = validate_request_value,
 ) -> Any:
     request_value = await async_request_field_get_value_pr_func(pr, context, param_plugin)
-    return validate_request_value(pr.parameter, request_value, pait_model_field)
+    return validate_request_value_cb(pr.parameter, request_value, pait_model_field)
 
 
 def request_depend_pr_func(
@@ -165,11 +183,11 @@ class ParamRule(object):
     sub: "PreLoadDc"
 
 
-ParamRuleDict = Dict[str, ParamRule]
-
-
 @dataclass
 class PreLoadDc(object):
     pait_handler: CallType
     pre_depend: List["PreLoadDc"] = dc_field(default_factory=list)
-    param: ParamRuleDict = dc_field(default_factory=dict)
+    param: "ParamRuleDict" = dc_field(default_factory=dict)
+
+
+ParamRuleDict = Dict[str, "ParamRule"]
