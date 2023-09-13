@@ -4,7 +4,7 @@ import traceback
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
 from urllib.parse import quote_plus
 
-from pydantic import BaseConfig, BaseModel
+from pydantic import BaseModel
 
 from pait.model.response import BaseResponseModel, PaitResponseModel
 from pait.model.status import PaitStatus
@@ -51,8 +51,6 @@ class PaitCoreModel(object):
         group: Optional[str] = None,
         tag: Optional[Tuple[Tag, ...]] = None,
         response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
-        pydantic_model_config: Optional[Type[BaseConfig]] = None,
-        pydantic_basemodel: Optional[Type[BaseModel]] = None,
         default_field_class: Optional[Type["BaseRequestResourceField"]] = None,
         plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
         post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
@@ -73,10 +71,6 @@ class PaitCoreModel(object):
         self.func_path: str = self.func.__code__.co_filename  # type: ignore
 
         self.block_http_method_set: Set[str] = set()
-        # TODO
-        self.pydantic_model_config: Optional[Type[BaseConfig]] = pydantic_model_config
-        # TODO
-        self.pydantic_basemodel: Optional[Type[BaseModel]] = pydantic_basemodel
         self.extra: dict = kwargs
 
         # api doc

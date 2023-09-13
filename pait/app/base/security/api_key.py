@@ -2,6 +2,7 @@ from abc import ABCMeta
 from typing import Callable, Optional, Union
 
 from any_api.openapi.model.openapi import security
+from typing_extensions import get_args
 
 from pait.field import Cookie, Header, Query
 
@@ -20,15 +21,14 @@ class BaseAPIKey(BaseSecurity, metaclass=ABCMeta):
         verify_api_key_callable: Optional[Callable[[str], bool]] = None,
         security_name: Optional[str] = None,
     ) -> None:
-        field_name: str = field.get_field_name()
-        if field_name not in ("query", "header", "cookie"):
+        if field.__class__ not in get_args(APIKEY_FIELD_TYPE):
             raise ValueError(f"APIKey not support {field}")
         self.not_authenticated_exc: Exception = self.get_exception(status_code=403, message="Not authenticated")
         set_and_check_field(field, name, self.not_authenticated_exc)
 
         self.verify_api_key_callable: Optional[Callable[[str], bool]] = verify_api_key_callable
         self.model: security.ApiKeySecurityModel = security.ApiKeySecurityModel(
-            name=name, in_stub=field_name  # type: ignore
+            name=name, in_stub=field.get_field_name()
         )
         self.security_name = security_name or self.__class__.__name__
 

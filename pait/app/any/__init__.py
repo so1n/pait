@@ -76,8 +76,6 @@ def load_app(
 
 
 def pait(
-    pydantic_model_config: Optional[Type[BaseConfig]] = None,
-    pydantic_basemodel: Optional[Type[BaseModel]] = None,
     default_field_class: Optional[Type[BaseRequestResourceField]] = None,
     # param check
     pre_depend_list: Optional[List[Callable]] = None,
@@ -113,8 +111,6 @@ def pait(
     if not _pait:
         raise NotImplementedError(f"Pait not support:{load_class_app}")
     return _pait(
-        pydantic_basemodel=pydantic_basemodel,
-        pydantic_model_config=pydantic_model_config,
         default_field_class=default_field_class,
         pre_depend_list=pre_depend_list,
         append_pre_depend_list=append_pre_depend_list,

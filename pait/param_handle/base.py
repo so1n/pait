@@ -98,7 +98,6 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
     #               func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0]
     #               )
     #     self.pre_depend_list: List[Callable] = pait_core_model.pre_depend_list
-    #     self.pydantic_model_config: Type[BaseConfig] = pait_core_model.pydantic_model_config
 
     @classmethod
     def check_param_field_by_parameter(

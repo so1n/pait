@@ -1,7 +1,7 @@
 import re
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
 
-from pydantic import BaseConfig, BaseModel
+from pydantic import BaseModel
 
 from pait.model.response import BaseResponseModel
 from pait.plugin.base import PluginManager, PrePluginProtocol
@@ -18,7 +18,6 @@ __all__ = [
     "apply_multi_plugin",
     "apply_extra_openapi_model",
     "apply_response_model",
-    "apply_default_pydantic_model_config",
     "apply_block_http_method_set",
     "apply_pre_depend",
     "MatchRule",
@@ -126,18 +125,6 @@ def apply_response_model(
     def _apply(pait_core_model: "PaitCoreModel") -> None:
         if _is_match(pait_core_model, match_rule):
             pait_core_model.add_response_model_list(response_model_list)
-
-    return _apply
-
-
-def apply_default_pydantic_model_config(
-    pydantic_model_config: Type[BaseConfig], match_rule: Optional["MatchRule"] = None
-) -> "APPLY_FN":
-    """pait route gen pydantic model default config"""
-
-    def _apply(pait_core_model: "PaitCoreModel") -> None:
-        if _is_match(pait_core_model, match_rule):
-            pait_core_model.pydantic_model_config = pydantic_model_config
 
     return _apply
 

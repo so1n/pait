@@ -1,8 +1,6 @@
 from json import JSONEncoder
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, Tuple, Type
 
-from pydantic import BaseConfig
-
 from pait.model.response import BaseResponseModel
 from pait.model.status import PaitStatus
 from pait.util import json_type_default_value_dict as pait_json_type_default_value_dict
@@ -31,7 +29,6 @@ class Config(object):
         self.block_http_method_set: Set[str] = set()
         self.default_response_model_list: List[Type[BaseResponseModel]] = []
         self.json_encoder: Type[JSONEncoder] = CustomJSONEncoder
-        self.default_pydantic_model_config: Type[BaseConfig] = BaseConfig
         self.tag_dict: Dict[str, str] = {}
         self.apply_func_list: List[APPLY_FN] = []
 
