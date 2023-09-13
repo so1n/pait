@@ -50,7 +50,7 @@ Pait is an api tool that can be used in any python web framework, the features p
  - [x] Parameter dependency verification
  - [x] Automatically generate openapi files
  - [x] Swagger, Redoc, Rapidoc, Elements, OpenAPI route
- - [x] gRPC Gateway route
+ - [x] gRPC Gateway route(After version 1.0, this function has been migrated to [grpc-gateway](https://github.com/python-pai/grpc-gateway))
  - [x] TestClient support, support response result verification
  - [x] Support for plugin extensions, such as the Mock plugin, CheckResponse Plugin, Cache Response Plugin
  - [X] Support Pydantic V1 and V2
@@ -70,10 +70,7 @@ Pait is an api tool that can be used in any python web framework, the features p
 ```Bash
 pip install pait --pre
 ```
-If want to use the gRPC gateway feature, need to add a 'grpc' dependency:
-```bash
-pip install pait[grpc] --pre
-```
+
 # Simple Example
 ```python
 from typing import Type
@@ -133,7 +130,7 @@ Can be modified async web framework according to [pait.app.starlette](https://gi
 # Performance
 For the parameter validation and transformation feature, Pait is mainly responsible for injecting the request data dependency into the `Pydantic` model, and then the `Pydanitc` verifies and transforms the data.
 
-The time consumed by this process <=0.0003 (s), for benchmarks data and subsequent optimization, see [#27](https://github.com/so1n/pait/issues/27)
+The time consumed by this process <= 0.00005(s), for benchmarks data and subsequent optimization, see [#27](https://github.com/so1n/pait/issues/27)
 
 
 # Full example
