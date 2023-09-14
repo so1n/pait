@@ -45,6 +45,7 @@ def get_real_request_value(parameter: inspect.Parameter, request_value: Mapping)
 def flask_validate_request_value(
     parameter: inspect.Parameter, request_value: Mapping, pait_model_field: _pydanitc_adapter.PaitModelField
 ) -> Any:
+    # TODO: try remove this func when flask version >=2.0.0
     annotation: Type[BaseModel] = parameter.annotation
 
     if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
