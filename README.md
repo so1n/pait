@@ -50,11 +50,12 @@ Pait is an api tool that can be used in any python web framework, the features p
  - [x] Parameter dependency verification
  - [x] Automatically generate openapi files
  - [x] Swagger, Redoc, Rapidoc, Elements, OpenAPI route
- - [x] gRPC Gateway route(After version 1.0, this function has been migrated to [grpc-gateway](https://github.com/python-pai/grpc-gateway))
+ - [x] gRPC Gateway route(After version 1.0, this feature has been migrated to [grpc-gateway](https://github.com/python-pai/grpc-gateway))
  - [x] TestClient support, support response result verification
  - [x] Support for plugin extensions, such as the Mock plugin, CheckResponse Plugin, Cache Response Plugin
  - [X] Support Pydantic V1 and V2
  - [ ] WebSocket support
+ - [ ] SSE support
  - [ ] Auto API Test support
 
 

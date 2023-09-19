@@ -3,42 +3,55 @@ Rewrite some old methods to increase the extensibility of the corresponding modu
 
 - 1 Add a user-friendly doc ui
 - 2 Plugin Panel
+- 3 SSE support
+- 4 WebSocket support
 
 ### 1.0.0[Alpha]
 Improve Open API related functions and refactor some APIs that affect performance
 > Note: This version will have syntax changes that are not backward compatible, and the library api status will change from alpha to beta
 
 Function Changes List:
-- [Field] Depend enhances support for class instances
-- [Field] Depend support parse depend.pait_handler method
-- [Field] Adds the parameter `not_authenticated_exc`, which allows developers to specify that the error value cannot be found
+- `get_app_attribute` support werkzeug LocalProxy
+- 'sniffing' and 'framework_location' support customization
+- [Field] Depend enhances support for class instances.
+- [Field] Depend support parse depend.pait_handler method.
+- [Field] Adds the parameter `not_authenticated_exc`, which allows developers to specify that the error value cannot be found.
 - [Field] Adds the parameter `openapi_include`, determines whether the field can be resolved to the Open API.
-- [gRPC Gateway] Supports generating routing codes from protobuf files
-- [OpenAPI] Support OpenAPI Security
-- [Pait] Modify the generation of Pait id to ensure that the Pait id is always the same
-- [Pait] Imported ParamHandler migration from PaitCoreModel to Pait
-- [Pait] Improving the speed of dependencyinjection
-- [Pait] Pait core model support extra param
-- [Pait] Pait core model support listen change callback
-- [Plugin] Optimize the internal implementation of the plug-in mechanism to speed up the execution of the plug-in
-- [Plugin] Refactor the Mock plugin's API to reduce duplicate code
-- [Plugin] The Mock plugin adds a new parameter example_column_name to specify the value of the Field from which the mock data is to be retrieved
-- [Plugin] No longer distinguish between front or back plugins by is_core, but by different classes to facilitate Type Hint checking
-- [Route] Support for adding simple routing to web frameworks (experimental)
+- [OpenAPI] Support OpenAPI Security.
+- [Pait] Modify the generation of Pait id to ensure that the Pait id is always the same.
+- [Pait] Imported ParamHandler migration from PaitCoreModel to Pait.
+- [Pait] Improving the speed of dependencyinjection.
+- [Pait] Pait core model support extra param.
+- [Pait] Pait core model support listen change callback.
+- [Plugin] Optimize the internal implementation of the plug-in mechanism to speed up the execution of the plug-in.
+- [Plugin] Refactor the Mock plugin's API to reduce duplicate code.
+- [Plugin] The Mock plugin adds a new parameter example_column_name to specify the value of the Field from which the mock data is to be retrieved.
+- [Plugin] No longer distinguish between front or back plugins by is_core, but by different classes to facilitate Type Hint checking.
+- [Plugin] Response Plugin add get_pait_response_model param
+- [Pydantic] Support Pydantic V1 and V2
+- [Route] Support for adding simple routing to web frameworks (experimental).
+- [TestHelper] Ddd diff response data output and modify test helper exc msg style
+- [WebFramework] support sanic 23.3.0 and support flask 2.2.2 test client
 
 Fix:
+- [Plugin] Fix param plugin`check_field_type method not support pydantic.Field
+- [Pait] Fix sub pait cannot over parent pait value
+- [TestHelper] Fix test helper not support response data is {}.
 - [Util] Fix `get_parameter_list_from_pydantic_basemodel` not auto set request key and cache bug
 - [Util] Fix `gen_example_dict_from_pydantic_base_model` acn not parse sub pydantic model
 - [Util] Fix 'value._evaluate' in python3.9
-- [Pait] Fix sub pait cannot over parent pait value
+- [Util] Fix parse TypedDict error(py310)
+- [Util] Fix Lazy property bug
 
+Refactor:
+- [gRPC Gateway] this feature has been migrated to [grpc-gateway](https://github.com/python-pai/grpc-gateway)
 
 
 API Changes:
 - `@pait`: The tag parameter type no longer supports String, only support `Tag` class. e.g:
    ```python
    from pait.app.starlette import pait
-   from pait import Tag
+   from pait.model.tag import Tag
 
    @pait(tag=Tag("Demo"))
    def demo() -> None:
@@ -51,7 +64,7 @@ API Changes:
      ```
   - The `ResponseModel.header` parameter type no longer supports dict, only support `pydantic.BaseModel`. e.g:
      ```python
-     from pait import HtmlResponseModel
+     from pait.model.response import HtmlResponseModel
      from pydantic import BaseModel, Field
 
      class HtmlRespModel(HtmlResponseModel):
