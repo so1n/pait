@@ -1,6 +1,6 @@
 import datetime
 import traceback
-from typing import Callable, Generator, List, Type
+from typing import Callable, Generator, List
 
 import pytest
 from flask import Flask
@@ -191,27 +191,6 @@ class TestMockPlugin:
 
         exec_msg: str = e.value.args[0]
         assert "Please use response_model_list param" in exec_msg
-
-    def test_fileter_fn(self) -> None:
-        def demo() -> None:
-            pass
-
-        def filter_response(pait_response: Type[response.BaseResponseModel]) -> bool:
-            if issubclass(pait_response, response.TextResponseModel):
-                return True
-            else:
-                return False
-
-        kwargs: dict = MockPluginProtocol.pre_load_hook(
-            PaitCoreModel(
-                demo,
-                BaseAppHelper,
-                ParamHandler,
-                response_model_list=[response.JsonResponseModel, response.TextResponseModel],
-            ),
-            {"enable_mock_response_filter_fn": filter_response},
-        )
-        assert kwargs["pait_response_model"] == response.TextResponseModel
 
     def test_get_pait_response_model(self) -> None:
         def demo() -> None:

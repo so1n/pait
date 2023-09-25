@@ -59,8 +59,6 @@ class UserSuccessRespModel2(JsonResponseModel):
 
 
 class AutoCompleteRespModel(JsonResponseModel):
-    is_core: bool = True
-
     class ResponseModel(ResponseModel):  # type: ignore
         class DataModel(BaseModel):
             class MusicModel(BaseModel):
@@ -79,8 +77,6 @@ class AutoCompleteRespModel(JsonResponseModel):
 
 
 class UserSuccessRespModel3(JsonResponseModel):
-    is_core: bool = True
-
     class ResponseModel(ResponseModel):  # type: ignore
         class DataModel(BaseModel):
             uid: int = Field(description="user id", gt=10, lt=1000)

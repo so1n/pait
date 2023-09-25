@@ -1,6 +1,6 @@
 import sys
 from tempfile import NamedTemporaryFile
-from typing import IO, TYPE_CHECKING, Any, Callable, Dict, Generic, Optional, Type, TypeVar
+from typing import IO, TYPE_CHECKING, Any, Dict, Generic, Optional, Type, TypeVar
 
 from typing_extensions import Literal
 
@@ -40,20 +40,10 @@ class MockPluginProtocol(PrePluginProtocol, Generic[RESP_T]):
     @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         kwargs = super().pre_load_hook(pait_core_model, kwargs)
-        pait_response: Optional[Type[response.BaseResponseModel]] = None
-        enable_mock_response_filter_fn: Optional[Callable] = kwargs.pop("enable_mock_response_filter_fn", None)
-        if enable_mock_response_filter_fn and pait_core_model.response_model_list:
-            for _pait_response in pait_core_model.response_model_list:
-                if enable_mock_response_filter_fn(_pait_response):
-                    pait_response = _pait_response
-                    break
-
-        if not pait_response:
-            get_pait_response_model = kwargs.get("get_pait_response_model", None)
-            if not get_pait_response_model:
-                raise RuntimeError("Can not found get_pait_response_model func")
-            pait_response = get_pait_response_model(pait_core_model.response_model_list)
-        kwargs["pait_response_model"] = pait_response
+        get_pait_response_model = kwargs.get("get_pait_response_model", None)
+        if not get_pait_response_model:
+            raise RuntimeError("Can not found get_pait_response_model func")
+        kwargs["pait_response_model"] = get_pait_response_model(pait_core_model.response_model_list)
         return kwargs
 
     def get_response(self) -> RESP_T:
@@ -107,12 +97,10 @@ class MockPluginProtocol(PrePluginProtocol, Generic[RESP_T]):
     @classmethod
     def build(  # type: ignore
         cls,  # type: ignore
-        enable_mock_response_filter_fn: Optional[Callable] = None,  # type: ignore
         example_column_name: Literal["example", "mock"] = "example",  # type: ignore
         get_pait_response_model: Optional[GetPaitResponseModelFuncType] = None,  # type: ignore
     ) -> "PluginManager":  # type: ignore
         return super().build(
-            enable_mock_response_filter_fn=enable_mock_response_filter_fn,
             example_column_name=example_column_name,
             get_pait_response_model=get_pait_response_model or _get_pait_response_model,
         )
