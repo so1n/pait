@@ -47,6 +47,9 @@ from example.starlette_example.plugin_route import (
     param_at_most_one_of_route_by_extra_param,
     param_required_route,
     param_required_route_by_extra_param,
+    unified_html_response,
+    unified_json_response,
+    unified_text_response,
 )
 from example.starlette_example.response_route import (
     async_file_response_route,
@@ -240,6 +243,9 @@ def create_app() -> Starlette:
             Route("/api/resp/async-text-resp", async_text_response_route, methods=["GET"]),
             Route("/api/resp/async-html-resp", async_html_response_route, methods=["GET"]),
             Route("/api/resp/async-file-resp", async_file_response_route, methods=["GET"]),
+            Route("/api/plugin/unified-text-resp", unified_text_response, methods=["GET"]),
+            Route("/api/plugin/unified-html-resp", unified_html_response, methods=["GET"]),
+            Route("/api/plugin/unified-json-resp", unified_json_response, methods=["GET"]),
             Route("/api/plugin/mock/{age}", mock_route, methods=["GET"]),
             Route("/api/plugin/async-mock/{age}", async_mock_route, methods=["GET"]),
             Route("/api/plugin/auto-complete-json-plugin", auto_complete_json_route, methods=["GET"]),

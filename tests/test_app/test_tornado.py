@@ -315,5 +315,10 @@ class TestTornado(BaseTestTornado):
             main_example.Redis(decode_responses=True),
         )
 
+    def test_unified_response(self) -> None:
+        self.base_test.unified_json_response(main_example.UnifiedJsonResponseHandler.get)
+        self.base_test.unified_text_response(main_example.UnifiedTextResponseHandler.get)
+        self.base_test.unified_html_response(main_example.UnifiedHtmlResponseHandler.get)
+
     def test_openapi_content(self) -> None:
         BaseTestOpenAPI(self._app).test_all()

@@ -40,6 +40,9 @@ from example.flask_example.plugin_route import (
     param_at_most_onf_of_route_by_extra_param,
     param_required_route,
     param_required_route_by_extra_param,
+    unified_html_response,
+    unified_json_response,
+    unified_text_response,
 )
 from example.flask_example.response_route import (
     check_response_route,
@@ -220,6 +223,9 @@ def create_app() -> Flask:
     app.add_url_rule("/api/resp/file-resp", view_func=file_response_route, methods=["GET"])
     app.add_url_rule("/api/resp/check-resp", view_func=check_response_route, methods=["GET"])
 
+    app.add_url_rule("/api/plugin/unified-html-response", view_func=unified_html_response, methods=["GET"])
+    app.add_url_rule("/api/plugin/unified-text-response", view_func=unified_text_response, methods=["GET"])
+    app.add_url_rule("/api/plugin/unified-json-response", view_func=unified_json_response, methods=["GET"])
     app.add_url_rule("/api/plugin/mock/<age>", view_func=mock_route, methods=["GET"])
     app.add_url_rule("/api/plugin/check-json-plugin", view_func=check_json_plugin_route, methods=["GET"])
     app.add_url_rule("/api/plugin/cache-response", view_func=cache_response, methods=["GET"])

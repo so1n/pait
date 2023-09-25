@@ -21,13 +21,14 @@ from pait.app.starlette.plugin import (
     RequiredExtraParam,
     RequiredGroupExtraParam,
     RequiredPlugin,
+    UnifiedResponsePlugin,
 )
 from pait.app.starlette.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.app.starlette.plugin.cache_response import CacheRespExtraParam, CacheResponsePlugin
 from pait.app.starlette.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.starlette.plugin.mock_response import MockPlugin
 from pait.field import MultiQuery, Path, Query
-from pait.model.response import TextResponseModel
+from pait.model import response as pait_response
 from pait.model.status import PaitStatus
 
 plugin_pait: Pait = global_pait.create_sub_pait(
@@ -117,7 +118,7 @@ def check_json_plugin_route(
 
 
 @plugin_pait(
-    response_model_list=[TextResponseModel, FailRespModel],
+    response_model_list=[pait_response.TextResponseModel, FailRespModel],
     post_plugin_list=[
         CacheResponsePlugin.build(
             redis=Redis(decode_responses=True),
@@ -139,7 +140,7 @@ async def cache_response(raise_exc: Optional[int] = Query.i(default=None)) -> Pl
 
 
 @plugin_pait(
-    response_model_list=[TextResponseModel],
+    response_model_list=[pait_response.TextResponseModel],
     post_plugin_list=[CacheResponsePlugin.build(cache_time=10, enable_cache_name_merge_param=True)],
 )
 async def cache_response1(
@@ -345,6 +346,30 @@ async def param_required_route_by_extra_param(
     )
 
 
+@plugin_pait(
+    plugin_list=[UnifiedResponsePlugin.build()],
+    response_model_list=[pait_response.HtmlResponseModel],
+)
+async def unified_html_response() -> str:
+    return "<html>Demo</html>"
+
+
+@plugin_pait(
+    plugin_list=[UnifiedResponsePlugin.build()],
+    response_model_list=[pait_response.TextResponseModel],
+)
+async def unified_text_response() -> str:
+    return "Demo"
+
+
+@plugin_pait(
+    plugin_list=[UnifiedResponsePlugin.build()],
+    response_model_list=[pait_response.JsonResponseModel],
+)
+async def unified_json_response() -> dict:
+    return {"data": "Demo"}
+
+
 if __name__ == "__main__":
     with create_app() as app:
         CacheResponsePlugin.set_redis_to_app(app, Redis(decode_responses=True))
@@ -360,3 +385,6 @@ if __name__ == "__main__":
         app.add_route("/api/at-most-one-of", param_at_most_one_of_route, methods=["GET"])
         app.add_route("/api/required-by-extra-param", param_required_route_by_extra_param, methods=["GET"])
         app.add_route("/api/required", param_required_route, methods=["GET"])
+        app.add_route("/api/unified-json-response", unified_json_response, methods=["GET"])
+        app.add_route("/api/unified-text-response", unified_text_response, methods=["GET"])
+        app.add_route("/api/unified-html-response", unified_html_response, methods=["GET"])

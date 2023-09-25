@@ -224,6 +224,8 @@ class BaseTestHelper(Generic[RESP_T]):
             # check content
             if issubclass(response_model, response.JsonResponseModel):
                 response_data_model: Type[BaseModel] = response_model.response_data
+                if not response_data_model:
+                    return None
                 resp_dict: Optional[dict] = None
                 try:
                     resp_dict = self._get_json(resp)

@@ -20,13 +20,14 @@ from pait.app.tornado.plugin import (
     RequiredExtraParam,
     RequiredGroupExtraParam,
     RequiredPlugin,
+    UnifiedResponsePlugin,
 )
 from pait.app.tornado.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.app.tornado.plugin.cache_response import CacheRespExtraParam, CacheResponsePlugin
 from pait.app.tornado.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.app.tornado.plugin.mock_response import MockPlugin
 from pait.field import MultiQuery, Path, Query
-from pait.model.response import HtmlResponseModel
+from pait.model import response as pait_response
 from pait.model.status import PaitStatus
 
 plugin_pait: Pait = global_pait.create_sub_pait(
@@ -100,7 +101,7 @@ class AutoCompleteJsonHandler(MyHandler):
 
 class CacheResponseHandler(MyHandler):
     @plugin_pait(
-        response_model_list=[HtmlResponseModel, FailRespModel],
+        response_model_list=[pait_response.HtmlResponseModel, FailRespModel],
         post_plugin_list=[
             CacheResponsePlugin.build(
                 redis=Redis(decode_responses=True),
@@ -123,7 +124,7 @@ class CacheResponseHandler(MyHandler):
 
 class CacheResponse1Handler(MyHandler):
     @plugin_pait(
-        response_model_list=[HtmlResponseModel],
+        response_model_list=[pait_response.HtmlResponseModel],
         post_plugin_list=[CacheResponsePlugin.build(cache_time=10, enable_cache_name_merge_param=True)],
     )
     async def get(self, key1: str = Query.i(extra_param_list=[CacheRespExtraParam()]), key2: str = Query.i()) -> None:
@@ -275,6 +276,33 @@ class ParamRequiredByExtraParamHandler(MyHandler):
         )
 
 
+class UnifiedHtmlResponseHandler(MyHandler):
+    @plugin_pait(
+        plugin_list=[UnifiedResponsePlugin.build()],
+        response_model_list=[pait_response.HtmlResponseModel],
+    )
+    async def get(self) -> str:
+        return "<html>Demo</html>"
+
+
+class UnifiedTextResponseHandler(MyHandler):
+    @plugin_pait(
+        plugin_list=[UnifiedResponsePlugin.build()],
+        response_model_list=[pait_response.TextResponseModel],
+    )
+    async def get(self) -> str:
+        return "Demo"
+
+
+class UnifiedJsonResponseHandler(MyHandler):
+    @plugin_pait(
+        plugin_list=[UnifiedResponsePlugin.build()],
+        response_model_list=[pait_response.JsonResponseModel],
+    )
+    async def get(self) -> dict:
+        return {"data": "Demo"}
+
+
 if __name__ == "__main__":
     with create_app() as app:
         CacheResponsePlugin.set_redis_to_app(app, Redis(decode_responses=True))
@@ -289,5 +317,8 @@ if __name__ == "__main__":
                 (r"/api/at-most-one-of", ParamAtMostOneOfHandler),
                 (r"/api/required-by-extra-param", ParamRequiredByExtraParamHandler),
                 (r"/api/required", ParamRequiredHandler),
+                (r"/api/unified-html-response", UnifiedHtmlResponseHandler),
+                (r"/api/unified-text-response", UnifiedTextResponseHandler),
+                (r"/api/unified-json-response", UnifiedJsonResponseHandler),
             ]
         )

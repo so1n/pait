@@ -284,5 +284,10 @@ class TestFlask:
             main_example.post_route, main_example.CacheResponsePlugin, main_example.Redis(decode_responses=True)
         )
 
+    def test_unified_response(self, base_test: BaseTest) -> None:
+        base_test.unified_json_response(main_example.unified_json_response)
+        base_test.unified_text_response(main_example.unified_text_response)
+        base_test.unified_html_response(main_example.unified_html_response)
+
     def test_openapi_content(self, base_test: BaseTest) -> None:
         BaseTestOpenAPI(base_test.client.application).test_all()

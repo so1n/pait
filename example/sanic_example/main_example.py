@@ -45,6 +45,9 @@ from example.sanic_example.plugin_route import (
     param_at_most_one_of_route_by_extra_param,
     param_required_route,
     param_required_route_by_extra_param,
+    unified_html_response,
+    unified_json_response,
+    unified_text_response,
 )
 from example.sanic_example.response_route import (
     check_response_route,
@@ -239,6 +242,9 @@ def create_app(configure_logging: bool = True) -> Sanic:
     app.add_route(html_response_route, "/api/resp/html-resp", methods={"GET"})
     app.add_route(file_response_route, "/api/resp/file-resp", methods={"GET"})
 
+    app.add_route(unified_json_response, "/api/plugin/unified-json-response", methods=["GET"])
+    app.add_route(unified_text_response, "/api/plugin/unified-text-response", methods=["GET"])
+    app.add_route(unified_html_response, "/api/plugin/unified-html-response", methods=["GET"])
     app.add_route(mock_route, "/api/plugin/mock/<age>", methods={"GET"})
     app.add_route(cache_response, "/api/plugin/cache-response", methods={"GET"})
     app.add_route(cache_response1, "/api/plugin/cache-response1", methods={"GET"})

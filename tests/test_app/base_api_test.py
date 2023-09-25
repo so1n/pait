@@ -519,6 +519,15 @@ class BaseTest(object):
             with enable_plugin(route_handler, cache_plugin.build(name=key, cache_time=5)):
                 assert _handler(route_handler) == _handler(route_handler)
 
+    def unified_html_response(self, route: Callable) -> None:
+        assert self.test_helper(self.client, route).text() == "<html>Demo</html>"
+
+    def unified_text_response(self, route: Callable) -> None:
+        assert self.test_helper(self.client, route).text() == "Demo"
+
+    def unified_json_response(self, route: Callable) -> None:
+        assert self.test_helper(self.client, route).json() == {"data": "Demo"}
+
     def cache_response_param_name(
         self, route: Callable, cache_plugin: Type[CacheResponsePlugin], cache_plugin_redis: Any
     ) -> None:

@@ -42,6 +42,9 @@ from example.tornado_example.plugin_route import (
     ParamAtMostOneOfHandler,
     ParamRequiredByExtraParamHandler,
     ParamRequiredHandler,
+    UnifiedHtmlResponseHandler,
+    UnifiedJsonResponseHandler,
+    UnifiedTextResponseHandler,
 )
 from example.tornado_example.response_route import (
     CheckRespHandler,
@@ -228,6 +231,9 @@ def create_app() -> Application:
             (r"/api/resp/text-resp", TextResponseHanler),
             (r"/api/resp/html-resp", HtmlResponseHanler),
             (r"/api/resp/file-resp", FileResponseHanler),
+            (r"/api/plugin/unified-html-response", UnifiedHtmlResponseHandler),
+            (r"/api/plugin/unified-text-response", UnifiedTextResponseHandler),
+            (r"/api/plugin/unified-json-response", UnifiedJsonResponseHandler),
             (r"/api/plugin/auto-complete-json-plugin", AutoCompleteJsonHandler),
             (r"/api/plugin/cache-response", CacheResponseHandler),
             (r"/api/plugin/cache-response1", CacheResponse1Handler),
