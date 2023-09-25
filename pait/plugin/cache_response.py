@@ -104,10 +104,8 @@ class CacheResponsePlugin(PostPluginProtocol):
             args_key_list: list = [str(i) for i in args] if args else []
             if kwargs:
                 if self._cache_name_param_set:
-                    for key, value in kwargs.items():
-                        if key not in self._cache_name_param_set:
-                            continue
-                        args_key_list.append(str(value))
+                    for key in self._cache_name_param_set:
+                        args_key_list.append(str(kwargs[key]))
                 else:
                     for value in kwargs.values():
                         args_key_list.append(str(value))
