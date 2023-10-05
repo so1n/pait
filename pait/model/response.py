@@ -36,6 +36,7 @@ __all__ = [
     "Http408RespModel",
     "Http429RespModel",
     "create_json_response_model",
+    "http_status_code_dict",
 ]
 
 

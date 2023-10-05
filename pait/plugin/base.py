@@ -33,7 +33,7 @@ class PluginProtocol(object):
 
     @classmethod
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
-        """The hook that runs the check at startup. If the value of env's PAIT_IGNORE_PRE_CHECK is True,
+        """The hook that runs the check at add plugin to route. If the value of env's PAIT_IGNORE_PRE_CHECK is True,
         it will not be executed.
 
         Note:
@@ -42,10 +42,10 @@ class PluginProtocol(object):
 
     @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
-        """Hook for initialization processing, the plugin has not been initialized at this time
+        """The hook that runs the check at build plugin stack
 
         Note:
-            Failure to execute this stage will cause the plugin to fail to load, but will not affect the use of routes
+            Failure to execute this stage will cause the plugin to fail to load, but will affect the use of routes
         """
         return kwargs  # pragma: no cover
 

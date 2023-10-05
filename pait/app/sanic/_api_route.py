@@ -2,7 +2,7 @@ from typing import Any, Callable, Optional
 
 from sanic import Sanic
 
-from pait.app.base.api_route import BaseAPIRoute, CbcRouteDc, RouteDc, Type
+from pait.app.base.api_route import BaseAPIRoute, CbvRouteDc, RouteDc, Type
 from pait.model.core import get_core_model
 
 from ._app_helper import cbv_type_tuple
@@ -37,7 +37,7 @@ class APIRoute(BaseAPIRoute):
                     methods=set(route_dc.method_list),
                     **_framework_extra_param,
                 )
-            elif isinstance(route_dc, CbcRouteDc) and issubclass(route_dc.route, cbv_type_tuple):
+            elif isinstance(route_dc, CbvRouteDc) and issubclass(route_dc.route, cbv_type_tuple):
                 self._cbv_handler(_pait, route_dc.route, route_dc.pait_param)
                 app.add_route(
                     route_dc.route.as_view(), replace_openapi_url_to_url(route_dc.path), **_framework_extra_param

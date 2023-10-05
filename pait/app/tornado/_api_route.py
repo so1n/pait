@@ -3,7 +3,7 @@ from typing import Any, Callable, Optional, Type
 from tornado.routing import AnyMatches, Rule
 from tornado.web import Application, RequestHandler, _ApplicationRouter
 
-from pait.app.base.api_route import BaseAPIRoute, CbcRouteDc, RouteDc
+from pait.app.base.api_route import BaseAPIRoute, CbvRouteDc, RouteDc
 from pait.model.core import get_core_model
 
 from ._load_app import get_openapi_path
@@ -47,7 +47,7 @@ class APIRoute(BaseAPIRoute):
                 for method in route_dc.method_list:
                     setattr(route_class, method.lower(), route)
                     rule_list.append((replace_openapi_url_to_url(route_dc.path), route_class))
-            elif isinstance(route_dc, CbcRouteDc) and issubclass(route_dc.route, RequestHandler):
+            elif isinstance(route_dc, CbvRouteDc) and issubclass(route_dc.route, RequestHandler):
                 self._cbv_handler(_pait, route_dc.route, route_dc.pait_param)
                 rule_list.append((replace_openapi_url_to_url(route_dc.path), route_dc.route))
             else:

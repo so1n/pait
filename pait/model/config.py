@@ -2,7 +2,7 @@ from json import JSONEncoder
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Type
 
 from pait.exceptions import TipException
-from pait.model.response import BaseResponseModel
+from pait.model.response import BaseResponseModel, http_status_code_dict as pait_http_status_code_dict
 from pait.model.status import PaitStatus
 from pait.util import json_type_default_value_dict as pait_json_type_default_value_dict
 from pait.util import python_type_default_value_dict as pait_python_type_default_value_dict
@@ -48,6 +48,7 @@ class Config(object):
         json_encoder: Optional[Type[JSONEncoder]] = None,
         apply_func_list: Optional[List[APPLY_FN]] = None,
         tip_exception_class: Optional[Type[TipException]] = TipException,
+        http_status_code_dict: Optional[Dict[int, str]] = None
     ) -> None:
         """
         :param author:  Only @pait(author=None) will be called to change the configuration
@@ -70,6 +71,9 @@ class Config(object):
             pait_json_type_default_value_dict.update(json_type_default_value_dict)
         if python_type_default_value_dict:
             pait_python_type_default_value_dict.update(python_type_default_value_dict)
+        if http_status_code_dict:
+            pait_http_status_code_dict.update(**http_status_code_dict)
+
         if json_encoder:
             self.json_encoder = json_encoder
         if apply_func_list:

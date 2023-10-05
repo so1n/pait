@@ -10,7 +10,7 @@ homepage = "https://github.com/so1n/pait"
 
 [tool.poetry.dependencies]
 python = "^3.8.1"
-any-api = "0.1.0.10"
+any-api = "0.1.0.11"
 redis = { version = "^4.2.2", optional = true }
 
 [tool.poetry.urls]

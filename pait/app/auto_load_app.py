@@ -6,13 +6,13 @@ app_list: List = ["flask", "starlette", "sanic", "tornado"]
 
 def auto_load_app_class() -> Any:
     """A project using only a web framework, to use `auto_load_app_class`"""
-    real_app: Any = None
+    load_app_list: list = []
     for app in app_list:
         if app not in sys.modules:
             continue
-        if real_app:
-            raise RuntimeError(f"Pait unable to make a choice {real_app} & {app}")
-        real_app = sys.modules[app]
-    if not real_app:
+        load_app_list.append(sys.modules[app])
+    if not load_app_list:
         raise RuntimeError("Pait can't auto load app class")
-    return real_app
+    if len(load_app_list)>=2:
+        raise RuntimeError(f"Pait unable to make a choice from [{load_app_list}]")
+    return load_app_list[0]

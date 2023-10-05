@@ -10,20 +10,11 @@ from pait.types import CallType
 
 _CallableT = TypeVar("_CallableT", bound=Callable[..., Any])
 
-
-def url_join(base_url: str, path: str) -> str:
-    if not path or path == "/":
-        return base_url
-    if base_url.endswith("/") and path.startswith("/"):
-        return base_url + path[1:]
-    return base_url + path
-
-
 APIRoutePaitParamTypedDict = Union[PaitInitParamTypedDict, PaitCreateSubParamTypedDict]
 
 
 @dataclass
-class CbcRouteDc(object):
+class CbvRouteDc(object):
     route: Type
     path: str
     pait_param: PaitCreateSubParamTypedDict
@@ -39,12 +30,25 @@ class RouteDc(object):
     framework_extra_param: Dict[str, Any]
 
 
-RouteType = Union[RouteDc, CbcRouteDc]
+RouteType = Union[RouteDc, CbvRouteDc]
+
+
+def url_join(base_url: str, path: str) -> str:
+    if not path or path == "/":
+        return base_url
+    if base_url.endswith("/") and path.startswith("/"):
+        return base_url + path[1:]
+    return base_url + path
 
 
 def merge_pait_param(
     base_param: APIRoutePaitParamTypedDict, new_param: APIRoutePaitParamTypedDict
 ) -> PaitCreateSubParamTypedDict:
+    """Merge the new parameter into the existing one
+    - If it's an append parameter, then only the content will be appended
+    - If the original parameter already exists, it will not be processed
+    - The extra parameter appends only the key that does not exist
+    """
     for key, value in new_param.items():
         if key.startswith("append") and key in base_param:
             base_param[key] = base_param[key] + value  # type: ignore[literal-required]
@@ -75,10 +79,12 @@ class BaseAPIRoute(object):
 
     @property
     def _pait_type(self) -> Type[Pait]:
+        """get pait type"""
         raise NotImplementedError
 
     @staticmethod
     def get_openapi_path(path_str: str) -> str:
+        """get route openapi path"""
         raise NotImplementedError
 
     @property
@@ -88,10 +94,15 @@ class BaseAPIRoute(object):
     def inject(
         self, app: Any, replace_openapi_url_to_url: Optional[Callable[[str], str]] = None, **kwargs: Any
     ) -> None:
+        """Inject the '_route' into the app"""
         raise NotImplementedError
 
     @staticmethod
     def _cbv_handler(pait: Pait, cbv_class: Type, pait_param: PaitCreateSubParamTypedDict) -> None:
+        """Handle CBV routes
+        - Prevent users from not using @pait decorators
+        - New parameters have been added
+        """
         for http_method in get_args(HttpMethodLiteral):
             func = getattr(cbv_class, http_method, None)
             if not func:
@@ -106,6 +117,7 @@ class BaseAPIRoute(object):
         return self.include_sub_route(other)
 
     def include_sub_route(self, *api_route: "BaseAPIRoute") -> Self:
+        """Loading sub routes"""
         for api_route_item in api_route:
             if not api_route_item.route:
                 raise ValueError(f"{api_route} can't be None")
@@ -125,7 +137,7 @@ class BaseAPIRoute(object):
         _framework_extra_param = self.framework_extra_param.copy()
         _framework_extra_param.update(framework_extra_param or {})
         self._route.append(
-            CbcRouteDc(
+            CbvRouteDc(
                 route=cbv_clss,
                 path=self.url_join(self.path, path),
                 pait_param=merge_pait_param(kwargs, self._pait_kwargs),

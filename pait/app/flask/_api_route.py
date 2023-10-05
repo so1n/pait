@@ -3,7 +3,7 @@ from typing import Any, Callable, Optional
 from flask.app import Flask
 from flask.views import View
 
-from pait.app.base.api_route import BaseAPIRoute, CbcRouteDc, RouteDc, Type
+from pait.app.base.api_route import BaseAPIRoute, CbvRouteDc, RouteDc, Type
 from pait.model.core import get_core_model
 
 from ._load_app import get_openapi_path
@@ -37,7 +37,7 @@ class APIRoute(BaseAPIRoute):
                     methods=route_dc.method_list,
                     **_framework_extra_param,
                 )
-            elif isinstance(route_dc, CbcRouteDc) and issubclass(route_dc.route, View):
+            elif isinstance(route_dc, CbvRouteDc) and issubclass(route_dc.route, View):
                 self._cbv_handler(_pait, route_dc.route, route_dc.pait_param)
                 cbv_name = _framework_extra_param.pop("cbv_name", route_dc.route.__name__)
                 app.add_url_rule(

@@ -29,9 +29,9 @@ class FieldBaseParamTypedDict(TypedDict, total=False):
     :param openapi_serialization: Additional description of OpenAPI Schema
     :param raw_return: If True, the return value will be returned as is (the request key will be invalidated).
     :param example: example data
-    :param not_value_exception:
+    :param not_value_exception_func:
         The exception thrown when the corresponding value cannot be obtained from the request,
-        default value `pait.exceptions.NotFoundValueException`
+        default value `_default_not_value_exception_func`
     :param openapi_include: Whether it is used by the OpenAPI
     :param extra_param_list: Extended parameters for plug-ins to use
     """
@@ -110,14 +110,13 @@ class BaseRequestResourceField(BaseField, FieldInfo):
             self.request_value_handle = self.request_value_handle_by_default_factory  # type: ignore
 
         pait_extra_param = {}
-        if "example" in kwargs:
-            pait_extra_param["example"] = kwargs.pop("example", None)
-        if "links" in kwargs:
-            pait_extra_param["links"] = kwargs.pop("links", None)
+        for copy_key in ("example", "links"):
+            if copy_key in kwargs:
+                pait_extra_param[copy_key] = kwargs.pop(copy_key, None)
 
-        #######################################################
-        # These parameters will not be used in pydantic.Field #
-        #######################################################
+        #############################################
+        # These parameters will not be used in self #
+        #############################################
         self.openapi_include: bool = kwargs.pop("openapi_include", True)
         self.raw_return: bool = kwargs.pop("raw_return", False)
         self.not_value_exception_func: Callable[[inspect.Parameter], Exception] = (
@@ -131,7 +130,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         #       class DemoField(BaseRequestResourceField):
         #           def demo(self):
         #               assert self.request_key   x
-        #   but:
+        #   however, external calls can be obtained normally:
         #       Demo = Body()
         #       Demo.set_alias('demo')
         #       assert Demo.request_key == 'demo'  ✔
@@ -231,6 +230,8 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         super().__init__(**real_kwargs)
 
     def _check_init_param(self, **kwargs: Any) -> None:
+        """Different field class have different validation rules,
+        and if you have your own validation requirements, need to implement them here"""
         pass
 
     @property

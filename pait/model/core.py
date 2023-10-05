@@ -149,9 +149,82 @@ class PaitCoreModel(object):
 
         self.tag_label = ImmutableDict({i.name: i.label for i in tag if i.label}) if tag else ImmutableDict()
 
+    ##################
+    # Generic method #
+    ##################
+    def build(self) -> None:
+        """Currently, only plugins need to build, and other features may be added in the future,
+        and they also need to build, so the build method is kept here"""
+        if self._need_build_plugin:
+            self.build_plugin_stack()
+
+    #################
+    # operation id  #
+    #################
     def is_auto_gen_operation_id(self) -> bool:
         return self.operation_id == quote_plus(self.pait_id)
 
+    @property
+    def operation_id(self) -> str:
+        return self._operation_id
+
+    @operation_id.setter
+    def operation_id(self, operation_id: str) -> None:
+        self._operation_id = quote_plus(operation_id)
+
+    ################
+    # http method  #
+    ################
+    @property
+    def method_list(self) -> List[str]:
+        _temp_set: Set[str] = set(self._method_list.copy())
+        _temp_set.difference_update(self.block_http_method_set)
+        return sorted(list(_temp_set))
+
+    @method_list.setter
+    def method_list(self, method_list: List[str]) -> None:
+        self._method_list = list(set(self._method_list) | set(method_list))
+
+    @property
+    def openapi_method_list(self) -> List[str]:
+        return [i.lower() for i in self.method_list]
+
+    ###################
+    # response model  #
+    ###################
+    @property
+    def response_model_list(self) -> List[Type[BaseResponseModel]]:
+        return self._response_model_list
+
+    def add_response_model_list(self, response_model_list: List[Type[Union[BaseResponseModel, BaseModel]]]) -> None:
+        """
+        Add response model. If response is pydantic.BaseModel, it will be automatically converted to JsonResponseModel.
+        """
+        for response_model in response_model_list:
+            if issubclass(response_model, BaseModel):
+                response_model = create_json_response_model(response_model)
+            if response_model in self._response_model_list:
+                continue
+            if issubclass(response_model, PaitResponseModel):
+                logging.warning(  # pragma: no cover
+                    f"Please replace {self.operation_id}'s response model {response_model} with {BaseResponseModel}"
+                )
+            self._response_model_list.append(response_model)
+
+    ########################
+    # request extra model  #
+    ########################
+    @property
+    def extra_openapi_model_list(self) -> List[Type[BaseModel]]:
+        return self._extra_openapi_model_list
+
+    @extra_openapi_model_list.setter
+    def extra_openapi_model_list(self, item: List[Type[BaseModel]]) -> None:
+        self._extra_openapi_model_list.extend(item)
+
+    #################
+    # change notify #
+    #################
     def add_change_notify(self, callback: ChangeNotifyType) -> None:
         self._change_notify_list.append(callback)
 
@@ -168,14 +241,9 @@ class PaitCoreModel(object):
                 callback(self, key, value)
         return super().__setattr__(key, value)
 
-    @property
-    def operation_id(self) -> str:
-        return self._operation_id
-
-    @operation_id.setter
-    def operation_id(self, operation_id: str) -> None:
-        self._operation_id = quote_plus(operation_id)
-
+    ##########
+    # plugin #
+    ##########
     @property
     def param_handler_pm(self) -> PluginManager:
         return self._param_handler_plugin
@@ -187,6 +255,7 @@ class PaitCoreModel(object):
     @param_handler_plugin.setter
     def param_handler_plugin(self, param_handler_plugin: Type[BaseParamHandler]) -> None:
         if hasattr(param_handler_plugin, "tip_exception_class"):
+            # tip exception class check
             suggest_use_msg = (
                 "Suggest use @pait(tip_exception_class=xxx) or config.init_config(tip_exception_class=xxx)"
             )
@@ -199,6 +268,7 @@ class PaitCoreModel(object):
             if self.tip_exception_class is not DefaultValue.tip_exception_class:
                 raise ValueError(f"There are multiple method settings `tip_exception_class` param, {suggest_use_msg}")
             self.tip_exception_class = getattr(param_handler_plugin, "tip_exception_class", None)
+
         try:
             pm = PluginManager(param_handler_plugin)
             if not ignore_pre_check:
@@ -211,44 +281,6 @@ class PaitCoreModel(object):
             ) from e
         self._param_handler_plugin = pm
         self._need_build_plugin = True
-
-    @property
-    def method_list(self) -> List[str]:
-        _temp_set: Set[str] = set(self._method_list.copy())
-        _temp_set.difference_update(self.block_http_method_set)
-        return sorted(list(_temp_set))
-
-    @method_list.setter
-    def method_list(self, method_list: List[str]) -> None:
-        self._method_list = list(set(self._method_list) | set(method_list))
-
-    @property
-    def openapi_method_list(self) -> List[str]:
-        return [i.lower() for i in self.method_list]
-
-    @property
-    def response_model_list(self) -> List[Type[BaseResponseModel]]:
-        return self._response_model_list
-
-    def add_response_model_list(self, response_model_list: List[Type[Union[BaseResponseModel, BaseModel]]]) -> None:
-        for response_model in response_model_list:
-            if issubclass(response_model, BaseModel):
-                response_model = create_json_response_model(response_model)
-            if response_model in self._response_model_list:
-                continue
-            if issubclass(response_model, PaitResponseModel):
-                logging.warning(  # pragma: no cover
-                    f"Please replace {self.operation_id}'s response model {response_model}" f" with {BaseResponseModel}"
-                )
-            self._response_model_list.append(response_model)
-
-    @property
-    def extra_openapi_model_list(self) -> List[Type[BaseModel]]:
-        return self._extra_openapi_model_list
-
-    @extra_openapi_model_list.setter
-    def extra_openapi_model_list(self, item: List[Type[BaseModel]]) -> None:
-        self._extra_openapi_model_list.extend(item)
 
     @property
     def main_plugin(self) -> PluginProtocol:
@@ -265,12 +297,6 @@ class PaitCoreModel(object):
         for plugin_manager in reversed(plugin_manager_list):
             self._main_plugin = plugin_manager.get_plugin(self._main_plugin, self)
         self._need_build_plugin = False
-
-    def build(self) -> None:
-        """Currently, only plugins need to build, and other features may be added in the future,
-        and they also need to build, so the build method is kept here"""
-        if self._need_build_plugin:
-            self.build_plugin_stack()
 
     def add_plugin(
         self,

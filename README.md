@@ -68,7 +68,6 @@ pip install pait
 
 # Simple Example
 ```python
-from typing import Type
 import uvicorn  # type: ignore
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse
@@ -77,21 +76,16 @@ from starlette.routing import Route
 from pait.app.starlette import pait
 from pait.field import Body
 from pait.openapi.doc_route import add_doc_route
-from pait.model.response import JsonResponseModel
 from pydantic import BaseModel, Field
 
 
-class DemoResponseModel(JsonResponseModel):
-    """demo post api response model"""
-    class ResponseModel(BaseModel):
-        uid: int = Field()
-        user_name: str = Field()
-
-    description: str = "demo response"
-    response_data: Type[BaseModel] = ResponseModel
+class ResponseModel(BaseModel):
+    """demo response"""
+    uid: int = Field()
+    user_name: str = Field()
 
 
-@pait(response_model_list=[DemoResponseModel])
+@pait(response_model_list=[ResponseModel])
 async def demo_post(
     uid: int = Body.i(description="user id", gt=10, lt=1000),
     user_name: str = Body.i(description="user name", min_length=2, max_length=4)

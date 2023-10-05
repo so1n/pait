@@ -15,6 +15,7 @@ from pait import _pydanitc_adapter
 from pait.app.base.security.oauth2 import OAuth2PasswordRequestFrom
 from pait.model.response import create_json_response_model
 from pait.openapi.openapi import OpenAPI
+from pydantic import BaseModel
 
 if TYPE_CHECKING:
     from any_api.openapi.model.util import HttpMethodLiteral  # isort:skip
@@ -229,33 +230,62 @@ class _TestFieldOpenAPI(BasicTestOpenAPI):
         rb_schema_key = rb_schema_key.split("/")[-1]
         rb_schema: dict = self.pait_openapi.model.components["schemas"][rb_schema_key]
         assert rb_schema["required"] == ["uid", "user_name", "age", "sex"]
-        assert rb_schema["properties"] == {
-            "uid": {
-                "title": "Uid",
-                "description": "user id",
-                "exclusiveMinimum": 10,
-                "exclusiveMaximum": 1000,
-                "example": "123",
-                "type": "integer",
+        assert rb_schema["properties"] in (
+            {
+                "uid": {
+                    "title": "Uid",
+                    "description": "user id",
+                    "exclusiveMinimum": 10,
+                    "exclusiveMaximum": 1000,
+                    "example": "123",
+                    "type": "integer",
+                },
+                "user_name": {
+                    "title": "User Name",
+                    "description": "user name",
+                    "maxLength": 4,
+                    "minLength": 2,
+                    "example": "so1n",
+                    "type": "string",
+                },
+                "age": {
+                    "title": "Age",
+                    "description": "age",
+                    "exclusiveMinimum": 1,
+                    "exclusiveMaximum": 100,
+                    "example": 25,
+                    "type": "integer",
+                },
+                "sex": {"description": "sex", "allOf": [{"$ref": "#/components/schemas/SexEnum"}]},
             },
-            "user_name": {
-                "title": "User Name",
-                "description": "user name",
-                "maxLength": 4,
-                "minLength": 2,
-                "example": "so1n",
-                "type": "string",
-            },
-            "age": {
-                "title": "Age",
-                "description": "age",
-                "exclusiveMinimum": 1,
-                "exclusiveMaximum": 100,
-                "example": 25,
-                "type": "integer",
-            },
-            "sex": {"description": "sex", "allOf": [{"$ref": "#/components/schemas/SexEnum"}]},
-        }
+            {
+                "uid": {
+                    "title": "Uid",
+                    "description": "user id",
+                    "exclusiveMinimum": 10,
+                    "exclusiveMaximum": 1000,
+                    "example": "123",
+                    "type": "integer",
+                },
+                "user_name": {
+                    "title": "User Name",
+                    "description": "user name",
+                    "maxLength": 4,
+                    "minLength": 2,
+                    "example": "so1n",
+                    "type": "string",
+                },
+                "age": {
+                    "title": "Age",
+                    "description": "age",
+                    "exclusiveMinimum": 1,
+                    "exclusiveMaximum": 100,
+                    "example": 25,
+                    "type": "integer",
+                },
+                'sex': {'$ref': '#/components/schemas/SexEnum', 'description': 'sex'},
+            }
+        )
         self._test_success_response_and_fail_response(
             route_dict["post"].responses, create_json_response_model(response_model.UserSuccessRespModel)
         )
@@ -395,7 +425,10 @@ class _TestFieldOpenAPI(BasicTestOpenAPI):
         assert route_dict["post"].parameters[6].in_ == "query"
         assert route_dict["post"].parameters[6].name == "sex"
         assert route_dict["post"].parameters[6].required
-        assert route_dict["post"].parameters[6].schema_ == {"allOf": [{"$ref": "#/components/schemas/SexEnum"}]}
+        if isinstance(route_dict["post"].parameters[6].schema_, BaseModel):
+            assert _pydanitc_adapter.model_dump(route_dict["post"].parameters[6].schema_) == {"ref": "#/components/schemas/SexEnum"}
+        else:
+            assert route_dict["post"].parameters[6].schema_ == {"allOf": [{"$ref": "#/components/schemas/SexEnum"}]}
 
         # If the type is typing.Any, then there will be no required
         assert route_dict["post"].request_body.content["multipart/form-data"].schema_ == {
@@ -841,7 +874,10 @@ class _TestOtherOpenAPI(BasicTestOpenAPI):
         assert route_dict["get"].parameters[4].in_ == "query"
         assert route_dict["get"].parameters[4].name == "sex"
         assert route_dict["get"].parameters[4].required
-        assert route_dict["get"].parameters[4].schema_ == {"allOf": [{"$ref": "#/components/schemas/SexEnum"}]}
+        if isinstance(route_dict["get"].parameters[4].schema_, BaseModel):
+            assert _pydanitc_adapter.model_dump(route_dict["get"].parameters[4].schema_) == {"ref": "#/components/schemas/SexEnum"}
+        else:
+            assert route_dict["get"].parameters[4].schema_ == {"allOf": [{"$ref": "#/components/schemas/SexEnum"}]}
 
         self._test_success_response_and_fail_response(
             route_dict["get"].responses, create_json_response_model(response_model.UserSuccessRespModel)
@@ -866,31 +902,58 @@ class _TestOtherOpenAPI(BasicTestOpenAPI):
         rb_schema: dict = self.pait_openapi.model.components["schemas"][rb_schema_key]
 
         assert rb_schema["required"] == ["age", "uid", "user_name", "sex"]
-        assert rb_schema["properties"] == {
-            "age": {
-                "title": "Age",
-                "description": "age",
-                "exclusiveMinimum": 1,
-                "exclusiveMaximum": 100,
-                "example": 25,
-                "type": "integer",
+        assert rb_schema["properties"] in (
+            {
+                "age": {
+                    "title": "Age",
+                    "description": "age",
+                    "exclusiveMinimum": 1,
+                    "exclusiveMaximum": 100,
+                    "example": 25,
+                    "type": "integer",
+                },
+                "uid": {
+                    "title": "Uid",
+                    "description": "user id",
+                    "exclusiveMinimum": 10,
+                    "exclusiveMaximum": 1000,
+                    "type": "integer",
+                },
+                "user_name": {
+                    "title": "User Name",
+                    "description": "user name",
+                    "maxLength": 4,
+                    "minLength": 2,
+                    "type": "string",
+                },
+                "sex": {"description": "sex", "allOf": [{"$ref": "#/components/schemas/SexEnum"}]},
             },
-            "uid": {
-                "title": "Uid",
-                "description": "user id",
-                "exclusiveMinimum": 10,
-                "exclusiveMaximum": 1000,
-                "type": "integer",
-            },
-            "user_name": {
-                "title": "User Name",
-                "description": "user name",
-                "maxLength": 4,
-                "minLength": 2,
-                "type": "string",
-            },
-            "sex": {"description": "sex", "allOf": [{"$ref": "#/components/schemas/SexEnum"}]},
-        }
+            {
+                "age": {
+                    "title": "Age",
+                    "description": "age",
+                    "exclusiveMinimum": 1,
+                    "exclusiveMaximum": 100,
+                    "example": 25,
+                    "type": "integer",
+                },
+                "uid": {
+                    "title": "Uid",
+                    "description": "user id",
+                    "exclusiveMinimum": 10,
+                    "exclusiveMaximum": 1000,
+                    "type": "integer",
+                },
+                "user_name": {
+                    "title": "User Name",
+                    "description": "user name",
+                    "maxLength": 4,
+                    "minLength": 2,
+                    "type": "string",
+                },
+                'sex': {'$ref': '#/components/schemas/SexEnum', 'description': 'sex'},
+            }
+        )
         self._test_success_response_and_fail_response(
             route_dict["post"].responses, create_json_response_model(response_model.UserSuccessRespModel)
         )
