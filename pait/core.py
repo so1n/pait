@@ -23,6 +23,7 @@ from pait.model.core import (
     PaitCoreModel,
     PluginListOptionalType,
     PostPluginListOptionalType,
+ExtraOpenAPIModelListOptionalType,
     ResponseModelListOptionalType,
     StatusOptionalType,
     SummaryOptionalType,
@@ -48,6 +49,9 @@ class PaitBaseParamTypedDict(TypedDict, total=False):
     :param status:  The state of the routing function
     :param group:  The group to which the routing function belongs
     :param tag:  A collection of labels for routing functions
+    :param extra_openapi_model_list: Supplement the OpenAPI data of routing functions,
+        for example, when using a stream to upload file. If cannot use File(xxx) in a route and can only use the
+        stream of the request object to obtain data, can supplement the OpenAPI information with extra_openapi_model_list
     :param response_model_list: The response object of the route function
     :param plugin_list: pre plugin for routing functions
     :param post_plugin_list: post plugin list for routing functions
@@ -75,6 +79,7 @@ class PaitBaseParamTypedDict(TypedDict, total=False):
     status: StatusOptionalType
     group: GroupOptionalType
     tag: TagOptionalType
+    extra_openapi_model_list: ExtraOpenAPIModelListOptionalType
     response_model_list: ResponseModelListOptionalType
     # plugin
     plugin_list: PluginListOptionalType
@@ -101,6 +106,7 @@ class PaitCreateSubParamTypedDict(PaitInitParamTypedDict, total=False):
     :param append_pre_depend_list: Append some author when creating child Pait
     :param append_author: Append some author when creating child Pait
     :param append_tag: Append some tags when creating child Pait
+    :param append_extra_openapi_model_list: Append some extra openapi model object when creating child Pait
     :param append_response_model_list: Append some response object when creating child Pait
     :param append_plugin_list: Append some pre plugin when creating child Pait
     :param append_post_plugin_list:  Append some post plugin when creating child Pait
@@ -109,6 +115,7 @@ class PaitCreateSubParamTypedDict(PaitInitParamTypedDict, total=False):
     append_pre_depend_list: DependListOptionalType
     append_author: AuthorOptionalType
     append_tag: TagOptionalType
+    append_extra_openapi_model_list: ExtraOpenAPIModelListOptionalType
     append_response_model_list: ResponseModelListOptionalType
     append_plugin_list: PluginListOptionalType
     append_post_plugin_list: PostPluginListOptionalType
@@ -207,7 +214,6 @@ class Pait(object):
                 kwargs["extra"][key] = kwargs.pop(key, None)  # type: ignore[misc,literal-required]
 
         self._param_kwargs = kwargs
-        len(self.response_model_list)  # len has no effect, it just initializes the response_model_list parameter
         if "auto_build" not in self._param_kwargs:
             self._param_kwargs["auto_build"] = True
 
@@ -228,12 +234,6 @@ class Pait(object):
     @property
     def param_kwargs(self) -> PaitInitParamTypedDict:
         return self._param_kwargs
-
-    @property
-    def response_model_list(self) -> List[Type[BaseResponseModel]]:
-        if self._param_kwargs.get("response_model_list", None) is None:
-            self._param_kwargs["response_model_list"] = []
-        return self._param_kwargs["response_model_list"]  # type: ignore[return-value]
 
     def create_sub_pait(self: Self, **kwargs: Unpack[PaitCreateSubParamTypedDict]) -> Self:
         """
@@ -263,6 +263,7 @@ class Pait(object):
         append_pre_depend_list = kwargs.get("append_pre_depend_list", [])
         append_author = kwargs.get("append_author", tuple())
         append_tag = kwargs.get("append_tag", tuple())
+        append_extra_openapi_model_list = kwargs.get("append_extra_openapi_model_list", [])
         append_response_model_list = kwargs.get("append_response_model_list", [])
         append_plugin_list = kwargs.get("append_plugin_list", [])
         append_post_plugin_list = kwargs.get("append_post_plugin_list", [])
@@ -294,6 +295,8 @@ class Pait(object):
                 core_model.tag = kwargs.get("tag") or DefaultValue.tag
             if not core_model.response_model_list and kwargs.get("response_model_list"):
                 core_model.add_response_model_list(kwargs.get("response_model_list") or [])
+            if not core_model.extra_openapi_model_list and kwargs.get("extra_openapi_model_list"):
+                core_model.extra_openapi_model_list.extend(kwargs.get("extra_openapi_model_list") or [])
             if core_model.tip_exception_class is DefaultValue.tip_exception_class and kwargs.get("tip_exception_class"):
                 core_model.tip_exception_class = kwargs.get("tip_exception_class")
 
@@ -306,6 +309,8 @@ class Pait(object):
                     core_model.author = append_author
             if append_tag:
                 core_model.tag = core_model.tag + append_tag
+            if append_extra_openapi_model_list:
+                core_model.extra_openapi_model_list.extend(append_extra_openapi_model_list)
             if append_response_model_list:
                 core_model.add_response_model_list(append_response_model_list)
             if append_plugin_list or append_post_plugin_list:

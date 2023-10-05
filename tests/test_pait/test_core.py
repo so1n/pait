@@ -71,14 +71,6 @@ class TestPaitCore:
         assert pait_code_model.method_list == ["get"]
         assert pait_code_model.operation_id == "fake"
 
-    def test_pait_response_list(self) -> None:
-        from pait.model.response import BaseResponseModel
-
-        demo_core = DemoPait()
-        assert not demo_core.response_model_list
-        demo_core.response_model_list.append(BaseResponseModel)
-        assert len(demo_core.response_model_list) == 1
-
     def test_extra_param(self) -> None:
         # Compatible with the use of older versions
         demo_pait = DemoPait(extra_a=1, extra_b=2)  # type: ignore

@@ -37,6 +37,7 @@ __all__ = [
     "StatusOptionalType",
     "SummaryOptionalType",
     "TagOptionalType",
+    "ExtraOpenAPIModelListOptionalType",
     "ResponseModelListOptionalType",
 ]
 
@@ -56,6 +57,7 @@ StatusOptionalType = Optional[PaitStatus]
 SummaryOptionalType = OptionalStrType
 TagOptionalType = Optional[Tuple[Tag, ...]]
 ResponseModelListOptionalType = Optional[List[Type[Union[BaseResponseModel, BaseModel]]]]
+ExtraOpenAPIModelListOptionalType = Optional[List[Type[BaseModel]]]
 
 
 def get_core_model(route: Callable) -> "PaitCoreModel":
@@ -93,6 +95,7 @@ class PaitCoreModel(object):
         status: StatusOptionalType = None,
         group: GroupOptionalType = None,
         tag: TagOptionalType = None,
+        extra_openapi_model_list: ExtraOpenAPIModelListOptionalType = None,
         response_model_list: ResponseModelListOptionalType = None,
         default_field_class: DefaultFieldClassOptionalType = None,
         plugin_list: PluginListOptionalType = None,
@@ -132,7 +135,7 @@ class PaitCoreModel(object):
         self.status: PaitStatus = status or DefaultValue.status
         self.group: str = group or DefaultValue.group  # Which group this interface belongs to
         self.tag: Tuple[Tag, ...] = tag or DefaultValue.tag  # Interface tag
-        self._extra_openapi_model_list: List[Type[BaseModel]] = []
+        self._extra_openapi_model_list: List[Type[BaseModel]] = extra_openapi_model_list or []
         self._response_model_list: List[Type[BaseResponseModel]] = []
         if response_model_list:
             self.add_response_model_list(response_model_list)

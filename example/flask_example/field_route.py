@@ -72,6 +72,26 @@ def pait_base_field_route(
     sex: SexEnum = Query.i(description="sex"),
 ) -> dict:
     """Test the use of all BaseRequestResourceField-based"""
+    return {
+        "code": 0,
+        "msg": "",
+        "data": {
+            "filename": upload_file.filename,
+            "content": upload_file.read().decode(),
+            "form_a": a,
+            "form_b": b,
+            "form_c": c,
+            "cookie": cookie,
+            "multi_user_name": multi_user_name,
+            "age": age,
+            "uid": uid,
+            "user_name": user_name,
+            "email": email,
+            "sex": sex,
+        },
+    }
+
+
 @field_pait(status=PaitStatus.test, response_model_list=[SimpleRespModel, FailRespModel])
 def pait_model_route(test_pait_model: TestPaitModel) -> dict:
     """Test pait model"""

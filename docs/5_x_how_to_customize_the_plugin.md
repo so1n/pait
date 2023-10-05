@@ -85,9 +85,10 @@ class DemoPlugin(PrePluginProtocol):
 
     @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
-        if not pait_core_model.response_model_list:
+        response_model_list = pait_core_model.param_kwargs.get("response_model_list")
+        if not response_model_list:
             raise ValueError("Not found response model")
-        response_model = pait_core_model.response_model_list
+        response_model = response_model_list[0]
         if not issubclass(response_model, JsonResponseModel):
             raise TypeError("Only support json response model")
         kwargs["example_value"] = response_model.get_example_value()
