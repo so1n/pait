@@ -21,6 +21,10 @@ _T = TypeVar("_T")
 PydanticUndefined = _pydanitc_adapter.PydanticUndefined
 
 
+def _check_param_value(v2_name: str, v1_name: str) -> None:
+    raise ValueError(f"cannot specify both `{v2_name}` and `{v1_name}`, should use {v2_name}")  # pragma: no cover
+
+
 class BaseRequestResourceField(BaseField, FieldInfo):
     field_name: str = ""
     media_type: str = "*/*"
@@ -136,7 +140,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
             max_length=max_length,
         )
         if regex and pattern:
-            raise ValueError("cannot specify both `regex` and `pattern`, should use pattern")  # pragma: no cover
+            _check_param_value("regex", "pattern")
         if _pydanitc_adapter.is_v1:
             extra["const"] = const
             if pattern:
@@ -147,7 +151,18 @@ class BaseRequestResourceField(BaseField, FieldInfo):
                 warnings.warn("Pydantic V1 not support param `serialization_alias`")
         else:
             if regex:
-                extra["pattern"] = regex
+                kwargs["pattern"] = regex
+            if max_items:
+                if max_length:
+                    _check_param_value("max_items", "max_length")
+                else:
+                    kwargs["max_length"] = kwargs.pop("max_items")
+            if min_items:
+                if min_length:
+                    _check_param_value("min_items", "min_length")
+                else:
+                    kwargs["min_length"] = kwargs.pop("min_items")
+
             kwargs["validation_alias"] = validation_alias or alias
             kwargs["serialization_alias"] = serialization_alias or alias
 
