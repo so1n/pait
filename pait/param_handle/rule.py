@@ -83,7 +83,7 @@ def cbv_pr_func(pr: "ParamRule", context: "ContextModel", param_plugin: "BasePar
 
 
 def request_pr_func(pr: "ParamRule", context: "ContextModel", param_plugin: "BaseParamHandler") -> Any:
-    return context.app_helper.request
+    return context.app_helper.request.request
 
 
 def pait_model_pr_func(pr: "ParamRule", context: "ContextModel", param_plugin: "BaseParamHandler") -> Any:
