@@ -48,7 +48,7 @@ class ParamHandler(BaseParamHandler[ParamHandleContext]):
             assert (
                 func_class_prd
             ), f"`func_class_prd` param must not none, please check {self.__class__}.pre_load_hook method"
-            _, kwargs = self.prd_handle(context, pait_handler.__class__, func_class_prd)
+            _, kwargs = self.prd_handle(context, pait_handler, func_class_prd)
             pait_handler = pait_handler()
             pait_handler.__dict__.update(kwargs)
 
