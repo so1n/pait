@@ -26,6 +26,7 @@ from pait.openapi.doc_route import default_doc_fn_dict
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin, fixture_loop
 from tests.test_app.base_api_test import BaseTest
+from tests.test_app.base_doc_example_test import BaseTestDocExample
 from tests.test_app.base_openapi_test import BaseTestOpenAPI
 
 # Since the routing function has already been loaded,
@@ -38,9 +39,10 @@ _TestHelper: Type[_TestHelper] = partial(  # type: ignore
 
 
 @contextmanager
-def client_ctx() -> Generator[SanicTestClient, None, None]:
+def client_ctx(app: Sanic = None) -> Generator[SanicTestClient, None, None]:
     logging.disable()  # don't know where to configure the log, the test environment will be canceled log
-    app: Sanic = main_example.create_app(configure_logging=False)
+    if not app:
+        app = main_example.create_app(configure_logging=False)
     app.config.ACCESS_LOG = False
     yield app.test_client
 
@@ -290,3 +292,246 @@ class TestSanic:
 
     def test_openapi_content(self, base_test: BaseTest) -> None:
         BaseTestOpenAPI(base_test.client.app).test_all()
+
+
+class TestDocExample:
+    def test_hello_world_demo(self) -> None:
+        from docs_source_code.introduction import sanic_demo
+
+        with client_ctx(app=sanic_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).hello_world_demo(sanic_demo.demo_post)
+
+    def test_how_to_use_field_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import sanic_demo
+
+        with client_ctx(app=sanic_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_demo(sanic_demo.demo_route)
+
+    def test_how_to_use_field_with_default_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import sanic_with_default_demo
+
+        with client_ctx(app=sanic_with_default_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_default_demo(
+                sanic_with_default_demo.demo, sanic_with_default_demo.demo1
+            )
+
+    def test_how_to_use_field_with_default_factory_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import sanic_with_default_factory_demo
+
+        with client_ctx(app=sanic_with_default_factory_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_default_factory_demo(
+                sanic_with_default_factory_demo.demo, sanic_with_default_factory_demo.demo1
+            )
+
+    def test_how_to_use_field_with_alias_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import sanic_with_alias_demo
+
+        with client_ctx(app=sanic_with_alias_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_alias_demo(sanic_with_alias_demo.demo)
+
+    def test_how_to_use_field_with_number_verify_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import sanic_with_num_check_demo
+
+        with client_ctx(app=sanic_with_num_check_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_number_verify_demo(
+                sanic_with_num_check_demo.demo
+            )
+
+    def test_how_to_use_field_with_sequence_verify_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import sanic_with_item_check_demo
+
+        with client_ctx(app=sanic_with_item_check_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_sequence_verify_demo(
+                sanic_with_item_check_demo.demo
+            )
+
+    def test_how_to_use_field_with_str_verify_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import sanic_with_string_check_demo
+
+        with client_ctx(app=sanic_with_string_check_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_str_verify_demo(
+                sanic_with_string_check_demo.demo
+            )
+
+    def test_how_to_use_field_with_raw_return_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import sanic_with_raw_return_demo
+
+        with client_ctx(app=sanic_with_raw_return_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_raw_return_demo(
+                sanic_with_raw_return_demo.demo
+            )
+
+    def test_how_to_use_field_with_custom_not_found_exc_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import sanic_with_not_found_exc_demo
+
+        with client_ctx(app=sanic_with_not_found_exc_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_custom_not_found_exc_demo(
+                sanic_with_not_found_exc_demo.demo
+            )
+
+    def test_how_to_use_type_with_model_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_type import sanic_with_model_demo
+
+        with client_ctx(app=sanic_with_model_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_type_with_type_is_pydantic_basemodel(
+                sanic_with_model_demo.demo, sanic_with_model_demo.demo1
+            )
+
+    def test_how_to_use_type_with_pait_model_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_type import sanic_with_pait_model_demo
+
+        with client_ctx(app=sanic_with_pait_model_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_type_with_type_is_pait_basemodel(
+                sanic_with_pait_model_demo.demo, sanic_with_pait_model_demo.demo1
+            )
+
+    def test_how_to_use_type_with_request_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_type import sanic_with_request_demo
+
+        with client_ctx(app=sanic_with_request_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_type_with_type_is_request(sanic_with_request_demo.demo)
+
+    def test_how_to_use_type_with_unix_datetime_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_type import sanic_with_unix_datetime_demo
+
+        with client_ctx(app=sanic_with_unix_datetime_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_type_with_type_is_customer(
+                sanic_with_unix_datetime_demo.demo
+            )
+
+    def test_depend_with_depend_demo(self) -> None:
+        from docs_source_code.introduction.depend import sanic_with_depend_demo
+
+        with client_ctx(app=sanic_with_depend_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).with_depend(sanic_with_depend_demo.demo)
+
+    def test_depend_with_nested_depend_demo(self) -> None:
+        from docs_source_code.introduction.depend import sanic_with_nested_depend_demo
+
+        with client_ctx(app=sanic_with_nested_depend_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).with_nested_depend(sanic_with_nested_depend_demo.demo)
+
+    def test_depend_with_context_manager_depend_demo(self) -> None:
+        from docs_source_code.introduction.depend import sanic_with_context_manager_depend_demo
+
+        with client_ctx(app=sanic_with_context_manager_depend_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).with_context_manager_depend(
+                sanic_with_context_manager_depend_demo.demo
+            )
+
+    def test_depend_with_class_depend_demo(self) -> None:
+        from docs_source_code.introduction.depend import sanic_with_class_depend_demo
+
+        with client_ctx(app=sanic_with_class_depend_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).with_class_depend(sanic_with_class_depend_demo.demo)
+
+    def test_depend_with_pre_depend_demo(self) -> None:
+        from docs_source_code.introduction.depend import sanic_with_pre_depend_demo
+
+        with client_ctx(app=sanic_with_pre_depend_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).with_pre_depend(sanic_with_pre_depend_demo.demo)
+
+    def test_exception_with_exception_tip(self) -> None:
+        from docs_source_code.introduction.exception import sanic_with_exception_demo
+
+        with client_ctx(app=sanic_with_exception_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).with_exception_tip(sanic_with_exception_demo.demo)
+
+    def test_exception_with_not_use_exception_tip(self) -> None:
+        from docs_source_code.introduction.exception import sanic_with_not_tip_exception_demo
+
+        with client_ctx(app=sanic_with_not_tip_exception_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).with_exception_tip(sanic_with_not_tip_exception_demo.demo)
+
+    def test_openapi_security_with_api_key(self) -> None:
+        from docs_source_code.openapi.security import sanic_with_apikey_demo
+
+        with client_ctx(app=sanic_with_apikey_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).openapi_security_with_api_key(
+                sanic_with_apikey_demo.api_key_cookie_route,
+                sanic_with_apikey_demo.api_key_header_route,
+                sanic_with_apikey_demo.api_key_query_route,
+            )
+
+    def test_openapi_security_with_http(self) -> None:
+        from docs_source_code.openapi.security import sanic_with_http_demo
+
+        with client_ctx(app=sanic_with_http_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).openapi_security_with_http(
+                sanic_with_http_demo.get_user_name_by_http_basic_credentials,
+                sanic_with_http_demo.get_user_name_by_http_bearer,
+                sanic_with_http_demo.get_user_name_by_http_digest,
+            )
+
+    def test_openapi_security_with_oauth2(self) -> None:
+        from docs_source_code.openapi.security import sanic_with_oauth2_demo
+
+        with client_ctx(app=sanic_with_oauth2_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).openapi_security_with_oauth2(
+                sanic_with_oauth2_demo.oauth2_login,
+                sanic_with_oauth2_demo.oauth2_user_info,
+                sanic_with_oauth2_demo.oauth2_user_name,
+            )
+
+    def test_plugin_with_required_plugin(self) -> None:
+        from docs_source_code.plugin.param_plugin import sanic_with_required_plugin_demo
+
+        with client_ctx(app=sanic_with_required_plugin_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_required_plugin(sanic_with_required_plugin_demo.demo)
+
+        from docs_source_code.plugin.param_plugin import sanic_with_required_plugin_and_group_extra_param_demo
+
+        with client_ctx(app=sanic_with_required_plugin_and_group_extra_param_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_required_plugin(
+                sanic_with_required_plugin_and_group_extra_param_demo.demo
+            )
+
+        from docs_source_code.plugin.param_plugin import sanic_with_required_plugin_and_extra_param_demo
+
+        with client_ctx(app=sanic_with_required_plugin_and_extra_param_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_required_plugin(
+                sanic_with_required_plugin_and_extra_param_demo.demo
+            )
+
+    def test_plugin_with_at_most_of_plugin(self) -> None:
+        from docs_source_code.plugin.param_plugin import sanic_with_at_most_one_of_plugin_demo
+
+        with client_ctx(app=sanic_with_at_most_one_of_plugin_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_at_most_one_of_plugin(
+                sanic_with_at_most_one_of_plugin_demo.demo
+            )
+
+        from docs_source_code.plugin.param_plugin import sanic_with_at_most_one_of_plugin_and_extra_param_demo
+
+        with client_ctx(app=sanic_with_at_most_one_of_plugin_and_extra_param_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_at_most_one_of_plugin(
+                sanic_with_at_most_one_of_plugin_and_extra_param_demo.demo
+            )
+
+    def test_plugin_with_check_json_response_plugin(self) -> None:
+        from docs_source_code.plugin.json_plugin import sanic_with_check_json_plugin_demo
+
+        with client_ctx(app=sanic_with_check_json_plugin_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_check_json_response_plugin(
+                sanic_with_check_json_plugin_demo.demo
+            )
+
+    def test_plugin_with_auto_complete_response_plugin(self) -> None:
+        from docs_source_code.plugin.json_plugin import sanic_with_auto_complete_json_plugin_demo
+
+        with client_ctx(app=sanic_with_auto_complete_json_plugin_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_auto_complete_json_response_plugin(
+                sanic_with_auto_complete_json_plugin_demo.demo
+            )
+
+    def test_plugin_with_mock_plugin(self) -> None:
+        from docs_source_code.plugin.mock_plugin import sanic_with_mock_plugin_demo
+
+        with client_ctx(app=sanic_with_mock_plugin_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_mock_plugin(sanic_with_mock_plugin_demo.demo)
+
+    def test_plugin_with_cache_plugin(self) -> None:
+        from docs_source_code.plugin.cache_plugin import sanic_with_cache_plugin_demo
+
+        with client_ctx(app=sanic_with_cache_plugin_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_cache_plugin(sanic_with_cache_plugin_demo.demo)

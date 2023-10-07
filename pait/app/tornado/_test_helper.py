@@ -100,12 +100,15 @@ class TestHelper(BaseTestHelper[HTTPResponse]):
         boundary: str = self.choose_boundary()
         if data:
             for key, value in data.items():
-                body.write(("--%s\r\n" % boundary).encode(encoding="utf-8"))
-                body.write(('Content-Disposition:form-data;name="%s"\r\n' % key).encode(encoding="utf-8"))
-                body.write("\r\n".encode(encoding="utf-8"))
-                if isinstance(value, int):
-                    value = str(value)
-                body.write(("%s\r\n" % value).encode(encoding="utf-8"))
+                if not isinstance(value, (list, tuple)):
+                    value = [value]
+                for v in value:
+                    body.write(("--%s\r\n" % boundary).encode(encoding="utf-8"))
+                    body.write(('Content-Disposition:form-data;name="%s"\r\n' % key).encode(encoding="utf-8"))
+                    body.write("\r\n".encode(encoding="utf-8"))
+                    if isinstance(v, int):
+                        v = f'"{v}"'
+                    body.write(("%s\r\n" % v).encode(encoding="utf-8"))
 
         if files:
             for key, value in files.items():

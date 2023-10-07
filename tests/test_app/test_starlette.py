@@ -26,6 +26,7 @@ from pait.openapi.doc_route import default_doc_fn_dict
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin
 from tests.test_app.base_api_test import BaseTest
+from tests.test_app.base_doc_example_test import BaseTestDocExample
 from tests.test_app.base_openapi_test import BaseTestOpenAPI
 
 # Since the routing function has already been loaded,
@@ -38,7 +39,7 @@ _TestHelper: Type[_TestHelper] = partial(  # type: ignore
 
 
 @contextmanager
-def client_ctx() -> Generator[TestClient, None, None]:
+def client_ctx(app: Starlette = None, raise_server_exceptions: bool = True) -> Generator[TestClient, None, None]:
     # starlette run after sanic
     # fix starlette.testclient get_event_loop status is close
     # def get_event_loop() -> asyncio.AbstractEventLoop:
@@ -56,7 +57,9 @@ def client_ctx() -> Generator[TestClient, None, None]:
     loop = asyncio.get_event_loop()
     if loop.is_closed():
         asyncio.set_event_loop(asyncio.new_event_loop())
-    with TestClient(main_example.create_app()) as client:
+    if not app:
+        app = main_example.create_app()
+    with TestClient(app, raise_server_exceptions=raise_server_exceptions) as client:
         yield client
 
 
@@ -315,3 +318,254 @@ class TestStarlette:
 
     def test_openapi_content(self, base_test: BaseTest) -> None:
         BaseTestOpenAPI(base_test.client.app).test_all()
+
+
+class TestDocExample:
+    def test_hello_world_demo(self) -> None:
+        from docs_source_code.introduction import starlette_demo
+
+        with client_ctx(app=starlette_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).hello_world_demo(starlette_demo.demo_post)
+
+    def test_how_to_use_field_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import starlette_demo
+
+        with client_ctx(app=starlette_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_demo(starlette_demo.demo_route)
+
+    def test_how_to_use_field_with_default_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import starlette_with_default_demo
+
+        with client_ctx(app=starlette_with_default_demo.app, raise_server_exceptions=False) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_default_demo(
+                starlette_with_default_demo.demo, starlette_with_default_demo.demo1
+            )
+
+    def test_how_to_use_field_with_default_factory_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import starlette_with_default_factory_demo
+
+        with client_ctx(app=starlette_with_default_factory_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_default_factory_demo(
+                starlette_with_default_factory_demo.demo, starlette_with_default_factory_demo.demo1
+            )
+
+    def test_how_to_use_field_with_alias_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import starlette_with_alias_demo
+
+        with client_ctx(app=starlette_with_alias_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_alias_demo(starlette_with_alias_demo.demo)
+
+    def test_how_to_use_field_with_number_verify_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import starlette_with_num_check_demo
+
+        with client_ctx(app=starlette_with_num_check_demo.app, raise_server_exceptions=False) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_number_verify_demo(
+                starlette_with_num_check_demo.demo
+            )
+
+    def test_how_to_use_field_with_sequence_verify_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import starlette_with_item_check_demo
+
+        with client_ctx(app=starlette_with_item_check_demo.app, raise_server_exceptions=False) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_sequence_verify_demo(
+                starlette_with_item_check_demo.demo
+            )
+
+    def test_how_to_use_field_with_str_verify_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import starlette_with_string_check_demo
+
+        with client_ctx(app=starlette_with_string_check_demo.app, raise_server_exceptions=False) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_str_verify_demo(
+                starlette_with_string_check_demo.demo
+            )
+
+    def test_how_to_use_field_with_raw_return_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import starlette_with_raw_return_demo
+
+        with client_ctx(app=starlette_with_raw_return_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_raw_return_demo(
+                starlette_with_raw_return_demo.demo
+            )
+
+    def test_how_to_use_field_with_custom_not_found_exc_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import starlette_with_not_found_exc_demo
+
+        with client_ctx(app=starlette_with_not_found_exc_demo.app, raise_server_exceptions=False) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_custom_not_found_exc_demo(
+                starlette_with_not_found_exc_demo.demo
+            )
+
+    def test_how_to_use_type_with_model_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_type import starlette_with_model_demo
+
+        with client_ctx(app=starlette_with_model_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_type_with_type_is_pydantic_basemodel(
+                starlette_with_model_demo.demo, starlette_with_model_demo.demo1
+            )
+
+    def test_how_to_use_type_with_pait_model_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_type import starlette_with_pait_model_demo
+
+        with client_ctx(app=starlette_with_pait_model_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_type_with_type_is_pait_basemodel(
+                starlette_with_pait_model_demo.demo, starlette_with_pait_model_demo.demo1
+            )
+
+    def test_how_to_use_type_with_request_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_type import starlette_with_request_demo
+
+        with client_ctx(app=starlette_with_request_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_type_with_type_is_request(
+                starlette_with_request_demo.demo
+            )
+
+    def test_how_to_use_type_with_unix_datetime_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_type import starlette_with_unix_datetime_demo
+
+        with client_ctx(app=starlette_with_unix_datetime_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_type_with_type_is_customer(
+                starlette_with_unix_datetime_demo.demo
+            )
+
+    def test_depend_with_depend_demo(self) -> None:
+        from docs_source_code.introduction.depend import starlette_with_depend_demo
+
+        with client_ctx(app=starlette_with_depend_demo.app, raise_server_exceptions=False) as client:
+            BaseTestDocExample(client, _TestHelper).with_depend(starlette_with_depend_demo.demo)
+
+    def test_depend_with_nested_depend_demo(self) -> None:
+        from docs_source_code.introduction.depend import starlette_with_nested_depend_demo
+
+        with client_ctx(app=starlette_with_nested_depend_demo.app, raise_server_exceptions=False) as client:
+            BaseTestDocExample(client, _TestHelper).with_nested_depend(starlette_with_nested_depend_demo.demo)
+
+    def test_depend_with_context_manager_depend_demo(self) -> None:
+        from docs_source_code.introduction.depend import starlette_with_context_manager_depend_demo
+
+        with client_ctx(app=starlette_with_context_manager_depend_demo.app, raise_server_exceptions=False) as client:
+            BaseTestDocExample(client, _TestHelper).with_context_manager_depend(
+                starlette_with_context_manager_depend_demo.demo
+            )
+
+    def test_depend_with_class_depend_demo(self) -> None:
+        from docs_source_code.introduction.depend import starlette_with_class_depend_demo
+
+        with client_ctx(app=starlette_with_class_depend_demo.app, raise_server_exceptions=False) as client:
+            BaseTestDocExample(client, _TestHelper).with_class_depend(starlette_with_class_depend_demo.demo)
+
+    def test_depend_with_pre_depend_demo(self) -> None:
+        from docs_source_code.introduction.depend import starlette_with_pre_depend_demo
+
+        with client_ctx(app=starlette_with_pre_depend_demo.app, raise_server_exceptions=False) as client:
+            BaseTestDocExample(client, _TestHelper).with_pre_depend(starlette_with_pre_depend_demo.demo)
+
+    def test_exception_with_exception_tip(self) -> None:
+        from docs_source_code.introduction.exception import starlette_with_exception_demo
+
+        with client_ctx(app=starlette_with_exception_demo.app, raise_server_exceptions=False) as client:
+            BaseTestDocExample(client, _TestHelper).with_exception_tip(starlette_with_exception_demo.demo)
+
+    def test_exception_with_not_use_exception_tip(self) -> None:
+        from docs_source_code.introduction.exception import starlette_with_not_tip_exception_demo
+
+        with client_ctx(app=starlette_with_not_tip_exception_demo.app, raise_server_exceptions=False) as client:
+            BaseTestDocExample(client, _TestHelper).with_exception_tip(starlette_with_not_tip_exception_demo.demo)
+
+    def test_openapi_security_with_api_key(self) -> None:
+        from docs_source_code.openapi.security import starlette_with_apikey_demo
+
+        with client_ctx(app=starlette_with_apikey_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).openapi_security_with_api_key(
+                starlette_with_apikey_demo.api_key_cookie_route,
+                starlette_with_apikey_demo.api_key_header_route,
+                starlette_with_apikey_demo.api_key_query_route,
+            )
+
+    def test_openapi_security_with_http(self) -> None:
+        from docs_source_code.openapi.security import starlette_with_http_demo
+
+        with client_ctx(app=starlette_with_http_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).openapi_security_with_http(
+                starlette_with_http_demo.get_user_name_by_http_basic_credentials,
+                starlette_with_http_demo.get_user_name_by_http_bearer,
+                starlette_with_http_demo.get_user_name_by_http_digest,
+            )
+
+    def test_openapi_security_with_oauth2(self) -> None:
+        from docs_source_code.openapi.security import starlette_with_oauth2_demo
+
+        with client_ctx(app=starlette_with_oauth2_demo.app, raise_server_exceptions=False) as client:
+            BaseTestDocExample(client, _TestHelper).openapi_security_with_oauth2(
+                starlette_with_oauth2_demo.oauth2_login,
+                starlette_with_oauth2_demo.oauth2_user_info,
+                starlette_with_oauth2_demo.oauth2_user_name,
+            )
+
+    def test_plugin_with_required_plugin(self) -> None:
+        from docs_source_code.plugin.param_plugin import (
+            starlette_with_required_plugin_and_extra_param_demo,
+            starlette_with_required_plugin_and_group_extra_param_demo,
+            starlette_with_required_plugin_demo,
+        )
+
+        with client_ctx(app=starlette_with_required_plugin_demo.app, raise_server_exceptions=False) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_required_plugin(
+                starlette_with_required_plugin_demo.demo
+            )
+        with client_ctx(
+            app=starlette_with_required_plugin_and_group_extra_param_demo.app, raise_server_exceptions=False
+        ) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_required_plugin(
+                starlette_with_required_plugin_and_group_extra_param_demo.demo
+            )
+        with client_ctx(
+            app=starlette_with_required_plugin_and_extra_param_demo.app, raise_server_exceptions=False
+        ) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_required_plugin(
+                starlette_with_required_plugin_and_extra_param_demo.demo
+            )
+
+    def test_plugin_with_at_most_of_plugin(self) -> None:
+        from docs_source_code.plugin.param_plugin import (
+            starlette_with_at_most_one_of_plugin_and_extra_param_demo,
+            starlette_with_at_most_one_of_plugin_demo,
+        )
+
+        with client_ctx(app=starlette_with_at_most_one_of_plugin_demo.app, raise_server_exceptions=False) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_at_most_one_of_plugin(
+                starlette_with_at_most_one_of_plugin_demo.demo
+            )
+        with client_ctx(
+            app=starlette_with_at_most_one_of_plugin_and_extra_param_demo.app, raise_server_exceptions=False
+        ) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_at_most_one_of_plugin(
+                starlette_with_at_most_one_of_plugin_and_extra_param_demo.demo
+            )
+
+    def test_plugin_with_check_json_response_plugin(self) -> None:
+        from docs_source_code.plugin.json_plugin import starlette_with_check_json_plugin_demo
+
+        with client_ctx(app=starlette_with_check_json_plugin_demo.app, raise_server_exceptions=False) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_check_json_response_plugin(
+                starlette_with_check_json_plugin_demo.demo
+            )
+
+    def test_plugin_with_auto_complete_response_plugin(self) -> None:
+        from docs_source_code.plugin.json_plugin import starlette_with_auto_complete_json_plugin_demo
+
+        with client_ctx(app=starlette_with_auto_complete_json_plugin_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_auto_complete_json_response_plugin(
+                starlette_with_auto_complete_json_plugin_demo.demo
+            )
+
+    def test_plugin_with_mock_plugin(self) -> None:
+        from docs_source_code.plugin.mock_plugin import starlette_with_mock_plugin_demo
+
+        with client_ctx(app=starlette_with_mock_plugin_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_mock_plugin(starlette_with_mock_plugin_demo.demo)
+
+    def test_plugin_with_cache_plugin(self) -> None:
+        from docs_source_code.plugin.cache_plugin import starlette_with_cache_plugin_demo
+
+        with client_ctx(app=starlette_with_cache_plugin_demo.app, raise_server_exceptions=False) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_cache_plugin(starlette_with_cache_plugin_demo.demo)

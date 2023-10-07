@@ -22,6 +22,7 @@ from pait.openapi.doc_route import default_doc_fn_dict
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin
 from tests.test_app.base_api_test import BaseTest
+from tests.test_app.base_doc_example_test import BaseTestDocExample
 from tests.test_app.base_openapi_test import BaseTestOpenAPI
 
 # Since the routing function has already been loaded,
@@ -322,3 +323,298 @@ class TestTornado(BaseTestTornado):
 
     def test_openapi_content(self) -> None:
         BaseTestOpenAPI(self._app).test_all()
+
+
+class BaseTestTornadoDocExample(BaseTestTornado):
+    demo: Any
+
+    def get_app(self) -> Application:
+        return self.demo.app
+
+
+class TestDocHelloWorldExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction import tornado_demo
+
+    demo = tornado_demo
+
+    def test_hello_world_demo(self) -> None:
+        BaseTestDocExample(self, _TestHelper).hello_world_demo(self.demo.DemoHandler.post)
+
+
+class TestDocHowToUseFieldExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction.how_to_use_field import tornado_demo
+
+    demo = tornado_demo
+
+    def test_how_to_use_field_demo(self) -> None:
+        BaseTestDocExample(self, _TestHelper).how_to_use_field_demo(self.demo.DemoHandler.post)
+
+
+class TestDocHowToUseFieldWithDefaultExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction.how_to_use_field import tornado_with_default_demo
+
+    demo = tornado_with_default_demo
+
+    def test_how_to_use_field_with_default_demo(self) -> None:
+        BaseTestDocExample(self, _TestHelper).how_to_use_field_with_default_demo(
+            self.demo.DemoHandler.get, self.demo.Demo1Handler.get
+        )
+
+
+class TestDocHowToUseFieldWithDefaultFactoryExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction.how_to_use_field import tornado_with_default_factory_demo
+
+    demo = tornado_with_default_factory_demo
+
+    def test_how_to_use_field_with_default_factory_demo(self) -> None:
+        BaseTestDocExample(self, _TestHelper).how_to_use_field_with_default_factory_demo(
+            self.demo.DemoHandler.get, self.demo.Demo1Handler.get
+        )
+
+
+class TestDocHowToUseFieldWithAliasExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction.how_to_use_field import tornado_with_alias_demo
+
+    demo = tornado_with_alias_demo
+
+    def test_how_to_use_field_with_alias_demo(self) -> None:
+        BaseTestDocExample(self, _TestHelper).how_to_use_field_with_alias_demo(
+            self.tornado_with_alias_demo.DemoHandler.get
+        )
+
+
+class TestDocHowToUseFieldWithNumberVerifyExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction.how_to_use_field import tornado_with_num_check_demo
+
+    demo = tornado_with_num_check_demo
+
+    def test_how_to_use_field_with_number_verify_demo(self) -> None:
+        BaseTestDocExample(self, _TestHelper).how_to_use_field_with_number_verify_demo(self.demo.DemoHandler.get)
+
+
+class TestDocHowToUseFieldWithStrVerifyExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction.how_to_use_field import tornado_with_string_check_demo
+
+    demo = tornado_with_string_check_demo
+
+    def test_how_to_use_field_with_str_verify_demo(self) -> None:
+        BaseTestDocExample(self, _TestHelper).how_to_use_field_with_str_verify_demo(self.demo.DemoHandler.get)
+
+
+class TestDocHowToUseFieldWithRawReturnExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction.how_to_use_field import tornado_with_raw_return_demo
+
+    demo = tornado_with_raw_return_demo
+
+    def test_how_to_use_field_with_raw_return_demo(self) -> None:
+        BaseTestDocExample(self, _TestHelper).how_to_use_field_with_raw_return_demo(self.demo.DemoHandler.post)
+
+
+class TestDocHowToUseFieldWithCustomNotFoundExcExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction.how_to_use_field import tornado_with_not_found_exc_demo
+
+    demo = tornado_with_not_found_exc_demo
+
+    def test_how_to_use_field_with_custom_not_found_exc_demo(self) -> None:
+        BaseTestDocExample(self, _TestHelper).how_to_use_field_with_custom_not_found_exc_demo(self.demo.DemoHandler.get)
+
+
+class TestDocHowToUseTypeWithModelExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction.how_to_use_type import tornado_with_model_demo
+
+    demo = tornado_with_model_demo
+
+    def test_how_to_use_type_with_model_demo(self) -> None:
+        BaseTestDocExample(self, _TestHelper).how_to_use_type_with_type_is_pydantic_basemodel(
+            self.demo.DemoHandler.get, self.demo.Demo1Handler.post
+        )
+
+
+class TestDocHowToUseTypeWithPaitModelExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction.how_to_use_type import tornado_with_pait_model_demo
+
+    demo = tornado_with_pait_model_demo
+
+    def test_how_to_use_type_with_pait_model_demo(self) -> None:
+        BaseTestDocExample(self, _TestHelper).how_to_use_type_with_type_is_pait_basemodel(
+            self.demo.DemoHandler.get, self.demo.Demo1Handler.post
+        )
+
+
+class TestDocHowToUseTypeWithRequestExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction.how_to_use_type import tornado_with_request_demo
+
+    demo = tornado_with_request_demo
+
+    def test_how_to_use_type_with_request_demo(self) -> None:
+        BaseTestDocExample(self, _TestHelper).how_to_use_type_with_type_is_request(self.demo.DemoHandler.get)
+
+
+class TestDocHowToUseTypeWithUnixDatetimeExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction.how_to_use_type import tornado_with_unix_datetime_demo
+
+    demo = tornado_with_unix_datetime_demo
+
+    def test_how_to_use_type_with_unix_datetime_demo(self) -> None:
+        BaseTestDocExample(self, _TestHelper).how_to_use_type_with_type_is_customer(self.demo.DemoHandler.get)
+
+
+class TestDocWithDependExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction.depend import tornado_with_depend_demo
+
+    demo = tornado_with_depend_demo
+
+    def test_depend_with_depend_demo(self) -> None:
+        BaseTestDocExample(self, _TestHelper).with_depend(self.demo.DemoHandler.get)
+
+
+class TestDocWithNestedDependExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction.depend import tornado_with_nested_depend_demo
+
+    demo = tornado_with_nested_depend_demo
+
+    def test_depend_with_nested_depend_demo(self) -> None:
+        BaseTestDocExample(self, _TestHelper).with_nested_depend(self.demo.DemoHandler.get)
+
+
+class TestDocWithContextManagerDependExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction.depend import tornado_with_context_manager_depend_demo
+
+    demo = tornado_with_context_manager_depend_demo
+
+    def test_depend_with_context_manager_depend_demo(self) -> None:
+        BaseTestDocExample(self, _TestHelper).with_context_manager_depend(self.demo.DemoHandler.get)
+
+
+class TestDocTypeWithClassDependExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction.depend import tornado_with_class_depend_demo
+
+    demo = tornado_with_class_depend_demo
+
+    def test_depend_with_class_depend_demo(self) -> None:
+        BaseTestDocExample(self, _TestHelper).with_class_depend(self.demo.DemoHandler.get)
+
+
+class TestDocWithPreDependExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction.depend import tornado_with_pre_depend_demo
+
+    demo = tornado_with_pre_depend_demo
+
+    def test_depend_with_pre_depend_demo(self) -> None:
+        BaseTestDocExample(self, _TestHelper).with_pre_depend(self.demo.DemoHandler.get)
+
+
+class TestDocWithExceptionTipExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction.exception import tornado_with_exception_demo
+
+    demo = tornado_with_exception_demo
+
+    def test_exception_with_exception_tip(self) -> None:
+        BaseTestDocExample(self, _TestHelper).with_exception_tip(self.demo.DemoHandler.get)
+
+
+class TestDocWithNotUseExceptionTipExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction.exception import tornado_with_not_tip_exception_demo
+
+    demo = tornado_with_not_tip_exception_demo
+
+    def test_exception_with_not_use_exception_tip(self) -> None:
+        BaseTestDocExample(self, _TestHelper).with_exception_tip(self.demo.DemoHandler.get)
+
+
+class TestDocOpenApiSecurityWithApiKeyExample(BaseTestTornadoDocExample):
+    from docs_source_code.openapi.security import tornado_with_apikey_demo
+
+    demo = tornado_with_apikey_demo
+
+    def test_openapi_security_with_api_key(self) -> None:
+        BaseTestDocExample(self, _TestHelper).openapi_security_with_api_key(
+            self.demo.APIKeyCookieHandler.get,
+            self.demo.APIKeyHeaderHandler.get,
+            self.demo.APIKeyQueryHandler.get,
+        )
+
+
+class TestDocOpenApiSecurityWithOauth2Example(BaseTestTornadoDocExample):
+    from docs_source_code.openapi.security import tornado_with_oauth2_demo
+
+    demo = tornado_with_oauth2_demo
+
+    def test_openapi_security_with_oauth2(self) -> None:
+        BaseTestDocExample(self, _TestHelper).openapi_security_with_oauth2(
+            self.demo.OAuth2LoginHandler.post,
+            self.demo.OAuth2UserInfoHandler.get,
+            self.demo.OAuth2UserNameHandler.get,
+        )
+
+
+class TestDocPluginWithRequiredPluginExample1(BaseTestTornadoDocExample):
+    from docs_source_code.plugin.param_plugin import tornado_with_required_plugin_demo
+
+    demo = tornado_with_required_plugin_demo
+
+    def test_plugin_with_required_plugin(self) -> None:
+        BaseTestDocExample(self, _TestHelper).plugin_with_required_plugin(self.demo.DemoHandler.get)
+
+
+class TestDocPluginWithRequiredPluginExample2(TestDocPluginWithRequiredPluginExample1):
+    from docs_source_code.plugin.param_plugin import tornado_with_required_plugin_and_extra_param_demo
+
+    demo = tornado_with_required_plugin_and_extra_param_demo
+
+
+class TestDocPluginWithRequiredPluginExample3(TestDocPluginWithRequiredPluginExample1):
+    from docs_source_code.plugin.param_plugin import tornado_with_required_plugin_and_group_extra_param_demo
+
+    demo = tornado_with_required_plugin_and_group_extra_param_demo
+
+
+class TestDocPluginAtMostOfPluginExample1(BaseTestTornadoDocExample):
+    from docs_source_code.plugin.param_plugin import tornado_with_at_most_one_of_plugin_demo
+
+    demo = tornado_with_at_most_one_of_plugin_demo
+
+    def test_plugin_with_at_most_of_plugin(self) -> None:
+        BaseTestDocExample(self, _TestHelper).plugin_with_at_most_one_of_plugin(self.demo.DemoHandler.get)
+
+
+class TestDocPluginAtMostOfPluginExample2(TestDocPluginAtMostOfPluginExample1):
+    from docs_source_code.plugin.param_plugin import tornado_with_at_most_one_of_plugin_demo
+
+    demo = tornado_with_at_most_one_of_plugin_demo
+
+
+class TestDocPluginWithCheckJsonPluginExample(BaseTestTornadoDocExample):
+    from docs_source_code.plugin.json_plugin import tornado_with_check_json_plugin_demo
+
+    demo = tornado_with_check_json_plugin_demo
+
+    def test_plugin_with_check_json_response_plugin(self) -> None:
+        BaseTestDocExample(self, _TestHelper).plugin_with_check_json_response_plugin(self.demo.DemoHandler.get)
+
+
+class TestDocPluginWithAutoCompletePluginExample(BaseTestTornadoDocExample):
+    from docs_source_code.plugin.json_plugin import tornado_with_auto_complete_json_plugin_demo
+
+    demo = tornado_with_auto_complete_json_plugin_demo
+
+    def test_plugin_with_auto_complete_response_plugin(self) -> None:
+        BaseTestDocExample(self, _TestHelper).plugin_with_auto_complete_json_response_plugin(self.demo.DemoHandler.get)
+
+
+class TestDocPluginWithMockPluginExample(BaseTestTornadoDocExample):
+    from docs_source_code.plugin.mock_plugin import tornado_with_mock_plugin_demo
+
+    demo = tornado_with_mock_plugin_demo
+
+    def test_plugin_with_mock_plugin(self) -> None:
+        BaseTestDocExample(self, _TestHelper).plugin_with_mock_plugin(self.demo.DemoHandler.get)
+
+
+class TestDocPluginWithCachePluginExample(BaseTestTornadoDocExample):
+    from docs_source_code.plugin.cache_plugin import tornado_with_cache_plugin_demo
+
+    demo = tornado_with_cache_plugin_demo
+
+    def test_plugin_with_cache_plugin(self) -> None:
+        BaseTestDocExample(self, _TestHelper).plugin_with_cache_plugin(self.demo.DemoHandler.get)

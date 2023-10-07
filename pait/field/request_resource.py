@@ -142,9 +142,9 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         if regex and pattern:
             _check_param_value("regex", "pattern")
         if _pydanitc_adapter.is_v1:
-            extra["const"] = const
-            if pattern:
-                extra["regex"] = pattern
+            kwargs["const"] = const
+            kwargs["regex"] = pattern if pattern else regex
+
             if validation_alias:
                 warnings.warn("Pydantic V1 not support param `validation_alias`")
             if serialization_alias:

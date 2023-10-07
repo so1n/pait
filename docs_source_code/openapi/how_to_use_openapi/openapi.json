@@ -1,0 +1,147 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "AnyApi",
+    "description": "API Documentation",
+    "version": "0.0.1"
+  },
+  "servers": [],
+  "paths": {
+    "/api": {
+      "options": {
+        "tags": [
+          "default"
+        ],
+        "summary": "",
+        "description": "",
+        "operationId": "demo_options",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Demo_Post__Main___Demo_Post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "demo response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseModel"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "pait_info": {
+          "group": "root",
+          "status": "undefined",
+          "author": [
+            ""
+          ],
+          "pait_id": "__main___demo_post"
+        }
+      },
+      "post": {
+        "tags": [
+          "default"
+        ],
+        "summary": "",
+        "description": "",
+        "operationId": "demo_post",
+        "parameters": [],
+        "requestBody": {
+          "description": "",
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Demo_Post__Main___Demo_Post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "demo response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseModel"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "pait_info": {
+          "group": "root",
+          "status": "undefined",
+          "author": [
+            ""
+          ],
+          "pait_id": "__main___demo_post"
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "default",
+      "description": ""
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Demo_Post__Main___Demo_Post": {
+        "title": "Demo_Post__Main___Demo_Post",
+        "type": "object",
+        "properties": {
+          "uid": {
+            "title": "Uid",
+            "description": "user id",
+            "exclusiveMinimum": 10,
+            "exclusiveMaximum": 1000,
+            "type": "integer"
+          },
+          "username": {
+            "title": "Username",
+            "description": "user name",
+            "maxLength": 4,
+            "minLength": 2,
+            "type": "string"
+          }
+        },
+        "required": [
+          "uid",
+          "username"
+        ]
+      },
+      "ResponseModel": {
+        "title": "ResponseModel",
+        "type": "object",
+        "properties": {
+          "uid": {
+            "title": "Uid",
+            "type": "integer"
+          },
+          "user_name": {
+            "title": "User Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uid",
+          "user_name"
+        ]
+      }
+    }
+  }
+}

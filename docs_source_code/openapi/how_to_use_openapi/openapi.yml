@@ -1,0 +1,101 @@
+components:
+  schemas:
+    Demo_Post__Main___Demo_Post:
+      properties:
+        uid:
+          description: user id
+          exclusiveMaximum: 1000
+          exclusiveMinimum: 10
+          title: Uid
+          type: integer
+        username:
+          description: user name
+          maxLength: 4
+          minLength: 2
+          title: Username
+          type: string
+      required:
+      - uid
+      - username
+      title: Demo_Post__Main___Demo_Post
+      type: object
+    ResponseModel:
+      properties:
+        uid:
+          title: Uid
+          type: integer
+        user_name:
+          title: User Name
+          type: string
+      required:
+      - uid
+      - user_name
+      title: ResponseModel
+      type: object
+info:
+  description: API Documentation
+  title: AnyApi
+  version: 0.0.1
+openapi: 3.0.0
+paths:
+  /api:
+    options:
+      deprecated: false
+      description: ''
+      operationId: demo_options
+      pait_info:
+        author:
+        - ''
+        group: root
+        pait_id: __main___demo_post
+        status: undefined
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Demo_Post__Main___Demo_Post'
+        description: ''
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseModel'
+          description: demo response
+      summary: ''
+      tags:
+      - default
+    post:
+      deprecated: false
+      description: ''
+      operationId: demo_post
+      pait_info:
+        author:
+        - ''
+        group: root
+        pait_id: __main___demo_post
+        status: undefined
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Demo_Post__Main___Demo_Post'
+        description: ''
+        required: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseModel'
+          description: demo response
+      summary: ''
+      tags:
+      - default
+servers: []
+tags:
+- description: ''
+  name: default
