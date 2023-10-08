@@ -1,3 +1,4 @@
+import datetime
 from typing import TYPE_CHECKING, Any, Callable, Type
 
 from redis import Redis  # type: ignore
@@ -224,7 +225,7 @@ class BaseTestDocExample(object):
 
     def how_to_use_type_with_type_is_customer(self, route: Callable) -> None:
         assert self.test_helper(self.client, route, query_dict={"timestamp": "1600000000"}).json(method="GET") == {
-            "time": "2020-09-13T20:26:40"
+            "time": datetime.datetime.fromtimestamp(1600000000).isoformat()
         }
 
     def with_depend(self, route: Callable) -> None:
