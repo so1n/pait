@@ -301,6 +301,12 @@ class TestDocExample:
         with client_ctx(app=sanic_demo.app) as client:
             BaseTestDocExample(client, _TestHelper).hello_world_demo(sanic_demo.demo_post)
 
+    def test_pait_hello_world_demo(self) -> None:
+        from docs_source_code.introduction import sanic_pait_hello_world_demo
+
+        with client_ctx(app=sanic_pait_hello_world_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).hello_world_demo(sanic_pait_hello_world_demo.demo_post)
+
     def test_how_to_use_field_demo(self) -> None:
         from docs_source_code.introduction.how_to_use_field import sanic_demo
 

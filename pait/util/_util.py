@@ -263,7 +263,7 @@ def gen_example_dict_from_pydantic_base_model(
         else:
             real_key = key
         if example_column_name:
-            example_value: Any = _pydanitc_adapter.get_field_extra(field_info).get(
+            example_value: Any = _pydanitc_adapter.get_field_extra_dict(field_info).get(
                 example_column_name, _pydanitc_adapter.PydanticUndefined
             )
             if example_value is not _pydanitc_adapter.PydanticUndefined:

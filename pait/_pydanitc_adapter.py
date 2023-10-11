@@ -1,4 +1,4 @@
-from typing import Type, TypeVar
+from typing import Callable, Optional, Type, TypeVar, Union
 
 from any_api.util import pydantic_adapter as _any_api_pydantic_adapter
 from pydantic import BaseModel
@@ -9,8 +9,11 @@ __all__ = [
     "is_v1",
     "ConfigDict",
     "PaitModelField",
-    "get_field_extra",
     "get_field_info",
+    "get_extra_dict_by_field_info",
+    "get_extra_by_field_info",
+    "get_field_extra_dict",
+    "get_field_extra",
     "model_fields",
     "model_validator",
     "model_json_schema",
@@ -25,6 +28,8 @@ model_json_schema = _any_api_pydantic_adapter.model_json_schema
 get_field_info = _any_api_pydantic_adapter.get_field_info
 model_validator = _any_api_pydantic_adapter.model_validator
 model_dump = _any_api_pydantic_adapter.model_dump
+get_extra_dict_by_field_info = _any_api_pydantic_adapter.get_extra_dict_by_field_info
+get_extra_by_field_info = _any_api_pydantic_adapter.get_extra_by_field_info
 
 
 if _any_api_pydantic_adapter.is_v1:
@@ -70,7 +75,7 @@ if _any_api_pydantic_adapter.is_v1:
                 raise ValidationError([e], self.base_model)
             return ok_value
 
-    def get_field_extra(field: FieldInfo) -> dict:
+    def get_field_extra(field: FieldInfo) -> Union[Callable, dict]:
         return field.extra
 
 else:
@@ -134,5 +139,16 @@ else:
                     ),
                 )
 
-    def get_field_extra(field: FieldInfo) -> dict:
+    def get_field_extra(field: FieldInfo) -> Union[Callable, dict]:
         return field.json_schema_extra or {}
+
+
+def get_field_extra_dict(field: FieldInfo, json_schema_extra_dict: Optional[dict] = None) -> dict:
+    json_schema_extra = get_field_extra(field)
+    if callable(json_schema_extra):
+        if not json_schema_extra_dict:
+            json_schema_extra_dict = {}
+        json_schema_extra(json_schema_extra_dict)
+    else:
+        json_schema_extra_dict = json_schema_extra
+    return json_schema_extra_dict

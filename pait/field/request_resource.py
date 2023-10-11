@@ -2,7 +2,7 @@ import copy
 import inspect
 import warnings
 from dataclasses import MISSING
-from typing import TYPE_CHECKING, Any, Callable, List, Mapping, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Mapping, Optional, TypeVar, Union
 
 from pydantic.fields import FieldInfo
 from typing_extensions import deprecated  # type: ignore[attr-defined]
@@ -65,6 +65,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         pattern: Optional[str] = None,
         validation_alias: Optional[str] = None,
         serialization_alias: Optional[str] = None,
+        json_schema_extra: Union[Dict[str, Any], Callable[[Dict[str, Any]], None], None] = None,
         **extra: Any,
     ):
         """
@@ -86,17 +87,17 @@ class BaseRequestResourceField(BaseField, FieldInfo):
             raise ValueError(
                 "cannot set not_value_exception_func when the parameter default or `default_factory` is not empty."
             )
-
         # Reduce runtime judgments by preloading
         if default is not PydanticUndefined:
             self.request_value_handle = self.request_value_handle_by_default  # type: ignore
         elif default_factory is not None:
             self.request_value_handle = self.request_value_handle_by_default_factory  # type: ignore
 
+        pait_extra_param = {}
         if getattr(example, "__class__", None) is not MISSING.__class__:
-            extra["example"] = example
+            pait_extra_param["example"] = example
         if links:
-            extra["links"] = links
+            pait_extra_param["links"] = links
 
         #######################################################
         # These parameters will not be used in pydantic.Field #
@@ -142,6 +143,8 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         if regex and pattern:
             _check_param_value("regex", "pattern")
         if _pydanitc_adapter.is_v1:
+            if json_schema_extra:
+                raise ValueError("Pydantic v1 not support `json_schema_extra`")
             kwargs["const"] = const
             kwargs["regex"] = pattern if pattern else regex
 
@@ -149,6 +152,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
                 warnings.warn("Pydantic V1 not support param `validation_alias`")
             if serialization_alias:
                 warnings.warn("Pydantic V1 not support param `serialization_alias`")
+            extra.update(pait_extra_param)
         else:
             if regex:
                 kwargs["pattern"] = regex
@@ -166,8 +170,27 @@ class BaseRequestResourceField(BaseField, FieldInfo):
             kwargs["validation_alias"] = validation_alias or alias
             kwargs["serialization_alias"] = serialization_alias or alias
 
-            extra = {"json_schema_extra": copy.deepcopy(extra)}
-
+            # I don't want to write such complex code(T_T)
+            # support pydantic version (2.0.x, 2.1.x, 2.2.x+)
+            if json_schema_extra:
+                if callable(json_schema_extra):
+                    if extra:
+                        raise ValueError("If the value of `json_schema_extra` is callable, then `extra` must be empty")
+                    if pait_extra_param:
+                        pait_extra_param_name = ",".join(list(pait_extra_param.keys()))
+                        raise ValueError(
+                            f"If the value of `json_schema_extra` is callable,"
+                            f" then {pait_extra_param_name}  must be empty"
+                        )
+                    kwargs["json_schema_extra"] = json_schema_extra
+                else:
+                    kwargs["json_schema_extra"] = {}
+                    if pait_extra_param:
+                        kwargs["json_schema_extra"].update(pait_extra_param)
+                    kwargs["json_schema_extra"].update(json_schema_extra)
+            else:
+                extra.update(pait_extra_param)
+                kwargs["json_schema_extra"] = copy.deepcopy(extra)
         if extra:
             kwargs.update(extra)
         super().__init__(**kwargs)
@@ -202,7 +225,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
 
     @property
     def links(self) -> "Optional[LinksModel]":
-        return _pydanitc_adapter.get_field_extra(self).get("links", None)
+        return _pydanitc_adapter.get_field_extra_dict(self).get("links", None)
 
     @classmethod
     def get_field_name(cls) -> str:
@@ -240,6 +263,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         regex: Annotated[Optional[str], _regex_deprecated] = None,
         pattern: Optional[str] = None,
         extra_param_list: Optional[List[ExtraParam]] = None,
+        json_schema_extra: Union[Dict[str, Any], Callable[[Dict[str, Any]], None], None] = None,
         **extra: Any,
     ) -> Any:
         """ignore mypy tip"""
@@ -269,6 +293,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
             regex=regex,
             pattern=pattern,
             extra_param_list=extra_param_list,
+            json_schema_extra=json_schema_extra,
             **extra,
         )
 
@@ -307,6 +332,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         ] = None,
         pattern: Optional[str] = None,
         extra_param_list: Optional[List[ExtraParam]] = None,
+        json_schema_extra: Union[Dict[str, Any], Callable[[Dict[str, Any]], None], None] = None,
         **extra: Any,
     ) -> _T:
         """Limited type hint support"""
@@ -336,13 +362,14 @@ class BaseRequestResourceField(BaseField, FieldInfo):
             regex=regex,
             pattern=pattern,
             extra_param_list=extra_param_list,
+            json_schema_extra=json_schema_extra,
             **extra,
         )
 
     @classmethod
     def from_pydantic_field(cls, field: FieldInfo) -> "BaseRequestResourceField":
         """use replace pydantic property field"""
-        extra_dict = _pydanitc_adapter.get_field_extra(field)
+        extra_dict = _pydanitc_adapter.get_field_extra_dict(field)
         extra_dict["extra_param_list"] = extra_dict.pop("extra_param_list", None)
         if _pydanitc_adapter.is_v1:
             for key in [

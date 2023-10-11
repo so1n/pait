@@ -327,6 +327,12 @@ class TestDocExample:
         with client_ctx(app=starlette_demo.app) as client:
             BaseTestDocExample(client, _TestHelper).hello_world_demo(starlette_demo.demo_post)
 
+    def test_pait_hello_world_demo(self) -> None:
+        from docs_source_code.introduction import starlette_pait_hello_world_demo
+
+        with client_ctx(app=starlette_pait_hello_world_demo.app) as client:
+            BaseTestDocExample(client, _TestHelper).hello_world_demo(starlette_pait_hello_world_demo.demo_post)
+
     def test_how_to_use_field_demo(self) -> None:
         from docs_source_code.introduction.how_to_use_field import starlette_demo
 
