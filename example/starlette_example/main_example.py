@@ -72,6 +72,7 @@ from example.starlette_example.security_route import (
     oauth2_user_name,
 )
 from example.starlette_example.utils import api_exception, global_pait
+from pait import _pydanitc_adapter
 from pait.app.starlette import Pait, load_app, pait
 from pait.app.starlette.plugin.cache_response import CacheResponsePlugin
 from pait.exceptions import PaitBaseException
@@ -195,19 +196,36 @@ def login_route(
     )
 
 
-@link_pait(response_model_list=[SuccessRespModel])
-def get_user_route(
-    token: str = Header.i(
-        "",
-        description="token",
-        links=link_login_token_model,
-        example=TemplateVar("token"),
-    )
-) -> JSONResponse:
-    if token:
-        return JSONResponse({"code": 0, "msg": ""})
-    else:
-        return JSONResponse({"code": 1, "msg": ""})
+if _pydanitc_adapter.is_v1:
+
+    @link_pait(response_model_list=[SuccessRespModel])
+    def get_user_route(
+        token: str = Header.i(
+            "",
+            description="token",
+            links=link_login_token_model,
+            example=TemplateVar("token"),
+        )
+    ) -> JSONResponse:
+        if token:
+            return JSONResponse({"code": 0, "msg": ""})
+        else:
+            return JSONResponse({"code": 1, "msg": ""})
+
+else:
+
+    @link_pait(response_model_list=[SuccessRespModel])
+    def get_user_route(
+        token: str = Header.i(
+            "",
+            description="token",
+            json_schema_extra=lambda v: v.update(links=link_login_token_model, example=TemplateVar("token")),
+        )
+    ) -> JSONResponse:
+        if token:
+            return JSONResponse({"code": 0, "msg": ""})
+        else:
+            return JSONResponse({"code": 1, "msg": ""})
 
 
 async def not_pait_route(user_name: str = Query.i()) -> PlainTextResponse:

@@ -341,6 +341,15 @@ class TestDocHelloWorldExample(BaseTestTornadoDocExample):
         BaseTestDocExample(self, _TestHelper).hello_world_demo(self.demo.DemoHandler.post)
 
 
+class TestDocPaitHelloWorldExample(BaseTestTornadoDocExample):
+    from docs_source_code.introduction import tornado_pait_hello_world_demo
+
+    demo = tornado_pait_hello_world_demo
+
+    def test_hello_world_demo(self) -> None:
+        BaseTestDocExample(self, _TestHelper).hello_world_demo(self.demo.DemoHandler.post)
+
+
 class TestDocHowToUseFieldExample(BaseTestTornadoDocExample):
     from docs_source_code.introduction.how_to_use_field import tornado_demo
 

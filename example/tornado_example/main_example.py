@@ -64,6 +64,7 @@ from example.tornado_example.security_route import (
     UserNameByHttpDigestHandler,
 )
 from example.tornado_example.utils import MyHandler, global_pait
+from pait import _pydanitc_adapter
 from pait.app.tornado import Pait, load_app, pait
 from pait.app.tornado.plugin.cache_response import CacheResponsePlugin
 from pait.field import Header, Json, Query
@@ -191,20 +192,38 @@ class LoginHandler(MyHandler):
 
 
 class GetUserHandler(MyHandler):
-    @link_pait(response_model_list=[SuccessRespModel])
-    def get(
-        self,
-        token: str = Header.i(
-            "",
-            description="token",
-            links=link_login_token_model,
-            example=TemplateVar("token"),
-        ),
-    ) -> None:
-        if token:
-            self.write({"code": 0, "msg": ""})
-        else:
-            self.write({"code": 1, "msg": ""})
+    if _pydanitc_adapter.is_v1:
+
+        @link_pait(response_model_list=[SuccessRespModel])
+        def get(
+            self,
+            token: str = Header.i(
+                "",
+                description="token",
+                links=link_login_token_model,
+                example=TemplateVar("token"),
+            ),
+        ) -> None:
+            if token:
+                self.write({"code": 0, "msg": ""})
+            else:
+                self.write({"code": 1, "msg": ""})
+
+    else:
+
+        @link_pait(response_model_list=[SuccessRespModel])
+        def get(
+            self,
+            token: str = Header.i(
+                "",
+                description="token",
+                json_schema_extra=lambda v: v.update(links=link_login_token_model, example=TemplateVar("token")),
+            ),
+        ) -> None:
+            if token:
+                self.write({"code": 0, "msg": ""})
+            else:
+                self.write({"code": 1, "msg": ""})
 
 
 def add_api_doc_route(app: Application) -> None:

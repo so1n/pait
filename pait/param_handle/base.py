@@ -6,7 +6,6 @@ from pydantic import BaseModel, Field
 from typing_extensions import Self  # type: ignore
 
 from pait import _pydanitc_adapter, field
-from pait._pydanitc_adapter import PydanticUndefined, PydanticUndefinedType, get_field_extra
 from pait.exceptions import (
     FieldValueTypeException,
     NotFoundFieldException,
@@ -128,7 +127,12 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
             try:
                 check_list: List[Tuple[str, Any]] = [
                     ("default", parameter.default.default),
-                    ("example", get_field_extra(parameter.default).get("example", PydanticUndefined)),
+                    (
+                        "example",
+                        _pydanitc_adapter.get_field_extra_dict(parameter.default).get(
+                            "example", _pydanitc_adapter.PydanticUndefined
+                        ),
+                    ),
                 ]
                 if parameter.default.default_factory:
                     check_list.append(("default_factory", parameter.default.default_factory()))
@@ -137,7 +141,7 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
                         value = value()
                     if value is ...:
                         continue
-                    if isinstance(value, PydanticUndefinedType):
+                    if isinstance(value, _pydanitc_adapter.PydanticUndefinedType):
                         continue
                     if inspect.isclass(parameter.annotation) and isinstance(value, parameter.annotation):
                         continue
