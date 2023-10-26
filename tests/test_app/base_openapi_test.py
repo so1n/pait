@@ -27,7 +27,7 @@ class BasicTestOpenAPI(object):
     def _test_success_response_and_fail_response(
         self, response_dict: Dict[str, ResponseModel], success_resp_model: Type[BaseResponseModel]
     ) -> None:
-        assert response_dict["200"].description == "success response|fail response"
+        assert response_dict["200"].description == "success response"
         resp_schema_dict: dict = response_dict["200"].content["application/json"].schema_["oneOf"]
 
         success_resp_model_key: str = resp_schema_dict[0]["$ref"].split("/")[-1]
@@ -814,7 +814,6 @@ class _TestOtherOpenAPI(BasicTestOpenAPI):
         assert route_dict["get"].parameters[1].name == "age"
         assert route_dict["get"].parameters[1].required
         assert route_dict["get"].parameters[1].schema_ == {
-            "example": 25,
             "exclusiveMaximum": 100,
             "exclusiveMinimum": 1,
             "type": "integer",

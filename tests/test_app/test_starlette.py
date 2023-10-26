@@ -184,7 +184,7 @@ class TestStarlette:
         assert (
             json.loads(client.get("/openapi.json?pin-code=6666&template-token=xxx").text)["paths"]["/api/user"]["get"][
                 "parameters"
-            ][0]["schema"]["example"]
+            ][0]["example"]
             == "xxx"
         )
         assert (

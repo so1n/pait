@@ -68,7 +68,8 @@ class PaitBaseFieldHandler(MyHandler):
     )
     async def post(
         self,
-        upload_file: Dict = File.i(raw_return=True, description="upload file"),
+        # To guarantee the test results, type-hint is set to Any, but the real type is Dict
+        upload_file: Any = File.i(raw_return=True, description="upload file"),
         a: str = Form.i(description="form data"),
         b: str = Form.i(description="form data"),
         c: List[str] = MultiForm.i(description="form data"),

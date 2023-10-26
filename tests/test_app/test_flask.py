@@ -150,7 +150,7 @@ class TestFlask:
             assert (
                 json.loads(client.get("/openapi.json?pin-code=6666&template-token=xxx").get_data().decode())["paths"][
                     "/api/user"
-                ]["get"]["parameters"][0]["schema"]["example"]
+                ]["get"]["parameters"][0]["example"]
                 == "xxx"
             )
             assert (

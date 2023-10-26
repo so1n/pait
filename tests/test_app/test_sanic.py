@@ -148,7 +148,7 @@ class TestSanic:
             assert (
                 json.loads(client.get("/openapi.json?pin-code=6666&template-token=xxx")[1].text)["paths"]["/api/user"][
                     "get"
-                ]["parameters"][0]["schema"]["example"]
+                ]["parameters"][0]["example"]
                 == "xxx"
             )
             assert (

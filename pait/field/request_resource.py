@@ -456,7 +456,7 @@ class Header(BaseRequestResourceField):
 
 class Path(BaseRequestResourceField):
     def _check_init_param(self, **kwargs: Any) -> None:
-        if not (self.default is PydanticUndefined and self.default_factory is None):
+        if not (kwargs["default"] is PydanticUndefined and kwargs["default_factory"] is None):
             raise ValueError("The parameter of Path is required and does not support default values")
 
 
