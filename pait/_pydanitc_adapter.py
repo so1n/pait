@@ -27,6 +27,7 @@ VERSION = _any_api_pydantic_adapter.VERSION
 model_json_schema = _any_api_pydantic_adapter.model_json_schema
 get_field_info = _any_api_pydantic_adapter.get_field_info
 model_validator = _any_api_pydantic_adapter.model_validator
+field_validator = _any_api_pydantic_adapter.field_validator
 model_dump = _any_api_pydantic_adapter.model_dump
 get_extra_dict_by_field_info = _any_api_pydantic_adapter.get_extra_dict_by_field_info
 get_extra_by_field_info = _any_api_pydantic_adapter.get_extra_by_field_info

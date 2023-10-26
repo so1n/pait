@@ -193,7 +193,11 @@ class BaseRequestResourceField(BaseField, FieldInfo):
                 kwargs["json_schema_extra"] = copy.deepcopy(extra)
         if extra:
             kwargs.update(extra)
+        self._check_init_param(**kwargs)
         super().__init__(**kwargs)
+
+    def _check_init_param(self, **kwargs: Any) -> None:
+        pass
 
     @property
     def request_key(self) -> str:
@@ -451,7 +455,9 @@ class Header(BaseRequestResourceField):
 
 
 class Path(BaseRequestResourceField):
-    pass
+    def _check_init_param(self, **kwargs: Any) -> None:
+        if not (self.default is PydanticUndefined and self.default_factory is None):
+            raise ValueError("The parameter of Path is required and does not support default values")
 
 
 class Query(BaseRequestResourceField):
