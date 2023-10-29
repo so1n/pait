@@ -1,5 +1,5 @@
 from json import JSONEncoder
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set, Tuple, Type
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Type
 
 from pait.model.response import BaseResponseModel
 from pait.model.status import PaitStatus
@@ -26,7 +26,6 @@ class Config(object):
     def __init__(self) -> None:
         self.author: Tuple[str, ...] = ("",)
         self.status: PaitStatus = PaitStatus.undefined
-        self.block_http_method_set: Set[str] = set()
         self.default_response_model_list: List[Type[BaseResponseModel]] = []
         self.json_encoder: Type[JSONEncoder] = CustomJSONEncoder
         self.tag_dict: Dict[str, str] = {}
@@ -77,3 +76,11 @@ class Config(object):
     def initialized(self) -> bool:
         """Judge whether it has been initialized, it can only be initialized once per run"""
         return self.__initialized
+
+    @property
+    def json_type_default_value_dict(self) -> Dict[str, Any]:
+        return pait_json_type_default_value_dict
+
+    @property
+    def python_type_default_value_dict(self) -> Dict:
+        return pait_python_type_default_value_dict

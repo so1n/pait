@@ -10,6 +10,7 @@ from any_api.openapi import SecurityModelType, ServerModel, TagModel, openapi_mo
 from any_api.openapi.model.links import LinksModel
 from any_api.openapi.model.openapi import OpenAPIModel
 from any_api.openapi.model.requests import RequestModel
+from any_api.util.pydantic_adapter import create_pydantic_model
 from pydantic import BaseModel, Field
 from pydantic.fields import FieldInfo
 
@@ -21,7 +22,7 @@ from pait.g import config
 from pait.model.core import PaitCoreModel
 from pait.param_handle.util import get_parameter_list_from_class
 from pait.types import CallType
-from pait.util import FuncSig, create_pydantic_model, get_func_sig
+from pait.util import FuncSig, get_func_sig
 
 HttpParamTypeDictType = Dict[HttpParamTypeLiteral, List[RequestModel]]
 

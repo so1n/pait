@@ -8,7 +8,7 @@ from ._util import get_real_annotation
 
 __all__ = ["FuncSig", "get_func_sig", "is_bounded_func", "get_pait_handler"]
 
-from ..types import CallType
+from pait.types import CallType
 
 
 @dataclass()
@@ -48,8 +48,13 @@ def get_func_sig(func: CallType, cache_sig: bool = True) -> FuncSig:
     param_list: List[inspect.Parameter] = []
     for key in sig.parameters:
         # NOTE:
-        #   The cbv func decorated in Pait is unbound, so it can get to self；
-        #   Depend func must be bound func when it is used, so it cannot get self；
+        #   class Demo(object):
+        #       @pait()
+        #       def demo(self) -> None:
+        #           pass
+        #
+        #   When the Pait decorator is initialized, the function is unbound, so it can get to self；
+        #   The decorated func is bound at runtime, so it cannot get self；
         if not (sig.parameters[key].annotation != sig.empty or sig.parameters[key].name == "self"):
             if sig.parameters[key].annotation != Self:
                 # If the name of the self variable is not self and the annotation is not Self,
@@ -71,4 +76,5 @@ def get_func_sig(func: CallType, cache_sig: bool = True) -> FuncSig:
 
 
 def is_bounded_func(func: Callable) -> bool:
-    return inspect.signature(func).parameters.get("self", None) is None
+    return hasattr(func, "__self__")
+    # return inspect.signature(func).parameters.get("self", None) is None

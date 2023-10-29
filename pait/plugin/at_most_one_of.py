@@ -35,6 +35,7 @@ class AtMostOneOfPlugin(PostPluginProtocol):
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         kwargs = super().pre_load_hook(pait_core_model, kwargs)
         fun_sig: FuncSig = get_func_sig(pait_core_model.func)
+
         at_most_one_of_dict: Dict[str, List[str]] = {}
         for param in fun_sig.param_list:
             default: Any = param.default
@@ -47,6 +48,13 @@ class AtMostOneOfPlugin(PostPluginProtocol):
                 at_most_one_of_dict[extra_param.group].append(default.alias or param.name)
         for _, v in at_most_one_of_dict.items():
             kwargs["at_most_one_of_list"].append(v)
+
+        func_param_name_set = {k.name for k in fun_sig.param_list}
+        for param_name_list in kwargs.get("at_most_one_of_list") or []:
+            for param_name in param_name_list:
+                if param_name not in func_param_name_set:
+                    raise ValueError(f"param_name:{param_name} not in {func_param_name_set}")
+
         return kwargs
 
     @classmethod

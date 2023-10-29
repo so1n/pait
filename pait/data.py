@@ -57,7 +57,6 @@ class PaitData(object):
         overwrite_already_exists_data: bool = False,
     ) -> Optional["PaitCoreModel"]:
         """Route handle information supplemented by load_app
-        Note: 返回的是一个PaitCordModel的代理类，不是PaitCordModel本身，所以不要直接修改返回的对象
         Note:
             The return is a proxy class of a PaitCordModel, not the PaitCordModel itself,
             so do not modify the returned object directly.

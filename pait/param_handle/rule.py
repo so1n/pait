@@ -64,7 +64,7 @@ def flask_validate_request_value(
 
 
 def validate_request_value(
-    parameter: inspect.Parameter, request_value: Mapping, pait_model_field: _pydanitc_adapter.PaitModelField
+    parameter: inspect.Parameter, request_value: Any, pait_model_field: _pydanitc_adapter.PaitModelField
 ) -> Any:
     annotation: Type[BaseModel] = parameter.annotation
 

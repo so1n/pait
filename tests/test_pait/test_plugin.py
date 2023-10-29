@@ -1,6 +1,4 @@
-import datetime
-import traceback
-from typing import Callable, Generator, List
+from typing import Callable, Generator
 
 import pytest
 from flask import Flask
@@ -11,15 +9,17 @@ from redis import Redis  # type: ignore
 from example.flask_example import main_example
 from pait import field
 from pait.app.base.app_helper import BaseAppHelper
+from pait.exceptions import CheckValueError
 from pait.model import response
+from pait.model.context import PluginContext
 from pait.model.core import PaitCoreModel
 from pait.param_handle import ParamHandler
-from pait.plugin import PluginManager
+from pait.plugin.at_most_one_of import AtMostOneOfExtraParam, AtMostOneOfPlugin
 from pait.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
-from pait.plugin.base import PostPluginProtocol, PrePluginProtocol
-from pait.plugin.cache_response import CacheResponsePlugin
+from pait.plugin.cache_response import CacheRespExtraParam, CacheResponsePlugin
 from pait.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.plugin.mock_response import MockPluginProtocol
+from pait.plugin.required import RequiredExtraParam, RequiredGroupExtraParam, RequiredPlugin
 from pait.util import get_pait_response_model
 
 
@@ -36,81 +36,92 @@ def client() -> Generator[FlaskClient, None, None]:
     ctx.pop()
 
 
-class TestPlugin:
-    def test_add_plugin(self) -> None:
-        class NotPrePlugin(PostPluginProtocol):
+class TestAtMostOneOfPlugin:
+    def test_pre_load_with_init_param(self) -> None:
+        def demo1() -> None:
             pass
 
-        class PrePlugin(PrePluginProtocol):
-            pass
-
-        def demo() -> None:
-            pass
-
-        core_model: PaitCoreModel = PaitCoreModel(
-            demo,
+        demo_core_model_1 = PaitCoreModel(
+            demo1,
             BaseAppHelper,
             ParamHandler,
         )
 
-        raw_plugin_list: List[PluginManager] = core_model._plugin_list
-        raw_post_plugin_list: List[PluginManager] = core_model._post_plugin_list
+        with pytest.raises(ValueError):
+            AtMostOneOfPlugin.pre_load_hook(demo_core_model_1, {"at_most_one_of_list": [["a", "b"]]})
 
-        try:
-            core_model.add_plugin([PluginManager(NotPrePlugin)], [PluginManager(NotPrePlugin)])  # type: ignore
-        except Exception:
-            assert "is post plugin" in traceback.format_exc()
-        else:
-            raise RuntimeError("Test Fail")
-
-        try:
-            core_model.add_plugin([PluginManager(PrePlugin)], [PluginManager(PrePlugin)])  # type: ignore
-        except Exception:
-            assert "is pre plugin" in traceback.format_exc()
-        else:
-            raise RuntimeError("Test Fail")
-
-        assert core_model._plugin_list == raw_plugin_list
-        assert core_model._post_plugin_list == raw_post_plugin_list
-
-
-class TestJsonPlugin:
-    def test_param(self) -> None:
-        def demo() -> None:
+        def demo2(
+            a: int = field.Query.i(),
+            b: int = field.Query.i(),
+        ) -> None:
             pass
 
-        with pytest.raises(RuntimeError) as e:
-            CheckJsonRespPlugin.pre_check_hook(
-                PaitCoreModel(
-                    demo,
-                    BaseAppHelper,
-                    ParamHandler,
-                ),
-                {"check_resp_fn": ""},
-            )
+        demo_core_model_2 = PaitCoreModel(
+            demo2,
+            BaseAppHelper,
+            ParamHandler,
+        )
+        AtMostOneOfPlugin.pre_load_hook(demo_core_model_2, {"at_most_one_of_list": [["a", "b"]]})
 
-        exec_msg: str = e.value.args[0]
-        assert "Please use response_model_list param" in exec_msg
-
-    def test_response_model_is_not_json_resp(self) -> None:
-        class DemoCoreTestResponseModel(response.TextResponseModel):
-            is_core = True
-
-        def demo() -> None:
+    def test_pre_load_with_extra_param(self) -> None:
+        def demo(
+            a: int = field.Query.i(extra_param_list=[AtMostOneOfExtraParam(group="a")]),
+            a1: int = field.Query.i(extra_param_list=[AtMostOneOfExtraParam(group="a")]),
+            b: int = field.Query.i(extra_param_list=[AtMostOneOfExtraParam(group="b")]),
+            b1: int = field.Query.i(extra_param_list=[AtMostOneOfExtraParam(group="b")]),
+        ) -> None:
             pass
 
-        with pytest.raises(ValueError) as e:
-            CheckJsonRespPlugin.pre_load_hook(
-                PaitCoreModel(demo, BaseAppHelper, ParamHandler, response_model_list=[DemoCoreTestResponseModel]),
-                {"get_pait_response_model": get_pait_response_model},
-            )
+        demo_core_model = PaitCoreModel(
+            demo,
+            BaseAppHelper,
+            ParamHandler,
+        )
+        kwargs_dict: dict = {"at_most_one_of_list": []}
+        AtMostOneOfPlugin.pre_load_hook(demo_core_model, kwargs=kwargs_dict)
+        assert kwargs_dict == {"at_most_one_of_list": [["a", "a1"], ["b", "b1"]]}
 
-        exec_msg: str = e.value.args[0]
-        assert "pait_response_model must " in exec_msg
+    def test_check_param(self) -> None:
+        def demo(
+            a: int = field.Query.i(extra_param_list=[AtMostOneOfExtraParam(group="a")]),
+            a1: int = field.Query.i(extra_param_list=[AtMostOneOfExtraParam(group="a")]),
+            b: int = field.Query.i(extra_param_list=[AtMostOneOfExtraParam(group="b")]),
+            b1: int = field.Query.i(extra_param_list=[AtMostOneOfExtraParam(group="b")]),
+        ) -> None:
+            pass
+
+        class FakePluginCoreModel:
+            func = demo
+
+        plugin = AtMostOneOfPlugin(
+            lambda *args, **kwargs: None,
+            FakePluginCoreModel(),  # type: ignore
+            at_most_one_of_list=[["a", "a1"], ["b", "b1"]],
+        )
+        plugin.check_param(
+            PluginContext(
+                cbv_instance=None,
+                app_helper=BaseAppHelper,  # type: ignore
+                pait_core_model=FakePluginCoreModel(),  # type: ignore
+                args=[],
+                kwargs={"a": 1, "b": 1},
+            )
+        )
+
+        with pytest.raises(CheckValueError):
+            plugin.check_param(
+                PluginContext(
+                    cbv_instance=None,
+                    app_helper=BaseAppHelper,  # type: ignore
+                    pait_core_model=FakePluginCoreModel(),  # type: ignore
+                    args=[],
+                    kwargs={"a": 1, "a1": 1},
+                )
+            )
 
 
 class TestAutoCompleteJsonPlugin:
-    def test_param(self) -> None:
+    def test_pre_check(self) -> None:
         def demo() -> None:
             pass
 
@@ -161,6 +172,126 @@ class TestAutoCompleteJsonPlugin:
         }
 
 
+class TestCacheResponsePlugin:
+    def test_not_set_response_model(self) -> None:
+        def demo() -> None:
+            pass
+
+        with pytest.raises(RuntimeError) as e:
+            CacheResponsePlugin.build(redis=Redis()).pre_check_hook(
+                PaitCoreModel(
+                    demo,
+                    BaseAppHelper,
+                    ParamHandler,
+                ),
+            )
+
+        exec_msg = e.value.args[0]
+        assert "can not found response model" in exec_msg
+
+    def test_set_error_response_model(self) -> None:
+        def demo() -> None:
+            pass
+
+        with pytest.raises(RuntimeError) as e:
+            CacheResponsePlugin.build(redis=Redis()).pre_check_hook(
+                PaitCoreModel(demo, BaseAppHelper, ParamHandler, response_model_list=[response.FileResponseModel]),
+            )
+
+        exec_msg = e.value.args[0]
+        assert f"Not use {CacheResponsePlugin.__name__} in " in exec_msg
+
+    def test_set_error_redis(self) -> None:
+        def demo() -> None:
+            pass
+
+        with pytest.raises(ValueError) as e:
+            CacheResponsePlugin.build(redis=Redis(decode_responses=False)).pre_check_hook(
+                PaitCoreModel(
+                    demo,
+                    BaseAppHelper,
+                    ParamHandler,
+                    response_model_list=[response.JsonResponseModel, response.TextResponseModel],
+                ),
+            )
+        exec_msg = e.value.args[0]
+        assert "Please set redis`s param:decode_responses to True" in exec_msg
+
+    def test_cache_name_param_set_gen(self) -> None:
+        def demo(
+            a: int = field.Query.i(extra_param_list=[CacheRespExtraParam()]),
+            b: int = field.Query.i(extra_param_list=[CacheRespExtraParam()]),
+            c: int = field.Query.i(),
+        ) -> None:
+            pass
+
+        CacheResponsePluginManager = CacheResponsePlugin.build(redis=Redis(decode_responses=True))
+
+        CacheResponsePluginManager.pre_load_hook(
+            PaitCoreModel(
+                demo,
+                BaseAppHelper,
+                ParamHandler,
+                response_model_list=[response.JsonResponseModel, response.TextResponseModel],
+            ),
+        )
+        assert CacheResponsePluginManager._kwargs["_cache_name_param_set"] == {"a", "b"}
+
+    #
+    # def test_not_found_redis(self) -> None:
+    #     def demo() -> None:
+    #         pass
+    #     with pytest.raises(ValueError) as e:
+    #         CacheResponsePlugin(
+    #             next_plugin=lambda : None,
+    #             pait_core_model=PaitCoreModel(
+    #                 demo,
+    #                 BaseAppHelper,
+    #                 ParamHandler,
+    #             ),
+    #             name="demo",
+    #             lock_name="demo:lock"
+    #         )._get_redis()
+    #
+    #     exec_msg = e.value.args[0]
+    #     assert exec_msg == "Not found redis client"
+
+
+class TestCheckJsonPlugin:
+    def test_pre_check_hook(self) -> None:
+        def demo() -> None:
+            pass
+
+        with pytest.raises(RuntimeError) as e:
+            CheckJsonRespPlugin.pre_check_hook(
+                PaitCoreModel(
+                    demo,
+                    BaseAppHelper,
+                    ParamHandler,
+                ),
+                {"check_resp_fn": ""},
+            )
+
+        exec_msg: str = e.value.args[0]
+        assert "Please use response_model_list param" in exec_msg
+
+    def test_response_model_is_not_json_resp(self) -> None:
+        class DemoCoreTestResponseModel(response.TextResponseModel):
+            is_core = True
+
+        def demo() -> None:
+            pass
+
+        with pytest.raises(ValueError) as e:
+            CheckJsonRespPlugin.pre_load_hook(
+                PaitCoreModel(demo, BaseAppHelper, ParamHandler, response_model_list=[DemoCoreTestResponseModel]),
+                {"get_pait_response_model": get_pait_response_model},
+            )
+
+        exec_msg: str = e.value.args[0]
+        assert "pait_response_model must " in exec_msg
+
+
 class TestMockPlugin:
     def test_not_found_response_model(self) -> None:
         def demo() -> None:
@@ -208,143 +339,101 @@ class TestMockPlugin:
         assert kwargs["pait_response_model"] == response.JsonResponseModel
 
 
-class TestParamPlugin:
-    def test_error_default_value(self) -> None:
-        def demo(value: str = field.Query.i(default=datetime.datetime.now())) -> None:
+class TestRequiredPlugin:
+    def test_pre_load_with_init_param(self) -> None:
+        def demo1() -> None:
             pass
 
-        try:
-            ParamHandler.pre_check_hook(
-                PaitCoreModel(
-                    demo,
-                    BaseAppHelper,
-                    ParamHandler,
-                    response_model_list=[response.JsonResponseModel, response.TextResponseModel],
-                ),
-                {},
-            )
-        except Exception:
-            assert "default type must <class 'str'>" in traceback.format_exc()
-        else:
-            raise RuntimeError("Test Fail")
+        demo_core_model_1 = PaitCoreModel(
+            demo1,
+            BaseAppHelper,
+            ParamHandler,
+        )
 
-    def test_error_default_factory_value(self) -> None:
-        def demo(value: str = field.Query.i(default_factory=datetime.datetime.now)) -> None:
+        with pytest.raises(ValueError):
+            RequiredPlugin.pre_load_hook(demo_core_model_1, {"required_dict": {"a": ["b", "c"]}})
+
+        def demo2(
+            a: int = field.Query.i(),
+            b: int = field.Query.i(),
+            c: int = field.Query.i(),
+        ) -> None:
             pass
 
-        try:
-            ParamHandler.pre_check_hook(
-                PaitCoreModel(
-                    demo,
-                    BaseAppHelper,
-                    ParamHandler,
-                    response_model_list=[response.JsonResponseModel, response.TextResponseModel],
-                ),
-                {},
-            )
-        except Exception:
-            assert "default_factory type must <class 'str'>" in traceback.format_exc()
-        else:
-            raise RuntimeError("Test Fail")
+        demo_core_model_2 = PaitCoreModel(
+            demo2,
+            BaseAppHelper,
+            ParamHandler,
+        )
+        RequiredPlugin.pre_load_hook(demo_core_model_2, {"required_dict": {"a": ["b", "c"]}})
 
-    def test_error_example_value(self) -> None:
-        def demo(value: str = field.Query.i(example=datetime.datetime.now())) -> None:
+    def test_pre_load_with_extra_param(self) -> None:
+        def demo(
+            a: int = field.Query.i(extra_param_list=[]),
+            b: int = field.Query.i(extra_param_list=[RequiredExtraParam(main_column="a")]),
+            c: int = field.Query.i(extra_param_list=[RequiredExtraParam(main_column="a")]),
+        ) -> None:
             pass
 
-        try:
-            ParamHandler.pre_check_hook(
-                PaitCoreModel(
-                    demo,
-                    BaseAppHelper,
-                    ParamHandler,
-                    response_model_list=[response.JsonResponseModel, response.TextResponseModel],
-                ),
-                {},
-            )
-        except Exception:
-            assert "example type must <class 'str'>" in traceback.format_exc()
-        else:
-            raise RuntimeError("Test Fail")
+        demo_core_model = PaitCoreModel(
+            demo,
+            BaseAppHelper,
+            ParamHandler,
+        )
+        kwargs_dict: dict = {"required_dict": {}}
+        RequiredPlugin.pre_load_hook(demo_core_model, kwargs=kwargs_dict)
+        assert kwargs_dict == {"required_dict": {"a": ["b", "c"]}}
 
-        def demo1(value: str = field.Query.i(example=datetime.datetime.now())) -> None:
+        def demo1(
+            a: int = field.Query.i(extra_param_list=[RequiredGroupExtraParam(group="aa", is_main=True)]),
+            b: int = field.Query.i(extra_param_list=[RequiredGroupExtraParam(group="aa")]),
+            c: int = field.Query.i(extra_param_list=[RequiredGroupExtraParam(group="aa")]),
+        ) -> None:
             pass
 
-        try:
-            ParamHandler.pre_check_hook(
-                PaitCoreModel(
-                    demo1,
-                    BaseAppHelper,
-                    ParamHandler,
-                    response_model_list=[response.JsonResponseModel, response.TextResponseModel],
-                ),
-                {},
-            )
-        except Exception:
-            assert "example type must <class 'str'>" in traceback.format_exc()
-        else:
-            raise RuntimeError("Test Fail")
+        demo_core_model_1 = PaitCoreModel(
+            demo1,
+            BaseAppHelper,
+            ParamHandler,
+        )
+        kwargs_dict = {"required_dict": {}}
+        RequiredPlugin.pre_load_hook(demo_core_model_1, kwargs=kwargs_dict)
+        assert kwargs_dict == {"required_dict": {"a": ["b", "c"]}}
 
-
-class TestCacheResponsePlugin:
-    def test_not_set_response_model(self) -> None:
-        def demo() -> None:
+    def test_check_param(self) -> None:
+        def demo(
+            a: int = field.Query.i(extra_param_list=[AtMostOneOfExtraParam(group="a")]),
+            a1: int = field.Query.i(extra_param_list=[AtMostOneOfExtraParam(group="a")]),
+            b: int = field.Query.i(extra_param_list=[AtMostOneOfExtraParam(group="b")]),
+            b1: int = field.Query.i(extra_param_list=[AtMostOneOfExtraParam(group="b")]),
+        ) -> None:
             pass
 
-        with pytest.raises(RuntimeError) as e:
-            CacheResponsePlugin.build(redis=Redis()).pre_check_hook(
-                PaitCoreModel(
-                    demo,
-                    BaseAppHelper,
-                    ParamHandler,
-                ),
+        class FakePluginCoreModel:
+            func = demo
+
+        plugin = AtMostOneOfPlugin(
+            lambda *args, **kwargs: None,
+            FakePluginCoreModel(),  # type: ignore
+            at_most_one_of_list=[["a", "a1"], ["b", "b1"]],
+        )
+        plugin.check_param(
+            PluginContext(
+                cbv_instance=None,
+                app_helper=BaseAppHelper,  # type: ignore
+                pait_core_model=FakePluginCoreModel(),  # type: ignore
+                args=[],
+                kwargs={"a": 1, "b": 1},
             )
+        )
 
-        exec_msg = e.value.args[0]
-        assert "can not found response model" in exec_msg
-
-    def test_set_error_response_model(self) -> None:
-        def demo() -> None:
-            pass
-
-        with pytest.raises(RuntimeError) as e:
-            CacheResponsePlugin.build(redis=Redis()).pre_check_hook(
-                PaitCoreModel(demo, BaseAppHelper, ParamHandler, response_model_list=[response.FileResponseModel]),
+        with pytest.raises(CheckValueError):
+            plugin.check_param(
+                PluginContext(
+                    cbv_instance=None,
+                    app_helper=BaseAppHelper,  # type: ignore
+                    pait_core_model=FakePluginCoreModel(),  # type: ignore
+                    args=[],
+                    kwargs={"a": 1, "a1": 1},
+                )
             )
-
-        exec_msg = e.value.args[0]
-        assert f"Not use {CacheResponsePlugin.__name__} in " in exec_msg
-
-    def test_set_error_redis(self) -> None:
-        def demo() -> None:
-            pass
-
-        with pytest.raises(ValueError) as e:
-            CacheResponsePlugin.build(redis=Redis(decode_responses=False)).pre_check_hook(
-                PaitCoreModel(
-                    demo,
-                    BaseAppHelper,
-                    ParamHandler,
-                    response_model_list=[response.JsonResponseModel, response.TextResponseModel],
-                ),
-            )
-        exec_msg = e.value.args[0]
-        assert "Please set redis`s param:decode_responses to True" in exec_msg
-
-    #
-    # def test_not_found_redis(self) -> None:
-    #     def demo() -> None:
-    #         pass
-    #     with pytest.raises(ValueError) as e:
-    #         CacheResponsePlugin(
-    #             next_plugin=lambda : None,
-    #             pait_core_model=PaitCoreModel(
-    #                 demo,
-    #                 BaseAppHelper,
-    #                 ParamHandler,
-    #             ),
-    #             name="demo",
-    #             lock_name="demo:lock"
-    #         )._get_redis()
-    #
-    #     exec_msg = e.value.args[0]
-    #     assert exec_msg == "Not found redis client"

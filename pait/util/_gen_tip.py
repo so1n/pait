@@ -31,9 +31,11 @@ def gen_tip_exc(
         if param_value is parameter.empty:
             param_str: str = f"{param_name}: {annotation}"
         else:
-            param_str = f"{param_name}: {annotation} = {parameter_value_name}"
+            param_str = f"{param_name}: {annotation} = "
             if isinstance(param_value, BaseRequestResourceField):
-                param_str += f"({param_value})"
+                param_str += f"{parameter_value_name}({param_value})"
+            else:
+                param_str += str(param_value)
     else:
         param_str = ""
 
@@ -58,7 +60,11 @@ def gen_tip_exc(
             file = module.__file__
 
         class_object = _object.__class__ if not inspect.isclass(_object) else _object
-        line = inspect.getsourcelines(class_object)[1]
+        try:
+            line = inspect.getsourcelines(class_object)[1]
+        except TypeError:
+            line = inspect.getsourcelines(_object)[1]
+
         error_object_name = class_object.__name__
         if "class" in error_object_name:
             error_object_name = str(class_object)  # pragma: no cover

@@ -71,6 +71,15 @@ class RequiredPlugin(PostPluginProtocol):
         for k, v in required_dict.items():
             kwargs["required_dict"].setdefault(k, [])
             kwargs["required_dict"][k].extend(v)
+
+        func_param_name_set = {k.name for k in fun_sig.param_list}
+        for required_param, depend_param_list in (kwargs.get("required_dict") or {}).items():
+            if required_param not in func_param_name_set:
+                raise ValueError(f"required param_name:{required_param} not in {func_param_name_set}")
+            for param_name in depend_param_list:
+                if param_name not in func_param_name_set:
+                    raise ValueError(f"param_name:{param_name} not in {func_param_name_set}")
+
         return kwargs
 
     @classmethod

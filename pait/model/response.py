@@ -158,12 +158,30 @@ class HttpStatusCodeBaseModel(BaseResponseModel):
         return resp_model_type
 
 
-Http400RespModel = HttpStatusCodeBaseModel.clone(resp_model=HtmlResponseModel, status_code=400)
-Http401RespModel = HttpStatusCodeBaseModel.clone(resp_model=HtmlResponseModel, status_code=401)
-Http403RespModel = HttpStatusCodeBaseModel.clone(resp_model=HtmlResponseModel, status_code=403)
-Http404RespModel = HttpStatusCodeBaseModel.clone(resp_model=HtmlResponseModel, status_code=404)
-Http405RespModel = HttpStatusCodeBaseModel.clone(resp_model=HtmlResponseModel, status_code=405)
-Http406RespModel = HttpStatusCodeBaseModel.clone(resp_model=HtmlResponseModel, status_code=406)
-Http407RespModel = HttpStatusCodeBaseModel.clone(resp_model=HtmlResponseModel, status_code=407)
-Http408RespModel = HttpStatusCodeBaseModel.clone(resp_model=HtmlResponseModel, status_code=408)
-Http429RespModel = HttpStatusCodeBaseModel.clone(resp_model=HtmlResponseModel, status_code=429)
+Http400RespModel = HttpStatusCodeBaseModel.clone(
+    resp_model=HtmlResponseModel, status_code=400, response_data=http_status_code_dict[400]
+)
+Http401RespModel = HttpStatusCodeBaseModel.clone(
+    resp_model=HtmlResponseModel, status_code=401, response_data=http_status_code_dict[401]
+)
+Http403RespModel = HttpStatusCodeBaseModel.clone(
+    resp_model=HtmlResponseModel, status_code=403, response_data=http_status_code_dict[403]
+)
+Http404RespModel = HttpStatusCodeBaseModel.clone(
+    resp_model=HtmlResponseModel, status_code=404, response_data=http_status_code_dict[404]
+)
+Http405RespModel = HttpStatusCodeBaseModel.clone(
+    resp_model=HtmlResponseModel, status_code=405, response_data=http_status_code_dict[405]
+)
+Http406RespModel = HttpStatusCodeBaseModel.clone(
+    resp_model=HtmlResponseModel, status_code=406, response_data=http_status_code_dict[406]
+)
+Http407RespModel = HttpStatusCodeBaseModel.clone(
+    resp_model=HtmlResponseModel, status_code=407, response_data=http_status_code_dict[407]
+)
+Http408RespModel = HttpStatusCodeBaseModel.clone(
+    resp_model=HtmlResponseModel, status_code=408, response_data=http_status_code_dict[408]
+)
+Http429RespModel = HttpStatusCodeBaseModel.clone(
+    resp_model=HtmlResponseModel, status_code=429, response_data=http_status_code_dict[429]
+)

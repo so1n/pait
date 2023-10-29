@@ -87,6 +87,9 @@ class BaseRequestResourceField(BaseField, FieldInfo):
             raise ValueError(
                 "cannot set not_value_exception_func when the parameter default or `default_factory` is not empty."
             )
+        if alias and not isinstance(alias, str):
+            raise ValueError(f"alias type must str. not {alias}")
+
         # Reduce runtime judgments by preloading
         if default is not PydanticUndefined:
             self.request_value_handle = self.request_value_handle_by_default  # type: ignore

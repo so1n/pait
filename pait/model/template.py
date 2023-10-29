@@ -1,11 +1,12 @@
 from contextvars import ContextVar, Token
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Generic, Optional, TypeVar
 
 from pait._pydanitc_adapter import PydanticUndefined
 
 TEMPLATE_CONTEXT: ContextVar[Dict[str, Any]] = ContextVar("template_context", default={})
 
 __all__ = ["TemplateContext", "TemplateVar"]
+_TemplateVarT = TypeVar("_TemplateVarT")
 
 
 class TemplateContext(object):
@@ -23,13 +24,13 @@ class TemplateContext(object):
             self._token = None
 
 
-class TemplateVar(object):
-    def __init__(self, name: str, default_value: Any = PydanticUndefined) -> None:
+class TemplateVar(Generic[_TemplateVarT]):
+    def __init__(self, name: str, default_value: _TemplateVarT = PydanticUndefined) -> None:
         self._name: str = name
-        self._default_value: Any = default_value
+        self._default_value: _TemplateVarT = default_value
 
-    def __call__(self) -> Any:
+    def __call__(self) -> _TemplateVarT:
         return self.get_value_from_template_context()
 
-    def get_value_from_template_context(self) -> Any:
+    def get_value_from_template_context(self) -> _TemplateVarT:
         return TEMPLATE_CONTEXT.get().get(self._name, self._default_value)

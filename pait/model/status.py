@@ -12,7 +12,7 @@ class PaitStatus(Enum):
     dev = "dev"
 
     # The API has been developed, but a few changes will still be made
-    integration = "integration"
+    integration_testing = "integration_testing"
     complete = "complete"
     test = "test"
 

@@ -95,7 +95,7 @@ class ParamHandler(BaseParamHandler[ParamHandleContext]):
             try:
                 contextmanager.__exit__(exc_type, exc_val, exc_tb)
             except Exception as e:
-                exc_list.append(e)
+                exc_list.append(e)  # pragma: no cover
         if exc_list:
             raise_multiple_exc(exc_list)
         else:

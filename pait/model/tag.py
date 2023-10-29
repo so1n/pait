@@ -33,8 +33,4 @@ class Tag(object):
         return {"name": self.name, "desc": self.desc, "external_docs": self._external_docs}
 
     def to_tag_model(self) -> "TagModel":
-        try:
-            from any_api.openapi.model.openapi import TagModel
-        except ImportError:
-            raise RuntimeError("please install any-api")
         return TagModel(name=self.name, description=self.desc, externalDocs=self._external_docs)

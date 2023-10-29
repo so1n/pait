@@ -113,11 +113,6 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
                     f" must:{parameter.annotation}, not {func_sig.return_param}",
                 )
         elif isinstance(parameter.default, field.BaseRequestResourceField):
-            if parameter.default.alias and not isinstance(parameter.default.alias, str):
-                raise FieldValueTypeException(
-                    parameter.name,
-                    f"{parameter.name}'s Field.alias type must str. value: {parameter.default.alias}",
-                )
             if not getattr(pait_core_model.app_helper_class.request_class, parameter.default.get_field_name()):
                 raise NotFoundFieldException(
                     parameter.name,

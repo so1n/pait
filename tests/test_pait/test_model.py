@@ -1,7 +1,8 @@
 import json
+import traceback
 from datetime import datetime
 from decimal import Decimal
-from typing import Any, Dict, Type, Union
+from typing import Any, Dict, List, Type, Union
 
 import pytest
 from pydantic import BaseModel, Field
@@ -9,9 +10,65 @@ from pydantic import BaseModel, Field
 from example.common.request_model import SexEnum
 from pait.app.base import BaseAppHelper
 from pait.model import config as config_model
-from pait.model import context, core, response, tag
+from pait.model import context, core, response, status, tag
+from pait.model.core import PaitCoreModel
+from pait.model.template import TemplateContext, TemplateVar
 from pait.openapi.openapi import LinksModel
-from pait.param_handle import BaseParamHandler
+from pait.param_handle import BaseParamHandler, ParamHandler
+from pait.plugin.base import PluginManager, PostPluginProtocol, PrePluginProtocol
+
+
+class TestConfigModel:
+    def test_repeat_config_init(self) -> None:
+        config: config_model.Config = config_model.Config()
+        config.author = "so1n"  # type: ignore
+        assert config.author == "so1n"
+        assert not config.initialized
+        config.init_config()
+        assert config.initialized
+
+        with pytest.raises(RuntimeError) as e:
+            config.init_config()
+
+        exec_msg: str = e.value.args[0]
+        assert "Can not set new value in runtime" in exec_msg
+        with pytest.raises(RuntimeError) as e:
+            config.author = "test"  # type: ignore
+
+        exec_msg = e.value.args[0]
+        assert "Can not set new value in runtime" in exec_msg
+
+    def test_config_init(self) -> None:
+        class DemoType(object):
+            pass
+
+        config: config_model.Config = config_model.Config()
+        config.init_config(
+            author=("so1n",),
+            status=status.PaitStatus.undefined,
+            json_type_default_value_dict={"demo": None},
+            python_type_default_value_dict={DemoType: None},
+        )
+        assert config.author == ("so1n",)
+        assert config.status == status.PaitStatus.undefined
+        assert config.json_type_default_value_dict["demo"] is None
+        assert config.python_type_default_value_dict[DemoType] is None
+
+    def test_default_json_encoder(self) -> None:
+        config: config_model.Config = config_model.Config()
+        assert json.dumps(
+            {
+                "date": datetime.fromtimestamp(0).date(),
+                "datetime": datetime.fromtimestamp(1600000000),
+                "decimal": Decimal("0.0"),
+                "enum": SexEnum.man,
+                "int": 1,
+                "str": "",
+            },
+            cls=config.json_encoder,
+        ) == json.dumps(
+            {"date": "1970-01-01", "datetime": 1600000000, "decimal": 0.0, "enum": "man", "int": 1, "str": ""}
+        )
 
 
 class TestContextModel:
@@ -37,12 +94,23 @@ def demo() -> None:
 
 
 class TestPaitCoreModel:
+    def test_get_core_model(self) -> None:
+        code_model = core.PaitCoreModel(demo, BaseAppHelper, BaseParamHandler)
+        assert core.get_core_model(demo) == code_model
+
+        def not_init_demo() -> None:
+            pass
+
+        with pytest.raises(TypeError):
+            core.get_core_model(not_init_demo)
+
     def test_pait_id_gen(self) -> None:
         assert core.PaitCoreModel(demo, BaseAppHelper, BaseParamHandler).pait_id == "tests.test_pait.test_model_demo"
         assert (
             core.PaitCoreModel(demo, BaseAppHelper, BaseParamHandler, feature_code="luluwa").pait_id
             == "luluwa_tests.test_pait.test_model_demo"
         )
+        assert core.PaitCoreModel(demo, BaseAppHelper, BaseParamHandler).is_auto_gen_operation_id()
 
     def test_change_notify(self) -> None:
         change_dict: Dict[str, Any] = {}
@@ -65,42 +133,41 @@ class TestPaitCoreModel:
         core_model.desc = "otehr desc"
         assert change_dict == {"desc": "new desc"}
 
+    def test_add_plugin(self) -> None:
+        class NotPrePlugin(PostPluginProtocol):
+            pass
 
-class TestConfigModel:
-    def test_repeat_config_init(self) -> None:
-        config: config_model.Config = config_model.Config()
-        config.author = "so1n"  # type: ignore
-        assert config.author == "so1n"
-        assert not config.initialized
-        config.init_config()
-        assert config.initialized
+        class PrePlugin(PrePluginProtocol):
+            pass
 
-        with pytest.raises(RuntimeError) as e:
-            config.init_config()
+        def demo() -> None:
+            pass
 
-        exec_msg: str = e.value.args[0]
-        assert "Can not set new value in runtime" in exec_msg
-        with pytest.raises(RuntimeError) as e:
-            config.author = "test"  # type: ignore
-
-        exec_msg = e.value.args[0]
-        assert "Can not set new value in runtime" in exec_msg
-
-    def test_default_json_encoder(self) -> None:
-        config: config_model.Config = config_model.Config()
-        assert json.dumps(
-            {
-                "date": datetime.fromtimestamp(0).date(),
-                "datetime": datetime.fromtimestamp(1600000000),
-                "decimal": Decimal("0.0"),
-                "enum": SexEnum.man,
-                "int": 1,
-                "str": "",
-            },
-            cls=config.json_encoder,
-        ) == json.dumps(
-            {"date": "1970-01-01", "datetime": 1600000000, "decimal": 0.0, "enum": "man", "int": 1, "str": ""}
+        core_model: PaitCoreModel = PaitCoreModel(
+            demo,
+            BaseAppHelper,
+            ParamHandler,
         )
+
+        raw_plugin_list: List[PluginManager] = core_model._plugin_list
+        raw_post_plugin_list: List[PluginManager] = core_model._post_plugin_list
+
+        try:
+            core_model.add_plugin([PluginManager(NotPrePlugin)], [PluginManager(NotPrePlugin)])  # type: ignore
+        except Exception:
+            assert "is post plugin" in traceback.format_exc()
+        else:
+            raise RuntimeError("Test Fail")
+
+        try:
+            core_model.add_plugin([PluginManager(PrePlugin)], [PluginManager(PrePlugin)])  # type: ignore
+        except Exception:
+            assert "is pre plugin" in traceback.format_exc()
+        else:
+            raise RuntimeError("Test Fail")
+
+        assert core_model._plugin_list == raw_plugin_list
+        assert core_model._post_plugin_list == raw_post_plugin_list
 
 
 class TestLinksModel:
@@ -212,3 +279,11 @@ class TestResponseModel:
     def test_xml_response_model(self) -> None:
         for i in [response.XmlResponseModel, response.XmlResponseModel]:
             self._test_dict_response_model(i)  # type: ignore
+
+
+class TestTemplate:
+    def test_template(self) -> None:
+        template_var = TemplateVar(name="demo", default_value=1)
+        assert template_var() == 1
+        with TemplateContext({"demo": 2}):
+            assert template_var() == 2

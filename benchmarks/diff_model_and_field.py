@@ -1,9 +1,9 @@
+from any_api.util.pydantic_adapter import create_pydantic_model
 from pydantic import Field
 from pydantic.config import BaseConfig
 from pydantic.fields import ModelField
 
 from benchmarks.diff_use_pait.run import run_and_calculate_time
-from pait.util import create_pydantic_model
 
 
 def create_pydantic_model_demo() -> dict:
