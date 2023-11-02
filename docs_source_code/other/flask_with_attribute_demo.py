@@ -1,7 +1,7 @@
 import httpx
 from flask import Flask, Response, current_app, jsonify
 
-from pait.app import get_app_attribute, set_app_attribute
+from pait.app.any import get_app_attribute, set_app_attribute
 
 
 def demo_route() -> Response:

@@ -228,7 +228,7 @@ def gen_example_value_from_type(value_type: type, example_column_name: str = "ex
                 sub_type_set: Set[Type] = set(annotation_arg_list)
                 if len(sub_type_set) == 1:
                     sub_type = sub_type_set.pop()
-        except ParseTypeError:
+        except ParseTypeError:  # pragma: no cover
             real_type = value_type  # pragma: no cover
         if real_type is list and sub_type:
             return [gen_example_value_from_type(sub_type, example_column_name=example_column_name)]
@@ -293,30 +293,42 @@ def gen_example_dict_from_schema(
         _definition_dict: dict = schema_dict.get(definition_key, {})
     else:
         _definition_dict = definition_dict
+
+    def get_value_from_property_dict(_property_dict: dict, _key: str) -> None:
+        if "default" in _property_dict:
+            gen_dict[key] = _property_dict["default"]
+        else:
+            if "type" in _property_dict:
+                if _property_dict["type"] not in json_type_default_value_dict:
+                    raise KeyError(f"Can not found type: {key} in json type")  # pragma: no cover
+                gen_dict[key] = json_type_default_value_dict[_property_dict["type"]]
+            else:
+                gen_dict[key] = "object"
+        # if isinstance(gen_dict[key], Enum):
+        #     gen_dict[key] = gen_dict[key].value
+
     for key, value in property_dict.items():
-        if "items" in value and value["type"] == "array":
+        if "example" in value:
+            gen_dict[key] = example_value_handle(value["example"])
+        elif "items" in value and value["type"] == "array":
+            # property_dict example data:
+            #   {'a': {'items': {'type': 'string'}, 'title': 'A', 'type': 'array'}}
+            #   {'a': {'example': ['1'], 'items': {'type': 'string'}, 'title': 'A', 'type': 'array'}}
             if "$ref" in value["items"]:
                 model_key: str = value["items"]["$ref"].split("/")[-1]
                 gen_dict[key] = [gen_example_dict_from_schema(_definition_dict.get(model_key, {}), _definition_dict)]
+            elif "type" in value["items"]:
+                try:
+                    get_value_from_property_dict(value, key)
+                except KeyError:
+                    get_value_from_property_dict(value["items"], key)
             else:
                 gen_dict[key] = []
         elif "$ref" in value:
             model_key = value["$ref"].split("/")[-1]
             gen_dict[key] = gen_example_dict_from_schema(_definition_dict.get(model_key, {}), _definition_dict)
         else:
-            if "example" in value:
-                gen_dict[key] = example_value_handle(value["example"])
-            elif "default" in value:
-                gen_dict[key] = value["default"]
-            else:
-                if "type" in value:
-                    if value["type"] not in json_type_default_value_dict:
-                        raise KeyError(f"Can not found type: {key} in json type")
-                    gen_dict[key] = json_type_default_value_dict[value["type"]]
-                else:
-                    gen_dict[key] = "object"
-            # if isinstance(gen_dict[key], Enum):
-            #     gen_dict[key] = gen_dict[key].value
+            get_value_from_property_dict(value, key)
     return gen_dict
 
 

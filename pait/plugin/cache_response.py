@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Set, Tuple, Type, Union
 from redis.asyncio import Redis  # type: ignore
 from redis.asyncio import Redis as AsyncioRedis
 
-from pait.app import set_app_attribute
+from pait.app.any import set_app_attribute
 from pait.field import BaseRequestResourceField, ExtraParam
 from pait.g import pait_context
 from pait.model.response import FileResponseModel
@@ -88,7 +88,7 @@ class CacheResponsePlugin(PostPluginProtocol):
             self._cache_plugin_redis_key, None
         )
         if not redis:
-            raise ValueError("Not found redis client")
+            raise ValueError("Not found redis client")  # pragma: no cover
         return redis
 
     def _loads(self, response: Any, *args: Any, **kwargs: Any) -> Any:

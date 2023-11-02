@@ -3,8 +3,9 @@ import copy
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Callable, Generator, List, Optional, Type
 
-from pait.extra.config import apply_block_http_method_set
-from pait.g import config
+import pytest
+
+from pait.model.context import ContextModel
 from pait.model.response import BaseResponseModel
 from pait.plugin.base import PluginManager, PrePluginProtocol
 from pait.util import ignore_pre_check
@@ -12,7 +13,21 @@ from pait.util import ignore_pre_check
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
 
-config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
+
+@pytest.fixture
+def pait_context() -> Generator[ContextModel, None, None]:
+    from pait.app.base import BaseAppHelper
+
+    class FakePluginCoreModel:
+        func = lambda x: x  # noqa
+
+    yield ContextModel(
+        cbv_instance=None,
+        app_helper=BaseAppHelper,  # type: ignore
+        pait_core_model=FakePluginCoreModel(),  # type: ignore
+        args=[],
+        kwargs={},
+    )
 
 
 @contextmanager

@@ -48,11 +48,13 @@ class TestConfigModel:
             status=status.PaitStatus.undefined,
             json_type_default_value_dict={"demo": None},
             python_type_default_value_dict={DemoType: None},
+            json_encoder=json.JSONEncoder,
         )
         assert config.author == ("so1n",)
         assert config.status == status.PaitStatus.undefined
         assert config.json_type_default_value_dict["demo"] is None
         assert config.python_type_default_value_dict[DemoType] is None
+        assert config.json_encoder is json.JSONEncoder
 
     def test_default_json_encoder(self) -> None:
         config: config_model.Config = config_model.Config()
@@ -168,6 +170,14 @@ class TestPaitCoreModel:
 
         assert core_model._plugin_list == raw_plugin_list
         assert core_model._post_plugin_list == raw_post_plugin_list
+
+    def test_response_model(self) -> None:
+        from pait.model.response import BaseResponseModel
+
+        code_model = core.PaitCoreModel(demo, BaseAppHelper, BaseParamHandler)
+        assert not code_model.response_model_list
+        code_model.response_model_list.append(BaseResponseModel)
+        assert code_model.response_model_list
 
 
 class TestLinksModel:

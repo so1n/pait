@@ -10,12 +10,14 @@ __all__ = ["CheckJsonRespPlugin"]
 
 
 class CheckJsonRespPlugin(_CheckJsonRespPlugin):
-    @staticmethod
-    def get_json(response_data: Any, context: PluginContext) -> dict:
+    json_media_type: str = "application/json"
+
+    @classmethod
+    def get_json(cls, response_data: Any, context: PluginContext) -> dict:
         if isinstance(response_data, Response):
-            if response_data.media_type == "application/json":
+            if response_data.media_type == cls.json_media_type:
                 return json.loads(response_data.body.decode())
             else:
-                raise ValueError(f"Expected 'application/json', but got '{response_data.media_type}'")
+                raise ValueError(f"Expected '{cls.json_media_type}', but got '{response_data.media_type}'")
         else:
             raise TypeError(f"Expected type must {Response} but got type {type(response_data)}")

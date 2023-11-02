@@ -1,6 +1,7 @@
 import copy
 import difflib
-from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, List, Mapping, Optional, Type, TypeVar
+import json
+from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, List, Mapping, Optional, Set, Type, TypeVar
 from urllib.parse import urlencode
 
 from pydantic import BaseModel, ValidationError
@@ -14,6 +15,10 @@ if TYPE_CHECKING:
 
 RESP_T = TypeVar("RESP_T")
 _error_separator = "\n" + ">" * 20 + "\n"
+
+
+class CheckResponseBodyException(Exception):
+    pass
 
 
 class CheckResponseException(Exception):
@@ -54,6 +59,7 @@ class BaseTestHelper(Generic[RESP_T]):
         strict_inspection_check_json_content: bool = True,
         enable_assert_response: bool = True,
         target_pait_response_class: Optional[Type["response.BaseResponseModel"]] = None,
+        ignore_auto_found_http_method_set: Optional[Set[str]] = None,
     ):
         """
         :param client:  test client
@@ -66,6 +72,11 @@ class BaseTestHelper(Generic[RESP_T]):
         :param header_dict:  request herder param
         :param path_dict:  request path param
         :param query_dict:  request query param
+        :param strict_inspection_check_json_content: if True, enforce the content of the response body
+        :param enable_assert_response: if True, Verify that the response object is correct
+        :param target_pait_response_class: Only a certain type of response model in the response model list is verified
+        :param ignore_auto_found_http_method_set:
+            Some HTTP methods are ignored when HTTP methods are automatically discovered
         """
         pait_id: str = getattr(func, "_pait_id", "")
         if not pait_id:
@@ -89,6 +100,7 @@ class BaseTestHelper(Generic[RESP_T]):
         self.query_dict: Optional[dict] = query_dict
         self.strict_inspection_check_json_content: bool = strict_inspection_check_json_content
         self.enable_assert_response: bool = enable_assert_response
+        self.ignore_auto_found_http_method_set: set = ignore_auto_found_http_method_set or set()
 
         # path handle
         self.path: str = self.pait_core_model.path
@@ -174,9 +186,11 @@ class BaseTestHelper(Generic[RESP_T]):
                     return False
                 return True
             else:
-                return True
-        except KeyError:
-            raise RuntimeError(f"Can not found key from model, key:{' -> '.join(parent_key_list or '')}")
+                return type(raw_resp) is type(default_resp)
+        except CheckResponseBodyException as e:
+            raise e
+        except Exception:
+            raise CheckResponseBodyException(f"Can not found key from model, key:{' -> '.join(parent_key_list or '')}")
 
     def _assert_response(self, resp: RESP_T) -> Optional[Exception]:
         """Whether the structure of the check response is correct"""
@@ -253,10 +267,13 @@ class BaseTestHelper(Generic[RESP_T]):
                         resp_dict, response_data_default_dict
                     ):
                         differ = difflib.Differ()
-                        diff_iterator = differ.compare(str(response_data_default_dict), str(resp_dict))
+                        diff_iterator = differ.compare(
+                            json.dumps(response_data_default_dict, indent=4).splitlines(),
+                            json.dumps(resp_dict, indent=4).splitlines(),
+                        )
                         diff_content = "\n".join(diff_iterator)
                         error_msg_list.append(f"check json structure error, \n{diff_content}")
-                except (ValidationError, RuntimeError) as e:
+                except (ValidationError, CheckResponseBodyException) as e:
                     error_msg_list.append(f"check json content error, exec: {e}")
 
             elif issubclass(response_model, response.HtmlResponseModel) or issubclass(
@@ -284,7 +301,7 @@ class BaseTestHelper(Generic[RESP_T]):
                 resp=resp,
                 func=self.func,
                 message=(
-                    f"maybe error result: {_error_separator}{error_str}\n"
+                    f"maybe error result: {_error_separator}    {error_str}\n"
                     f"{_error_separator}by response model:{real_response_model}\n"
                 ),
             )
@@ -315,12 +332,17 @@ class BaseTestHelper(Generic[RESP_T]):
         """user call test request api"""
         if not method:
             # auto select method
-            if len(self.pait_core_model.method_list) == 1:
-                method = self.pait_core_model.method_list[0]
+            if self.ignore_auto_found_http_method_set:
+                method_list = []
+                for method in self.pait_core_model.method_list:
+                    if method not in self.ignore_auto_found_http_method_set:
+                        method_list.append(method)
             else:
-                raise RuntimeError(
-                    f"Pait Can not auto select method, please choice method in {self.pait_core_model.method_list}"
-                )
+                method_list = self.pait_core_model.method_list
+            if len(method_list) == 1:
+                method = method_list[0]
+            else:
+                raise RuntimeError(f"Pait Can not auto select method, please choice method in {method_list}")
         resp: RESP_T = self._real_request(method)
         if self.pait_core_model.response_model_list and self.enable_assert_response:
             exc = self._assert_response(resp)

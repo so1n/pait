@@ -40,10 +40,7 @@ class MockPluginProtocol(PrePluginProtocol, Generic[RESP_T]):
     @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         kwargs = super().pre_load_hook(pait_core_model, kwargs)
-        get_pait_response_model = kwargs.get("get_pait_response_model", None)
-        if not get_pait_response_model:
-            raise RuntimeError("Can not found get_pait_response_model func")
-        kwargs["pait_response_model"] = get_pait_response_model(pait_core_model.response_model_list)
+        kwargs["pait_response_model"] = kwargs["get_pait_response_model"](pait_core_model.response_model_list)
         return kwargs
 
     def get_response(self) -> RESP_T:

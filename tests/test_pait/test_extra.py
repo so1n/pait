@@ -250,7 +250,7 @@ class TestApplyFun:
             assert i.param_handler_plugin != BaseParamHandler
             config.apply_param_handler(BaseParamHandler)(i)
             assert i.param_handler_plugin == BaseParamHandler
-            config.apply_param_handler(raw_param_plugin)(i)
+            config.apply_param_handler(raw_param_plugin, config.MatchRule())(i)
             assert i.param_handler_plugin == raw_param_plugin
 
     def test_match_error_key(self) -> None:

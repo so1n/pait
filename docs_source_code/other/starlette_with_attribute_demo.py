@@ -3,7 +3,7 @@ from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from pait.app import get_app_attribute, set_app_attribute
+from pait.app.any import get_app_attribute, set_app_attribute
 
 
 async def demo_route(request: Request) -> JSONResponse:

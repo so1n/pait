@@ -11,14 +11,18 @@ import pytest
 from flask import Flask, Response
 from flask.ctx import AppContext
 from flask.testing import FlaskClient
+from pydantic import BaseModel, Field
 from pytest_mock import MockFixture
 
 from example.common import response_model
 from example.flask_example import main_example
-from pait.app import auto_load_app, get_app_attribute, set_app_attribute
+from pait.app import auto_load_app
+from pait.app.any import get_app_attribute, set_app_attribute
+from pait.app.base.simple_route import SimpleRoute
 from pait.app.flask import TestHelper as _TestHelper
-from pait.app.flask import load_app
+from pait.app.flask import add_multi_simple_route, add_simple_route, load_app, pait
 from pait.model import response
+from pait.model.context import ContextModel
 from pait.openapi.doc_route import default_doc_fn_dict
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin
@@ -31,7 +35,9 @@ from tests.test_app.base_openapi_test import BaseTestOpenAPI
 # and needs to be overwritten by overwrite already exists data=True
 # flake8: noqa: F811
 _TestHelper: Type[_TestHelper] = partial(  # type: ignore
-    _TestHelper, load_app=partial(load_app, overwrite_already_exists_data=True)
+    _TestHelper,
+    load_app=partial(load_app, overwrite_already_exists_data=True),
+    ignore_auto_found_http_method_set={"HEAD", "OPTIONS"},
 )
 
 
@@ -291,8 +297,100 @@ class TestFlask:
         base_test.unified_text_response(main_example.unified_text_response)
         base_test.unified_html_response(main_example.unified_html_response)
 
+    def test_check_json_resp_plugin(self, pait_context: ContextModel, base_test: BaseTest) -> None:
+        # if not use base_test, flask can not find ctx
+        from flask import jsonify
+
+        from pait.app.flask.plugin.check_json_resp import CheckJsonRespPlugin
+
+        assert CheckJsonRespPlugin.get_json(jsonify({"demo": 1}), pait_context) == {"demo": 1}
+
+        with pytest.raises(TypeError):
+            CheckJsonRespPlugin.get_json(object, pait_context)
+
+    def test_import_func_from_local_proxy(self, base_test: BaseTest) -> None:
+        # if not use base_test, flask can not find ctx
+        from flask import current_app
+
+        from pait.app.any.util import import_func_from_app
+        from pait.app.flask import pait
+
+        assert import_func_from_app("pait", current_app) == pait
+
+    def test_gen_response(self, base_test: BaseTest) -> None:
+        # if not use base_test, flask can not find ctx
+        from flask import jsonify
+
+        from pait.app.flask.adapter.response import gen_response
+        from pait.model import response
+
+        result = gen_response(jsonify({"demo": 1}), response.BaseResponseModel)
+        assert result.json == {"demo": 1}
+
+        result = gen_response({"demo": 1}, response.JsonResponseModel)
+        assert result.json == {"demo": 1}
+
+        class HeaderModel(BaseModel):
+            demo: str = Field(alias="x-demo", example="123")
+
+        class MyHtmlResponseModel(response.HtmlResponseModel):
+            media_type = "application/demo"
+            header = HeaderModel
+            status_code = (400,)
+
+        result = gen_response("demo", MyHtmlResponseModel)
+        assert result.data == b"demo"
+        assert result.content_type == "application/demo"
+        assert result.headers["x-demo"] == "123"
+        assert result.status_code == 400
+
+    def test_simple_route(self, client: FlaskClient) -> None:
+        def simple_route_factory(num: int) -> Callable:
+            @pait(response_model_list=[response.HtmlResponseModel])
+            def simple_route() -> str:
+                return f"I'm simple route {num}"
+
+            simple_route.__name__ = simple_route.__name__ + str(num)
+            return simple_route
+
+        add_simple_route(
+            client.application,
+            SimpleRoute(methods=["GET"], url="/api/demo/simple-route-1", route=simple_route_factory(1)),
+        )
+        add_multi_simple_route(
+            client.application,
+            SimpleRoute(methods=["GET"], url="/demo/simple-route-2", route=simple_route_factory(2)),
+            SimpleRoute(methods=["GET"], url="/demo/simple-route-3", route=simple_route_factory(3)),
+            prefix="/api",
+            title="test",
+        )
+        assert client.get("/api/demo/simple-route-1").data == b"I'm simple route 1"
+        assert client.get("/api/demo/simple-route-2").data == b"I'm simple route 2"
+        assert client.get("/api/demo/simple-route-2").data == b"I'm simple route 2"
+
     def test_openapi_content(self, base_test: BaseTest) -> None:
         BaseTestOpenAPI(base_test.client.application).test_all()
+
+
+class TestFlaskExtra:
+    def test_test_helper_form_dict_have_file_dict(self, base_test: BaseTest) -> None:
+        from pait.app.base import BaseAppHelper
+        from pait.model.core import PaitCoreModel
+        from pait.param_handle import ParamHandler
+
+        def demo() -> None:
+            pass
+
+        core_model = PaitCoreModel(demo, app_helper_class=BaseAppHelper, param_handler_plugin=ParamHandler)
+
+        test_helper = _TestHelper(
+            base_test.client, demo, pait_dict={core_model.pait_id: core_model}, form_dict={"a": 1}, file_dict={"b": 2}
+        )
+        assert test_helper.form_dict == {"a": 1, "b": 2}
+        test_helper = _TestHelper(
+            base_test.client, demo, pait_dict={core_model.pait_id: core_model}, file_dict={"b": 2}
+        )
+        assert test_helper.form_dict == {"b": 2}
 
 
 class TestDocExample:

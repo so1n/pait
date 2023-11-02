@@ -1,7 +1,7 @@
 import httpx
 from sanic import HTTPResponse, Request, Sanic, json
 
-from pait.app import get_app_attribute, set_app_attribute
+from pait.app.any import get_app_attribute, set_app_attribute
 
 
 async def demo_route(request: Request) -> HTTPResponse:

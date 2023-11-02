@@ -1,6 +1,6 @@
 from starlette.applications import Starlette
 
-from pait.app import SimpleRoute, add_multi_simple_route, add_simple_route
+from pait.app.any import SimpleRoute, add_multi_simple_route, add_simple_route
 from pait.app.starlette import pait
 from pait.model import response
 

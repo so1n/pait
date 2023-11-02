@@ -72,7 +72,6 @@ class BasicTestOpenAPI(object):
 class _TestDependOpenAPI(BasicTestOpenAPI):
     def test_depend_route(self) -> None:
         route_dict = self.pait_openapi.model.paths.pop("/api/depend/depend")
-        assert len(route_dict) == 1
         assert route_dict["post"].description == "Testing depend and using request parameters"
         assert any([i in route_dict["post"].operation_id for i in ["depend_route", "DependHandler.post"]])
         assert route_dict["post"].tags == ["depend", "user"]

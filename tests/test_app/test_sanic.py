@@ -9,19 +9,24 @@ from typing import Callable, Generator, Type
 from unittest import mock
 
 import pytest
+from pydantic import BaseModel, Field
 from pytest_mock import MockFixture
 from redis import Redis  # type: ignore
 from sanic import Sanic
+from sanic.request import Request
 from sanic_testing import TestManager as SanicTestManager  # type: ignore
 from sanic_testing.testing import SanicTestClient
 from sanic_testing.testing import TestingResponse as Response  # type: ignore
 
 from example.common import response_model
 from example.sanic_example import main_example
-from pait.app import auto_load_app, get_app_attribute, set_app_attribute
+from pait.app import auto_load_app
+from pait.app.any import get_app_attribute, set_app_attribute
+from pait.app.base.simple_route import SimpleRoute
 from pait.app.sanic import TestHelper as _TestHelper
-from pait.app.sanic import load_app
+from pait.app.sanic import add_multi_simple_route, add_simple_route, load_app, pait
 from pait.model import response
+from pait.model.context import ContextModel
 from pait.openapi.doc_route import default_doc_fn_dict
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin, fixture_loop
@@ -289,6 +294,79 @@ class TestSanic:
         base_test.unified_json_response(main_example.unified_json_response)
         base_test.unified_text_response(main_example.unified_text_response)
         base_test.unified_html_response(main_example.unified_html_response)
+
+    def test_check_json_resp_plugin(self, pait_context: ContextModel) -> None:
+        from sanic.response import HTTPResponse
+        from sanic.response import json as json_resp
+
+        from pait.app.sanic.plugin.check_json_resp import CheckJsonRespPlugin
+
+        assert CheckJsonRespPlugin.get_json(json_resp({"demo": 1}), pait_context) == {"demo": 1}
+        demo_resp = json_resp({"demo": 1})
+        demo_resp.body = json.dumps({"demo": 1})
+        assert CheckJsonRespPlugin.get_json(demo_resp, pait_context) == {"demo": 1}
+
+        with pytest.raises(TypeError):
+            CheckJsonRespPlugin.get_json(object, pait_context)
+
+        with pytest.raises(ValueError):
+            CheckJsonRespPlugin.get_json(HTTPResponse(), pait_context)
+
+        class MyCheckJsonRespPlugin(CheckJsonRespPlugin):
+            json_media_type: str = "application/fake_json"
+
+        assert MyCheckJsonRespPlugin.get_json(
+            json_resp({"demo": 1}, content_type="application/fake_json"), pait_context
+        ) == {"demo": 1}
+
+    def test_gen_response(self) -> None:
+        from sanic.response import json
+
+        from pait.app.sanic.adapter.response import gen_response
+        from pait.model import response
+
+        result = gen_response(json({"demo": 1}), response.BaseResponseModel)
+        assert result.body.decode() == '{"demo":1}'
+
+        result = gen_response({"demo": 1}, response.JsonResponseModel)
+        assert result.body.decode() == '{"demo":1}'
+
+        class HeaderModel(BaseModel):
+            demo: str = Field(alias="x-demo", example="123")
+
+        class MyHtmlResponseModel(response.HtmlResponseModel):
+            media_type = "application/demo"
+            header = HeaderModel
+            status_code = (400,)
+
+        result = gen_response("demo", MyHtmlResponseModel)
+        assert result.body.decode() == "demo"
+        assert result.content_type == "application/demo"
+        assert result.headers == {"x-demo": "123"}
+        assert result.status == 400
+
+    def test_simple_route(self, client: SanicTestClient) -> None:
+        def simple_route_factory(num: int) -> Callable:
+            @pait(response_model_list=[response.HtmlResponseModel])
+            def simple_route(request: Request) -> str:
+                return f"I'm simple route {num}"
+
+            simple_route.__name__ = simple_route.__name__ + str(num)
+            return simple_route
+
+        add_simple_route(
+            client.app, SimpleRoute(methods=["GET"], url="/api/demo/simple-route-1", route=simple_route_factory(1))
+        )
+        add_multi_simple_route(
+            client.app,
+            SimpleRoute(methods=["GET"], url="/demo/simple-route-2", route=simple_route_factory(2)),
+            SimpleRoute(methods=["GET"], url="/demo/simple-route-3", route=simple_route_factory(3)),
+            prefix="/api",
+            title="test",
+        )
+        assert client.get("/api/demo/simple-route-1")[1].text == "I'm simple route 1"
+        assert client.get("/api/demo/simple-route-2")[1].text == "I'm simple route 2"
+        assert client.get("/api/demo/simple-route-2")[1].text == "I'm simple route 2"
 
     def test_openapi_content(self, base_test: BaseTest) -> None:
         BaseTestOpenAPI(base_test.client.app).test_all()

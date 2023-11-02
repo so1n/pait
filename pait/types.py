@@ -32,12 +32,12 @@ PaitCallTypeT = TypeVar("PaitCallTypeT", covariant=True)
 
 class _CallType(Protocol):
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        ...
+        pass
 
 
 class PaitCallType(Protocol[PaitCallTypeT]):
     def pait_handler(self, *args: Any, **kwargs: Any) -> PaitCallTypeT:
-        ...
+        pass
 
 
 CallType = Union[Callable, _CallType, PaitCallType]

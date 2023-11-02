@@ -2,7 +2,7 @@ import importlib
 import inspect
 import sys
 
-from pait import app as any_app
+from pait.app import any as any_app
 from pait.app.auto_load_app import app_list
 
 other_app: list = [importlib.import_module(f"pait.app.{i}") for i in app_list]

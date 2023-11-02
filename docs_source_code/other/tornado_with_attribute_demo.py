@@ -2,7 +2,7 @@ import httpx
 from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
 
-from pait.app import get_app_attribute, set_app_attribute
+from pait.app.any import get_app_attribute, set_app_attribute
 
 
 class DemoHandler(RequestHandler):

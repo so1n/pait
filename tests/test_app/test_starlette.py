@@ -5,23 +5,29 @@ import random
 import sys
 from contextlib import contextmanager
 from functools import partial
-from typing import Callable, Generator, Type
+from typing import Any, Callable, Generator, Type
 from unittest import mock
 
 import pytest
+from pydantic import BaseModel, Field
 from pytest_mock import MockFixture
 from redis import Redis  # type: ignore
 from requests import Response  # type: ignore
 from starlette.applications import Starlette
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 from starlette.testclient import TestClient
 
 from example.common import response_model
 from example.starlette_example import main_example
-from pait.app import auto_load_app, get_app_attribute, set_app_attribute
+from pait.app import auto_load_app
+from pait.app.any import get_app_attribute, set_app_attribute
+from pait.app.base.simple_route import SimpleRoute
 from pait.app.starlette import TestHelper as _TestHelper
-from pait.app.starlette import load_app
+from pait.app.starlette import add_multi_simple_route, add_simple_route, load_app, pait
 from pait.app.starlette.plugin.mock_response import MockPlugin
 from pait.model import response
+from pait.model.context import ContextModel
 from pait.openapi.doc_route import default_doc_fn_dict
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin
@@ -34,7 +40,9 @@ from tests.test_app.base_openapi_test import BaseTestOpenAPI
 # and needs to be overwritten by overwrite already exists data=True
 # flake8: noqa: F811
 _TestHelper: Type[_TestHelper] = partial(  # type: ignore
-    _TestHelper, load_app=partial(load_app, overwrite_already_exists_data=True)
+    _TestHelper,
+    load_app=partial(load_app, overwrite_already_exists_data=True),
+    ignore_auto_found_http_method_set={"HEAD", "OPTIONS"},
 )
 
 
@@ -316,8 +324,137 @@ class TestStarlette:
         base_test.unified_text_response(main_example.unified_text_response)
         base_test.unified_html_response(main_example.unified_html_response)
 
+    def test_load_app_by_mount_route(self, client: TestClient) -> None:
+        from starlette.responses import JSONResponse
+        from starlette.routing import Mount, Route
+
+        from pait.field import Query
+
+        app: Starlette = client.app  # type: ignore
+
+        @pait()
+        def demo(a: int = Query.i()) -> JSONResponse:
+            return JSONResponse({"a": a})
+
+        key = "tests.test_app.test_starlette_TestStarlette.test_load_app_by_mount_route.<locals>.demo"
+
+        assert key not in load_app(app)
+        app.router.routes.append(Mount("/api/demo/mount/", routes=[Route("/demo", demo, methods=["GET"])]))
+        reload_result = load_app(app)
+        assert key in reload_result
+        demo_core_model = load_app(app)[key]._core_model  # type: ignore[attr-defined]
+        assert demo_core_model.path == "/api/demo/mount/demo"
+
+    def test_load_app_by_other_route(self, client: TestClient, mocker: MockFixture) -> None:
+        from starlette.responses import JSONResponse
+        from starlette.routing import Host, Route, Router
+
+        from pait.field import Query
+
+        app: Starlette = client.app  # type: ignore
+
+        @pait()
+        def demo(a: int = Query.i()) -> JSONResponse:
+            return JSONResponse({"a": a})
+
+        demo_router = Router(routes=[Route("/", demo, methods=["GET"])])
+
+        warn_logger = mocker.patch("pait.app.starlette._load_app.logging.warning")
+        app.router.routes.append(Host("www.example.com", demo_router))
+        assert "test_load_app_by_mount.<locals>.demo" not in load_app(app)
+
+        warn_logger.assert_called_once_with(f"load_app func not support route:{Host}")
+
+    def test_check_json_resp_plugin(self, pait_context: ContextModel) -> None:
+        from starlette.responses import HTMLResponse, JSONResponse
+
+        from pait.app.starlette.plugin.check_json_resp import CheckJsonRespPlugin
+
+        assert CheckJsonRespPlugin.get_json(JSONResponse({"demo": 1}), pait_context) == {"demo": 1}
+
+        with pytest.raises(TypeError):
+            CheckJsonRespPlugin.get_json(object, pait_context)
+
+        with pytest.raises(ValueError):
+            CheckJsonRespPlugin.get_json(HTMLResponse(), pait_context)
+
+        class MyCheckJsonRespPlugin(CheckJsonRespPlugin):
+            json_media_type: str = "application/fake_json"
+
+        assert MyCheckJsonRespPlugin.get_json(
+            JSONResponse({"demo": 1}, media_type="application/fake_json"), pait_context
+        ) == {"demo": 1}
+
+    def test_gen_response(self) -> None:
+        from starlette.responses import JSONResponse
+
+        from pait.app.starlette.adapter.response import gen_response
+        from pait.model import response
+
+        result = gen_response(JSONResponse({"demo": 1}), response.BaseResponseModel)
+        assert result.body == b'{"demo":1}'
+
+        result = gen_response({"demo": 1}, response.JsonResponseModel)
+        assert result.body == b'{"demo":1}'
+
+        class HeaderModel(BaseModel):
+            demo: str = Field(alias="x-demo", example="123")
+
+        class MyHtmlResponseModel(response.HtmlResponseModel):
+            media_type = "application/demo"
+            header = HeaderModel
+            status_code = (400,)
+
+        result = gen_response("demo", MyHtmlResponseModel)
+        assert result.body == b"demo"
+        assert result.media_type == "application/demo"
+        assert result.headers["x-demo"] == "123"
+        assert result.status_code == 400
+
+    def test_simple_route(self, client: TestClient) -> None:
+        def simple_route_factory(num: int) -> Callable:
+            @pait(response_model_list=[response.HtmlResponseModel])
+            def simple_route() -> str:
+                return f"I'm simple route {num}"
+
+            simple_route.__name__ = simple_route.__name__ + str(num)
+            return simple_route
+
+        add_simple_route(
+            client.app, SimpleRoute(methods=["GET"], url="/api/demo/simple-route-1", route=simple_route_factory(1))
+        )
+        add_multi_simple_route(
+            client.app,
+            SimpleRoute(methods=["GET"], url="/demo/simple-route-2", route=simple_route_factory(2)),
+            SimpleRoute(methods=["GET"], url="/demo/simple-route-3", route=simple_route_factory(3)),
+            prefix="/api",
+            title="test",
+        )
+        assert client.get("/api/demo/simple-route-1").text == "I'm simple route 1"
+        assert client.get("/api/demo/simple-route-2").text == "I'm simple route 2"
+        assert client.get("/api/demo/simple-route-2").text == "I'm simple route 2"
+
     def test_openapi_content(self, base_test: BaseTest) -> None:
         BaseTestOpenAPI(base_test.client.app).test_all()
+
+
+class TestStarletteExtra:
+    def test_request_extend(self) -> None:
+        from pait.app.starlette.adapter.request import RequestExtend
+
+        demo_req: Request
+
+        async def app(scope: Any, receive: Any, send: Any) -> None:
+            nonlocal demo_req
+            demo_req = Request(scope, receive)
+            resp = JSONResponse("")
+            await resp(scope, receive, send)
+
+        TestClient(app).get("http://127.0.0.1:8000/api/demo?a=123")
+        request_extend = RequestExtend(demo_req)
+        assert request_extend.scheme == "http"
+        assert request_extend.path == "/api/demo"
+        assert request_extend.hostname == "127.0.0.1:8000"
 
 
 class TestDocExample:

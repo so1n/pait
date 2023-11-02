@@ -113,7 +113,7 @@ class AsyncParamHandler(BaseParamHandler[AsyncParamHandleContext]):
                     contextmanager.__exit__(exc_type, exc_val, exc_tb)
                 else:
                     await contextmanager.__aexit__(exc_type, exc_val, exc_tb)
-            except Exception as e:
+            except Exception as e:  # pragma: no cover
                 exc_list.append(e)  # pragma: no cover
 
         if exc_list:

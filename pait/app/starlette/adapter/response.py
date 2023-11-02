@@ -5,7 +5,9 @@ from starlette.responses import JSONResponse, Response
 from pait.model.response import BaseResponseModel, JsonResponseModel
 
 
-def gen_response(response_value: Any, response_model_class: Type[BaseResponseModel], *args: Any, **kwargs: Any) -> Any:
+def gen_response(
+    response_value: Any, response_model_class: Type[BaseResponseModel], *args: Any, **kwargs: Any
+) -> Response:
     if isinstance(response_value, Response):
         return response_value
     elif issubclass(response_model_class, JsonResponseModel):

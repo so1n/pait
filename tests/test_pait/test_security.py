@@ -46,6 +46,26 @@ class TestHttpBasic:
         assert http_basic_credentials.password == "so1n"
 
 
+class TestHttp:
+    def test_not_authorization_param(self) -> None:
+        with pytest.raises(NotImplementedError):
+            http.BaseHTTP(security_model=http.HttpSecurityModel(scheme="")).authorization_handler("gululu")
+        assert not http.BaseHTTP(
+            security_model=http.HttpSecurityModel(scheme=""), is_raise=False
+        ).authorization_handler("gululu")
+
+    def test_verify_callable(self) -> None:
+        assert (
+            http.BaseHTTP(security_model=http.HttpSecurityModel(scheme="basic")).authorization_handler("Basic gululu")
+            == "gululu"
+        )
+
+        with pytest.raises(NotImplementedError):
+            http.BaseHTTP(
+                security_model=http.HttpSecurityModel(scheme="basic"), verify_callable=lambda x: "demo" in x
+            ).authorization_handler("Basic gululu")
+
+
 class DemoPait(Pait):
     app_helper_class = BaseAppHelper
 

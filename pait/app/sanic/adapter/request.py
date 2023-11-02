@@ -71,8 +71,7 @@ class SanicBaseRequest(BaseRequest[_Request, RequestExtend]):
 
 
 class RequestLt23(SanicBaseRequest):
-    def cookie(self) -> dict:
-        return self.request.cookies
+    ...
 
 
 class RequestGt23(SanicBaseRequest):

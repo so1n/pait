@@ -71,3 +71,12 @@ class TestField:
             field.Path.i(default=1)
         with pytest.raises(ValueError):
             field.Path.i(default_factory=lambda: 1)
+
+    def test_get_link(self) -> None:
+        from example.common.response_model import link_login_token_model
+
+        assert field.BaseRequestResourceField().links is None
+        assert (
+            field.BaseRequestResourceField(links=link_login_token_model).links.openapi_runtime_expr  # type: ignore
+            is link_login_token_model.openapi_runtime_expr
+        )

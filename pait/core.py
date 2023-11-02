@@ -89,7 +89,7 @@ class Pait(object):
         self._status: Optional[PaitStatus] = status
         self._group: Optional[str] = group
         self._tag: Optional[Tuple[Tag, ...]] = tag
-        self._response_model_list: Optional[List[Type[BaseResponseModel]]] = response_model_list
+        self._response_model_list: List[Type[BaseResponseModel]] = response_model_list or []
         # plugin
         self._plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = plugin_list
         self._post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = post_plugin_list
@@ -114,7 +114,7 @@ class Pait(object):
 
     @property
     def response_model_list(self) -> List[Type[BaseResponseModel]]:
-        return self._response_model_list or []
+        return self._response_model_list
 
     def create_sub_pait(
         self: "_PaitT",
@@ -205,7 +205,7 @@ class Pait(object):
     @staticmethod
     def init_context(pait_core_model: "PaitCoreModel", args: Any, kwargs: Any) -> ContextModel:
         """Inject App Helper into context"""
-        app_helper: BaseAppHelper = pait_core_model.app_helper_class(args, kwargs)
+        app_helper: "BaseAppHelper" = pait_core_model.app_helper_class(args, kwargs)
         context: ContextModel = ContextModel(
             cbv_instance=app_helper.cbv_instance,
             app_helper=app_helper,

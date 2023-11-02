@@ -152,9 +152,9 @@ class BaseRequestResourceField(BaseField, FieldInfo):
             kwargs["regex"] = pattern if pattern else regex
 
             if validation_alias:
-                warnings.warn("Pydantic V1 not support param `validation_alias`")
+                warnings.warn("Pydantic V1 not support param `validation_alias`")  # pragma: no cover
             if serialization_alias:
-                warnings.warn("Pydantic V1 not support param `serialization_alias`")
+                warnings.warn("Pydantic V1 not support param `serialization_alias`")  # pragma: no cover
             extra.update(pait_extra_param)
         else:
             if regex:

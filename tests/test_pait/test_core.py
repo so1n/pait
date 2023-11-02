@@ -71,3 +71,16 @@ class TestPaitCore:
         assert pait_code_model.path == "/"
         assert pait_code_model.method_list == ["get"]
         assert pait_code_model.operation_id == "fake"
+
+    def test_pait_response_list(self) -> None:
+        from pait.app.base import BaseAppHelper
+
+        class MyPait(core.Pait):
+            app_helper_class = BaseAppHelper
+
+        from pait.model.response import BaseResponseModel
+
+        demo_core = MyPait()
+        assert not demo_core.response_model_list
+        demo_core.response_model_list.append(BaseResponseModel)
+        assert len(demo_core.response_model_list) == 1

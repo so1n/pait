@@ -41,8 +41,6 @@ def load_app(
             openapi_path = "/".join(new_path_list)
         if not openapi_path.startswith("/"):
             openapi_path = "/" + openapi_path
-        if openapi_path.endswith("$"):
-            openapi_path = openapi_path[:-1]
         base_name: str = rule.target.__name__
         for method in ["get", "post", "head", "options", "delete", "put", "trace", "patch"]:
             handler: Optional[Callable] = getattr(rule.target, method, None)

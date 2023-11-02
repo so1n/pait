@@ -2,7 +2,6 @@ from dataclasses import MISSING
 from importlib import import_module
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Type
 
-from pydantic import BaseConfig, BaseModel
 from typing_extensions import NoReturn
 
 from pait.app.any.util import base_call_func, sniffing

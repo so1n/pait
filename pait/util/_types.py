@@ -5,11 +5,7 @@ from typing import Any, Callable, Generator, List, Optional, Set, Type, Union, _
 import typing_extensions
 
 from pait.exceptions import ParseTypeError
-
-try:
-    from typing import is_typeddict  # type: ignore[attr-defined]
-except ImportError:
-    from typing_extensions import is_typeddict
+from pait.types import is_typeddict
 
 _PYTHON_ORIGIN_TYPE_SET: Set[Optional[type]] = {bool, dict, float, int, list, str, tuple, type(None), None, set}
 _TYPING_NOT_PARSE_TYPE_SET: set = {
@@ -83,13 +79,9 @@ def parse_typing(_type: Any, _is_typeddict: Optional[Callable[[type], bool]] = N
         if arg_list:
             # support AsyncIterator, Iterator
             return parse_typing(arg_list[0])
-        return [origin]
-    elif _type is Generator:
-        return parse_typing(_type.__args__[0])
+        return [origin]  # pragma: no cover
     elif _type in _PYTHON_ORIGIN_TYPE_SET:
         return [_type]
-    elif getattr(_type, "_name", "") == "Optional":
-        return [type(None)]
     elif getattr(_type, "_name", "") == "LiteralString":
         return [str]
     elif hasattr(_type, "__supertype__"):

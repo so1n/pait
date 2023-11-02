@@ -10,18 +10,19 @@ __all__ = ["CheckJsonRespPlugin"]
 
 
 class CheckJsonRespPlugin(_CheckJsonRespPlugin):
-    @staticmethod
-    def get_json(response_data: Any, context: PluginContext) -> dict:
+    json_media_type: str = "application/json; charset=UTF-8"
+
+    @classmethod
+    def get_json(cls, response_data: Any, context: PluginContext) -> dict:
         if response_data is None:
             tornado_handle: RequestHandler = context.args[0]
-            if "application/json; charset=UTF-8" in tornado_handle._headers.get_list("Content-Type"):
+            content_type_list = tornado_handle._headers.get_list("Content-Type")
+            if cls.json_media_type in content_type_list:
                 return json.loads(tornado_handle._write_buffer[-1].decode())
             else:
-                raise ValueError(
-                    f"Expected 'application/json', but got '{tornado_handle._headers.get_list('Content-Type')}'"
-                )
+                raise ValueError(f"Expected '{cls.json_media_type}', but got '{content_type_list}'")  # pragma: no cover
         else:
-            raise TypeError(f"Expected type must None but got type {type(response_data)}")
+            raise TypeError(f"Expected type must None but got type {type(response_data)}")  # pragma: no cover
 
     async def _async_call(self, context: PluginContext) -> Any:
         try:

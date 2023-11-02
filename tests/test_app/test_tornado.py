@@ -14,9 +14,11 @@ from tornado.web import Application
 
 from example.common import response_model
 from example.tornado_example import main_example
-from pait.app import auto_load_app, get_app_attribute, set_app_attribute
+from pait.app import auto_load_app
+from pait.app.any import get_app_attribute, set_app_attribute
+from pait.app.base.simple_route import SimpleRoute
 from pait.app.tornado import TestHelper as _TestHelper
-from pait.app.tornado import load_app
+from pait.app.tornado import add_multi_simple_route, add_simple_route, load_app, pait
 from pait.model import response
 from pait.openapi.doc_route import default_doc_fn_dict
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
@@ -173,7 +175,7 @@ class TestTornado(BaseTestTornado):
                 self,
                 main_example.PaitBaseFieldHandler.post,
                 file_dict={f1.name: f1.read()},
-                form_dict={"a": "1", "b": "2", "c": "3"},
+                form_dict={"a": "1", "b": 2, "c": "3"},
                 cookie_dict={"abcd": "abcd"},
                 query_dict={"uid": "123", "user_name": "appl", "sex": "man", "multi_user_name": ["abc", "efg"]},
                 path_dict={"age": 2},
@@ -320,6 +322,38 @@ class TestTornado(BaseTestTornado):
         self.base_test.unified_json_response(main_example.UnifiedJsonResponseHandler.get)
         self.base_test.unified_text_response(main_example.UnifiedTextResponseHandler.get)
         self.base_test.unified_html_response(main_example.UnifiedHtmlResponseHandler.get)
+
+    def test_check_json_resp_plugin(self) -> None:
+        pass
+
+        # TODO The Tornado test is more complicated and will be ignored for now
+
+    def test_gen_response(self) -> None:
+        # TODO The Tornado test is more complicated and will be ignored for now
+        pass
+
+    def test_simple_route(self) -> None:
+        def simple_route_factory(num: int) -> Callable:
+            @pait(response_model_list=[response.HtmlResponseModel])
+            def simple_route() -> str:
+                return f"I'm simple route {num}"
+
+            simple_route.__name__ = simple_route.__name__ + str(num)
+            return simple_route
+
+        add_simple_route(
+            self._app, SimpleRoute(methods=["GET"], url="/api/demo/simple-route-1", route=simple_route_factory(1))
+        )
+        add_multi_simple_route(
+            self._app,
+            SimpleRoute(methods=["GET"], url="/demo/simple-route-2", route=simple_route_factory(2)),
+            SimpleRoute(methods=["GET"], url="/demo/simple-route-3", route=simple_route_factory(3)),
+            prefix="/api",
+            title="test",
+        )
+        assert self.fetch("/api/demo/simple-route-1").body.decode() == "I'm simple route 1"
+        assert self.fetch("/api/demo/simple-route-2").body.decode() == "I'm simple route 2"
+        assert self.fetch("/api/demo/simple-route-2").body.decode() == "I'm simple route 2"
 
     def test_openapi_content(self) -> None:
         BaseTestOpenAPI(self._app).test_all()

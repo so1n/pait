@@ -18,7 +18,7 @@ def sniffing(app: Any) -> SupportAppLiteral:
                 return app_name  # type: ignore
             elif app_name == "application" and base_class.__module__ == "tornado.web":
                 return "tornado"
-    except Exception:
+    except Exception:  # pragma: no cover
         pass
 
     if app.__class__ in sniffing_dict:

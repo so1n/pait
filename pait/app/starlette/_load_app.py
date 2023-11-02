@@ -133,6 +133,6 @@ def load_app(
                     overwrite_already_exists_data=overwrite_already_exists_data,
                 )
         else:
-            logging.info(f"load_app func not support route:{route.__class__}")
+            logging.warning(f"load_app func not support route:{route.__class__}")
 
     return _pait_data

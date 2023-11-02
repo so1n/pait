@@ -20,16 +20,13 @@ class TestHelper(BaseTestHelper[HTTPResponse]):
     def _app_init_field(self) -> None:
         if self.cookie_dict:
             self.header_dict["cookie"] = ";".join([f"{key}={value}" for key, value in self.cookie_dict.items()])
-        if "$?" in self.path:
-            self.path = self.path.replace("$?", "?")
-        elif self.path.endswith("$"):
-            self.path = self.path[:-1]
+        # if "$?" in self.path:
+        #     self.path = self.path.replace("$?", "?")
+        # elif self.path.endswith("$"):
+        #     self.path = self.path[:-1]
 
     def _gen_pait_dict(self) -> Dict[str, PaitCoreModel]:
-        _load_app = self._load_app
-        if not _load_app:
-            _load_app = load_app
-        return _load_app(self.client.get_app())
+        return (self._load_app or load_app)(self.client.get_app())
 
     @staticmethod
     def _get_status_code(resp: HTTPResponse) -> int:
@@ -107,7 +104,7 @@ class TestHelper(BaseTestHelper[HTTPResponse]):
                     body.write(('Content-Disposition:form-data;name="%s"\r\n' % key).encode(encoding="utf-8"))
                     body.write("\r\n".encode(encoding="utf-8"))
                     if isinstance(v, int):
-                        v = f'"{v}"'
+                        v = str(v)
                     body.write(("%s\r\n" % v).encode(encoding="utf-8"))
 
         if files:

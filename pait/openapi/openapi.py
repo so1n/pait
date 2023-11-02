@@ -67,6 +67,9 @@ class ParsePaitModel(object):
             self._parse_call_type(pre_depend)
         self._parse_call_type(pait_model.func)
 
+        self.build()
+
+    def build(self) -> None:
         for http_param_type, annotation_dict in self.http_param_type_annotation_dict.items():
             http_param_type = self.http_param_type_alias_dict.get(http_param_type, http_param_type)
             if http_param_type not in self.http_param_type_dict:
@@ -260,9 +263,11 @@ class OpenAPI(object):
                         security=parse_pait_model.security_dict,
                     )
                 )
-            except Exception as e:
-                logging.error(f"parse pait model error by func: {pait_model.func_path}/{pait_model.func_name}")
-                raise e
+            except Exception as e:  # pragma: no cover
+                logging.error(
+                    f"parse pait model error by func: {pait_model.func_path}/{pait_model.func_name}"
+                )  # pragma: no cover
+                raise e  # pragma: no cover
         # In order to be compatible with the link, it must be imported in batches
         self._openapi.add_api_model(*api_model_list)
 

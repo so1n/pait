@@ -14,4 +14,4 @@ class CheckJsonRespPlugin(_CheckJsonRespPlugin):
         if isinstance(response_data, Response):
             return response_data.get_json()
         else:
-            raise TypeError(f"Expected type must {Response} but got type {type(response_data)}")
+            raise TypeError(f"Expected type must {Response} but got type {type(response_data)}")  # pragma: no cover

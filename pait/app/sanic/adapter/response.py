@@ -5,7 +5,9 @@ from sanic.response import BaseHTTPResponse, HTTPResponse, json
 from pait.model.response import BaseResponseModel, JsonResponseModel
 
 
-def gen_response(response_value: Any, response_model_class: Type[BaseResponseModel], *args: Any, **kwargs: Any) -> Any:
+def gen_response(
+    response_value: Any, response_model_class: Type[BaseResponseModel], *args: Any, **kwargs: Any
+) -> BaseHTTPResponse:
     if isinstance(response_value, BaseHTTPResponse):
         return response_value
     elif issubclass(response_model_class, JsonResponseModel):

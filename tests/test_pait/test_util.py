@@ -1,6 +1,7 @@
 import datetime
 import enum
 import inspect
+import json
 import typing
 from typing import Any, Dict, Generator, List, Optional, Union
 
@@ -10,7 +11,8 @@ from pydantic import BaseModel, Field, conint, constr
 from pytest_mock import MockFixture
 
 from pait import _pydanitc_adapter, field, util
-from pait.exceptions import TipException
+from pait.exceptions import ParseTypeError, TipException
+from pait.util.encoder import CustomJSONEncoder
 
 pytestmark = pytest.mark.asyncio
 
@@ -186,6 +188,15 @@ class TestLazyProperty:
         assert demo.demo_func(3, 1) != demo1.demo_func(3, 1)
         assert await demo.async_demo_func(3, 2) != await demo1.async_demo_func(3, 2)
 
+    def test_lazy_property_bound_error(self) -> None:
+        with pytest.raises(ValueError):
+
+            class Demo(object):
+                @staticmethod
+                @util.LazyProperty()
+                def demo() -> None:
+                    pass
+
 
 class TestTypes:
     def test_parse_typing(self) -> None:
@@ -240,6 +251,10 @@ class TestTypes:
 
         for i in _TYPING_NOT_PARSE_TYPE_SET:
             assert [i] == util.parse_typing(i)
+
+        # error type
+        with pytest.raises(ParseTypeError):
+            util.parse_typing(1)
 
     def test_is_type(self) -> None:
         assert util.is_type(str, Union[str, int])
@@ -442,8 +457,9 @@ class TestUtil:
             e: int = Field(default_factory=lambda: 10)
             f: datetime.date = Field()
             g: SexEnum = Field()
-            h: List[str] = Field()
+            h: List[str] = Field(example=["1"])
             i: Dict[str, List[int]] = Field()
+            j: List = Field()
 
         assert util.gen_example_dict_from_schema(_pydanitc_adapter.model_json_schema(Demo)) == {
             "a": 0,
@@ -453,10 +469,41 @@ class TestUtil:
             "e": 0,
             "f": "",
             "g": "man",
-            "h": [],
+            "h": ["1"],
             "i": {},
+            "j": [],
         }
-        assert (
-            util.gen_example_json_from_schema(_pydanitc_adapter.model_json_schema(Demo))
-            == '{"a": 0, "b": "mock", "alias_c": true, "d": 2.1, "e": 0, "f": "", "g": "man", "h": [], "i": {}}'
+        assert util.gen_example_json_from_schema(_pydanitc_adapter.model_json_schema(Demo)) == (
+            '{"a": 0, "b": "mock", "alias_c": true, "d": 2.1, "e": 0, "f": "", "g": "man",'
+            ' "h": ["1"], "i": {}, "j": []}'
+        )
+
+
+class TestEncoder:
+    def test_custom_json_encoder(self) -> None:
+        from datetime import datetime
+        from decimal import Decimal
+        from enum import Enum
+
+        from example.common.response_model import link_login_token_model
+        from pait.model.template import TemplateVar
+
+        class DemoEnum(Enum):
+            first = "first"
+            last = "last"
+
+        assert json.dumps(
+            {
+                "datetime": datetime.fromtimestamp(1600000000),
+                "data": datetime.fromtimestamp(1600000000).date(),
+                "decimal": Decimal("0.1"),
+                "enum": DemoEnum.first,
+                "template_var_1": TemplateVar("demo_1", default_value=1),
+                "template_var_2": TemplateVar("demo_2"),
+                "link": link_login_token_model,
+            },
+            cls=CustomJSONEncoder,
+        ) == (
+            '{"datetime": 1600000000, "data": "2020-09-13", "decimal": 0.1, "enum": "first", "template_var_1": 1,'
+            ' "template_var_2": null, "link": null}'
         )

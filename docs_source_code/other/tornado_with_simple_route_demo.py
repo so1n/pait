@@ -1,7 +1,7 @@
 from tornado.ioloop import IOLoop
 from tornado.web import Application
 
-from pait.app import SimpleRoute, add_multi_simple_route, add_simple_route
+from pait.app.any import SimpleRoute, add_multi_simple_route, add_simple_route
 from pait.app.tornado import pait
 from pait.model import response
 

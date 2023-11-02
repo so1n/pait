@@ -1,6 +1,6 @@
 from flask import Flask
 
-from pait.app import SimpleRoute, add_multi_simple_route, add_simple_route
+from pait.app.any import SimpleRoute, add_multi_simple_route, add_simple_route
 from pait.app.flask import pait
 from pait.model import response
 

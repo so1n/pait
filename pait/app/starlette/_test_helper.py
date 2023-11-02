@@ -20,10 +20,7 @@ class TestHelper(BaseTestHelper["ResponseType"]):
             self.header_dict["cookie"] = ";".join([f"{key}={value}" for key, value in self.cookie_dict.items()])
 
     def _gen_pait_dict(self) -> Dict[str, PaitCoreModel]:
-        _load_app = self._load_app
-        if not _load_app:
-            _load_app = load_app
-        return _load_app(self.client.app)  # type: ignore
+        return (self._load_app or load_app)(self.client.app)
 
     @staticmethod
     def _get_status_code(resp: "ResponseType") -> int:

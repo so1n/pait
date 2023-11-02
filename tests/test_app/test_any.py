@@ -7,6 +7,7 @@ import pytest
 from pytest_mock import MockFixture
 
 from pait.app import any
+from pait.app.any.util import base_call_func, import_func_from_app, sniffing, sniffing_dict
 from pait.app.auto_load_app import app_list, auto_load_app_class
 from pait.app.base import BaseAppHelper
 from pait.app.base.adapter.request import BaseRequest
@@ -383,3 +384,69 @@ class TestPlugin(BaseTestApp):
             )
             plugin_class(lambda *args, **kwargs: None, self.FakePluginCoreModel())
             patch.assert_called()
+
+
+class TestUtil(BaseTestApp):
+    def test_sniffing(self) -> None:
+        from flask import Flask
+
+        assert sniffing(Flask("demo")) == "flask"
+
+        from sanic import Sanic
+
+        assert sniffing(Sanic("demo")) == "sanic"
+
+        from starlette.applications import Starlette
+
+        assert sniffing(Starlette()) == "starlette"
+
+        from tornado.web import Application
+
+        assert sniffing(Application()) == "tornado"
+
+    def test_sniffing_not_found(self) -> None:
+        class FakeAppDemo(object):
+            pass
+
+        with pytest.raises(NotImplementedError):
+            sniffing(FakeAppDemo)
+
+    def test_sniffing_with_sniffing_dict(self) -> None:
+        class FakeAppDemo(object):
+            pass
+
+        sniffing_dict[FakeAppDemo] = lambda x: "demo"
+        try:
+            assert sniffing(FakeAppDemo()) == "demo"
+        finally:
+            sniffing_dict.pop(FakeAppDemo)
+
+    def test_import_func_from_app(self) -> None:
+        from flask import Flask
+
+        from pait.app.flask import pait
+        from pait.app.flask.security.api_key import APIKey
+
+        assert import_func_from_app("pait", app=Flask("demo")) == pait
+        assert import_func_from_app("APIKey", app=Flask("demo"), module_name="security.api_key") == APIKey
+
+    def test_auto_import_func_from_app(self) -> None:
+        self._clean_app_from_sys_module()
+        with mock.patch.dict("sys.modules", sys.modules):
+            import flask  # isort: skip
+            from pait.app.flask import pait
+
+            assert import_func_from_app("pait") == pait
+
+        self._clean_app_from_sys_module()
+        with mock.patch.dict("sys.modules", sys.modules):
+            import sanic  # isort: skip
+            from pait.app.sanic import pait  # type: ignore[assignment]
+
+            assert import_func_from_app("pait") == pait
+
+    def test_base_call_func(self) -> None:
+        from flask import Flask
+
+        my_pait = base_call_func("pait", app=Flask("demo"), author=("so1n",))
+        my_pait.author = ("so1n",)

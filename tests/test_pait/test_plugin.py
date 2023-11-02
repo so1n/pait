@@ -13,6 +13,7 @@ from pait.exceptions import CheckValueError
 from pait.model import response
 from pait.model.context import PluginContext
 from pait.model.core import PaitCoreModel
+from pait.model.response import FileResponseModel
 from pait.param_handle import ParamHandler
 from pait.plugin.at_most_one_of import AtMostOneOfExtraParam, AtMostOneOfPlugin
 from pait.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
@@ -20,6 +21,7 @@ from pait.plugin.cache_response import CacheRespExtraParam, CacheResponsePlugin
 from pait.plugin.check_json_resp import CheckJsonRespPlugin
 from pait.plugin.mock_response import MockPluginProtocol
 from pait.plugin.required import RequiredExtraParam, RequiredGroupExtraParam, RequiredPlugin
+from pait.plugin.unified_response import UnifiedResponsePluginProtocol
 from pait.util import get_pait_response_model
 
 
@@ -366,6 +368,8 @@ class TestRequiredPlugin:
             ParamHandler,
         )
         RequiredPlugin.pre_load_hook(demo_core_model_2, {"required_dict": {"a": ["b", "c"]}})
+        with pytest.raises(ValueError):
+            RequiredPlugin.pre_load_hook(demo_core_model_2, {"required_dict": {"a": ["b", "c", "d"]}})
 
     def test_pre_load_with_extra_param(self) -> None:
         def demo(
@@ -437,3 +441,41 @@ class TestRequiredPlugin:
                     kwargs={"a": 1, "a1": 1},
                 )
             )
+
+
+class TestUnifiedResponsePlugin:
+    def test_pre_load_hook(self) -> None:
+        def demo() -> None:
+            pass
+
+        with pytest.raises(RuntimeError):
+            UnifiedResponsePluginProtocol.pre_load_hook(
+                PaitCoreModel(
+                    func=demo,
+                    app_helper_class=BaseAppHelper,
+                    param_handler_plugin=ParamHandler,
+                ),
+                kwargs={},
+            )
+        with pytest.raises(ValueError) as e:
+            UnifiedResponsePluginProtocol.pre_load_hook(
+                PaitCoreModel(
+                    func=demo,
+                    app_helper_class=BaseAppHelper,
+                    param_handler_plugin=ParamHandler,
+                ),
+                kwargs={"get_pait_response_model": get_pait_response_model},
+            )
+        assert "The response model list cannot be empty, please add a response model to" in e.value.args[0]
+
+        with pytest.raises(ValueError) as e:
+            UnifiedResponsePluginProtocol.pre_load_hook(
+                PaitCoreModel(
+                    func=demo,
+                    app_helper_class=BaseAppHelper,
+                    param_handler_plugin=ParamHandler,
+                    response_model_list=[FileResponseModel],
+                ),
+                kwargs={"get_pait_response_model": get_pait_response_model},
+            )
+        assert e.value.args[0] == "Not Support FileResponseModel"
