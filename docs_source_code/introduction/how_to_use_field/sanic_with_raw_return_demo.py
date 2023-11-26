@@ -16,8 +16,8 @@ async def api_exception(request: Request, exc: Exception) -> HTTPResponse:
 
 @pait()
 async def demo(
-    demo_value: dict = field.Body.i(raw_return=True),
-    a: str = field.Body.i(),
+    demo_value: dict = field.Json.i(raw_return=True),
+    a: str = field.Json.i(),
 ) -> HTTPResponse:
     return json({"data": demo_value, "a": a})
 

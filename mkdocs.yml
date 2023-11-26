@@ -8,6 +8,8 @@ theme:
     favicon: assets/images/favicon.png
     features:
         - content.code.annotate
+        - content.code.copy
+        - content.tabs.link
         - navigation.top
         - navigation.path
         - search.highlight
@@ -38,18 +40,22 @@ nav:
   - Type conversion and parameter validation:
     - Introduction: '1_1_introduction.md'
     - How to use Field: '1_2_how_to_use_field.md'
-    - Hot to use Type: '1_3_how_to_use_type.md'
+    - How to use Type: '1_3_how_to_use_type.md'
     - Depend: '1_4_depend.md'
     - Exception: '1_5_exception.md'
-  - Pait multiplexing: '2_pait_multiplexing.md'
-  - API doc: '3_api_doc.md'
+  - How to use Pait decorator: '2_how_to_use_pait.md'
+  - OpenAPI:
+      - OpenAPI: '3_1_openapi.md'
+      - OpenAPI Route: '3_2_openapi_route.md'
+      - Security: '3_3_security.md'
   - Unit test helper: '4_unit_test_helper.md'
   - Plugin:
       - Introduction: '5_1_introduction.md'
-      - Param check plugin: '5_2_param_check_plugin.md'
-      - Json Response plugin: '5_3_json_response_plugin.md'
-      - Mock Response plugin: '5_4_mock_json_response_check_plugin.md'
-      - How to customize plugin: '5_5_how_to_customize_plugin.md'
+      - Parameter checking plugin: '5_2_param_check_plugin.md'
+      - Json response plugin: '5_3_json_response_plugin.md'
+      - Mock response plugin: '5_4_mock_json_response_check_plugin.md'
+      - Response caching plugin: '5_5_cache_response.md'
+      - How to customize plugins: '5_x_how_tp_customize_the_plugin.md'
   - config: "6_config.md"
   - gRPC Gateway: "7_gRPC_gateway.md"
   - Other: "8_other.md"
@@ -71,15 +77,33 @@ plugins:
     - search:
         lang:
             - en
+    - termynal:
+        prompt_literal_start:
+          - "$"
+          - ">"
 markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
   - meta
+  - md_in_html
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.highlight:
       anchor_linenums: true
-  - pymdownx.inlinehilite
-  - admonition
-  - pymdownx.details
-  - pymdownx.snippets
-  - pymdownx.superfences
-  - def_list
   - pymdownx.tasklist:
       custom_checkbox: true
+  - pymdownx.snippets
+extra_css:
+  - stylesheets/extra.css

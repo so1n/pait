@@ -1,52 +1,104 @@
 # Introduction
-Using `Pait` for parameter type conversion and parameter verification is very simple, for example:
-``` py hl_lines="11 13 14"  linenums="1"
-import uvicorn  # type: ignore
-from starlette.applications import Starlette
-from starlette.responses import JSONResponse
-from starlette.routing import Route
+`Pait` is an auxiliary framework and it will not change the usage of Web frameworks.
+Therefore, before introducing the use of `Pait`, let's first take a look at the usage of different Web frameworks.
 
-from pait.app.starlette import pait
-from pait.field import Body
+=== "Flask"
+
+    ```py linenums="1" title="docs_source_code/introduction/flask_hello_world_demo.py"
+
+    --8<-- "docs_source_code/introduction/flask_hello_world_demo.py"
+    ```
+
+=== "Starlette"
+
+    ```py linenums="1" title="docs_source_code/introduction/starlette_hello_world_demo.py"
+    --8<-- "docs_source_code/introduction/starlette_hello_world_demo.py"
+    ```
+
+=== "Sanic"
+
+    ```py linenums="1" title="docs_source_code/introduction/sanic_hello_world_demo.py"
+    --8<-- "docs_source_code/introduction/sanic_hello_world_demo.py"
+    ```
+
+=== "Tornado"
+
+    ```py linenums="1" title="docs_source_code/introduction/tornado_hello_world_demo.py"
+    --8<-- "docs_source_code/introduction/tornado_hello_world_demo.py"
+    ```
+
+The logic of this sample code is consistent with the sample code on the homepage.
+The main feature of the sample code is to register a route into an instance of the Web framework at startup,
+and after receiving a request with the URL `/api` and method `POST` at runtime, the request will be handed over to the route function for processing.
+The logic of the route function is also very simple.
+It will verify the data first and return the data only if it meets the requirements. Otherwise, an error will be thrown directly.
+
+Next, we will use `Pait` in the example code. Their functions are the same, as follows:
+=== "Flask"
+
+    ```py linenums="1" title="docs_source_code/introduction/flask_demo.py" hl_lines="10 12 13"
+
+    --8<-- "docs_source_code/introduction/flask_demo.py::7"
 
 
-# Decorate function with the pait decorator
-@pait()
-async def demo_post(
-    uid: int = Body.i(description="user id", gt=10, lt=1000),
-    user_name: str = Body.i(description="user name", min_length=2, max_length=4)
-) -> JSONResponse:
-    # get value and return
-    return JSONResponse({'result': {'uid': uid, 'user_name': user_name}})
+    @pait()
+    --8<-- "docs_source_code/introduction/flask_demo.py:22:30"
+    app.run(port=8000)
+    ```
+
+=== "Starlette"
+
+    ```py linenums="1" title="docs_source_code/introduction/starlette_demo.py" hl_lines="12 14 15"
+    --8<-- "docs_source_code/introduction/starlette_demo.py::9"
 
 
-app = Starlette(
-    routes=[
-        Route('/api', demo_post, methods=['POST']),
-    ]
-)
+    @pait()
+    --8<-- "docs_source_code/introduction/starlette_demo.py:24:31"
 
-uvicorn.run(app)
-```
-Line 11 of the above code is the running core of `Pait`,
-and all the running functions of `Pait` are implemented in this decorator。
+    import uvicorn
+    uvicorn.run(app)
+    ```
 
-Line 11 of the above code is the running core of `Pait`.
-All running functions of `Pait` are implemented in this decorator.
-In this core, the function signature corresponding to the function will be obtained through `inspect` ,
-and generate a `pydantic.BaseModel` object through the function signature,
-and then use the object checksum to convert the requested value and return it to the corresponding parameters of the function according to the function signature.
+=== "Sanic"
 
-The 13 and 14 lines of code are the parameters filled in by the developer.
-When the developer writes the function,
-only needs to write the parameters of the function as key parameters in the format similar to `<name>:<type>=<default>`.
-in addition to conforming to the key parameter standard of `Python`, `Pait` will also give other meanings:
+    ```py linenums="1" title="docs_source_code/introduction/sanic_demo.py" hl_lines="11 13 14"
+    --8<-- "docs_source_code/introduction/sanic_demo.py::8"
 
-- `name` The parameter name, in most cases, will be used as the Key to request the resource to obtain the corresponding value.
-- `type` The type corresponding to the value, which `Pait` will use for parameter verification and conversion.
-- `default` The `field` object of `Pait`, different `field` represent getting values from different request types, and the properties of the object tell `Pait` how to preprocess the value obtained from the request.
 
-Taking the `uid` parameter above as an example, `Pait` will obtain the Json data from the request through the Body, and then use the Key as the uid to obtain the corresponding value from the Json data and convert or verify whether it is an `int` type, and finally Then judge whether the value is between 10-1000, if not, report an error directly, if so, assign it to the variable `uid`.
+    @pait()
+    --8<-- "docs_source_code/introduction/sanic_demo.py:23:31"
+
+    import uvicorn
+    uvicorn.run(app)
+    ```
+
+=== "Tornado"
+
+    ```py linenums="1" title="docs_source_code/introduction/tornado_demo.py" hl_lines="23 26-27 33"
+    --8<-- "docs_source_code/introduction/tornado_demo.py"
+    ```
+
+The `@pait` decorator of the first highlighted code in the sample is the core of all functions of `Pait`.
+After using `@pait` to decorate the route function, `Pait` will get the function signature through `inspect` and generate Dependency injection rules.
+For example, the parameters of the route function in the second highlighted code are all filled in with key parameters in the format of `<name>:<type>=<default>`.
+`Pait` automatically transforms key parameters into its own dependency injection rules at initialization time with the following rules:
+
+| Key     | Meaning                  | Feature                                                                                                                                                                                |
+|---------|--------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| name    | Parameter Name           | `Pait` will use name as the key to get the corresponding value from the requested resource.                                                                                            |
+| type    | Parameter Type           | Used for parameter verification or conversion                                                                                                                                          |
+| default | `Field` object of `Pait` | Different `Field` types represent obtaining values from different request types; the properties of the `Field` object tell `Pait` how to get the value from the request and verify it. |
+
+Taking the `uid` parameter above as an example,
+first, `Pait` will get json data from the request obj.
+Second , use `uid` as the key to get the corresponding value from the json data and convert and verify whether it is` int` type.
+Last, determine whether the value is between 10-1000, if not, an error will be reported directly, if so, it will be assigned to the `uid` variable.
+
+By comparing the first sample code with the code after using `Pait`,can see that the code after using `Pait` is simpler, clearer
+and also improves the robustness of the code.
+
+
 
 !!! note
-    When using Body() directly, mypy will check the type mismatch, and Body.i() is compatible with this problem. In general, it is recommended to use Body.i() directly.
+    When using `Json()` , `mypy` will detect a type mismatch, so you can ignore this problem through `Json.i()`.
+    If you need `mypy` to check the values of `default`, `default_factory` and `example` attributes in `Json`, it is recommended to use `Json.t()` directly.

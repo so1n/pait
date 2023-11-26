@@ -5,7 +5,7 @@ from starlette.routing import Route
 
 from pait import _pydanitc_adapter
 from pait.app.starlette import pait
-from pait.field import Body
+from pait.field import Json
 from pait.model.template import TemplateVar
 from pait.openapi.doc_route import AddDocRoute
 
@@ -25,7 +25,7 @@ else:
 
 
 @pait()
-async def demo_post(model: UserModel = Body.i()) -> JSONResponse:
+async def demo_post(model: UserModel = Json.i()) -> JSONResponse:
     return JSONResponse({"result": model.dict()})
 
 

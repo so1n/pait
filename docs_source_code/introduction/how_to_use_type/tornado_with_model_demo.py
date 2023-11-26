@@ -28,7 +28,7 @@ class DemoHandler(RequestHandler):
 
 class Demo1Handler(RequestHandler):
     @pait()
-    def post(self, demo_model: DemoModel = field.Body.i(raw_return=True)) -> None:
+    def post(self, demo_model: DemoModel = field.Json.i(raw_return=True)) -> None:
         self.write(demo_model.dict())
 
 

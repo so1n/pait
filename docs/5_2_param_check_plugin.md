@@ -1,51 +1,47 @@
-`Pait`基于`Pydantic`实现了很多参数校验和转换的功能，但是在开发API的过程中，往往还需要一些参数依赖相关的校验功能，
-在`Pait`中通过后置插件`Required`和`AtMostOneOf`提供两种参数依赖校验功能。
+`Pait` is based on `Pydantic` to perform parameter checking and type conversion for each parameter,
+which cannot satisfy the need for multiple parameter dependency checking.
+For this reason,
+`Pait` provides two kinds of parameter dependency checking functions through post plugins `Required` and `AtMostOneOf`.
 
-## Required插件
-在编写API接口时，经常会遇到一种情况，比如某个接口存在请求参数A，B，C，一般情况下B和C都是选填，但是参数C依赖于参数B，也就是参数B存在时，C才可以存在，
-这时就可以使用`Required`插件配置规则来满足这一个条件，如下代码：
-```py hl_lines="22-24"
-from typing import Optional
-import uvicorn  # type: ignore
-from starlette.applications import Starlette
-from starlette.requests import Request
-from starlette.responses import JSONResponse
-from starlette.routing import Route
-from pait.exceptions import TipException
-from pait.plugin.required import RequiredPlugin
+## 1.Required Plugin
+In the creation of route functions, often encounter some parameter dependencies,
+such as having a request parameter A, B, C,
+which B and C are optional and the requirement that B exists, C also needs to exist, B does not exist, C can not exist.
+At this point, you can use the `Required` plugin for parameter restriction, the following code:
+=== "Flask"
 
-from pait.app.starlette import pait
-from pait import field
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/flask_with_required_plugin_demo.py" hl_lines="17"
 
+    --8<-- "docs_source_code/plugin/param_plugin/flask_with_required_plugin_demo.py"
+    ```
 
-async def api_exception(request: Request, exc: Exception) -> JSONResponse:
-    """提取异常信息， 并以响应返回"""
-    if isinstance(exc, TipException):
-        exc = exc.exc
-    return JSONResponse({"data": str(exc)})
+=== "Starlette"
 
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/starlette_with_required_plugin_demo.py" hl_lines="20"
+    --8<-- "docs_source_code/plugin/param_plugin/starlette_with_required_plugin_demo.py"
+    ```
 
-@pait(
-    post_plugin_list=[
-        RequiredPlugin.build(required_dict={"email": ["user_name"]})
-    ]
-)
-async def demo(
-    uid: str = field.Query.i(),
-    user_name: Optional[str] = field.Query.i(default=None),
-    email: Optional[str] = field.Query.i(default=None)
-) -> JSONResponse:
-    return JSONResponse({"uid": uid, "user_name": user_name, "email": email})
+=== "Sanic"
 
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/sanic_with_required_plugin_demo.py" hl_lines="18"
+    --8<-- "docs_source_code/plugin/param_plugin/sanic_with_required_plugin_demo.py"
+    ```
 
-app = Starlette(routes=[Route("/api/demo", demo, methods=["GET"])])
-app.add_exception_handler(Exception, api_exception)
-uvicorn.run(app)
-```
-这个函数本意上要求的是参数`uid`为必填参数，而参数`user_name`和`email`是选填参数，但是通过使用`ReuiredPlugin`插件后就会新增一个校验逻辑，
-这个校验逻辑是由参数`required_dict`定义的，它表示的是参数`email`必须依赖于一个参数集合才可以存在，这里定义的集合只有一个参数--`user_name`
+=== "Tornado"
 
-使用`curl`发送请求后可以通过响应结果发现，如果请求的参数只有`uid`时能正常返回，但请求的参数`user_name`为空时，参数`email`必须为空，不然会报错。
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/tornado_with_required_plugin_demo.py" hl_lines="20"
+    --8<-- "docs_source_code/plugin/param_plugin/tornado_with_required_plugin_demo.py"
+    ```
+
+The parameter `uid` is a required parameter in the route function, while the parameters `user_name` and `email` are optional,
+but a new validation rule is added when the `ReuiredPlugin` plugin is used.
+This validation rule is defined by `required_dict`, which states that the parameter `email` must depend on a collection of parameters to exist,
+and that collection has only one parameter -- `user_name`.
+So the validation rule for `RequiredPlugin` is that the parameter `email` can only exist if the parameter `user_name` exists.
+
+After using `curl` to send a request through the response results can be found,
+if the request parameter is only `uid` can be returned normally, but the request parameter `user_name` is null,
+the parameter `email` must be null, otherwise it will report an error.
 ```bash
 ➜ ~ curl http://127.0.0.1:8000/api/demo\?uid\=123
 {"uid":"123","user_name":null,"email":null}%
@@ -55,52 +51,104 @@ uvicorn.run(app)
 {"uid":"123","user_name":"so1n","email":"aaa"}%
 ```
 
+The `Required` plugin can pass dependency rules through the `build` method,
+but it can also define rules through the `ExtraParam` extension parameter.
+The `Required` plugin supports both `RequiredExtraParam` and `RequiredGroupExtraParam` extension parameter.
+The following code is a use of `RequiredExtraParam`,
+which generates a validation rule for `user_name` dependent on `email` via `extra_param_list=[RequiredExtraParam(main_column="email")`.
+=== "Flask"
 
-## AtMostOneOf插件
-除了参数的互相依赖外，还存在参数互相排斥的情况，比如某个接口有参数A，B，C三个，当B存在时，C就不能存在，C存在时，B就不能存在，这时可以使用`AtMostOneOf`插件配置规则来实现功能，代码如下：
-```py hl_lines="22-24"
-from typing import Optional
-import uvicorn  # type: ignore
-from starlette.applications import Starlette
-from starlette.requests import Request
-from starlette.responses import JSONResponse
-from starlette.routing import Route
-from pait.exceptions import TipException
-from pait.plugin.at_most_one_of import AtMostOneOfPlugin
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/flask_with_required_plugin_and_extra_param_demo.py" hl_lines="17 20"
 
-from pait.app.starlette import pait
-from pait import field
+    --8<-- "docs_source_code/plugin/param_plugin/flask_with_required_plugin_and_extra_param_demo.py"
+    ```
 
+=== "Starlette"
 
-async def api_exception(request: Request, exc: Exception) -> JSONResponse:
-    """提取异常信息， 并以响应返回"""
-    if isinstance(exc, TipException):
-        exc = exc.exc
-    return JSONResponse({"data": str(exc)})
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/starlette_with_required_plugin_and_extra_param_demo.py" hl_lines="20 23"
+    --8<-- "docs_source_code/plugin/param_plugin/starlette_with_required_plugin_and_extra_param_demo.py"
+    ```
 
+=== "Sanic"
 
-@pait(
-    post_plugin_list=[
-        AtMostOneOfPlugin.build(at_most_one_of_list=[["email", "user_name"]])
-    ]
-)
-async def demo(
-    uid: str = field.Query.i(),
-    user_name: Optional[str] = field.Query.i(default=None),
-    email: Optional[str] = field.Query.i(default=None)
-) -> JSONResponse:
-    return JSONResponse({"uid": uid, "user_name": user_name, "email": email})
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/sanic_with_required_plugin_and_extra_param_demo.py" hl_lines="18 21"
+    --8<-- "docs_source_code/plugin/param_plugin/sanic_with_required_plugin_and_extra_param_demo.py"
+    ```
+
+=== "Tornado"
+
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/tornado_with_required_plugin_and_extra_param_demo.py" hl_lines="21 27"
+    --8<-- "docs_source_code/plugin/param_plugin/tornado_with_required_plugin_and_extra_param_demo.py"
+    ```
 
 
-app = Starlette(routes=[Route("/api/demo", demo, methods=["GET"])])
-app.add_exception_handler(Exception, api_exception)
-uvicorn.run(app)
-```
+Another extension parameter `RequiredGroupExtraParam` is to categorize the parameters by `group` and mark one of the parameters in this group as the main parameter by `is_main`,
+so that all other parameters in the group will depend on the main parameter.
+The following sample code categorizes `user_name` and `email` parameters into `my-group`,
+and defines the `email` parameter as the main parameter of `my-group`,
+so that the generated validation rules depend on the `user_name` parameter and the `email` parameter.
+=== "Flask"
 
-这个函数本意上要求的是参数`uid`为必填参数，而参数`user_name`和`email`是选填参数，但是通过`AtMostOneOfPlugin`插件后就会新增一个校验逻辑，
-这个校验逻辑是由参数`at_most_one_of_list`定义的，它表示的是某一组参数不能同时存在，这里定义的是参数`email`和`user_name`不能同时存在。
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/flask_with_required_plugin_and_group_extra_param_demo.py" hl_lines="17 21 24"
 
-使用`curl`发送请求后可以通过响应结果发现，参数`email`和`user_name`共存时候会返回错误，其它情况都能正常返回响应。
+    --8<-- "docs_source_code/plugin/param_plugin/flask_with_required_plugin_and_group_extra_param_demo.py"
+    ```
+
+=== "Starlette"
+
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/starlette_with_required_plugin_and_group_extra_param_demo.py" hl_lines="20 24 27"
+    --8<-- "docs_source_code/plugin/param_plugin/starlette_with_required_plugin_and_group_extra_param_demo.py"
+    ```
+
+=== "Sanic"
+
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/sanic_with_required_plugin_and_group_extra_param_demo.py" hl_lines="18 22 25"
+    --8<-- "docs_source_code/plugin/param_plugin/sanic_with_required_plugin_and_group_extra_param_demo.py"
+    ```
+
+=== "Tornado"
+
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/tornado_with_required_plugin_and_group_extra_param_demo.py" hl_lines="21 26 29"
+    --8<-- "docs_source_code/plugin/param_plugin/tornado_with_required_plugin_and_group_extra_param_demo.py"
+    ```
+
+## 2.AtMostOneOf Plugin
+The main function of the `AtMostOneOf` plugin is to verify whether the parameters are mutually exclusive.
+for example, if there are three parameters A, B and C and the B parameter is required to be mutually exclusive with the C parameter,
+that if B exists, C cannot exist, and if C exists, B cannot exist.
+This can use `AtMostOneOf` plugin configuration rules to achieve the function, the code is as follows:
+=== "Flask"
+
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/flask_with_at_most_one_of_plugin_demo.py" hl_lines="17"
+
+    --8<-- "docs_source_code/plugin/param_plugin/flask_with_at_most_one_of_plugin_demo.py"
+    ```
+
+=== "Starlette"
+
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/starlette_with_at_most_one_of_plugin_demo.py" hl_lines="20"
+    --8<-- "docs_source_code/plugin/param_plugin/starlette_with_at_most_one_of_plugin_demo.py"
+    ```
+
+=== "Sanic"
+
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/sanic_with_at_most_one_of_plugin_demo.py" hl_lines="18"
+    --8<-- "docs_source_code/plugin/param_plugin/sanic_with_at_most_one_of_plugin_demo.py"
+    ```
+
+=== "Tornado"
+
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/tornado_with_at_most_one_of_plugin_demo.py" hl_lines="20"
+    --8<-- "docs_source_code/plugin/param_plugin/tornado_with_at_most_one_of_plugin_demo.py"
+    ```
+
+In the sample code, `uid` is a required parameter, while `user_name` and `email` are optional parameters,
+and after using the `AtMostOneOfPlugin` plugin a new validation rule will be added.
+This validation rule is defined by the parameter `at_most_one_of_list`,
+which indicates that the parameters `email` and `user_name` cannot exist at the same time.
+
+After sending a request using `curl`, the response shows that an error is returned when both `email` and `user_name` are present,
+but otherwise the response is returned normally.
 ```bash
 ➜ ~ curl http://127.0.0.1:8000/api/demo\?uid\=123
 {"uid":"123","user_name":null,"email":null}%
@@ -111,3 +159,33 @@ uvicorn.run(app)
 ➜ ~ curl http://127.0.0.1:8000/api/demo\?uid\=123\&email\=aaa\&user_name\=so1n
 {"data":"requires at most one of param email or user_name"}%
 ```
+
+In addition, the `AtMostOneOf` plugin also supports grouping parameters by `ExtraParam` and restricting them to not appearing at the same time,
+using the following method:
+=== "Flask"
+
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/flask_with_at_most_one_of_plugin_and_extra_param_demo.py" hl_lines="17 20 21"
+
+    --8<-- "docs_source_code/plugin/param_plugin/flask_with_at_most_one_of_plugin_and_extra_param_demo.py"
+    ```
+
+=== "Starlette"
+
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/starlette_with_at_most_one_of_plugin_and_extra_param_demo.py" hl_lines="20 23 24"
+    --8<-- "docs_source_code/plugin/param_plugin/starlette_with_at_most_one_of_plugin_and_extra_param_demo.py"
+    ```
+
+=== "Sanic"
+
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/sanic_with_at_most_one_of_plugin_and_extra_param_demo.py" hl_lines="18 21 22"
+    --8<-- "docs_source_code/plugin/param_plugin/sanic_with_at_most_one_of_plugin_and_extra_param_demo.py"
+    ```
+
+=== "Tornado"
+
+    ```py linenums="1" title="docs_source_code/plugin/param_plugin/tornado_with_at_most_one_of_plugin_and_extra_param_demo.py" hl_lines="21 26 28"
+    --8<-- "docs_source_code/plugin/param_plugin/tornado_with_at_most_one_of_plugin_and_extra_param_demo.py"
+    ```
+In this code, the `user_name` and `email` parameters are grouped into `my-group` using `AtMostOneOfExtraParam`.
+At runtime, the `AtMostOneOf` plugin verifies that both the `user_name` and `email` parameters exist,
+and throws an error if both exist.

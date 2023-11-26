@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 from pait.app.flask import pait
 from pait.app.flask.security import api_key
-from pait.field import Body, Depends, Query
+from pait.field import Depends, Json, Query
 from pait.model.response import JsonResponseModel
 from pait.openapi.doc_route import AddDocRoute
 from pait.openapi.openapi import LinksModel
@@ -26,7 +26,7 @@ class LoginRespModel(JsonResponseModel):
 
 
 @pait(response_model_list=[LoginRespModel])
-def login_route(uid: str = Body.i(description="user id"), password: str = Body.i(description="password")) -> dict:
+def login_route(uid: str = Json.i(description="user id"), password: str = Json.i(description="password")) -> dict:
     return {"code": 0, "msg": "", "data": {"token": hashlib.sha256((uid + password).encode("utf-8")).hexdigest()}}
 
 

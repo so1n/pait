@@ -1,18 +1,20 @@
-`Pait`内部有很多参数校验逻辑，出现错误的情况也有很多种，为了方便的捕获和了解异常，`Pait`拥有一个简单的异常机制。
-`Pait`的异常都是继承于`PaitBaseException`，在发生异常时可以通过:
-```python
-isinstance(exc, PaitBaseException)
-```
-来判断异常是否属于`Pait`的异常。
+There is a lot of parameter verification logic inside `Pait`, so a variety of error conditions will occur.
+In order to easily catch and understand exceptions during use, `Pait` has a simple exception mechanism.
 
 !!! note
-    由于`Pait`是使用`Pydantic`进行校验， 所以在运行时会因为校验不通过而抛出`Pydantic`相关异常，
-    可以通过[Error Handling](https://pydantic-docs.helpmanual.io/usage/models/#error-handling)了解如何使用`Pydantic`异常
-## TipException异常
-`Pait`的核心是一个装饰器，在运行的时候`Pait`核心会检查参数是否存在，参数是否合法，以及参数是否通过`Pydantic`的校验，
-在上述条件中有一个校验不通过时都会抛出异常，但是该异常的堆栈只会在`Pait`的核心装饰器里流转，这样子对于使用`Pait`的开发者来说很难找出出现问题的路由函数在哪，这样排查问题是十分困难的。
-所以`Pait`通过`TipException`对异常进行一个包装，在抛错信息里告诉用户说哪个路由函数抛错，抛错的位置在哪里，
-如果用户使用了类似于`Pycharm`的IDE,还可以通过点击路径跳转到对应的地方，一个异常示例如下：
+    Exceptions of `Pait` are inherited from `PaitBaseException`,
+    and in the event of an exception can use `isinstance(exc, PaitBaseException)` to determine if the exception is a `Pait` exception.
+    In addition, since `Pait` passes the data to `Pydantic` for validation, `Pydantic` related exceptions will be thrown at runtime because the validation fails, you can learn how to use `Pydantic` exceptions through [Error Handling](https://pydantic-docs.helpmanual.io/usage/models/#error-handling).
+
+## 1.`Pait` exception introduction
+### 1.1.TipException
+
+When the program is running, `Pait` checks and verifies the parameters, and throws an exception if the verification fails.
+However, the exception will only flow in `Pait` and will not be exposed so that the developer will not be able to know which route function threw the exception,
+which makes troubleshooting very difficult.
+
+So `Pait` wraps the exception in a `TipException` that indicates which route function threw the exception and where it threw it.
+If you use an IDE tool such as `Pycharm`, you can also click on the route to jump to the corresponding place, an example of an exception is as follows:
 ```bash
 Traceback (most recent call last):
   File "/home/so1n/github/pait/.venv/lib/python3.7/site-packages/starlette/exceptions.py", line 71, in __call__
@@ -40,16 +42,20 @@ Traceback (most recent call last):
 pait.exceptions.TipException: Can not found content__type value for <function raise_tip_route at 0x7f512ccdebf8>   Customer Traceback:
     File "/home/so1n/github/pait/example/param_verify/starlette_example.py", line 88, in raise_tip_route.
 ```
-可以看到异常是通过`gen_tip_exc`抛出来的，而抛出来的异常信息则包含路由函数所在位置，和异常信息，此外，可以通过`TipException.exc`获取到原本的异常。
+Through the exception example, can see that the exception is thrown through the `gen_tip_exc` function,
+and the thrown exception information includes the location of the route function.
+However, there is a downside to using `TipException` though,
+it causes all exceptions to be `TipException` needing to get the original exception via `TipException.exc`.
+### 1.2.Parameter exception
+Currently, `Pait` has 3 types of parameter exceptions, as follows:
 
-## 参数异常
-目前`Pait`有3种参数异常，分别有:
+| Exception               | Location                 | Description                                                      |
+|-------------------------|--------------------------|------------------------------------------------------------------|
+| NotFoundFieldException  | Plugin Pre Check         | Indicates that the corresponding `Field` cannot be matched, and this exception will not be encountered during normal use.                               |
+| NotFoundValueException  | Execute route function | This exception indicates that the corresponding value cannot be found from the request data. This is a common exception.                                    |
+| FieldValueTypeException | Plugin Pre Check         | Indicates that `Pait` found that the values filled in `default`, `example` in `Field` are illegal, and the user needs to make corrections according to the prompts.|
 
-- NotFoundFieldException  该异常表示匹配不到对应的`Field`， 通常开发者在正常使用时，不会遇到该异常。
-- NotFoundValueException  该异常表示无法从请求数据中找到对应的值，这是一个常见的异常，一般是请求数据缺少部分参数。
-- FieldValueTypeException  该异常表示程序启动时，`Pait`发现`Field`里的`default`，`example`等填写的值不合法，开发者需要根据提示进行改正。
-
-这三种异常都是继承于`PaitBaseParamException`，它的源码如下：
+These three exceptions are inherited from `PaitBaseParamException`, and its source code is as follows:
 ```Python
 class PaitBaseParamException(PaitBaseException):
     def __init__(self, param: str, msg: str):
@@ -57,79 +63,134 @@ class PaitBaseParamException(PaitBaseException):
         self.param: str = param
         self.msg: str = msg
 ```
-从代码可以看出`PaitBaseParamException`在抛异常时只会抛出错误信息，但是在需要根据异常返回一些指定响应时，可以通过`param`知道是哪个参数出错。
+It can be seen from the code that `PaitBaseParamException` not only includes error information,
+but also includes the name of the parameter that caused the current error.
 
-## 异常使用示例
-在CRUD业务中，路由函数发生的异常都要被捕获，然后返回一个协定好的错误信息供前端使用，下面是一个异常捕获的示例代码：
-```py hl_lines="13"
-from typing import List
-import uvicorn  # type: ignore
-from starlette.applications import Starlette
-from starlette.requests import Request
-from starlette.responses import JSONResponse
-from starlette.routing import Route
+## 2.How to use exceptions
+### 2.1.Usage Exception
+In CRUD business, exceptions thrown by route functions must be caught, and then an agreed error message is returned for front-end use.
+The following is an example code for exception capture:
+=== "Flask"
 
-from pait import field, exceptions
-from pait.app.starlette import pait
-from pydantic import ValidationError
+    ```py linenums="1" title="docs_source_code/introduction/exception/flask_with_exception_demo.py"  hl_lines="11 14 16 21"
 
+    --8<-- "docs_source_code/introduction/exception/flask_with_exception_demo.py"
+    ```
 
-async def api_exception(request: Request, exc: Exception) -> JSONResponse:
-    if isinstance(exc, exceptions.TipException):
-        # 提取原本的异常
-        exc = exc.exc
+=== "Starlette"
 
-    if isinstance(exc, exceptions.PaitBaseParamException):
-        # 提取参数信息和错误信息，告知用户哪个参数发生错误
-        return JSONResponse({"code": -1, "msg": f"error param:{exc.param}, {exc.msg}"})
-    elif isinstance(exc, ValidationError):
-        # 解析Pydantic异常，返回校验失败的参数信息
-        error_param_list: List[str] = []
-        for i in exc.errors():
-            error_param_list.extend(i["loc"])
-        return JSONResponse({"code": -1, "msg": f"check error param: {error_param_list}"})
-    elif isinstance(exc, exceptions.PaitBaseException):
-        # 标准的Pait异常，通常很少出现，直接返回异常信息
-        return JSONResponse({"code": -1, "msg": str(exc)})
+    ```py linenums="1" title="docs_source_code/introduction/exception/starlette_with_exception_demo.py"   hl_lines="14 17 19 24 35"
+    --8<-- "docs_source_code/introduction/exception/starlette_with_exception_demo.py"
+    ```
 
-    # 路由函数的错误信息
-    return JSONResponse({"code": -1, "msg": str(exc)})
+=== "Sanic"
 
+    ```py linenums="1" title="docs_source_code/introduction/exception/sanic_with_exception_demo.py"    hl_lines="11 14 16 18 21"
+    --8<-- "docs_source_code/introduction/exception/sanic_with_exception_demo.py"
+    ```
 
-@pait()
-async def demo(demo_value: int = field.Query.i()) -> JSONResponse:
-    return JSONResponse({"code": 0, "msg": "", "data": demo_value})
+=== "Tornado"
 
-app = Starlette(routes=[Route("/api/demo", demo, methods=["GET"])])
-app.add_exception_handler(Exception, api_exception)
+    ```py linenums="1" title="docs_source_code/introduction/exception/tornado_with_exception_demo.py" hl_lines="14 17 19 24"
+    --8<-- "docs_source_code/introduction/exception/tornado_with_exception_demo.py"
+    ```
 
+The exception handling of the `api_exception` function in the sample code is arranged in a strict order.
+It is generally recommended to handle exceptions in this order.
 
-uvicorn.run(app)
-```
-该代码的响应使用了常见的后端返回Json数据协议:
-```json
-{
-  "code": 0,
-  "msg": "",
-  "data": {}
-}
-```
-其中`code`为0时代表响应正常，不为0则为异常且`msg`包括了一个错误信息供前端展示，而`data`是正常响应时的结构体。
+The first highlighted code of the `api_exception` function is to extract the original exception of `TipException`.
+All subsequent exception handling is for the original exception, so it has the highest priority.
+The second highlighted code is to handle all `Pait` parameter exceptions.
+It will extract parameter information and error information and inform the user which parameter has an error.
+The third highlighted code handles the verification exception of `Pydantic`.
+It will parse the exception and return the parameter information that failed the verification.
+The fourth piece of code handles all exceptions of `Pait`, which usually occur rarely.
+The last step is to handle exceptions in other situations, which may be exceptions defined by the business system.
 
-然后通过`Starlette`框架的异常机制，把自定义的`api_exception`函数挂载到`Starlette`的异常处理回调中，
-`api_exception`函数里面包含了使用`Pait`时遇到的几种异常的处理，然后按照协议返回数据给调用端，通过`curl`调用可以发现：
+The last highlighted code is to mount the custom `api_exception` function into the framework's exception handling callback through the exception mechanism of the Web framework.
 
-- 缺少参数时，会返回找不到参数的错误信息
+!!! note
+    `Tornado`'s exception handling is implemented in `RequestHandler`.
+
+After running the code and calling the `curl` command can know:
+
+- When parameters are missing, an error message indicating that the parameter cannot be found will be returned.
     ```bash
     ➜  ~ curl "http://127.0.0.1:8000/api/demo"
     {"code":-1,"msg":"error param:demo_value, Can not found demo_value value"}
     ```
-- 参数校验出错时，会返回校验出错的参数名
+- When parameter verification fails, the parameter name with verification error will be returned.
     ```bash
     ➜  ~ curl "http://127.0.0.1:8000/api/demo?demo_value=a"
     {"code":-1,"msg":"check error param: ['demo_value']"}
     ```
-- 参数正常时返回正常的数据
+- Normal data is returned when the parameters are normal.
+    ```bash
+    ➜  ~ curl "http://127.0.0.1:8000/api/demo?demo_value=3"
+    {"code":0,"msg":"","data":3}
+    ```
+
+
+!!! note "Protocol description"
+    The response of the sample code uses common front-end and back-end interaction protocols:
+    ```json
+    {
+      "code": 0,  # When it is 0, it means the response is normal, if it is not 0, it means it is abnormal.
+      "msg": "",  # It is an error message when there is an exception, and it is empty when it is normal.
+      "data": {}  # Response Data
+    }
+    ```
+
+
+### 2.2.Custom TipException
+The TipExceptions are enabled by default.
+If you think that error prompts will consume performance or want to turn off it,
+can define the `tip_exception_class` attribute of `ParamHandler` as `None` to turn off exception prompts. code show as below:
+=== "Flask"
+
+    ```py linenums="1" title="docs_source_code/introduction/exception/flask_with_not_tip_exception_demo.py"  hl_lines="11 12 15 29"
+
+    --8<-- "docs_source_code/introduction/exception/flask_with_not_tip_exception_demo.py"
+    ```
+
+=== "Starlette"
+
+    ```py linenums="1" title="docs_source_code/introduction/exception/starlette_with_not_tip_exception_demo.py"   hl_lines="14 15 18 32"
+    --8<-- "docs_source_code/introduction/exception/starlette_with_not_tip_exception_demo.py"
+    ```
+
+=== "Sanic"
+
+    ```py linenums="1" title="docs_source_code/introduction/exception/sanic_with_not_tip_exception_demo.py"    hl_lines="11 12 15 29"
+    --8<-- "docs_source_code/introduction/exception/sanic_with_not_tip_exception_demo.py"
+    ```
+
+=== "Tornado"
+
+    ```py linenums="1" title="docs_source_code/introduction/exception/tornado_with_not_tip_exception_demo.py" hl_lines="13 14 18 33"
+    --8<-- "docs_source_code/introduction/exception/tornado_with_not_tip_exception_demo.py"
+    ```
+
+The sample code has a total of three modifications:
+    - The `NotTipParamHandler` in the first highlighted code is inherited from `ParamHandler` (or `AsyncParamHandler`),
+        which turns off exception tip by setting the `tip_exception_class` attribute to empty.
+    - The second piece of highlighting code removes the `TipException` extraction logic from the `api_exception` function, as it is not needed now.
+    - The third piece of highlighted code defines the `ParamHandler` used by the current route function to be a `NotTipParamHandler` via the `param_handler_plugin` property of `Pait`.
+
+
+After running the code and calling the `curl` command can know:
+
+- When parameters are missing, an error message that the parameter cannot be found will be returned.
+    ```bash
+    ➜  ~ curl "http://127.0.0.1:8000/api/demo"
+    {"code":-1,"msg":"error param:demo_value, Can not found demo_value value"}
+    ```
+- When parameter verification fails, the parameter name with verification error will be returned.
+    ```bash
+    ➜  ~ curl "http://127.0.0.1:8000/api/demo?demo_value=a"
+    {"code":-1,"msg":"check error param: ['demo_value']"}
+    ```
+- Normal data is returned when the parameters are normal.
     ```bash
     ➜  ~ curl "http://127.0.0.1:8000/api/demo?demo_value=3"
     {"code":0,"msg":"","data":3}

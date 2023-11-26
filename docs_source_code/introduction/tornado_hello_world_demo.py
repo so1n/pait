@@ -10,12 +10,12 @@ class DemoHandler(RequestHandler):
         uid_str: str = request_dict.get("uid", "")
         username: str = request_dict.get("username", "")
 
-        uid = int(uid_str)  # 暂时不去考虑类型转换的异常
+        uid = int(uid_str)  # Don't think about type conversion exceptions for now
         if not (10 < uid < 1000):
             raise ValueError("invalid uid")
         if not (2 <= len(username) <= 4):
             raise ValueError("invalid name")
-        # 获取对应的值进行返回
+        # get the corresponding value and return it
         self.write({"uid": uid, "username": username})
 
 

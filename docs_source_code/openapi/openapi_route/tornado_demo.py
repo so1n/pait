@@ -4,7 +4,7 @@ from tornado.web import Application, RequestHandler
 
 from pait import _pydanitc_adapter
 from pait.app.tornado import pait
-from pait.field import Body
+from pait.field import Json
 from pait.model.template import TemplateVar
 from pait.openapi.doc_route import AddDocRoute
 
@@ -25,7 +25,7 @@ else:
 
 class DemoHandler(RequestHandler):
     @pait()
-    async def post(self, model: UserModel = Body.i()) -> None:
+    async def post(self, model: UserModel = Json.i()) -> None:
         self.write({"result": model.dict()})
 
 

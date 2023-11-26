@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 
 from pait import _pydanitc_adapter
 from pait.app.flask import pait
-from pait.field import Body
+from pait.field import Json
 from pait.model.template import TemplateVar
 from pait.openapi.doc_route import AddDocRoute
 
@@ -23,7 +23,7 @@ else:
 
 
 @pait()
-def demo_post(model: UserModel = Body.i()) -> Response:
+def demo_post(model: UserModel = Json.i()) -> Response:
     return jsonify({"result": model.dict()})
 
 

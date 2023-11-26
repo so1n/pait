@@ -25,7 +25,7 @@ def demo(demo_model: DemoModel = field.Query.i(raw_return=True)) -> Response:
 
 
 @pait()
-def demo1(demo_model: DemoModel = field.Body.i(raw_return=True)) -> Response:
+def demo1(demo_model: DemoModel = field.Json.i(raw_return=True)) -> Response:
     return jsonify(demo_model.dict())
 
 

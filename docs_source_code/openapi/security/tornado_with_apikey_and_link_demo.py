@@ -7,7 +7,7 @@ from tornado.web import Application, RequestHandler
 
 from pait.app.tornado import pait
 from pait.app.tornado.security import api_key
-from pait.field import Body, Depends, Query
+from pait.field import Depends, Json, Query
 from pait.model.response import JsonResponseModel
 from pait.openapi.doc_route import AddDocRoute
 from pait.openapi.openapi import LinksModel
@@ -29,7 +29,7 @@ class LoginRespModel(JsonResponseModel):
 class LoginHandler(RequestHandler):
     @pait(response_model_list=[LoginRespModel])
     async def post(
-        self, uid: str = Body.i(description="user id"), password: str = Body.i(description="password")
+        self, uid: str = Json.i(description="user id"), password: str = Json.i(description="password")
     ) -> None:
         self.write(
             {"code": 0, "msg": "", "data": {"token": hashlib.sha256((uid + password).encode("utf-8")).hexdigest()}}

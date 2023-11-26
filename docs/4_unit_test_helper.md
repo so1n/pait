@@ -1,88 +1,273 @@
-`Pait`对于单元测试有一个简单的支持，使开发者能像调用函数一样去编写测试用例，并自动从`response_modle_list`中挑选一个最合适的`response_model`与响应结果进行简单的校验，从而减少开发者编写测试用例的代码量。
 
-## 使用方法
-以[example.starlette_example.py.post_route](https://github.com/so1n/pait/blob/master/example/param_verify/starlette_example.py#L104)为例子：
-```Python
-@other_pait(
-    status=PaitStatus.release,
-    tag=(tag.user_tag, tag.post_tag),
-    response_model_list=[UserSuccessRespModel, FailRespModel],
-)
-async def post_route(
-    model: UserModel = Body.i(raw_return=True),
-    other_model: UserOtherModel = Body.i(raw_return=True),
-    sex: SexEnum = Body.i(description="sex"),
-    content_type: str = Header.i(alias="Content-Type", description="Content-Type"),
-) -> JSONResponse:
-    """Test Method:Post Pydantic Model"""
-    return_dict = model.dict()
-    return_dict["sex"] = sex.value
-    return_dict.update(other_model.dict())
-    return_dict.update({"content_type": content_type})
-    return JSONResponse({"code": 0, "msg": "", "data": return_dict})
+Currently, `Pait` provides a simple unit test support through `TestHelper`,
+which runs tests by automatically adding URLs, HTTP methods and other parameters by route functions.
+And when getting the result, it will get the most matching response model from `response_modle_list` for simple validation,
+thus reducing the amount of code required for developers to write test cases.
+
+## 1.Usage of TestHelper
+The sample code used this time is to expand the sample code on the home page,
+the main change is to add a parameter named `return_error_resp` in the route function,
+when `return_error_resp` is `True` it will return a response that does not match the response model,
+the code is as follows:
+=== "Flask"
+
+    ```py linenums="1" title="docs_source_code/unit_test_helper/flask_test_helper_demo.py" hl_lines="21 25"
+
+    --8<-- "docs_source_code/unit_test_helper/flask_test_helper_demo.py::31"
+    app.run(port=8000)
+    ```
+
+=== "Starlette"
+
+    ```py linenums="1" title="docs_source_code/unit_test_helper/starlette_test_helper_demo.py" hl_lines="23 27"
+    --8<-- "docs_source_code/unit_test_helper/starlette_test_helper_demo.py::32"
+
+    import uvicorn
+    uvicorn.run(app)
+    ```
+
+=== "Sanic"
+
+    ```py linenums="1" title="docs_source_code/unit_test_helper/sanic_test_helper_demo.py" hl_lines="22 26"
+    --8<-- "docs_source_code/unit_test_helper/sanic_test_helper_demo.py::32"
+
+    import uvicorn
+    uvicorn.run(app)
+    ```
+
+=== "Tornado"
+
+    ```py linenums="1" title="docs_source_code/unit_test_helper/tornado_test_helper_demo.py" hl_lines="22 27"
+    --8<-- "docs_source_code/unit_test_helper/tornado_test_helper_demo.py::33"
+    app.listen(8000)
+
+    from tornado.ioloop import IOLoop
+    IOLoop.instance().start()
+    ```
+
+Then can write test cases with `TestHelper`,
+first need to import `TestHelper` and the test client for the corresponding web framework and also initialize the test framework:.
+=== "Flask"
+
+    !!! note
+
+        Since `Flask` automatically registers the `OPTIONS` method in the route that registers the `POST` method,
+        which interferes with the autodiscovery of `TestHelper`'s HTTP methods,
+        need to block the `OPTIONS` method with `apply_block_http_method_set`.
+
+    ```py linenums="33" title="docs_source_code/unit_test_helper/flask_test_helper_demo.py"
+
+    --8<-- "docs_source_code/unit_test_helper/flask_test_helper_demo.py:35:66"
+    ```
+
+=== "Starlette"
+
+    !!! note
+
+        When using `with TestClient(app) as client`, `Starlette` automatically calls the app's `startup` and `shutdown` methods, which is a good habit to get into when using `with TestClient(app) as client`, even though it's not used in this test case.
+
+    ```py linenums="38" title="docs_source_code/unit_test_helper/starlette_test_helper_demo.py"
+    --8<-- "docs_source_code/unit_test_helper/starlette_test_helper_demo.py:37:51"
+    ```
+
+=== "Sanic"
+
+    ```py linenums="39" title="docs_source_code/unit_test_helper/sanic_test_helper_demo.py"
+    --8<-- "docs_source_code/unit_test_helper/sanic_test_helper_demo.py:37:50"
+    ```
+
+=== "Tornado"
+
+    !!! note
+
+        Currently I don't know how to execute `Tornado` test cases via `Pytest`, so I used `Tornado`'s `AsyncHTTPTestCase` for initialization. If you know how to execute `Tornado` test cases via `Pytest`, feel free to give feedback via [issue](https://github.com/so1n/pait/issues).
+
+    ```py linenums="38" title="docs_source_code/unit_test_helper/tornado_test_helper_demo.py"
+    --8<-- "docs_source_code/unit_test_helper/tornado_test_helper_demo.py:37:51"
+    ```
+After writing the initialization code for the test case, it is time to write the test case code,
+first it will be demonstrated how to write a test case through `TestHelper` with the following code:
+=== "Flask"
+
+    ```py linenums="65" title="docs_source_code/unit_test_helper/flask_test_helper_demo.py"
+
+    --8<-- "docs_source_code/unit_test_helper/flask_test_helper_demo.py:69:75"
+    ```
+
+=== "Starlette"
+
+    ```py linenums="50" title="docs_source_code/unit_test_helper/starlette_test_helper_demo.py"
+    --8<-- "docs_source_code/unit_test_helper/starlette_test_helper_demo.py:54:60"
+    ```
+
+=== "Sanic"
+
+    ```py linenums="50" title="docs_source_code/unit_test_helper/sanic_test_helper_demo.py"
+    --8<-- "docs_source_code/unit_test_helper/sanic_test_helper_demo.py:53:59"
+    ```
+
+=== "Tornado"
+
+    ```py linenums="50" title="docs_source_code/unit_test_helper/tornado_test_helper_demo.py"
+    class TestTornado(AsyncHTTPTestCase):
+        ...
+
+    --8<-- "docs_source_code/unit_test_helper/tornado_test_helper_demo.py:53:59"
+    ```
+
+
+In this test case, `TestHelper` will be initialized,
+`TestHelper` initialization requires the Web framework corresponding to the test client,
+the route function, as well as the route function of some of the request parameters,
+after the initialization is complete, you can get the request response through the `TestHelper`.
+
+While executing the test, `TestHelper` automatically discovers the `URL` and HTTP method of the route function.
+So when calling the `json` method, `TestHelper` will automatically initiate a `post` request and gets the response result.
+Then it serializes the response Body into a `Python` `dict` object and returns it.
+However, when the route function is bound to more than one request method,
+`TestHelper` will not be able to do this automatically,
+and need to specify the corresponding HTTP method when calling the `json` method, using the following method:
+
+=== "Flask"
+
+    ```py linenums="74" title="docs_source_code/unit_test_helper/flask_test_helper_demo.py"
+
+    --8<-- "docs_source_code/unit_test_helper/flask_test_helper_demo.py:78:84"
+    ```
+
+=== "Starlette"
+
+    ```py linenums="59" title="docs_source_code/unit_test_helper/starlette_test_helper_demo.py"
+    --8<-- "docs_source_code/unit_test_helper/starlette_test_helper_demo.py:63:69"
+    ```
+
+=== "Sanic"
+
+    ```py linenums="59" title="docs_source_code/unit_test_helper/sanic_test_helper_demo.py"
+    --8<-- "docs_source_code/unit_test_helper/sanic_test_helper_demo.py:62:68"
+    ```
+
+=== "Tornado"
+
+    ```py linenums="58" title="docs_source_code/unit_test_helper/tornado_test_helper_demo.py"
+    class TestTornado(AsyncHTTPTestCase):
+        ...
+
+    --8<-- "docs_source_code/unit_test_helper/tornado_test_helper_demo.py:61:67"
+    ```
+
+In addition, when writing test cases, may need a response object, rather than response data,
+in order to validate data such as status codes, `Header`, etc.
+This can be done by calling the `HTTP` method of the `TestHelper` and getting the response object.
+The following code makes a request to the route function via the `post` method and returns the response object of the Web framework's test client,
+which is then asserted:
+=== "Flask"
+
+    ```py linenums="83" title="docs_source_code/unit_test_helper/flask_test_helper_demo.py"
+
+    --8<-- "docs_source_code/unit_test_helper/flask_test_helper_demo.py:87:95"
+    ```
+
+=== "Starlette"
+
+    ```py linenums="68" title="docs_source_code/unit_test_helper/starlette_test_helper_demo.py"
+    --8<-- "docs_source_code/unit_test_helper/starlette_test_helper_demo.py:72:80"
+    ```
+
+=== "Sanic"
+
+    ```py linenums="68" title="docs_source_code/unit_test_helper/sanic_test_helper_demo.py"
+    --8<-- "docs_source_code/unit_test_helper/sanic_test_helper_demo.py:71:79"
+    ```
+
+=== "Tornado"
+
+    ```py linenums="66" title="docs_source_code/unit_test_helper/tornado_test_helper_demo.py"
+    class TestTornado(AsyncHTTPTestCase):
+        ...
+
+    --8<-- "docs_source_code/unit_test_helper/tornado_test_helper_demo.py:69:77"
+    ```
+Although in this case `TestHelper` is not much different from the way it is used with the Web framework's corresponding test client.
+However, when `TestHelper` gets the response from the route function,
+it will pick the best matching response model from the `response_model_list` of the route function.
+If one of the response object's HTTP status code, header and response data does not match the response model,
+an error is thrown and the test case is aborted, for example:
+=== "Flask"
+
+    ```py linenums="92" title="docs_source_code/unit_test_helper/flask_test_helper_demo.py"
+
+    --8<-- "docs_source_code/unit_test_helper/flask_test_helper_demo.py:96:104"
+    ```
+
+=== "Starlette"
+
+    ```py linenums="77" title="docs_source_code/unit_test_helper/starlette_test_helper_demo.py"
+    --8<-- "docs_source_code/unit_test_helper/starlette_test_helper_demo.py:81:89"
+    ```
+
+=== "Sanic"
+
+    ```py linenums="77" title="docs_source_code/unit_test_helper/sanic_test_helper_demo.py"
+    --8<-- "docs_source_code/unit_test_helper/sanic_test_helper_demo.py:80:89"
+    ```
+
+=== "Tornado"
+
+    ```py linenums="76" title="docs_source_code/unit_test_helper/tornado_test_helper_demo.py"
+    class TestTornado(AsyncHTTPTestCase):
+        ...
+
+    --8<-- "docs_source_code/unit_test_helper/tornado_test_helper_demo.py:79:85"
+    ```
+
+After executing the test case,
+`TestHelper` will find that the response result of the route function does not match the response model of the route function,
+then it will throw an exception, interrupt the test case and output the result as follows:
+```bash
+> raise exc
+E pait.app.base.test_helper.CheckResponseException: maybe error result:
+E >>>>>>>>>>
+E check json content error, exec: 2 validation errors for ResponseModel
+E uid
+E   field required (type=value_error.missing)
+E user_name
+E   field required (type=value_error.missing)
+E
+E >>>>>>>>>>
+E by response model:<class 'docs_source_code.unit_test_helper.flask_test_helper_demo.DemoResponseModel'>
 ```
-这段代码是一个被`Pait`装饰的函数的接口函数，接下来就可以通过如下调用，来完成一个测试用例：
-```Python
-class TestStarlette:
-    def test_post(self, client: TestClient) -> None:
-        StarletteTestHelper(
-            client,
-            starlette_example.post_route,
-            body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
-            header_dict={"user-agent": "customer_agent"},
-        ).json()
-```
-在这个测试用例中， 开发者只需要传入框架对应的测试客户端，路由对应的函数，以及一些请求参数即可，最后通过`json`方法获取到该接口响应的数据。
+The output shows that the exception thrown is `CheckResponseException`. Meanwhile, according to the exception message,
+can understand that the response model for this validation is `DemoResponseModel`,
+and it found that the response data is missing the `uid` field and `user_name` field during the validation process.
 
-在这段调用逻辑中，`TestHelper`自动发现了路由函数的`Url`和请求方法，所以调用`json`的时候`TestHelper`自动发起了`post`请求，
-然后把响应Body序列化为`Python`的`dict`对象返回， 但是当该路由函数绑定了多个请求方法时，`TestHelper`则无法自动执行，需要手动指定对应的方法来发起请求，
-比如下面的代码:
-```Python
-class TestStarlette:
-    def test_post(self, client: TestClient) -> None:
-        StarletteTestHelper(
-            client,
-            starlette_example.post_route,
-            body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
-            header_dict={"user-agent": "customer_agent"},
-        ).json(method="post")
-```
 
-此外，在编写测试用例时，可能对会状态码，`Header`之类的数据进行校验，这时需要一个响应对象
-，`TestHelper`支持通过指定对应的Http请求方法名来调用，最后返回对应测试客户端的响应对象`Response`:
-```Python
-class TestStarlette:
-    def test_post(self, client: TestClient) -> None:
-        response: Response = StarletteTestHelper(
-            client,
-            starlette_example.post_route,
-            body_dict={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
-            header_dict={"user-agent": "customer_agent"},
-        ).post()
-        response.json()
-```
-虽然这种情况下使用`TestHelper`和对应的测试客户端没有太大的差别，但是`TestHelper`的内会在获取到路由函数的响应后，
-把响应数据放入`Pait`装饰器中`response_model_list`填写的`response_model`进行校验，如果检查到HTTP状态码，Header，Body三者中有一个不符合条件就会抛出错误，中断测试用例（如果有多个`response_model`，则会智能的挑选最合适的一个）。
+## 2.Parameter introduction
+The parameters of `TestHelper` are divided into three types:
+initialization parameters, request-related parameters, and response-related result parameters.
+Among them, the initialization parameters are described as follows:
 
-## 参数介绍
-`TestHelper`的参数分为初始化参数，请求参数，响应结果参数3种。其中，初始化参数有3个，分别为：
+| Parameters | Description                           |
+|------------|---------------------------------------|
+| client     | The test client for the Web framework |
+| func       | The route function to be tested     |
 
-- client: 测试框架对应的客户端
-- func: 路由函数
-- pait_dict: `Pait`针对路由函数生成的一个数据结构，该参数可以不填，`TestHelper`在初始化时会自动补全。
+There are multiple request parameters, which for most web frameworks encapsulate a layer of calls,
+but for using frameworks such as `Tornado` that don't encapsulate the test client much,
+request parameters provide some convenience, and these parameters are described as follows:
 
-请求参数有多个，这些参数可能对于大多数开发者来说平平无奇，但对于使用`Tornado`之类的没对测试客户端做过多封装的框架的开发者则能提供了一些便利，这些参数有:
 
-- body_dict: 发起请求时的Json数据。
-- cookie_dict: 发起请求时的cookie数据。
-- file_dict: 发起请求时的file数据。
-- form_dict: 发起请求时的form数据。
-- header_dict: 发起请求时的header数据。
-- path_dict: 发起请求时的path数据。
-- query_dict: 发起请求时的query数据。
+- body_dict: Json data of the request.
+- cookie_dict: Cookie data of the request.
+- file_dict: File data of the request.
+- form_dict: Form data of the request.
+- header_dict: Header data of the request.
+- path_dict: Path data of the request.
+- query_dict: Query data of the request.
 
-除此之外，`TestHelper`还有3个与HTTP响应结果的Body校验相关的参数，默认情况下，响应结果的Body会与开发者填写的`response_model`的`response_data`进行校验，
-如果Body的类型属于Json，`TestHelper`除了会对每个字段的类型进行校验外，还会对字段差异进行校验，如果出现差异则会报错，比如下面a变量是我们定义的`response_demo`数据结构，b变量是响应体的数据结构:
+In addition to this, `TestHelper` has some parameters related to response result validation, such as `strict_inspection_check_json_content`.
+By default, the `strict_inspection_check_json_content` parameter has a value of True,
+which will allow `TestHelper` to perform strict checks on the data structure of the response result, as in the following example:
 ```Python
 a = {
     "a": 1,
@@ -98,12 +283,16 @@ b = {
     }
 }
 ```
-`TestHelper`检测到b变量多出来一个结构`b['b']['d']`，所以b变量并不是一个合法的响应体，`TestHelper`直接抛出错误，
-不过也可以设置参数`strict_inspection_check_json_content`的值为`False`，这样只会校验出现在`response_model`的字段的类型是否合法以及是否缺少对应的字段，不会检查多出的字段。
+In this example, `a` and `b` have different data structures,
+where the `a` represents the data structure of the response model and the `b` is the data structure of the response body.
+When `TestHelper` performs the validation, it will throw an error because it detects an extra structure `['b']['d']` in the `b`.
+However, it is possible to set the parameter `strict_inspection_check_json_content` to `False`,
+so that `TestHelper` will only validate fields that appear in the response model, and will not check fields outside the response model.
 
-除了参数`strict_inspection_check_json_content`外，`TestHelper`还有另外两个参数，它们的作用如下:
+In addition to the above, `TestHelper` has several other parameters, as follows:
 
-- target_pait_response_class:
-    该参数可以传入一个指定的`response_model`，这样`TestHelper`就会从`response_model_list`中筛选出一批符合条件的`response_model`来进行校验。
-- find_coro_response_model:
-    该参数默认为`False`，这种情况下`TestHelper`会从筛选后的`response_model_list`中自动挑选与响应体最符合的`response_model`来进行校验，如果设置为`True`，那么`TestHelper`只会从筛选后的`response_model_list`中挑出第一个属性`is_core`为`True`的`response_model`来进行校验。
+
+|parameter|description|
+|---|---|
+|target_pait_response_class|If the value is not null, then `TestHelper` will filter a batch of eligible `response_models` from the `response_model_list` by `target_pait_response_class` to perform the calibration. This value is usually the parent class of the response model, and the default value of `None` means no match. |
+|enable_assert_response|Indicates whether `TestHelper` will assert the response result, default value is True. |

@@ -25,7 +25,7 @@ async def demo(demo_model: DemoModel = field.Query.i(raw_return=True)) -> respon
 
 
 @pait()
-async def demo1(demo_model: DemoModel = field.Body.i(raw_return=True)) -> response.HTTPResponse:
+async def demo1(demo_model: DemoModel = field.Json.i(raw_return=True)) -> response.HTTPResponse:
     return json(demo_model.dict())
 
 

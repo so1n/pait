@@ -30,7 +30,7 @@ link_login_token_model: LinksModel = LinksModel(LoginRespModel, "$response.body#
 
 @pait(response_model_list=[LoginRespModel])
 async def login_route(
-    uid: str = field.Body.i(description="user id"), password: str = field.Body.i(description="password")
+    uid: str = field.Json.i(description="user id"), password: str = field.Json.i(description="password")
 ) -> HTTPResponse:
     return json({"code": 0, "msg": "", "data": {"token": hashlib.sha256((uid + password).encode("utf-8")).hexdigest()}})
 

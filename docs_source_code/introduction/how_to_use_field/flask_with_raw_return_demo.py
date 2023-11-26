@@ -16,8 +16,8 @@ def api_exception(exc: Exception) -> Response:
 
 @pait()
 def demo(
-    demo_value: dict = field.Body.i(raw_return=True),
-    a: str = field.Body.i(),
+    demo_value: dict = field.Json.i(raw_return=True),
+    a: str = field.Json.i(),
 ) -> dict:
     return {"data": demo_value, "a": a}
 

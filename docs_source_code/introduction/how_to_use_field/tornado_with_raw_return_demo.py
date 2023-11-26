@@ -24,8 +24,8 @@ class DemoHandler(_Handler):
     @pait()
     async def post(
         self,
-        demo_value: dict = field.Body.i(raw_return=True),
-        a: str = field.Body.i(),
+        demo_value: dict = field.Json.i(raw_return=True),
+        a: str = field.Json.i(),
     ) -> None:
         self.write({"data": demo_value, "a": a})
 

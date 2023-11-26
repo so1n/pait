@@ -3,7 +3,7 @@ from sanic import HTTPResponse, Sanic, json
 
 from pait import _pydanitc_adapter
 from pait.app.sanic import pait
-from pait.field import Body
+from pait.field import Json
 from pait.model.template import TemplateVar
 from pait.openapi.doc_route import AddDocRoute
 
@@ -23,7 +23,7 @@ else:
 
 
 @pait()
-async def demo_post(model: UserModel = Body.i()) -> HTTPResponse:
+async def demo_post(model: UserModel = Json.i()) -> HTTPResponse:
     return json({"result": model.dict()})
 
 

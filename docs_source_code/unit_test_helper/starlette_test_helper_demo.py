@@ -7,7 +7,7 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route
 
 from pait.app.starlette import pait
-from pait.field import Body
+from pait.field import Json
 from pait.model.response import JsonResponseModel
 
 
@@ -22,9 +22,9 @@ class DemoResponseModel(JsonResponseModel):
 
 @pait(response_model_list=[DemoResponseModel])
 async def demo_post(
-    uid: int = Body.t(description="user id", gt=10, lt=1000),
-    username: str = Body.t(description="user name", min_length=2, max_length=4),
-    return_error_resp: bool = Body.i(description="return error resp", default=False),
+    uid: int = Json.t(description="user id", gt=10, lt=1000),
+    username: str = Json.t(description="user name", min_length=2, max_length=4),
+    return_error_resp: bool = Json.i(description="return error resp", default=False),
 ) -> JSONResponse:
     if return_error_resp:
         return JSONResponse({})

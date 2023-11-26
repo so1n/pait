@@ -8,7 +8,7 @@ from starlette.routing import Route
 
 from pait.app.starlette import pait
 from pait.app.starlette.security import api_key
-from pait.field import Body, Depends, Query
+from pait.field import Depends, Json, Query
 from pait.model.response import JsonResponseModel
 from pait.openapi.doc_route import AddDocRoute
 from pait.openapi.openapi import LinksModel
@@ -29,7 +29,7 @@ class LoginRespModel(JsonResponseModel):
 
 @pait(response_model_list=[LoginRespModel])
 async def login_route(
-    uid: str = Body.i(description="user id"), password: str = Body.i(description="password")
+    uid: str = Json.i(description="user id"), password: str = Json.i(description="password")
 ) -> JSONResponse:
     return JSONResponse(
         {"code": 0, "msg": "", "data": {"token": hashlib.sha256((uid + password).encode("utf-8")).hexdigest()}}
