@@ -6,12 +6,19 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Pait is a Python api tool. Pait enables your Python web framework to have type checking, parameter type conversion, interface document generation and can display your documents through Redoc or Swagger (power by inspect, pydantic)">
+        <meta name="description" content="Pait(π tool) - Python Modern API Tools, easier to use web frameworks/write API routing">
       
+      
+      
+      
+        <link rel="prev" href="../1_4_depend/">
+      
+      
+        <link rel="next" href="../2_how_to_use_pait/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.8">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.8">
     
     
       
@@ -19,13 +26,17 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.644de097.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.4b4a2bd9.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.e6a45f82.min.css">
-        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.356b1318.min.css">
       
+      
+
+
     
+    
+      
     
     
       
@@ -37,10 +48,15 @@
       
     
     
-    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../termynal.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
+    
     
     
   </head>
@@ -48,12 +64,16 @@
   
     
     
+      
     
     
     
-    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -61,7 +81,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#tipexception" class="md-skip">
+        <a href="#1pait-exception-introduction" class="md-skip">
           Skip to content
         </a>
       
@@ -70,16 +90,16 @@
       
     </div>
     
-      <div data-md-component="outdated" hidden>
-        <aside class="md-banner md-banner--warning">
-          
-        </aside>
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
       </div>
     
     
       
 
-<header class="md-header" data-md-component="header">
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="Pait" class="md-header__button md-logo" aria-label="Pait" data-md-component="logo">
       
@@ -87,7 +107,8 @@
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -106,36 +127,63 @@
       </div>
     </div>
     
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
     
       <div class="md-header__option">
-        <div class="md-select">
-          
-          <button class="md-header__button md-icon" aria-label="Select language">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12m-2.62 7 1.62-4.33L19.12 17h-3.24z"/></svg>
-          </button>
-          <div class="md-select__inner">
-            <ul class="md-select__list">
-              
-                <li class="md-select__item">
-                  <a href="/pait/" hreflang="en" class="md-select__link">
-                    English
-                  </a>
-                </li>
-                
-                <li class="md-select__item">
-                  <a href="/pait-zh-doc/" hreflang="zh" class="md-select__link">
-                    中文
-                  </a>
-                </li>
-                
-            </ul>
-          </div>
-        </div>
-      </div>
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12m-2.62 7 1.62-4.33L19.12 17h-3.24Z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="/pait/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="/pait-zh-doc/" hreflang="zh" class="md-select__link">
+              中文
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
     
     
       <label class="md-header__button md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
       </label>
       <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
@@ -143,15 +191,25 @@
     <form class="md-search__form" name="search">
       <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
       </label>
       <nav class="md-search__options" aria-label="Search">
         
-        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
         </button>
       </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
       
     </form>
     <div class="md-search__output">
@@ -160,7 +218,7 @@
           <div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list"></ol>
+          <ol class="md-search-result__list" role="presentation"></ol>
         </div>
       </div>
     </div>
@@ -172,7 +230,7 @@
         <a href="https://github.com/so1n/pait" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     so1n/pait
@@ -202,6 +260,7 @@
                     
 
 
+
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="Pait" class="md-nav__button md-logo" aria-label="Pait" data-md-component="logo">
@@ -216,7 +275,7 @@
       <a href="https://github.com/so1n/pait" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     so1n/pait
@@ -228,14 +287,18 @@
     
       
       
-      
-
   
   
   
     <li class="md-nav__item">
       <a href=".." class="md-nav__link">
-        Introduction
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
       </a>
     </li>
   
@@ -243,92 +306,124 @@
     
       
       
-      
-
   
   
     
   
   
+    
+    
+    
+    
     
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
-      
-      
-      
-      
-        <label class="md-nav__link" for="__nav_2">
-          Type conversion and parameter validation
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" aria-label="Type conversion and parameter validation" data-md-level="1">
-        <label class="md-nav__title" for="__nav_2">
-          <span class="md-nav__icon md-icon"></span>
-          Type conversion and parameter validation
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
           
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Type conversion and parameter validation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Type conversion and parameter validation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
+                
   
   
   
     <li class="md-nav__item">
       <a href="../1_1_introduction/" class="md-nav__link">
-        Introduction
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
   
   
   
     <li class="md-nav__item">
       <a href="../1_2_how_to_use_field/" class="md-nav__link">
-        How to use Field
+        
+  
+  <span class="md-ellipsis">
+    How to use Field
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
   
   
   
     <li class="md-nav__item">
       <a href="../1_3_how_to_use_type/" class="md-nav__link">
-        Hot to use Type
+        
+  
+  <span class="md-ellipsis">
+    How to use Type
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
   
   
   
     <li class="md-nav__item">
       <a href="../1_4_depend/" class="md-nav__link">
-        Depend
+        
+  
+  <span class="md-ellipsis">
+    Depend
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
   
   
     
@@ -336,17 +431,29 @@
   
     <li class="md-nav__item md-nav__item--active">
       
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Exception
+          
+  
+  <span class="md-ellipsis">
+    Exception
+  </span>
+  
+
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Exception
+        
+  
+  <span class="md-ellipsis">
+    Exception
+  </span>
+  
+
       </a>
       
         
@@ -363,23 +470,56 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#tipexception" class="md-nav__link">
-    TipException异常
+  <a href="#1pait-exception-introduction" class="md-nav__link">
+    1.Pait exception introduction
   </a>
+  
+    <nav class="md-nav" aria-label="1.Pait exception introduction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11tipexception" class="md-nav__link">
+    1.1.TipException
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12parameter-exception" class="md-nav__link">
+    1.2.Parameter exception
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    参数异常
+  <a href="#2how-to-use-exceptions" class="md-nav__link">
+    2.How to use exceptions
+  </a>
+  
+    <nav class="md-nav" aria-label="2.How to use exceptions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21usage-exception" class="md-nav__link">
+    2.1.Usage Exception
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    异常使用示例
+        
+          <li class="md-nav__item">
+  <a href="#22custom-tipexception" class="md-nav__link">
+    2.2.Custom TipException
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -390,54 +530,151 @@
     </li>
   
 
+              
             
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2_how_to_use_pait/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    How to use Pait decorator
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
           
-        </ul>
-      </nav>
-    </li>
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    OpenAPI
+  </span>
   
 
-    
-      
-      
-      
-
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            OpenAPI
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
   
   
   
     <li class="md-nav__item">
-      <a href="../2_pait_multiplexing/" class="md-nav__link">
-        Pait multiplexing
+      <a href="../3_1_openapi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    OpenAPI
+  </span>
+  
+
       </a>
     </li>
   
 
-    
-      
-      
-      
-
+              
+            
+              
+                
   
   
   
     <li class="md-nav__item">
-      <a href="../3_api_doc/" class="md-nav__link">
-        API doc
+      <a href="../3_2_openapi_route/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    OpenAPI Route
+  </span>
+  
+
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3_3_security/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Security
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
     
       
       
-      
-
   
   
   
     <li class="md-nav__item">
       <a href="../4_unit_test_helper/" class="md-nav__link">
-        Unit test helper
+        
+  
+  <span class="md-ellipsis">
+    Unit test helper
+  </span>
+  
+
       </a>
     </li>
   
@@ -445,118 +682,181 @@
     
       
       
-      
-
   
   
   
     
+    
+    
+    
+    
     <li class="md-nav__item md-nav__item--nested">
       
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
-      
-      
-      
-      
-        <label class="md-nav__link" for="__nav_6">
-          Plugin
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" aria-label="Plugin" data-md-level="1">
-        <label class="md-nav__title" for="__nav_6">
-          <span class="md-nav__icon md-icon"></span>
-          Plugin
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
           
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Plugin
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Plugin
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
+                
   
   
   
     <li class="md-nav__item">
       <a href="../5_1_introduction/" class="md-nav__link">
-        Introduction
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
   
   
   
     <li class="md-nav__item">
       <a href="../5_2_param_check_plugin/" class="md-nav__link">
-        Param check plugin
+        
+  
+  <span class="md-ellipsis">
+    Parameter checking plugin
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
   
   
   
     <li class="md-nav__item">
       <a href="../5_3_json_response_plugin/" class="md-nav__link">
-        Json Response plugin
+        
+  
+  <span class="md-ellipsis">
+    Json response plugin
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
   
   
   
     <li class="md-nav__item">
       <a href="../5_4_mock_json_response_check_plugin/" class="md-nav__link">
-        Mock Response plugin
+        
+  
+  <span class="md-ellipsis">
+    Mock response plugin
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
   
   
   
     <li class="md-nav__item">
-      <a href="../5_5_how_to_customize_plugin/" class="md-nav__link">
-        How to customize plugin
+      <a href="../5_5_cache_response/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Response caching plugin
+  </span>
+  
+
       </a>
     </li>
   
 
+              
             
-          
-        </ul>
-      </nav>
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../5_x_how_tp_customize_the_plugin.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    How to customize plugins
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
     
       
       
-      
-
   
   
   
     <li class="md-nav__item">
       <a href="../6_config/" class="md-nav__link">
-        config
+        
+  
+  <span class="md-ellipsis">
+    config
+  </span>
+  
+
       </a>
     </li>
   
@@ -564,14 +864,18 @@
     
       
       
-      
-
   
   
   
     <li class="md-nav__item">
       <a href="../7_gRPC_gateway/" class="md-nav__link">
-        gRPC Gateway
+        
+  
+  <span class="md-ellipsis">
+    gRPC Gateway
+  </span>
+  
+
       </a>
     </li>
   
@@ -579,14 +883,18 @@
     
       
       
-      
-
   
   
   
     <li class="md-nav__item">
       <a href="../8_other/" class="md-nav__link">
-        Other
+        
+  
+  <span class="md-ellipsis">
+    Other
+  </span>
+  
+
       </a>
     </li>
   
@@ -617,23 +925,56 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#tipexception" class="md-nav__link">
-    TipException异常
+  <a href="#1pait-exception-introduction" class="md-nav__link">
+    1.Pait exception introduction
   </a>
+  
+    <nav class="md-nav" aria-label="1.Pait exception introduction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11tipexception" class="md-nav__link">
+    1.1.TipException
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12parameter-exception" class="md-nav__link">
+    1.2.Parameter exception
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    参数异常
+  <a href="#2how-to-use-exceptions" class="md-nav__link">
+    2.How to use exceptions
+  </a>
+  
+    <nav class="md-nav" aria-label="2.How to use exceptions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21usage-exception" class="md-nav__link">
+    2.1.Usage Exception
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    异常使用示例
+        
+          <li class="md-nav__item">
+  <a href="#22custom-tipexception" class="md-nav__link">
+    2.2.Custom TipException
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -645,190 +986,876 @@
               </div>
             
           
-          <div class="md-content" data-md-component="content">
-            <article class="md-content__inner md-typeset">
-              
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
                 
+                  
 
 
   <h1>Exception</h1>
 
-<p><code>Pait</code>内部有很多参数校验逻辑，出现错误的情况也有很多种，为了方便的捕获和了解异常，<code>Pait</code>拥有一个简单的异常机制。
-<code>Pait</code>的异常都是继承于<code>PaitBaseException</code>，在发生异常时可以通过:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">PaitBaseException</span><span class="p">)</span>
-</code></pre></div>
-来判断异常是否属于<code>Pait</code>的异常。</p>
+<p>There is a lot of parameter verification logic inside <code>Pait</code>, so a variety of error conditions will occur.
+In order to easily catch and understand exceptions during use, <code>Pait</code> has a simple exception mechanism.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>由于<code>Pait</code>是使用<code>Pydantic</code>进行校验， 所以在运行时会因为校验不通过而抛出<code>Pydantic</code>相关异常，
-可以通过<a href="https://pydantic-docs.helpmanual.io/usage/models/#error-handling">Error Handling</a>了解如何使用<code>Pydantic</code>异常</p>
+<p>Exceptions of <code>Pait</code> are inherited from <code>PaitBaseException</code>,
+and in the event of an exception can use <code>isinstance(exc, PaitBaseException)</code> to determine if the exception is a <code>Pait</code> exception.
+In addition, since <code>Pait</code> passes the data to <code>Pydantic</code> for validation, <code>Pydantic</code> related exceptions will be thrown at runtime because the validation fails, you can learn how to use <code>Pydantic</code> exceptions through <a href="https://pydantic-docs.helpmanual.io/usage/models/#error-handling">Error Handling</a>.</p>
 </div>
-<h2 id="tipexception">TipException异常</h2>
-<p><code>Pait</code>的核心是一个装饰器，在运行的时候<code>Pait</code>核心会检查参数是否存在，参数是否合法，以及参数是否通过<code>Pydantic</code>的校验，
-在上述条件中有一个校验不通过时都会抛出异常，但是该异常的堆栈只会在<code>Pait</code>的核心装饰器里流转，这样子对于使用<code>Pait</code>的开发者来说很难找出出现问题的路由函数在哪，这样排查问题是十分困难的。
-所以<code>Pait</code>通过<code>TipException</code>对异常进行一个包装，在抛错信息里告诉用户说哪个路由函数抛错，抛错的位置在哪里，
-如果用户使用了类似于<code>Pycharm</code>的IDE,还可以通过点击路径跳转到对应的地方，一个异常示例如下：
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a>Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
-<a id="__codelineno-1-2" name="__codelineno-1-2"></a>  File <span class="s2">&quot;/home/so1n/github/pait/.venv/lib/python3.7/site-packages/starlette/exceptions.py&quot;</span>, line <span class="m">71</span>, <span class="k">in</span> __call__
-<a id="__codelineno-1-3" name="__codelineno-1-3"></a>    await self.app<span class="o">(</span>scope, receive, sender<span class="o">)</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4"></a>  File <span class="s2">&quot;/home/so1n/github/pait/.venv/lib/python3.7/site-packages/starlette/routing.py&quot;</span>, line <span class="m">583</span>, <span class="k">in</span> __call__
-<a id="__codelineno-1-5" name="__codelineno-1-5"></a>    await route.handle<span class="o">(</span>scope, receive, send<span class="o">)</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6"></a>  File <span class="s2">&quot;/home/so1n/github/pait/.venv/lib/python3.7/site-packages/starlette/routing.py&quot;</span>, line <span class="m">243</span>, <span class="k">in</span> handle
-<a id="__codelineno-1-7" name="__codelineno-1-7"></a>    await self.app<span class="o">(</span>scope, receive, send<span class="o">)</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8"></a>  File <span class="s2">&quot;/home/so1n/github/pait/.venv/lib/python3.7/site-packages/starlette/routing.py&quot;</span>, line <span class="m">54</span>, <span class="k">in</span> app
-<a id="__codelineno-1-9" name="__codelineno-1-9"></a>    <span class="nv">response</span> <span class="o">=</span> await func<span class="o">(</span>request<span class="o">)</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10"></a>  File <span class="s2">&quot;/home/so1n/github/pait/pait/core.py&quot;</span>, line <span class="m">232</span>, <span class="k">in</span> dispatch
-<a id="__codelineno-1-11" name="__codelineno-1-11"></a>    <span class="k">return</span> await first_plugin<span class="o">(</span>*args, **kwargs<span class="o">)</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12"></a>  File <span class="s2">&quot;/home/so1n/github/pait/pait/param_handle.py&quot;</span>, line <span class="m">448</span>, <span class="k">in</span> __call__
-<a id="__codelineno-1-13" name="__codelineno-1-13"></a>    async with self:
-<a id="__codelineno-1-14" name="__codelineno-1-14"></a>  File <span class="s2">&quot;/home/so1n/github/pait/pait/param_handle.py&quot;</span>, line <span class="m">456</span>, <span class="k">in</span> __aenter__
-<a id="__codelineno-1-15" name="__codelineno-1-15"></a>    raise e from gen_tip_exc<span class="o">(</span>self.call_next, e<span class="o">)</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16"></a>  File <span class="s2">&quot;/home/so1n/github/pait/pait/param_handle.py&quot;</span>, line <span class="m">453</span>, <span class="k">in</span> __aenter__
-<a id="__codelineno-1-17" name="__codelineno-1-17"></a>    await self._gen_param<span class="o">()</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18"></a>  File <span class="s2">&quot;/home/so1n/github/pait/pait/param_handle.py&quot;</span>, line <span class="m">439</span>, <span class="k">in</span> _gen_param
-<a id="__codelineno-1-19" name="__codelineno-1-19"></a>    self.args, self.kwargs <span class="o">=</span> await self.param_handle<span class="o">(</span>func_sig, func_sig.param_list<span class="o">)</span>
-<a id="__codelineno-1-20" name="__codelineno-1-20"></a>  File <span class="s2">&quot;/home/so1n/github/pait/pait/param_handle.py&quot;</span>, line <span class="m">396</span>, <span class="k">in</span> param_handle
-<a id="__codelineno-1-21" name="__codelineno-1-21"></a>    await asyncio.gather<span class="o">(</span>*<span class="o">[</span>_param_handle<span class="o">(</span>parameter<span class="o">)</span> <span class="k">for</span> parameter <span class="k">in</span> param_list<span class="o">])</span>
-<a id="__codelineno-1-22" name="__codelineno-1-22"></a>  File <span class="s2">&quot;/home/so1n/github/pait/pait/param_handle.py&quot;</span>, line <span class="m">393</span>, <span class="k">in</span> _param_handle
-<a id="__codelineno-1-23" name="__codelineno-1-23"></a>    raise gen_tip_exc<span class="o">(</span>_object, closer_e, parameter<span class="o">)</span>
-<a id="__codelineno-1-24" name="__codelineno-1-24"></a>pait.exceptions.TipException: Can not found content__type value <span class="k">for</span> &lt;<span class="k">function</span> raise_tip_route at 0x7f512ccdebf8&gt;   Customer Traceback:
-<a id="__codelineno-1-25" name="__codelineno-1-25"></a>    File <span class="s2">&quot;/home/so1n/github/pait/example/param_verify/starlette_example.py&quot;</span>, line <span class="m">88</span>, <span class="k">in</span> raise_tip_route.
+<h2 id="1pait-exception-introduction">1.<code>Pait</code> exception introduction</h2>
+<h3 id="11tipexception">1.1.TipException</h3>
+<p>When the program is running, <code>Pait</code> checks and verifies the parameters, and throws an exception if the verification fails.
+However, the exception will only flow in <code>Pait</code> and will not be exposed so that the developer will not be able to know which route function threw the exception,
+which makes troubleshooting very difficult.</p>
+<p>So <code>Pait</code> wraps the exception in a <code>TipException</code> that indicates which route function threw the exception and where it threw it.
+If you use an IDE tool such as <code>Pycharm</code>, you can also click on the route to jump to the corresponding place, an example of an exception is as follows:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Traceback<span class="w"> </span><span class="o">(</span>most<span class="w"> </span>recent<span class="w"> </span>call<span class="w"> </span>last<span class="o">)</span>:
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/home/so1n/github/pait/.venv/lib/python3.7/site-packages/starlette/exceptions.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">71</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>__call__
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span>await<span class="w"> </span>self.app<span class="o">(</span>scope,<span class="w"> </span>receive,<span class="w"> </span>sender<span class="o">)</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/home/so1n/github/pait/.venv/lib/python3.7/site-packages/starlette/routing.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">583</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>__call__
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span>await<span class="w"> </span>route.handle<span class="o">(</span>scope,<span class="w"> </span>receive,<span class="w"> </span>send<span class="o">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/home/so1n/github/pait/.venv/lib/python3.7/site-packages/starlette/routing.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">243</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>handle
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span>await<span class="w"> </span>self.app<span class="o">(</span>scope,<span class="w"> </span>receive,<span class="w"> </span>send<span class="o">)</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/home/so1n/github/pait/.venv/lib/python3.7/site-packages/starlette/routing.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">54</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>app
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nv">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>await<span class="w"> </span>func<span class="o">(</span>request<span class="o">)</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/home/so1n/github/pait/pait/core.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">232</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>dispatch
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span>await<span class="w"> </span>first_plugin<span class="o">(</span>*args,<span class="w"> </span>**kwargs<span class="o">)</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/home/so1n/github/pait/pait/param_handle.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">448</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>__call__
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span>async<span class="w"> </span>with<span class="w"> </span>self:
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/home/so1n/github/pait/pait/param_handle.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">456</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>__aenter__
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span>raise<span class="w"> </span>e<span class="w"> </span>from<span class="w"> </span>gen_tip_exc<span class="o">(</span>self.call_next,<span class="w"> </span>e<span class="o">)</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/home/so1n/github/pait/pait/param_handle.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">453</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>__aenter__
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span>await<span class="w"> </span>self._gen_param<span class="o">()</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/home/so1n/github/pait/pait/param_handle.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">439</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>_gen_param
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span>self.args,<span class="w"> </span>self.kwargs<span class="w"> </span><span class="o">=</span><span class="w"> </span>await<span class="w"> </span>self.param_handle<span class="o">(</span>func_sig,<span class="w"> </span>func_sig.param_list<span class="o">)</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/home/so1n/github/pait/pait/param_handle.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">396</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>param_handle
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">    </span>await<span class="w"> </span>asyncio.gather<span class="o">(</span>*<span class="o">[</span>_param_handle<span class="o">(</span>parameter<span class="o">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>parameter<span class="w"> </span><span class="k">in</span><span class="w"> </span>param_list<span class="o">])</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">  </span>File<span class="w"> </span><span class="s2">&quot;/home/so1n/github/pait/pait/param_handle.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">393</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>_param_handle
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">    </span>raise<span class="w"> </span>gen_tip_exc<span class="o">(</span>_object,<span class="w"> </span>closer_e,<span class="w"> </span>parameter<span class="o">)</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>pait.exceptions.TipException:<span class="w"> </span>Can<span class="w"> </span>not<span class="w"> </span>found<span class="w"> </span>content__type<span class="w"> </span>value<span class="w"> </span><span class="k">for</span><span class="w"> </span>&lt;<span class="k">function</span><span class="w"> </span>raise_tip_route<span class="w"> </span>at<span class="w"> </span>0x7f512ccdebf8&gt;<span class="w">   </span>Customer<span class="w"> </span>Traceback:
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">    </span>File<span class="w"> </span><span class="s2">&quot;/home/so1n/github/pait/example/param_verify/starlette_example.py&quot;</span>,<span class="w"> </span>line<span class="w"> </span><span class="m">88</span>,<span class="w"> </span><span class="k">in</span><span class="w"> </span>raise_tip_route.
 </code></pre></div>
-可以看到异常是通过<code>gen_tip_exc</code>抛出来的，而抛出来的异常信息则包含路由函数所在位置，和异常信息，此外，可以通过<code>TipException.exc</code>获取到原本的异常。</p>
-<h2 id="_1">参数异常</h2>
-<p>目前<code>Pait</code>有3种参数异常，分别有:</p>
-<ul>
-<li>NotFoundFieldException  该异常表示匹配不到对应的<code>Field</code>， 通常开发者在正常使用时，不会遇到该异常。</li>
-<li>NotFoundValueException  该异常表示无法从请求数据中找到对应的值，这是一个常见的异常，一般是请求数据缺少部分参数。</li>
-<li>FieldValueTypeException  该异常表示程序启动时，<code>Pait</code>发现<code>Field</code>里的<code>default</code>，<code>example</code>等填写的值不合法，开发者需要根据提示进行改正。</li>
-</ul>
-<p>这三种异常都是继承于<code>PaitBaseParamException</code>，它的源码如下：
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="k">class</span> <span class="nc">PaitBaseParamException</span><span class="p">(</span><span class="n">PaitBaseException</span><span class="p">):</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3"></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">param</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">msg</span>
+Through the exception example, can see that the exception is thrown through the <code>gen_tip_exc</code> function,
+and the thrown exception information includes the location of the route function.
+However, there is a downside to using <code>TipException</code> though,
+it causes all exceptions to be <code>TipException</code> needing to get the original exception via <code>TipException.exc</code>.</p>
+<h3 id="12parameter-exception">1.2.Parameter exception</h3>
+<p>Currently, <code>Pait</code> has 3 types of parameter exceptions, as follows:</p>
+<table>
+<thead>
+<tr>
+<th>Exception</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NotFoundFieldException</td>
+<td>Plugin Pre Check</td>
+<td>Indicates that the corresponding <code>Field</code> cannot be matched, and this exception will not be encountered during normal use.</td>
+</tr>
+<tr>
+<td>NotFoundValueException</td>
+<td>Execute route function</td>
+<td>This exception indicates that the corresponding value cannot be found from the request data. This is a common exception.</td>
+</tr>
+<tr>
+<td>FieldValueTypeException</td>
+<td>Plugin Pre Check</td>
+<td>Indicates that <code>Pait</code> found that the values filled in <code>default</code>, <code>example</code> in <code>Field</code> are illegal, and the user needs to make corrections according to the prompts.</td>
+</tr>
+</tbody>
+</table>
+<p>These three exceptions are inherited from <code>PaitBaseParamException</code>, and its source code is as follows:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span> <span class="nc">PaitBaseParamException</span><span class="p">(</span><span class="n">PaitBaseException</span><span class="p">):</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">param</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">msg</span>
 </code></pre></div>
-从代码可以看出<code>PaitBaseParamException</code>在抛异常时只会抛出错误信息，但是在需要根据异常返回一些指定响应时，可以通过<code>param</code>知道是哪个参数出错。</p>
-<h2 id="_2">异常使用示例</h2>
-<p>在CRUD业务中，路由函数发生的异常都要被捕获，然后返回一个协定好的错误信息供前端使用，下面是一个异常捕获的示例代码：
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="kn">from</span> <span class="nn">starlette.requests</span> <span class="kn">import</span> <span class="n">Request</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">JSONResponse</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7"></a>
-<a id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">field</span><span class="p">,</span> <span class="n">exceptions</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+It can be seen from the code that <code>PaitBaseParamException</code> not only includes error information,
+but also includes the name of the parameter that caused the current error.</p>
+<h2 id="2how-to-use-exceptions">2.How to use exceptions</h2>
+<h3 id="21usage-exception">2.1.Usage Exception</h3>
+<p>In CRUD business, exceptions thrown by route functions must be caught, and then an agreed error message is returned for front-end use.
+The following is an example code for exception capture:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Flask</label><label for="__tabbed_1_2">Starlette</label><label for="__tabbed_1_3">Sanic</label><label for="__tabbed_1_4">Tornado</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">docs_source_code/introduction/exception/flask_with_exception_demo.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-2-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-2-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-2-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-2-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-2-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-2-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-2-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-2-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-2-10">10</a></span>
+<span class="normal"><a href="#__codelineno-2-11">11</a></span>
+<span class="normal"><a href="#__codelineno-2-12">12</a></span>
+<span class="normal"><a href="#__codelineno-2-13">13</a></span>
+<span class="normal"><a href="#__codelineno-2-14">14</a></span>
+<span class="normal"><a href="#__codelineno-2-15">15</a></span>
+<span class="normal"><a href="#__codelineno-2-16">16</a></span>
+<span class="normal"><a href="#__codelineno-2-17">17</a></span>
+<span class="normal"><a href="#__codelineno-2-18">18</a></span>
+<span class="normal"><a href="#__codelineno-2-19">19</a></span>
+<span class="normal"><a href="#__codelineno-2-20">20</a></span>
+<span class="normal"><a href="#__codelineno-2-21">21</a></span>
+<span class="normal"><a href="#__codelineno-2-22">22</a></span>
+<span class="normal"><a href="#__codelineno-2-23">23</a></span>
+<span class="normal"><a href="#__codelineno-2-24">24</a></span>
+<span class="normal"><a href="#__codelineno-2-25">25</a></span>
+<span class="normal"><a href="#__codelineno-2-26">26</a></span>
+<span class="normal"><a href="#__codelineno-2-27">27</a></span>
+<span class="normal"><a href="#__codelineno-2-28">28</a></span>
+<span class="normal"><a href="#__codelineno-2-29">29</a></span>
+<span class="normal"><a href="#__codelineno-2-30">30</a></span>
+<span class="normal"><a href="#__codelineno-2-31">31</a></span>
+<span class="normal"><a href="#__codelineno-2-32">32</a></span>
+<span class="normal"><a href="#__codelineno-2-33">33</a></span>
+<span class="normal"><a href="#__codelineno-2-34">34</a></span>
+<span class="normal"><a href="#__codelineno-2-35">35</a></span>
+<span class="normal"><a href="#__codelineno-2-36">36</a></span>
+<span class="normal"><a href="#__codelineno-2-37">37</a></span>
+<span class="normal"><a href="#__codelineno-2-38">38</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">Response</span><span class="p">,</span> <span class="n">jsonify</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">exceptions</span><span class="p">,</span> <span class="n">field</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="kn">from</span> <span class="nn">pait.app.flask</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8"></a>
+<a id="__codelineno-2-9" name="__codelineno-2-9"></a>
+<a id="__codelineno-2-10" name="__codelineno-2-10"></a><span class="k">def</span> <span class="nf">api_exception</span><span class="p">(</span><span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11"></a><span class="hll">    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">TipException</span><span class="p">):</span>
+</span><a id="__codelineno-2-12" name="__codelineno-2-12"></a>        <span class="n">exc</span> <span class="o">=</span> <span class="n">exc</span><span class="o">.</span><span class="n">exc</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13"></a>
+<a id="__codelineno-2-14" name="__codelineno-2-14"></a><span class="hll">    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PaitBaseParamException</span><span class="p">):</span>
+</span><a id="__codelineno-2-15" name="__codelineno-2-15"></a>        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;error param:</span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">param</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16"></a><span class="hll">    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">):</span>
+</span><a id="__codelineno-2-17" name="__codelineno-2-17"></a>        <span class="n">error_param_list</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18"></a>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">exc</span><span class="o">.</span><span class="n">errors</span><span class="p">():</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19"></a>            <span class="n">error_param_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s2">&quot;loc&quot;</span><span class="p">])</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20"></a>        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;check error param: </span><span class="si">{</span><span class="n">error_param_list</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+<a id="__codelineno-2-21" name="__codelineno-2-21"></a><span class="hll">    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PaitBaseException</span><span class="p">):</span>
+</span><a id="__codelineno-2-22" name="__codelineno-2-22"></a>        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23"></a>
+<a id="__codelineno-2-24" name="__codelineno-2-24"></a>    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+<a id="__codelineno-2-25" name="__codelineno-2-25"></a>
+<a id="__codelineno-2-26" name="__codelineno-2-26"></a>
+<a id="__codelineno-2-27" name="__codelineno-2-27"></a><span class="nd">@pait</span><span class="p">()</span>
+<a id="__codelineno-2-28" name="__codelineno-2-28"></a><span class="k">def</span> <span class="nf">demo</span><span class="p">(</span><span class="n">demo_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
+<a id="__codelineno-2-29" name="__codelineno-2-29"></a>    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">demo_value</span><span class="p">})</span>
+<a id="__codelineno-2-30" name="__codelineno-2-30"></a>
+<a id="__codelineno-2-31" name="__codelineno-2-31"></a>
+<a id="__codelineno-2-32" name="__codelineno-2-32"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="s2">&quot;demo&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-33" name="__codelineno-2-33"></a><span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">view_func</span><span class="o">=</span><span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])</span>
+<a id="__codelineno-2-34" name="__codelineno-2-34"></a><span class="n">app</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)(</span><span class="n">api_exception</span><span class="p">)</span>
+<a id="__codelineno-2-35" name="__codelineno-2-35"></a>
+<a id="__codelineno-2-36" name="__codelineno-2-36"></a>
+<a id="__codelineno-2-37" name="__codelineno-2-37"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-2-38" name="__codelineno-2-38"></a>    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">8000</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">docs_source_code/introduction/exception/starlette_with_exception_demo.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-3-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-3-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-3-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-3-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-3-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-3-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-3-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-3-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-3-10">10</a></span>
+<span class="normal"><a href="#__codelineno-3-11">11</a></span>
+<span class="normal"><a href="#__codelineno-3-12">12</a></span>
+<span class="normal"><a href="#__codelineno-3-13">13</a></span>
+<span class="normal"><a href="#__codelineno-3-14">14</a></span>
+<span class="normal"><a href="#__codelineno-3-15">15</a></span>
+<span class="normal"><a href="#__codelineno-3-16">16</a></span>
+<span class="normal"><a href="#__codelineno-3-17">17</a></span>
+<span class="normal"><a href="#__codelineno-3-18">18</a></span>
+<span class="normal"><a href="#__codelineno-3-19">19</a></span>
+<span class="normal"><a href="#__codelineno-3-20">20</a></span>
+<span class="normal"><a href="#__codelineno-3-21">21</a></span>
+<span class="normal"><a href="#__codelineno-3-22">22</a></span>
+<span class="normal"><a href="#__codelineno-3-23">23</a></span>
+<span class="normal"><a href="#__codelineno-3-24">24</a></span>
+<span class="normal"><a href="#__codelineno-3-25">25</a></span>
+<span class="normal"><a href="#__codelineno-3-26">26</a></span>
+<span class="normal"><a href="#__codelineno-3-27">27</a></span>
+<span class="normal"><a href="#__codelineno-3-28">28</a></span>
+<span class="normal"><a href="#__codelineno-3-29">29</a></span>
+<span class="normal"><a href="#__codelineno-3-30">30</a></span>
+<span class="normal"><a href="#__codelineno-3-31">31</a></span>
+<span class="normal"><a href="#__codelineno-3-32">32</a></span>
+<span class="normal"><a href="#__codelineno-3-33">33</a></span>
+<span class="normal"><a href="#__codelineno-3-34">34</a></span>
+<span class="normal"><a href="#__codelineno-3-35">35</a></span>
+<span class="normal"><a href="#__codelineno-3-36">36</a></span>
+<span class="normal"><a href="#__codelineno-3-37">37</a></span>
+<span class="normal"><a href="#__codelineno-3-38">38</a></span>
+<span class="normal"><a href="#__codelineno-3-39">39</a></span>
+<span class="normal"><a href="#__codelineno-3-40">40</a></span>
+<span class="normal"><a href="#__codelineno-3-41">41</a></span>
+<span class="normal"><a href="#__codelineno-3-42">42</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="kn">from</span> <span class="nn">starlette.requests</span> <span class="kn">import</span> <span class="n">Request</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">JSONResponse</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8"></a>
+<a id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">exceptions</span><span class="p">,</span> <span class="n">field</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
 <a id="__codelineno-3-11" name="__codelineno-3-11"></a>
 <a id="__codelineno-3-12" name="__codelineno-3-12"></a>
-<a id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">api_exception</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
-</span><a id="__codelineno-3-14" name="__codelineno-3-14"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">TipException</span><span class="p">):</span>
-<a id="__codelineno-3-15" name="__codelineno-3-15"></a>        <span class="c1"># 提取原本的异常</span>
-<a id="__codelineno-3-16" name="__codelineno-3-16"></a>        <span class="n">exc</span> <span class="o">=</span> <span class="n">exc</span><span class="o">.</span><span class="n">exc</span>
-<a id="__codelineno-3-17" name="__codelineno-3-17"></a>
-<a id="__codelineno-3-18" name="__codelineno-3-18"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PaitBaseParamException</span><span class="p">):</span>
-<a id="__codelineno-3-19" name="__codelineno-3-19"></a>        <span class="c1"># 提取参数信息和错误信息，告知用户哪个参数发生错误</span>
-<a id="__codelineno-3-20" name="__codelineno-3-20"></a>        <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;error param:</span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">param</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
-<a id="__codelineno-3-21" name="__codelineno-3-21"></a>    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">):</span>
-<a id="__codelineno-3-22" name="__codelineno-3-22"></a>        <span class="c1"># 解析Pydantic异常，返回校验失败的参数信息</span>
-<a id="__codelineno-3-23" name="__codelineno-3-23"></a>        <span class="n">error_param_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-<a id="__codelineno-3-24" name="__codelineno-3-24"></a>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">exc</span><span class="o">.</span><span class="n">errors</span><span class="p">():</span>
-<a id="__codelineno-3-25" name="__codelineno-3-25"></a>            <span class="n">error_param_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s2">&quot;loc&quot;</span><span class="p">])</span>
-<a id="__codelineno-3-26" name="__codelineno-3-26"></a>        <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;check error param: </span><span class="si">{</span><span class="n">error_param_list</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
-<a id="__codelineno-3-27" name="__codelineno-3-27"></a>    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PaitBaseException</span><span class="p">):</span>
-<a id="__codelineno-3-28" name="__codelineno-3-28"></a>        <span class="c1"># 标准的Pait异常，通常很少出现，直接返回异常信息</span>
-<a id="__codelineno-3-29" name="__codelineno-3-29"></a>        <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
-<a id="__codelineno-3-30" name="__codelineno-3-30"></a>
-<a id="__codelineno-3-31" name="__codelineno-3-31"></a>    <span class="c1"># 路由函数的错误信息</span>
-<a id="__codelineno-3-32" name="__codelineno-3-32"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">api_exception</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14"></a><span class="hll">    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">TipException</span><span class="p">):</span>
+</span><a id="__codelineno-3-15" name="__codelineno-3-15"></a>        <span class="n">exc</span> <span class="o">=</span> <span class="n">exc</span><span class="o">.</span><span class="n">exc</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16"></a>
+<a id="__codelineno-3-17" name="__codelineno-3-17"></a><span class="hll">    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PaitBaseParamException</span><span class="p">):</span>
+</span><a id="__codelineno-3-18" name="__codelineno-3-18"></a>        <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;error param:</span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">param</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19"></a><span class="hll">    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">):</span>
+</span><a id="__codelineno-3-20" name="__codelineno-3-20"></a>        <span class="n">error_param_list</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-3-21" name="__codelineno-3-21"></a>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">exc</span><span class="o">.</span><span class="n">errors</span><span class="p">():</span>
+<a id="__codelineno-3-22" name="__codelineno-3-22"></a>            <span class="n">error_param_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s2">&quot;loc&quot;</span><span class="p">])</span>
+<a id="__codelineno-3-23" name="__codelineno-3-23"></a>        <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;check error param: </span><span class="si">{</span><span class="n">error_param_list</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+<a id="__codelineno-3-24" name="__codelineno-3-24"></a><span class="hll">    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PaitBaseException</span><span class="p">):</span>
+</span><a id="__codelineno-3-25" name="__codelineno-3-25"></a>        <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+<a id="__codelineno-3-26" name="__codelineno-3-26"></a>
+<a id="__codelineno-3-27" name="__codelineno-3-27"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+<a id="__codelineno-3-28" name="__codelineno-3-28"></a>
+<a id="__codelineno-3-29" name="__codelineno-3-29"></a>
+<a id="__codelineno-3-30" name="__codelineno-3-30"></a><span class="nd">@pait</span><span class="p">()</span>
+<a id="__codelineno-3-31" name="__codelineno-3-31"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span><span class="n">demo_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
+<a id="__codelineno-3-32" name="__codelineno-3-32"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">demo_value</span><span class="p">})</span>
 <a id="__codelineno-3-33" name="__codelineno-3-33"></a>
 <a id="__codelineno-3-34" name="__codelineno-3-34"></a>
-<a id="__codelineno-3-35" name="__codelineno-3-35"></a><span class="nd">@pait</span><span class="p">()</span>
-<a id="__codelineno-3-36" name="__codelineno-3-36"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span><span class="n">demo_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
-<a id="__codelineno-3-37" name="__codelineno-3-37"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">demo_value</span><span class="p">})</span>
+<a id="__codelineno-3-35" name="__codelineno-3-35"></a><span class="hll"><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span><span class="n">routes</span><span class="o">=</span><span class="p">[</span><span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])])</span>
+</span><a id="__codelineno-3-36" name="__codelineno-3-36"></a><span class="n">app</span><span class="o">.</span><span class="n">add_exception_handler</span><span class="p">(</span><span class="ne">Exception</span><span class="p">,</span> <span class="n">api_exception</span><span class="p">)</span>
+<a id="__codelineno-3-37" name="__codelineno-3-37"></a>
 <a id="__codelineno-3-38" name="__codelineno-3-38"></a>
-<a id="__codelineno-3-39" name="__codelineno-3-39"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span><span class="n">routes</span><span class="o">=</span><span class="p">[</span><span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])])</span>
-<a id="__codelineno-3-40" name="__codelineno-3-40"></a><span class="n">app</span><span class="o">.</span><span class="n">add_exception_handler</span><span class="p">(</span><span class="ne">Exception</span><span class="p">,</span> <span class="n">api_exception</span><span class="p">)</span>
+<a id="__codelineno-3-39" name="__codelineno-3-39"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-3-40" name="__codelineno-3-40"></a>    <span class="kn">import</span> <span class="nn">uvicorn</span>
 <a id="__codelineno-3-41" name="__codelineno-3-41"></a>
-<a id="__codelineno-3-42" name="__codelineno-3-42"></a>
-<a id="__codelineno-3-43" name="__codelineno-3-43"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
-</code></pre></div>
-该代码的响应使用了常见的后端返回Json数据协议:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="p">{</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2"></a>  <span class="nt">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3"></a>  <span class="nt">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4"></a>  <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{}</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="p">}</span>
-</code></pre></div>
-其中<code>code</code>为0时代表响应正常，不为0则为异常且<code>msg</code>包括了一个错误信息供前端展示，而<code>data</code>是正常响应时的结构体。</p>
-<p>然后通过<code>Starlette</code>框架的异常机制，把自定义的<code>api_exception</code>函数挂载到<code>Starlette</code>的异常处理回调中，
-<code>api_exception</code>函数里面包含了使用<code>Pait</code>时遇到的几种异常的处理，然后按照协议返回数据给调用端，通过<code>curl</code>调用可以发现：</p>
+<a id="__codelineno-3-42" name="__codelineno-3-42"></a>    <span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">docs_source_code/introduction/exception/sanic_with_exception_demo.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-4-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-4-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-4-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-4-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-4-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-4-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-4-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-4-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-4-10">10</a></span>
+<span class="normal"><a href="#__codelineno-4-11">11</a></span>
+<span class="normal"><a href="#__codelineno-4-12">12</a></span>
+<span class="normal"><a href="#__codelineno-4-13">13</a></span>
+<span class="normal"><a href="#__codelineno-4-14">14</a></span>
+<span class="normal"><a href="#__codelineno-4-15">15</a></span>
+<span class="normal"><a href="#__codelineno-4-16">16</a></span>
+<span class="normal"><a href="#__codelineno-4-17">17</a></span>
+<span class="normal"><a href="#__codelineno-4-18">18</a></span>
+<span class="normal"><a href="#__codelineno-4-19">19</a></span>
+<span class="normal"><a href="#__codelineno-4-20">20</a></span>
+<span class="normal"><a href="#__codelineno-4-21">21</a></span>
+<span class="normal"><a href="#__codelineno-4-22">22</a></span>
+<span class="normal"><a href="#__codelineno-4-23">23</a></span>
+<span class="normal"><a href="#__codelineno-4-24">24</a></span>
+<span class="normal"><a href="#__codelineno-4-25">25</a></span>
+<span class="normal"><a href="#__codelineno-4-26">26</a></span>
+<span class="normal"><a href="#__codelineno-4-27">27</a></span>
+<span class="normal"><a href="#__codelineno-4-28">28</a></span>
+<span class="normal"><a href="#__codelineno-4-29">29</a></span>
+<span class="normal"><a href="#__codelineno-4-30">30</a></span>
+<span class="normal"><a href="#__codelineno-4-31">31</a></span>
+<span class="normal"><a href="#__codelineno-4-32">32</a></span>
+<span class="normal"><a href="#__codelineno-4-33">33</a></span>
+<span class="normal"><a href="#__codelineno-4-34">34</a></span>
+<span class="normal"><a href="#__codelineno-4-35">35</a></span>
+<span class="normal"><a href="#__codelineno-4-36">36</a></span>
+<span class="normal"><a href="#__codelineno-4-37">37</a></span>
+<span class="normal"><a href="#__codelineno-4-38">38</a></span>
+<span class="normal"><a href="#__codelineno-4-39">39</a></span>
+<span class="normal"><a href="#__codelineno-4-40">40</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="kn">from</span> <span class="nn">sanic</span> <span class="kn">import</span> <span class="n">HTTPResponse</span><span class="p">,</span> <span class="n">Request</span><span class="p">,</span> <span class="n">Sanic</span><span class="p">,</span> <span class="n">json</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">exceptions</span><span class="p">,</span> <span class="n">field</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="kn">from</span> <span class="nn">pait.app.sanic</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8"></a>
+<a id="__codelineno-4-9" name="__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">api_exception</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HTTPResponse</span><span class="p">:</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11"></a><span class="hll">    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">TipException</span><span class="p">):</span>
+</span><a id="__codelineno-4-12" name="__codelineno-4-12"></a>        <span class="n">exc</span> <span class="o">=</span> <span class="n">exc</span><span class="o">.</span><span class="n">exc</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13"></a>
+<a id="__codelineno-4-14" name="__codelineno-4-14"></a><span class="hll">    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PaitBaseParamException</span><span class="p">):</span>
+</span><a id="__codelineno-4-15" name="__codelineno-4-15"></a>        <span class="k">return</span> <span class="n">json</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;error param:</span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">param</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16"></a><span class="hll">    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">):</span>
+</span><a id="__codelineno-4-17" name="__codelineno-4-17"></a>        <span class="n">error_param_list</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18"></a><span class="hll">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">exc</span><span class="o">.</span><span class="n">errors</span><span class="p">():</span>
+</span><a id="__codelineno-4-19" name="__codelineno-4-19"></a>            <span class="n">error_param_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s2">&quot;loc&quot;</span><span class="p">])</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20"></a>        <span class="k">return</span> <span class="n">json</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;check error param: </span><span class="si">{</span><span class="n">error_param_list</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+<a id="__codelineno-4-21" name="__codelineno-4-21"></a><span class="hll">    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PaitBaseException</span><span class="p">):</span>
+</span><a id="__codelineno-4-22" name="__codelineno-4-22"></a>        <span class="k">return</span> <span class="n">json</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+<a id="__codelineno-4-23" name="__codelineno-4-23"></a>
+<a id="__codelineno-4-24" name="__codelineno-4-24"></a>    <span class="k">return</span> <span class="n">json</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+<a id="__codelineno-4-25" name="__codelineno-4-25"></a>
+<a id="__codelineno-4-26" name="__codelineno-4-26"></a>
+<a id="__codelineno-4-27" name="__codelineno-4-27"></a><span class="nd">@pait</span><span class="p">()</span>
+<a id="__codelineno-4-28" name="__codelineno-4-28"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span><span class="n">demo_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="n">HTTPResponse</span><span class="p">:</span>
+<a id="__codelineno-4-29" name="__codelineno-4-29"></a>    <span class="k">return</span> <span class="n">json</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">demo_value</span><span class="p">})</span>
+<a id="__codelineno-4-30" name="__codelineno-4-30"></a>
+<a id="__codelineno-4-31" name="__codelineno-4-31"></a>
+<a id="__codelineno-4-32" name="__codelineno-4-32"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Sanic</span><span class="p">(</span><span class="s2">&quot;demo&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-33" name="__codelineno-4-33"></a><span class="n">app</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="n">demo</span><span class="p">,</span> <span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;GET&quot;</span><span class="p">})</span>
+<a id="__codelineno-4-34" name="__codelineno-4-34"></a><span class="n">app</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)(</span><span class="n">api_exception</span><span class="p">)</span>
+<a id="__codelineno-4-35" name="__codelineno-4-35"></a>
+<a id="__codelineno-4-36" name="__codelineno-4-36"></a>
+<a id="__codelineno-4-37" name="__codelineno-4-37"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-4-38" name="__codelineno-4-38"></a>    <span class="kn">import</span> <span class="nn">uvicorn</span>
+<a id="__codelineno-4-39" name="__codelineno-4-39"></a>
+<a id="__codelineno-4-40" name="__codelineno-4-40"></a>    <span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">docs_source_code/introduction/exception/tornado_with_exception_demo.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-5-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-5-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-5-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-5-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-5-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-5-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-5-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-5-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-5-10">10</a></span>
+<span class="normal"><a href="#__codelineno-5-11">11</a></span>
+<span class="normal"><a href="#__codelineno-5-12">12</a></span>
+<span class="normal"><a href="#__codelineno-5-13">13</a></span>
+<span class="normal"><a href="#__codelineno-5-14">14</a></span>
+<span class="normal"><a href="#__codelineno-5-15">15</a></span>
+<span class="normal"><a href="#__codelineno-5-16">16</a></span>
+<span class="normal"><a href="#__codelineno-5-17">17</a></span>
+<span class="normal"><a href="#__codelineno-5-18">18</a></span>
+<span class="normal"><a href="#__codelineno-5-19">19</a></span>
+<span class="normal"><a href="#__codelineno-5-20">20</a></span>
+<span class="normal"><a href="#__codelineno-5-21">21</a></span>
+<span class="normal"><a href="#__codelineno-5-22">22</a></span>
+<span class="normal"><a href="#__codelineno-5-23">23</a></span>
+<span class="normal"><a href="#__codelineno-5-24">24</a></span>
+<span class="normal"><a href="#__codelineno-5-25">25</a></span>
+<span class="normal"><a href="#__codelineno-5-26">26</a></span>
+<span class="normal"><a href="#__codelineno-5-27">27</a></span>
+<span class="normal"><a href="#__codelineno-5-28">28</a></span>
+<span class="normal"><a href="#__codelineno-5-29">29</a></span>
+<span class="normal"><a href="#__codelineno-5-30">30</a></span>
+<span class="normal"><a href="#__codelineno-5-31">31</a></span>
+<span class="normal"><a href="#__codelineno-5-32">32</a></span>
+<span class="normal"><a href="#__codelineno-5-33">33</a></span>
+<span class="normal"><a href="#__codelineno-5-34">34</a></span>
+<span class="normal"><a href="#__codelineno-5-35">35</a></span>
+<span class="normal"><a href="#__codelineno-5-36">36</a></span>
+<span class="normal"><a href="#__codelineno-5-37">37</a></span>
+<span class="normal"><a href="#__codelineno-5-38">38</a></span>
+<span class="normal"><a href="#__codelineno-5-39">39</a></span>
+<span class="normal"><a href="#__codelineno-5-40">40</a></span>
+<span class="normal"><a href="#__codelineno-5-41">41</a></span>
+<span class="normal"><a href="#__codelineno-5-42">42</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="kn">from</span> <span class="nn">tornado.ioloop</span> <span class="kn">import</span> <span class="n">IOLoop</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="kn">from</span> <span class="nn">tornado.web</span> <span class="kn">import</span> <span class="n">Application</span><span class="p">,</span> <span class="n">RequestHandler</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">exceptions</span><span class="p">,</span> <span class="n">field</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="kn">from</span> <span class="nn">pait.app.tornado</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9"></a><span class="kn">from</span> <span class="nn">pait.openapi.doc_route</span> <span class="kn">import</span> <span class="n">AddDocRoute</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10"></a>
+<a id="__codelineno-5-11" name="__codelineno-5-11"></a>
+<a id="__codelineno-5-12" name="__codelineno-5-12"></a><span class="k">class</span> <span class="nc">_Handler</span><span class="p">(</span><span class="n">RequestHandler</span><span class="p">):</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13"></a>    <span class="k">def</span> <span class="nf">_handle_request_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14"></a><span class="hll">        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">TipException</span><span class="p">):</span>
+</span><a id="__codelineno-5-15" name="__codelineno-5-15"></a>            <span class="n">exc</span> <span class="o">=</span> <span class="n">exc</span><span class="o">.</span><span class="n">exc</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16"></a>
+<a id="__codelineno-5-17" name="__codelineno-5-17"></a><span class="hll">        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PaitBaseParamException</span><span class="p">):</span>
+</span><a id="__codelineno-5-18" name="__codelineno-5-18"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;error param:</span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">param</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19"></a><span class="hll">        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">):</span>
+</span><a id="__codelineno-5-20" name="__codelineno-5-20"></a>            <span class="n">error_param_list</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-5-21" name="__codelineno-5-21"></a>            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">exc</span><span class="o">.</span><span class="n">errors</span><span class="p">():</span>
+<a id="__codelineno-5-22" name="__codelineno-5-22"></a>                <span class="n">error_param_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s2">&quot;loc&quot;</span><span class="p">])</span>
+<a id="__codelineno-5-23" name="__codelineno-5-23"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;check error param: </span><span class="si">{</span><span class="n">error_param_list</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+<a id="__codelineno-5-24" name="__codelineno-5-24"></a><span class="hll">        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PaitBaseException</span><span class="p">):</span>
+</span><a id="__codelineno-5-25" name="__codelineno-5-25"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+<a id="__codelineno-5-26" name="__codelineno-5-26"></a>
+<a id="__codelineno-5-27" name="__codelineno-5-27"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+<a id="__codelineno-5-28" name="__codelineno-5-28"></a>
+<a id="__codelineno-5-29" name="__codelineno-5-29"></a>
+<a id="__codelineno-5-30" name="__codelineno-5-30"></a><span class="k">class</span> <span class="nc">DemoHandler</span><span class="p">(</span><span class="n">_Handler</span><span class="p">):</span>
+<a id="__codelineno-5-31" name="__codelineno-5-31"></a>    <span class="nd">@pait</span><span class="p">()</span>
+<a id="__codelineno-5-32" name="__codelineno-5-32"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">demo_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-5-33" name="__codelineno-5-33"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">demo_value</span><span class="p">})</span>
+<a id="__codelineno-5-34" name="__codelineno-5-34"></a>
+<a id="__codelineno-5-35" name="__codelineno-5-35"></a>
+<a id="__codelineno-5-36" name="__codelineno-5-36"></a><span class="n">app</span><span class="p">:</span> <span class="n">Application</span> <span class="o">=</span> <span class="n">Application</span><span class="p">([(</span><span class="sa">r</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">DemoHandler</span><span class="p">)])</span>
+<a id="__codelineno-5-37" name="__codelineno-5-37"></a><span class="n">AddDocRoute</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<a id="__codelineno-5-38" name="__codelineno-5-38"></a>
+<a id="__codelineno-5-39" name="__codelineno-5-39"></a>
+<a id="__codelineno-5-40" name="__codelineno-5-40"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-5-41" name="__codelineno-5-41"></a>    <span class="n">app</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="mi">8000</span><span class="p">)</span>
+<a id="__codelineno-5-42" name="__codelineno-5-42"></a>    <span class="n">IOLoop</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<p>The exception handling of the <code>api_exception</code> function in the sample code is arranged in a strict order.
+It is generally recommended to handle exceptions in this order.</p>
+<p>The first highlighted code of the <code>api_exception</code> function is to extract the original exception of <code>TipException</code>.
+All subsequent exception handling is for the original exception, so it has the highest priority.
+The second highlighted code is to handle all <code>Pait</code> parameter exceptions.
+It will extract parameter information and error information and inform the user which parameter has an error.
+The third highlighted code handles the verification exception of <code>Pydantic</code>.
+It will parse the exception and return the parameter information that failed the verification.
+The fourth piece of code handles all exceptions of <code>Pait</code>, which usually occur rarely.
+The last step is to handle exceptions in other situations, which may be exceptions defined by the business system.</p>
+<p>The last highlighted code is to mount the custom <code>api_exception</code> function into the framework's exception handling callback through the exception mechanism of the Web framework.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>Tornado</code>'s exception handling is implemented in <code>RequestHandler</code>.</p>
+</div>
+<p>After running the code and calling the <code>curl</code> command can know:</p>
 <ul>
-<li>缺少参数时，会返回找不到参数的错误信息
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo&quot;</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="o">{</span><span class="s2">&quot;code&quot;</span>:-1,<span class="s2">&quot;msg&quot;</span>:<span class="s2">&quot;error param:demo_value, Can not found demo_value value&quot;</span><span class="o">}</span>
+<li>When parameters are missing, an error message indicating that the parameter cannot be found will be returned.
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>➜<span class="w">  </span>~<span class="w"> </span>curl<span class="w"> </span><span class="s2">&quot;http://127.0.0.1:8000/api/demo&quot;</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="o">{</span><span class="s2">&quot;code&quot;</span>:-1,<span class="s2">&quot;msg&quot;</span>:<span class="s2">&quot;error param:demo_value, Can not found demo_value value&quot;</span><span class="o">}</span>
 </code></pre></div></li>
-<li>参数校验出错时，会返回校验出错的参数名
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=a&quot;</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="o">{</span><span class="s2">&quot;code&quot;</span>:-1,<span class="s2">&quot;msg&quot;</span>:<span class="s2">&quot;check error param: [&#39;demo_value&#39;]&quot;</span><span class="o">}</span>
+<li>When parameter verification fails, the parameter name with verification error will be returned.
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>➜<span class="w">  </span>~<span class="w"> </span>curl<span class="w"> </span><span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=a&quot;</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="o">{</span><span class="s2">&quot;code&quot;</span>:-1,<span class="s2">&quot;msg&quot;</span>:<span class="s2">&quot;check error param: [&#39;demo_value&#39;]&quot;</span><span class="o">}</span>
 </code></pre></div></li>
-<li>参数正常时返回正常的数据
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1"></a>➜  ~ curl <span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=3&quot;</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2"></a><span class="o">{</span><span class="s2">&quot;code&quot;</span>:0,<span class="s2">&quot;msg&quot;</span>:<span class="s2">&quot;&quot;</span>,<span class="s2">&quot;data&quot;</span>:3<span class="o">}</span>
+<li>Normal data is returned when the parameters are normal.
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>➜<span class="w">  </span>~<span class="w"> </span>curl<span class="w"> </span><span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=3&quot;</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="o">{</span><span class="s2">&quot;code&quot;</span>:0,<span class="s2">&quot;msg&quot;</span>:<span class="s2">&quot;&quot;</span>,<span class="s2">&quot;data&quot;</span>:3<span class="o">}</span>
+</code></pre></div></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Protocol description</p>
+<p>The response of the sample code uses common front-end and back-end interaction protocols:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="err">Whe</span><span class="kc">n</span><span class="w"> </span><span class="err">i</span><span class="kc">t</span><span class="w"> </span><span class="err">is</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="err">i</span><span class="kc">t</span><span class="w"> </span><span class="err">mea</span><span class="kc">ns</span><span class="w"> </span><span class="kc">t</span><span class="err">he</span><span class="w"> </span><span class="err">respo</span><span class="kc">nse</span><span class="w"> </span><span class="err">is</span><span class="w"> </span><span class="kc">n</span><span class="err">ormal</span><span class="p">,</span><span class="w"> </span><span class="err">i</span><span class="kc">f</span><span class="w"> </span><span class="err">i</span><span class="kc">t</span><span class="w"> </span><span class="err">is</span><span class="w"> </span><span class="kc">n</span><span class="err">o</span><span class="kc">t</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="err">i</span><span class="kc">t</span><span class="w"> </span><span class="err">mea</span><span class="kc">ns</span><span class="w"> </span><span class="err">i</span><span class="kc">t</span><span class="w"> </span><span class="err">is</span><span class="w"> </span><span class="err">ab</span><span class="kc">n</span><span class="err">ormal.</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="nt">&quot;msg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="err">I</span><span class="kc">t</span><span class="w"> </span><span class="err">is</span><span class="w"> </span><span class="err">a</span><span class="kc">n</span><span class="w"> </span><span class="err">error</span><span class="w"> </span><span class="err">message</span><span class="w"> </span><span class="err">whe</span><span class="kc">n</span><span class="w"> </span><span class="kc">t</span><span class="err">here</span><span class="w"> </span><span class="err">is</span><span class="w"> </span><span class="err">a</span><span class="kc">n</span><span class="w"> </span><span class="err">excep</span><span class="kc">t</span><span class="err">io</span><span class="kc">n</span><span class="p">,</span><span class="w"> </span><span class="err">a</span><span class="kc">n</span><span class="err">d</span><span class="w"> </span><span class="err">i</span><span class="kc">t</span><span class="w"> </span><span class="err">is</span><span class="w"> </span><span class="err">emp</span><span class="kc">t</span><span class="err">y</span><span class="w"> </span><span class="err">whe</span><span class="kc">n</span><span class="w"> </span><span class="err">i</span><span class="kc">t</span><span class="w"> </span><span class="err">is</span><span class="w"> </span><span class="kc">n</span><span class="err">ormal.</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="err">Respo</span><span class="kc">nse</span><span class="w"> </span><span class="err">Da</span><span class="kc">ta</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="p">}</span>
+</code></pre></div></p>
+</div>
+<h3 id="22custom-tipexception">2.2.Custom TipException</h3>
+<p>The TipExceptions are enabled by default.
+If you think that error prompts will consume performance or want to turn off it,
+can define the <code>tip_exception_class</code> attribute of <code>ParamHandler</code> as <code>None</code> to turn off exception prompts. code show as below:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:4"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><input id="__tabbed_2_4" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Flask</label><label for="__tabbed_2_2">Starlette</label><label for="__tabbed_2_3">Sanic</label><label for="__tabbed_2_4">Tornado</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">docs_source_code/introduction/exception/flask_with_not_tip_exception_demo.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-10-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-10-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-10-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-10-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-10-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-10-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-10-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-10-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-10-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-10-10">10</a></span>
+<span class="normal"><a href="#__codelineno-10-11">11</a></span>
+<span class="normal"><a href="#__codelineno-10-12">12</a></span>
+<span class="normal"><a href="#__codelineno-10-13">13</a></span>
+<span class="normal"><a href="#__codelineno-10-14">14</a></span>
+<span class="normal"><a href="#__codelineno-10-15">15</a></span>
+<span class="normal"><a href="#__codelineno-10-16">16</a></span>
+<span class="normal"><a href="#__codelineno-10-17">17</a></span>
+<span class="normal"><a href="#__codelineno-10-18">18</a></span>
+<span class="normal"><a href="#__codelineno-10-19">19</a></span>
+<span class="normal"><a href="#__codelineno-10-20">20</a></span>
+<span class="normal"><a href="#__codelineno-10-21">21</a></span>
+<span class="normal"><a href="#__codelineno-10-22">22</a></span>
+<span class="normal"><a href="#__codelineno-10-23">23</a></span>
+<span class="normal"><a href="#__codelineno-10-24">24</a></span>
+<span class="normal"><a href="#__codelineno-10-25">25</a></span>
+<span class="normal"><a href="#__codelineno-10-26">26</a></span>
+<span class="normal"><a href="#__codelineno-10-27">27</a></span>
+<span class="normal"><a href="#__codelineno-10-28">28</a></span>
+<span class="normal"><a href="#__codelineno-10-29">29</a></span>
+<span class="normal"><a href="#__codelineno-10-30">30</a></span>
+<span class="normal"><a href="#__codelineno-10-31">31</a></span>
+<span class="normal"><a href="#__codelineno-10-32">32</a></span>
+<span class="normal"><a href="#__codelineno-10-33">33</a></span>
+<span class="normal"><a href="#__codelineno-10-34">34</a></span>
+<span class="normal"><a href="#__codelineno-10-35">35</a></span>
+<span class="normal"><a href="#__codelineno-10-36">36</a></span>
+<span class="normal"><a href="#__codelineno-10-37">37</a></span>
+<span class="normal"><a href="#__codelineno-10-38">38</a></span>
+<span class="normal"><a href="#__codelineno-10-39">39</a></span>
+<span class="normal"><a href="#__codelineno-10-40">40</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2"></a>
+<a id="__codelineno-10-3" name="__codelineno-10-3"></a><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">Response</span><span class="p">,</span> <span class="n">jsonify</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5"></a>
+<a id="__codelineno-10-6" name="__codelineno-10-6"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">exceptions</span><span class="p">,</span> <span class="n">field</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7"></a><span class="kn">from</span> <span class="nn">pait.app.flask</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8"></a><span class="kn">from</span> <span class="nn">pait.param_handle</span> <span class="kn">import</span> <span class="n">ParamHandler</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9"></a>
+<a id="__codelineno-10-10" name="__codelineno-10-10"></a>
+<a id="__codelineno-10-11" name="__codelineno-10-11"></a><span class="hll"><span class="k">class</span> <span class="nc">NotTipParamHandler</span><span class="p">(</span><span class="n">ParamHandler</span><span class="p">):</span>
+</span><a id="__codelineno-10-12" name="__codelineno-10-12"></a><span class="hll">    <span class="n">tip_exception_class</span> <span class="o">=</span> <span class="kc">None</span>
+</span><a id="__codelineno-10-13" name="__codelineno-10-13"></a>
+<a id="__codelineno-10-14" name="__codelineno-10-14"></a>
+<a id="__codelineno-10-15" name="__codelineno-10-15"></a><span class="hll"><span class="k">def</span> <span class="nf">api_exception</span><span class="p">(</span><span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
+</span><a id="__codelineno-10-16" name="__codelineno-10-16"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PaitBaseParamException</span><span class="p">):</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17"></a>        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;error param:</span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">param</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18"></a>    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">):</span>
+<a id="__codelineno-10-19" name="__codelineno-10-19"></a>        <span class="n">error_param_list</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-10-20" name="__codelineno-10-20"></a>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">exc</span><span class="o">.</span><span class="n">errors</span><span class="p">():</span>
+<a id="__codelineno-10-21" name="__codelineno-10-21"></a>            <span class="n">error_param_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s2">&quot;loc&quot;</span><span class="p">])</span>
+<a id="__codelineno-10-22" name="__codelineno-10-22"></a>        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;check error param: </span><span class="si">{</span><span class="n">error_param_list</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+<a id="__codelineno-10-23" name="__codelineno-10-23"></a>    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PaitBaseException</span><span class="p">):</span>
+<a id="__codelineno-10-24" name="__codelineno-10-24"></a>        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+<a id="__codelineno-10-25" name="__codelineno-10-25"></a>
+<a id="__codelineno-10-26" name="__codelineno-10-26"></a>    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+<a id="__codelineno-10-27" name="__codelineno-10-27"></a>
+<a id="__codelineno-10-28" name="__codelineno-10-28"></a>
+<a id="__codelineno-10-29" name="__codelineno-10-29"></a><span class="hll"><span class="nd">@pait</span><span class="p">(</span><span class="n">param_handler_plugin</span><span class="o">=</span><span class="n">NotTipParamHandler</span><span class="p">)</span>
+</span><a id="__codelineno-10-30" name="__codelineno-10-30"></a><span class="k">def</span> <span class="nf">demo</span><span class="p">(</span><span class="n">demo_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
+<a id="__codelineno-10-31" name="__codelineno-10-31"></a>    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">demo_value</span><span class="p">})</span>
+<a id="__codelineno-10-32" name="__codelineno-10-32"></a>
+<a id="__codelineno-10-33" name="__codelineno-10-33"></a>
+<a id="__codelineno-10-34" name="__codelineno-10-34"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="s2">&quot;demo&quot;</span><span class="p">)</span>
+<a id="__codelineno-10-35" name="__codelineno-10-35"></a><span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">view_func</span><span class="o">=</span><span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])</span>
+<a id="__codelineno-10-36" name="__codelineno-10-36"></a><span class="n">app</span><span class="o">.</span><span class="n">errorhandler</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)(</span><span class="n">api_exception</span><span class="p">)</span>
+<a id="__codelineno-10-37" name="__codelineno-10-37"></a>
+<a id="__codelineno-10-38" name="__codelineno-10-38"></a>
+<a id="__codelineno-10-39" name="__codelineno-10-39"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-10-40" name="__codelineno-10-40"></a>    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">8000</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">docs_source_code/introduction/exception/starlette_with_not_tip_exception_demo.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-11-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-11-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-11-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-11-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-11-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-11-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-11-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-11-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-11-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-11-10">10</a></span>
+<span class="normal"><a href="#__codelineno-11-11">11</a></span>
+<span class="normal"><a href="#__codelineno-11-12">12</a></span>
+<span class="normal"><a href="#__codelineno-11-13">13</a></span>
+<span class="normal"><a href="#__codelineno-11-14">14</a></span>
+<span class="normal"><a href="#__codelineno-11-15">15</a></span>
+<span class="normal"><a href="#__codelineno-11-16">16</a></span>
+<span class="normal"><a href="#__codelineno-11-17">17</a></span>
+<span class="normal"><a href="#__codelineno-11-18">18</a></span>
+<span class="normal"><a href="#__codelineno-11-19">19</a></span>
+<span class="normal"><a href="#__codelineno-11-20">20</a></span>
+<span class="normal"><a href="#__codelineno-11-21">21</a></span>
+<span class="normal"><a href="#__codelineno-11-22">22</a></span>
+<span class="normal"><a href="#__codelineno-11-23">23</a></span>
+<span class="normal"><a href="#__codelineno-11-24">24</a></span>
+<span class="normal"><a href="#__codelineno-11-25">25</a></span>
+<span class="normal"><a href="#__codelineno-11-26">26</a></span>
+<span class="normal"><a href="#__codelineno-11-27">27</a></span>
+<span class="normal"><a href="#__codelineno-11-28">28</a></span>
+<span class="normal"><a href="#__codelineno-11-29">29</a></span>
+<span class="normal"><a href="#__codelineno-11-30">30</a></span>
+<span class="normal"><a href="#__codelineno-11-31">31</a></span>
+<span class="normal"><a href="#__codelineno-11-32">32</a></span>
+<span class="normal"><a href="#__codelineno-11-33">33</a></span>
+<span class="normal"><a href="#__codelineno-11-34">34</a></span>
+<span class="normal"><a href="#__codelineno-11-35">35</a></span>
+<span class="normal"><a href="#__codelineno-11-36">36</a></span>
+<span class="normal"><a href="#__codelineno-11-37">37</a></span>
+<span class="normal"><a href="#__codelineno-11-38">38</a></span>
+<span class="normal"><a href="#__codelineno-11-39">39</a></span>
+<span class="normal"><a href="#__codelineno-11-40">40</a></span>
+<span class="normal"><a href="#__codelineno-11-41">41</a></span>
+<span class="normal"><a href="#__codelineno-11-42">42</a></span>
+<span class="normal"><a href="#__codelineno-11-43">43</a></span>
+<span class="normal"><a href="#__codelineno-11-44">44</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2"></a>
+<a id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="kn">from</span> <span class="nn">starlette.requests</span> <span class="kn">import</span> <span class="n">Request</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">JSONResponse</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8"></a>
+<a id="__codelineno-11-9" name="__codelineno-11-9"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">exceptions</span><span class="p">,</span> <span class="n">field</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11"></a><span class="kn">from</span> <span class="nn">pait.param_handle</span> <span class="kn">import</span> <span class="n">AsyncParamHandler</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12"></a>
+<a id="__codelineno-11-13" name="__codelineno-11-13"></a>
+<a id="__codelineno-11-14" name="__codelineno-11-14"></a><span class="hll"><span class="k">class</span> <span class="nc">NotTipAsyncParamHandler</span><span class="p">(</span><span class="n">AsyncParamHandler</span><span class="p">):</span>
+</span><a id="__codelineno-11-15" name="__codelineno-11-15"></a><span class="hll">    <span class="n">tip_exception_class</span> <span class="o">=</span> <span class="kc">None</span>
+</span><a id="__codelineno-11-16" name="__codelineno-11-16"></a>
+<a id="__codelineno-11-17" name="__codelineno-11-17"></a>
+<a id="__codelineno-11-18" name="__codelineno-11-18"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">api_exception</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
+</span><a id="__codelineno-11-19" name="__codelineno-11-19"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PaitBaseParamException</span><span class="p">):</span>
+<a id="__codelineno-11-20" name="__codelineno-11-20"></a>        <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;error param:</span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">param</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+<a id="__codelineno-11-21" name="__codelineno-11-21"></a>    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">):</span>
+<a id="__codelineno-11-22" name="__codelineno-11-22"></a>        <span class="n">error_param_list</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-11-23" name="__codelineno-11-23"></a>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">exc</span><span class="o">.</span><span class="n">errors</span><span class="p">():</span>
+<a id="__codelineno-11-24" name="__codelineno-11-24"></a>            <span class="n">error_param_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s2">&quot;loc&quot;</span><span class="p">])</span>
+<a id="__codelineno-11-25" name="__codelineno-11-25"></a>        <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;check error param: </span><span class="si">{</span><span class="n">error_param_list</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+<a id="__codelineno-11-26" name="__codelineno-11-26"></a>    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PaitBaseException</span><span class="p">):</span>
+<a id="__codelineno-11-27" name="__codelineno-11-27"></a>        <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+<a id="__codelineno-11-28" name="__codelineno-11-28"></a>
+<a id="__codelineno-11-29" name="__codelineno-11-29"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+<a id="__codelineno-11-30" name="__codelineno-11-30"></a>
+<a id="__codelineno-11-31" name="__codelineno-11-31"></a>
+<a id="__codelineno-11-32" name="__codelineno-11-32"></a><span class="hll"><span class="nd">@pait</span><span class="p">(</span><span class="n">param_handler_plugin</span><span class="o">=</span><span class="n">NotTipAsyncParamHandler</span><span class="p">)</span>
+</span><a id="__codelineno-11-33" name="__codelineno-11-33"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span><span class="n">demo_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
+<a id="__codelineno-11-34" name="__codelineno-11-34"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">demo_value</span><span class="p">})</span>
+<a id="__codelineno-11-35" name="__codelineno-11-35"></a>
+<a id="__codelineno-11-36" name="__codelineno-11-36"></a>
+<a id="__codelineno-11-37" name="__codelineno-11-37"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span><span class="n">routes</span><span class="o">=</span><span class="p">[</span><span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">demo</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">])])</span>
+<a id="__codelineno-11-38" name="__codelineno-11-38"></a><span class="n">app</span><span class="o">.</span><span class="n">add_exception_handler</span><span class="p">(</span><span class="ne">Exception</span><span class="p">,</span> <span class="n">api_exception</span><span class="p">)</span>
+<a id="__codelineno-11-39" name="__codelineno-11-39"></a>
+<a id="__codelineno-11-40" name="__codelineno-11-40"></a>
+<a id="__codelineno-11-41" name="__codelineno-11-41"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-11-42" name="__codelineno-11-42"></a>    <span class="kn">import</span> <span class="nn">uvicorn</span>
+<a id="__codelineno-11-43" name="__codelineno-11-43"></a>
+<a id="__codelineno-11-44" name="__codelineno-11-44"></a>    <span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">docs_source_code/introduction/exception/sanic_with_not_tip_exception_demo.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-12-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-12-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-12-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-12-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-12-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-12-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-12-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-12-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-12-10">10</a></span>
+<span class="normal"><a href="#__codelineno-12-11">11</a></span>
+<span class="normal"><a href="#__codelineno-12-12">12</a></span>
+<span class="normal"><a href="#__codelineno-12-13">13</a></span>
+<span class="normal"><a href="#__codelineno-12-14">14</a></span>
+<span class="normal"><a href="#__codelineno-12-15">15</a></span>
+<span class="normal"><a href="#__codelineno-12-16">16</a></span>
+<span class="normal"><a href="#__codelineno-12-17">17</a></span>
+<span class="normal"><a href="#__codelineno-12-18">18</a></span>
+<span class="normal"><a href="#__codelineno-12-19">19</a></span>
+<span class="normal"><a href="#__codelineno-12-20">20</a></span>
+<span class="normal"><a href="#__codelineno-12-21">21</a></span>
+<span class="normal"><a href="#__codelineno-12-22">22</a></span>
+<span class="normal"><a href="#__codelineno-12-23">23</a></span>
+<span class="normal"><a href="#__codelineno-12-24">24</a></span>
+<span class="normal"><a href="#__codelineno-12-25">25</a></span>
+<span class="normal"><a href="#__codelineno-12-26">26</a></span>
+<span class="normal"><a href="#__codelineno-12-27">27</a></span>
+<span class="normal"><a href="#__codelineno-12-28">28</a></span>
+<span class="normal"><a href="#__codelineno-12-29">29</a></span>
+<span class="normal"><a href="#__codelineno-12-30">30</a></span>
+<span class="normal"><a href="#__codelineno-12-31">31</a></span>
+<span class="normal"><a href="#__codelineno-12-32">32</a></span>
+<span class="normal"><a href="#__codelineno-12-33">33</a></span>
+<span class="normal"><a href="#__codelineno-12-34">34</a></span>
+<span class="normal"><a href="#__codelineno-12-35">35</a></span>
+<span class="normal"><a href="#__codelineno-12-36">36</a></span>
+<span class="normal"><a href="#__codelineno-12-37">37</a></span>
+<span class="normal"><a href="#__codelineno-12-38">38</a></span>
+<span class="normal"><a href="#__codelineno-12-39">39</a></span>
+<span class="normal"><a href="#__codelineno-12-40">40</a></span>
+<span class="normal"><a href="#__codelineno-12-41">41</a></span>
+<span class="normal"><a href="#__codelineno-12-42">42</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2"></a>
+<a id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="kn">from</span> <span class="nn">sanic</span> <span class="kn">import</span> <span class="n">HTTPResponse</span><span class="p">,</span> <span class="n">Request</span><span class="p">,</span> <span class="n">Sanic</span><span class="p">,</span> <span class="n">json</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5"></a>
+<a id="__codelineno-12-6" name="__codelineno-12-6"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">exceptions</span><span class="p">,</span> <span class="n">field</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7"></a><span class="kn">from</span> <span class="nn">pait.app.sanic</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8"></a><span class="kn">from</span> <span class="nn">pait.param_handle</span> <span class="kn">import</span> <span class="n">AsyncParamHandler</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9"></a>
+<a id="__codelineno-12-10" name="__codelineno-12-10"></a>
+<a id="__codelineno-12-11" name="__codelineno-12-11"></a><span class="hll"><span class="k">class</span> <span class="nc">NotTipAsyncParamHandler</span><span class="p">(</span><span class="n">AsyncParamHandler</span><span class="p">):</span>
+</span><a id="__codelineno-12-12" name="__codelineno-12-12"></a><span class="hll">    <span class="n">tip_exception_class</span> <span class="o">=</span> <span class="kc">None</span>
+</span><a id="__codelineno-12-13" name="__codelineno-12-13"></a>
+<a id="__codelineno-12-14" name="__codelineno-12-14"></a>
+<a id="__codelineno-12-15" name="__codelineno-12-15"></a><span class="hll"><span class="k">async</span> <span class="k">def</span> <span class="nf">api_exception</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HTTPResponse</span><span class="p">:</span>
+</span><a id="__codelineno-12-16" name="__codelineno-12-16"></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PaitBaseParamException</span><span class="p">):</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17"></a>        <span class="k">return</span> <span class="n">json</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;error param:</span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">param</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+<a id="__codelineno-12-18" name="__codelineno-12-18"></a>    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">):</span>
+<a id="__codelineno-12-19" name="__codelineno-12-19"></a>        <span class="n">error_param_list</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-12-20" name="__codelineno-12-20"></a>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">exc</span><span class="o">.</span><span class="n">errors</span><span class="p">():</span>
+<a id="__codelineno-12-21" name="__codelineno-12-21"></a>            <span class="n">error_param_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s2">&quot;loc&quot;</span><span class="p">])</span>
+<a id="__codelineno-12-22" name="__codelineno-12-22"></a>        <span class="k">return</span> <span class="n">json</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;check error param: </span><span class="si">{</span><span class="n">error_param_list</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+<a id="__codelineno-12-23" name="__codelineno-12-23"></a>    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PaitBaseException</span><span class="p">):</span>
+<a id="__codelineno-12-24" name="__codelineno-12-24"></a>        <span class="k">return</span> <span class="n">json</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+<a id="__codelineno-12-25" name="__codelineno-12-25"></a>
+<a id="__codelineno-12-26" name="__codelineno-12-26"></a>    <span class="k">return</span> <span class="n">json</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+<a id="__codelineno-12-27" name="__codelineno-12-27"></a>
+<a id="__codelineno-12-28" name="__codelineno-12-28"></a>
+<a id="__codelineno-12-29" name="__codelineno-12-29"></a><span class="hll"><span class="nd">@pait</span><span class="p">(</span><span class="n">param_handler_plugin</span><span class="o">=</span><span class="n">NotTipAsyncParamHandler</span><span class="p">)</span>
+</span><a id="__codelineno-12-30" name="__codelineno-12-30"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo</span><span class="p">(</span><span class="n">demo_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="n">HTTPResponse</span><span class="p">:</span>
+<a id="__codelineno-12-31" name="__codelineno-12-31"></a>    <span class="k">return</span> <span class="n">json</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">demo_value</span><span class="p">})</span>
+<a id="__codelineno-12-32" name="__codelineno-12-32"></a>
+<a id="__codelineno-12-33" name="__codelineno-12-33"></a>
+<a id="__codelineno-12-34" name="__codelineno-12-34"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Sanic</span><span class="p">(</span><span class="s2">&quot;demo&quot;</span><span class="p">)</span>
+<a id="__codelineno-12-35" name="__codelineno-12-35"></a><span class="n">app</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="n">demo</span><span class="p">,</span> <span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;GET&quot;</span><span class="p">})</span>
+<a id="__codelineno-12-36" name="__codelineno-12-36"></a><span class="n">app</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="ne">Exception</span><span class="p">)(</span><span class="n">api_exception</span><span class="p">)</span>
+<a id="__codelineno-12-37" name="__codelineno-12-37"></a>
+<a id="__codelineno-12-38" name="__codelineno-12-38"></a>
+<a id="__codelineno-12-39" name="__codelineno-12-39"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-12-40" name="__codelineno-12-40"></a>    <span class="kn">import</span> <span class="nn">uvicorn</span>
+<a id="__codelineno-12-41" name="__codelineno-12-41"></a>
+<a id="__codelineno-12-42" name="__codelineno-12-42"></a>    <span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">docs_source_code/introduction/exception/tornado_with_not_tip_exception_demo.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-13-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-13-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-13-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-13-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-13-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-13-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-13-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-13-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-13-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-13-10">10</a></span>
+<span class="normal"><a href="#__codelineno-13-11">11</a></span>
+<span class="normal"><a href="#__codelineno-13-12">12</a></span>
+<span class="normal"><a href="#__codelineno-13-13">13</a></span>
+<span class="normal"><a href="#__codelineno-13-14">14</a></span>
+<span class="normal"><a href="#__codelineno-13-15">15</a></span>
+<span class="normal"><a href="#__codelineno-13-16">16</a></span>
+<span class="normal"><a href="#__codelineno-13-17">17</a></span>
+<span class="normal"><a href="#__codelineno-13-18">18</a></span>
+<span class="normal"><a href="#__codelineno-13-19">19</a></span>
+<span class="normal"><a href="#__codelineno-13-20">20</a></span>
+<span class="normal"><a href="#__codelineno-13-21">21</a></span>
+<span class="normal"><a href="#__codelineno-13-22">22</a></span>
+<span class="normal"><a href="#__codelineno-13-23">23</a></span>
+<span class="normal"><a href="#__codelineno-13-24">24</a></span>
+<span class="normal"><a href="#__codelineno-13-25">25</a></span>
+<span class="normal"><a href="#__codelineno-13-26">26</a></span>
+<span class="normal"><a href="#__codelineno-13-27">27</a></span>
+<span class="normal"><a href="#__codelineno-13-28">28</a></span>
+<span class="normal"><a href="#__codelineno-13-29">29</a></span>
+<span class="normal"><a href="#__codelineno-13-30">30</a></span>
+<span class="normal"><a href="#__codelineno-13-31">31</a></span>
+<span class="normal"><a href="#__codelineno-13-32">32</a></span>
+<span class="normal"><a href="#__codelineno-13-33">33</a></span>
+<span class="normal"><a href="#__codelineno-13-34">34</a></span>
+<span class="normal"><a href="#__codelineno-13-35">35</a></span>
+<span class="normal"><a href="#__codelineno-13-36">36</a></span>
+<span class="normal"><a href="#__codelineno-13-37">37</a></span>
+<span class="normal"><a href="#__codelineno-13-38">38</a></span>
+<span class="normal"><a href="#__codelineno-13-39">39</a></span>
+<span class="normal"><a href="#__codelineno-13-40">40</a></span>
+<span class="normal"><a href="#__codelineno-13-41">41</a></span>
+<span class="normal"><a href="#__codelineno-13-42">42</a></span>
+<span class="normal"><a href="#__codelineno-13-43">43</a></span>
+<span class="normal"><a href="#__codelineno-13-44">44</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2"></a>
+<a id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="kn">from</span> <span class="nn">tornado.ioloop</span> <span class="kn">import</span> <span class="n">IOLoop</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="kn">from</span> <span class="nn">tornado.web</span> <span class="kn">import</span> <span class="n">Application</span><span class="p">,</span> <span class="n">RequestHandler</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6"></a>
+<a id="__codelineno-13-7" name="__codelineno-13-7"></a><span class="kn">from</span> <span class="nn">pait</span> <span class="kn">import</span> <span class="n">exceptions</span><span class="p">,</span> <span class="n">field</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8"></a><span class="kn">from</span> <span class="nn">pait.app.tornado</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9"></a><span class="kn">from</span> <span class="nn">pait.openapi.doc_route</span> <span class="kn">import</span> <span class="n">AddDocRoute</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10"></a><span class="kn">from</span> <span class="nn">pait.param_handle</span> <span class="kn">import</span> <span class="n">AsyncParamHandler</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11"></a>
+<a id="__codelineno-13-12" name="__codelineno-13-12"></a>
+<a id="__codelineno-13-13" name="__codelineno-13-13"></a><span class="hll"><span class="k">class</span> <span class="nc">NotTipAsyncParamHandler</span><span class="p">(</span><span class="n">AsyncParamHandler</span><span class="p">):</span>
+</span><a id="__codelineno-13-14" name="__codelineno-13-14"></a><span class="hll">    <span class="n">tip_exception_class</span> <span class="o">=</span> <span class="kc">None</span>
+</span><a id="__codelineno-13-15" name="__codelineno-13-15"></a>
+<a id="__codelineno-13-16" name="__codelineno-13-16"></a>
+<a id="__codelineno-13-17" name="__codelineno-13-17"></a><span class="k">class</span> <span class="nc">_Handler</span><span class="p">(</span><span class="n">RequestHandler</span><span class="p">):</span>
+<a id="__codelineno-13-18" name="__codelineno-13-18"></a><span class="hll">    <span class="k">def</span> <span class="nf">_handle_request_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><a id="__codelineno-13-19" name="__codelineno-13-19"></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PaitBaseParamException</span><span class="p">):</span>
+<a id="__codelineno-13-20" name="__codelineno-13-20"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;error param:</span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">param</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+<a id="__codelineno-13-21" name="__codelineno-13-21"></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">):</span>
+<a id="__codelineno-13-22" name="__codelineno-13-22"></a>            <span class="n">error_param_list</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-13-23" name="__codelineno-13-23"></a>            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">exc</span><span class="o">.</span><span class="n">errors</span><span class="p">():</span>
+<a id="__codelineno-13-24" name="__codelineno-13-24"></a>                <span class="n">error_param_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="s2">&quot;loc&quot;</span><span class="p">])</span>
+<a id="__codelineno-13-25" name="__codelineno-13-25"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;check error param: </span><span class="si">{</span><span class="n">error_param_list</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+<a id="__codelineno-13-26" name="__codelineno-13-26"></a>        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">PaitBaseException</span><span class="p">):</span>
+<a id="__codelineno-13-27" name="__codelineno-13-27"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+<a id="__codelineno-13-28" name="__codelineno-13-28"></a>
+<a id="__codelineno-13-29" name="__codelineno-13-29"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+<a id="__codelineno-13-30" name="__codelineno-13-30"></a>
+<a id="__codelineno-13-31" name="__codelineno-13-31"></a>
+<a id="__codelineno-13-32" name="__codelineno-13-32"></a><span class="k">class</span> <span class="nc">DemoHandler</span><span class="p">(</span><span class="n">_Handler</span><span class="p">):</span>
+<a id="__codelineno-13-33" name="__codelineno-13-33"></a><span class="hll">    <span class="nd">@pait</span><span class="p">(</span><span class="n">param_handler_plugin</span><span class="o">=</span><span class="n">NotTipAsyncParamHandler</span><span class="p">)</span>
+</span><a id="__codelineno-13-34" name="__codelineno-13-34"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">demo_value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">Query</span><span class="o">.</span><span class="n">i</span><span class="p">())</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-13-35" name="__codelineno-13-35"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">({</span><span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">demo_value</span><span class="p">})</span>
+<a id="__codelineno-13-36" name="__codelineno-13-36"></a>
+<a id="__codelineno-13-37" name="__codelineno-13-37"></a>
+<a id="__codelineno-13-38" name="__codelineno-13-38"></a><span class="n">app</span><span class="p">:</span> <span class="n">Application</span> <span class="o">=</span> <span class="n">Application</span><span class="p">([(</span><span class="sa">r</span><span class="s2">&quot;/api/demo&quot;</span><span class="p">,</span> <span class="n">DemoHandler</span><span class="p">)])</span>
+<a id="__codelineno-13-39" name="__codelineno-13-39"></a><span class="n">AddDocRoute</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<a id="__codelineno-13-40" name="__codelineno-13-40"></a>
+<a id="__codelineno-13-41" name="__codelineno-13-41"></a>
+<a id="__codelineno-13-42" name="__codelineno-13-42"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-13-43" name="__codelineno-13-43"></a>    <span class="n">app</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="mi">8000</span><span class="p">)</span>
+<a id="__codelineno-13-44" name="__codelineno-13-44"></a>    <span class="n">IOLoop</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<p>The sample code has a total of three modifications:
+    - The <code>NotTipParamHandler</code> in the first highlighted code is inherited from <code>ParamHandler</code> (or <code>AsyncParamHandler</code>),
+        which turns off exception tip by setting the <code>tip_exception_class</code> attribute to empty.
+    - The second piece of highlighting code removes the <code>TipException</code> extraction logic from the <code>api_exception</code> function, as it is not needed now.
+    - The third piece of highlighted code defines the <code>ParamHandler</code> used by the current route function to be a <code>NotTipParamHandler</code> via the <code>param_handler_plugin</code> property of <code>Pait</code>.</p>
+<p>After running the code and calling the <code>curl</code> command can know:</p>
+<ul>
+<li>When parameters are missing, an error message that the parameter cannot be found will be returned.
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>➜<span class="w">  </span>~<span class="w"> </span>curl<span class="w"> </span><span class="s2">&quot;http://127.0.0.1:8000/api/demo&quot;</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="o">{</span><span class="s2">&quot;code&quot;</span>:-1,<span class="s2">&quot;msg&quot;</span>:<span class="s2">&quot;error param:demo_value, Can not found demo_value value&quot;</span><span class="o">}</span>
+</code></pre></div></li>
+<li>When parameter verification fails, the parameter name with verification error will be returned.
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>➜<span class="w">  </span>~<span class="w"> </span>curl<span class="w"> </span><span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=a&quot;</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="o">{</span><span class="s2">&quot;code&quot;</span>:-1,<span class="s2">&quot;msg&quot;</span>:<span class="s2">&quot;check error param: [&#39;demo_value&#39;]&quot;</span><span class="o">}</span>
+</code></pre></div></li>
+<li>Normal data is returned when the parameters are normal.
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>➜<span class="w">  </span>~<span class="w"> </span>curl<span class="w"> </span><span class="s2">&quot;http://127.0.0.1:8000/api/demo?demo_value=3&quot;</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="o">{</span><span class="s2">&quot;code&quot;</span>:0,<span class="s2">&quot;msg&quot;</span>:<span class="s2">&quot;&quot;</span>,<span class="s2">&quot;data&quot;</span>:3<span class="o">}</span>
 </code></pre></div></li>
 </ul>
 
-              
-            </article>
-          </div>
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var tab,labels=set.querySelector(".tabbed-labels");for(tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
         </div>
         
-          <a href="#" class="md-top md-icon" data-md-component="top" data-md-state="hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"/></svg>
-            Back to top
-          </a>
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
         
       </main>
       
         <footer class="md-footer">
-  
-    <nav class="md-footer__inner md-grid" aria-label="Footer">
-      
-        
-        <a href="../1_4_depend/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Depend" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              Depend
-            </div>
-          </div>
-        </a>
-      
-      
-        
-        <a href="../2_pait_multiplexing/" class="md-footer__link md-footer__link--next" aria-label="Next: Pait multiplexing" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              Pait multiplexing
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
-          </div>
-        </a>
-      
-    </nav>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -846,11 +1873,13 @@
   
     
     
+    
+    
       
       
     
     <a href="https://github.com/so1n" target="_blank" rel="noopener" title="github.com" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
     </a>
   
 </div>
@@ -863,10 +1892,14 @@
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.top", "content.code.annotate"], "search": "../assets/javascripts/workers/search.5e67fbfe.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.c44cc438.min.js"></script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "content.code.copy", "content.tabs.link", "navigation.top", "navigation.path", "search.highlight", "search.share", "search.suggest"], "search": "../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.81fa17fe.min.js"></script>
+      
+        <script src="../termynal.js"></script>
       
     
   </body>

@@ -6,12 +6,17 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Pait is a Python api tool. Pait enables your Python web framework to have type checking, parameter type conversion, interface document generation and can display your documents through Redoc or Swagger (power by inspect, pydantic)">
+        <meta name="description" content="Pait(π tool) - Python Modern API Tools, easier to use web frameworks/write API routing">
       
+      
+      
+      
+      
+        <link rel="next" href="1_1_introduction/">
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.8">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.8">
     
     
       
@@ -19,13 +24,17 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.644de097.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.4b4a2bd9.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.e6a45f82.min.css">
-        
+        <link rel="stylesheet" href="assets/stylesheets/palette.356b1318.min.css">
       
+      
+
+
     
+    
+      
     
     
       
@@ -37,10 +46,15 @@
       
     
     
-    <script>__md_scope=new URL(".",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+      <link rel="stylesheet" href="stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="termynal.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
+    
     
     
   </head>
@@ -48,12 +62,16 @@
   
     
     
+      
     
     
     
-    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -70,16 +88,16 @@
       
     </div>
     
-      <div data-md-component="outdated" hidden>
-        <aside class="md-banner md-banner--warning">
-          
-        </aside>
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
       </div>
     
     
       
 
-<header class="md-header" data-md-component="header">
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="." title="Pait" class="md-header__button md-logo" aria-label="Pait" data-md-component="logo">
       
@@ -87,7 +105,8 @@
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -106,36 +125,63 @@
       </div>
     </div>
     
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
     
       <div class="md-header__option">
-        <div class="md-select">
-          
-          <button class="md-header__button md-icon" aria-label="Select language">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12m-2.62 7 1.62-4.33L19.12 17h-3.24z"/></svg>
-          </button>
-          <div class="md-select__inner">
-            <ul class="md-select__list">
-              
-                <li class="md-select__item">
-                  <a href="/pait/" hreflang="en" class="md-select__link">
-                    English
-                  </a>
-                </li>
-                
-                <li class="md-select__item">
-                  <a href="/pait-zh-doc/" hreflang="zh" class="md-select__link">
-                    中文
-                  </a>
-                </li>
-                
-            </ul>
-          </div>
-        </div>
-      </div>
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12m-2.62 7 1.62-4.33L19.12 17h-3.24Z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="/pait/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="/pait-zh-doc/" hreflang="zh" class="md-select__link">
+              中文
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
     
     
       <label class="md-header__button md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
       </label>
       <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
@@ -143,15 +189,25 @@
     <form class="md-search__form" name="search">
       <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
       </label>
       <nav class="md-search__options" aria-label="Search">
         
-        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
         </button>
       </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
       
     </form>
     <div class="md-search__output">
@@ -160,7 +216,7 @@
           <div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list"></ol>
+          <ol class="md-search-result__list" role="presentation"></ol>
         </div>
       </div>
     </div>
@@ -172,7 +228,7 @@
         <a href="https://github.com/so1n/pait" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     so1n/pait
@@ -202,6 +258,7 @@
                     
 
 
+
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href="." title="Pait" class="md-nav__button md-logo" aria-label="Pait" data-md-component="logo">
@@ -216,7 +273,7 @@
       <a href="https://github.com/so1n/pait" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     so1n/pait
@@ -228,8 +285,6 @@
     
       
       
-      
-
   
   
     
@@ -237,15 +292,113 @@
   
     <li class="md-nav__item md-nav__item--active">
       
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="." class="md-nav__link md-nav__link--active">
-        Introduction
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#feature" class="md-nav__link">
+    Feature
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install" class="md-nav__link">
+    Install
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameter-verification-and-document-generation" class="md-nav__link">
+    Parameter verification and document generation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plugin" class="md-nav__link">
+    Plugin
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    Performance
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#web-framework-support" class="md-nav__link">
+    Web framework support
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -253,148 +406,283 @@
     
       
       
-      
-
   
   
   
     
+    
+    
+    
+    
     <li class="md-nav__item md-nav__item--nested">
       
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
-      
-      
-      
-      
-        <label class="md-nav__link" for="__nav_2">
-          Type conversion and parameter validation
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" aria-label="Type conversion and parameter validation" data-md-level="1">
-        <label class="md-nav__title" for="__nav_2">
-          <span class="md-nav__icon md-icon"></span>
-          Type conversion and parameter validation
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
           
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Type conversion and parameter validation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Type conversion and parameter validation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
+                
   
   
   
     <li class="md-nav__item">
       <a href="1_1_introduction/" class="md-nav__link">
-        Introduction
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
   
   
   
     <li class="md-nav__item">
       <a href="1_2_how_to_use_field/" class="md-nav__link">
-        How to use Field
+        
+  
+  <span class="md-ellipsis">
+    How to use Field
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
   
   
   
     <li class="md-nav__item">
       <a href="1_3_how_to_use_type/" class="md-nav__link">
-        Hot to use Type
+        
+  
+  <span class="md-ellipsis">
+    How to use Type
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
   
   
   
     <li class="md-nav__item">
       <a href="1_4_depend/" class="md-nav__link">
-        Depend
+        
+  
+  <span class="md-ellipsis">
+    Depend
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
   
   
   
     <li class="md-nav__item">
       <a href="1_5_exception/" class="md-nav__link">
-        Exception
+        
+  
+  <span class="md-ellipsis">
+    Exception
+  </span>
+  
+
       </a>
     </li>
   
 
+              
             
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="2_how_to_use_pait/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    How to use Pait decorator
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
           
-        </ul>
-      </nav>
-    </li>
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    OpenAPI
+  </span>
   
 
-    
-      
-      
-      
-
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            OpenAPI
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
   
   
   
     <li class="md-nav__item">
-      <a href="2_pait_multiplexing/" class="md-nav__link">
-        Pait multiplexing
+      <a href="3_1_openapi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    OpenAPI
+  </span>
+  
+
       </a>
     </li>
   
 
-    
-      
-      
-      
-
+              
+            
+              
+                
   
   
   
     <li class="md-nav__item">
-      <a href="3_api_doc/" class="md-nav__link">
-        API doc
+      <a href="3_2_openapi_route/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    OpenAPI Route
+  </span>
+  
+
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="3_3_security/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Security
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
     
       
       
-      
-
   
   
   
     <li class="md-nav__item">
       <a href="4_unit_test_helper/" class="md-nav__link">
-        Unit test helper
+        
+  
+  <span class="md-ellipsis">
+    Unit test helper
+  </span>
+  
+
       </a>
     </li>
   
@@ -402,118 +690,181 @@
     
       
       
-      
-
   
   
   
     
+    
+    
+    
+    
     <li class="md-nav__item md-nav__item--nested">
       
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_6" type="checkbox" id="__nav_6" >
-      
-      
-      
-      
-        <label class="md-nav__link" for="__nav_6">
-          Plugin
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" aria-label="Plugin" data-md-level="1">
-        <label class="md-nav__title" for="__nav_6">
-          <span class="md-nav__icon md-icon"></span>
-          Plugin
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
           
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Plugin
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Plugin
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
+                
   
   
   
     <li class="md-nav__item">
       <a href="5_1_introduction/" class="md-nav__link">
-        Introduction
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
   
   
   
     <li class="md-nav__item">
       <a href="5_2_param_check_plugin/" class="md-nav__link">
-        Param check plugin
+        
+  
+  <span class="md-ellipsis">
+    Parameter checking plugin
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
   
   
   
     <li class="md-nav__item">
       <a href="5_3_json_response_plugin/" class="md-nav__link">
-        Json Response plugin
+        
+  
+  <span class="md-ellipsis">
+    Json response plugin
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
   
   
   
     <li class="md-nav__item">
       <a href="5_4_mock_json_response_check_plugin/" class="md-nav__link">
-        Mock Response plugin
+        
+  
+  <span class="md-ellipsis">
+    Mock response plugin
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
   
   
   
     <li class="md-nav__item">
-      <a href="5_5_how_to_customize_plugin/" class="md-nav__link">
-        How to customize plugin
+      <a href="5_5_cache_response/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Response caching plugin
+  </span>
+  
+
       </a>
     </li>
   
 
+              
             
-          
-        </ul>
-      </nav>
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="5_x_how_tp_customize_the_plugin.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    How to customize plugins
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
     
       
       
-      
-
   
   
   
     <li class="md-nav__item">
       <a href="6_config/" class="md-nav__link">
-        config
+        
+  
+  <span class="md-ellipsis">
+    config
+  </span>
+  
+
       </a>
     </li>
   
@@ -521,14 +872,18 @@
     
       
       
-      
-
   
   
   
     <li class="md-nav__item">
       <a href="7_gRPC_gateway/" class="md-nav__link">
-        gRPC Gateway
+        
+  
+  <span class="md-ellipsis">
+    gRPC Gateway
+  </span>
+  
+
       </a>
     </li>
   
@@ -536,14 +891,18 @@
     
       
       
-      
-
   
   
   
     <li class="md-nav__item">
       <a href="8_other/" class="md-nav__link">
-        Other
+        
+  
+  <span class="md-ellipsis">
+    Other
+  </span>
+  
+
       </a>
     </li>
   
@@ -569,58 +928,121 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#feature" class="md-nav__link">
+    Feature
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install" class="md-nav__link">
+    Install
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameter-verification-and-document-generation" class="md-nav__link">
+    Parameter verification and document generation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plugin" class="md-nav__link">
+    Plugin
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    Performance
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#web-framework-support" class="md-nav__link">
+    Web framework support
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
               </div>
             
           
-          <div class="md-content" data-md-component="content">
-            <article class="md-content__inner md-typeset">
-              
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
                 
+                  
 
 
 <h1 id="introduction">Introduction</h1>
-<p><code>Pait</code> is a lightweight Python Api development tool, with parameter type checking, type conversion, providing document output and gRPC GateWay and other functions,
-very suitable for back-end interface development, it is designed to be used for multiple Pythons Web application development framework (currently adapted to <code>Flask</code>, <code>Starlette</code>, <code>Sanic</code>, <code>Tornado</code>).</p>
-<div class="admonition note note">
-<p class="admonition-title">Note</p>
-<p>type hint check 100%</p>
-<p>test coverage 95%+ (no include api_doc)</p>
-<p>python version &gt;= 3.7 (support postponed annotations)</p>
-<p>The following code does not specify, all default to use the <code>starlette</code> framework.</p>
-<p>The current document is generated by Google Translate, if there are any errors, please contact us and we will fix them as soon as possible.</p>
-</div>
-<h1 id="vision">Vision</h1>
-<ul>
-<li>
-<p>1.Code is Documentation。</p>
-</li>
-<li>
-<p>2.Enables developers to achieve the most complete functionality with the least amount of code。</p>
-</li>
-</ul>
-<h1 id="feature">Feature</h1>
+<p><code>Pait</code> is a Python API development tool that helps developers quickly write API route functions.
+It has feature such as parameter type checking, type conversion, and automatic API documentation.
+It is suitable for back-end interface development.</p>
+<p>In addition, it is designed as an adapter that can work with multiple Python web application frameworks (see <a href="/#web-framework-support">Web Framework Support</a> for details),
+Based on <code>Pait</code>, can quickly develop applications that adapt to each WEB framework without considering the differences of different WEB frameworks, such as <a href="https://github.com/python-pai/grpc-gateway">grpc-gateway</a>.</p>
+<h2 id="feature">Feature</h2>
 <ul class="task-list">
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Enables developers to achieve the most complete functionality with the least amount of code</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Parameter dependency verification</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Automatically generate openapi files</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Swagger, Redoc route</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> gRPC Gateway route</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> TestClient support, support response result verification</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Support for plugin extensions, such as the Mock plugin</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Integrate into the Type Hints ecosystem to provide a safe and efficient API interface coding method.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Automatic verification and type conversion of request parameters (depends on <code>Pydantic</code> and <code>inspect</code>, currently supports <code>Pydantic</code> V1 and V2 versions).</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Automatically generate openapi files and support UI components such as <code>Swagger</code>,<code>Redoc</code>,<code>RapiDoc</code> and <code>Elements</code>.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> TestClient support, response result verification of test cases。</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Plugin expansion, such as parameter relationship dependency verification, Mock response, etc.。</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> gRPC GateWay (After version 1.0, this feature has been migrated to <a href="https://github.com/python-pai/grpc-gateway">grpc-gateway</a>)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Automated API testing</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> WebSocket support</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> SSE support</li>
 </ul>
-<h1 id="require">Require</h1>
-<p>Python3.7+</p>
-<p>Use Type Hints in your project</p>
-<h1 id="install">Install</h1>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a>pip3 install pait
+<h2 id="install">Install</h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only supports Python 3.8+ version</p>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>pait<span class="w"> </span>--pre
 </code></pre></div>
-<h1 id="example">Example</h1>
-<h2 id="parameter-verification-and-api-document-generation">Parameter verification and API document generation</h2>
-<p>The usage of <code>Pait</code> is very simple, taking the <code>starlette</code> framework as an example
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1"> 1</a></span>
+<h2 id="usage">Usage</h2>
+<h3 id="parameter-verification-and-document-generation">Parameter verification and document generation</h3>
+<p>The main feature of <code>Pait</code> is to provide parameter verification and document generation. The usage is very simple, as follows:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Flask</label><label for="__tabbed_1_2">Starlette</label><label for="__tabbed_1_3">Sanic</label><label for="__tabbed_1_4">Tornado</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">docs_source_code/introduction/flask_demo.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-1-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-1-3"> 3</a></span>
 <span class="normal"><a href="#__codelineno-1-4"> 4</a></span>
@@ -654,57 +1076,45 @@ very suitable for back-end interface development, it is designed to be used for 
 <span class="normal"><a href="#__codelineno-1-32">32</a></span>
 <span class="normal"><a href="#__codelineno-1-33">33</a></span>
 <span class="normal"><a href="#__codelineno-1-34">34</a></span>
-<span class="normal"><a href="#__codelineno-1-35">35</a></span>
-<span class="normal"><a href="#__codelineno-1-36">36</a></span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">JSONResponse</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6"></a>
-<a id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span><span class="p">,</span> <span class="n">add_doc_route</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="kn">from</span> <span class="nn">pait.field</span> <span class="kn">import</span> <span class="n">Body</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="kn">from</span> <span class="nn">pait.model.response</span> <span class="kn">import</span> <span class="n">PaitResponseModel</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+<span class="normal"><a href="#__codelineno-1-35">35</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">Response</span><span class="p">,</span> <span class="n">jsonify</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5"></a>
+<a id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="kn">from</span> <span class="nn">pait.app.flask</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="kn">from</span> <span class="nn">pait.field</span> <span class="kn">import</span> <span class="n">Json</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="kn">from</span> <span class="nn">pait.model.response</span> <span class="kn">import</span> <span class="n">JsonResponseModel</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9"></a><span class="kn">from</span> <span class="nn">pait.openapi.doc_route</span> <span class="kn">import</span> <span class="n">AddDocRoute</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10"></a>
 <a id="__codelineno-1-11" name="__codelineno-1-11"></a>
-<a id="__codelineno-1-12" name="__codelineno-1-12"></a>
-<a id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="k">class</span> <span class="nc">DemoResponseModel</span><span class="p">(</span><span class="n">PaitResponseModel</span><span class="p">):</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14"></a>    <span class="sd">&quot;&quot;&quot;Responsive struct model that can be used by Pait&quot;&quot;&quot;</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15"></a>    <span class="k">class</span> <span class="nc">ResponseModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16"></a>        <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">()</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17"></a>        <span class="n">user_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">()</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18"></a>
-<a id="__codelineno-1-19" name="__codelineno-1-19"></a>    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;demo response&quot;</span>
-<a id="__codelineno-1-20" name="__codelineno-1-20"></a>    <span class="n">response_data</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">]</span> <span class="o">=</span> <span class="n">ResponseModel</span>
-<a id="__codelineno-1-21" name="__codelineno-1-21"></a>
-<a id="__codelineno-1-22" name="__codelineno-1-22"></a>
-<a id="__codelineno-1-23" name="__codelineno-1-23"></a><span class="c1"># Decorate a function with the pait decorator</span>
-<a id="__codelineno-1-24" name="__codelineno-1-24"></a><span class="hll"><span class="nd">@pait</span><span class="p">(</span><span class="n">response_model_list</span><span class="o">=</span><span class="p">[</span><span class="n">DemoResponseModel</span><span class="p">])</span>
-</span><a id="__codelineno-1-25" name="__codelineno-1-25"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo_post</span><span class="p">(</span>
-<a id="__codelineno-1-26" name="__codelineno-1-26"></a><span class="hll">    <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Body</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user id&quot;</span><span class="p">,</span> <span class="n">gt</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">lt</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
-</span><a id="__codelineno-1-27" name="__codelineno-1-27"></a><span class="hll">    <span class="n">user_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Body</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user name&quot;</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-</span><a id="__codelineno-1-28" name="__codelineno-1-28"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
-<a id="__codelineno-1-29" name="__codelineno-1-29"></a>    <span class="c1"># Get the corresponding value and return it</span>
-<a id="__codelineno-1-30" name="__codelineno-1-30"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s1">&#39;uid&#39;</span><span class="p">:</span> <span class="n">uid</span><span class="p">,</span> <span class="s1">&#39;user_name&#39;</span><span class="p">:</span> <span class="n">user_name</span><span class="p">})</span>
-<a id="__codelineno-1-31" name="__codelineno-1-31"></a>
-<a id="__codelineno-1-32" name="__codelineno-1-32"></a>
-<a id="__codelineno-1-33" name="__codelineno-1-33"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span><span class="n">routes</span><span class="o">=</span><span class="p">[</span><span class="n">Route</span><span class="p">(</span><span class="s1">&#39;/api&#39;</span><span class="p">,</span> <span class="n">demo_post</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])])</span>
-<a id="__codelineno-1-34" name="__codelineno-1-34"></a><span class="c1"># Register Open API interface</span>
-<a id="__codelineno-1-35" name="__codelineno-1-35"></a><span class="n">add_doc_route</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
-<a id="__codelineno-1-36" name="__codelineno-1-36"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
-</code></pre></div>
-</td></tr></table>
-This code adds the highlighted part of the code to complete the use of a simple <code>Pait</code>, of which line 24 uses the <code>pait</code> decorator, so that <code>Pait</code> can manage the input and output of the route, At the same time, declare what the output format of this routing function is through <code>response model list</code>.
-Lines 26 and 27 declare the parameters required by this route, where to get their parameters, and what are the restriction rules for the parameters. Line 35 registers a <code>Swagger</code> route, then runs the code, and in the Browser access: <a href="http:127.0.0.1:8000swagger">http:127.0.0.1:8000swagger</a>, you can see a SwaggerUI page, which currently has two sets of interfaces:
-<img alt="" src="https://cdn.jsdelivr.net/gh/so1n/so1n_blog_photo@master/blog_photo/1648292884021Pait%20doc-%E9%A6%96%E9%A1%B5%E7%A4%BA%E4%BE%8B%E6%8E%A5%E5%8F%A3-Swagger%E9%A6%96%E9%A1%B5.png" /></p>
-<p>One group is the 3 interfaces that come with <code>Pait doc</code>, and the other group is <code>default</code>, which contains the <code>/api</code> interface we just created, click on the <code>/api</code> interface, and the details of the interface will pop up:
-<img alt="" src="https://cdn.jsdelivr.net/gh/so1n/so1n_blog_photo@master/blog_photo/1648292937018Pait%20doc-%E9%A6%96%E9%A1%B5%E7%A4%BA%E4%BE%8B%E6%8E%A5%E5%8F%A3-api%E6%8E%A5%E5%8F%A3.png" /></p>
-<p>The data in the details is generated by <code>Pait</code> by reading the function signature and the incoming <code>DemoResponseModel</code>, then you can click <code>try it out</code>, enter the parameters and click <code>Execute</code>, you can see the result generated by the Curl command And the server response result:
-<img alt="" src="https://cdn.jsdelivr.net/gh/so1n/so1n_blog_photo@master/blog_photo/1648292980016Pait%20doc-%E9%A6%96%E9%A1%B5%E7%A4%BA%E4%BE%8B%E6%8E%A5%E5%8F%A3-Swagger%E8%AF%B7%E6%B1%82.png" /></p>
-<p>As can be seen from the results, the routing function works normally, and the parameters of the routing function are <code>Pait</code> automatically extract the values of uid and user_name from the Json Body and pass in.</p>
-<h2 id="plugin">Plugin</h2>
-<p>In addition to parameter verification and API document generation, <code>Pait</code> also has a plugin system, through which other feature can be extended,
-such as the Mock response, which can automatically return data according to the Response Model, even if the route has no data to return, such as the following the code:
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1"> 1</a></span>
+<a id="__codelineno-1-12" name="__codelineno-1-12"></a><span class="k">class</span> <span class="nc">DemoResponseModel</span><span class="p">(</span><span class="n">JsonResponseModel</span><span class="p">):</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13"></a>    <span class="k">class</span> <span class="nc">ResponseModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14"></a>        <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">()</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15"></a>        <span class="n">user_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">()</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16"></a>
+<a id="__codelineno-1-17" name="__codelineno-1-17"></a>    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;demo response&quot;</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18"></a>    <span class="n">response_data</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">]</span> <span class="o">=</span> <span class="n">ResponseModel</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19"></a>
+<a id="__codelineno-1-20" name="__codelineno-1-20"></a>
+<a id="__codelineno-1-21" name="__codelineno-1-21"></a><span class="hll"><span class="nd">@pait</span><span class="p">(</span><span class="n">response_model_list</span><span class="o">=</span><span class="p">[</span><span class="n">DemoResponseModel</span><span class="p">])</span>
+</span><a id="__codelineno-1-22" name="__codelineno-1-22"></a><span class="k">def</span> <span class="nf">demo_post</span><span class="p">(</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23"></a><span class="hll">    <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user id&quot;</span><span class="p">,</span> <span class="n">gt</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">lt</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
+</span><a id="__codelineno-1-24" name="__codelineno-1-24"></a><span class="hll">    <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user name&quot;</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+</span><a id="__codelineno-1-25" name="__codelineno-1-25"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
+<a id="__codelineno-1-26" name="__codelineno-1-26"></a>    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;uid&quot;</span><span class="p">:</span> <span class="n">uid</span><span class="p">,</span> <span class="s2">&quot;user_name&quot;</span><span class="p">:</span> <span class="n">username</span><span class="p">})</span>
+<a id="__codelineno-1-27" name="__codelineno-1-27"></a>
+<a id="__codelineno-1-28" name="__codelineno-1-28"></a>
+<a id="__codelineno-1-29" name="__codelineno-1-29"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="s2">&quot;demo&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-30" name="__codelineno-1-30"></a><span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s2">&quot;/api&quot;</span><span class="p">,</span> <span class="s2">&quot;demo&quot;</span><span class="p">,</span> <span class="n">demo_post</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+<a id="__codelineno-1-31" name="__codelineno-1-31"></a><span class="hll"><span class="n">AddDocRoute</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</span><a id="__codelineno-1-32" name="__codelineno-1-32"></a>
+<a id="__codelineno-1-33" name="__codelineno-1-33"></a>
+<a id="__codelineno-1-34" name="__codelineno-1-34"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-1-35" name="__codelineno-1-35"></a>    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">8000</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">docs_source_code/introduction/starlette_demo.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-2-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-2-3"> 3</a></span>
 <span class="normal"><a href="#__codelineno-2-4"> 4</a></span>
@@ -741,115 +1151,685 @@ such as the Mock response, which can automatically return data according to the 
 <span class="normal"><a href="#__codelineno-2-35">35</a></span>
 <span class="normal"><a href="#__codelineno-2-36">36</a></span>
 <span class="normal"><a href="#__codelineno-2-37">37</a></span>
-<span class="normal"><a href="#__codelineno-2-38">38</a></span>
-<span class="normal"><a href="#__codelineno-2-39">39</a></span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="kn">import</span> <span class="nn">uvicorn</span>  <span class="c1"># type: ignore</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">JSONResponse</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6"></a>
-<a id="__codelineno-2-7" name="__codelineno-2-7"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span><span class="p">,</span> <span class="n">add_doc_route</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="hll"><span class="kn">from</span> <span class="nn">pait.app.starlette.plugin.mock_response</span> <span class="kn">import</span> <span class="n">MockPlugin</span>
-</span><a id="__codelineno-2-9" name="__codelineno-2-9"></a><span class="kn">from</span> <span class="nn">pait.field</span> <span class="kn">import</span> <span class="n">Body</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10"></a><span class="kn">from</span> <span class="nn">pait.model.response</span> <span class="kn">import</span> <span class="n">PaitResponseModel</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11"></a><span class="hll"><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
-</span><a id="__codelineno-2-12" name="__codelineno-2-12"></a>
+<span class="normal"><a href="#__codelineno-2-38">38</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">JSONResponse</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7"></a>
+<a id="__codelineno-2-8" name="__codelineno-2-8"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9"></a><span class="kn">from</span> <span class="nn">pait.field</span> <span class="kn">import</span> <span class="n">Json</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10"></a><span class="kn">from</span> <span class="nn">pait.model.response</span> <span class="kn">import</span> <span class="n">JsonResponseModel</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11"></a><span class="kn">from</span> <span class="nn">pait.openapi.doc_route</span> <span class="kn">import</span> <span class="n">AddDocRoute</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12"></a>
 <a id="__codelineno-2-13" name="__codelineno-2-13"></a>
-<a id="__codelineno-2-14" name="__codelineno-2-14"></a><span class="k">class</span> <span class="nc">DemoResponseModel</span><span class="p">(</span><span class="n">PaitResponseModel</span><span class="p">):</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15"></a>    <span class="sd">&quot;&quot;&quot;Responsive struct model that can be used by Pait&quot;&quot;&quot;</span>
-<a id="__codelineno-2-16" name="__codelineno-2-16"></a>    <span class="k">class</span> <span class="nc">ResponseModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<a id="__codelineno-2-17" name="__codelineno-2-17"></a><span class="hll">        <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">example</span><span class="o">=</span><span class="mi">999</span><span class="p">)</span>
-</span><a id="__codelineno-2-18" name="__codelineno-2-18"></a>        <span class="n">user_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">()</span>
-<a id="__codelineno-2-19" name="__codelineno-2-19"></a>
-<a id="__codelineno-2-20" name="__codelineno-2-20"></a>    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;demo response&quot;</span>
-<a id="__codelineno-2-21" name="__codelineno-2-21"></a>    <span class="n">response_data</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">]</span> <span class="o">=</span> <span class="n">ResponseModel</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14"></a><span class="k">class</span> <span class="nc">DemoResponseModel</span><span class="p">(</span><span class="n">JsonResponseModel</span><span class="p">):</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15"></a>    <span class="k">class</span> <span class="nc">ResponseModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16"></a>        <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">()</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17"></a>        <span class="n">user_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">()</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18"></a>
+<a id="__codelineno-2-19" name="__codelineno-2-19"></a>    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;demo response&quot;</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20"></a>    <span class="n">response_data</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">]</span> <span class="o">=</span> <span class="n">ResponseModel</span>
+<a id="__codelineno-2-21" name="__codelineno-2-21"></a>
 <a id="__codelineno-2-22" name="__codelineno-2-22"></a>
-<a id="__codelineno-2-23" name="__codelineno-2-23"></a>
-<a id="__codelineno-2-24" name="__codelineno-2-24"></a><span class="c1"># Decorate a function with the pait decorator</span>
-<a id="__codelineno-2-25" name="__codelineno-2-25"></a><span class="nd">@pait</span><span class="p">(</span>
-<a id="__codelineno-2-26" name="__codelineno-2-26"></a><span class="hll">    <span class="n">post_plugin_list</span><span class="o">=</span><span class="p">[</span><span class="n">MockPlugin</span><span class="o">.</span><span class="n">build</span><span class="p">()],</span>
-</span><a id="__codelineno-2-27" name="__codelineno-2-27"></a>    <span class="n">response_model_list</span><span class="o">=</span><span class="p">[</span><span class="n">DemoResponseModel</span><span class="p">]</span>
-<a id="__codelineno-2-28" name="__codelineno-2-28"></a><span class="p">)</span>
-<a id="__codelineno-2-29" name="__codelineno-2-29"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo_post</span><span class="p">(</span>
-<a id="__codelineno-2-30" name="__codelineno-2-30"></a>    <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Body</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user id&quot;</span><span class="p">,</span> <span class="n">gt</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">lt</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
-<a id="__codelineno-2-31" name="__codelineno-2-31"></a>    <span class="n">user_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Body</span><span class="o">.</span><span class="n">i</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user name&quot;</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-<a id="__codelineno-2-32" name="__codelineno-2-32"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
-<a id="__codelineno-2-33" name="__codelineno-2-33"></a>    <span class="k">pass</span>
+<a id="__codelineno-2-23" name="__codelineno-2-23"></a><span class="hll"><span class="nd">@pait</span><span class="p">(</span><span class="n">response_model_list</span><span class="o">=</span><span class="p">[</span><span class="n">DemoResponseModel</span><span class="p">])</span>
+</span><a id="__codelineno-2-24" name="__codelineno-2-24"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo_post</span><span class="p">(</span>
+<a id="__codelineno-2-25" name="__codelineno-2-25"></a><span class="hll">    <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user id&quot;</span><span class="p">,</span> <span class="n">gt</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">lt</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
+</span><a id="__codelineno-2-26" name="__codelineno-2-26"></a><span class="hll">    <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user name&quot;</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+</span><a id="__codelineno-2-27" name="__codelineno-2-27"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
+<a id="__codelineno-2-28" name="__codelineno-2-28"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">({</span><span class="s2">&quot;uid&quot;</span><span class="p">:</span> <span class="n">uid</span><span class="p">,</span> <span class="s2">&quot;user_name&quot;</span><span class="p">:</span> <span class="n">username</span><span class="p">})</span>
+<a id="__codelineno-2-29" name="__codelineno-2-29"></a>
+<a id="__codelineno-2-30" name="__codelineno-2-30"></a>
+<a id="__codelineno-2-31" name="__codelineno-2-31"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span><span class="n">routes</span><span class="o">=</span><span class="p">[</span><span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api&quot;</span><span class="p">,</span> <span class="n">demo_post</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])])</span>
+<a id="__codelineno-2-32" name="__codelineno-2-32"></a><span class="hll"><span class="n">AddDocRoute</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</span><a id="__codelineno-2-33" name="__codelineno-2-33"></a>
 <a id="__codelineno-2-34" name="__codelineno-2-34"></a>
-<a id="__codelineno-2-35" name="__codelineno-2-35"></a>
-<a id="__codelineno-2-36" name="__codelineno-2-36"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span><span class="n">routes</span><span class="o">=</span><span class="p">[</span><span class="n">Route</span><span class="p">(</span><span class="s1">&#39;/api&#39;</span><span class="p">,</span> <span class="n">demo_post</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])])</span>
-<a id="__codelineno-2-37" name="__codelineno-2-37"></a><span class="c1"># Register Open API interface</span>
-<a id="__codelineno-2-38" name="__codelineno-2-38"></a><span class="n">add_doc_route</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
-<a id="__codelineno-2-39" name="__codelineno-2-39"></a><span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<a id="__codelineno-2-35" name="__codelineno-2-35"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-2-36" name="__codelineno-2-36"></a>    <span class="kn">import</span> <span class="nn">uvicorn</span>
+<a id="__codelineno-2-37" name="__codelineno-2-37"></a>
+<a id="__codelineno-2-38" name="__codelineno-2-38"></a>    <span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">docs_source_code/introduction/sanic_demo.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-3-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-3-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-3-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-3-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-3-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-3-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-3-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-3-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-3-10">10</a></span>
+<span class="normal"><a href="#__codelineno-3-11">11</a></span>
+<span class="normal"><a href="#__codelineno-3-12">12</a></span>
+<span class="normal"><a href="#__codelineno-3-13">13</a></span>
+<span class="normal"><a href="#__codelineno-3-14">14</a></span>
+<span class="normal"><a href="#__codelineno-3-15">15</a></span>
+<span class="normal"><a href="#__codelineno-3-16">16</a></span>
+<span class="normal"><a href="#__codelineno-3-17">17</a></span>
+<span class="normal"><a href="#__codelineno-3-18">18</a></span>
+<span class="normal"><a href="#__codelineno-3-19">19</a></span>
+<span class="normal"><a href="#__codelineno-3-20">20</a></span>
+<span class="normal"><a href="#__codelineno-3-21">21</a></span>
+<span class="normal"><a href="#__codelineno-3-22">22</a></span>
+<span class="normal"><a href="#__codelineno-3-23">23</a></span>
+<span class="normal"><a href="#__codelineno-3-24">24</a></span>
+<span class="normal"><a href="#__codelineno-3-25">25</a></span>
+<span class="normal"><a href="#__codelineno-3-26">26</a></span>
+<span class="normal"><a href="#__codelineno-3-27">27</a></span>
+<span class="normal"><a href="#__codelineno-3-28">28</a></span>
+<span class="normal"><a href="#__codelineno-3-29">29</a></span>
+<span class="normal"><a href="#__codelineno-3-30">30</a></span>
+<span class="normal"><a href="#__codelineno-3-31">31</a></span>
+<span class="normal"><a href="#__codelineno-3-32">32</a></span>
+<span class="normal"><a href="#__codelineno-3-33">33</a></span>
+<span class="normal"><a href="#__codelineno-3-34">34</a></span>
+<span class="normal"><a href="#__codelineno-3-35">35</a></span>
+<span class="normal"><a href="#__codelineno-3-36">36</a></span>
+<span class="normal"><a href="#__codelineno-3-37">37</a></span>
+<span class="normal"><a href="#__codelineno-3-38">38</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="kn">from</span> <span class="nn">sanic.app</span> <span class="kn">import</span> <span class="n">Sanic</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="kn">from</span> <span class="nn">sanic.response</span> <span class="kn">import</span> <span class="n">HTTPResponse</span><span class="p">,</span> <span class="n">json</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="kn">from</span> <span class="nn">pait.app.sanic</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="kn">from</span> <span class="nn">pait.field</span> <span class="kn">import</span> <span class="n">Json</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="kn">from</span> <span class="nn">pait.model.response</span> <span class="kn">import</span> <span class="n">JsonResponseModel</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="kn">from</span> <span class="nn">pait.openapi.doc_route</span> <span class="kn">import</span> <span class="n">AddDocRoute</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11"></a>
+<a id="__codelineno-3-12" name="__codelineno-3-12"></a>
+<a id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="k">class</span> <span class="nc">DemoResponseModel</span><span class="p">(</span><span class="n">JsonResponseModel</span><span class="p">):</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14"></a>    <span class="k">class</span> <span class="nc">ResponseModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15"></a>        <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">()</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16"></a>        <span class="n">user_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">()</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17"></a>
+<a id="__codelineno-3-18" name="__codelineno-3-18"></a>    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;demo response&quot;</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19"></a>    <span class="n">response_data</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">]</span> <span class="o">=</span> <span class="n">ResponseModel</span>
+<a id="__codelineno-3-20" name="__codelineno-3-20"></a>
+<a id="__codelineno-3-21" name="__codelineno-3-21"></a>
+<a id="__codelineno-3-22" name="__codelineno-3-22"></a><span class="hll"><span class="nd">@pait</span><span class="p">(</span><span class="n">response_model_list</span><span class="o">=</span><span class="p">[</span><span class="n">DemoResponseModel</span><span class="p">])</span>
+</span><a id="__codelineno-3-23" name="__codelineno-3-23"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo_post</span><span class="p">(</span>
+<a id="__codelineno-3-24" name="__codelineno-3-24"></a><span class="hll">    <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user id&quot;</span><span class="p">,</span> <span class="n">gt</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">lt</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
+</span><a id="__codelineno-3-25" name="__codelineno-3-25"></a><span class="hll">    <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user name&quot;</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+</span><a id="__codelineno-3-26" name="__codelineno-3-26"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HTTPResponse</span><span class="p">:</span>
+<a id="__codelineno-3-27" name="__codelineno-3-27"></a>    <span class="k">return</span> <span class="n">json</span><span class="p">({</span><span class="s2">&quot;uid&quot;</span><span class="p">:</span> <span class="n">uid</span><span class="p">,</span> <span class="s2">&quot;user_name&quot;</span><span class="p">:</span> <span class="n">username</span><span class="p">})</span>
+<a id="__codelineno-3-28" name="__codelineno-3-28"></a>
+<a id="__codelineno-3-29" name="__codelineno-3-29"></a>
+<a id="__codelineno-3-30" name="__codelineno-3-30"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Sanic</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;demo&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-31" name="__codelineno-3-31"></a><span class="n">app</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="n">demo_post</span><span class="p">,</span> <span class="s2">&quot;/api&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+<a id="__codelineno-3-32" name="__codelineno-3-32"></a><span class="hll"><span class="n">AddDocRoute</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</span><a id="__codelineno-3-33" name="__codelineno-3-33"></a>
+<a id="__codelineno-3-34" name="__codelineno-3-34"></a>
+<a id="__codelineno-3-35" name="__codelineno-3-35"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-3-36" name="__codelineno-3-36"></a>    <span class="kn">import</span> <span class="nn">uvicorn</span>
+<a id="__codelineno-3-37" name="__codelineno-3-37"></a>
+<a id="__codelineno-3-38" name="__codelineno-3-38"></a>    <span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">docs_source_code/introduction/tornado_demo.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-4-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-4-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-4-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-4-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-4-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-4-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-4-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-4-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-4-10">10</a></span>
+<span class="normal"><a href="#__codelineno-4-11">11</a></span>
+<span class="normal"><a href="#__codelineno-4-12">12</a></span>
+<span class="normal"><a href="#__codelineno-4-13">13</a></span>
+<span class="normal"><a href="#__codelineno-4-14">14</a></span>
+<span class="normal"><a href="#__codelineno-4-15">15</a></span>
+<span class="normal"><a href="#__codelineno-4-16">16</a></span>
+<span class="normal"><a href="#__codelineno-4-17">17</a></span>
+<span class="normal"><a href="#__codelineno-4-18">18</a></span>
+<span class="normal"><a href="#__codelineno-4-19">19</a></span>
+<span class="normal"><a href="#__codelineno-4-20">20</a></span>
+<span class="normal"><a href="#__codelineno-4-21">21</a></span>
+<span class="normal"><a href="#__codelineno-4-22">22</a></span>
+<span class="normal"><a href="#__codelineno-4-23">23</a></span>
+<span class="normal"><a href="#__codelineno-4-24">24</a></span>
+<span class="normal"><a href="#__codelineno-4-25">25</a></span>
+<span class="normal"><a href="#__codelineno-4-26">26</a></span>
+<span class="normal"><a href="#__codelineno-4-27">27</a></span>
+<span class="normal"><a href="#__codelineno-4-28">28</a></span>
+<span class="normal"><a href="#__codelineno-4-29">29</a></span>
+<span class="normal"><a href="#__codelineno-4-30">30</a></span>
+<span class="normal"><a href="#__codelineno-4-31">31</a></span>
+<span class="normal"><a href="#__codelineno-4-32">32</a></span>
+<span class="normal"><a href="#__codelineno-4-33">33</a></span>
+<span class="normal"><a href="#__codelineno-4-34">34</a></span>
+<span class="normal"><a href="#__codelineno-4-35">35</a></span>
+<span class="normal"><a href="#__codelineno-4-36">36</a></span>
+<span class="normal"><a href="#__codelineno-4-37">37</a></span>
+<span class="normal"><a href="#__codelineno-4-38">38</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="kn">from</span> <span class="nn">tornado.ioloop</span> <span class="kn">import</span> <span class="n">IOLoop</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="kn">from</span> <span class="nn">tornado.web</span> <span class="kn">import</span> <span class="n">Application</span><span class="p">,</span> <span class="n">RequestHandler</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6"></a>
+<a id="__codelineno-4-7" name="__codelineno-4-7"></a><span class="kn">from</span> <span class="nn">pait.app.tornado</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8"></a><span class="kn">from</span> <span class="nn">pait.field</span> <span class="kn">import</span> <span class="n">Json</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9"></a><span class="kn">from</span> <span class="nn">pait.model.response</span> <span class="kn">import</span> <span class="n">JsonResponseModel</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10"></a><span class="kn">from</span> <span class="nn">pait.openapi.doc_route</span> <span class="kn">import</span> <span class="n">AddDocRoute</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11"></a>
+<a id="__codelineno-4-12" name="__codelineno-4-12"></a>
+<a id="__codelineno-4-13" name="__codelineno-4-13"></a><span class="k">class</span> <span class="nc">DemoResponseModel</span><span class="p">(</span><span class="n">JsonResponseModel</span><span class="p">):</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14"></a>    <span class="k">class</span> <span class="nc">ResponseModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15"></a>        <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">()</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16"></a>        <span class="n">user_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">()</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17"></a>
+<a id="__codelineno-4-18" name="__codelineno-4-18"></a>    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;demo response&quot;</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19"></a>    <span class="n">response_data</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">]</span> <span class="o">=</span> <span class="n">ResponseModel</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20"></a>
+<a id="__codelineno-4-21" name="__codelineno-4-21"></a>
+<a id="__codelineno-4-22" name="__codelineno-4-22"></a><span class="k">class</span> <span class="nc">DemoHandler</span><span class="p">(</span><span class="n">RequestHandler</span><span class="p">):</span>
+<a id="__codelineno-4-23" name="__codelineno-4-23"></a><span class="hll">    <span class="nd">@pait</span><span class="p">(</span><span class="n">response_model_list</span><span class="o">=</span><span class="p">[</span><span class="n">DemoResponseModel</span><span class="p">])</span>
+</span><a id="__codelineno-4-24" name="__codelineno-4-24"></a><span class="hll">    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span>
+</span><a id="__codelineno-4-25" name="__codelineno-4-25"></a><span class="hll">        <span class="bp">self</span><span class="p">,</span>
+</span><a id="__codelineno-4-26" name="__codelineno-4-26"></a>        <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user id&quot;</span><span class="p">,</span> <span class="n">gt</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">lt</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
+<a id="__codelineno-4-27" name="__codelineno-4-27"></a>        <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user name&quot;</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+<a id="__codelineno-4-28" name="__codelineno-4-28"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-4-29" name="__codelineno-4-29"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">({</span><span class="s2">&quot;uid&quot;</span><span class="p">:</span> <span class="n">uid</span><span class="p">,</span> <span class="s2">&quot;user_name&quot;</span><span class="p">:</span> <span class="n">username</span><span class="p">})</span>
+<a id="__codelineno-4-30" name="__codelineno-4-30"></a>
+<a id="__codelineno-4-31" name="__codelineno-4-31"></a>
+<a id="__codelineno-4-32" name="__codelineno-4-32"></a><span class="n">app</span><span class="p">:</span> <span class="n">Application</span> <span class="o">=</span> <span class="n">Application</span><span class="p">([(</span><span class="sa">r</span><span class="s2">&quot;/api&quot;</span><span class="p">,</span> <span class="n">DemoHandler</span><span class="p">)])</span>
+<a id="__codelineno-4-33" name="__codelineno-4-33"></a><span class="hll"><span class="n">AddDocRoute</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</span><a id="__codelineno-4-34" name="__codelineno-4-34"></a>
+<a id="__codelineno-4-35" name="__codelineno-4-35"></a>
+<a id="__codelineno-4-36" name="__codelineno-4-36"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-4-37" name="__codelineno-4-37"></a>    <span class="n">app</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="mi">8000</span><span class="p">)</span>
+<a id="__codelineno-4-38" name="__codelineno-4-38"></a>    <span class="n">IOLoop</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<p>There are three sections of highlighted code in the example code.
+The <code>@pait</code> in the first highlighted code will decorate the route function and automatically extract the request parameter data from the route function when the program starts.
+In addition, the response object of the route function is declared as <code>DemoResponseModel</code> through the <code>response_model_list</code> attribute.
+The <code>description</code> and <code>response_data</code> attributes of the <code>DemoResponseModel</code> object are used to describe the response object description of the route function and the structure type of the response object respectively.</p>
+<p>The parameter format of the route function in the second highlighted code is a format that conforms to the <code>Pait</code> specification.
+During initialization, <code>@pait</code> will actively parse the route function and generate dependency injection rules based on the function signature of the route function.
+When a request hits the route function, <code>Pait</code> will get the corresponding value from the <code>Request</code> object according to the dependency injection rules and inject it into the route function.</p>
+<p>The main job of the highlighted code in the third paragraph is to register the <code>OpenAPI</code> route with the <code>app</code> instance and provide the <code>OpenAPI</code> document feature for the web framework.</p>
+<p>After everything is ready, start running the code and visit: <a href="http://127.0.0.1:8000/swagger">http://127.0.0.1:8000/swagger</a> in the browser to see the SwaggerUI page.
+Two sets of interfaces will be displayed as shown below:
+<img alt="" src="https://cdn.jsdelivr.net/gh/so1n/so1n_blog_photo@master/blog_photo/1648292884021Pait%20doc-%E9%A6%96%E9%A1%B5%E7%A4%BA%E4%BE%8B%E6%8E%A5%E5%8F%A3-Swagger%E9%A6%96%E9%A1%B5.png" /></p>
+<p>The named <code>pait_doc</code> belongs to the <code>OpenAPI</code> interface that comes with <code>Pait</code>,
+and the other group is the <code>default</code> containing the newly created <code>/api</code>.
+After clicking on the <code>/api</code>, it will Pop-up interface details:
+<img alt="" src="https://cdn.jsdelivr.net/gh/so1n/so1n_blog_photo@master/blog_photo/1648292937018Pait%20doc-%E9%A6%96%E9%A1%B5%E7%A4%BA%E4%BE%8B%E6%8E%A5%E5%8F%A3-api%E6%8E%A5%E5%8F%A3.png" /></p>
+<p>The data is generated by <code>Pait</code> parse the route's function signature and the <code>DemoResponseModel</code> object.
+In the details page, you can click the <code>try it out</code> button,
+then enter the parameters and click the <code>Excute</code> button, you can see the <code>curl</code> command generation results and the server response results, as shown below:
+<img alt="" src="https://cdn.jsdelivr.net/gh/so1n/so1n_blog_photo@master/blog_photo/1648292980016Pait%20doc-%E9%A6%96%E9%A1%B5%E7%A4%BA%E4%BE%8B%E6%8E%A5%E5%8F%A3-Swagger%E8%AF%B7%E6%B1%82.png" /></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Want to know more? Immediately enter the <a href="/1_1_introduction/">Type Conversion and Parameter Verification</a> chapter</p>
+</div>
+<h3 id="plugin">Plugin</h3>
+<p>In addition to parameter verification and <code>OpenAPI</code> feature, <code>Pait</code> can also expand its feature through the plugin system.
+For example, the Mock response plugin can automatically generate response values and return data based on the response model,
+even if the route function does not have any logic implementation, such as the following code:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:4"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><input id="__tabbed_2_4" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Flask</label><label for="__tabbed_2_2">Starlette</label><label for="__tabbed_2_3">Sanic</label><label for="__tabbed_2_4">Tornado</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">docs_source_code/introduction/flask_demo_with_mock_plugin.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-5-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-5-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-5-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-5-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-5-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-5-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-5-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-5-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-5-10">10</a></span>
+<span class="normal"><a href="#__codelineno-5-11">11</a></span>
+<span class="normal"><a href="#__codelineno-5-12">12</a></span>
+<span class="normal"><a href="#__codelineno-5-13">13</a></span>
+<span class="normal"><a href="#__codelineno-5-14">14</a></span>
+<span class="normal"><a href="#__codelineno-5-15">15</a></span>
+<span class="normal"><a href="#__codelineno-5-16">16</a></span>
+<span class="normal"><a href="#__codelineno-5-17">17</a></span>
+<span class="normal"><a href="#__codelineno-5-18">18</a></span>
+<span class="normal"><a href="#__codelineno-5-19">19</a></span>
+<span class="normal"><a href="#__codelineno-5-20">20</a></span>
+<span class="normal"><a href="#__codelineno-5-21">21</a></span>
+<span class="normal"><a href="#__codelineno-5-22">22</a></span>
+<span class="normal"><a href="#__codelineno-5-23">23</a></span>
+<span class="normal"><a href="#__codelineno-5-24">24</a></span>
+<span class="normal"><a href="#__codelineno-5-25">25</a></span>
+<span class="normal"><a href="#__codelineno-5-26">26</a></span>
+<span class="normal"><a href="#__codelineno-5-27">27</a></span>
+<span class="normal"><a href="#__codelineno-5-28">28</a></span>
+<span class="normal"><a href="#__codelineno-5-29">29</a></span>
+<span class="normal"><a href="#__codelineno-5-30">30</a></span>
+<span class="normal"><a href="#__codelineno-5-31">31</a></span>
+<span class="normal"><a href="#__codelineno-5-32">32</a></span>
+<span class="normal"><a href="#__codelineno-5-33">33</a></span>
+<span class="normal"><a href="#__codelineno-5-34">34</a></span>
+<span class="normal"><a href="#__codelineno-5-35">35</a></span>
+<span class="normal"><a href="#__codelineno-5-36">36</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3"></a><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">Response</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5"></a>
+<a id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="kn">from</span> <span class="nn">pait.app.flask</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7"></a><span class="kn">from</span> <span class="nn">pait.app.flask.plugin.mock_response</span> <span class="kn">import</span> <span class="n">MockPlugin</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="kn">from</span> <span class="nn">pait.field</span> <span class="kn">import</span> <span class="n">Json</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9"></a><span class="kn">from</span> <span class="nn">pait.model.response</span> <span class="kn">import</span> <span class="n">JsonResponseModel</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10"></a><span class="kn">from</span> <span class="nn">pait.openapi.doc_route</span> <span class="kn">import</span> <span class="n">AddDocRoute</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11"></a>
+<a id="__codelineno-5-12" name="__codelineno-5-12"></a>
+<a id="__codelineno-5-13" name="__codelineno-5-13"></a><span class="k">class</span> <span class="nc">DemoResponseModel</span><span class="p">(</span><span class="n">JsonResponseModel</span><span class="p">):</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14"></a>    <span class="k">class</span> <span class="nc">ResponseModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15"></a><span class="hll">        <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">example</span><span class="o">=</span><span class="mi">999</span><span class="p">)</span>
+</span><a id="__codelineno-5-16" name="__codelineno-5-16"></a>        <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">()</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17"></a>
+<a id="__codelineno-5-18" name="__codelineno-5-18"></a>    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;demo response&quot;</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19"></a>    <span class="n">response_data</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">]</span> <span class="o">=</span> <span class="n">ResponseModel</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20"></a>
+<a id="__codelineno-5-21" name="__codelineno-5-21"></a>
+<a id="__codelineno-5-22" name="__codelineno-5-22"></a><span class="hll"><span class="nd">@pait</span><span class="p">(</span><span class="n">response_model_list</span><span class="o">=</span><span class="p">[</span><span class="n">DemoResponseModel</span><span class="p">],</span> <span class="n">plugin_list</span><span class="o">=</span><span class="p">[</span><span class="n">MockPlugin</span><span class="o">.</span><span class="n">build</span><span class="p">()])</span>
+</span><a id="__codelineno-5-23" name="__codelineno-5-23"></a><span class="k">def</span> <span class="nf">demo_post</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+<a id="__codelineno-5-24" name="__codelineno-5-24"></a>    <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user id&quot;</span><span class="p">,</span> <span class="n">gt</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">lt</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
+<a id="__codelineno-5-25" name="__codelineno-5-25"></a>    <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user name&quot;</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+<a id="__codelineno-5-26" name="__codelineno-5-26"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Response</span><span class="p">:</span>
+<a id="__codelineno-5-27" name="__codelineno-5-27"></a>    <span class="k">pass</span>
+<a id="__codelineno-5-28" name="__codelineno-5-28"></a>
+<a id="__codelineno-5-29" name="__codelineno-5-29"></a>
+<a id="__codelineno-5-30" name="__codelineno-5-30"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="s2">&quot;demo&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-31" name="__codelineno-5-31"></a><span class="n">app</span><span class="o">.</span><span class="n">add_url_rule</span><span class="p">(</span><span class="s2">&quot;/api&quot;</span><span class="p">,</span> <span class="s2">&quot;demo&quot;</span><span class="p">,</span> <span class="n">demo_post</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+<a id="__codelineno-5-32" name="__codelineno-5-32"></a><span class="n">AddDocRoute</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<a id="__codelineno-5-33" name="__codelineno-5-33"></a>
+<a id="__codelineno-5-34" name="__codelineno-5-34"></a>
+<a id="__codelineno-5-35" name="__codelineno-5-35"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-5-36" name="__codelineno-5-36"></a>    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">8000</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">docs_source_code/introduction/starlette_demo_with_mock_plugin.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-6-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-6-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-6-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-6-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-6-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-6-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-6-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-6-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-6-10">10</a></span>
+<span class="normal"><a href="#__codelineno-6-11">11</a></span>
+<span class="normal"><a href="#__codelineno-6-12">12</a></span>
+<span class="normal"><a href="#__codelineno-6-13">13</a></span>
+<span class="normal"><a href="#__codelineno-6-14">14</a></span>
+<span class="normal"><a href="#__codelineno-6-15">15</a></span>
+<span class="normal"><a href="#__codelineno-6-16">16</a></span>
+<span class="normal"><a href="#__codelineno-6-17">17</a></span>
+<span class="normal"><a href="#__codelineno-6-18">18</a></span>
+<span class="normal"><a href="#__codelineno-6-19">19</a></span>
+<span class="normal"><a href="#__codelineno-6-20">20</a></span>
+<span class="normal"><a href="#__codelineno-6-21">21</a></span>
+<span class="normal"><a href="#__codelineno-6-22">22</a></span>
+<span class="normal"><a href="#__codelineno-6-23">23</a></span>
+<span class="normal"><a href="#__codelineno-6-24">24</a></span>
+<span class="normal"><a href="#__codelineno-6-25">25</a></span>
+<span class="normal"><a href="#__codelineno-6-26">26</a></span>
+<span class="normal"><a href="#__codelineno-6-27">27</a></span>
+<span class="normal"><a href="#__codelineno-6-28">28</a></span>
+<span class="normal"><a href="#__codelineno-6-29">29</a></span>
+<span class="normal"><a href="#__codelineno-6-30">30</a></span>
+<span class="normal"><a href="#__codelineno-6-31">31</a></span>
+<span class="normal"><a href="#__codelineno-6-32">32</a></span>
+<span class="normal"><a href="#__codelineno-6-33">33</a></span>
+<span class="normal"><a href="#__codelineno-6-34">34</a></span>
+<span class="normal"><a href="#__codelineno-6-35">35</a></span>
+<span class="normal"><a href="#__codelineno-6-36">36</a></span>
+<span class="normal"><a href="#__codelineno-6-37">37</a></span>
+<span class="normal"><a href="#__codelineno-6-38">38</a></span>
+<span class="normal"><a href="#__codelineno-6-39">39</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4"></a><span class="kn">from</span> <span class="nn">starlette.applications</span> <span class="kn">import</span> <span class="n">Starlette</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5"></a><span class="kn">from</span> <span class="nn">starlette.responses</span> <span class="kn">import</span> <span class="n">JSONResponse</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6"></a><span class="kn">from</span> <span class="nn">starlette.routing</span> <span class="kn">import</span> <span class="n">Route</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7"></a>
+<a id="__codelineno-6-8" name="__codelineno-6-8"></a><span class="kn">from</span> <span class="nn">pait.app.starlette</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9"></a><span class="kn">from</span> <span class="nn">pait.app.starlette.plugin.mock_response</span> <span class="kn">import</span> <span class="n">MockPlugin</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10"></a><span class="kn">from</span> <span class="nn">pait.field</span> <span class="kn">import</span> <span class="n">Json</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11"></a><span class="kn">from</span> <span class="nn">pait.model.response</span> <span class="kn">import</span> <span class="n">JsonResponseModel</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12"></a><span class="kn">from</span> <span class="nn">pait.openapi.doc_route</span> <span class="kn">import</span> <span class="n">AddDocRoute</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13"></a>
+<a id="__codelineno-6-14" name="__codelineno-6-14"></a>
+<a id="__codelineno-6-15" name="__codelineno-6-15"></a><span class="k">class</span> <span class="nc">DemoResponseModel</span><span class="p">(</span><span class="n">JsonResponseModel</span><span class="p">):</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16"></a>    <span class="k">class</span> <span class="nc">ResponseModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17"></a><span class="hll">        <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">example</span><span class="o">=</span><span class="mi">999</span><span class="p">)</span>
+</span><a id="__codelineno-6-18" name="__codelineno-6-18"></a>        <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">()</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19"></a>
+<a id="__codelineno-6-20" name="__codelineno-6-20"></a>    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;demo response&quot;</span>
+<a id="__codelineno-6-21" name="__codelineno-6-21"></a>    <span class="n">response_data</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">]</span> <span class="o">=</span> <span class="n">ResponseModel</span>
+<a id="__codelineno-6-22" name="__codelineno-6-22"></a>
+<a id="__codelineno-6-23" name="__codelineno-6-23"></a>
+<a id="__codelineno-6-24" name="__codelineno-6-24"></a><span class="hll"><span class="nd">@pait</span><span class="p">(</span><span class="n">response_model_list</span><span class="o">=</span><span class="p">[</span><span class="n">DemoResponseModel</span><span class="p">],</span> <span class="n">plugin_list</span><span class="o">=</span><span class="p">[</span><span class="n">MockPlugin</span><span class="o">.</span><span class="n">build</span><span class="p">()])</span>
+</span><a id="__codelineno-6-25" name="__codelineno-6-25"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo_post</span><span class="p">(</span>  <span class="c1"># type: ignore[empty-body]</span>
+<a id="__codelineno-6-26" name="__codelineno-6-26"></a>    <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user id&quot;</span><span class="p">,</span> <span class="n">gt</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">lt</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
+<a id="__codelineno-6-27" name="__codelineno-6-27"></a>    <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user name&quot;</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+<a id="__codelineno-6-28" name="__codelineno-6-28"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONResponse</span><span class="p">:</span>
+<a id="__codelineno-6-29" name="__codelineno-6-29"></a>    <span class="k">pass</span>
+<a id="__codelineno-6-30" name="__codelineno-6-30"></a>
+<a id="__codelineno-6-31" name="__codelineno-6-31"></a>
+<a id="__codelineno-6-32" name="__codelineno-6-32"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Starlette</span><span class="p">(</span><span class="n">routes</span><span class="o">=</span><span class="p">[</span><span class="n">Route</span><span class="p">(</span><span class="s2">&quot;/api&quot;</span><span class="p">,</span> <span class="n">demo_post</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])])</span>
+<a id="__codelineno-6-33" name="__codelineno-6-33"></a><span class="n">AddDocRoute</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<a id="__codelineno-6-34" name="__codelineno-6-34"></a>
+<a id="__codelineno-6-35" name="__codelineno-6-35"></a>
+<a id="__codelineno-6-36" name="__codelineno-6-36"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-6-37" name="__codelineno-6-37"></a>    <span class="kn">import</span> <span class="nn">uvicorn</span>
+<a id="__codelineno-6-38" name="__codelineno-6-38"></a>
+<a id="__codelineno-6-39" name="__codelineno-6-39"></a>    <span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">docs_source_code/introduction/sanic_demo_with_mock_plugin.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-7-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-7-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-7-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-7-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-7-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-7-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-7-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-7-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-7-10">10</a></span>
+<span class="normal"><a href="#__codelineno-7-11">11</a></span>
+<span class="normal"><a href="#__codelineno-7-12">12</a></span>
+<span class="normal"><a href="#__codelineno-7-13">13</a></span>
+<span class="normal"><a href="#__codelineno-7-14">14</a></span>
+<span class="normal"><a href="#__codelineno-7-15">15</a></span>
+<span class="normal"><a href="#__codelineno-7-16">16</a></span>
+<span class="normal"><a href="#__codelineno-7-17">17</a></span>
+<span class="normal"><a href="#__codelineno-7-18">18</a></span>
+<span class="normal"><a href="#__codelineno-7-19">19</a></span>
+<span class="normal"><a href="#__codelineno-7-20">20</a></span>
+<span class="normal"><a href="#__codelineno-7-21">21</a></span>
+<span class="normal"><a href="#__codelineno-7-22">22</a></span>
+<span class="normal"><a href="#__codelineno-7-23">23</a></span>
+<span class="normal"><a href="#__codelineno-7-24">24</a></span>
+<span class="normal"><a href="#__codelineno-7-25">25</a></span>
+<span class="normal"><a href="#__codelineno-7-26">26</a></span>
+<span class="normal"><a href="#__codelineno-7-27">27</a></span>
+<span class="normal"><a href="#__codelineno-7-28">28</a></span>
+<span class="normal"><a href="#__codelineno-7-29">29</a></span>
+<span class="normal"><a href="#__codelineno-7-30">30</a></span>
+<span class="normal"><a href="#__codelineno-7-31">31</a></span>
+<span class="normal"><a href="#__codelineno-7-32">32</a></span>
+<span class="normal"><a href="#__codelineno-7-33">33</a></span>
+<span class="normal"><a href="#__codelineno-7-34">34</a></span>
+<span class="normal"><a href="#__codelineno-7-35">35</a></span>
+<span class="normal"><a href="#__codelineno-7-36">36</a></span>
+<span class="normal"><a href="#__codelineno-7-37">37</a></span>
+<span class="normal"><a href="#__codelineno-7-38">38</a></span>
+<span class="normal"><a href="#__codelineno-7-39">39</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4"></a><span class="kn">from</span> <span class="nn">sanic.app</span> <span class="kn">import</span> <span class="n">Sanic</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5"></a><span class="kn">from</span> <span class="nn">sanic.response</span> <span class="kn">import</span> <span class="n">HTTPResponse</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6"></a>
+<a id="__codelineno-7-7" name="__codelineno-7-7"></a><span class="kn">from</span> <span class="nn">pait.app.sanic</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8"></a><span class="kn">from</span> <span class="nn">pait.app.sanic.plugin.mock_response</span> <span class="kn">import</span> <span class="n">MockPlugin</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9"></a><span class="kn">from</span> <span class="nn">pait.field</span> <span class="kn">import</span> <span class="n">Json</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10"></a><span class="kn">from</span> <span class="nn">pait.model.response</span> <span class="kn">import</span> <span class="n">JsonResponseModel</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11"></a><span class="kn">from</span> <span class="nn">pait.openapi.doc_route</span> <span class="kn">import</span> <span class="n">AddDocRoute</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12"></a>
+<a id="__codelineno-7-13" name="__codelineno-7-13"></a>
+<a id="__codelineno-7-14" name="__codelineno-7-14"></a><span class="k">class</span> <span class="nc">DemoResponseModel</span><span class="p">(</span><span class="n">JsonResponseModel</span><span class="p">):</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15"></a>    <span class="k">class</span> <span class="nc">ResponseModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16"></a><span class="hll">        <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">example</span><span class="o">=</span><span class="mi">999</span><span class="p">)</span>
+</span><a id="__codelineno-7-17" name="__codelineno-7-17"></a>        <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">()</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18"></a>
+<a id="__codelineno-7-19" name="__codelineno-7-19"></a>    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;demo response&quot;</span>
+<a id="__codelineno-7-20" name="__codelineno-7-20"></a>    <span class="n">response_data</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">]</span> <span class="o">=</span> <span class="n">ResponseModel</span>
+<a id="__codelineno-7-21" name="__codelineno-7-21"></a>
+<a id="__codelineno-7-22" name="__codelineno-7-22"></a>
+<a id="__codelineno-7-23" name="__codelineno-7-23"></a><span class="hll"><span class="nd">@pait</span><span class="p">(</span><span class="n">response_model_list</span><span class="o">=</span><span class="p">[</span><span class="n">DemoResponseModel</span><span class="p">],</span> <span class="n">plugin_list</span><span class="o">=</span><span class="p">[</span><span class="n">MockPlugin</span><span class="o">.</span><span class="n">build</span><span class="p">()])</span>
+</span><a id="__codelineno-7-24" name="__codelineno-7-24"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">demo_post</span><span class="p">(</span>  <span class="c1"># type: ignore[empty-body]</span>
+<a id="__codelineno-7-25" name="__codelineno-7-25"></a>    <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user id&quot;</span><span class="p">,</span> <span class="n">gt</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">lt</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
+<a id="__codelineno-7-26" name="__codelineno-7-26"></a>    <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user name&quot;</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+<a id="__codelineno-7-27" name="__codelineno-7-27"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HTTPResponse</span><span class="p">:</span>
+<a id="__codelineno-7-28" name="__codelineno-7-28"></a>    <span class="k">pass</span>
+<a id="__codelineno-7-29" name="__codelineno-7-29"></a>
+<a id="__codelineno-7-30" name="__codelineno-7-30"></a>
+<a id="__codelineno-7-31" name="__codelineno-7-31"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Sanic</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;demo&quot;</span><span class="p">)</span>
+<a id="__codelineno-7-32" name="__codelineno-7-32"></a><span class="n">app</span><span class="o">.</span><span class="n">add_route</span><span class="p">(</span><span class="n">demo_post</span><span class="p">,</span> <span class="s2">&quot;/api&quot;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+<a id="__codelineno-7-33" name="__codelineno-7-33"></a><span class="n">AddDocRoute</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<a id="__codelineno-7-34" name="__codelineno-7-34"></a>
+<a id="__codelineno-7-35" name="__codelineno-7-35"></a>
+<a id="__codelineno-7-36" name="__codelineno-7-36"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-7-37" name="__codelineno-7-37"></a>    <span class="kn">import</span> <span class="nn">uvicorn</span>
+<a id="__codelineno-7-38" name="__codelineno-7-38"></a>
+<a id="__codelineno-7-39" name="__codelineno-7-39"></a>    <span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">docs_source_code/introduction/tornado_demo_with_mock_plugin.py</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-8-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-8-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-8-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-8-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-8-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-8-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-8-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-8-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-8-10">10</a></span>
+<span class="normal"><a href="#__codelineno-8-11">11</a></span>
+<span class="normal"><a href="#__codelineno-8-12">12</a></span>
+<span class="normal"><a href="#__codelineno-8-13">13</a></span>
+<span class="normal"><a href="#__codelineno-8-14">14</a></span>
+<span class="normal"><a href="#__codelineno-8-15">15</a></span>
+<span class="normal"><a href="#__codelineno-8-16">16</a></span>
+<span class="normal"><a href="#__codelineno-8-17">17</a></span>
+<span class="normal"><a href="#__codelineno-8-18">18</a></span>
+<span class="normal"><a href="#__codelineno-8-19">19</a></span>
+<span class="normal"><a href="#__codelineno-8-20">20</a></span>
+<span class="normal"><a href="#__codelineno-8-21">21</a></span>
+<span class="normal"><a href="#__codelineno-8-22">22</a></span>
+<span class="normal"><a href="#__codelineno-8-23">23</a></span>
+<span class="normal"><a href="#__codelineno-8-24">24</a></span>
+<span class="normal"><a href="#__codelineno-8-25">25</a></span>
+<span class="normal"><a href="#__codelineno-8-26">26</a></span>
+<span class="normal"><a href="#__codelineno-8-27">27</a></span>
+<span class="normal"><a href="#__codelineno-8-28">28</a></span>
+<span class="normal"><a href="#__codelineno-8-29">29</a></span>
+<span class="normal"><a href="#__codelineno-8-30">30</a></span>
+<span class="normal"><a href="#__codelineno-8-31">31</a></span>
+<span class="normal"><a href="#__codelineno-8-32">32</a></span>
+<span class="normal"><a href="#__codelineno-8-33">33</a></span>
+<span class="normal"><a href="#__codelineno-8-34">34</a></span>
+<span class="normal"><a href="#__codelineno-8-35">35</a></span>
+<span class="normal"><a href="#__codelineno-8-36">36</a></span>
+<span class="normal"><a href="#__codelineno-8-37">37</a></span>
+<span class="normal"><a href="#__codelineno-8-38">38</a></span>
+<span class="normal"><a href="#__codelineno-8-39">39</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1"></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Type</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3"></a><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4"></a><span class="kn">from</span> <span class="nn">tornado.ioloop</span> <span class="kn">import</span> <span class="n">IOLoop</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5"></a><span class="kn">from</span> <span class="nn">tornado.web</span> <span class="kn">import</span> <span class="n">Application</span><span class="p">,</span> <span class="n">RequestHandler</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6"></a>
+<a id="__codelineno-8-7" name="__codelineno-8-7"></a><span class="kn">from</span> <span class="nn">pait.app.tornado</span> <span class="kn">import</span> <span class="n">pait</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8"></a><span class="kn">from</span> <span class="nn">pait.app.tornado.plugin.mock_response</span> <span class="kn">import</span> <span class="n">MockPlugin</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9"></a><span class="kn">from</span> <span class="nn">pait.field</span> <span class="kn">import</span> <span class="n">Json</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10"></a><span class="kn">from</span> <span class="nn">pait.model.response</span> <span class="kn">import</span> <span class="n">JsonResponseModel</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11"></a><span class="kn">from</span> <span class="nn">pait.openapi.doc_route</span> <span class="kn">import</span> <span class="n">AddDocRoute</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12"></a>
+<a id="__codelineno-8-13" name="__codelineno-8-13"></a>
+<a id="__codelineno-8-14" name="__codelineno-8-14"></a><span class="k">class</span> <span class="nc">DemoResponseModel</span><span class="p">(</span><span class="n">JsonResponseModel</span><span class="p">):</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15"></a>    <span class="k">class</span> <span class="nc">ResponseModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-8-16" name="__codelineno-8-16"></a><span class="hll">        <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">example</span><span class="o">=</span><span class="mi">999</span><span class="p">)</span>
+</span><a id="__codelineno-8-17" name="__codelineno-8-17"></a>        <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">()</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18"></a>
+<a id="__codelineno-8-19" name="__codelineno-8-19"></a>    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;demo response&quot;</span>
+<a id="__codelineno-8-20" name="__codelineno-8-20"></a>    <span class="n">response_data</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">]</span> <span class="o">=</span> <span class="n">ResponseModel</span>
+<a id="__codelineno-8-21" name="__codelineno-8-21"></a>
+<a id="__codelineno-8-22" name="__codelineno-8-22"></a>
+<a id="__codelineno-8-23" name="__codelineno-8-23"></a><span class="k">class</span> <span class="nc">DemoHandler</span><span class="p">(</span><span class="n">RequestHandler</span><span class="p">):</span>
+<a id="__codelineno-8-24" name="__codelineno-8-24"></a><span class="hll">    <span class="nd">@pait</span><span class="p">(</span><span class="n">response_model_list</span><span class="o">=</span><span class="p">[</span><span class="n">DemoResponseModel</span><span class="p">],</span> <span class="n">plugin_list</span><span class="o">=</span><span class="p">[</span><span class="n">MockPlugin</span><span class="o">.</span><span class="n">build</span><span class="p">()])</span>
+</span><a id="__codelineno-8-25" name="__codelineno-8-25"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">post</span><span class="p">(</span>
+<a id="__codelineno-8-26" name="__codelineno-8-26"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-8-27" name="__codelineno-8-27"></a>        <span class="n">uid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user id&quot;</span><span class="p">,</span> <span class="n">gt</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">lt</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
+<a id="__codelineno-8-28" name="__codelineno-8-28"></a>        <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Json</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;user name&quot;</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+<a id="__codelineno-8-29" name="__codelineno-8-29"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-8-30" name="__codelineno-8-30"></a>        <span class="k">pass</span>
+<a id="__codelineno-8-31" name="__codelineno-8-31"></a>
+<a id="__codelineno-8-32" name="__codelineno-8-32"></a>
+<a id="__codelineno-8-33" name="__codelineno-8-33"></a><span class="n">app</span><span class="p">:</span> <span class="n">Application</span> <span class="o">=</span> <span class="n">Application</span><span class="p">([(</span><span class="sa">r</span><span class="s2">&quot;/api&quot;</span><span class="p">,</span> <span class="n">DemoHandler</span><span class="p">)])</span>
+<a id="__codelineno-8-34" name="__codelineno-8-34"></a><span class="n">AddDocRoute</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+<a id="__codelineno-8-35" name="__codelineno-8-35"></a>
+<a id="__codelineno-8-36" name="__codelineno-8-36"></a>
+<a id="__codelineno-8-37" name="__codelineno-8-37"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<a id="__codelineno-8-38" name="__codelineno-8-38"></a>    <span class="n">app</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="mi">8000</span><span class="p">)</span>
+<a id="__codelineno-8-39" name="__codelineno-8-39"></a>    <span class="n">IOLoop</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
+<p>This code is changed based on the code of <a href="/#parameter-verification-and-document-generation">Parameter verification and document generation</a>.
+It removes the logic code of the route function and introduces the highlighted part of the code.</p>
+<p>Among them, the <code>uid: int = Field(example=999)</code> of the <code>DemoResponseModel</code> response model specifies that the mock value of uid in the response structure is 999.
+The <code>@pait</code> decorator adds a plugin named <code>MockPlugin</code> through the <code>plugin_list</code> attribute.
+The plugin can generate a mock response based on the <code>response_model_list</code>.</p>
+<p>After everything is ready, start running the code and re-click the <code>Excute</code> button on the <code>Swagger</code> page or run the <code>curl</code> command generated by the <code>Swagger</code> page in the terminal:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>&gt;<span class="w"> </span>curl<span class="w"> </span>-X<span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="s1">&#39;http://127.0.0.1:8000/api&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;accept: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="s1">  &quot;uid&quot;: 666,</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="s1">  &quot;user_name&quot;: &quot;so1n&quot;</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="s1">}&#39;</span>
 </code></pre></div>
-</td></tr></table>
-The code is modified from the above code, it removes the return response, and introduces the highlighted part of the code,
-where <code>uid: int = Field(example=999)</code> in line 17 specifies that the example value is 999, then run the code and run the <code>Curl</code> command returned by Swagger above:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a>➜  ~ curl -X <span class="s1">&#39;POST&#39;</span> <span class="se">\</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2"></a>  <span class="s1">&#39;http://127.0.0.1:8000/api&#39;</span> <span class="se">\</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3"></a>  -H <span class="s1">&#39;accept: application/json&#39;</span> <span class="se">\</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4"></a>  -H <span class="s1">&#39;Content-Type: application/json&#39;</span> <span class="se">\</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5"></a>  -d <span class="s1">&#39;{</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="s1">  &quot;uid&quot;: 666,</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="s1">  &quot;user_name&quot;: &quot;so1n&quot;</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="s1">}&#39;</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="o">{</span><span class="s2">&quot;uid&quot;</span>:999,<span class="s2">&quot;user_name&quot;</span>:<span class="s2">&quot;&quot;</span><span class="o">}</span>
+Finally, can see the following output whether on the <code>Swagger</code> page or in the terminal:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="o">{</span><span class="s2">&quot;uid&quot;</span>:999,<span class="s2">&quot;username&quot;</span>:<span class="s2">&quot;&quot;</span><span class="o">}</span>
 </code></pre></div>
-As you can see, the interface can still return a response, which is automatically generated by the Mock plugin. The value of <code>uid</code> in the response is 999, which is the same as the <code>uid: int = Field(example=999)</code> set in our code, and the value of <code>user_name</code> is the default empty string.</p>
-<p>In addition, <code>Pait</code> has other plugins and other feature, which will be described in detail in subsequent documents.</p>
-<h1 id="performance">Performance</h1>
-<p><code>Pait</code> implements function signature extraction based on <code>inspect</code> that comes with <code>Python</code>, implements parameter verification and type conversion based on <code>Pydantic</code>, and also uses a lot of preloading designs, so the runtime performance of <code>Pait</code> is so good。
-However, the current <code>Pait</code> is still growing, and there are still many areas that need to be optimized. Welcome to optimize together through <a href="https://github.com/so1n/pait/issues">issues</a>。</p>
-<h1 id="example-of-use">Example of use</h1>
-<p><code>Pait</code> has complete code samples for each supported web framework, you can learn best practices by visiting the sample code:</p>
+As you can see from the returned results, although the route function does not perform any operation, the routeing function can still return a response.</p>
+<p>This response result is automatically generated by the Mock plugin,
+where the <code>uid</code> value of <code>999</code> is the same as the value set in the <code>uid: int = Field(example=999)</code> in the response model,
+and the <code>username</code> is the default empty string in the response result because it is not set in <code>example</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In addition to the <code>MockPlugin</code>, <code>Pait</code> also has other plugins and feature.
+For details, please see the description of <a href="/5_1_introduction/">Plugin</a>.</p>
+</div>
+<h2 id="performance">Performance</h2>
+<p>The main operating principle of <code>Pait</code> is to convert the function signature of the route function into <code>Pydantic Model</code> through the reflection mechanism when the program is started,
+and then verify and convert the request parameters through <code>Pydantic Model</code> when the request hits the route.</p>
+<p>These two stages are all automatically handled internally by <code>Pait</code>.
+The first stage only slightly increases the startup time of the program, while the second stage increases the response time of the routing, but it only consumes 0.00005(s) more than manual processing.
+The specific benchmark data and subsequent optimization are described in <a href="https://github.com/so1n/pait/issues/27">#27</a>.</p>
+<h2 id="web-framework-support">Web framework support</h2>
+<p>The internal implementation of <code>Pait</code> is an adapter that adapts to different web frameworks, and implements various feature based on the adapter.
+Currently, the web frameworks supported by the <code>Pait</code> adapter are as follows:</p>
+<table>
+<thead>
+<tr>
+<th>Web Framework</th>
+<th>Request</th>
+<th>Response</th>
+<th>Plugin</th>
+<th>OpenAPI</th>
+<th>App attribute set&amp;get</th>
+<th>HTTP Exception</th>
+<th>SimpleRoute</th>
+<th>TestHelper</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Flask</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>Sanic</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>Startlette</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+</tr>
+<tr>
+<td>Tornado</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+<td>√</td>
+</tr>
+</tbody>
+</table>
+<h2 id="example">Example</h2>
+<p><code>Pait</code> provides complete code examples for the web frameworks it supports, can learn more by accessing the sample code:</p>
 <ul>
 <li>
-<p><a href="https://github.com/so1n/pait/blob/master/example/param_verify/flask_example.py">flask example</a></p>
+<p><a href="https://github.com/so1n/pait/tree/master/example/flask_example">flask example</a></p>
 </li>
 <li>
-<p><a href="https://github.com/so1n/pait/blob/master/example/param_verify/sanic_example.py">sanic example</a></p>
+<p><a href="https://github.com/so1n/pait/tree/master/example/sanic_example">sanic example</a></p>
 </li>
 <li>
-<p><a href="https://github.com/so1n/pait/blob/master/example/param_verify/starlette_example.py">starlette example</a></p>
+<p><a href="https://github.com/so1n/pait/tree/master/example/starlette_example">starlette example</a></p>
 </li>
 <li>
-<p><a href="https://github.com/so1n/pait/blob/master/example/param_verify/starlette_example.py">tornado example</a></p>
+<p><a href="https://github.com/so1n/pait/tree/master/example/tornado_example">tornado example</a></p>
 </li>
 </ul>
 
-              
-            </article>
-          </div>
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var tab,labels=set.querySelector(".tabbed-labels");for(tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
         </div>
         
-          <a href="#" class="md-top md-icon" data-md-component="top" data-md-state="hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"/></svg>
-            Back to top
-          </a>
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
         
       </main>
       
         <footer class="md-footer">
-  
-    <nav class="md-footer__inner md-grid" aria-label="Footer">
-      
-      
-        
-        <a href="1_1_introduction/" class="md-footer__link md-footer__link--next" aria-label="Next: Introduction" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              Introduction
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
-          </div>
-        </a>
-      
-    </nav>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -867,11 +1847,13 @@ However, the current <code>Pait</code> is still growing, and there are still man
   
     
     
+    
+    
       
       
     
     <a href="https://github.com/so1n" target="_blank" rel="noopener" title="github.com" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
     </a>
   
 </div>
@@ -884,10 +1866,14 @@ However, the current <code>Pait</code> is still growing, and there are still man
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": ".", "features": ["navigation.top", "content.code.annotate"], "search": "assets/javascripts/workers/search.5e67fbfe.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="assets/javascripts/bundle.c44cc438.min.js"></script>
+    <script id="__config" type="application/json">{"base": ".", "features": ["content.code.annotate", "content.code.copy", "content.tabs.link", "navigation.top", "navigation.path", "search.highlight", "search.share", "search.suggest"], "search": "assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="assets/javascripts/bundle.81fa17fe.min.js"></script>
+      
+        <script src="termynal.js"></script>
       
     
   </body>
