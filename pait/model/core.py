@@ -77,7 +77,7 @@ class PaitCoreModel(object):
         self.path: str = path or ""  # request url path
         self.openapi_path: str = openapi_path or ""
         self._method_list: List[str] = sorted(list(method_set or set()))  # request method set
-        self.func_name: str = func_name or func.__name__
+        self.func_name: str = func_name or func.__qualname__
         self.operation_id: str = operation_id or self.pait_id
         self.author: Optional[Tuple[str, ...]] = author  # The main developer of this func
         self.summary: str = summary or ""

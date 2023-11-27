@@ -1,6 +1,7 @@
 from typing import Dict, Mapping, Optional
 
 from flask import Response
+from flask import __version__ as flask_version
 from flask.testing import FlaskClient
 
 from pait.app.base import BaseTestHelper
@@ -23,7 +24,10 @@ class TestHelper(BaseTestHelper[Response]):
 
         if self.cookie_dict:
             for key, value in self.cookie_dict.items():
-                self.client.set_cookie("localhost", key, value)
+                if flask_version.startswith("3"):
+                    self.client.set_cookie(key, value)
+                else:
+                    self.client.set_cookie("localhost", key, value)
 
     def _gen_pait_dict(self) -> Dict[str, PaitCoreModel]:
         _load_app = self._load_app
