@@ -124,7 +124,9 @@ exclude_lines = [
 enable = true
 metadata=false
 vcs = "git"
-format = "v{base}-{stage}.{revision}"
+# dev
+# format = "v{base}-{stage}.{revision}"
+format = "v{base}"
 
 
 [build-system]
