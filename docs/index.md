@@ -23,7 +23,7 @@ Based on `Pait`, can quickly develop applications that adapt to each WEB framewo
     Only supports Python 3.8+ version
 
 ```bash
-pip install pait --pre
+pip install pait
 ```
 
 ## Usage

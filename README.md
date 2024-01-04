@@ -40,36 +40,30 @@
 
 ---
 
-# Warning
-There are changes between the current version and the 0.8 version of the API, For more information, please refer to [1.0.0version change](https://github.com/so1n/pait/blob/master/CHANGELOG.md)
-
 # pait
 
 Pait is an api tool that can be used in any python web framework, the features provided are as follows:
- - [x] Parameter checksum automatic conversion (parameter check depends on `Pydantic`)
- - [x] Parameter dependency verification
- - [x] Automatically generate openapi files
- - [x] Swagger, Redoc, Rapidoc, Elements, OpenAPI route
- - [x] gRPC Gateway route(After version 1.0, this feature has been migrated to [grpc-gateway](https://github.com/python-pai/grpc-gateway))
- - [x] TestClient support, support response result verification
- - [x] Support for plugin extensions, such as the Mock plugin, CheckResponse Plugin, Cache Response Plugin
- - [X] Support Pydantic V1 and V2
+- [x] Integrate into the Type Hints ecosystem to provide a safe and efficient API interface coding method.
+ - [x] Automatic verification and type conversion of request parameters (depends on `Pydantic` and `inspect`, currently supports `Pydantic` V1 and V2 versions).
+ - [x] Automatically generate openapi files and support UI components such as `Swagger`,`Redoc`,`RapiDoc` and `Elements`.
+ - [x] TestClient support, response result verification of test cases。
+ - [x] Plugin expansion, such as parameter relationship dependency verification, Mock response, etc.。
+ - [x] gRPC GateWay (After version 1.0, this feature has been migrated to [grpc-gateway](https://github.com/python-pai/grpc-gateway))
+ - [ ] Automated API testing
  - [ ] WebSocket support
  - [ ] SSE support
- - [ ] Auto API Test support
-
 
 > Note:
 >
 > - mypy check 100%
 >
-> - python version >= 3.7 (support postponed annotations)
+> - python version >= 3.8 (support postponed annotations)
 
 
 
 # Installation
 ```Bash
-pip install pait --pre
+pip install pait
 ```
 
 # Simple Example
@@ -129,10 +123,12 @@ Can be modified sync web framework according to [pait.app.flask](https://github.
 Can be modified async web framework according to [pait.app.starlette](https://github.com/so1n/pait/blob/master/pait/app/starlette.py)
 
 # Performance
-For the parameter validation and transformation feature, Pait is mainly responsible for injecting the request data dependency into the `Pydantic` model, and then the `Pydanitc` verifies and transforms the data.
+The main operating principle of `Pait` is to convert the function signature of the route function into `Pydantic Model` through the reflection mechanism when the program is started,
+and then verify and convert the request parameters through `Pydantic Model` when the request hits the route.
 
-The time consumed by this process <= 0.00005(s), for benchmarks data and subsequent optimization, see [#27](https://github.com/so1n/pait/issues/27)
+These two stages are all automatically handled internally by `Pait`.
+The first stage only slightly increases the startup time of the program, while the second stage increases the response time of the routing, but it only consumes 0.00005(s) more than manual processing.
+The specific benchmark data and subsequent optimization are described in [#27](https://github.com/so1n/pait/issues/27).
 
-
-# Full example
+# Example
 For more complete examples, please refer to [example](https://github.com/so1n/pait/tree/master/example)

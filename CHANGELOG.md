@@ -6,7 +6,7 @@ Rewrite some old methods to increase the extensibility of the corresponding modu
 - 3 SSE support
 - 4 WebSocket support
 
-### 1.0.0[Alpha]
+### 1.0.0
 Improve Open API related functions and refactor some APIs that affect performance
 > Note: This version will have syntax changes that are not backward compatible, and the library api status will change from alpha to beta
 
@@ -17,6 +17,7 @@ Function Changes List:
 - [Field] Depend support parse depend.pait_handler method.
 - [Field] Adds the parameter `not_authenticated_exc`, which allows developers to specify that the error value cannot be found.
 - [Field] Adds the parameter `openapi_include`, determines whether the field can be resolved to the Open API.
+- [Field] Add _check_init_param method
 - [OpenAPI] Support OpenAPI Security.
 - [Pait] Modify the generation of Pait id to ensure that the Pait id is always the same.
 - [Pait] Imported ParamHandler migration from PaitCoreModel to Pait.
@@ -29,6 +30,7 @@ Function Changes List:
 - [Plugin] No longer distinguish between front or back plugins by is_core, but by different classes to facilitate Type Hint checking.
 - [Plugin] Response Plugin add get_pait_response_model param
 - [Pydantic] Support Pydantic V1 and V2
+- [Pydantic] support pydantic json_schema_extra type maybe callable
 - [Route] Support for adding simple routing to web frameworks (experimental).
 - [TestHelper] Ddd diff response data output and modify test helper exc msg style
 - [WebFramework] support sanic 23.3.0 and support flask 2.2.2 test client

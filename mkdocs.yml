@@ -57,7 +57,7 @@ nav:
       - Response caching plugin: '5_5_cache_response.md'
       - How to customize plugins: '5_x_how_tp_customize_the_plugin.md'
   - config: "6_config.md"
-  - gRPC Gateway: "7_gRPC_gateway.md"
+  # - ecosystem: "7_ecosystem.md"
   - Other: "8_other.md"
 
 extra:
