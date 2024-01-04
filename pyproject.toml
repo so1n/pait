@@ -39,7 +39,7 @@ starlette = "0.14.1"
 
 [tool.poetry.group.test.dependencies]
 pytest = "6.2.5"
-coverage = "5.5"
+coverage = "7.2"
 requests = "2.26"
 pytest-mock = "3.5.1"
 python-multipart = "0.0.5"
