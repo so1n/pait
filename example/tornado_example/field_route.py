@@ -111,6 +111,16 @@ class PaitModelHandler(MyHandler):
         self.write({"code": 0, "msg": "", "data": test_model.dict()})
 
 
+class Demo(object):
+    pass
+
+
+class AnyTypeHandler(MyHandler):
+    @field_pait()
+    async def post(self, demo: "Demo" = Demo()) -> None:
+        self.write({"code": 0, "msg": "", "data": id(demo)})
+
+
 if __name__ == "__main__":
     with create_app() as app:
         app.add_route(
@@ -120,5 +130,6 @@ if __name__ == "__main__":
                 (r"/api/field-default-factory", FieldDefaultFactoryHandler),
                 (r"/api/same-alias", SameAliasHandler),
                 (r"/api/pait-model", PaitModelHandler),
+                (r"/api/any-type", AnyTypeHandler),
             ]
         )

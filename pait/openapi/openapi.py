@@ -150,7 +150,7 @@ class ParsePaitModel(object):
                     # def test(pait_model_route: int = Body())
                     if isinstance(pait_field, Depends):
                         self._parse_call_type(pait_field.func)
-                    else:
+                    elif isinstance(pait_field, BaseRequestResourceField):
                         if not pait_field.openapi_include:
                             continue
                         field_name: str = pait_field.__class__.__name__.lower()

@@ -154,7 +154,8 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
             except ParseTypeError as e:
                 raise FieldValueTypeException(parameter.name, str(e))
         else:
-            raise NotFoundFieldException(parameter.name, f"{parameter.name}'s Field not found")  # pragma: no cover
+            if not isinstance(parameter.default, parameter.annotation):
+                raise TypeError(parameter.name, f"{parameter.name}'s type error")  # pragma: no cover
 
     @classmethod
     def _depend_pre_handle(cls, pait_core_model: "PaitCoreModel", func: CallType) -> rule.PreLoadDc:

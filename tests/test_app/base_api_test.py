@@ -528,6 +528,13 @@ class BaseTest(object):
     def unified_json_response(self, route: Callable) -> None:
         assert self.test_helper(self.client, route).json() == {"data": "Demo"}
 
+    def any_type(self, route: Callable) -> None:
+        first_call_result = self.test_helper(self.client, route).json()["data"]
+        second_call_result = self.test_helper(self.client, route).json()["data"]
+        assert isinstance(first_call_result, int)
+        assert isinstance(second_call_result, int)
+        assert first_call_result == second_call_result
+
     def cache_response_param_name(
         self, route: Callable, cache_plugin: Type[CacheResponsePlugin], cache_plugin_redis: Any
     ) -> None:

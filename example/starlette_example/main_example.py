@@ -28,6 +28,7 @@ from example.starlette_example.depend_route import (
     pre_depend_contextmanager_route,
 )
 from example.starlette_example.field_route import (
+    any_type_route,
     field_default_factory_route,
     pait_base_field_route,
     pait_model_route,
@@ -254,6 +255,7 @@ def create_app() -> Starlette:
             Route("/api/field/field-default-factory", field_default_factory_route, methods=["POST"]),
             Route("/api/field/same-alias", same_alias_route, methods=["GET"]),
             Route("/api/field/pait-model", pait_model_route, methods=["POST"]),
+            Route("/api/field/any-type", any_type_route, methods=["POST"]),
             Route("/api/resp/check-resp", check_response_route, methods=["GET"]),
             Route("/api/resp/text-resp", text_response_route, methods=["GET"]),
             Route("/api/resp/html-resp", html_response_route, methods=["GET"]),

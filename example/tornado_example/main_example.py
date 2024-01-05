@@ -26,6 +26,7 @@ from example.tornado_example.depend_route import (
     PreDependContextmanagerHanler,
 )
 from example.tornado_example.field_route import (
+    AnyTypeHandler,
     FieldDefaultFactoryHandler,
     PaitBaseFieldHandler,
     PaitModelHandler,
@@ -246,6 +247,7 @@ def create_app() -> Application:
             (r"/api/field/field-default-factory", FieldDefaultFactoryHandler),
             (r"/api/field/same-alias", SameAliasHandler),
             (r"/api/field/pait-model", PaitModelHandler),
+            (r"/api/field/any-type", AnyTypeHandler),
             (r"/api/resp/check-resp", CheckRespHandler),
             (r"/api/resp/text-resp", TextResponseHanler),
             (r"/api/resp/html-resp", HtmlResponseHanler),

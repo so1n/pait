@@ -24,6 +24,7 @@ from example.flask_example.depend_route import (
     pre_depend_contextmanager_route,
 )
 from example.flask_example.field_route import (
+    any_type_route,
     field_default_factory_route,
     pait_base_field_route,
     pait_model_route,
@@ -235,6 +236,7 @@ def create_app() -> Flask:
     app.add_url_rule("/api/field/field-default-factory", view_func=field_default_factory_route, methods=["POST"])
     app.add_url_rule("/api/field/same-alias", view_func=same_alias_route, methods=["GET"])
     app.add_url_rule("/api/field/pait-model", view_func=pait_model_route, methods=["POST"])
+    app.add_url_rule("/api/field/any-type", view_func=any_type_route, methods=["POST"])
 
     app.add_url_rule("/api/resp/text-resp", view_func=text_response_route, methods=["GET"])
     app.add_url_rule("/api/resp/html-resp", view_func=html_response_route, methods=["GET"])

@@ -98,6 +98,15 @@ def pait_model_route(test_pait_model: TestPaitModel) -> dict:
     return {"code": 0, "msg": "", "data": test_pait_model.dict()}
 
 
+class Demo(object):
+    pass
+
+
+@field_pait()
+def any_type_route(demo: "Demo" = Demo()) -> dict:
+    return {"code": 0, "msg": "", "data": id(demo)}
+
+
 if __name__ == "__main__":
     with create_app(__name__) as app:
         app.add_url_rule("/api/post", view_func=post_route, methods=["POST"])
@@ -105,3 +114,4 @@ if __name__ == "__main__":
         app.add_url_rule("/api/field-default-factory", view_func=field_default_factory_route, methods=["POST"])
         app.add_url_rule("/api/same-alias", view_func=same_alias_route, methods=["GET"])
         app.add_url_rule("/api/pait-model", view_func=pait_model_route, methods=["POST"])
+        app.add_url_rule("/api/any-type", view_func=any_type_route, methods=["POST"])
