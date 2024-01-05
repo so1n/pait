@@ -78,6 +78,7 @@ from pait.app.starlette import Pait, load_app, pait
 from pait.app.starlette.plugin.cache_response import CacheResponsePlugin
 from pait.exceptions import PaitBaseException
 from pait.field import Header, Json, Query
+from pait.g import config, pait_context
 from pait.model.status import PaitStatus
 from pait.model.template import TemplateVar
 from pait.openapi.doc_route import AddDocRoute, add_doc_route
@@ -233,6 +234,20 @@ async def not_pait_route(user_name: str = Query.i()) -> PlainTextResponse:
     return PlainTextResponse(user_name)
 
 
+@other_pait(tag=(tag.openapi_exclude_tag, tag.openapi_include_tag))
+async def tag_route() -> JSONResponse:
+    return JSONResponse(
+        {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "exclude": pait_context.get().pait_core_model.tag_label["exclude"],
+                "include": pait_context.get().pait_core_model.tag_label["include"],
+            },
+        }
+    )
+
+
 def add_api_doc_route(app: Starlette) -> None:
     """Split out to improve the speed of test cases"""
     AddDocRoute(prefix="/api-doc", title="Pait Api Doc", app=app)
@@ -250,6 +265,7 @@ def create_app() -> Starlette:
             Route("/api/cbv", CbvRoute),
             Route("/api/not-pait", not_pait_route, methods=["GET"]),
             Route("/api/not-pait-cbv", NotPaitCbvRoute),
+            Route("/api/tag", tag_route, methods=["GET"]),
             Route("/api/field/post", post_route, methods=["POST"]),
             Route("/api/field/pait-base-field/{age}", pait_base_field_route, methods=["POST"]),
             Route("/api/field/field-default-factory", field_default_factory_route, methods=["POST"]),
@@ -318,7 +334,6 @@ if __name__ == "__main__":
     from pydantic import BaseModel
 
     from pait.extra.config import apply_block_http_method_set
-    from pait.g import config
 
     class ExtraModel(BaseModel):
         extra_a: str = Query.i(default="", description="Fields used to demonstrate the expansion module")

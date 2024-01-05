@@ -355,6 +355,12 @@ class TestTornado(BaseTestTornado):
         assert self.fetch("/api/demo/simple-route-2").body.decode() == "I'm simple route 2"
         assert self.fetch("/api/demo/simple-route-2").body.decode() == "I'm simple route 2"
 
+    def test_any_type_route(self) -> None:
+        self.base_test.any_type(main_example.AnyTypeHandler.post)
+
+    def test_tag_route(self) -> None:
+        self.base_test.tag(main_example.TagHandler.get)
+
     def test_openapi_content(self) -> None:
         BaseTestOpenAPI(self._app).test_all()
 

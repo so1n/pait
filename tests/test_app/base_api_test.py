@@ -535,6 +535,11 @@ class BaseTest(object):
         assert isinstance(second_call_result, int)
         assert first_call_result == second_call_result
 
+    def tag(self, route: Callable) -> None:
+        result = self.test_helper(self.client, route).json()["data"]
+        assert result["include"] == "include-value"
+        assert result["exclude"] == "exclude-value"
+
     def cache_response_param_name(
         self, route: Callable, cache_plugin: Type[CacheResponsePlugin], cache_plugin_redis: Any
     ) -> None:

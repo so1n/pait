@@ -507,3 +507,16 @@ class TestEncoder:
             '{"datetime": 1600000000, "data": "2020-09-13", "decimal": 0.1, "enum": "first", "template_var_1": 1,'
             ' "template_var_2": null, "link": null}'
         )
+
+
+class TestImmutableDict(object):
+    def test(self) -> None:
+        immutable_dict = util.ImmutableDict(a=1, b="2")
+        assert immutable_dict["a"] == 1
+        assert immutable_dict["b"] == "2"
+
+        with pytest.raises(TypeError):
+            immutable_dict["a"] = "1"
+
+        with pytest.raises(TypeError):
+            immutable_dict["c"] = 1

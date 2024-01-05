@@ -5,7 +5,7 @@ import hashlib
 import aiofiles  # type: ignore
 from pydantic import ValidationError
 from redis.asyncio import Redis  # type: ignore
-from sanic import response
+from sanic import Request, response
 from sanic.app import Sanic
 from sanic.exceptions import SanicException
 from sanic.views import HTTPMethodView
@@ -73,6 +73,7 @@ from pait.app.sanic import Pait, load_app, pait
 from pait.app.sanic.plugin.cache_response import CacheResponsePlugin
 from pait.exceptions import PaitBaseException
 from pait.field import Header, Json, Query
+from pait.g import config, pait_context
 from pait.model.status import PaitStatus
 from pait.model.template import TemplateVar
 from pait.openapi.doc_route import AddDocRoute, add_doc_route
@@ -233,6 +234,20 @@ async def not_pait_route(
     return response.text(user_name, 200)
 
 
+@other_pait(tag=(tag.openapi_exclude_tag, tag.openapi_include_tag))
+async def tag_route(request: Request) -> response.HTTPResponse:
+    return response.json(
+        {
+            "code": 0,
+            "msg": "",
+            "data": {
+                "exclude": pait_context.get().pait_core_model.tag_label["exclude"],
+                "include": pait_context.get().pait_core_model.tag_label["include"],
+            },
+        }
+    )
+
+
 def add_api_doc_route(app: Sanic) -> None:
     """Split out to improve the speed of test cases"""
     add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
@@ -249,6 +264,7 @@ def create_app(configure_logging: bool = True) -> Sanic:
     app.add_route(CbvRoute.as_view(), "/api/cbv")
     app.add_route(NotPaitCbvRoute.as_view(), "/api/not-pait-cbv")
     app.add_route(not_pait_route, "/api/not-pait", methods={"GET"})
+    app.add_route(tag_route, "/api/tag", methods=["GET"])
 
     app.add_route(post_route, "/api/field/post", methods={"POST"})
     app.add_route(pait_base_field_route, "/api/field/pait-base-field/<age>", methods={"POST"})
@@ -308,7 +324,6 @@ if __name__ == "__main__":
     from pydantic import BaseModel
 
     from pait.extra.config import apply_block_http_method_set
-    from pait.g import config
 
     class ExtraModel(BaseModel):
         extra_a: str = Query.i(default="", description="Fields used to demonstrate the expansion module")

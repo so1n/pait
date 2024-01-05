@@ -252,7 +252,7 @@ class OpenAPI(object):
                     ApiModel(
                         path=pait_model.openapi_path,
                         http_method_list=pait_model.openapi_method_list,
-                        tags=[i.to_tag_model() for i in pait_model.tag],
+                        tags=[i.to_tag_model() for i in pait_model.tag if i.openapi_include],
                         operation_id=pait_model.operation_id,
                         summary=pait_model.summary,
                         request_dict=parse_pait_model.http_param_type_dict,

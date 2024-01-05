@@ -69,7 +69,7 @@ from pait.app.flask.plugin.cache_response import CacheResponsePlugin
 from pait.exceptions import PaitBaseException
 from pait.extra.config import apply_block_http_method_set
 from pait.field import Header, Json, Query
-from pait.g import config
+from pait.g import config, pait_context
 from pait.model.status import PaitStatus
 from pait.model.template import TemplateVar
 from pait.openapi.doc_route import AddDocRoute, add_doc_route
@@ -214,6 +214,18 @@ def not_pait_route(
     return make_response(user_name, 200)
 
 
+@other_pait(tag=(tag.openapi_exclude_tag, tag.openapi_include_tag))
+def tag_route() -> dict:
+    return {
+        "code": 0,
+        "msg": "",
+        "data": {
+            "exclude": pait_context.get().pait_core_model.tag_label["exclude"],
+            "include": pait_context.get().pait_core_model.tag_label["include"],
+        },
+    }
+
+
 def add_api_doc_route(app: Flask) -> None:
     """Split out to improve the speed of test cases"""
     add_doc_route(app, pin_code="6666", prefix="/", title="Pait Api Doc(private)")
@@ -230,6 +242,7 @@ def create_app() -> Flask:
     app.add_url_rule("/api/not-pait", view_func=not_pait_route, methods=["GET"])
     app.add_url_rule("/api/not-pait-cbv", view_func=NotPaitCbvRoute.as_view("NotPaitRoute"))
     app.add_url_rule("/api/cbv", view_func=CbvRoute.as_view("test_cbv"))
+    app.add_url_rule("/api/tag", view_func=tag_route, methods=["GET"])
 
     app.add_url_rule("/api/field/post", view_func=post_route, methods=["POST"])
     app.add_url_rule("/api/field/pait-base-field/<age>", view_func=pait_base_field_route, methods=["POST"])

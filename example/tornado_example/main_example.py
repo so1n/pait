@@ -69,6 +69,7 @@ from pait import _pydanitc_adapter
 from pait.app.tornado import Pait, load_app, pait
 from pait.app.tornado.plugin.cache_response import CacheResponsePlugin
 from pait.field import Header, Json, Query
+from pait.g import config, pait_context
 from pait.model.status import PaitStatus
 from pait.model.template import TemplateVar
 from pait.openapi.doc_route import AddDocRoute, add_doc_route
@@ -227,6 +228,21 @@ class GetUserHandler(MyHandler):
                 self.write({"code": 1, "msg": ""})
 
 
+class TagHandler(MyHandler):
+    @other_pait(tag=(tag.openapi_exclude_tag, tag.openapi_include_tag))
+    async def get(self) -> None:
+        self.write(
+            {
+                "code": 0,
+                "msg": "",
+                "data": {
+                    "exclude": pait_context.get().pait_core_model.tag_label["exclude"],
+                    "include": pait_context.get().pait_core_model.tag_label["include"],
+                },
+            }
+        )
+
+
 def add_api_doc_route(app: Application) -> None:
     """Split out to improve the speed of test cases"""
     AddDocRoute(prefix="/api-doc", title="Pait Api Doc", app=app)
@@ -242,6 +258,7 @@ def create_app() -> Application:
             (r"/api/raise-not-tip", RaiseNotTipHandler),
             (r"/api/cbv", CbvHandler),
             (r"/api/not-pait-cbv", NotPaitCbvHandler),
+            (r"/api/tag", TagHandler),
             (r"/api/field/post", PostHandler),
             (r"/api/field/pait-base-field/(?P<age>\w+)", PaitBaseFieldHandler),
             (r"/api/field/field-default-factory", FieldDefaultFactoryHandler),
@@ -291,7 +308,6 @@ if __name__ == "__main__":
     from pydantic import BaseModel
 
     from pait.extra.config import apply_block_http_method_set
-    from pait.g import config
 
     logging.basicConfig(
         format="[%(asctime)s %(levelname)s] %(message)s", datefmt="%y-%m-%d %H:%M:%S", level=logging.DEBUG
