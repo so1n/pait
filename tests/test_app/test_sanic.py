@@ -368,6 +368,12 @@ class TestSanic:
         assert client.get("/api/demo/simple-route-2")[1].text == "I'm simple route 2"
         assert client.get("/api/demo/simple-route-2")[1].text == "I'm simple route 2"
 
+    def test_any_type_route(self, base_test: BaseTest) -> None:
+        base_test.any_type(main_example.any_type_route)
+
+    def test_tag_route(self, base_test: BaseTest) -> None:
+        base_test.tag(main_example.tag_route)
+
     def test_openapi_content(self, base_test: BaseTest) -> None:
         BaseTestOpenAPI(base_test.client.app).test_all()
 

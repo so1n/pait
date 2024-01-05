@@ -11,7 +11,7 @@ from pait.app.any.util import import_func_from_app
 from pait.app.base.simple_route import SimpleRoute
 from pait.core import Pait
 from pait.field import Depends, Path, Query
-from pait.g import config, pait_context
+from pait.g import config, get_ctx
 from pait.model.response import HtmlResponseModel, JsonResponseModel
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
@@ -158,7 +158,7 @@ class AddDocRoute(object):
             r_pin_code: str = Depends.i(self._get_request_pin_code),
             url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map()),
         ) -> str:
-            re = pait_context.get().app_helper.request.request_extend()
+            re = get_ctx().app_helper.request.request_extend()
             _scheme: str = self.scheme or re.scheme
             if self.openapi_json_url_only_path:
                 openapi_json_url: str = f"{'/'.join(re.path.split('/')[:-1])}/openapi.json"
@@ -214,7 +214,7 @@ class AddDocRoute(object):
         def _openapi_route(
             url_dict: Dict[str, Any] = Depends.i(self._get_request_template_map(extra_key=True)),
         ) -> dict:
-            re = pait_context.get().app_helper.request.request_extend()
+            re = get_ctx().app_helper.request.request_extend()
             _scheme: str = self.scheme or re.scheme
             with TemplateContext(url_dict):
                 pait_openapi: OpenAPI = self.openapi(app)

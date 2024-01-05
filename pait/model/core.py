@@ -11,7 +11,7 @@ from pait.model.status import PaitStatus
 from pait.model.tag import Tag
 from pait.param_handle import BaseParamHandler
 from pait.plugin import PluginManager, PluginProtocol, PostPluginProtocol, PrePluginProtocol
-from pait.util import gen_tip_exc, ignore_pre_check
+from pait.util import ImmutableDict, gen_tip_exc, ignore_pre_check
 
 if TYPE_CHECKING:
     from pait.app.base import BaseAppHelper
@@ -98,6 +98,8 @@ class PaitCoreModel(object):
 
         # change notify
         self._change_notify_list: List[ChangeNotifyType] = []
+
+        self.tag_label = ImmutableDict({i.name: i.label for i in tag if i.label}) if tag else ImmutableDict()
 
     def is_auto_gen_operation_id(self) -> bool:
         return self.operation_id == quote_plus(self.pait_id)

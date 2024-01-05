@@ -55,6 +55,7 @@ __all__ = [
     "R_T",
     "P",
     "get_func_param_kwargs",
+    "ImmutableDict",
 ]
 ignore_pre_check: bool = bool(os.environ.get("PAIT_IGNORE_PRE_CHECK", False))
 http_method_tuple: Tuple[str, ...] = ("get", "post", "head", "options", "delete", "put", "trace", "patch")
@@ -88,6 +89,11 @@ python_type_default_value_dict: Dict = {
 
 P = ParamSpec("P")
 R_T = TypeVar("R_T")
+
+
+class ImmutableDict(dict):
+    def __setitem__(self, key: str, value: Any) -> None:
+        raise TypeError("immutable dict can not be modify")
 
 
 def get_func_param_kwargs(func: Callable, kwargs_dict: dict) -> dict:

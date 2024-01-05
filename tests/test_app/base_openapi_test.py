@@ -996,6 +996,11 @@ class _TestOtherOpenAPI(BasicTestOpenAPI):
         assert route_dict["get"].parameters[0].required
         assert route_dict["get"].parameters[0].schema_ == {"type": "string"}
 
+    def test_tag_route(self) -> None:
+        route_dict = self.pait_openapi.model.paths.pop("/api/tag")
+        assert len(route_dict["get"].tags) == 1
+        assert route_dict["get"].tags[0] == "include"
+
 
 class BaseTestOpenAPI(
     _TestDependOpenAPI, _TestFieldOpenAPI, _TestSecurityOpenAPI, _TestResponseOpenAPI, _TestOtherOpenAPI

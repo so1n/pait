@@ -109,8 +109,8 @@ class Demo(object):
 
 
 @field_pait()
-async def any_type_route(demo: "Demo" = Demo()) -> dict:
-    return {"code": 0, "msg": "", "data": id(demo)}
+async def any_type_route(demo: "Demo" = Demo()) -> response.HTTPResponse:
+    return response.json({"code": 0, "msg": "", "data": id(demo)})
 
 
 if __name__ == "__main__":

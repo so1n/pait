@@ -6,7 +6,7 @@ from redis.asyncio import Redis as AsyncioRedis
 
 from pait.app.any import set_app_attribute
 from pait.field import BaseRequestResourceField, ExtraParam
-from pait.g import pait_context
+from pait.g import get_ctx
 from pait.model.response import FileResponseModel
 from pait.plugin.base import PostPluginProtocol
 from pait.util import FuncSig, get_func_sig
@@ -84,7 +84,7 @@ class CacheResponsePlugin(PostPluginProtocol):
         return kwargs
 
     def _get_redis(self) -> Union[Redis, AsyncioRedis]:
-        redis: Union[Redis, AsyncioRedis, None] = self.redis or pait_context.get().app_helper.get_attributes(
+        redis: Union[Redis, AsyncioRedis, None] = self.redis or get_ctx().app_helper.get_attributes(
             self._cache_plugin_redis_key, None
         )
         if not redis:
