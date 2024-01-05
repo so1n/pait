@@ -78,7 +78,7 @@ from pait.app.starlette import Pait, load_app, pait
 from pait.app.starlette.plugin.cache_response import CacheResponsePlugin
 from pait.exceptions import PaitBaseException
 from pait.field import Header, Json, Query
-from pait.g import config, pait_context
+from pait.g import config, get_ctx
 from pait.model.status import PaitStatus
 from pait.model.template import TemplateVar
 from pait.openapi.doc_route import AddDocRoute, add_doc_route
@@ -241,8 +241,8 @@ async def tag_route() -> JSONResponse:
             "code": 0,
             "msg": "",
             "data": {
-                "exclude": pait_context.get().pait_core_model.tag_label["exclude"],
-                "include": pait_context.get().pait_core_model.tag_label["include"],
+                "exclude": get_ctx().pait_core_model.tag_label["exclude"],
+                "include": get_ctx().pait_core_model.tag_label["include"],
             },
         }
     )

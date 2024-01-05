@@ -69,7 +69,7 @@ from pait import _pydanitc_adapter
 from pait.app.tornado import Pait, load_app, pait
 from pait.app.tornado.plugin.cache_response import CacheResponsePlugin
 from pait.field import Header, Json, Query
-from pait.g import config, pait_context
+from pait.g import config, get_ctx
 from pait.model.status import PaitStatus
 from pait.model.template import TemplateVar
 from pait.openapi.doc_route import AddDocRoute, add_doc_route
@@ -236,8 +236,8 @@ class TagHandler(MyHandler):
                 "code": 0,
                 "msg": "",
                 "data": {
-                    "exclude": pait_context.get().pait_core_model.tag_label["exclude"],
-                    "include": pait_context.get().pait_core_model.tag_label["include"],
+                    "exclude": get_ctx().pait_core_model.tag_label["exclude"],
+                    "include": get_ctx().pait_core_model.tag_label["include"],
                 },
             }
         )

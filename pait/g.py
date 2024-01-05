@@ -9,9 +9,15 @@ from pait.model import tag
 if TYPE_CHECKING:
     from pait.model.context import ContextModel
 
-__all__ = ["config", "pait_data", "pait_context"]
+__all__ = ["config", "pait_data", "pait_context", "get_ctx"]
 
 pait_context: ContextVar["ContextModel"] = ContextVar("pait_context")
+
+
+def get_ctx() -> "ContextModel":
+    return pait_context.get()
+
+
 # In order to reduce the intrusion of pait to the application framework,
 # pait conducts data interaction through PaitData and Config
 pait_data: PaitData = PaitData()
