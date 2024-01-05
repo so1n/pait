@@ -29,6 +29,7 @@ from example.sanic_example.depend_route import (
     pre_depend_contextmanager_route,
 )
 from example.sanic_example.field_route import (
+    any_type_route,
     field_default_factory_route,
     pait_base_field_route,
     pait_model_route,
@@ -254,6 +255,7 @@ def create_app(configure_logging: bool = True) -> Sanic:
     app.add_route(field_default_factory_route, "/api/field/field-default-factory", methods={"POST"})
     app.add_route(same_alias_route, "/api/field/same-alias", methods={"GET"})
     app.add_route(pait_model_route, "/api/field/pait-model", methods={"POST"})
+    app.add_route(any_type_route, "/api/field/any-type", methods=["POST"])
 
     app.add_route(check_response_route, "/api/resp/check-resp", methods={"GET"})
     app.add_route(text_response_route, "/api/resp/text-resp", methods={"GET"})

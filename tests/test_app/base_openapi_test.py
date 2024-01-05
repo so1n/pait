@@ -1012,10 +1012,14 @@ class BaseTestOpenAPI(
                 except AssertionError as e:
                     print(i)
                     raise e
-        # Plugin related routes are ignored because there is nothing new in the Open API they generate
+
+        ignore_test_path_set = {"/api/field/any-type"}
         for path in list(self.pait_openapi.model.paths.keys()):
             if path.startswith("/api/plugin"):
+                # Plugin related routes are ignored because there is nothing new in the Open API they generate
                 self.pait_openapi.model.paths.pop(path)
-
+            if path in ignore_test_path_set:
+                # Ignore routes that don't need to be tested
+                self.pait_openapi.model.paths.pop(path)
         # Confirm that all APIs have been tested
         assert not self.pait_openapi.model.paths

@@ -104,6 +104,15 @@ async def pait_model_route(test_pait_model: TestPaitModel) -> JSONResponse:
     return JSONResponse({"code": 0, "msg": "", "data": test_pait_model.dict()})
 
 
+class Demo(object):
+    pass
+
+
+@field_pait()
+async def any_type_route(demo: "Demo" = Demo()) -> dict:
+    return {"code": 0, "msg": "", "data": id(demo)}
+
+
 if __name__ == "__main__":
     with create_app() as app:
         app.add_route("/api/post", post_route, methods=["POST"])
@@ -111,3 +120,4 @@ if __name__ == "__main__":
         app.add_route("/api/field-default-factory", field_default_factory_route, methods=["POST"])
         app.add_route("/api/same-alias", same_alias_route, methods=["GET"])
         app.add_route("/api/pait-model", pait_model_route, methods=["POST"])
+        app.add_route("/api/any-type", any_type_route, methods=["POST"])
