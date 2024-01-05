@@ -80,7 +80,6 @@ from pait.openapi.doc_route import AddDocRoute, add_doc_route
 
 test_filename: str = ""
 
-
 user_pait: Pait = global_pait.create_sub_pait(group="user")
 link_pait: Pait = global_pait.create_sub_pait(
     group="links",
