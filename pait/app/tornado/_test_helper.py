@@ -73,9 +73,12 @@ class TestHelper(BaseTestHelper[HTTPResponse]):
             headers: dict = self.header_dict.copy()
             headers.update({"Content-Type": content_type, "content-length": str(len(body))})
             return self.client.fetch(self.path, method="POST", headers=headers, body=body)
-        body_bytes: Optional[bytes] = None
+        body_bytes = None
         if self.body_dict:
             body_bytes = json.dumps(self.body_dict).encode()
+        elif method == "POST":
+            # Fix, Body must not be None for method POST (unless allow_nonstandard_methods is true)
+            body_bytes = b""
         return self.client.fetch(self.path, method=method, headers=self.header_dict, body=body_bytes)
 
     @staticmethod
