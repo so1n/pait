@@ -150,7 +150,7 @@ class HttpStatusCodeBaseModel(BaseResponseModel):
                 resp_model,
                 cls,
             ),
-            {}
+            {},
             # {"clone": cls.clone},
         )
         resp_model_type.status_code = (status_code,)

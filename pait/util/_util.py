@@ -189,6 +189,12 @@ def get_pydantic_annotation(key: str, pydantic_base_model: Type[BaseModel]) -> T
     else:
         # pydantic version > 1.10
         annotation = _pydanitc_adapter.model_fields(pydantic_base_model)[key].annotation
+        if _pydanitc_adapter.is_v1:
+            # support type is generic pydantic model
+            from pydantic.fields import DeferredType
+
+            if isinstance(annotation, DeferredType):
+                annotation = _pydanitc_adapter.model_fields(pydantic_base_model)[key].type_
     annotation = get_real_annotation(annotation, pydantic_base_model)
     if getattr(annotation, "real", None) and annotation != bool:
         # support like pydantic.ConstrainedIntValue
@@ -330,6 +336,9 @@ def gen_example_dict_from_schema(
                     get_value_from_property_dict(value["items"], key)
             else:
                 gen_dict[key] = []
+        elif "allOf" in value and "$ref" in value["allOf"][0]:
+            model_key = value["allOf"][0]["$ref"].split("/")[-1]
+            gen_dict[key] = gen_example_dict_from_schema(_definition_dict.get(model_key, {}), _definition_dict)
         elif "$ref" in value:
             model_key = value["$ref"].split("/")[-1]
             gen_dict[key] = gen_example_dict_from_schema(_definition_dict.get(model_key, {}), _definition_dict)

@@ -1,3 +1,4 @@
+# pragma: no cover
 import sys
 from typing import Any, Callable, TypeVar, Union
 
@@ -12,9 +13,9 @@ else:
 
     _typed_dict_meta_types = ()
     if sys.version_info >= (3, 8):
-        from typing import _TypedDictMeta  # pragma: no cover
+        from typing import _TypedDictMeta  # type: ignore
 
-        _typed_dict_meta_types += (_TypedDictMeta,)  # pragma: no cover
+        _typed_dict_meta_types += (_TypedDictMeta,)  # type: ignore
 
     try:
         from typing_extensions import _TypedDictMeta  # type: ignore
