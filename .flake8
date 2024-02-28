@@ -1,7 +1,7 @@
 [flake8]
 max-line-length = 120
 max-complexity = 24
-ignore = F401, W503, E203
+ignore = F401, W503, E203, E701
 exclude =
     .git,
     .venv,

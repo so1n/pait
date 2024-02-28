@@ -209,7 +209,6 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
                     elif isinstance(parameter.default, field.BaseRequestResourceField):
                         field_type_enum = rule.FieldTypeEnum.request_field
                         parameter.default.set_request_key(parameter.name)
-                        pait_model_field: _pydanitc_adapter.PaitModelField
 
                         validate_request_value_cb = rule.validate_request_value
                         if pait_core_model.app_helper_class.app_name == "flask":

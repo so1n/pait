@@ -1,17 +1,32 @@
-from typing import List, Type
+from typing import Generic, List, Type, TypeVar
 
 from pydantic import BaseModel, Field
 
 from example.common.request_model import SexEnum
+from pait import _pydanitc_adapter
 from pait.model.response import FileResponseModel, HtmlResponseModel, JsonResponseModel
 from pait.model.response import ResponseModel as PaitResponseModel
 from pait.model.response import TextResponseModel
 from pait.openapi.openapi import LinksModel
 
+T = TypeVar("T")
+
 
 class ResponseModel(BaseModel):
     code: int = Field(0, description="api code")
     msg: str = Field("success", description="api status msg")
+
+
+if _pydanitc_adapter.is_v1:
+    from pydantic.generics import GenericModel
+
+    class ResponseWithDataModel(ResponseModel, GenericModel, Generic[T]):  # type: ignore[no-redef]
+        data: T = Field(description="success result")
+
+else:
+
+    class ResponseWithDataModel(ResponseModel, Generic[T]):  # type: ignore[no-redef]
+        data: T = Field(description="success result")
 
 
 class ResponseFailModel(ResponseModel):
@@ -37,57 +52,61 @@ class UserSuccessRespModel(PaitResponseModel):
     response_data: Type[BaseModel] = ResponseModel
 
 
-class UserSuccessRespModel2(JsonResponseModel):
-    class ResponseModel(ResponseModel):  # type: ignore
-        class DataModel(BaseModel):
-            uid: int = Field(description="user id", gt=10, lt=1000, example=666)
-            user_name: str = Field(example="mock_name", description="user name", min_length=2, max_length=10)
-            multi_user_name: List[str] = Field(
-                example=["mock_name"], description="user name", min_length=1, max_length=10
-            )
-            sex: SexEnum = Field(example=SexEnum.man, description="sex")
-            age: int = Field(example=99, description="age", gt=1, lt=100)
-            email: str = Field(example="example@so1n.me", description="user email")
+class AAAUserSuccessRespModel(PaitResponseModel):
+    class DataModel(BaseModel):
+        uid: int = Field(666, description="user id", gt=10, lt=1000)
+        user_name: str = Field("mock_name", description="user name", min_length=2, max_length=10)
+        age: int = Field(99, description="age", gt=1, lt=100)
+        sex: SexEnum = Field(SexEnum.man, description="sex")
+        content_type: str = Field(description="content-type")
 
-            class Config:
-                use_enum_values = True
-
-        data: DataModel
+        class Config:
+            use_enum_values = True
 
     description: str = "success response"
-    response_data: Type[BaseModel] = ResponseModel
+    response_data: Type[BaseModel] = ResponseWithDataModel[DataModel]
+
+
+class UserSuccessRespModel2(JsonResponseModel):
+    class DataModel(BaseModel):
+        uid: int = Field(description="user id", gt=10, lt=1000, example=666)
+        user_name: str = Field(example="mock_name", description="user name", min_length=2, max_length=10)
+        multi_user_name: List[str] = Field(example=["mock_name"], description="user name", min_length=1, max_length=10)
+        sex: SexEnum = Field(example=SexEnum.man, description="sex")
+        age: int = Field(example=99, description="age", gt=1, lt=100)
+        email: str = Field(example="example@so1n.me", description="user email")
+
+        class Config:
+            use_enum_values = True
+
+    description: str = "success response"
+    response_data: Type[BaseModel] = ResponseWithDataModel[DataModel]
 
 
 class AutoCompleteRespModel(JsonResponseModel):
-    class ResponseModel(ResponseModel):  # type: ignore
-        class DataModel(BaseModel):
-            class MusicModel(BaseModel):
-                name: str = Field("")
-                url: str = Field()
-                singer: str = Field("")
+    class DataModel(BaseModel):
+        class MusicModel(BaseModel):
+            name: str = Field("")
+            url: str = Field()
+            singer: str = Field("")
 
-            uid: int = Field(100, description="user id", gt=10, lt=1000)
-            music_list: List[MusicModel] = Field(description="music list")
-            image_list: List[dict] = Field(description="music list")
-
-        data: DataModel
+        uid: int = Field(100, description="user id", gt=10, lt=1000)
+        music_list: List[MusicModel] = Field(description="music list")
+        image_list: List[dict] = Field(description="music list")
 
     description: str = "success response"
-    response_data: Type[BaseModel] = ResponseModel
+    response_data: Type[BaseModel] = ResponseWithDataModel[DataModel]
 
 
 class UserSuccessRespModel3(JsonResponseModel):
-    class ResponseModel(ResponseModel):  # type: ignore
-        class DataModel(BaseModel):
-            uid: int = Field(description="user id", gt=10, lt=1000)
-            user_name: str = Field(description="user name", min_length=2, max_length=4)
-            age: int = Field(description="age", gt=1, lt=100)
-            email: str = Field(description="user email")
-
-        data: DataModel
+    class DataModel(BaseModel):
+        uid: int = Field(description="user id", gt=10, lt=1000)
+        user_name: str = Field(description="user name", min_length=2, max_length=4)
+        age: int = Field(description="age", gt=1, lt=100)
+        email: str = Field(description="user email")
 
     description: str = "success response"
-    response_data: Type[BaseModel] = ResponseModel
+    response_data: Type[BaseModel] = ResponseWithDataModel[DataModel]
 
 
 class FailRespModel(JsonResponseModel):
@@ -101,13 +120,9 @@ class SuccessRespModel(JsonResponseModel):
 
 
 class SimpleRespModel(JsonResponseModel):
-    class ResponseModel(BaseModel):
-        code: int = Field(0, description="api code")
-        msg: str = Field("success", description="api status msg")
-        data: dict = Field(description="success result")
 
     description: str = "success response"
-    response_data: Type[BaseModel] = ResponseModel
+    response_data: Type[BaseModel] = ResponseWithDataModel[dict]
 
 
 class TextRespModel(TextResponseModel):
@@ -135,16 +150,11 @@ class FileRespModel(FileResponseModel):
 
 
 class LoginRespModel(JsonResponseModel):
-    class ResponseModel(BaseModel):  # type: ignore
-        class DataModel(BaseModel):
-            token: str
-
-        code: int = Field(0, description="api code")
-        msg: str = Field("success", description="api status msg")
-        data: DataModel
+    class DataModel(BaseModel):
+        token: str
 
     description: str = "login response"
-    response_data: Type[BaseModel] = ResponseModel
+    response_data: Type[BaseModel] = ResponseWithDataModel[DataModel]
 
 
 link_login_token_model: LinksModel = LinksModel(LoginRespModel, "$response.body#/data/token", desc="test links model")

@@ -70,8 +70,7 @@ class SanicBaseRequest(BaseRequest[_Request, RequestExtend]):
         return {key: self.request.args.getlist(key) for key, _ in self.request.args.items()}
 
 
-class RequestLt23(SanicBaseRequest):
-    ...
+class RequestLt23(SanicBaseRequest): ...
 
 
 class RequestGt23(SanicBaseRequest):
