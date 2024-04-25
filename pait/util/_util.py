@@ -152,11 +152,11 @@ def get_real_annotation(annotation: Union[Type, str], target_obj: Any) -> Type:
 
     e.g:
     >>> def demo(a: "int") -> int: pass
-    >>> assert int = get_real_annotation(demo.__annotations__["a"], demo)
+    >>> assert int == get_real_annotation(demo.__annotations__["a"], demo)
 
     >>> class Demo:
     >>>     a: "int"
-    >>> assert int = get_real_annotation(Demo.__annotations__["a"], Demo)
+    >>> assert int == get_real_annotation(Demo.__annotations__["a"], Demo)
     """
     global_dict = sys.modules[target_obj.__module__].__dict__
     if not isinstance(annotation, str):

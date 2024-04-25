@@ -78,8 +78,8 @@ class AsyncParamHandler(BaseParamHandler[AsyncParamHandleContext]):
 
     async def _gen_param(self, context: "AsyncParamHandleContext") -> None:
         # check param from pre depend
-        for index, pre_depend in enumerate(context.pait_core_model.pre_depend_list):
-            await self.depend_handle(context, self._pait_pre_load_dc.pre_depend[index])
+        for pre_depend in self._pait_pre_load_dc.pre_depend:
+            await self.depend_handle(context, pre_depend)
 
         context.args, context.kwargs = await self.prd_handle(
             context, self._pait_pre_load_dc.pait_handler, self._pait_pre_load_dc.param

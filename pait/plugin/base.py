@@ -30,7 +30,7 @@ class PluginProtocol(object):
         self.__post_init__(**kwargs)
 
     def __post_init__(self, **kwargs: Any) -> None:
-        pass
+        """Called after the `__init__` and used to initialize the plugin"""
 
     @classmethod
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
@@ -80,8 +80,8 @@ class PluginManager(Generic[_PluginT]):
     """
 
     def __init__(self, plugin_class: Type[_PluginT], **kwargs: Any):
-        self.plugin_class: Type[_PluginT] = plugin_class
-        self._kwargs: Any = kwargs
+        self.plugin_class = plugin_class
+        self._kwargs = kwargs
 
     def pre_check_hook(self, pait_core_model: "PaitCoreModel") -> None:
         self.plugin_class.pre_check_hook(pait_core_model, self._kwargs)
