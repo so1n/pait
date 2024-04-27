@@ -25,7 +25,7 @@ class MockPluginProtocol(PrePluginProtocol, Generic[RESP_T]):
     example_column_name: Literal["example", "mock"]
 
     def __call__(self, context: "PluginContext") -> Any:
-        if self._is_async_func:
+        if self.is_async_mode:
             return self.async_mock_response()
         return self.mock_response()
 

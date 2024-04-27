@@ -1,6 +1,8 @@
+import asyncio
 import logging
+import time
 from contextlib import asynccontextmanager, contextmanager
-from typing import Any, AsyncGenerator, Generator, Tuple
+from typing import Any, AsyncGenerator, Generator, Iterator, Tuple
 
 from example.common.request_model import UserModel
 from pait.field import Body, Depends, Header, Query
@@ -74,3 +76,22 @@ class AsyncGetUserDepend(object):
 
     async def __call__(self, uid: int = Query.i()) -> UserModel:
         return UserModel(uid=uid, user_name=self.user_name)
+
+
+@contextmanager
+def sync_ctm_depend(uid: int = Body.i(description="user id")) -> Iterator[int]:
+    time.sleep(0.11)  # mock io init
+    try:
+        yield uid
+    finally:
+        time.sleep(0.11)  # mock io close
+
+
+def sync_depend(uid: int = Body.i(description="user id")) -> int:
+    time.sleep(0.11)  # mock io
+    return uid
+
+
+async def async_depend(name: str = Body.i(description="user name")) -> str:
+    await asyncio.sleep(0.11)  # mock io
+    return name

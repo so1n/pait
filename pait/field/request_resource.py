@@ -9,6 +9,7 @@ from typing_extensions import deprecated  # type: ignore[attr-defined]
 from typing_extensions import Annotated
 
 from pait import _pydanitc_adapter
+from pait.exceptions import NotFoundValueException
 from pait.field.base import BaseField, ExtraParam
 
 if TYPE_CHECKING:
@@ -23,6 +24,10 @@ PydanticUndefined = _pydanitc_adapter.PydanticUndefined
 
 def _check_param_value(v2_name: str, v1_name: str) -> None:
     raise ValueError(f"cannot specify both `{v2_name}` and `{v1_name}`, should use {v2_name}")  # pragma: no cover
+
+
+def _default_not_value_exception_func(parameter: inspect.Parameter) -> Exception:
+    return NotFoundValueException(parameter.name, f"Can not found {parameter.name} value")
 
 
 class BaseRequestResourceField(BaseField, FieldInfo):
@@ -47,10 +52,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         alias: Optional[str] = None,
         title: Optional[str] = None,
         description: Optional[str] = None,
-        const: Annotated[
-            Optional[bool],
-            _const_deprecated,
-        ] = None,
+        const: Annotated[Optional[bool], _const_deprecated] = None,
         gt: Optional[float] = None,
         ge: Optional[float] = None,
         lt: Optional[float] = None,
@@ -107,7 +109,9 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         #######################################################
         self.openapi_include: bool = openapi_include
         self.raw_return = raw_return
-        self.not_value_exception_func: Optional[Callable[[inspect.Parameter], Exception]] = not_value_exception_func
+        self.not_value_exception_func: Callable[[inspect.Parameter], Exception] = (
+            not_value_exception_func or _default_not_value_exception_func
+        )
         self.media_type = media_type or self.__class__.media_type
         # _state obj can fix pydantic v2 bug
         # e.g:
@@ -320,10 +324,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         alias: Optional[str] = None,
         title: Optional[str] = None,
         description: Optional[str] = None,
-        const: Annotated[
-            Optional[bool],
-            _const_deprecated,
-        ] = None,
+        const: Annotated[Optional[bool], _const_deprecated] = None,
         gt: Optional[float] = None,
         ge: Optional[float] = None,
         lt: Optional[float] = None,
@@ -333,10 +334,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         max_items: Optional[int] = None,
         min_length: Optional[int] = None,
         max_length: Optional[int] = None,
-        regex: Annotated[
-            Optional[str],
-            _regex_deprecated,
-        ] = None,
+        regex: Annotated[Optional[str], _regex_deprecated] = None,
         pattern: Optional[str] = None,
         extra_param_list: Optional[List[ExtraParam]] = None,
         json_schema_extra: Union[Dict[str, Any], Callable[[Dict[str, Any]], None], None] = None,

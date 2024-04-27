@@ -14,7 +14,7 @@ from pait.model import response
 from pait.model.context import PluginContext
 from pait.model.core import PaitCoreModel
 from pait.model.response import FileResponseModel
-from pait.param_handle import ParamHandler
+from pait.param_handle import BaseParamHandler, ParamHandler
 from pait.plugin.at_most_one_of import AtMostOneOfExtraParam, AtMostOneOfPlugin
 from pait.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
 from pait.plugin.cache_response import CacheRespExtraParam, CacheResponsePlugin
@@ -94,6 +94,7 @@ class TestAtMostOneOfPlugin:
 
         class FakePluginCoreModel:
             func = demo
+            param_handler_plugin = BaseParamHandler
 
         plugin = AtMostOneOfPlugin(
             lambda *args, **kwargs: None,
@@ -161,6 +162,7 @@ class TestAutoCompleteJsonPlugin:
 
         class FakePluginCoreModel:
             func: Callable = lambda: None
+            param_handler_plugin = BaseParamHandler
 
         plugin = AutoCompleteJsonRespPlugin(
             lambda *args, **kwargs: None,
@@ -415,6 +417,7 @@ class TestRequiredPlugin:
 
         class FakePluginCoreModel:
             func = demo
+            param_handler_plugin = BaseParamHandler
 
         plugin = AtMostOneOfPlugin(
             lambda *args, **kwargs: None,

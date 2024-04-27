@@ -38,7 +38,7 @@ def get_pait_handler(func: CallType) -> Callable:
 
 def get_func_sig(func: CallType, cache_sig: bool = True) -> FuncSig:
     """get func inspect.Signature model"""
-    if func in _func_sig_dict:
+    if cache_sig and func in _func_sig_dict:
         return _func_sig_dict[func]
 
     # support pait handler

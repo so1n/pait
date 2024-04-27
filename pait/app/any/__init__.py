@@ -1,18 +1,29 @@
 from dataclasses import MISSING
 from importlib import import_module
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Type
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Type
 
 from typing_extensions import NoReturn
 
 from pait.app.any.util import base_call_func, sniffing
 from pait.app.auto_load_app import auto_load_app_class
 from pait.app.base.simple_route import SimpleRoute
-from pait.field import BaseRequestResourceField
-from pait.model.core import PaitCoreModel
-from pait.model.response import BaseResponseModel
-from pait.model.status import PaitStatus
-from pait.model.tag import Tag
-from pait.plugin.base import PluginManager, PostPluginProtocol, PrePluginProtocol
+from pait.model.core import (
+    AuthorOptionalType,
+    DefaultFieldClassOptionalType,
+    DependListOptionalType,
+    DescOptionalType,
+    FuncNameOptionalType,
+    GroupOptionalType,
+    OperationIdOptionalType,
+    OptionalBoolType,
+    PaitCoreModel,
+    PluginListOptionalType,
+    PostPluginListOptionalType,
+    ResponseModelListOptionalType,
+    StatusOptionalType,
+    SummaryOptionalType,
+    TagOptionalType,
+)
 
 if TYPE_CHECKING:
     from pait.param_handle import BaseParamHandler
@@ -75,30 +86,31 @@ def load_app(
 
 
 def pait(
-    default_field_class: Optional[Type[BaseRequestResourceField]] = None,
+    default_field_class: DefaultFieldClassOptionalType = None,
     # param check
-    pre_depend_list: Optional[List[Callable]] = None,
-    append_pre_depend_list: Optional[List[Callable]] = None,
+    pre_depend_list: DependListOptionalType = None,
+    append_pre_depend_list: DependListOptionalType = None,
     # doc
-    operation_id: Optional[str] = None,
-    author: Optional[Tuple[str, ...]] = None,
-    append_author: Optional[Tuple[str, ...]] = None,
-    desc: Optional[str] = None,
-    summary: Optional[str] = None,
-    name: Optional[str] = None,
-    status: Optional[PaitStatus] = None,
-    group: Optional[str] = None,
-    tag: Optional[Tuple[Tag, ...]] = None,
-    append_tag: Optional[Tuple[Tag, ...]] = None,
-    response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
-    append_response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
+    operation_id: OperationIdOptionalType = None,
+    author: AuthorOptionalType = None,
+    append_author: AuthorOptionalType = None,
+    desc: DescOptionalType = None,
+    summary: SummaryOptionalType = None,
+    name: FuncNameOptionalType = None,
+    status: StatusOptionalType = None,
+    group: GroupOptionalType = None,
+    tag: TagOptionalType = None,
+    append_tag: TagOptionalType = None,
+    response_model_list: ResponseModelListOptionalType = None,
+    append_response_model_list: ResponseModelListOptionalType = None,
     # plugin
-    plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
-    append_plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
-    post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
-    append_post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
+    plugin_list: PluginListOptionalType = None,
+    append_plugin_list: PluginListOptionalType = None,
+    post_plugin_list: PostPluginListOptionalType = None,
+    append_post_plugin_list: PostPluginListOptionalType = None,
     param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
     feature_code: str = "",
+    sync_to_thread: OptionalBoolType = None,
     **kwargs: Any,
 ) -> Callable:
     """provide parameter checks and type conversions for each routing function/cbv class
@@ -131,6 +143,7 @@ def pait(
         append_post_plugin_list=append_post_plugin_list,
         param_handler_plugin=param_handler_plugin,
         feature_code=feature_code,
+        sync_to_thread=sync_to_thread,
         **kwargs,
     )
 

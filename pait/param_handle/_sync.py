@@ -64,8 +64,8 @@ class ParamHandler(BaseParamHandler[ParamHandleContext]):
 
     def _gen_param(self, context: "ParamHandleContext") -> None:
         # check param from pre depend
-        for index, pre_depend in enumerate(context.pait_core_model.pre_depend_list):
-            self.depend_handle(context, self._pait_pre_load_dc.pre_depend[index])
+        for pre_depend in self._pait_pre_load_dc.pre_depend:
+            self.depend_handle(context, pre_depend)
 
         context.args, context.kwargs = self.prd_handle(
             context, self._pait_pre_load_dc.pait_handler, self._pait_pre_load_dc.param

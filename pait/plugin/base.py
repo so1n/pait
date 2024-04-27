@@ -1,4 +1,3 @@
-import inspect
 import logging
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, List, Type, TypeVar, Union
 
@@ -21,7 +20,7 @@ class PluginProtocol(object):
         """
         self.next_plugin: _NextPluginT = next_plugin
         self.pait_core_model: "PaitCoreModel" = pait_core_model
-        self._is_async_func: bool = inspect.iscoroutinefunction(pait_core_model.func)
+        self.is_async_mode: bool = pait_core_model.param_handler_plugin.is_async_mode
         if kwargs:
             for k, v in kwargs.items():
                 if getattr(self, k, None) is not None:
@@ -30,7 +29,7 @@ class PluginProtocol(object):
         self.__post_init__(**kwargs)
 
     def __post_init__(self, **kwargs: Any) -> None:
-        pass
+        """Called after the `__init__` and used to initialize the plugin"""
 
     @classmethod
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
@@ -80,8 +79,8 @@ class PluginManager(Generic[_PluginT]):
     """
 
     def __init__(self, plugin_class: Type[_PluginT], **kwargs: Any):
-        self.plugin_class: Type[_PluginT] = plugin_class
-        self._kwargs: Any = kwargs
+        self.plugin_class = plugin_class
+        self._kwargs = kwargs
 
     def pre_check_hook(self, pait_core_model: "PaitCoreModel") -> None:
         self.plugin_class.pre_check_hook(pait_core_model, self._kwargs)

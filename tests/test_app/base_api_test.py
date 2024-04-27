@@ -303,6 +303,10 @@ class BaseTest(object):
         ).get()
         error_logger.assert_called_once_with("context_depend error")
 
+    def base_sync_depend_route(self, route: Callable, request_dict: dict) -> None:
+        test_helper = self.test_helper(self.client, route, strict_inspection_check_json_content=False, **request_dict)
+        assert test_helper.json() == {"code": 0, "msg": "", "data": {"uid": 10086, "name": "so1n"}}
+
     def api_key_route(self, route: Callable, request_dict: dict) -> None:
         test_helper = self.test_helper(self.client, route, strict_inspection_check_json_content=False)
         resp = test_helper.get()

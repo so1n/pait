@@ -41,7 +41,7 @@ class UnifiedResponsePlugin(UnifiedResponsePluginProtocol, metaclass=ABCMeta):
     media_type: Optional[str]
 
     def __call__(self, context: "PluginContext") -> Any:
-        if self._is_async_func:
+        if self.is_async_mode:
             return self._async_call(context)
         return self._sync_call(context)
 

@@ -18,8 +18,42 @@ if TYPE_CHECKING:
     from pait.field import BaseRequestResourceField
 
 
-__all__ = ["PaitCoreModel", "get_core_model"]
+__all__ = [
+    "PaitCoreModel",
+    "get_core_model",
+    "AuthorOptionalType",
+    "ChangeNotifyType",
+    "DefaultFieldClassOptionalType",
+    "DependListOptionalType",
+    "DescOptionalType",
+    "FuncNameOptionalType",
+    "GroupOptionalType",
+    "OperationIdOptionalType",
+    "OptionalBoolType",
+    "PluginListOptionalType",
+    "PostPluginListOptionalType",
+    "StatusOptionalType",
+    "SummaryOptionalType",
+    "TagOptionalType",
+    "ResponseModelListOptionalType",
+]
+
+OptionalStrType = Optional[str]
+OptionalBoolType = Optional[bool]
+AuthorOptionalType = Optional[Tuple[str, ...]]
 ChangeNotifyType = Callable[["PaitCoreModel", str, Any], None]
+DefaultFieldClassOptionalType = Optional[Type["BaseRequestResourceField"]]
+DependListOptionalType = Optional[List[Callable]]
+DescOptionalType = OptionalStrType
+FuncNameOptionalType = OptionalStrType
+GroupOptionalType = OptionalStrType
+OperationIdOptionalType = OptionalStrType
+PluginListOptionalType = Optional[List[PluginManager[PrePluginProtocol]]]
+PostPluginListOptionalType = Optional[List[PluginManager[PostPluginProtocol]]]
+StatusOptionalType = Optional[PaitStatus]
+SummaryOptionalType = OptionalStrType
+TagOptionalType = Optional[Tuple[Tag, ...]]
+ResponseModelListOptionalType = Optional[List[Type[BaseResponseModel]]]
 
 
 def get_core_model(route: Callable) -> "PaitCoreModel":
@@ -38,30 +72,32 @@ class PaitCoreModel(object):
         func: Callable,
         app_helper_class: "Type[BaseAppHelper]",
         param_handler_plugin: Type[BaseParamHandler],
-        pre_depend_list: Optional[List[Callable]] = None,
+        pre_depend_list: DependListOptionalType = None,
         path: Optional[str] = None,
         openapi_path: Optional[str] = None,
         method_set: Optional[Set[str]] = None,
-        operation_id: Optional[str] = None,
-        func_name: Optional[str] = None,
-        author: Optional[Tuple[str, ...]] = None,
-        summary: Optional[str] = None,
-        desc: Optional[str] = None,
-        status: Optional[PaitStatus] = None,
-        group: Optional[str] = None,
-        tag: Optional[Tuple[Tag, ...]] = None,
-        response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
-        default_field_class: Optional[Type["BaseRequestResourceField"]] = None,
-        plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
-        post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
+        operation_id: OperationIdOptionalType = None,
+        func_name: FuncNameOptionalType = None,
+        author: AuthorOptionalType = None,
+        summary: SummaryOptionalType = None,
+        desc: DescOptionalType = None,
+        status: StatusOptionalType = None,
+        group: GroupOptionalType = None,
+        tag: TagOptionalType = None,
+        response_model_list: ResponseModelListOptionalType = None,
+        default_field_class: DefaultFieldClassOptionalType = None,
+        plugin_list: PluginListOptionalType = None,
+        post_plugin_list: PostPluginListOptionalType = None,
         feature_code: str = "",
+        sync_to_thread: OptionalBoolType = None,
         **kwargs: Any,
     ):
         # pait
-        self.app_helper_class: "Type[BaseAppHelper]" = app_helper_class
-        self.default_field_class: Optional[Type["BaseRequestResourceField"]] = default_field_class
-        self.func: Callable = func  # route func
-        self.pait_id: str = f"{func.__module__}_{func.__qualname__}"
+        self.app_helper_class = app_helper_class
+        self.default_field_class = default_field_class
+        self.func = func  # route func
+        self.sync_to_thread = sync_to_thread
+        self.pait_id = f"{func.__module__}_{func.__qualname__}"
         # Some functions have the same md5 as the name and need to be distinguished by the feature code
         if feature_code:
             self.pait_id = f"{feature_code}_{self.pait_id}"
@@ -79,7 +115,7 @@ class PaitCoreModel(object):
         self._method_list: List[str] = sorted(list(method_set or set()))  # request method set
         self.func_name: str = func_name or func.__qualname__
         self.operation_id: str = operation_id or self.pait_id
-        self.author: Optional[Tuple[str, ...]] = author  # The main developer of this func
+        self.author: AuthorOptionalType = author  # The main developer of this func
         self.summary: str = summary or ""
         self.desc: str = desc or func.__doc__ or ""  # desc of this func
         self.status: PaitStatus = status or PaitStatus.undefined

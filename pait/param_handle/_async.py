@@ -2,7 +2,7 @@ import asyncio
 import inspect
 import sys
 from contextlib import AbstractAsyncContextManager, AbstractContextManager
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 from typing_extensions import Self  # type: ignore
 
@@ -10,7 +10,7 @@ from pait.exceptions import PaitBaseException
 from pait.model.context import ContextModel
 from pait.param_handle import rule
 from pait.param_handle.base import BaseParamHandler, raise_multiple_exc
-from pait.util import gen_tip_exc, get_pait_handler
+from pait.util import gen_tip_exc, get_pait_handler, to_thread
 
 
 class AsyncParamHandleContext(ContextModel):
@@ -18,7 +18,19 @@ class AsyncParamHandleContext(ContextModel):
 
 
 class AsyncParamHandler(BaseParamHandler[AsyncParamHandleContext]):
-    _is_async = True
+    is_async_mode = True
+
+    async def run_func(self, context: "AsyncParamHandleContext", func: Callable, *args: Any, **kwargs: Any) -> Any:
+        if asyncio.iscoroutinefunction(func):
+            func_result = await func(*args, **kwargs)
+        elif context.pait_core_model.sync_to_thread:
+            func_result = await to_thread(func, *args, **kwargs)
+        else:
+            func_result = func(*args, **kwargs)
+            if asyncio.iscoroutine(func_result):
+                # bound method is not coroutine function, but result is coroutine object
+                func_result = await func_result
+        return func_result
 
     async def prd_handle(  # type: ignore[override]
         self,
@@ -36,6 +48,9 @@ class AsyncParamHandler(BaseParamHandler[AsyncParamHandleContext]):
                     continue
                 if asyncio.iscoroutine(value) or asyncio.isfuture(value) or asyncio.iscoroutinefunction(value):
                     value = await value
+                elif context.pait_core_model.sync_to_thread and inspect.isfunction(value):
+                    value = await to_thread(value)
+
                 if pr.parameter.default is pr.parameter.empty:
                     args_param_list.append(value)
                 else:
@@ -64,22 +79,20 @@ class AsyncParamHandler(BaseParamHandler[AsyncParamHandleContext]):
         # Get the real pait_handler of the depend class
         pait_handler = get_pait_handler(pait_handler)
         _func_args, _func_kwargs = await self.prd_handle(context, pait_handler, pld.param)
-        func_result: Any = pait_handler(*_func_args, **_func_kwargs)
-        if asyncio.iscoroutine(func_result):
-            func_result = await func_result
+        func_result = await self.run_func(context, pait_handler, *_func_args, **_func_kwargs)
         if isinstance(func_result, AbstractAsyncContextManager):
             context.contextmanager_list.append(func_result)
             return await func_result.__aenter__()
         elif isinstance(func_result, AbstractContextManager):
             context.contextmanager_list.append(func_result)
-            return func_result.__enter__()
+            return await self.run_func(context, func_result.__enter__)
         else:
             return func_result
 
     async def _gen_param(self, context: "AsyncParamHandleContext") -> None:
         # check param from pre depend
-        for index, pre_depend in enumerate(context.pait_core_model.pre_depend_list):
-            await self.depend_handle(context, self._pait_pre_load_dc.pre_depend[index])
+        for pre_depend in self._pait_pre_load_dc.pre_depend:
+            await self.depend_handle(context, pre_depend)
 
         context.args, context.kwargs = await self.prd_handle(
             context, self._pait_pre_load_dc.pait_handler, self._pait_pre_load_dc.param
@@ -100,7 +113,7 @@ class AsyncParamHandler(BaseParamHandler[AsyncParamHandleContext]):
         param_handle_context.contextmanager_list = []
         try:
             await self._gen_param(param_handle_context)
-            result = await super().__call__(context)
+            result = await self.run_func(param_handle_context, super().__call__, context)
         except Exception as e:
             error = e
             exc_type, exc_val, exc_tb = sys.exc_info()
@@ -110,7 +123,7 @@ class AsyncParamHandler(BaseParamHandler[AsyncParamHandleContext]):
         for contextmanager in param_handle_context.contextmanager_list:
             try:
                 if isinstance(contextmanager, AbstractContextManager):
-                    contextmanager.__exit__(exc_type, exc_val, exc_tb)
+                    await self.run_func(param_handle_context, contextmanager.__exit__, exc_type, exc_val, exc_tb)
                 else:
                     await contextmanager.__aexit__(exc_type, exc_val, exc_tb)
             except Exception as e:  # pragma: no cover

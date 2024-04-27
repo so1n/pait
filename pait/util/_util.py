@@ -1,3 +1,5 @@
+import asyncio
+import contextvars
 import inspect
 import json
 import os
@@ -5,7 +7,7 @@ import sys
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
-from functools import wraps
+from functools import partial, wraps
 from json import JSONEncoder
 from typing import (  # type: ignore
     TYPE_CHECKING,
@@ -56,6 +58,7 @@ __all__ = [
     "P",
     "get_func_param_kwargs",
     "ImmutableDict",
+    "to_thread",
 ]
 ignore_pre_check: bool = bool(os.environ.get("PAIT_IGNORE_PRE_CHECK", False))
 http_method_tuple: Tuple[str, ...] = ("get", "post", "head", "options", "delete", "put", "trace", "patch")
@@ -152,11 +155,11 @@ def get_real_annotation(annotation: Union[Type, str], target_obj: Any) -> Type:
 
     e.g:
     >>> def demo(a: "int") -> int: pass
-    >>> assert int = get_real_annotation(demo.__annotations__["a"], demo)
+    >>> assert int == get_real_annotation(demo.__annotations__["a"], demo)
 
     >>> class Demo:
     >>>     a: "int"
-    >>> assert int = get_real_annotation(Demo.__annotations__["a"], Demo)
+    >>> assert int == get_real_annotation(Demo.__annotations__["a"], Demo)
     """
     global_dict = sys.modules[target_obj.__module__].__dict__
     if not isinstance(annotation, str):
@@ -349,3 +352,22 @@ def gen_example_dict_from_schema(
 
 def gen_example_json_from_schema(schema_dict: Dict[str, Any], cls: Optional[Type[JSONEncoder]] = None) -> str:
     return json.dumps(gen_example_dict_from_schema(schema_dict), cls=cls)
+
+
+async def to_thread(func: Callable, *args: Any, **kwargs: Any) -> Any:
+    """Asynchronously run function *func* in a separate thread.
+
+    Any *args and **kwargs supplied for this function are directly passed
+    to *func*. Also, the current :class:`contextvars.Context` is propagated,
+    allowing context variables from the main thread to be accessed in the
+    separate thread.
+
+    Return a coroutine that can be awaited to get the eventual result of *func*.
+    """
+    if sys.version_info >= (3, 9):
+        return await asyncio.to_thread(func, *args, **kwargs)
+    else:
+        loop = asyncio.get_running_loop()
+        ctx = contextvars.copy_context()
+        func_call = partial(ctx.run, func, *args, **kwargs)
+        return await loop.run_in_executor(None, func_call)

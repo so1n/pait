@@ -1,25 +1,38 @@
 import inspect
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Tuple, Type, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, List, Optional, Type, TypeVar
 
 from pait.app.base import BaseAppHelper
 from pait.extra.util import sync_config_data_to_pait_core_model
-from pait.field import BaseRequestResourceField
 from pait.g import config, pait_context, pait_data
 from pait.model.context import ContextModel
-from pait.model.core import PaitCoreModel
+from pait.model.core import (
+    AuthorOptionalType,
+    DefaultFieldClassOptionalType,
+    DependListOptionalType,
+    DescOptionalType,
+    FuncNameOptionalType,
+    GroupOptionalType,
+    OperationIdOptionalType,
+    OptionalBoolType,
+    PaitCoreModel,
+    PluginListOptionalType,
+    PostPluginListOptionalType,
+    ResponseModelListOptionalType,
+    StatusOptionalType,
+    SummaryOptionalType,
+    TagOptionalType,
+)
 from pait.model.response import BaseResponseModel
-from pait.model.status import PaitStatus
-from pait.model.tag import Tag
 from pait.param_handle import AsyncParamHandler, ParamHandler
-from pait.plugin.base import PluginManager, PluginProtocol, PostPluginProtocol, PrePluginProtocol
 from pait.util import get_func_sig
 
 if TYPE_CHECKING:
     from param_handle import BaseParamHandler
 _AppendT = TypeVar("_AppendT", list, tuple)
 _PaitT = TypeVar("_PaitT", bound="Pait")
-_PluginT = TypeVar("_PluginT", bound="PluginProtocol")
+
+ParamHandlerPluginType = Optional[Type["BaseParamHandler"]]
 
 
 class Pait(object):
@@ -29,23 +42,23 @@ class Pait(object):
 
     def __init__(
         self: "_PaitT",
-        default_field_class: Optional[Type[BaseRequestResourceField]] = None,
-        # param check
-        pre_depend_list: Optional[List[Callable]] = None,
+        default_field_class: DefaultFieldClassOptionalType = None,
+        pre_depend_list: DependListOptionalType = None,
         # doc
-        operation_id: Optional[str] = None,
-        author: Optional[Tuple[str, ...]] = None,
-        desc: Optional[str] = None,
-        summary: Optional[str] = None,
-        name: Optional[str] = None,
-        status: Optional[PaitStatus] = None,
-        group: Optional[str] = None,
-        tag: Optional[Tuple[Tag, ...]] = None,
-        response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
+        operation_id: OperationIdOptionalType = None,
+        author: AuthorOptionalType = None,
+        desc: DescOptionalType = None,
+        summary: SummaryOptionalType = None,
+        name: FuncNameOptionalType = None,
+        status: StatusOptionalType = None,
+        group: GroupOptionalType = None,
+        tag: TagOptionalType = None,
+        response_model_list: ResponseModelListOptionalType = None,
         # plugin
-        plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
-        post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
-        param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
+        plugin_list: PluginListOptionalType = None,
+        post_plugin_list: PostPluginListOptionalType = None,
+        param_handler_plugin: ParamHandlerPluginType = None,
+        sync_to_thread: OptionalBoolType = None,
         **kwargs: Any,
     ):
         """
@@ -64,6 +77,7 @@ class Pait(object):
         :param post_plugin_list: post plugin list for routing functions
         :param param_handler_plugin: The param handler plugin of the routing function,
             the default is pait.param_handler.x
+        :param sync_to_thread: if True, use AsyncParamHandler and run sync func in asyncio.thread pool
         """
 
         check_cls_param_list: List[str] = ["app_helper_class"]
@@ -77,23 +91,24 @@ class Pait(object):
         if not issubclass(self.app_helper_class, BaseAppHelper):
             raise TypeError(f"{self.app_helper_class} must sub from {BaseAppHelper.__class__.__name__}")
 
-        self._default_field_class: Optional[Type[BaseRequestResourceField]] = default_field_class
+        self._default_field_class = default_field_class
         # param check
-        self._pre_depend_list: Optional[List[Callable]] = pre_depend_list
+        self._pre_depend_list = pre_depend_list
         # doc
-        self._operation_id: Optional[str] = operation_id
-        self._author: Optional[Tuple[str, ...]] = author
-        self._desc: Optional[str] = desc
-        self._summary: Optional[str] = summary
-        self._name: Optional[str] = name
-        self._status: Optional[PaitStatus] = status
-        self._group: Optional[str] = group
-        self._tag: Optional[Tuple[Tag, ...]] = tag
+        self._operation_id = operation_id
+        self._author = author
+        self._desc = desc
+        self._summary = summary
+        self._name = name
+        self._status = status
+        self._group = group
+        self._tag = tag
         self._response_model_list: List[Type[BaseResponseModel]] = response_model_list or []
         # plugin
-        self._plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = plugin_list
-        self._post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = post_plugin_list
-        self._param_handler_plugin: Optional[Type["BaseParamHandler"]] = param_handler_plugin
+        self._plugin_list = plugin_list
+        self._post_plugin_list = post_plugin_list
+        self._param_handler_plugin = param_handler_plugin
+        self._sync_to_thread = sync_to_thread
         self.extra: dict = kwargs
 
     @staticmethod
@@ -118,28 +133,29 @@ class Pait(object):
 
     def create_sub_pait(
         self: "_PaitT",
-        default_field_class: Optional[Type[BaseRequestResourceField]] = None,
+        default_field_class: DefaultFieldClassOptionalType = None,
         # param check
-        pre_depend_list: Optional[List[Callable]] = None,
-        append_pre_depend_list: Optional[List[Callable]] = None,
+        pre_depend_list: DependListOptionalType = None,
+        append_pre_depend_list: DependListOptionalType = None,
         # doc
-        operation_id: Optional[str] = None,
-        author: Optional[Tuple[str, ...]] = None,
-        append_author: Optional[Tuple[str, ...]] = None,
-        desc: Optional[str] = None,
-        summary: Optional[str] = None,
-        name: Optional[str] = None,
-        status: Optional[PaitStatus] = None,
-        group: Optional[str] = None,
-        tag: Optional[Tuple[Tag, ...]] = None,
-        append_tag: Optional[Tuple[Tag, ...]] = None,
-        response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
-        append_response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
-        plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
-        append_plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
-        post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
-        append_post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
-        param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
+        operation_id: OperationIdOptionalType = None,
+        author: AuthorOptionalType = None,
+        append_author: AuthorOptionalType = None,
+        desc: DescOptionalType = None,
+        summary: SummaryOptionalType = None,
+        name: FuncNameOptionalType = None,
+        status: StatusOptionalType = None,
+        group: GroupOptionalType = None,
+        tag: TagOptionalType = None,
+        append_tag: TagOptionalType = None,
+        response_model_list: ResponseModelListOptionalType = None,
+        append_response_model_list: ResponseModelListOptionalType = None,
+        plugin_list: PluginListOptionalType = None,
+        append_plugin_list: PluginListOptionalType = None,
+        post_plugin_list: PostPluginListOptionalType = None,
+        append_post_plugin_list: PostPluginListOptionalType = None,
+        param_handler_plugin: ParamHandlerPluginType = None,
+        sync_to_thread: OptionalBoolType = None,
         **kwargs: Any,
     ) -> _PaitT:
         """
@@ -170,6 +186,7 @@ class Pait(object):
         :param append_post_plugin_list:  Append some post plugin when creating child Pait
         :param param_handler_plugin: The param handler plugin of the routing function,
          the default is pait.param_handler.x
+        :param sync_to_thread: if True, use AsyncParamHandler and run sync func in asyncio.thread pool
         """
         pre_depend_list = self._append_data(
             "pre_depend_list", pre_depend_list, append_pre_depend_list, self._pre_depend_list
@@ -218,30 +235,30 @@ class Pait(object):
 
     def __call__(
         self: "_PaitT",
-        default_field_class: Optional[Type[BaseRequestResourceField]] = None,
+        default_field_class: DefaultFieldClassOptionalType = None,
         # param check
-        pre_depend_list: Optional[List[Callable]] = None,
-        append_pre_depend_list: Optional[List[Callable]] = None,
+        pre_depend_list: DependListOptionalType = None,
+        append_pre_depend_list: DependListOptionalType = None,
         # doc
-        operation_id: Optional[str] = None,
-        author: Optional[Tuple[str, ...]] = None,
-        append_author: Optional[Tuple[str, ...]] = None,
-        desc: Optional[str] = None,
-        summary: Optional[str] = None,
-        name: Optional[str] = None,
-        status: Optional[PaitStatus] = None,
-        group: Optional[str] = None,
-        tag: Optional[Tuple[Tag, ...]] = None,
-        append_tag: Optional[Tuple[Tag, ...]] = None,
-        response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
-        append_response_model_list: Optional[List[Type[BaseResponseModel]]] = None,
-        # plugin
-        plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
-        append_plugin_list: Optional[List[PluginManager[PrePluginProtocol]]] = None,
-        post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
-        append_post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]] = None,
-        param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
+        operation_id: OperationIdOptionalType = None,
+        author: AuthorOptionalType = None,
+        append_author: AuthorOptionalType = None,
+        desc: DescOptionalType = None,
+        summary: SummaryOptionalType = None,
+        name: FuncNameOptionalType = None,
+        status: StatusOptionalType = None,
+        group: GroupOptionalType = None,
+        tag: TagOptionalType = None,
+        append_tag: TagOptionalType = None,
+        response_model_list: ResponseModelListOptionalType = None,
+        append_response_model_list: ResponseModelListOptionalType = None,
+        plugin_list: PluginListOptionalType = None,
+        append_plugin_list: PluginListOptionalType = None,
+        post_plugin_list: PostPluginListOptionalType = None,
+        append_post_plugin_list: PostPluginListOptionalType = None,
+        param_handler_plugin: ParamHandlerPluginType = None,
         feature_code: str = "",
+        sync_to_thread: OptionalBoolType = None,
         **kwargs: Any,
     ) -> Callable:
         """
@@ -272,6 +289,7 @@ class Pait(object):
             Usually, the pait_id is equal to md5(func), but during dynamic generation,
             there may be multiple different routing functions generated by the same func.
             In this case, different feature_code is needed to generate different pait_id(feature_code + md5(func))
+        :param sync_to_thread: if True, use AsyncParamHandler and run sync func in asyncio.thread pool
         """
         app_name: str = self.app_helper_class.app_name
 
@@ -287,6 +305,7 @@ class Pait(object):
         post_plugin_list = self._append_data(
             "post_plugin_list", post_plugin_list, append_post_plugin_list, self._post_plugin_list
         )
+        sync_to_thread = sync_to_thread or self._sync_to_thread
 
         def wrapper(func: Callable) -> Callable:
             # Pre-parsing function signatures
@@ -295,7 +314,7 @@ class Pait(object):
             # load param handler plugin
             _param_handler_plugin = param_handler_plugin or self._param_handler_plugin
             if _param_handler_plugin is None:
-                if inspect.iscoroutinefunction(func):
+                if inspect.iscoroutinefunction(func) or sync_to_thread:
                     _param_handler_plugin = self.async_param_handler_plugin_class
                 else:
                     _param_handler_plugin = self.param_handler_plugin_class
@@ -318,11 +337,12 @@ class Pait(object):
                 param_handler_plugin=_param_handler_plugin,
                 feature_code=feature_code,
                 default_field_class=default_field_class or self._default_field_class,
+                sync_to_thread=sync_to_thread,
                 **(kwargs or self.extra),
             )
             sync_config_data_to_pait_core_model(config, pait_core_model)
             pait_data.register(app_name, pait_core_model)
-            if inspect.iscoroutinefunction(func):
+            if inspect.iscoroutinefunction(func) or sync_to_thread:
 
                 @wraps(func)
                 async def dispatch(*args: Any, **kwargs: Any) -> Callable:

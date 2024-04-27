@@ -41,7 +41,7 @@ _CtxT = TypeVar("_CtxT", bound="ContextModel")
 
 
 class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
-    _is_async: bool = False
+    is_async_mode: bool = False
     tip_exception_class: Optional[Type[TipException]] = TipException
     _pait_pre_load_dc: rule.PreLoadDc
 
@@ -51,7 +51,7 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
             return True
         return False
 
-    def get_cbv_prd(self, context: "ContextModel") -> rule.ParamRuleDict:
+    def get_cbv_prd(self, context: _CtxT) -> rule.ParamRuleDict:
         """
         Due to a problem with the Python decorator mechanism,
         the cbv prd cannot be obtained when the decorator is initialized,
@@ -163,11 +163,10 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
         if inspect.ismethod(func) and not is_bounded_func(func):
             raise ValueError(f"Method: {func.__qualname__} is not a bounded function")  # pragma: no cover
         func_sig: FuncSig = get_func_sig(func, cache_sig=False)
-        _pre_load_obj_dc = rule.PreLoadDc(
+        return rule.PreLoadDc(
             pait_handler=func,  # depend func gen pait handler in pre-load
             param=cls._param_field_pre_handle(pait_core_model, func_sig.func, func_sig.param_list),
         )
-        return _pre_load_obj_dc
 
     @classmethod
     def _param_field_pre_handle(
@@ -178,9 +177,9 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
     ) -> rule.ParamRuleDict:
         """gen param rule dict"""
         param_rule_dict: rule.ParamRuleDict = {}
-        for index, parameter in enumerate(param_list):
-            field_type_enum: rule.FieldTypeEnum = rule.FieldTypeEnum.empty
-            param_func: Optional[rule.ParamRuleFuncProtocol] = None
+        for parameter in param_list:
+            rule_field_type = rule.empty_ft
+            rule_field_type_func_param_dict: dict = {}
             sub_pld = rule.PreLoadDc(pait_handler=rule.empty_pr_func)
 
             try:
@@ -192,29 +191,22 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
 
                     if isinstance(parameter.default, field.Depends):
                         sub_pld = cls._depend_pre_handle(pait_core_model, parameter.default.func)
-                        field_type_enum = rule.FieldTypeEnum.request_depend
-                        param_func = field_type_enum.value.async_func if cls._is_async else field_type_enum.value.func
+                        rule_field_type = rule.request_depend_ft
                         depend_func = parameter.default.func
                         if inspect.isclass(depend_func):
                             # If this depend func is class, then its class attributes need to be processed
-                            param_func = partial(  # type: ignore
-                                param_func,
-                                func_class_prd=cls._param_field_pre_handle(
-                                    pait_core_model,
-                                    depend_func,
-                                    get_parameter_list_from_class(depend_func),  # type: ignore
-                                ),
+                            rule_field_type_func_param_dict["func_class_prd"] = cls._param_field_pre_handle(
+                                pait_core_model,
+                                depend_func,
+                                get_parameter_list_from_class(depend_func),  # type: ignore
                             )
-
                     elif isinstance(parameter.default, field.BaseRequestResourceField):
-                        field_type_enum = rule.FieldTypeEnum.request_field
+                        rule_field_type = rule.request_field_ft
                         parameter.default.set_request_key(parameter.name)
-
                         validate_request_value_cb = rule.validate_request_value
                         if pait_core_model.app_helper_class.app_name == "flask":
                             validate_request_value_cb = rule.flask_validate_request_value
-                        param_func = partial(  # type: ignore
-                            field_type_enum.value.async_func if cls._is_async else field_type_enum.value.func,
+                        rule_field_type_func_param_dict.update(
                             # Creating a model field is very performance-intensive (especially for Pydantic V2),
                             # so it needs to be cached
                             pait_model_field=_pydanitc_adapter.PaitModelField(
@@ -227,19 +219,20 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
                         )
                 elif cls.is_self_param(parameter) and _object is pait_core_model.func:
                     # self param
-                    field_type_enum = rule.FieldTypeEnum.cbv_class
+                    rule_field_type = rule.cbv_class_ft
                 elif inspect.isclass(parameter.annotation):
                     # args param
                     if issubclass(
                         parameter.annotation, pait_core_model.app_helper_class.request_class.RequestType  # type: ignore
                     ):
                         # request param
-                        field_type_enum = rule.FieldTypeEnum.request
+                        rule_field_type = rule.request_ft
                     elif issubclass(parameter.annotation, pait_core_model.app_helper_class.CbvType):
                         # self param
-                        field_type_enum = rule.FieldTypeEnum.cbv_class
+                        rule_field_type = rule.cbv_class_ft
                     elif issubclass(parameter.annotation, BaseModel):
                         # support model: model: ModelType
+                        rule_field_type = rule.pait_model_ft
                         param_list = get_parameter_list_from_pydantic_basemodel(
                             parameter.annotation, default_field_class=pait_core_model.default_field_class
                         )
@@ -249,23 +242,24 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
                             # Each value in PaitModel does not need to valida by `pr func`
                             sub_pld.param[raw_name].param_func = (
                                 rule.async_request_field_get_value_pr_func  # type: ignore[assignment]
-                                if cls._is_async
+                                if cls.is_async_mode
                                 else rule.request_field_get_value_pr_func
                             )
+
                             # If the value in Pait Model has alias, then the key of param should be alias
                             real_name = _parameter.default.request_key
                             if raw_name != real_name:
                                 sub_pld.param[real_name] = sub_pld.param.pop(raw_name)
-                        field_type_enum = rule.FieldTypeEnum.pait_model
             except PaitBaseException as e:
                 raise gen_tip_exc(_object, e, parameter, tip_exception_class=cls.tip_exception_class) from e
+            param_func = rule_field_type.async_func if cls.is_async_mode else rule_field_type.func
+            if rule_field_type_func_param_dict:
+                param_func = partial(param_func, **rule_field_type_func_param_dict)
             param_rule_dict[parameter.name] = rule.ParamRule(
                 name=parameter.name,
                 type_=parameter.annotation,
-                index=index,
                 parameter=parameter,
-                param_func=param_func
-                or (field_type_enum.value.async_func if cls._is_async else field_type_enum.value.func),
+                param_func=param_func,
                 sub=sub_pld,
             )
         return param_rule_dict
@@ -273,14 +267,16 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
     @classmethod
     def pre_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
         func_sig: FuncSig = get_func_sig(pait_core_model.func, cache_sig=False)
-        _pait_pre_load_dc = rule.PreLoadDc(pait_handler=func_sig.func)
+        pre_load_dc_list = []
         # check and load param from pre depend
         for pre_depend in pait_core_model.pre_depend_list:
-            _pait_pre_load_dc.pre_depend.append(cls._depend_pre_handle(pait_core_model, pre_depend))
+            pre_load_dc_list.append(cls._depend_pre_handle(pait_core_model, pre_depend))
 
-        # check and load param from func
-        _pait_pre_load_dc.param = cls._param_field_pre_handle(pait_core_model, func_sig.func, func_sig.param_list)
-        kwargs["_pait_pre_load_dc"] = _pait_pre_load_dc
+        kwargs["_pait_pre_load_dc"] = rule.PreLoadDc(
+            pait_handler=func_sig.func,
+            pre_depend=pre_load_dc_list,
+            param=cls._param_field_pre_handle(pait_core_model, func_sig.func, func_sig.param_list),
+        )
         # TODO support cbv class Attribute in pre-load, now in first request
         # I don't know how to get the class of the decorated function at the initialization of the decorator,
         # which may be an unattainable feature

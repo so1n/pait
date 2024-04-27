@@ -1,12 +1,10 @@
-import asyncio
-from contextvars import copy_context
-from functools import partial
 from typing import Any
 
 from pait.app.tornado.adapter.response import gen_response
 from pait.model.context import ContextModel as PluginContext
 from pait.plugin.unified_response import UnifiedResponsePlugin as BaseUnifiedResponsePlugin
 from pait.plugin.unified_response import UnifiedResponsePluginProtocol as BaseUnifiedResponsePluginProtocol
+from pait.util import to_thread
 
 
 def _gen_response(self: BaseUnifiedResponsePluginProtocol, return_value: Any, context: PluginContext) -> Any:
@@ -18,12 +16,10 @@ class UnifiedResponsePlugin(BaseUnifiedResponsePlugin):
 
     async def __call__(self, context: PluginContext) -> Any:
         # Compatible with tornado cannot call sync routing function
-        if self._is_async_func:
+        if self.is_async_mode:
             return await self._async_call(context)
         else:
-            return await asyncio.get_event_loop().run_in_executor(
-                None, partial(copy_context().run, partial(self._sync_call, context))  # Matryoshka
-            )
+            return await to_thread(self._sync_call, context)
 
 
 class UnifiedResponsePluginProtocol(BaseUnifiedResponsePluginProtocol):
