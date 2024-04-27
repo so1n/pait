@@ -12,6 +12,7 @@ from pait.app.auto_load_app import app_list, auto_load_app_class
 from pait.app.base import BaseAppHelper
 from pait.app.base.adapter.request import BaseRequest
 from pait.app.base.simple_route import SimpleRoute
+from pait.param_handle.base import BaseParamHandler
 
 
 class BaseTestApp:
@@ -273,6 +274,7 @@ class TestAppHelper(BaseTestApp):
 class TestPlugin(BaseTestApp):
     class FakePluginCoreModel:
         func: Callable = lambda: None
+        param_handler_plugin = BaseParamHandler
 
     def test_at_most_one_of(self, mocker: MockFixture) -> None:
         for i in app_list:

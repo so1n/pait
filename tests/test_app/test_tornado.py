@@ -268,6 +268,20 @@ class TestTornado(BaseTestTornado):
             error_logger=error_logger,
         )
 
+    @mock.patch("asyncio.log.logger.warning")
+    def test_sync_to_thread(self, logger: Any) -> None:
+        self.base_test.base_sync_depend_route(
+            main_example.SyncDependHandler.post, {"body_dict": {"uid": 10086, "name": "so1n"}}
+        )
+        self.base_test.base_sync_depend_route(
+            main_example.SyncToThreadBodyHandler.post, {"body_dict": {"uid": 10086, "name": "so1n"}}
+        )
+        self.base_test.base_sync_depend_route(
+            main_example.SyncWithCtxDependHandler.post, {"body_dict": {"uid": 10086, "name": "so1n"}}
+        )
+        # if call_args is not None, a blocking function is encountered
+        assert logger.call_args is None
+
     def test_api_key_route(self) -> None:
         self.base_test.api_key_route(main_example.APIKeyCookieHandler.get, {"cookie_dict": {"token": "my-token"}})
         self.base_test.api_key_route(main_example.APIKeyHeaderHandler.get, {"header_dict": {"token": "my-token"}})

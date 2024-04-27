@@ -176,7 +176,7 @@ class CacheResponsePlugin(PostPluginProtocol):
         return result
 
     def __call__(self, context: "PluginContext") -> Any:
-        if self._is_async_func:
+        if self.is_async_mode:
             return self._async_cache(context)
         else:
             return self._cache(context)

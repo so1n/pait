@@ -72,6 +72,11 @@ from example.starlette_example.security_route import (
     oauth2_user_info,
     oauth2_user_name,
 )
+from example.starlette_example.sync_to_thread_route import (
+    sync_body_route,
+    sync_depend_route,
+    sync_with_ctx_depend_route,
+)
 from example.starlette_example.utils import api_exception, global_pait
 from pait import _pydanitc_adapter
 from pait.app.starlette import Pait, load_app, pait
@@ -189,7 +194,7 @@ class NotPaitCbvRoute(HTTPEndpoint):
 
 
 @link_pait(response_model_list=[LoginRespModel])
-def login_route(
+async def login_route(
     uid: str = Json.i(description="user id"), password: str = Json.i(description="password")
 ) -> JSONResponse:
     # only use test
@@ -318,6 +323,9 @@ def create_app() -> Starlette:
             ),
             Route("/api/security/user-name-by-http-bearer", get_user_name_by_http_bearer, methods=["GET"]),
             Route("/api/security/user-name-by-http-digest", get_user_name_by_http_digest, methods=["GET"]),
+            Route("/api/sync-to-thread/sync-depend", sync_depend_route, methods=["POST"]),
+            Route("/api/sync-to-thread/sync-body", sync_body_route, methods=["POST"]),
+            Route("/api/sync-to-thread/sync-ctx-depend", sync_with_ctx_depend_route, methods=["POST"]),
         ]
     )
     CacheResponsePlugin.set_redis_to_app(app, redis=Redis(decode_responses=True))

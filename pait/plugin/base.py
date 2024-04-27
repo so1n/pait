@@ -1,4 +1,3 @@
-import inspect
 import logging
 from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, List, Type, TypeVar, Union
 
@@ -21,7 +20,7 @@ class PluginProtocol(object):
         """
         self.next_plugin: _NextPluginT = next_plugin
         self.pait_core_model: "PaitCoreModel" = pait_core_model
-        self._is_async_func: bool = inspect.iscoroutinefunction(pait_core_model.func)
+        self.is_async_mode: bool = pait_core_model.param_handler_plugin.is_async_mode
         if kwargs:
             for k, v in kwargs.items():
                 if getattr(self, k, None) is not None:

@@ -64,6 +64,11 @@ from example.tornado_example.security_route import (
     UserNameByHttpBearerHandler,
     UserNameByHttpDigestHandler,
 )
+from example.tornado_example.sync_to_thread_route import (
+    SyncDependHandler,
+    SyncToThreadBodyHandler,
+    SyncWithCtxDependHandler,
+)
 from example.tornado_example.utils import MyHandler, global_pait
 from pait import _pydanitc_adapter
 from pait.app.tornado import Pait, load_app, pait
@@ -295,6 +300,9 @@ def create_app() -> Application:
             (r"/api/security/user-name-by-http-basic-credentials", UserNameByHttpBasicCredentialsHandler),
             (r"/api/security/user-name-by-http-bearer", UserNameByHttpBearerHandler),
             (r"/api/security/user-name-by-http-digest", UserNameByHttpDigestHandler),
+            (r"/api/sync-to-thread/sync-depend", SyncDependHandler),
+            (r"/api/sync-to-thread/sync-body", SyncToThreadBodyHandler),
+            (r"/api/sync-to-thread/sync-ctx-depend", SyncWithCtxDependHandler),
         ]
     )
     CacheResponsePlugin.set_redis_to_app(app, redis=Redis(decode_responses=True))

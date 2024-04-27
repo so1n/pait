@@ -1020,7 +1020,7 @@ class BaseTestOpenAPI(
 
         ignore_test_path_set = {"/api/field/any-type"}
         for path in list(self.pait_openapi.model.paths.keys()):
-            if path.startswith("/api/plugin"):
+            if path.startswith("/api/plugin") or path.startswith("/api/sync-to-thread"):
                 # Plugin related routes are ignored because there is nothing new in the Open API they generate
                 self.pait_openapi.model.paths.pop(path)
             if path in ignore_test_path_set:

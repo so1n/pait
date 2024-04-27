@@ -1,5 +1,6 @@
 import asyncio
 import copy
+import os
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, Callable, Generator, List, Optional, Type
 
@@ -12,6 +13,10 @@ from pait.util import ignore_pre_check
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
+
+
+# Detects if a blocking function is encountered
+os.environ["PYTHONASYNCIODEBUG"] = "1"
 
 
 @pytest.fixture

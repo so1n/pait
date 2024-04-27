@@ -41,7 +41,7 @@ _CtxT = TypeVar("_CtxT", bound="ContextModel")
 
 
 class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
-    _is_async: bool = False
+    is_async_mode: bool = False
     tip_exception_class: Optional[Type[TipException]] = TipException
     _pait_pre_load_dc: rule.PreLoadDc
 
@@ -242,7 +242,7 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
                             # Each value in PaitModel does not need to valida by `pr func`
                             sub_pld.param[raw_name].param_func = (
                                 rule.async_request_field_get_value_pr_func  # type: ignore[assignment]
-                                if cls._is_async
+                                if cls.is_async_mode
                                 else rule.request_field_get_value_pr_func
                             )
 
@@ -252,7 +252,7 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
                                 sub_pld.param[real_name] = sub_pld.param.pop(raw_name)
             except PaitBaseException as e:
                 raise gen_tip_exc(_object, e, parameter, tip_exception_class=cls.tip_exception_class) from e
-            param_func = rule_field_type.async_func if cls._is_async else rule_field_type.func
+            param_func = rule_field_type.async_func if cls.is_async_mode else rule_field_type.func
             if rule_field_type_func_param_dict:
                 param_func = partial(param_func, **rule_field_type_func_param_dict)
             param_rule_dict[parameter.name] = rule.ParamRule(

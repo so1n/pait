@@ -29,6 +29,7 @@ __all__ = [
     "FuncNameOptionalType",
     "GroupOptionalType",
     "OperationIdOptionalType",
+    "OptionalBoolType",
     "PluginListOptionalType",
     "PostPluginListOptionalType",
     "StatusOptionalType",
@@ -37,18 +38,20 @@ __all__ = [
     "ResponseModelListOptionalType",
 ]
 
+OptionalStrType = Optional[str]
+OptionalBoolType = Optional[bool]
 AuthorOptionalType = Optional[Tuple[str, ...]]
 ChangeNotifyType = Callable[["PaitCoreModel", str, Any], None]
 DefaultFieldClassOptionalType = Optional[Type["BaseRequestResourceField"]]
 DependListOptionalType = Optional[List[Callable]]
-DescOptionalType = Optional[str]
-FuncNameOptionalType = Optional[str]
-GroupOptionalType = Optional[str]
-OperationIdOptionalType = Optional[str]
+DescOptionalType = OptionalStrType
+FuncNameOptionalType = OptionalStrType
+GroupOptionalType = OptionalStrType
+OperationIdOptionalType = OptionalStrType
 PluginListOptionalType = Optional[List[PluginManager[PrePluginProtocol]]]
 PostPluginListOptionalType = Optional[List[PluginManager[PostPluginProtocol]]]
 StatusOptionalType = Optional[PaitStatus]
-SummaryOptionalType = Optional[str]
+SummaryOptionalType = OptionalStrType
 TagOptionalType = Optional[Tuple[Tag, ...]]
 ResponseModelListOptionalType = Optional[List[Type[BaseResponseModel]]]
 
@@ -86,12 +89,14 @@ class PaitCoreModel(object):
         plugin_list: PluginListOptionalType = None,
         post_plugin_list: PostPluginListOptionalType = None,
         feature_code: str = "",
+        sync_to_thread: OptionalBoolType = None,
         **kwargs: Any,
     ):
         # pait
         self.app_helper_class = app_helper_class
         self.default_field_class = default_field_class
         self.func = func  # route func
+        self.sync_to_thread = sync_to_thread
         self.pait_id = f"{func.__module__}_{func.__qualname__}"
         # Some functions have the same md5 as the name and need to be distinguished by the feature code
         if feature_code:

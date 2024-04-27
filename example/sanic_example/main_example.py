@@ -67,6 +67,7 @@ from example.sanic_example.security_route import (
     oauth2_user_info,
     oauth2_user_name,
 )
+from example.sanic_example.sync_to_thread_route import sync_body_route, sync_depend_route, sync_with_ctx_depend_route
 from example.sanic_example.utils import api_exception, global_pait
 from pait import _pydanitc_adapter
 from pait.app.sanic import Pait, load_app, pait
@@ -310,6 +311,10 @@ def create_app(configure_logging: bool = True) -> Sanic:
     )
     app.add_route(get_user_name_by_http_bearer, "/api/security/user-name-by-http-bearer", methods=["GET"])
     app.add_route(get_user_name_by_http_digest, "/api/security/user-name-by-http-digest", methods=["GET"])
+
+    app.add_route(sync_depend_route, "/api/sync-to-thread/sync-depend", methods={"POST"})
+    app.add_route(sync_body_route, "/api/sync-to-thread/sync-body", methods={"POST"})
+    app.add_route(sync_with_ctx_depend_route, "/api/sync-to-thread/sync-ctx-depend", methods={"POST"})
     app.exception(PaitBaseException, ValidationError, RuntimeError, SanicException)(api_exception)
     # app.exception(ValidationError)(api_exception)
     # app.exception(RuntimeError)(api_exception)

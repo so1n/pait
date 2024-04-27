@@ -274,6 +274,15 @@ class TestStarlette:
     def test_pre_depend_async_contextmanager(self, base_test: BaseTest, mocker: MockFixture) -> None:
         base_test.pre_depend_contextmanager(main_example.pre_depend_async_contextmanager_route, mocker)
 
+    def test_sync_to_thread(self, base_test: BaseTest, mocker: MockFixture) -> None:
+        logger = mocker.patch("asyncio.log.logger.warning")
+        base_test.base_sync_depend_route(main_example.sync_depend_route, {"body_dict": {"uid": 10086, "name": "so1n"}})
+        base_test.base_sync_depend_route(main_example.sync_body_route, {"body_dict": {"uid": 10086, "name": "so1n"}})
+        base_test.base_sync_depend_route(
+            main_example.sync_with_ctx_depend_route, {"body_dict": {"uid": 10086, "name": "so1n"}}
+        )
+        assert logger.call_args is None
+
     def test_api_key_route(self, base_test: BaseTest) -> None:
         base_test.api_key_route(main_example.api_key_cookie_route, {"cookie_dict": {"token": "my-token"}})
         base_test.api_key_route(main_example.api_key_header_route, {"header_dict": {"token": "my-token"}})

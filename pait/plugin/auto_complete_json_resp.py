@@ -58,7 +58,7 @@ class AutoCompleteJsonRespPlugin(PrePluginProtocol):
         return self.merge(response_dict)
 
     def __call__(self, context: "PluginContext") -> Any:
-        if self._is_async_func:
+        if self.is_async_mode:
             return self._async_call(context)
         else:
             return self._sync_call(context)

@@ -15,6 +15,7 @@ from pait.model.core import (
     FuncNameOptionalType,
     GroupOptionalType,
     OperationIdOptionalType,
+    OptionalBoolType,
     PaitCoreModel,
     PluginListOptionalType,
     PostPluginListOptionalType,
@@ -109,6 +110,7 @@ def pait(
     append_post_plugin_list: PostPluginListOptionalType = None,
     param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
     feature_code: str = "",
+    sync_to_thread: OptionalBoolType = None,
     **kwargs: Any,
 ) -> Callable:
     """provide parameter checks and type conversions for each routing function/cbv class
@@ -141,6 +143,7 @@ def pait(
         append_post_plugin_list=append_post_plugin_list,
         param_handler_plugin=param_handler_plugin,
         feature_code=feature_code,
+        sync_to_thread=sync_to_thread,
         **kwargs,
     )
 
