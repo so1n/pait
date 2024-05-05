@@ -1,12 +1,12 @@
 import copy
 import logging
 import traceback
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
+from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type, Union
 from urllib.parse import quote_plus
 
 from pydantic import BaseModel
 
-from pait.model.response import BaseResponseModel, PaitResponseModel
+from pait.model.response import BaseResponseModel, PaitResponseModel, create_json_response_model
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
 from pait.param_handle import BaseParamHandler
@@ -53,7 +53,7 @@ PostPluginListOptionalType = Optional[List[PluginManager[PostPluginProtocol]]]
 StatusOptionalType = Optional[PaitStatus]
 SummaryOptionalType = OptionalStrType
 TagOptionalType = Optional[Tuple[Tag, ...]]
-ResponseModelListOptionalType = Optional[List[Type[BaseResponseModel]]]
+ResponseModelListOptionalType = Optional[List[Type[Union[BaseResponseModel, BaseModel]]]]
 
 
 def get_core_model(route: Callable) -> "PaitCoreModel":
@@ -200,8 +200,10 @@ class PaitCoreModel(object):
     def response_model_list(self) -> List[Type[BaseResponseModel]]:
         return self._response_model_list
 
-    def add_response_model_list(self, response_model_list: List[Type[BaseResponseModel]]) -> None:
+    def add_response_model_list(self, response_model_list: List[Type[Union[BaseResponseModel, BaseModel]]]) -> None:
         for response_model in response_model_list:
+            if issubclass(response_model, BaseModel):
+                response_model = create_json_response_model(response_model)
             if response_model in self._response_model_list:
                 continue
             if issubclass(response_model, PaitResponseModel):

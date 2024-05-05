@@ -18,7 +18,6 @@ from sanic_testing import TestManager as SanicTestManager  # type: ignore
 from sanic_testing.testing import SanicTestClient
 from sanic_testing.testing import TestingResponse as Response  # type: ignore
 
-from example.common import response_model
 from example.sanic_example import main_example
 from pait.app import auto_load_app
 from pait.app.any import get_app_attribute, set_app_attribute
@@ -227,7 +226,7 @@ class TestSanic:
         base_test.check_response(main_example.check_response_route)
 
     def test_mock_route(self, base_test: BaseTest) -> None:
-        base_test.mock_route(main_example.mock_route, response_model.UserSuccessRespModel2)
+        base_test.mock_route(main_example.mock_route)
 
     def test_pait_model(self, base_test: BaseTest) -> None:
         base_test.pait_model(main_example.pait_model_route)

@@ -35,6 +35,7 @@ __all__ = [
     "Http407RespModel",
     "Http408RespModel",
     "Http429RespModel",
+    "create_json_response_model",
 ]
 
 
@@ -176,3 +177,27 @@ Http408RespModel = HttpStatusCodeBaseModel.clone(
 Http429RespModel = HttpStatusCodeBaseModel.clone(
     resp_model=HtmlResponseModel, status_code=429, response_data=http_status_code_dict[429]
 )
+
+
+_cache_model_dict: Dict[Type[BaseModel], Type[BaseResponseModel]] = {}
+
+
+def create_json_response_model(response_model: Type[BaseModel]) -> Type[BaseResponseModel]:
+    if response_model in _cache_model_dict:
+        return _cache_model_dict[response_model]
+
+    resp_model_attr: Dict[str, Any] = {"response_data": response_model}
+    for model in response_model.__mro__:
+        resp_doc = model.__doc__
+        if resp_doc:
+            resp_model_attr["description"] = resp_doc
+            break
+        if model is BaseModel:
+            break
+
+    json_resp_model: Type[BaseResponseModel] = type(  # type: ignore
+        response_model.__name__, (JsonResponseModel,), resp_model_attr
+    )
+
+    _cache_model_dict[response_model] = json_resp_model
+    return json_resp_model

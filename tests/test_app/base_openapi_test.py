@@ -13,6 +13,7 @@ from any_api.openapi.model.openapi import (
 from example.common import response_model
 from pait import _pydanitc_adapter
 from pait.app.base.security.oauth2 import OAuth2PasswordRequestFrom
+from pait.model.response import create_json_response_model
 from pait.openapi.openapi import OpenAPI
 
 if TYPE_CHECKING:
@@ -255,7 +256,9 @@ class _TestFieldOpenAPI(BasicTestOpenAPI):
             },
             "sex": {"description": "sex", "allOf": [{"$ref": "#/components/schemas/SexEnum"}]},
         }
-        self._test_success_response_and_fail_response(route_dict["post"].responses, response_model.UserSuccessRespModel)
+        self._test_success_response_and_fail_response(
+            route_dict["post"].responses, create_json_response_model(response_model.UserSuccessRespModel)
+        )
 
     def test_same_alias_route(self) -> None:
         route_dict = self.pait_openapi.model.paths.pop("/api/field/same-alias")
@@ -840,7 +843,9 @@ class _TestOtherOpenAPI(BasicTestOpenAPI):
         assert route_dict["get"].parameters[4].required
         assert route_dict["get"].parameters[4].schema_ == {"allOf": [{"$ref": "#/components/schemas/SexEnum"}]}
 
-        self._test_success_response_and_fail_response(route_dict["get"].responses, response_model.UserSuccessRespModel)
+        self._test_success_response_and_fail_response(
+            route_dict["get"].responses, create_json_response_model(response_model.UserSuccessRespModel)
+        )
 
         assert route_dict["post"].description == "test cbv post method"
         assert any([i in route_dict["post"].operation_id for i in ["test_cbv.post", "CbvRoute", "CbvHandler.post"]])
@@ -886,7 +891,9 @@ class _TestOtherOpenAPI(BasicTestOpenAPI):
             },
             "sex": {"description": "sex", "allOf": [{"$ref": "#/components/schemas/SexEnum"}]},
         }
-        self._test_success_response_and_fail_response(route_dict["post"].responses, response_model.UserSuccessRespModel)
+        self._test_success_response_and_fail_response(
+            route_dict["post"].responses, create_json_response_model(response_model.UserSuccessRespModel)
+        )
 
     def test_not_pait_cbv_route(self) -> None:
         route_dict = self.pait_openapi.model.paths.pop("/api/not-pait-cbv")

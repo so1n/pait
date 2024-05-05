@@ -18,7 +18,6 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.testclient import TestClient
 
-from example.common import response_model
 from example.starlette_example import main_example
 from pait.app import auto_load_app
 from pait.app.any import get_app_attribute, set_app_attribute
@@ -257,10 +256,10 @@ class TestStarlette:
         base_test.check_response(main_example.check_response_route)
 
     def test_mock_route(self, base_test: BaseTest) -> None:
-        base_test.mock_route(main_example.mock_route, response_model.UserSuccessRespModel2)
+        base_test.mock_route(main_example.mock_route)
 
     def test_async_mock_route(self, base_test: BaseTest) -> None:
-        base_test.mock_route(main_example.async_mock_route, response_model.UserSuccessRespModel2)
+        base_test.mock_route(main_example.async_mock_route)
 
     def test_pait_model(self, base_test: BaseTest) -> None:
         base_test.pait_model(main_example.pait_model_route)

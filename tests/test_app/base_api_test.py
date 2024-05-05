@@ -6,6 +6,7 @@ from pytest_mock import MockFixture
 from redis import Redis  # type: ignore
 
 from pait.app.base import BaseTestHelper, CheckResponseException
+from pait.model.core import get_core_model
 from pait.model.response import BaseResponseModel, FileResponseModel, HtmlResponseModel, TextResponseModel
 from pait.plugin.cache_response import CacheResponsePlugin
 from pait.plugin.mock_response import MockPluginProtocol
@@ -217,7 +218,8 @@ class BaseTest(object):
         )
         test_helper.json()
 
-    def mock_route(self, route: Callable, resp_model: Type[BaseResponseModel]) -> None:
+    def mock_route(self, route: Callable) -> None:
+        resp_model = get_core_model(route).response_model_list[0]
         assert (
             self.test_helper(
                 self.client,

@@ -12,7 +12,6 @@ from redis import Redis  # type: ignore
 from tornado.testing import AsyncHTTPTestCase, HTTPResponse
 from tornado.web import Application
 
-from example.common import response_model
 from example.tornado_example import main_example
 from pait.app import auto_load_app
 from pait.app.any import get_app_attribute, set_app_attribute
@@ -224,7 +223,7 @@ class TestTornado(BaseTestTornado):
         self.base_test.check_response(main_example.CheckRespHandler.get)
 
     def test_mock_route(self) -> None:
-        self.base_test.mock_route(main_example.MockHandler.get, response_model.UserSuccessRespModel2)
+        self.base_test.mock_route(main_example.MockHandler.get)
 
     def test_pait_model(self) -> None:
         self.base_test.pait_model(main_example.PaitModelHandler.post)
