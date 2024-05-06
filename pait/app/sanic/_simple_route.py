@@ -1,6 +1,6 @@
 import re
 import string
-from typing import Callable
+from typing import Callable, Optional
 
 from sanic import Blueprint, Sanic
 
@@ -9,10 +9,10 @@ from pait.app.sanic.plugin.unified_response import UnifiedResponsePlugin
 from pait.util import get_func_param_kwargs
 
 
-def replace_openapi_url_to_url(url: str) -> str:
+def default_replace_openapi_url_to_url(url: str) -> str:
     """Convert the OpenAPI URL format to a format supported by the web framework
 
-    >>> assert "http://google.com/user/<user_id>/abc/<another_id>/def" == replace_openapi_url_to_url(
+    >>> assert "http://google.com/user/<user_id>/abc/<another_id>/def" == default_replace_openapi_url_to_url(
     >>>    "http://google.com/user/{user_id:int}/abc/{another_id:int}/def"
     >>> )
     """
@@ -25,12 +25,14 @@ def replace_openapi_url_to_url(url: str) -> str:
 def add_simple_route(
     app: Sanic,
     simple_route: "SimpleRoute",
-    _replace_openapi_url_to_url: Callable[[str], str] = replace_openapi_url_to_url,
+    replace_openapi_url_to_url: Callable[[str], str] = default_replace_openapi_url_to_url,
+    auto_add_unified_response_plugin: bool = True,
 ) -> None:
-    add_route_plugin(simple_route, UnifiedResponsePlugin)
+    if auto_add_unified_response_plugin:
+        add_route_plugin(simple_route, UnifiedResponsePlugin)
     app.add_route(
         simple_route.route,
-        _replace_openapi_url_to_url(simple_route.url),
+        replace_openapi_url_to_url(simple_route.url),
         methods=set(simple_route.methods),
         **get_func_param_kwargs(app.add_route, simple_route.kwargs),
     )
@@ -41,15 +43,19 @@ def add_multi_simple_route(
     *simple_route_list: "SimpleRoute",
     prefix: str = "/",
     title: str = "",
-    _replace_openapi_url_to_url: Callable[[str], str] = replace_openapi_url_to_url,
+    replace_openapi_url_to_url: Callable[[str], str] = default_replace_openapi_url_to_url,
+    auto_add_unified_response_plugin: bool = True,
+    blueprint: Optional[Blueprint] = None,
 ) -> None:
-    blueprint: Blueprint = Blueprint(
+    _blueprint: Blueprint = blueprint or Blueprint(
         title.translate(str.maketrans({key: "" for key in string.punctuation})).replace(" ", ""),  # type: ignore
         url_prefix=prefix,
     )
     for simple_route in simple_route_list:
-        add_route_plugin(simple_route, UnifiedResponsePlugin)
-        blueprint.add_route(
-            simple_route.route, _replace_openapi_url_to_url(simple_route.url), methods=set(simple_route.methods)
+        if auto_add_unified_response_plugin:
+            add_route_plugin(simple_route, UnifiedResponsePlugin)
+        _blueprint.add_route(
+            simple_route.route, replace_openapi_url_to_url(simple_route.url), methods=set(simple_route.methods)
         )
-    app.blueprint(blueprint)
+    if not blueprint:
+        app.blueprint(_blueprint)

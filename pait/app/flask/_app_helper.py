@@ -6,7 +6,7 @@ from flask import current_app, request
 from flask.views import View
 
 from pait.app.base import BaseAppHelper
-from pait.app.flask._attribute import get_app_attribute
+from pait.app.flask.adapter.attribute import get_app_attribute
 from pait.app.flask.adapter.request import Request, RequestExtend
 
 __all__ = ["AppHelper", "RequestExtend"]

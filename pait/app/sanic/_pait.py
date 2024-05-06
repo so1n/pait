@@ -1,8 +1,5 @@
 from typing import Type
 
-import aiofiles  # type: ignore
-from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
-
 from pait.app.base import BaseAppHelper
 from pait.core import Pait as _Pait
 
