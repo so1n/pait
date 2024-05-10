@@ -2,31 +2,15 @@ from dataclasses import MISSING
 from importlib import import_module
 from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Type
 
-from typing_extensions import NoReturn
+from typing_extensions import NoReturn, Unpack
 
 from pait.app.any.util import base_call_func, sniffing
 from pait.app.auto_load_app import auto_load_app_class
 from pait.app.base.simple_route import SimpleRoute
-from pait.model.core import (
-    AuthorOptionalType,
-    DefaultFieldClassOptionalType,
-    DependListOptionalType,
-    DescOptionalType,
-    FuncNameOptionalType,
-    GroupOptionalType,
-    OperationIdOptionalType,
-    OptionalBoolType,
-    PaitCoreModel,
-    PluginListOptionalType,
-    PostPluginListOptionalType,
-    ResponseModelListOptionalType,
-    StatusOptionalType,
-    SummaryOptionalType,
-    TagOptionalType,
-)
+from pait.model.core import PaitCoreModel
 
 if TYPE_CHECKING:
-    from pait.param_handle import BaseParamHandler
+    from pait.core import PaitCallParamTypedDict
 
 
 _NotFoundFrameworkException = RuntimeError(
@@ -85,34 +69,7 @@ def load_app(
     )
 
 
-def pait(
-    default_field_class: DefaultFieldClassOptionalType = None,
-    # param check
-    pre_depend_list: DependListOptionalType = None,
-    append_pre_depend_list: DependListOptionalType = None,
-    # doc
-    operation_id: OperationIdOptionalType = None,
-    author: AuthorOptionalType = None,
-    append_author: AuthorOptionalType = None,
-    desc: DescOptionalType = None,
-    summary: SummaryOptionalType = None,
-    name: FuncNameOptionalType = None,
-    status: StatusOptionalType = None,
-    group: GroupOptionalType = None,
-    tag: TagOptionalType = None,
-    append_tag: TagOptionalType = None,
-    response_model_list: ResponseModelListOptionalType = None,
-    append_response_model_list: ResponseModelListOptionalType = None,
-    # plugin
-    plugin_list: PluginListOptionalType = None,
-    append_plugin_list: PluginListOptionalType = None,
-    post_plugin_list: PostPluginListOptionalType = None,
-    append_post_plugin_list: PostPluginListOptionalType = None,
-    param_handler_plugin: Optional[Type["BaseParamHandler"]] = None,
-    feature_code: str = "",
-    sync_to_thread: OptionalBoolType = None,
-    **kwargs: Any,
-) -> Callable:
+def pait(**kwargs: Unpack["PaitCallParamTypedDict"]) -> Callable:
     """provide parameter checks and type conversions for each routing function/cbv class
     Note:This is an implicit method
     """
@@ -121,31 +78,7 @@ def pait(
     _pait: Optional[Callable] = getattr(import_module(pait_app_path), "pait")
     if not _pait:
         raise NotImplementedError(f"Pait not support:{load_class_app}")
-    return _pait(
-        default_field_class=default_field_class,
-        pre_depend_list=pre_depend_list,
-        append_pre_depend_list=append_pre_depend_list,
-        operation_id=operation_id,
-        author=author,
-        append_author=append_author,
-        desc=desc,
-        summary=summary,
-        name=name,
-        status=status,
-        group=group,
-        tag=tag,
-        append_tag=append_tag,
-        response_model_list=response_model_list,
-        append_response_model_list=append_response_model_list,
-        plugin_list=plugin_list,
-        append_plugin_list=append_plugin_list,
-        post_plugin_list=post_plugin_list,
-        append_post_plugin_list=append_post_plugin_list,
-        param_handler_plugin=param_handler_plugin,
-        feature_code=feature_code,
-        sync_to_thread=sync_to_thread,
-        **kwargs,
-    )
+    return _pait(**kwargs)
 
 
 def set_app_attribute(app: Any, key: str, value: Any) -> None:

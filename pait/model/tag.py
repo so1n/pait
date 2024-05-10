@@ -58,6 +58,9 @@ class Tag(object):
             return False
         return other.to_dict() == self.to_dict()
 
+    def __repr__(self) -> str:
+        return f"<{__name__}.{self.__class__.__name__}>(name='{self.name}')"
+
     def to_dict(self) -> dict:
         return {"name": self.name, "desc": self.desc, "external_docs": self._external_docs}
 

@@ -114,7 +114,7 @@ class PaitCoreModel(object):
         self.openapi_path: str = openapi_path or ""
         self._method_list: List[str] = sorted(list(method_set or set()))  # request method set
         self.func_name: str = func_name or func.__qualname__
-        self.operation_id: str = operation_id or self.pait_id
+        self._operation_id: str = operation_id or self.pait_id
         self.author: AuthorOptionalType = author  # The main developer of this func
         self.summary: str = summary or ""
         self.desc: str = desc or func.__doc__ or ""  # desc of this func

@@ -1,12 +1,11 @@
-from importlib import import_module
 from typing import Type
 
-from pait.app.auto_load_app import auto_load_app_class
 from pait.app.base.security.http import BaseHTTPBasic, BaseHTTPBearer, BaseHTTPDigest, HTTPBasicCredentials
+
+from .util import get_security
 
 __all__ = ["HTTPBasic", "HTTPDigest", "HTTPBearer", "HTTPBasicCredentials"]
 
-pait_app_path: str = "pait.app." + auto_load_app_class().__name__.lower() + ".security.http"
-HTTPBasic: Type[BaseHTTPBasic] = getattr(import_module(pait_app_path), "HTTPBasic")
-HTTPDigest: Type[BaseHTTPDigest] = getattr(import_module(pait_app_path), "HTTPDigest")
-HTTPBearer: Type[BaseHTTPBearer] = getattr(import_module(pait_app_path), "HTTPBearer")
+HTTPBasic: Type[BaseHTTPBasic] = get_security("HTTPBasic", "http")
+HTTPDigest: Type[BaseHTTPDigest] = get_security("HTTPDigest", "http")
+HTTPBearer: Type[BaseHTTPBearer] = get_security("HTTPBearer", "http")

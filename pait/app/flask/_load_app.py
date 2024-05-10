@@ -23,6 +23,8 @@ def load_app(
     _pait_data: Dict[str, PaitCoreModel] = {}
 
     for route in app.url_map.iter_rules():
+        if route.endpoint == "static":
+            continue
         path: str = route.rule
         method_set: Set[str] = route.methods
         route_name: str = route.endpoint
@@ -47,8 +49,6 @@ def load_app(
         if not openapi_path.startswith("/"):
             openapi_path = "/" + openapi_path
         if not pait_id:
-            if route_name == "static":
-                continue
             view_class_endpoint = getattr(endpoint, "view_class", None)
             if not view_class_endpoint or not issubclass(view_class_endpoint, MethodView):
                 if auto_load_route:
