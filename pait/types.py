@@ -1,6 +1,6 @@
 # pragma: no cover
 import sys
-from typing import Any, Callable, TypeVar, Union
+from typing import Any, Callable, Union
 
 # copy from https://github.com/agronholm/typeguard/blob/master/src/typeguard/__init__.py#L64
 if sys.version_info >= (3, 10):
@@ -28,19 +28,16 @@ else:
         return isinstance(tp, _typed_dict_meta_types)
 
 
-PaitCallTypeT = TypeVar("PaitCallTypeT", covariant=True)
-
-
 class _CallType(Protocol):
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         pass
 
 
-class PaitCallType(Protocol[PaitCallTypeT]):
-    def pait_handler(self, *args: Any, **kwargs: Any) -> PaitCallTypeT:
+class PaitCallType(Protocol):
+    def pait_handler(self, *args: Any, **kwargs: Any) -> Any:
         pass
 
 
 CallType = Union[Callable, _CallType, PaitCallType]
 
-__all__ = ["ParamSpec", "Literal", "is_typeddict", "CallType", "PaitCallTypeT", "PaitCallType", "Protocol"]
+__all__ = ["ParamSpec", "Literal", "is_typeddict", "CallType", "PaitCallType", "Protocol"]

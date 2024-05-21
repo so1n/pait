@@ -374,6 +374,13 @@ class TestTornado(BaseTestTornado):
     def test_tag_route(self) -> None:
         self.base_test.tag(main_example.TagHandler.get)
 
+    def test_api_route(self) -> None:
+        from example.tornado_example.api_route import get_user_info, health, login
+
+        self.base_test.api_route_health(health)
+        self.base_test.api_route_get_user_info(get_user_info)
+        self.base_test.api_route_login(login)
+
     def test_openapi_content(self) -> None:
         BaseTestOpenAPI(self._app).test_all()
 

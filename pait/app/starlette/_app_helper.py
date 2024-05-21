@@ -5,7 +5,7 @@ from starlette.endpoints import HTTPEndpoint
 from starlette.requests import Request as _Request
 
 from pait.app.base import BaseAppHelper
-from pait.app.starlette._attribute import get_app_attribute
+from pait.app.starlette.adapter.attribute import get_app_attribute
 from pait.app.starlette.adapter.request import Request, RequestExtend
 
 __all__ = ["AppHelper", "RequestExtend"]

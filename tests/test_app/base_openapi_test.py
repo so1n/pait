@@ -522,7 +522,7 @@ class _TestSecurityOpenAPI(BasicTestOpenAPI):
         assert route_dict["get"].security == [{f"HTTP{security_dict.get(security_type, security_type).title()}": []}]
         assert route_dict["get"].tags == ["depend", "security", "http"]
 
-        assert route_dict["get"].pait_info["group"] == "root"  # type: ignore
+        assert route_dict["get"].pait_info["group"] == "security"  # type: ignore
         assert route_dict["get"].pait_info["status"] == "test"  # type: ignore
 
         rp_schema_key = route_dict["get"].responses["200"].content["application/json"].schema_["$ref"]
@@ -565,7 +565,7 @@ class _TestSecurityOpenAPI(BasicTestOpenAPI):
         assert route_dict["get"].security == [{f"token-{security_type}-api-key": []}]
         assert route_dict["get"].tags == ["depend", "security", "api-key"]
 
-        assert route_dict["get"].pait_info["group"] == "root"  # type: ignore
+        assert route_dict["get"].pait_info["group"] == "security"  # type: ignore
         assert route_dict["get"].pait_info["status"] == "test"  # type: ignore
         assert (
             f"api_key_{security_type}_route" in route_dict["get"].pait_info["pait_id"]
@@ -1007,6 +1007,16 @@ class _TestOtherOpenAPI(BasicTestOpenAPI):
         route_dict = self.pait_openapi.model.paths.pop("/api/tag")
         assert len(route_dict["get"].tags) == 1
         assert route_dict["get"].tags[0] == "include"
+
+    def test_api_route(self) -> None:
+        user_info_dict = self.pait_openapi.model.paths.pop("/api/user/info")
+        user_info_dict["get"].tags = ["user", "root api"]
+
+        login_dict = self.pait_openapi.model.paths.pop("/api/user/login")
+        login_dict["post"].tags = ["user", "root api"]
+
+        health_dict = self.pait_openapi.model.paths.pop("/api/health")
+        health_dict["get"].tags = ["root api"]
 
 
 class BaseTestOpenAPI(

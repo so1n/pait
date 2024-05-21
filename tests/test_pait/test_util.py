@@ -218,7 +218,7 @@ class TestTypes:
             (typing_extensions.TypedDict, typing_extensions.is_typeddict),  # type: ignore[attr-defined]
         ]
         try:
-            from typing import TypedDict, is_typeddict  # type: ignore[attr-defined]
+            from typing_extensions import TypedDict, is_typeddict  # type: ignore[attr-defined]
 
             typed_dict_test_list.append((TypedDict, is_typeddict))
         except ImportError:

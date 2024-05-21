@@ -6,7 +6,7 @@ from sanic.request import Request as _Request
 try:
     from sanic.views import CompositionView, HTTPMethodView
 
-    cbv_type_tuple: Tuple[Type[Exception], ...] = (HTTPMethodView, CompositionView)
+    cbv_type_tuple: Tuple[Type, ...] = (HTTPMethodView, CompositionView)
 except ImportError:
     from sanic.views import HTTPMethodView
 
@@ -14,7 +14,7 @@ except ImportError:
 from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
 
 from pait.app.base import BaseAppHelper
-from pait.app.sanic._attribute import get_app_attribute
+from pait.app.sanic.adapter.attribute import get_app_attribute
 from pait.app.sanic.adapter.request import Request, RequestExtend
 
 __all__ = ["AppHelper", "RequestExtend"]

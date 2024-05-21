@@ -18,6 +18,7 @@ from example.common.response_model import (
     link_login_token_model,
 )
 from example.common.utils import NotTipAsyncParamHandler
+from example.tornado_example.api_route import main_api_route
 from example.tornado_example.depend_route import (
     DependAsyncContextmanagerHanler,
     DependContextmanagerHanler,
@@ -306,6 +307,7 @@ def create_app() -> Application:
         ]
     )
     CacheResponsePlugin.set_redis_to_app(app, redis=Redis(decode_responses=True))
+    main_api_route.inject(app)
     load_app(app, auto_load_route=True)
     return app
 

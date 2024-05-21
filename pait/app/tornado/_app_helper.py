@@ -5,7 +5,7 @@ from tornado.httputil import HTTPServerRequest
 from tornado.web import RequestHandler
 
 from pait.app.base import BaseAppHelper
-from pait.app.tornado._attribute import get_app_attribute
+from pait.app.tornado.adapter.attribute import get_app_attribute
 from pait.app.tornado.adapter.request import Request, RequestExtend
 
 __all__ = ["AppHelper", "RequestExtend"]
