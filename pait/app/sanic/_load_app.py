@@ -9,7 +9,28 @@ from pait.model.core import PaitCoreModel
 
 from ._app_helper import AppHelper
 
-__all__ = ["load_app"]
+__all__ = ["load_app", "get_openapi_path"]
+
+
+def get_openapi_path(path: str) -> str:
+    openapi_path: str = path
+    if "<" in openapi_path and ">" in openapi_path:
+        new_path_list: list = []
+        for sub_path in openapi_path.split("/"):
+            if not sub_path:
+                continue
+            if sub_path[0] == "<" and sub_path[-1] == ">":
+                real_sub_path: str = sub_path[1:-1]
+                if ":" in real_sub_path:
+                    real_sub_path = real_sub_path.split(":")[0]
+                real_sub_path = "{" + real_sub_path + "}"
+            else:
+                real_sub_path = sub_path
+            new_path_list.append(real_sub_path)
+        openapi_path = "/".join(new_path_list)
+    if not openapi_path.startswith("/"):
+        openapi_path = "/" + openapi_path
+    return openapi_path
 
 
 def load_app(
@@ -22,30 +43,13 @@ def load_app(
     _pait_data: Dict[str, PaitCoreModel] = {}
     for route in app.router.routes:
         route_name: str = route.name
-        method_set: Set[str] = route.methods
+        method_set: Set[str] = route.methods or set()
         path: str = route.path
         if not path.startswith("/"):
             path = "/" + path
-        openapi_path: str = path
+        openapi_path = get_openapi_path(path)
         handler: Callable = route.handler
 
-        # replace path <xxx> to {xxx}
-        if "<" in openapi_path and ">" in openapi_path:
-            new_path_list: list = []
-            for sub_path in openapi_path.split("/"):
-                if not sub_path:
-                    continue
-                if sub_path[0] == "<" and sub_path[-1] == ">":
-                    real_sub_path: str = sub_path[1:-1]
-                    if ":" in real_sub_path:
-                        real_sub_path = real_sub_path.split(":")[0]
-                    real_sub_path = "{" + real_sub_path + "}"
-                else:
-                    real_sub_path = sub_path
-                new_path_list.append(real_sub_path)
-            openapi_path = "/".join(new_path_list)
-        if not openapi_path.startswith("/"):
-            openapi_path = "/" + openapi_path
         for method in method_set:
             view_class: Optional[Type] = getattr(handler, "view_class", None)
             if view_class:

@@ -1,13 +1,14 @@
 import re
 from typing import Callable, Optional
 
-from flask import Blueprint, Flask
+from flask.app import Flask
+from flask.blueprints import Blueprint
 
 from pait.app.base.simple_route import SimpleRoute, add_route_plugin
 from pait.app.flask.plugin.unified_response import UnifiedResponsePlugin
 from pait.util import get_func_param_kwargs
 
-__all__ = ["SimpleRoute", "add_simple_route", "add_multi_simple_route"]
+__all__ = ["SimpleRoute", "add_simple_route", "add_multi_simple_route", "default_replace_openapi_url_to_url"]
 
 
 def default_replace_openapi_url_to_url(url: str) -> str:

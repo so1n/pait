@@ -88,7 +88,7 @@ class PaitCoreModel(object):
         default_field_class: DefaultFieldClassOptionalType = None,
         plugin_list: PluginListOptionalType = None,
         post_plugin_list: PostPluginListOptionalType = None,
-        feature_code: str = "",
+        feature_code: Optional[str] = None,
         sync_to_thread: OptionalBoolType = None,
         **kwargs: Any,
     ):

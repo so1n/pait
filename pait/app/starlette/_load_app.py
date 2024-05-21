@@ -13,7 +13,11 @@ from pait.util import http_method_tuple
 
 from ._app_helper import AppHelper
 
-__all__ = ["load_app"]
+__all__ = ["load_app", "get_openapi_path"]
+
+
+def get_openapi_path(path: str) -> str:
+    return path
 
 
 def _load_route(
@@ -28,7 +32,7 @@ def _load_route(
     path: str = route.path
     if prefix_path:
         path = prefix_path + path
-    openapi_path: str = path
+    openapi_path: str = get_openapi_path(path)
     method_set: set = route.methods or set()
     route_name: str = route.name
     endpoint: Union[Callable, Type] = route.endpoint

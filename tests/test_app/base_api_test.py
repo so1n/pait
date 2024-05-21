@@ -1,3 +1,4 @@
+import hashlib
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Any, Callable, Optional, Type
 
@@ -574,3 +575,17 @@ class BaseTest(object):
             assert test_helper1.json() == test_helper1.json()
             assert test_helper2.json() == test_helper2.json()
             assert test_helper1.json() != test_helper2.json()
+
+    def api_route_health(self, route: Callable) -> None:
+        assert self.test_helper(self.client, route).json() == {"code": 0, "msg": "ok", "data": {}}
+
+    def api_route_login(self, route: Callable) -> None:
+        assert (
+            self.test_helper(self.client, route, body_dict={"uid": "10086", "password": "123"}).json()["data"]["token"]
+            == hashlib.sha256(("10086" + "123").encode("utf-8")).hexdigest()
+        )
+
+    def api_route_get_user_info(self, route: Callable) -> None:
+        assert self.test_helper(
+            self.client, route, query_dict={"uid": 100, "user_name": "so1n"}, strict_inspection_check_json_content=False
+        ).json() == {"code": 0, "msg": "ok", "data": {"uid": 100, "user_name": "so1n"}}

@@ -1008,6 +1008,16 @@ class _TestOtherOpenAPI(BasicTestOpenAPI):
         assert len(route_dict["get"].tags) == 1
         assert route_dict["get"].tags[0] == "include"
 
+    def test_api_route(self) -> None:
+        user_info_dict = self.pait_openapi.model.paths.pop("/api/user/info")
+        user_info_dict["get"].tags = ["user", "root api"]
+
+        login_dict = self.pait_openapi.model.paths.pop("/api/user/login")
+        login_dict["post"].tags = ["user", "root api"]
+
+        health_dict = self.pait_openapi.model.paths.pop("/api/health")
+        health_dict["get"].tags = ["root api"]
+
 
 class BaseTestOpenAPI(
     _TestDependOpenAPI, _TestFieldOpenAPI, _TestSecurityOpenAPI, _TestResponseOpenAPI, _TestOtherOpenAPI

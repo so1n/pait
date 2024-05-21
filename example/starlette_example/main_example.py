@@ -20,6 +20,7 @@ from example.common.response_model import (
     link_login_token_model,
 )
 from example.common.utils import NotTipAsyncParamHandler
+from example.starlette_example.api_route import main_api_route
 from example.starlette_example.depend_route import (
     depend_async_contextmanager_route,
     depend_contextmanager_route,
@@ -333,6 +334,7 @@ def create_app() -> Starlette:
     app.add_exception_handler(PaitBaseException, api_exception)
     app.add_exception_handler(ValidationError, api_exception)
     app.add_exception_handler(RuntimeError, api_exception)
+    main_api_route.inject(app)
     load_app(app, auto_load_route=True)
     return app
 

@@ -2,9 +2,9 @@ import pytest
 from pytest_mock import MockFixture
 
 from pait import core, g
-from pait.app.base import BaseAppHelper
 from pait.model.core import PaitCoreModel
 from pait.param_handle import ParamHandler
+from tests.util import FakeAppHelper
 
 
 def demo() -> None:
@@ -12,13 +12,6 @@ def demo() -> None:
 
 
 app_name: str = "fake_name"
-
-
-class FakeAppHelper(BaseAppHelper):
-    RequestType = str
-    FormType = int
-    FileType = float
-    HeaderType = type(None)
 
 
 class TestPaitCore:

@@ -140,7 +140,10 @@ def request_field_get_value_pr_func(
     pr: "ParamRule", context: "ContextModel", param_plugin: "BaseParamHandler"
 ) -> Mapping:
     """get request value by func param's request field"""
-    request_value: Mapping = getattr(context.app_helper.request, pr.parameter.default.get_field_name(), lambda: {})()
+    field_name = pr.parameter.default.get_field_name()
+    request_value: Mapping = getattr(context.app_helper.request, field_name, lambda: {})()
+    if request_value is None:
+        request_value = {}
     return get_real_request_value(pr.parameter, request_value)
 
 

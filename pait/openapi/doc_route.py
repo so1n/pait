@@ -35,15 +35,15 @@ class DocHtmlRespModel(HtmlResponseModel):
     class HeaderModel(BaseModel):
         x_example_type: str = Field(default="html", alias="X-Example-Type")
 
-    header: BaseModel = HeaderModel
-    description: str = "doc html response"
+    header = HeaderModel
+    description = "doc html response"
 
 
 class OpenAPIRespModel(JsonResponseModel):
     class OpenAPIResponseModel(BaseModel):
         pass
 
-    description: str = "open api json response"
+    description = "open api json response"
     # TODO replace to openapi response model
     response_data: dict = {}  # type: ignore
 

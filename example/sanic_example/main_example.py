@@ -21,6 +21,7 @@ from example.common.response_model import (
     link_login_token_model,
 )
 from example.common.utils import NotTipAsyncParamHandler
+from example.sanic_example.api_route import main_api_route
 from example.sanic_example.depend_route import (
     depend_async_contextmanager_route,
     depend_contextmanager_route,
@@ -319,6 +320,7 @@ def create_app(configure_logging: bool = True) -> Sanic:
     # app.exception(ValidationError)(api_exception)
     # app.exception(RuntimeError)(api_exception)
     # app.exception(SanicException)(api_exception)
+    main_api_route.inject(app)
     load_app(app, auto_load_route=True)
     return app
 

@@ -10,7 +10,7 @@ from pait.app.base.simple_route import SimpleRoute
 from pait.model.core import PaitCoreModel
 
 if TYPE_CHECKING:
-    from pait.core import PaitCallParamTypedDict
+    from pait.core import PaitCreateSubParamTypedDict
 
 
 _NotFoundFrameworkException = RuntimeError(
@@ -69,7 +69,7 @@ def load_app(
     )
 
 
-def pait(**kwargs: Unpack["PaitCallParamTypedDict"]) -> Callable:
+def pait(**kwargs: Unpack["PaitCreateSubParamTypedDict"]) -> Callable:
     """provide parameter checks and type conversions for each routing function/cbv class
     Note:This is an implicit method
     """
