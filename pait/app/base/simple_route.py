@@ -18,3 +18,4 @@ def add_route_plugin(simple_route: SimpleRoute, plugin: Type[UnifiedResponsePlug
     if not pait_core_model:
         raise RuntimeError(f"{simple_route.route} must be a routing function decorated with pait")
     pait_core_model.add_plugin([plugin.build()], [])
+    pait_core_model.build_plugin_stack()

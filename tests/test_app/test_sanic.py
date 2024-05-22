@@ -250,7 +250,6 @@ class TestSanic:
         base_test.base_sync_depend_route(
             main_example.sync_with_ctx_depend_route, {"body_dict": {"uid": 10086, "name": "so1n"}}
         )
-        print(logger.call_args)
         assert logger.call_args is None
 
     def test_api_key_route(self, base_test: BaseTest) -> None:

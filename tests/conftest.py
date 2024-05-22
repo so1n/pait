@@ -65,6 +65,7 @@ def enable_plugin(
             pait_core_model.build_plugin_stack()
         else:
             pait_core_model.add_plugin(plugin_list, post_plugin_list)
+            pait_core_model.build_plugin_stack()
         yield
     finally:
         pait_core_model._plugin_list = raw_plugin_list

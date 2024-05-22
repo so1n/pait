@@ -24,6 +24,7 @@ from pait.model.core import (
     StatusOptionalType,
     SummaryOptionalType,
     TagOptionalType,
+    get_core_model,
 )
 from pait.model.response import BaseResponseModel
 from pait.param_handle import AsyncParamHandler, BaseParamHandler, ParamHandler
@@ -71,6 +72,7 @@ class PaitBaseParamTypedDict(TypedDict, total=False):
     post_plugin_list: PostPluginListOptionalType
     sync_to_thread: OptionalBoolType
     feature_code: Optional[str]
+    auto_build: bool
     extra: Dict
 
 
@@ -203,6 +205,8 @@ class Pait(object):
 
         self._param_kwargs = kwargs
         self._param_kwargs["response_model_list"] = self._param_kwargs.get("response_model_list", []) or []
+        if "auto_build" not in self._param_kwargs:
+            self._param_kwargs["auto_build"] = True
 
     @staticmethod
     def init_context(pait_core_model: "PaitCoreModel", args: Any, kwargs: Any) -> ContextModel:
@@ -234,6 +238,10 @@ class Pait(object):
         Can't do type hints and autocomplete? see: https://github.com/so1n/pait/issues/51
         """
         return self.__class__(**easy_to_develop_merge_kwargs(self._param_kwargs, kwargs))
+
+    @staticmethod
+    def build(func: Callable) -> None:
+        get_core_model(func).build()
 
     def __call__(self, **kwargs: Unpack[PaitCreateSubParamTypedDict]) -> Callable:
         """
@@ -268,6 +276,8 @@ class Pait(object):
             )
             sync_config_data_to_pait_core_model(config, pait_core_model)
             pait_data.register(app_name, pait_core_model)
+            if core_model_kwargs.get("auto_build", False):
+                pait_core_model.build()
             if inspect.iscoroutinefunction(func) or sync_to_thread:
 
                 @wraps(func)
