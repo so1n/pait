@@ -15,7 +15,7 @@ from pait.exceptions import (
 )
 from pait.plugin.base import PluginProtocol
 from pait.types import CallType
-from pait.util import FuncSig, gen_tip_exc, get_func_sig, ignore_pre_check, is_bounded_func, is_type
+from pait.util import FuncSig, gen_tip_exc, get_func_sig, is_bounded_func, is_type
 
 from . import rule
 from .util import get_parameter_list_from_class, get_parameter_list_from_pydantic_basemodel
@@ -44,6 +44,7 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
     is_async_mode: bool = False
     tip_exception_class: Optional[Type[TipException]] = TipException
     _pait_pre_load_dc: rule.PreLoadDc
+    _pait_cbv_pre_load_prd: rule.ParamRuleDict
 
     @staticmethod
     def is_self_param(parameter: inspect.Parameter) -> bool:
@@ -51,20 +52,43 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
             return True
         return False
 
-    def get_cbv_prd(self, context: _CtxT) -> rule.ParamRuleDict:
-        """
-        Due to a problem with the Python decorator mechanism,
-        the cbv prd cannot be obtained when the decorator is initialized,
-        so the prd data is obtained and cached on the first request.
-        """
+    ###############
+    # CBV Handler #
+    ###############
+    @classmethod
+    def check_cbv_handler(cls, pait_core_model: "PaitCoreModel", cbv_class: Type) -> None:
+        param_list = get_parameter_list_from_class(cbv_class.__class__)
+        cls._check_param_field_handler(pait_core_model, cbv_class, param_list)
+
+    @classmethod
+    def get_cbv_prd_from_class(cls, pait_core_model: "PaitCoreModel", cbv_class: Type) -> rule.ParamRuleDict:
+        param_list = get_parameter_list_from_class(cbv_class)
+        prd = cls._param_field_pre_handle(pait_core_model, cbv_class, param_list)
+        return prd
+
+    @classmethod
+    def add_cbv_prd(cls, pait_core_model: "PaitCoreModel", cbv_class: Type, kwargs: Dict) -> None:
+        cbv_prd = cls.get_cbv_prd_from_class(pait_core_model, cbv_class)
+        kwargs["_pait_cbv_pre_load_prd"] = cbv_prd
+
+    def get_cbv_prd_from_context(self, context: _CtxT) -> rule.ParamRuleDict:
+        # if use pre_load_cbv, then return it
+        prd = getattr(self, "_pait_cbv_pre_load_prd", None)
+        if prd:
+            return prd
+        # Due to a problem with the Python decorator mechanism,
+        # the cbv prd cannot be obtained when the decorator is initialized,
+        # so the prd data is obtained and cached on the first request.
         cbv_prd: Optional[rule.ParamRuleDict] = getattr(context.cbv_instance, "_param_plugin_cbv_prd", None)
         if cbv_prd:
             return cbv_prd
-        param_list = get_parameter_list_from_class(context.cbv_instance.__class__)
-        prd = self._param_field_pre_handle(context.pait_core_model, context.cbv_instance.__class__, param_list)
+        prd = self.get_cbv_prd_from_class(context.pait_core_model, context.cbv_instance.__class__)
         setattr(context.cbv_instance, "_param_plugin_cbv_prd", prd)
         return prd
 
+    ###################
+    # Runtime Handler #
+    ###################
     def prd_handle(
         self,
         context: _CtxT,
@@ -78,26 +102,9 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
     ) -> Any:
         pass
 
-    # def __post_init__(self, pait_core_model: "PaitCoreModel", args: tuple, kwargs: dict) -> None:
-    #     super(BaseParamHandler, self).__post_init__(pait_core_model, args, kwargs)
-
-    #     # cbv handle
-    #     context_model: "ContextModel" = pait_context.get()
-    #     self.cbv_instance: Optional[Any] = context_model.cbv_instance
-    #     self._app_helper: "BaseAppHelper" = context_model.app_helper
-    #     self.cbv_type: Optional[Type] = None
-
-    #     if self.cbv_instance:
-    #         self.cbv_type = self.cbv_instance.__class__
-    #         self.cbv_param_list: List["inspect.Parameter"] = get_parameter_list_from_class(self.cbv_type)
-    #     else:
-    #         self.cbv_param_list = []
-    #         # cbv_type = getattr(
-    #               inspect.getmodule(func),
-    #               func.__qualname__.split(".<locals>", 1)[0].rsplit(".", 1)[0]
-    #               )
-    #     self.pre_depend_list: List[Callable] = pait_core_model.pre_depend_list
-
+    #######################
+    # check param handler #
+    #######################
     @classmethod
     def check_param_field_by_parameter(
         cls,
@@ -113,11 +120,11 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
                     f" must:{parameter.annotation}, not {func_sig.return_param}",
                 )
         elif isinstance(parameter.default, field.BaseRequestResourceField):
-            if not getattr(pait_core_model.app_helper_class.request_class, parameter.default.get_field_name()):
+            request_class = pait_core_model.app_helper_class.request_class
+            if not getattr(request_class, parameter.default.get_field_name()):
                 raise NotFoundFieldException(
                     parameter.name,
-                    f"field name: {parameter.default.get_field_name()}"
-                    f" not found in {pait_core_model.app_helper_class.request_class}",
+                    f"field name: {parameter.default.get_field_name()} not found in {request_class}",
                 )  # pragma: no cover
             try:
                 check_list: List[Tuple[str, Any]] = [
@@ -158,10 +165,65 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
                 raise TypeError(parameter.name, f"{parameter.name}'s type error")  # pragma: no cover
 
     @classmethod
+    def _check_func(cls, func: CallType) -> None:
+        if inspect.ismethod(func) and not is_bounded_func(func):
+            raise ValueError(f"Func: {func} is not a function")
+
+    @classmethod
+    def _check_depend_handler(cls, pait_core_model: "PaitCoreModel", func: CallType) -> None:
+        """gen depend's pre-load dataclass"""
+        cls._check_func(func)
+        func_sig: FuncSig = get_func_sig(func, cache_sig=False)
+        cls._check_param_field_handler(pait_core_model, func_sig.func, func_sig.param_list)
+
+    @classmethod
+    def _check_param_field_handler(
+        cls,
+        pait_core_model: "PaitCoreModel",
+        _object: Any,
+        param_list: List["inspect.Parameter"],
+    ) -> None:
+        for parameter in param_list:
+            try:
+                if parameter.default != parameter.empty:
+                    # kwargs param
+                    # support model: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseRequestResourceField())
+                    cls.check_param_field_by_parameter(pait_core_model, parameter)
+                    if isinstance(parameter.default, field.Depends):
+                        depend_func = parameter.default.func
+                        if inspect.isclass(depend_func):
+                            cls._check_param_field_handler(
+                                pait_core_model,
+                                depend_func,
+                                get_parameter_list_from_class(depend_func),
+                            )
+                elif inspect.isclass(parameter.annotation) and issubclass(parameter.annotation, BaseModel):
+                    # support model: model: ModelType
+                    cls._check_param_field_handler(
+                        pait_core_model,
+                        parameter.annotation,
+                        get_parameter_list_from_pydantic_basemodel(
+                            parameter.annotation, default_field_class=pait_core_model.default_field_class
+                        ),
+                    )
+            except PaitBaseException as e:
+                raise gen_tip_exc(_object, e, parameter, tip_exception_class=cls.tip_exception_class) from e
+
+    @classmethod
+    def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
+        super().pre_check_hook(pait_core_model, kwargs)
+        func_sig: FuncSig = get_func_sig(pait_core_model.func, cache_sig=False)
+        for pre_depend in pait_core_model.pre_depend_list:
+            cls._check_depend_handler(pait_core_model, pre_depend)
+        cls._check_param_field_handler(pait_core_model, func_sig.func, func_sig.param_list)
+
+    ####################
+    # pre load handler #
+    ####################
+    @classmethod
     def _depend_pre_handle(cls, pait_core_model: "PaitCoreModel", func: CallType) -> rule.PreLoadDc:
         """gen depend's pre-load dataclass"""
-        if inspect.ismethod(func) and not is_bounded_func(func):
-            raise ValueError(f"Method: {func.__qualname__} is not a bounded function")  # pragma: no cover
+        cls._check_func(func)
         func_sig: FuncSig = get_func_sig(func, cache_sig=False)
         return rule.PreLoadDc(
             pait_handler=func,  # depend func gen pait handler in pre-load
@@ -186,9 +248,6 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
                 if parameter.default != parameter.empty:
                     # kwargs param
                     # support model: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseRequestResourceField())
-                    if not ignore_pre_check:
-                        cls.check_param_field_by_parameter(pait_core_model, parameter)
-
                     if isinstance(parameter.default, field.Depends):
                         sub_pld = cls._depend_pre_handle(pait_core_model, parameter.default.func)
                         rule_field_type = rule.request_depend_ft
@@ -265,10 +324,10 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
         return param_rule_dict
 
     @classmethod
-    def pre_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
+    def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
+        super().pre_load_hook(pait_core_model, kwargs)
         func_sig: FuncSig = get_func_sig(pait_core_model.func, cache_sig=False)
         pre_load_dc_list = []
-        # check and load param from pre depend
         for pre_depend in pait_core_model.pre_depend_list:
             pre_load_dc_list.append(cls._depend_pre_handle(pait_core_model, pre_depend))
 
@@ -277,19 +336,4 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
             pre_depend=pre_load_dc_list,
             param=cls._param_field_pre_handle(pait_core_model, func_sig.func, func_sig.param_list),
         )
-        # TODO support cbv class Attribute in pre-load, now in first request
-        # I don't know how to get the class of the decorated function at the initialization of the decorator,
-        # which may be an unattainable feature
-
-    @classmethod
-    def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
-        super().pre_check_hook(pait_core_model, kwargs)
-        cls.pre_hook(pait_core_model, kwargs)
-
-    @classmethod
-    def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
-        super().pre_load_hook(pait_core_model, kwargs)
-        if ignore_pre_check:
-            # pre_check has helped to do the same task as pre_load
-            cls.pre_hook(pait_core_model, kwargs)  # pragma: no cover
         return kwargs

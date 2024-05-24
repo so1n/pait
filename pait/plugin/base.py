@@ -80,16 +80,16 @@ class PluginManager(Generic[_PluginT]):
 
     def __init__(self, plugin_class: Type[_PluginT], **kwargs: Any):
         self.plugin_class = plugin_class
-        self._kwargs = kwargs
+        self.plugin_kwargs = kwargs
 
     def pre_check_hook(self, pait_core_model: "PaitCoreModel") -> None:
-        self.plugin_class.pre_check_hook(pait_core_model, self._kwargs)
+        self.plugin_class.pre_check_hook(pait_core_model, self.plugin_kwargs)
 
     def pre_load_hook(self, pait_core_model: "PaitCoreModel") -> None:
-        self._kwargs = self.plugin_class.pre_load_hook(pait_core_model, self._kwargs)
+        self.plugin_kwargs = self.plugin_class.pre_load_hook(pait_core_model, self.plugin_kwargs)
 
     def get_plugin(self, next_plugin: _NextPluginT, pait_core_model: "PaitCoreModel") -> _PluginT:
-        return self.plugin_class(next_plugin, pait_core_model, **self._kwargs)
+        return self.plugin_class(next_plugin, pait_core_model, **self.plugin_kwargs)
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} {self.plugin_class.__name__}>"

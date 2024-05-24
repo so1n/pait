@@ -165,6 +165,10 @@ class PaitCoreModel(object):
         self._operation_id = quote_plus(operation_id)
 
     @property
+    def param_handler_pm(self) -> PluginManager:
+        return self._param_handler_plugin
+
+    @property
     def param_handler_plugin(self) -> Type[BaseParamHandler]:
         return self._param_handler_plugin.plugin_class
 

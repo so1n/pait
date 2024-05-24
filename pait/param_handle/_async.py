@@ -99,7 +99,7 @@ class AsyncParamHandler(BaseParamHandler[AsyncParamHandleContext]):
         )
 
         if context.cbv_instance:
-            prd = self.get_cbv_prd(context)
+            prd = self.get_cbv_prd_from_context(context)
             _, kwargs = await self.prd_handle(context, context.cbv_instance.__class__, prd)
             context.cbv_instance.__dict__.update(kwargs)
         return None

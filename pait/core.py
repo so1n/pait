@@ -1,7 +1,8 @@
 import inspect
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union, get_args
 
+from any_api.openapi.model.util import HttpMethodLiteral
 from typing_extensions import Required, Self, TypedDict, Unpack
 
 from pait.app.base import BaseAppHelper
@@ -240,8 +241,16 @@ class Pait(object):
         return self.__class__(**easy_to_develop_merge_kwargs(self._param_kwargs, kwargs))
 
     @staticmethod
-    def build(func: Callable) -> None:
-        get_core_model(func).build()
+    def pre_load_cbv(cbv_class: Type) -> None:
+        for http_method in get_args(HttpMethodLiteral):
+            func = getattr(cbv_class, http_method, None)
+            if not func:
+                continue
+            core_model = get_core_model(func)
+            core_model.param_handler_plugin.check_cbv_handler(core_model, cbv_class)
+            core_model.param_handler_plugin.add_cbv_prd(
+                core_model, cbv_class, core_model.param_handler_pm.plugin_kwargs
+            )
 
     def __call__(self, **kwargs: Unpack[PaitCreateSubParamTypedDict]) -> Callable:
         """
