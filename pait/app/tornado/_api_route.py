@@ -31,12 +31,13 @@ class APIRoute(BaseAPIRoute):
         rule_list = []
         replace_openapi_url_to_url = replace_openapi_url_to_url or default_replace_openapi_url_to_url
 
+        _pait = self._pait_type()
         for route_dc in self.route:
             _framework_extra_param = self.framework_extra_param.copy()
             _framework_extra_param.update(route_dc.framework_extra_param)
             if "request_handler" in _framework_extra_param:
                 request_handler = _framework_extra_param.pop("request_handler")
-            route = self._pait(**route_dc.pait_param)(route_dc.route)
+            route = _pait(**route_dc.pait_param)(route_dc.route)
             get_core_model(route).openapi_path = self.get_openapi_path(route_dc.path)
             route_title = _framework_extra_param.pop("route_title", route.__name__.title() + "Handler")
             route_model = _framework_extra_param.pop("route_model", f"{__name__}.{route.__name__}")

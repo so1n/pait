@@ -28,8 +28,9 @@ class APIRoute(BaseAPIRoute):
         if not replace_openapi_url_to_url:
             replace_openapi_url_to_url = default_replace_openapi_url_to_url
 
+        _pait = self._pait_type()
         for route_dc in self.route:
-            route = self._pait(**route_dc.pait_param)(route_dc.route)
+            route = _pait(**route_dc.pait_param)(route_dc.route)
             get_core_model(route).openapi_path = self.get_openapi_path(route_dc.path)
             _framework_extra_param = self.framework_extra_param.copy()
             _framework_extra_param.update(route_dc.framework_extra_param)

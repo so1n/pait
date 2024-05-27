@@ -3,7 +3,7 @@ from functools import wraps
 from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union, get_args
 
 from any_api.openapi.model.util import HttpMethodLiteral
-from typing_extensions import Required, Self, TypedDict, Unpack
+from typing_extensions import Literal, Required, Self, TypedDict, Unpack
 
 from pait.app.base import BaseAppHelper
 from pait.extra.util import sync_config_data_to_pait_core_model
@@ -124,16 +124,16 @@ def _append_data(
         raise KeyError(f"{key} and append_{key} cannot be used together")  # pragma: no cover
     if append_container:
         return (self_container or append_container.__class__()) + append_container
-    elif target_container is None:
+    elif not target_container:
         return self_container
     else:
         return target_container
 
 
 def easy_to_develop_merge_kwargs(
-    base_param: PaitInitParamTypedDict,
-    use_param: Union[PaitInitParamTypedDict, PaitCreateSubParamTypedDict],
-    enable_merge_same_key_append_param: bool = False,
+    before_param: Union[PaitInitParamTypedDict, PaitCreateSubParamTypedDict],
+    after_param: Union[PaitInitParamTypedDict, PaitCreateSubParamTypedDict],
+    append_param: Literal["after", "before"] = "after",
 ) -> PaitInitParamTypedDict:
     """
     A large number of similar parameters are used in the Pait project,
@@ -147,32 +147,37 @@ def easy_to_develop_merge_kwargs(
      which has little impact.
     """
     # init extra key
-    if "extra" not in use_param or not use_param["extra"]:
-        use_param["extra"] = {}
+    if "extra" not in after_param or not after_param["extra"]:
+        after_param["extra"] = {}
 
     for key in PaitCreateSubParamTypedDict.__annotations__.keys():
         if key in only_need_append_param_key_list:
             # handler append param
             append_key = f"append_{key}"
-            use_param[key] = _append_data(  # type: ignore[literal-required] # why mypy not support?
-                key,
-                use_param.get(key, None),
-                use_param.get(append_key, None),
-                base_param.get(key, None),
-            )
-            use_param.pop(append_key, None)  # type: ignore[misc]
-            if enable_merge_same_key_append_param and use_param.get(key, None) and base_param.get(key, None):
-                # In Pait class is not necessary, but it is necessary in APIRoute
-                use_param[key] = use_param[key] + base_param[key]  # type: ignore[literal-required]
+            if append_param == "after":
+                after_param[key] = _append_data(  # type: ignore[literal-required] # why mypy not support?
+                    key,
+                    after_param.get(key, None),
+                    after_param.get(append_key, None),
+                    before_param.get(key, None),
+                )
+            else:
+                after_param[key] = _append_data(  # type: ignore[literal-required] # why mypy not support?
+                    key,
+                    before_param.get(key, None),
+                    before_param.get(append_key, None),
+                    after_param.get(key, None),
+                )
+            after_param.pop(append_key, None)  # type: ignore[misc]
         else:
             if key not in PaitCreateSubParamTypedDict.__annotations__:
                 # Compatible with the extra parameter
-                use_param["extra"][key] = use_param.pop(key, None)  # type: ignore[misc,literal-required]
-            elif not (key in use_param and use_param[key]) and key in base_param:  # type: ignore[literal-required]
+                after_param["extra"][key] = after_param.pop(key, None)  # type: ignore[misc,literal-required]
+            elif not (key in after_param and after_param[key] is not None) and key in before_param:  # type: ignore
                 # merge data
-                use_param[key] = base_param[key]  # type: ignore[literal-required] # mypy why not support?
+                after_param[key] = before_param[key]  # type: ignore[literal-required] # mypy why not support?
 
-    return use_param
+    return after_param
 
 
 class Pait(object):
