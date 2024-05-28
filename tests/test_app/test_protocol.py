@@ -19,6 +19,7 @@ class BaseTestProtocol:
     ) -> None:
         assert app_signature.return_annotation == any_app_signature.return_annotation
         if not support_extra_param and len(app_signature.parameters) != len(any_app_signature.parameters):
+            print(len(app_signature.parameters), len(any_app_signature.parameters))
             raise ValueError(f"{app_name}' func <{func_name}> param length error")
         for param, param_annotation in any_app_signature.parameters.items():
             if param in ("app", "kwargs"):
@@ -67,7 +68,21 @@ class BaseTestProtocol:
 
 class TestProtocol(BaseTestProtocol):
     def test_load_app(self) -> None:
-        self._check_func_type_hint(any_app.load_app.__name__)
+        func_name = any_app.load_app.__name__
+        for app in app_list:
+            self._clean_app_from_sys_module()
+            importlib.import_module(app)
+
+            obj = importlib.import_module(f"pait.app.{app}")
+            any_app_signature: inspect.Signature = inspect.signature(getattr(any_app, func_name))
+            app_signature: inspect.Signature = inspect.signature(getattr(obj, func_name))
+            app_signature = inspect.Signature(
+                [v for k, v in app_signature.parameters.items() if k != "pait"],
+                return_annotation=app_signature.return_annotation,
+            )
+            self._real_check_func_type_hint(
+                app_signature, any_app_signature, obj.__name__, func_name, support_extra_param=False
+            )
 
     def test_pait_func(self) -> None:
         self._check_func_type_hint(any_app.pait.__name__)
