@@ -375,11 +375,12 @@ class TestTornado(BaseTestTornado):
         self.base_test.tag(main_example.TagHandler.get)
 
     def test_api_route(self) -> None:
-        from example.tornado_example.api_route import get_user_info, health, login
+        from example.tornado_example.api_route import APIRouteCBVHandler, get_user_info, health, login
 
         self.base_test.api_route_health(health)
         self.base_test.api_route_get_user_info(get_user_info)
         self.base_test.api_route_login(login)
+        self.base_test.api_route_cbv(APIRouteCBVHandler)
 
     def test_openapi_content(self) -> None:
         BaseTestOpenAPI(self._app).test_all()

@@ -56,7 +56,7 @@ class TestApiRoute:
             append_response_model_list=[HtmlResponseModel],
             sync_to_thread=True,
             feature_code="api",
-            extra={"a": 1, "b": 2},
+            extra={"a": 1, "b": 2, "g": 10},
         )
         api_route.add_api_route(
             demo,
@@ -97,19 +97,25 @@ class TestApiRoute:
 
         for route_dc in api_route.route:
             assert route_dc.pait_param.get("default_field_class") == Query
-            assert route_dc.pait_param.get("pre_depend_list") == [demo_depend2, demo_depend1]
-            assert route_dc.pait_param.get("author") == ("two", "one")
+            assert route_dc.pait_param.get("pre_depend_list") == [demo_depend2]
+            assert route_dc.pait_param.get("append_pre_depend_list") == [demo_depend1]
+            assert route_dc.pait_param.get("author") == ("two",)
+            assert route_dc.pait_param.get("append_author") == ("one",)
             assert route_dc.pait_param.get("desc") == "user desc"
             assert route_dc.pait_param.get("summary") == "user summary"
             assert route_dc.pait_param.get("status") == PaitStatus.release
             assert route_dc.pait_param.get("group") == "user group"
-            assert route_dc.pait_param.get("tag") == (user_tag, api_tag)
-            assert route_dc.pait_param.get("response_model_list") == [JsonResponseModel, HtmlResponseModel]
+            assert route_dc.pait_param.get("tag") == (user_tag,)
+            assert route_dc.pait_param.get("append_tag") == (api_tag,)
+            assert route_dc.pait_param.get("response_model_list") == [JsonResponseModel]
+            assert route_dc.pait_param.get("append_response_model_list") == [HtmlResponseModel]
             assert route_dc.pait_param.get("sync_to_thread") is False
             assert route_dc.pait_param.get("feature_code") == "user"
-            assert route_dc.pait_param.get("extra") == {"a": 1, "b": 3, "c": 5}
+            assert route_dc.pait_param.get("extra") == {"a": 1, "b": 3, "c": 5, "g": 10}
 
     def test_http_method(self) -> None:
+        from pait.app.base.api_route import RouteDc
+
         def demo() -> None:
             pass
 
@@ -117,6 +123,9 @@ class TestApiRoute:
 
         for http_method in ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS", "TRACE"]:
             getattr(api_route, http_method.lower())(path="/api", framework_extra_param={"b": 3, "c": 5})(demo)
-            assert api_route.route[-1].method_list == [http_method]
-            assert api_route.route[-1].path == "/api"
-            assert api_route.route[-1].framework_extra_param == {"a": 1, "b": 3, "c": 5}
+            route = api_route.route[-1]
+            if not isinstance(route, RouteDc):
+                continue
+            assert route.method_list == [http_method]
+            assert route.path == "/api"
+            assert route.framework_extra_param == {"a": 1, "b": 3, "c": 5}

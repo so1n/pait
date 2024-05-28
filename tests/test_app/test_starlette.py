@@ -449,11 +449,12 @@ class TestStarlette:
         base_test.tag(main_example.tag_route)
 
     def test_api_route(self, base_test: BaseTest) -> None:
-        from example.starlette_example.api_route import get_user_info, health, login
+        from example.starlette_example.api_route import APIRouteCBV, get_user_info, health, login
 
         base_test.api_route_health(health)
         base_test.api_route_get_user_info(get_user_info)
         base_test.api_route_login(login)
+        base_test.api_route_cbv(APIRouteCBV)
 
     def test_openapi_content(self, base_test: BaseTest) -> None:
         BaseTestOpenAPI(base_test.client.app).test_all()

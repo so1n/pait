@@ -6,8 +6,8 @@ from example.common import depend, tag
 from example.common.request_model import UserModel
 from example.common.response_model import LoginRespModel, SimpleRespModel
 from example.tornado_example.utils import create_app
-from pait.app.tornado import APIRoute
-from pait.field import Depends, Json
+from pait.app.tornado import APIRoute, pait
+from pait.field import Depends, Header, Json
 
 user_api_route = APIRoute(path="/user", tag=(tag.user_tag,), group="user")
 
@@ -40,6 +40,27 @@ async def health(
     request.write({"code": 0, "msg": "ok", "data": {}})
 
 
+class APIRouteCBVHandler(RequestHandler):
+    content_type: str = Header.i(alias="Content-Type")
+
+    @pait()
+    async def get(self, user_model: UserModel = Depends.i(depend.GetUserDepend)) -> None:
+        self.write({"code": 0, "msg": "ok", "data": user_model.dict(), "content_type": self.content_type})
+
+    async def post(
+        self, uid: str = Json.i(description="user id"), password: str = Json.i(description="password")
+    ) -> None:
+        self.write(
+            {
+                "code": 0,
+                "msg": "",
+                "data": {"token": hashlib.sha256((uid + password).encode("utf-8")).hexdigest()},
+                "content_type": self.content_type,
+            }
+        )
+
+
+user_api_route.add_cbv_route(APIRouteCBVHandler, path="/cbv")
 main_api_route = APIRoute(path="/api", tag=(tag.root_api_tag,)).include_sub_route(user_api_route, health_api_route)
 
 if __name__ == "__main__":

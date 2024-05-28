@@ -1,11 +1,13 @@
 import hashlib
 
+from flask.views import MethodView
+
 from example.common import depend, tag
 from example.common.request_model import UserModel
 from example.common.response_model import LoginRespModel, SimpleRespModel
 from example.flask_example.utils import create_app
-from pait.app.flask import APIRoute
-from pait.field import Depends, Json
+from pait.app.flask import APIRoute, pait
+from pait.field import Depends, Header, Json
 
 user_api_route = APIRoute(path="/user", tag=(tag.user_tag,), group="user")
 
@@ -31,7 +33,25 @@ def health() -> dict:
     return {"code": 0, "msg": "ok", "data": {}}
 
 
+class APIRouteCBV(MethodView):
+    content_type: str = Header.i(alias="Content-Type")
+
+    @pait()
+    def get(self, user_model: UserModel = Depends.i(depend.GetUserDepend)) -> dict:
+        return {"code": 0, "msg": "ok", "data": user_model.dict(), "content_type": self.content_type}
+
+    def post(self, uid: str = Json.i(description="user id"), password: str = Json.i(description="password")) -> dict:
+        return {
+            "code": 0,
+            "msg": "",
+            "data": {"token": hashlib.sha256((uid + password).encode("utf-8")).hexdigest()},
+            "content_type": self.content_type,
+        }
+
+
+user_api_route.add_cbv_route(APIRouteCBV, path="/cbv")
 main_api_route = APIRoute(path="/api", tag=(tag.root_api_tag,)).include_sub_route(user_api_route, health_api_route)
+
 
 if __name__ == "__main__":
     with create_app(__name__) as app:

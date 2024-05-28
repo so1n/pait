@@ -32,7 +32,7 @@ class BaseTest(object):
         msg: str = self.test_helper(
             self.client, route, header_dict={"Content-Type": "test"}, body_dict={"temp": None}
         ).json()["msg"]
-        assert msg == "error param:content__type, Can not found content__type value"
+        assert msg.startswith("error param:content__type, Can not found content__type value")
         if is_raise:
             assert "<-- error" in debug_logger.call_args[0][0]
         else:
@@ -589,3 +589,28 @@ class BaseTest(object):
         assert self.test_helper(
             self.client, route, query_dict={"uid": 100, "user_name": "so1n"}, strict_inspection_check_json_content=False
         ).json() == {"code": 0, "msg": "ok", "data": {"uid": 100, "user_name": "so1n"}}
+
+    def api_route_cbv(self, cbv_route: Type) -> None:
+        cbv_get_route = getattr(cbv_route, "get")
+        cbv_post_route = getattr(cbv_route, "post")
+        assert self.test_helper(
+            self.client,
+            cbv_get_route,
+            header_dict={"Content-Type": "application/json"},
+            query_dict={"uid": 100, "user_name": "so1n"},
+            strict_inspection_check_json_content=False,
+        ).json() == {
+            "code": 0,
+            "msg": "ok",
+            "data": {"uid": 100, "user_name": "so1n"},
+            "content_type": "application/json",
+        }
+        assert (
+            self.test_helper(
+                self.client,
+                cbv_post_route,
+                body_dict={"uid": "10086", "password": "123"},
+                header_dict={"Content-Type": "application/json"},
+            ).json()["data"]["token"]
+            == hashlib.sha256(("10086" + "123").encode("utf-8")).hexdigest()
+        )

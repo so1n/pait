@@ -1,9 +1,9 @@
 import inspect
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union, get_args
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union
 
 from any_api.openapi.model.util import HttpMethodLiteral
-from typing_extensions import Literal, Required, Self, TypedDict, Unpack
+from typing_extensions import Literal, Required, Self, TypedDict, Unpack, get_args
 
 from pait.app.base import BaseAppHelper
 from pait.extra.util import sync_config_data_to_pait_core_model
@@ -28,6 +28,7 @@ from pait.model.core import (
     get_core_model,
 )
 from pait.model.response import BaseResponseModel
+from pait.model.status import PaitStatus
 from pait.param_handle import AsyncParamHandler, BaseParamHandler, ParamHandler
 from pait.util import get_func_sig
 
@@ -246,7 +247,18 @@ class Pait(object):
         return self.__class__(**easy_to_develop_merge_kwargs(self._param_kwargs, kwargs))
 
     @staticmethod
-    def pre_load_cbv(cbv_class: Type) -> None:
+    def pre_load_cbv(cbv_class: Type, **kwargs: Unpack[PaitCreateSubParamTypedDict]) -> None:
+        for key in ("sync_to_thread", "feature_code", "plugin_list", "post_plugin_list", "param_handler_plugin"):
+            if kwargs.get(key):
+                raise ValueError(f"{key} can't be used in pre_load_cbv")
+
+        append_pre_depend_list = kwargs.get("append_pre_depend_list", [])
+        append_author = kwargs.get("append_author", tuple())
+        append_tag = kwargs.get("append_tag", tuple())
+        append_response_model_list = kwargs.get("append_response_model_list", [])
+        append_plugin_list = kwargs.get("append_plugin_list", [])
+        append_post_plugin_list = kwargs.get("append_post_plugin_list", [])
+
         for http_method in get_args(HttpMethodLiteral):
             func = getattr(cbv_class, http_method, None)
             if not func:
@@ -256,6 +268,44 @@ class Pait(object):
             core_model.param_handler_plugin.add_cbv_prd(
                 core_model, cbv_class, core_model.param_handler_pm.plugin_kwargs
             )
+            if not core_model.default_field_class and kwargs.get("default_field_class"):
+                core_model.default_field_class = kwargs.get("default_field_class")
+            if not core_model.pre_depend_list and kwargs.get("pre_depend_list"):
+                core_model.pre_depend_list = kwargs.get("pre_depend_list") or []
+            if not core_model.operation_id and kwargs.get("operation_id"):
+                core_model.operation_id = kwargs.get("operation_id") or ""
+            if not core_model.author and kwargs.get("author"):
+                core_model.author = kwargs.get("author") or tuple()
+            if not core_model.desc and kwargs.get("desc"):
+                core_model.desc = kwargs.get("desc") or ""
+            if not core_model.summary and kwargs.get("summary"):
+                core_model.summary = kwargs.get("summary") or ""
+            if not core_model.func_name and kwargs.get("name"):
+                core_model.func_name = kwargs.get("name") or ""
+            if not core_model.status and kwargs.get("status"):
+                core_model.status = kwargs.get("status") or PaitStatus.undefined
+            if not core_model.group and kwargs.get("group"):
+                core_model.group = kwargs.get("group") or "root"
+            if not core_model.tag and kwargs.get("tag"):
+                core_model.tag = kwargs.get("tag") or tuple()
+            if not core_model.response_model_list and kwargs.get("response_model_list"):
+                core_model.add_response_model_list(kwargs.get("response_model_list") or [])
+
+            if append_pre_depend_list:
+                core_model.pre_depend_list.extend(append_pre_depend_list)
+            if append_author:
+                if core_model.author:
+                    core_model.author = core_model.author + append_author
+                else:
+                    core_model.author = append_author
+            if append_tag:
+                core_model.tag = core_model.tag + append_tag
+            if append_response_model_list:
+                core_model.add_response_model_list(append_response_model_list)
+            if append_plugin_list or append_post_plugin_list:
+                core_model.add_plugin(append_plugin_list, append_post_plugin_list)
+
+            core_model.build()
 
     def __call__(self, **kwargs: Unpack[PaitCreateSubParamTypedDict]) -> Callable:
         """
