@@ -81,8 +81,12 @@ class PluginManager(Generic[_PluginT]):
     def __init__(self, plugin_class: Type[_PluginT], **kwargs: Any):
         self.plugin_class = plugin_class
         self.plugin_kwargs = kwargs
+        self._already_check = False
 
     def pre_check_hook(self, pait_core_model: "PaitCoreModel") -> None:
+        if self._already_check:
+            return
+        self._already_check = True
         self.plugin_class.pre_check_hook(pait_core_model, self.plugin_kwargs)
 
     def pre_load_hook(self, pait_core_model: "PaitCoreModel") -> None:

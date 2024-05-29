@@ -62,6 +62,12 @@ def get_core_model(route: Callable) -> "PaitCoreModel":
     return core_model
 
 
+class DefaultValue(object):
+    status: PaitStatus = PaitStatus.undefined
+    group: str = "root"
+    tag: Tuple[Tag, ...] = (Tag(name="default"),)
+
+
 class PaitCoreModel(object):
     _param_handler_plugin: PluginManager["BaseParamHandler"]
     _main_plugin: PluginProtocol
@@ -117,9 +123,9 @@ class PaitCoreModel(object):
         self.author: AuthorOptionalType = author  # The main developer of this func
         self.summary: str = summary or ""
         self.desc: str = desc or func.__doc__ or ""  # desc of this func
-        self.status: PaitStatus = status or PaitStatus.undefined
-        self.group: str = group or "root"  # Which group this interface belongs to
-        self.tag: Tuple[Tag, ...] = tag or (Tag(name="default"),)  # Interface tag
+        self.status: PaitStatus = status or DefaultValue.status
+        self.group: str = group or DefaultValue.group  # Which group this interface belongs to
+        self.tag: Tuple[Tag, ...] = tag or DefaultValue.tag  # Interface tag
         self._extra_openapi_model_list: List[Type[BaseModel]] = []
         self._response_model_list: List[Type[BaseResponseModel]] = []
         if response_model_list:

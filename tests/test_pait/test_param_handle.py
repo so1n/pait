@@ -113,6 +113,20 @@ class TestParamPlugin:
         else:
             raise RuntimeError("Test Fail")
 
+    def test_check_func(self) -> None:
+        class Demo:
+            def demo(self) -> None:
+                pass
+
+        def demo() -> None:
+            pass
+
+        ParamHandler._check_func(demo)
+        try:
+            ParamHandler._check_func(Demo.demo)
+        except Exception:
+            assert " is not a function" in traceback.format_exc()
+
 
 class TestRule:
     def test_get_real_request_value_by_raw_return_is_true(self) -> None:

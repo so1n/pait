@@ -24,7 +24,7 @@ class Config(object):
     __initialized: bool = False
 
     def __init__(self) -> None:
-        self.author: Tuple[str, ...] = ("",)
+        self.author: Tuple[str, ...] = tuple()
         self.status: PaitStatus = PaitStatus.undefined
         self.default_response_model_list: List[Type[BaseResponseModel]] = []
         self.json_encoder: Type[JSONEncoder] = CustomJSONEncoder

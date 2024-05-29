@@ -3,7 +3,7 @@ from functools import wraps
 from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union
 
 from any_api.openapi.model.util import HttpMethodLiteral
-from typing_extensions import Literal, Required, Self, TypedDict, Unpack, get_args
+from typing_extensions import Required, Self, TypedDict, Unpack, get_args
 
 from pait.app.base import BaseAppHelper
 from pait.extra.util import sync_config_data_to_pait_core_model
@@ -12,6 +12,7 @@ from pait.model.context import ContextModel
 from pait.model.core import (
     AuthorOptionalType,
     DefaultFieldClassOptionalType,
+    DefaultValue,
     DependListOptionalType,
     DescOptionalType,
     FuncNameOptionalType,
@@ -28,7 +29,6 @@ from pait.model.core import (
     get_core_model,
 )
 from pait.model.response import BaseResponseModel
-from pait.model.status import PaitStatus
 from pait.param_handle import AsyncParamHandler, BaseParamHandler, ParamHandler
 from pait.util import get_func_sig
 
@@ -134,7 +134,6 @@ def _append_data(
 def easy_to_develop_merge_kwargs(
     before_param: Union[PaitInitParamTypedDict, PaitCreateSubParamTypedDict],
     after_param: Union[PaitInitParamTypedDict, PaitCreateSubParamTypedDict],
-    append_param: Literal["after", "before"] = "after",
 ) -> PaitInitParamTypedDict:
     """
     A large number of similar parameters are used in the Pait project,
@@ -155,28 +154,16 @@ def easy_to_develop_merge_kwargs(
         if key in only_need_append_param_key_list:
             # handler append param
             append_key = f"append_{key}"
-            if append_param == "after":
-                after_param[key] = _append_data(  # type: ignore[literal-required] # why mypy not support?
-                    key,
-                    after_param.get(key, None),
-                    after_param.get(append_key, None),
-                    before_param.get(key, None),
-                )
-            else:
-                after_param[key] = _append_data(  # type: ignore[literal-required] # why mypy not support?
-                    key,
-                    before_param.get(key, None),
-                    before_param.get(append_key, None),
-                    after_param.get(key, None),
-                )
+            after_param[key] = _append_data(  # type: ignore[literal-required] # why mypy not support?
+                key,
+                after_param.get(key, None),
+                after_param.get(append_key, None),
+                before_param.get(key, None),
+            )
             after_param.pop(append_key, None)  # type: ignore[misc]
-        else:
-            if key not in PaitCreateSubParamTypedDict.__annotations__:
-                # Compatible with the extra parameter
-                after_param["extra"][key] = after_param.pop(key, None)  # type: ignore[misc,literal-required]
-            elif not (key in after_param and after_param[key] is not None) and key in before_param:  # type: ignore
-                # merge data
-                after_param[key] = before_param[key]  # type: ignore[literal-required] # mypy why not support?
+        elif not (key in after_param and after_param[key] is not None) and key in before_param:  # type: ignore
+            # merge data
+            after_param[key] = before_param[key]  # type: ignore[literal-required] # mypy why not support?
 
     return after_param
 
@@ -211,7 +198,7 @@ class Pait(object):
                 kwargs["extra"][key] = kwargs.pop(key, None)  # type: ignore[misc,literal-required]
 
         self._param_kwargs = kwargs
-        self._param_kwargs["response_model_list"] = self._param_kwargs.get("response_model_list", []) or []
+        len(self.response_model_list)  # len has no effect, it just initializes the response_model_list parameter
         if "auto_build" not in self._param_kwargs:
             self._param_kwargs["auto_build"] = True
 
@@ -248,7 +235,15 @@ class Pait(object):
 
     @staticmethod
     def pre_load_cbv(cbv_class: Type, **kwargs: Unpack[PaitCreateSubParamTypedDict]) -> None:
-        for key in ("sync_to_thread", "feature_code", "plugin_list", "post_plugin_list", "param_handler_plugin"):
+        for key in (
+            "sync_to_thread",
+            "feature_code",
+            "plugin_list",
+            "post_plugin_list",
+            "param_handler_plugin",
+            "name",
+            "operation_id",
+        ):
             if kwargs.get(key):
                 raise ValueError(f"{key} can't be used in pre_load_cbv")
 
@@ -272,22 +267,18 @@ class Pait(object):
                 core_model.default_field_class = kwargs.get("default_field_class")
             if not core_model.pre_depend_list and kwargs.get("pre_depend_list"):
                 core_model.pre_depend_list = kwargs.get("pre_depend_list") or []
-            if not core_model.operation_id and kwargs.get("operation_id"):
-                core_model.operation_id = kwargs.get("operation_id") or ""
             if not core_model.author and kwargs.get("author"):
                 core_model.author = kwargs.get("author") or tuple()
             if not core_model.desc and kwargs.get("desc"):
                 core_model.desc = kwargs.get("desc") or ""
             if not core_model.summary and kwargs.get("summary"):
                 core_model.summary = kwargs.get("summary") or ""
-            if not core_model.func_name and kwargs.get("name"):
-                core_model.func_name = kwargs.get("name") or ""
-            if not core_model.status and kwargs.get("status"):
-                core_model.status = kwargs.get("status") or PaitStatus.undefined
-            if not core_model.group and kwargs.get("group"):
-                core_model.group = kwargs.get("group") or "root"
-            if not core_model.tag and kwargs.get("tag"):
-                core_model.tag = kwargs.get("tag") or tuple()
+            if core_model.status is DefaultValue.status and kwargs.get("status"):
+                core_model.status = kwargs.get("status") or DefaultValue.status
+            if (not core_model.group or core_model.group is DefaultValue.group) and kwargs.get("group"):
+                core_model.group = kwargs.get("group") or DefaultValue.group
+            if (not core_model.tag or core_model.tag is DefaultValue.tag) and kwargs.get("tag"):
+                core_model.tag = kwargs.get("tag") or DefaultValue.tag
             if not core_model.response_model_list and kwargs.get("response_model_list"):
                 core_model.add_response_model_list(kwargs.get("response_model_list") or [])
 
