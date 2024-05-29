@@ -58,6 +58,9 @@ class Tag(object):
             return False
         return other.to_dict() == self.to_dict()
 
+    def __hash__(self) -> int:
+        return hash(self.name + self.desc)
+
     def __repr__(self) -> str:
         return f"<{__name__}.{self.__class__.__name__}>(name='{self.name}')"
 

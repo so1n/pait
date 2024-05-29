@@ -1,4 +1,3 @@
-import copy
 import logging
 import traceback
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type, Union
@@ -63,6 +62,12 @@ def get_core_model(route: Callable) -> "PaitCoreModel":
     return core_model
 
 
+class DefaultValue(object):
+    status: PaitStatus = PaitStatus.undefined
+    group: str = "root"
+    tag: Tuple[Tag, ...] = (Tag(name="default"),)
+
+
 class PaitCoreModel(object):
     _param_handler_plugin: PluginManager["BaseParamHandler"]
     _main_plugin: PluginProtocol
@@ -118,15 +123,16 @@ class PaitCoreModel(object):
         self.author: AuthorOptionalType = author  # The main developer of this func
         self.summary: str = summary or ""
         self.desc: str = desc or func.__doc__ or ""  # desc of this func
-        self.status: PaitStatus = status or PaitStatus.undefined
-        self.group: str = group or "root"  # Which group this interface belongs to
-        self.tag: Tuple[Tag, ...] = tag or (Tag(name="default"),)  # Interface tag
+        self.status: PaitStatus = status or DefaultValue.status
+        self.group: str = group or DefaultValue.group  # Which group this interface belongs to
+        self.tag: Tuple[Tag, ...] = tag or DefaultValue.tag  # Interface tag
         self._extra_openapi_model_list: List[Type[BaseModel]] = []
         self._response_model_list: List[Type[BaseResponseModel]] = []
         if response_model_list:
             self.add_response_model_list(response_model_list)
 
         # pait plugin
+        self._need_build_plugin: bool = False
         self._plugin_list: List[PluginManager] = []
         self._post_plugin_list: List[PluginManager] = []
         self.param_handler_plugin = param_handler_plugin  # type: ignore
@@ -165,22 +171,25 @@ class PaitCoreModel(object):
         self._operation_id = quote_plus(operation_id)
 
     @property
+    def param_handler_pm(self) -> PluginManager:
+        return self._param_handler_plugin
+
+    @property
     def param_handler_plugin(self) -> Type[BaseParamHandler]:
         return self._param_handler_plugin.plugin_class
 
     @param_handler_plugin.setter
     def param_handler_plugin(self, param_handler_plugin: Type[BaseParamHandler]) -> None:
-        self._param_handler_plugin = PluginManager(param_handler_plugin)
-
         try:
+            pm = PluginManager(param_handler_plugin)
             if not ignore_pre_check:
-                self._param_handler_plugin.pre_check_hook(self)
-            self._param_handler_plugin.pre_load_hook(self)
+                pm.pre_check_hook(self)
         except Exception as e:
             raise gen_tip_exc(
                 self.func, RuntimeError(f"set param plugin error: {e}" + "\n\n" + traceback.format_exc())
             ) from e
-        self.add_plugin([], [])
+        self._param_handler_plugin = pm
+        self._need_build_plugin = True
 
     @property
     def method_list(self) -> List[str]:
@@ -226,40 +235,48 @@ class PaitCoreModel(object):
 
     def build_plugin_stack(self) -> None:
         plugin_manager_list: List[PluginManager] = (
-            [i for i in self._plugin_list] + [self._param_handler_plugin] + [i for i in self._post_plugin_list]
+            self._plugin_list + [self._param_handler_plugin] + self._post_plugin_list
         )
+        for plugin_manager in plugin_manager_list:
+            plugin_manager.pre_load_hook(self)
+
         self._main_plugin = self.func  # type: ignore
         for plugin_manager in reversed(plugin_manager_list):
             self._main_plugin = plugin_manager.get_plugin(self._main_plugin, self)
+        self._need_build_plugin = False
+
+    def build(self) -> None:
+        """Currently, only plugins need to build, and other features may be added in the future,
+        and they also need to build, so the build method is kept here"""
+        if self._need_build_plugin:
+            self.build_plugin_stack()
 
     def add_plugin(
         self,
         plugin_list: Optional[List[PluginManager[PrePluginProtocol]]],
         post_plugin_list: Optional[List[PluginManager[PostPluginProtocol]]],
     ) -> None:
-        raw_plugin_list: List[PluginManager] = copy.deepcopy(self._plugin_list)
-        raw_post_plugin_list: List[PluginManager] = copy.deepcopy(self._post_plugin_list)
+        wait_add_plugin_list = []
+        wait_add_post_plugin_list = []
         try:
             for plugin_manager in plugin_list or []:
-                if issubclass(plugin_manager.plugin_class, PostPluginProtocol):
+                if not issubclass(plugin_manager.plugin_class, PrePluginProtocol):
                     raise ValueError(f"{plugin_manager.plugin_class} is post plugin")
                 if not ignore_pre_check:
                     plugin_manager.pre_check_hook(self)
-                plugin_manager.pre_load_hook(self)
-                self._plugin_list.append(plugin_manager)
+                wait_add_plugin_list.append(plugin_manager)
 
             for post_plugin_manager in post_plugin_list or []:
-                if issubclass(post_plugin_manager.plugin_class, PrePluginProtocol):
+                if not issubclass(post_plugin_manager.plugin_class, PostPluginProtocol):
                     raise ValueError(f"{post_plugin_manager.plugin_class} is pre plugin")
                 if not ignore_pre_check:
                     post_plugin_manager.pre_check_hook(self)
-                post_plugin_manager.pre_load_hook(self)
-                self._post_plugin_list.append(post_plugin_manager)
+                wait_add_post_plugin_list.append(post_plugin_manager)
         except Exception as e:
-            self._plugin_list = raw_plugin_list
-            self._post_plugin_list = raw_post_plugin_list
             raise gen_tip_exc(
                 self.func, RuntimeError(f"{self.func} add plugin error" + "\n\n" + traceback.format_exc())
             ) from e
         else:
-            self.build_plugin_stack()
+            self._need_build_plugin = True
+            self._plugin_list.extend(wait_add_plugin_list)
+            self._post_plugin_list.extend(wait_add_post_plugin_list)

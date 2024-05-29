@@ -7,11 +7,14 @@ from starlette import routing
 from starlette.applications import Starlette
 from starlette.endpoints import HTTPEndpoint
 
+from pait.data import PaitCoreProxyModel
 from pait.g import pait_data
 from pait.model.core import PaitCoreModel
 from pait.util import http_method_tuple
 
 from ._app_helper import AppHelper
+from ._pait import Pait
+from ._pait import pait as default_pait
 
 __all__ = ["load_app", "get_openapi_path"]
 
@@ -28,6 +31,8 @@ def _load_route(
     auto_load_route: bool = False,
     override_operation_id: bool = False,
     overwrite_already_exists_data: bool = False,
+    pait: Pait = default_pait,
+    auto_cbv_handle: bool = True,
 ) -> None:
     path: str = route.path
     if prefix_path:
@@ -47,7 +52,6 @@ def _load_route(
             if not pait_id:
                 if not auto_load_route:
                     logging.warning(f"{route_name}.{method} can not found pait id")  # pragma: no cover
-                from pait.app.starlette import pait
 
                 method_endpoint = pait()(method_endpoint)
                 pait_id = getattr(method_endpoint, "_pait_id", "")
@@ -64,6 +68,13 @@ def _load_route(
             )
 
             if core_model:
+                if auto_cbv_handle:
+                    real_core_model = PaitCoreProxyModel.get_core_model(core_model)
+                    real_core_model.param_handler_plugin.check_cbv_handler(real_core_model, endpoint)
+                    real_core_model.param_handler_plugin.add_cbv_prd(
+                        real_core_model, endpoint, real_core_model.param_handler_pm.plugin_kwargs
+                    )
+                    real_core_model.build()
                 _pait_data[pait_id] = core_model
     elif pait_id:
         core_model = pait_data.get_core_model(
@@ -114,6 +125,8 @@ def load_app(
     auto_load_route: bool = False,
     override_operation_id: bool = False,
     overwrite_already_exists_data: bool = False,
+    pait: Pait = default_pait,
+    auto_cbv_handle: bool = True,
 ) -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`"""
     _pait_data: Dict[str, PaitCoreModel] = {}
@@ -125,6 +138,8 @@ def load_app(
                 auto_load_route=auto_load_route,
                 override_operation_id=override_operation_id,
                 overwrite_already_exists_data=overwrite_already_exists_data,
+                pait=pait,
+                auto_cbv_handle=auto_cbv_handle,
             )
         elif isinstance(route, routing.Mount):
             for sub_route in route.routes:
@@ -135,6 +150,8 @@ def load_app(
                     auto_load_route=auto_load_route,
                     override_operation_id=override_operation_id,
                     overwrite_already_exists_data=overwrite_already_exists_data,
+                    pait=pait,
+                    auto_cbv_handle=auto_cbv_handle,
                 )
         else:
             logging.warning(f"load_app func not support route:{route.__class__}")

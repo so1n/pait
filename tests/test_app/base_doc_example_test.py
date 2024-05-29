@@ -56,10 +56,14 @@ class BaseTestDocExample(object):
             self.client,
             with_default_route,
         ).text(method="GET")
-        assert "Can not found demo_value value" == self.test_helper(
-            self.client,
-            route,
-        ).text(method="GET")
+        assert (
+            self.test_helper(
+                self.client,
+                route,
+            )
+            .text(method="GET")
+            .startswith("Can not found demo_value value")
+        )
 
         assert "456" == self.test_helper(self.client, with_default_route, query_dict={"demo_value": 456}).text(
             method="GET"
@@ -176,7 +180,7 @@ class BaseTestDocExample(object):
             route,
             query_dict={"demo_value1": "1", "demo_value2": "2"},
         ).json(method="GET")
-        assert {"data": "Can not found demo_value1 value"} == self.test_helper(
+        assert {"data": "Can not found demo_value1 value from query"} == self.test_helper(
             self.client,
             route,
             query_dict={"demo_value2": "2"},
@@ -261,7 +265,7 @@ class BaseTestDocExample(object):
             self.client, route, header_dict={"token": "u12345"}, query_dict={"user_name": "so1n"}
         ).json(method="GET") == {"user": "so1n"}
         assert self.test_helper(self.client, route, header_dict={"token": "u12345"}).json(method="GET") == {
-            "data": "Can not found user_name value"
+            "data": "Can not found user_name value from query"
         }
         assert self.test_helper(
             self.client, route, header_dict={"token": "u12345"}, query_dict={"user_name": "faker"}
@@ -281,7 +285,7 @@ class BaseTestDocExample(object):
             route,
         ).json(
             method="GET"
-        ) == {"code": -1, "msg": "error param:demo_value, Can not found demo_value value"}
+        ) == {"code": -1, "msg": "error param:demo_value, Can not found demo_value value from query"}
         assert self.test_helper(self.client, route, query_dict={"demo_value": "a"}).json(method="GET") == {
             "code": -1,
             "msg": "check error param: ['query', 'demo_value']",

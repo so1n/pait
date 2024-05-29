@@ -164,6 +164,7 @@ def apply_multi_plugin(
                 else:
                     post_plugin_manager_list.append(plugin_manager)
             pait_core_model.add_plugin(pre_plugin_manager_list, post_plugin_manager_list)
+            pait_core_model.build_plugin_stack()
 
     return _apply
 

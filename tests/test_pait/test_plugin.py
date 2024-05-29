@@ -239,7 +239,7 @@ class TestCacheResponsePlugin:
                 response_model_list=[response.JsonResponseModel, response.TextResponseModel],
             ),
         )
-        assert CacheResponsePluginManager._kwargs["_cache_name_param_set"] == {"a", "b"}
+        assert CacheResponsePluginManager.plugin_kwargs["_cache_name_param_set"] == {"a", "b"}
 
     #
     # def test_not_found_redis(self) -> None:

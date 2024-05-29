@@ -27,7 +27,12 @@ def _check_param_value(v2_name: str, v1_name: str) -> None:
 
 
 def _default_not_value_exception_func(parameter: inspect.Parameter) -> Exception:
-    return NotFoundValueException(parameter.name, f"Can not found {parameter.name} value")
+    param_name = parameter.name
+    msg = f"Can not found {param_name} value"
+    if isinstance(parameter.default, BaseRequestResourceField):
+        msg += f" from {parameter.default.get_field_name()}"
+
+    return NotFoundValueException(param_name, msg)
 
 
 class BaseRequestResourceField(BaseField, FieldInfo):

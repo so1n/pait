@@ -1,9 +1,11 @@
+from copy import deepcopy
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Type, TypeVar
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union
 
-from typing_extensions import Self
+from any_api.openapi.model.util import HttpMethodLiteral
+from typing_extensions import Self, get_args
 
-from pait.core import Pait, PaitCreateSubParamTypedDict, PaitInitParamTypedDict, Unpack, easy_to_develop_merge_kwargs
+from pait.core import Pait, PaitCreateSubParamTypedDict, PaitInitParamTypedDict, Unpack, get_core_model
 from pait.types import CallType
 
 _CallableT = TypeVar("_CallableT", bound=Callable[..., Any])
@@ -17,13 +19,43 @@ def url_join(base_url: str, path: str) -> str:
     return base_url + path
 
 
+APIRoutePaitParamTypedDict = Union[PaitInitParamTypedDict, PaitCreateSubParamTypedDict]
+
+
+@dataclass
+class CbcRouteDc(object):
+    route: Type
+    path: str
+    pait_param: PaitCreateSubParamTypedDict
+    framework_extra_param: Dict[str, Any]
+
+
 @dataclass
 class RouteDc(object):
     route: CallType
     path: str
-    pait_param: PaitInitParamTypedDict
+    pait_param: PaitCreateSubParamTypedDict
     method_list: List[str]
     framework_extra_param: Dict[str, Any]
+
+
+RouteType = Union[RouteDc, CbcRouteDc]
+
+
+def merge_pait_param(
+    base_param: APIRoutePaitParamTypedDict, new_param: APIRoutePaitParamTypedDict
+) -> PaitCreateSubParamTypedDict:
+    for key, value in new_param.items():
+        if key.startswith("append") and key in base_param:
+            base_param[key] = base_param[key] + value  # type: ignore[literal-required]
+        elif base_param.get(key) is None:
+            base_param[key] = value  # type: ignore[literal-required]
+    if "extra" in new_param:
+        extra = deepcopy(new_param.get("extra", {}))
+        extra.update(base_param.get("extra", {}))
+        base_param["extra"] = extra
+
+    return base_param  # type: ignore
 
 
 class BaseAPIRoute(object):
@@ -32,23 +64,14 @@ class BaseAPIRoute(object):
 
     def __init__(
         self,
-        pait: Optional[Pait] = None,
         path: str = "",
         framework_extra_param: Optional[Dict[str, Any]] = None,
-        **kwargs: Unpack[PaitInitParamTypedDict],
+        **kwargs: Unpack[PaitCreateSubParamTypedDict],
     ) -> None:
-        if pait and kwargs:
-            raise ValueError("pait and kwargs can't be used at the same time")
-        if pait:
-            if not isinstance(pait, self._pait_type):
-                raise TypeError(f"pait must be {Pait}, but got {type(pait)}")
-            self._pait = pait
-        else:
-            self._pait = self._pait_type(**kwargs)
-
+        self._pait_kwargs = kwargs
         self.framework_extra_param: Dict[str, Any] = framework_extra_param or {}
         self.path = path
-        self._route: List[RouteDc] = []
+        self._route: List[RouteType] = []
 
     @property
     def _pait_type(self) -> Type[Pait]:
@@ -59,7 +82,7 @@ class BaseAPIRoute(object):
         raise NotImplementedError
 
     @property
-    def route(self) -> List[RouteDc]:
+    def route(self) -> List[RouteType]:
         return self._route
 
     def inject(
@@ -67,22 +90,48 @@ class BaseAPIRoute(object):
     ) -> None:
         raise NotImplementedError
 
+    @staticmethod
+    def _cbv_handler(pait: Pait, cbv_class: Type, pait_param: PaitCreateSubParamTypedDict) -> None:
+        for http_method in get_args(HttpMethodLiteral):
+            func = getattr(cbv_class, http_method, None)
+            if not func:
+                continue
+            try:
+                get_core_model(func)
+            except TypeError:
+                setattr(cbv_class, http_method, pait()(func))
+        pait.pre_load_cbv(cbv_class, **pait_param)
+
     def __lshift__(self, other: "BaseAPIRoute") -> Self:
         return self.include_sub_route(other)
 
-    def include_sub_route(self, *api_route: "BaseAPIRoute", enable_merge_same_key_append_param: bool = True) -> Self:
+    def include_sub_route(self, *api_route: "BaseAPIRoute") -> Self:
         for api_route_item in api_route:
             if not api_route_item.route:
                 raise ValueError(f"{api_route} can't be None")
             for route in api_route_item.route:
                 route.path = self.url_join(self.path, route.path)
-                route.pait_param = easy_to_develop_merge_kwargs(
-                    self._pait.param_kwargs,
-                    route.pait_param,
-                    enable_merge_same_key_append_param=enable_merge_same_key_append_param,
-                )
+                route.pait_param = merge_pait_param(route.pait_param, self._pait_kwargs)
                 self.route.append(route)
         return self
+
+    def add_cbv_route(
+        self,
+        cbv_clss: Type,
+        path: str,
+        framework_extra_param: Optional[Dict[str, Any]] = None,
+        **kwargs: Unpack[PaitInitParamTypedDict],
+    ) -> None:
+        _framework_extra_param = self.framework_extra_param.copy()
+        _framework_extra_param.update(framework_extra_param or {})
+        self._route.append(
+            CbcRouteDc(
+                route=cbv_clss,
+                path=self.url_join(self.path, path),
+                pait_param=merge_pait_param(kwargs, self._pait_kwargs),
+                framework_extra_param=_framework_extra_param,
+            )
+        )
 
     def add_api_route(
         self,
@@ -90,7 +139,7 @@ class BaseAPIRoute(object):
         method: List[str],
         path: str,
         framework_extra_param: Optional[Dict[str, Any]] = None,
-        **kwargs: Unpack[PaitCreateSubParamTypedDict],
+        **kwargs: Unpack[PaitInitParamTypedDict],
     ) -> None:
         _framework_extra_param = self.framework_extra_param.copy()
         _framework_extra_param.update(framework_extra_param or {})
@@ -99,7 +148,7 @@ class BaseAPIRoute(object):
                 route=func,
                 method_list=method,
                 path=url_join(self.path, path),
-                pait_param=easy_to_develop_merge_kwargs(self._pait.param_kwargs, kwargs),
+                pait_param=merge_pait_param(kwargs, self._pait_kwargs),
                 framework_extra_param=_framework_extra_param,
             )
         )
@@ -109,7 +158,7 @@ class BaseAPIRoute(object):
         method: List[str],
         path: str,
         framework_extra_param: Optional[Dict[str, Any]] = None,
-        **kwargs: Unpack[PaitCreateSubParamTypedDict],
+        **kwargs: Unpack[PaitInitParamTypedDict],
     ) -> Callable[[_CallableT], _CallableT]:
         def decorator(func: _CallableT) -> _CallableT:
             self.add_api_route(func, method, path, framework_extra_param, **kwargs)
@@ -121,7 +170,7 @@ class BaseAPIRoute(object):
         self,
         path: str,
         framework_extra_param: Optional[Dict[str, Any]] = None,
-        **kwargs: Unpack[PaitCreateSubParamTypedDict],
+        **kwargs: Unpack[PaitInitParamTypedDict],
     ) -> Callable[[_CallableT], _CallableT]:
         return self.add_route(["GET"], path, framework_extra_param, **kwargs)
 
@@ -129,7 +178,7 @@ class BaseAPIRoute(object):
         self,
         path: str,
         framework_extra_param: Optional[Dict[str, Any]] = None,
-        **kwargs: Unpack[PaitCreateSubParamTypedDict],
+        **kwargs: Unpack[PaitInitParamTypedDict],
     ) -> Callable[[_CallableT], _CallableT]:
         return self.add_route(["POST"], path, framework_extra_param, **kwargs)
 
@@ -137,7 +186,7 @@ class BaseAPIRoute(object):
         self,
         path: str,
         framework_extra_param: Optional[Dict[str, Any]] = None,
-        **kwargs: Unpack[PaitCreateSubParamTypedDict],
+        **kwargs: Unpack[PaitInitParamTypedDict],
     ) -> Callable[[_CallableT], _CallableT]:
         return self.add_route(["PUT"], path, framework_extra_param, **kwargs)
 
@@ -145,7 +194,7 @@ class BaseAPIRoute(object):
         self,
         path: str,
         framework_extra_param: Optional[Dict[str, Any]] = None,
-        **kwargs: Unpack[PaitCreateSubParamTypedDict],
+        **kwargs: Unpack[PaitInitParamTypedDict],
     ) -> Callable[[_CallableT], _CallableT]:
         return self.add_route(["DELETE"], path, framework_extra_param, **kwargs)
 
@@ -153,7 +202,7 @@ class BaseAPIRoute(object):
         self,
         path: str,
         framework_extra_param: Optional[Dict[str, Any]] = None,
-        **kwargs: Unpack[PaitCreateSubParamTypedDict],
+        **kwargs: Unpack[PaitInitParamTypedDict],
     ) -> Callable[[_CallableT], _CallableT]:
         return self.add_route(["PATCH"], path, framework_extra_param, **kwargs)
 
@@ -161,7 +210,7 @@ class BaseAPIRoute(object):
         self,
         path: str,
         framework_extra_param: Optional[Dict[str, Any]] = None,
-        **kwargs: Unpack[PaitCreateSubParamTypedDict],
+        **kwargs: Unpack[PaitInitParamTypedDict],
     ) -> Callable[[_CallableT], _CallableT]:
         return self.add_route(["HEAD"], path, framework_extra_param, **kwargs)
 
@@ -169,7 +218,7 @@ class BaseAPIRoute(object):
         self,
         path: str,
         framework_extra_param: Optional[Dict[str, Any]] = None,
-        **kwargs: Unpack[PaitCreateSubParamTypedDict],
+        **kwargs: Unpack[PaitInitParamTypedDict],
     ) -> Callable[[_CallableT], _CallableT]:
         return self.add_route(["OPTIONS"], path, framework_extra_param, **kwargs)
 
@@ -177,6 +226,6 @@ class BaseAPIRoute(object):
         self,
         path: str,
         framework_extra_param: Optional[Dict[str, Any]] = None,
-        **kwargs: Unpack[PaitCreateSubParamTypedDict],
+        **kwargs: Unpack[PaitInitParamTypedDict],
     ) -> Callable[[_CallableT], _CallableT]:
         return self.add_route(["TRACE"], path, framework_extra_param, **kwargs)

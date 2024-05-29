@@ -55,6 +55,7 @@ def load_app(
     auto_load_route: bool = False,
     override_operation_id: bool = False,
     overwrite_already_exists_data: bool = False,
+    auto_cbv_handle: bool = True,
 ) -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`
     Note:This is an implicit method
@@ -66,6 +67,7 @@ def load_app(
         auto_load_route=auto_load_route,
         override_operation_id=override_operation_id,
         overwrite_already_exists_data=overwrite_already_exists_data,
+        auto_cbv_handle=auto_cbv_handle,
     )
 
 

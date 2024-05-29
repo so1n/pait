@@ -4,10 +4,13 @@ from typing import Callable, Dict, Set
 from flask.app import Flask
 from flask.views import MethodView
 
+from pait.data import PaitCoreProxyModel
 from pait.g import pait_data
 from pait.model.core import PaitCoreModel
 
 from ._app_helper import AppHelper
+from ._pait import Pait
+from ._pait import pait as default_pait
 
 __all__ = ["load_app", "get_openapi_path"]
 
@@ -39,6 +42,8 @@ def load_app(
     auto_load_route: bool = False,
     override_operation_id: bool = False,
     overwrite_already_exists_data: bool = False,
+    pait: Pait = default_pait,
+    auto_cbv_handle: bool = True,
 ) -> Dict[str, PaitCoreModel]:
     """Read data from the route that has been registered to `pait`"""
     _pait_data: Dict[str, PaitCoreModel] = {}
@@ -57,8 +62,6 @@ def load_app(
             view_class_endpoint = getattr(endpoint, "view_class", None)
             if not view_class_endpoint or not issubclass(view_class_endpoint, MethodView):
                 if auto_load_route:
-                    from pait.app.flask import pait
-
                     endpoint = pait()(endpoint)
                     pait_id = getattr(endpoint, "_pait_id")
                     app.view_functions[route_name] = endpoint
@@ -102,6 +105,13 @@ def load_app(
                     overwrite_already_exists_data=overwrite_already_exists_data,
                 )
                 if core_model:
+                    if auto_cbv_handle:
+                        real_core_model = PaitCoreProxyModel.get_core_model(core_model)
+                        real_core_model.param_handler_plugin.check_cbv_handler(real_core_model, view_class_endpoint)
+                        real_core_model.param_handler_plugin.add_cbv_prd(
+                            real_core_model, view_class_endpoint, real_core_model.param_handler_pm.plugin_kwargs
+                        )
+                        real_core_model.build()
                     _pait_data[pait_id] = core_model
         else:
             core_model = pait_data.get_core_model(
