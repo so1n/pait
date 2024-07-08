@@ -19,7 +19,7 @@ def gen_tip_exc(
     tip_exception_class: Optional[Type[TipException]] = TipException,
 ) -> Exception:
     """Help users understand which parameter is wrong"""
-    if _object is None or tip_exception_class is None or isinstance(exception, TipException):
+    if tip_exception_class is None or isinstance(exception, TipException) or _object is None:
         return exception
 
     if parameter:

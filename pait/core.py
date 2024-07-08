@@ -7,7 +7,7 @@ from typing_extensions import Required, Self, TypedDict, Unpack, get_args
 
 from pait.app.base import BaseAppHelper
 from pait.extra.util import sync_config_data_to_pait_core_model
-from pait.g import config, pait_context, pait_data
+from pait.g import config, set_ctx, pait_data
 from pait.model.context import ContextModel
 from pait.model.core import (
     AuthorOptionalType,
@@ -73,6 +73,7 @@ class PaitBaseParamTypedDict(TypedDict, total=False):
     plugin_list: PluginListOptionalType
     post_plugin_list: PostPluginListOptionalType
     sync_to_thread: OptionalBoolType
+    # other
     feature_code: Optional[str]
     auto_build: bool
     extra: Dict
@@ -213,7 +214,7 @@ class Pait(object):
             args=args,
             kwargs=kwargs,
         )
-        pait_context.set(context)
+        set_ctx(context)
         return context
 
     @property
@@ -310,11 +311,12 @@ class Pait(object):
         def wrapper(func: Callable) -> Callable:
             # Pre-parsing function signatures
             get_func_sig(func)
+            is_async_mode = inspect.iscoroutinefunction(func) or sync_to_thread
 
             # load param handler plugin
             _param_handler_plugin = merge_kwargs.pop("param_handler_plugin", None)
             if _param_handler_plugin is None:
-                if inspect.iscoroutinefunction(func) or sync_to_thread:
+                if is_async_mode:
                     _param_handler_plugin = self.async_param_handler_plugin_class
                 else:
                     _param_handler_plugin = self.param_handler_plugin_class
@@ -324,20 +326,17 @@ class Pait(object):
             core_model_kwargs["param_handler_plugin"] = _param_handler_plugin
 
             # gen pait core model and register to pait data
-            pait_core_model: PaitCoreModel = PaitCoreModel(
-                func,
-                self.app_helper_class,
-                **core_model_kwargs,
-            )
+            pait_core_model = PaitCoreModel(func, self.app_helper_class, **core_model_kwargs)
             sync_config_data_to_pait_core_model(config, pait_core_model)
             pait_data.register(app_name, pait_core_model)
             if core_model_kwargs.get("auto_build", False):
                 pait_core_model.build()
-            if inspect.iscoroutinefunction(func) or sync_to_thread:
+
+            if is_async_mode:
 
                 @wraps(func)
                 async def async_dispatch(*args: Any, **func_kwargs: Any) -> Callable:
-                    context: ContextModel = self.init_context(pait_core_model, args, func_kwargs)
+                    context = self.init_context(pait_core_model, args, func_kwargs)
                     return await pait_core_model.main_plugin(context)
 
                 return async_dispatch

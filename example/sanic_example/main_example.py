@@ -26,6 +26,7 @@ from example.sanic_example.depend_route import (
     depend_async_contextmanager_route,
     depend_contextmanager_route,
     depend_route,
+    pre_depend_route,
     pre_depend_async_contextmanager_route,
     pre_depend_contextmanager_route,
 )
@@ -295,6 +296,7 @@ def create_app(configure_logging: bool = True) -> Sanic:
     app.add_route(param_required_route, "/api/plugin/required", methods={"GET"})
 
     app.add_route(depend_route, "/api/depend/depend", methods={"POST"})
+    app.add_route(pre_depend_route, "/api/depend/pre-depend", methods={"POST"})
     app.add_route(depend_contextmanager_route, "/api/depend/depend-contextmanager", methods={"GET"})
     app.add_route(pre_depend_contextmanager_route, "/api/depend/pre-depend-contextmanager", methods={"GET"})
     app.add_route(depend_async_contextmanager_route, "/api/depend/depend-async-contextmanager", methods={"GET"})

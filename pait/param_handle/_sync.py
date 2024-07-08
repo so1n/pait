@@ -17,10 +17,7 @@ class ParamHandleContext(ContextModel):
 
 class ParamHandler(BaseParamHandler[ParamHandleContext]):
     def prd_handle(
-        self,
-        context: "ParamHandleContext",
-        _object: Any,
-        prd: rule.ParamRuleDict,
+        self, context: "ParamHandleContext", _object: Any, prd: rule.ParamRuleDict,
     ) -> Tuple[List[Any], Dict[str, Any]]:
         args_param_list: List[Any] = []
         kwargs_param_dict: Dict[str, Any] = {}
@@ -39,16 +36,14 @@ class ParamHandler(BaseParamHandler[ParamHandleContext]):
 
         return args_param_list, kwargs_param_dict
 
-    def depend_handle(
-        self, context: "ParamHandleContext", pld: "rule.PreLoadDc", func_class_prd: Optional[rule.ParamRuleDict] = None
-    ) -> Any:
+    def depend_handle(self, context: "ParamHandleContext", pld: "rule.PreLoadDc",) -> Any:
         pait_handler = pld.pait_handler
         if inspect.isclass(pait_handler):
             # support depend type is class
             assert (
-                func_class_prd
+                pld.func_class_prd
             ), f"`func_class_prd` param must not none, please check {self.__class__}.pre_load_hook method"
-            _, kwargs = self.prd_handle(context, pait_handler, func_class_prd)
+            _, kwargs = self.prd_handle(context, pait_handler, pld.func_class_prd)
             pait_handler = pait_handler()
             pait_handler.__dict__.update(kwargs)
 
@@ -64,8 +59,8 @@ class ParamHandler(BaseParamHandler[ParamHandleContext]):
 
     def _gen_param(self, context: "ParamHandleContext") -> None:
         # check param from pre depend
-        for pre_depend in self._pait_pre_load_dc.pre_depend:
-            self.depend_handle(context, pre_depend)
+        for pre_depend_dc in self._pait_pre_depend_dc:
+            self.depend_handle(context, pre_depend_dc)
 
         context.args, context.kwargs = self.prd_handle(
             context, self._pait_pre_load_dc.pait_handler, self._pait_pre_load_dc.param

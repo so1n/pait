@@ -205,6 +205,8 @@ class TestSanic:
     def test_depend_route(self, base_test: BaseTest) -> None:
         base_test.depend_route(main_example.depend_route)
 
+    def test_pre_depend_route(self, base_test: BaseTest) -> None:
+        base_test.pre_depend_route(main_example.pre_depend_route)
     def test_same_alias_name(self, base_test: BaseTest) -> None:
         base_test.same_alias_name(main_example.same_alias_route)
 

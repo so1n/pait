@@ -22,6 +22,7 @@ from example.flask_example.api_route import main_api_route
 from example.flask_example.depend_route import (
     depend_contextmanager_route,
     depend_route,
+    pre_depend_route,
     pre_depend_contextmanager_route,
 )
 from example.flask_example.field_route import (
@@ -277,6 +278,7 @@ def create_app() -> Flask:
     app.add_url_rule("/api/plugin/required", view_func=param_required_route, methods=["GET"])
 
     app.add_url_rule("/api/depend/depend", view_func=depend_route, methods=["POST"])
+    app.add_url_rule("/api/depend/pre-depend", view_func=pre_depend_route, methods=["POST"])
     app.add_url_rule("/api/depend/depend-contextmanager", view_func=depend_contextmanager_route, methods=["GET"])
     app.add_url_rule(
         "/api/depend/pre-depend-contextmanager", view_func=pre_depend_contextmanager_route, methods=["GET"]

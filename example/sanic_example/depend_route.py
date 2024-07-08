@@ -35,6 +35,11 @@ async def depend_route(
     )
 
 
+@depend_pait(append_tag=(tag.user_tag,), pre_depend_list=[depend.CheckTokenDepend])
+async def pre_depend_route(request: Request) -> response.HTTPResponse:
+    return response.json({"code": 0, "msg": "", "data": {}})
+
+
 @depend_pait(status=PaitStatus.test)
 async def depend_contextmanager_route(
     uid: int = Depends.i(depend.context_depend), is_raise: bool = Query.i(default=False)
@@ -70,6 +75,7 @@ async def pre_depend_async_contextmanager_route(is_raise: bool = Query.i(default
 if __name__ == "__main__":
     with create_app(__name__) as app:
         app.add_route(depend_route, "/api/depend", methods={"POST"})
+        app.add_route(pre_depend_route, "/api/pre-depend", methods={"POST"})
         app.add_route(depend_contextmanager_route, "/api/depend-contextmanager", methods={"GET"})
         app.add_route(pre_depend_contextmanager_route, "/api/pre-depend-contextmanager", methods={"GET"})
         app.add_route(depend_async_contextmanager_route, "/api/depend-async-contextmanager", methods={"GET"})

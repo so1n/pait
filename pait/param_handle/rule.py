@@ -46,8 +46,8 @@ class ParamRule(object):
 @dataclass
 class PreLoadDc(object):
     pait_handler: CallType
-    pre_depend: List["PreLoadDc"] = dc_field(default_factory=list)
     param: "ParamRuleDict" = dc_field(default_factory=dict)
+    func_class_prd: Optional["ParamRuleDict"] = dc_field(default=None)
 
 
 ParamRuleDict = Dict[str, "ParamRule"]
@@ -193,9 +193,8 @@ def request_depend_pr_func(
     pr: "ParamRule",
     context: "ContextModel",
     param_plugin: "BaseParamHandler",
-    func_class_prd: Optional["ParamRuleDict"] = None,
 ) -> Any:
-    return param_plugin.depend_handle(context, pr.sub, func_class_prd=func_class_prd)
+    return param_plugin.depend_handle(context, pr.sub)
 
 
 empty_ft = _FieldTypePrFuncDc(empty_pr_func, empty_pr_func)  # type: ignore[arg-type]

@@ -71,6 +71,14 @@ class GetUserDepend(object):
         return UserModel(uid=uid, user_name=self.user_name)
 
 
+class CheckTokenDepend(object):
+    token: str = Header.i()
+
+    def __call__(self) -> None:
+        if "demo" not in self.token:
+            raise ValueError("token error")
+
+
 class AsyncGetUserDepend(object):
     user_name: str = Query.i()
 

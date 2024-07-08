@@ -231,6 +231,9 @@ class TestTornado(BaseTestTornado):
     def test_depend_route(self) -> None:
         self.base_test.depend_route(main_example.DependHandler.post)
 
+    def test_pre_depend_route(self) -> None:
+        self.base_test.pre_depend_route(main_example.PreDependHandler.post)
+
     @mock.patch("example.common.depend.logging.error")
     @mock.patch("example.common.depend.logging.info")
     def test_depend_contextmanager(self, info_logger: Any, error_logger: Any) -> None:

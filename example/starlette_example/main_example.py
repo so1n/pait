@@ -25,6 +25,7 @@ from example.starlette_example.depend_route import (
     depend_async_contextmanager_route,
     depend_contextmanager_route,
     depend_route,
+    pre_depend_route,
     pre_depend_async_contextmanager_route,
     pre_depend_contextmanager_route,
 )
@@ -303,6 +304,7 @@ def create_app() -> Starlette:
             Route("/api/plugin/required-by-extra-param", param_required_route_by_extra_param, methods=["GET"]),
             Route("/api/plugin/required", param_required_route, methods=["GET"]),
             Route("/api/depend/depend", depend_route, methods=["POST"]),
+            Route("/api/depend/pre-depend", pre_depend_route, methods=["POST"]),
             Route("/api/depend/depend-contextmanager", depend_contextmanager_route, methods=["GET"]),
             Route("/api/depend/depend-async-contextmanager", depend_async_contextmanager_route, methods=["GET"]),
             Route("/api/depend/pre-depend-contextmanager", pre_depend_contextmanager_route, methods=["GET"]),

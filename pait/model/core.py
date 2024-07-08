@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 
 
 __all__ = [
+    "DefaultValue",
     "PaitCoreModel",
     "get_core_model",
     "AuthorOptionalType",

@@ -37,6 +37,12 @@ class DependHandler(MyHandler):
         )
 
 
+class PreDependHandler(MyHandler):
+    @depend_pait(append_tag=(tag.user_tag,), pre_depend_list=[depend.CheckTokenDepend])
+    async def post(self) -> None:
+        self.write({"code": 0, "msg": "", "data": {}})
+
+
 class DependContextmanagerHanler(MyHandler):
     @depend_pait(status=PaitStatus.test)
     async def get(self, uid: int = Depends.i(depend.context_depend), is_raise: bool = Query.i(default=False)) -> None:
@@ -76,6 +82,7 @@ if __name__ == "__main__":
         app.add_route(
             [
                 (r"/api/depend", DependHandler),
+                (r"/api/pre-depend", PreDependHandler),
                 (r"/api/depend-contextmanager", DependContextmanagerHanler),
                 (r"/api/depend-async-contextmanager", DependAsyncContextmanagerHanler),
                 (r"/api/pre-depend-contextmanager", PreDependContextmanagerHanler),

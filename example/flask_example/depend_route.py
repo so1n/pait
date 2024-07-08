@@ -33,6 +33,11 @@ def depend_route(
     }
 
 
+@depend_pait(append_tag=(tag.user_tag,), pre_depend_list=[depend.CheckTokenDepend])
+def pre_depend_route() -> dict:
+    return {"code": 0, "msg": "", "data": {}}
+
+
 @depend_pait(status=PaitStatus.test)
 def depend_contextmanager_route(
     uid: int = Depends.i(depend.context_depend), is_raise: bool = Query.i(default=False)
@@ -52,5 +57,6 @@ def pre_depend_contextmanager_route(is_raise: bool = Query.i(default=False)) -> 
 if __name__ == "__main__":
     with create_app(__name__) as app:
         app.add_url_rule("/api/depend", view_func=depend_route, methods=["POST"])
+        app.add_url_rule("/api/pre-depend", view_func=pre_depend_route, methods=["POST"])
         app.add_url_rule("/api/depend-contextmanager", view_func=depend_contextmanager_route, methods=["GET"])
         app.add_url_rule("/api/pre-depend-contextmanager", view_func=pre_depend_contextmanager_route, methods=["GET"])

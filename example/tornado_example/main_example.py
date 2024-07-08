@@ -23,6 +23,7 @@ from example.tornado_example.depend_route import (
     DependAsyncContextmanagerHanler,
     DependContextmanagerHanler,
     DependHandler,
+    PreDependHandler,
     PreDependAsyncContextmanagerHanler,
     PreDependContextmanagerHanler,
 )
@@ -288,6 +289,7 @@ def create_app() -> Application:
             (r"/api/plugin/required-by-extra-param", ParamRequiredByExtraParamHandler),
             (r"/api/plugin/required", ParamRequiredHandler),
             (r"/api/depend/depend", DependHandler),
+            (r"/api/depend/pre-depend", PreDependHandler),
             (r"/api/depend/depend-contextmanager", DependContextmanagerHanler),
             (r"/api/depend/depend-async-contextmanager", DependAsyncContextmanagerHanler),
             (r"/api/depend/pre-depend-contextmanager", PreDependContextmanagerHanler),

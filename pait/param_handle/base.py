@@ -44,7 +44,7 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
     is_async_mode: bool = False
     tip_exception_class: Optional[Type[TipException]] = TipException
     _pait_pre_load_dc: rule.PreLoadDc
-    _pait_cbv_pre_load_prd: rule.ParamRuleDict
+    _pait_pre_depend_dc: List[rule.PreLoadDc]
 
     @staticmethod
     def is_self_param(parameter: inspect.Parameter) -> bool:
@@ -97,9 +97,7 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
     ) -> Tuple[List[Any], Dict[str, Any]]:
         raise NotImplementedError()
 
-    def depend_handle(
-        self, context: _CtxT, pld: rule.PreLoadDc, func_class_prd: Optional[rule.ParamRuleDict] = None
-    ) -> Any:
+    def depend_handle(self, context: _CtxT, pld: rule.PreLoadDc) -> Any:
         pass
 
     #######################
@@ -225,9 +223,17 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
         """gen depend's pre-load dataclass"""
         cls._check_func(func)
         func_sig: FuncSig = get_func_sig(func, cache_sig=False)
+        func_class_prd = None
+        if inspect.isclass(func):
+            func_class_prd = cls._param_field_pre_handle(
+                pait_core_model,
+                func,
+                get_parameter_list_from_class(func),
+            )
         return rule.PreLoadDc(
             pait_handler=func,  # depend func gen pait handler in pre-load
             param=cls._param_field_pre_handle(pait_core_model, func_sig.func, func_sig.param_list),
+            func_class_prd=func_class_prd
         )
 
     @classmethod
@@ -251,14 +257,6 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
                     if isinstance(parameter.default, field.Depends):
                         sub_pld = cls._depend_pre_handle(pait_core_model, parameter.default.func)
                         rule_field_type = rule.request_depend_ft
-                        depend_func = parameter.default.func
-                        if inspect.isclass(depend_func):
-                            # If this depend func is class, then its class attributes need to be processed
-                            rule_field_type_func_param_dict["func_class_prd"] = cls._param_field_pre_handle(
-                                pait_core_model,
-                                depend_func,
-                                get_parameter_list_from_class(depend_func),  # type: ignore
-                            )
                     elif isinstance(parameter.default, field.BaseRequestResourceField):
                         rule_field_type = rule.request_field_ft
                         parameter.default.set_request_key(parameter.name)
@@ -327,13 +325,15 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         super().pre_load_hook(pait_core_model, kwargs)
         func_sig: FuncSig = get_func_sig(pait_core_model.func, cache_sig=False)
-        pre_load_dc_list = []
+        pre_depend_dc_list = []
         for pre_depend in pait_core_model.pre_depend_list:
-            pre_load_dc_list.append(cls._depend_pre_handle(pait_core_model, pre_depend))
+            pre_depend_dc_list.append(
+                cls._depend_pre_handle(pait_core_model, pre_depend)
+            )
 
+        kwargs["_pait_pre_depend_dc"] = pre_depend_dc_list
         kwargs["_pait_pre_load_dc"] = rule.PreLoadDc(
             pait_handler=func_sig.func,
-            pre_depend=pre_load_dc_list,
             param=cls._param_field_pre_handle(pait_core_model, func_sig.func, func_sig.param_list),
         )
         return kwargs
