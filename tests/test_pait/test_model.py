@@ -49,12 +49,14 @@ class TestConfigModel:
             json_type_default_value_dict={"demo": None},
             python_type_default_value_dict={DemoType: None},
             json_encoder=json.JSONEncoder,
+            tip_exception_class=None
         )
         assert config.author == ("so1n",)
         assert config.status == status.PaitStatus.undefined
         assert config.json_type_default_value_dict["demo"] is None
         assert config.python_type_default_value_dict[DemoType] is None
         assert config.json_encoder is json.JSONEncoder
+        assert config.tip_exception_class is None
 
     def test_default_json_encoder(self) -> None:
         config: config_model.Config = config_model.Config()

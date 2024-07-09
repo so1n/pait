@@ -119,6 +119,21 @@ async def raise_not_tip_route(
     return {"code": 0, "msg": "", "data": {"content_type": content__type}}
 
 
+@other_pait(
+    desc="test pait raise tip",
+    status=PaitStatus.abandoned,
+    tag=(tag.raise_tag,),
+    response_model_list=[SimpleRespModel, FailRespModel],
+    tip_exception_class=None
+)
+async def new_raise_not_tip_route(
+    content__type: str = Header.i(description="Content-Type"),  # in flask, Content-Type's key is content_type
+) -> dict:
+    """Prompted error from pait when test does not find value"""
+    return {"code": 0, "msg": "", "data": {"content_type": content__type}}
+
+
+
 class CbvRoute(HTTPMethodView):
     content_type: str = Header.i(alias="Content-Type")
 
@@ -263,6 +278,7 @@ def create_app(configure_logging: bool = True) -> Sanic:
     app.add_route(get_user_route, "/api/user", methods={"GET"})
     app.add_route(raise_tip_route, "/api/raise-tip", methods={"POST"})
     app.add_route(raise_not_tip_route, "/api/raise-not-tip", methods={"POST"})
+    app.add_route(new_raise_not_tip_route, "/api/new-raise-not-tip", methods={"POST"})
     app.add_route(CbvRoute.as_view(), "/api/cbv")
     app.add_route(NotPaitCbvRoute.as_view(), "/api/not-pait-cbv")
     app.add_route(not_pait_route, "/api/not-pait", methods={"GET"})

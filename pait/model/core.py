@@ -1,5 +1,6 @@
 import logging
 import traceback
+import warnings
 from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type, Union
 from urllib.parse import quote_plus
 
@@ -8,6 +9,7 @@ from pydantic import BaseModel
 from pait.model.response import BaseResponseModel, PaitResponseModel, create_json_response_model
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
+from pait.exceptions import TipException
 from pait.param_handle import BaseParamHandler
 from pait.plugin import PluginManager, PluginProtocol, PostPluginProtocol, PrePluginProtocol
 from pait.util import ImmutableDict, gen_tip_exc, ignore_pre_check
@@ -67,6 +69,7 @@ class DefaultValue(object):
     status: PaitStatus = PaitStatus.undefined
     group: str = "root"
     tag: Tuple[Tag, ...] = (Tag(name="default"),)
+    tip_exception_class: Type[TipException] = TipException
 
 
 class PaitCoreModel(object):
@@ -96,6 +99,7 @@ class PaitCoreModel(object):
         post_plugin_list: PostPluginListOptionalType = None,
         feature_code: Optional[str] = None,
         sync_to_thread: OptionalBoolType = None,
+        tip_exception_class: Optional[Type[TipException]] = DefaultValue.tip_exception_class,
         **kwargs: Any,
     ):
         # pait
@@ -103,6 +107,7 @@ class PaitCoreModel(object):
         self.default_field_class = default_field_class
         self.func = func  # route func
         self.sync_to_thread = sync_to_thread
+        self.tip_exception_class = tip_exception_class
         self.pait_id = f"{func.__module__}_{func.__qualname__}"
         # Some functions have the same md5 as the name and need to be distinguished by the feature code
         if feature_code:
@@ -181,13 +186,28 @@ class PaitCoreModel(object):
 
     @param_handler_plugin.setter
     def param_handler_plugin(self, param_handler_plugin: Type[BaseParamHandler]) -> None:
+        if hasattr(param_handler_plugin, "tip_exception_class"):
+            suggest_use_msg = (
+                "Suggest use @pait(tip_exception_class=xxx) or config.init_config(tip_exception_class=xxx)"
+            )
+            warnings.warn(
+                "The tip_exception_class of the param_handler_plugin will deprecation after version 2.0.0,"
+                f" {suggest_use_msg}",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            if self.tip_exception_class is not DefaultValue.tip_exception_class:
+                raise ValueError(f"There are multiple method settings `tip_exception_class` param, {suggest_use_msg}")
+            self.tip_exception_class = getattr(param_handler_plugin, "tip_exception_class", None)
         try:
             pm = PluginManager(param_handler_plugin)
             if not ignore_pre_check:
                 pm.pre_check_hook(self)
         except Exception as e:
             raise gen_tip_exc(
-                self.func, RuntimeError(f"set param plugin error: {e}" + "\n\n" + traceback.format_exc())
+                self.func,
+                RuntimeError(f"set param plugin error: {e}" + "\n\n" + traceback.format_exc()),
+                tip_exception_class=self.tip_exception_class
             ) from e
         self._param_handler_plugin = pm
         self._need_build_plugin = True
@@ -275,7 +295,9 @@ class PaitCoreModel(object):
                 wait_add_post_plugin_list.append(post_plugin_manager)
         except Exception as e:
             raise gen_tip_exc(
-                self.func, RuntimeError(f"{self.func} add plugin error" + "\n\n" + traceback.format_exc())
+                self.func,
+                RuntimeError(f"{self.func} add plugin error" + "\n\n" + traceback.format_exc()),
+                tip_exception_class=self.tip_exception_class,
             ) from e
         else:
             self._need_build_plugin = True

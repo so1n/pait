@@ -126,6 +126,20 @@ async def raise_not_tip_route(
     return JSONResponse({"code": 0, "msg": "", "data": {"content_type": content__type}})
 
 
+@other_pait(
+    desc="test pait raise tip",
+    status=PaitStatus.abandoned,
+    tag=(tag.raise_tag,),
+    response_model_list=[SimpleRespModel, FailRespModel],
+    tip_exception_class=None
+)
+async def new_raise_not_tip_route(
+    content__type: str = Header.i(description="Content-Type"),  # in flask, Content-Type's key is content_type
+) -> JSONResponse:
+    """Prompted error from pait when test does not find value"""
+    return JSONResponse({"code": 0, "msg": "", "data": {"content_type": content__type}})
+
+
 class CbvRoute(HTTPEndpoint):
     content_type: str = Header.i(alias="Content-Type")
 
@@ -269,6 +283,7 @@ def create_app() -> Starlette:
             Route("/api/user", get_user_route, methods=["GET"]),
             Route("/api/raise-tip", raise_tip_route, methods=["POST"]),
             Route("/api/raise-not-tip", raise_not_tip_route, methods=["POST"]),
+            Route("/api/new-raise-not-tip", new_raise_not_tip_route, methods=["POST"]),
             Route("/api/cbv", CbvRoute),
             Route("/api/not-pait", not_pait_route, methods=["GET"]),
             Route("/api/not-pait-cbv", NotPaitCbvRoute),

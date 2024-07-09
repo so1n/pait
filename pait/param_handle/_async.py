@@ -57,7 +57,9 @@ class AsyncParamHandler(BaseParamHandler[AsyncParamHandleContext]):
                 else:
                     kwargs_param_dict[param_name] = value
             except PaitBaseException as e:
-                raise gen_tip_exc(_object, e, pr.parameter, tip_exception_class=self.tip_exception_class)
+                raise gen_tip_exc(
+                    _object, e, pr.parameter, tip_exception_class=self.pait_core_model.tip_exception_class
+                )
 
         return args_param_list, kwargs_param_dict
 

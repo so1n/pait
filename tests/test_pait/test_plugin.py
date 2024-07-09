@@ -9,7 +9,7 @@ from redis import Redis  # type: ignore
 from example.flask_example import main_example
 from pait import field
 from pait.app.base.app_helper import BaseAppHelper
-from pait.exceptions import CheckValueError
+from pait.exceptions import CheckValueError, TipException
 from pait.model import response
 from pait.model.context import PluginContext
 from pait.model.core import PaitCoreModel
@@ -95,6 +95,7 @@ class TestAtMostOneOfPlugin:
         class FakePluginCoreModel:
             func = demo
             param_handler_plugin = BaseParamHandler
+            tip_exception_class = TipException
 
         plugin = AtMostOneOfPlugin(
             lambda *args, **kwargs: None,
@@ -418,6 +419,7 @@ class TestRequiredPlugin:
         class FakePluginCoreModel:
             func = demo
             param_handler_plugin = BaseParamHandler
+            tip_exception_class = TipException
 
         plugin = AtMostOneOfPlugin(
             lambda *args, **kwargs: None,

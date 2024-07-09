@@ -7,6 +7,7 @@ from typing_extensions import Required, Self, TypedDict, Unpack, get_args
 
 from pait.app.base import BaseAppHelper
 from pait.extra.util import sync_config_data_to_pait_core_model
+from pait.exceptions import TipException
 from pait.g import config, set_ctx, pait_data
 from pait.model.context import ContextModel
 from pait.model.core import (
@@ -76,6 +77,7 @@ class PaitBaseParamTypedDict(TypedDict, total=False):
     # other
     feature_code: Optional[str]
     auto_build: bool
+    tip_exception_class: Optional[Type[TipException]]
     extra: Dict
 
 
@@ -282,6 +284,8 @@ class Pait(object):
                 core_model.tag = kwargs.get("tag") or DefaultValue.tag
             if not core_model.response_model_list and kwargs.get("response_model_list"):
                 core_model.add_response_model_list(kwargs.get("response_model_list") or [])
+            if core_model.tip_exception_class is DefaultValue.tip_exception_class and kwargs.get("tip_exception_class"):
+                core_model.tip_exception_class = kwargs.get("tip_exception_class")
 
             if append_pre_depend_list:
                 core_model.pre_depend_list.extend(append_pre_depend_list)

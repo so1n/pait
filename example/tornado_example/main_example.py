@@ -120,6 +120,21 @@ class RaiseNotTipHandler(MyHandler):
         """Test Method: error tip"""
         self.write({"code": 0, "msg": "", "data": {"content_type": content__type}})
 
+class NewRaiseNotTipHandler(MyHandler):
+    @other_pait(
+        desc="test pait raise tip",
+        status=PaitStatus.abandoned,
+        tag=(tag.raise_tag,),
+        response_model_list=[SimpleRespModel, FailRespModel],
+        tip_exception_class=None
+    )
+    async def post(
+        self,
+        content__type: str = Header.i(description="Content-Type"),
+    ) -> None:
+        """Test Method: error tip"""
+        self.write({"code": 0, "msg": "", "data": {"content_type": content__type}})
+
 
 class CbvHandler(MyHandler):
     content_type: str = Header.i(alias="Content-Type")
@@ -263,6 +278,7 @@ def create_app() -> Application:
             (r"/api/user", GetUserHandler),
             (r"/api/raise-tip", RaiseTipHandler),
             (r"/api/raise-not-tip", RaiseNotTipHandler),
+            (r"/api/new-raise-not-tip", NewRaiseNotTipHandler),
             (r"/api/cbv", CbvHandler),
             (r"/api/not-pait-cbv", NotPaitCbvHandler),
             (r"/api/tag", TagHandler),

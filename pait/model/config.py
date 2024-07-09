@@ -1,6 +1,7 @@
 from json import JSONEncoder
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Type
 
+from pait.exceptions import TipException
 from pait.model.response import BaseResponseModel
 from pait.model.status import PaitStatus
 from pait.util import json_type_default_value_dict as pait_json_type_default_value_dict
@@ -30,6 +31,7 @@ class Config(object):
         self.json_encoder: Type[JSONEncoder] = CustomJSONEncoder
         self.tag_dict: Dict[str, str] = {}
         self.apply_func_list: List[APPLY_FN] = []
+        self.tip_exception_class: Optional[Type[TipException]] = TipException
 
     def __setattr__(self, key: Any, value: Any) -> None:
         if not self.__initialized:
@@ -45,6 +47,7 @@ class Config(object):
         python_type_default_value_dict: Optional[Dict[type, Any]] = None,
         json_encoder: Optional[Type[JSONEncoder]] = None,
         apply_func_list: Optional[List[APPLY_FN]] = None,
+        tip_exception_class: Optional[Type[TipException]] = TipException,
     ) -> None:
         """
         :param author:  Only @pait(author=None) will be called to change the configuration
@@ -53,6 +56,7 @@ class Config(object):
         :param python_type_default_value_dict: Configure default values for each python type
         :param json_encoder: Define certain types of serialization rules
         :param apply_func_list: List of functions for application configuration
+        :param tip_exception_class: Custom tip exception class
         :return:
         """
         if self.__initialized:
@@ -70,6 +74,8 @@ class Config(object):
             self.json_encoder = json_encoder
         if apply_func_list:
             self.apply_func_list = apply_func_list
+        if tip_exception_class is not self.tip_exception_class:
+            self.tip_exception_class = tip_exception_class
         self.__initialized = True
 
     @property

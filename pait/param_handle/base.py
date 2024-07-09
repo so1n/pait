@@ -42,7 +42,6 @@ _CtxT = TypeVar("_CtxT", bound="ContextModel")
 
 class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
     is_async_mode: bool = False
-    tip_exception_class: Optional[Type[TipException]] = TipException
     _pait_pre_load_dc: rule.PreLoadDc
     _pait_pre_depend_dc: List[rule.PreLoadDc]
 
@@ -205,7 +204,7 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
                         ),
                     )
             except PaitBaseException as e:
-                raise gen_tip_exc(_object, e, parameter, tip_exception_class=cls.tip_exception_class) from e
+                raise gen_tip_exc(_object, e, parameter, tip_exception_class=pait_core_model.tip_exception_class) from e
 
     @classmethod
     def pre_check_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> None:
@@ -308,7 +307,7 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
                             if raw_name != real_name:
                                 sub_pld.param[real_name] = sub_pld.param.pop(raw_name)
             except PaitBaseException as e:
-                raise gen_tip_exc(_object, e, parameter, tip_exception_class=cls.tip_exception_class) from e
+                raise gen_tip_exc(_object, e, parameter, tip_exception_class=pait_core_model.tip_exception_class) from e
             param_func = rule_field_type.async_func if cls.is_async_mode else rule_field_type.func
             if rule_field_type_func_param_dict:
                 param_func = partial(param_func, **rule_field_type_func_param_dict)

@@ -199,6 +199,9 @@ class TestSanic:
     def test_raise_not_tip_route(self, base_test: BaseTest, mocker: MockFixture) -> None:
         base_test.raise_tip_route(main_example.raise_not_tip_route, mocker=mocker, is_raise=False)
 
+    def test_new_raise_not_tip_route(self, base_test: BaseTest, mocker: MockFixture) -> None:
+        base_test.raise_tip_route(main_example.new_raise_not_tip_route, mocker=mocker, is_raise=False)
+
     def test_auto_complete_json_route(self, base_test: BaseTest) -> None:
         base_test.auto_complete_json_route(main_example.auto_complete_json_route)
 

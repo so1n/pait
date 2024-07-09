@@ -202,6 +202,9 @@ class TestTornado(BaseTestTornado):
     def test_raise_not_tip_route(self, debug_logger: Any) -> None:
         self.base_test.raise_tip_route(main_example.RaiseNotTipHandler.post, debug_logger=debug_logger, is_raise=False)
 
+    @mock.patch("pait.util._gen_tip.logging.debug")
+    def test_new_raise_not_tip_route(self, debug_logger: Any) -> None:
+        self.base_test.raise_tip_route(main_example.NewRaiseNotTipHandler.post, debug_logger=debug_logger, is_raise=False)
     def test_auto_complete_json_route(self) -> None:
         self.base_test.auto_complete_json_route(main_example.AutoCompleteJsonHandler.get)
 
