@@ -49,7 +49,7 @@ class TestConfigModel:
             json_type_default_value_dict={"demo": None},
             python_type_default_value_dict={DemoType: None},
             json_encoder=json.JSONEncoder,
-            tip_exception_class=None
+            tip_exception_class=None,
         )
         assert config.author == ("so1n",)
         assert config.status == status.PaitStatus.undefined

@@ -6,10 +6,10 @@ from urllib.parse import quote_plus
 
 from pydantic import BaseModel
 
+from pait.exceptions import TipException
 from pait.model.response import BaseResponseModel, PaitResponseModel, create_json_response_model
 from pait.model.status import PaitStatus
 from pait.model.tag import Tag
-from pait.exceptions import TipException
 from pait.param_handle import BaseParamHandler
 from pait.plugin import PluginManager, PluginProtocol, PostPluginProtocol, PrePluginProtocol
 from pait.util import ImmutableDict, gen_tip_exc, ignore_pre_check
@@ -207,7 +207,7 @@ class PaitCoreModel(object):
             raise gen_tip_exc(
                 self.func,
                 RuntimeError(f"set param plugin error: {e}" + "\n\n" + traceback.format_exc()),
-                tip_exception_class=self.tip_exception_class
+                tip_exception_class=self.tip_exception_class,
             ) from e
         self._param_handler_plugin = pm
         self._need_build_plugin = True

@@ -6,13 +6,7 @@ from pydantic import BaseModel, Field
 from typing_extensions import Self  # type: ignore
 
 from pait import _pydanitc_adapter, field
-from pait.exceptions import (
-    FieldValueTypeException,
-    NotFoundFieldException,
-    PaitBaseException,
-    ParseTypeError,
-    TipException,
-)
+from pait.exceptions import FieldValueTypeException, NotFoundFieldException, PaitBaseException, ParseTypeError
 from pait.plugin.base import PluginProtocol
 from pait.types import CallType
 from pait.util import FuncSig, gen_tip_exc, get_func_sig, is_bounded_func, is_type
@@ -232,7 +226,7 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
         return rule.PreLoadDc(
             pait_handler=func,  # depend func gen pait handler in pre-load
             param=cls._param_field_pre_handle(pait_core_model, func_sig.func, func_sig.param_list),
-            func_class_prd=func_class_prd
+            func_class_prd=func_class_prd,
         )
 
     @classmethod
@@ -326,9 +320,7 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
         func_sig: FuncSig = get_func_sig(pait_core_model.func, cache_sig=False)
         pre_depend_dc_list = []
         for pre_depend in pait_core_model.pre_depend_list:
-            pre_depend_dc_list.append(
-                cls._depend_pre_handle(pait_core_model, pre_depend)
-            )
+            pre_depend_dc_list.append(cls._depend_pre_handle(pait_core_model, pre_depend))
 
         kwargs["_pait_pre_depend_dc"] = pre_depend_dc_list
         kwargs["_pait_pre_load_dc"] = rule.PreLoadDc(

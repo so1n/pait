@@ -25,9 +25,9 @@ from example.starlette_example.depend_route import (
     depend_async_contextmanager_route,
     depend_contextmanager_route,
     depend_route,
-    pre_depend_route,
     pre_depend_async_contextmanager_route,
     pre_depend_contextmanager_route,
+    pre_depend_route,
 )
 from example.starlette_example.field_route import (
     any_type_route,
@@ -131,7 +131,7 @@ async def raise_not_tip_route(
     status=PaitStatus.abandoned,
     tag=(tag.raise_tag,),
     response_model_list=[SimpleRespModel, FailRespModel],
-    tip_exception_class=None
+    tip_exception_class=None,
 )
 async def new_raise_not_tip_route(
     content__type: str = Header.i(description="Content-Type"),  # in flask, Content-Type's key is content_type

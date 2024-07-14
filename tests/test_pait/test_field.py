@@ -59,7 +59,9 @@ class TestField:
                 field.BaseRequestResourceField(json_schema_extra=lambda x: x.update(), example=1)
 
             with pytest.raises(ValueError):
-                field.BaseRequestResourceField(json_schema_extra=lambda x: x.update(), extra_a=1)
+                field.BaseRequestResourceField(
+                    json_schema_extra=lambda x: x.update(), extra_a=1  # type: ignore[call-arg]
+                )
 
             assert field.BaseRequestResourceField(json_schema_extra={"extra_a": 1}, example=1).json_schema_extra == {
                 "extra_a": 1,

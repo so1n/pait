@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Mapping, Optional, 
 
 from pydantic.fields import FieldInfo
 from typing_extensions import deprecated  # type: ignore[attr-defined]
-from typing_extensions import Annotated
+from typing_extensions import Annotated, TypedDict, Unpack
 
 from pait import _pydanitc_adapter
 from pait.exceptions import NotFoundValueException
@@ -20,6 +20,52 @@ _const_deprecated = deprecated("Deprecated in Pydantic v2")
 
 _T = TypeVar("_T")
 PydanticUndefined = _pydanitc_adapter.PydanticUndefined
+
+
+class FieldBaseParamTypedDict(TypedDict, total=False):
+    """
+    :param links: OpenAPI Link model
+    :param media_type: default media type of request body
+    :param openapi_serialization: Additional description of OpenAPI Schema
+    :param raw_return: If True, the return value will be returned as is (the request key will be invalidated).
+    :param example: example data
+    :param not_value_exception:
+        The exception thrown when the corresponding value cannot be obtained from the request,
+        default value `pait.exceptions.NotFoundValueException`
+    :param openapi_include: Whether it is used by the OpenAPI
+    :param extra_param_list: Extended parameters for plug-ins to use
+    """
+
+    links: "Optional[LinksModel]"
+    media_type: str
+    openapi_serialization: Any
+    raw_return: bool
+    example: Any
+    not_value_exception_func: Optional[Callable[[inspect.Parameter], Exception]]
+    openapi_include: bool
+    extra_param_list: Optional[List[ExtraParam]]
+    # pydantic.Field param
+    default_factory: Optional[Callable[[], Any]]
+    alias: Optional[str]
+    title: Optional[str]
+    description: Optional[str]
+    const: Annotated[Optional[bool], _const_deprecated]
+    gt: Optional[float]
+    ge: Optional[float]
+    lt: Optional[float]
+    le: Optional[float]
+    multiple_of: Optional[float]
+    min_items: Optional[int]
+    max_items: Optional[int]
+    min_length: Optional[int]
+    max_length: Optional[int]
+    regex: Annotated[Optional[str], _regex_deprecated]
+    # pydantic v2 param
+    pattern: Optional[str]
+    validation_alias: Optional[str]
+    serialization_alias: Optional[str]
+    json_schema_extra: Union[Dict[str, Any], Callable[[Dict[str, Any]], None], None]
+    extra: Any
 
 
 def _check_param_value(v2_name: str, v1_name: str) -> None:
@@ -40,53 +86,11 @@ class BaseRequestResourceField(BaseField, FieldInfo):
     media_type: str = "*/*"
     openapi_serialization: Optional[dict] = None
 
-    def __init__(
-        self,
-        default: Any = PydanticUndefined,
-        *,
-        links: "Optional[LinksModel]" = None,
-        media_type: str = "",
-        openapi_serialization: Any = None,
-        raw_return: bool = False,
-        example: Any = MISSING,
-        not_value_exception_func: Optional[Callable[[inspect.Parameter], Exception]] = None,
-        openapi_include: bool = True,
-        extra_param_list: Optional[List[ExtraParam]] = None,
-        # pydantic.Field param
-        default_factory: Optional[Callable[[], Any]] = None,
-        alias: Optional[str] = None,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        const: Annotated[Optional[bool], _const_deprecated] = None,
-        gt: Optional[float] = None,
-        ge: Optional[float] = None,
-        lt: Optional[float] = None,
-        le: Optional[float] = None,
-        multiple_of: Optional[float] = None,
-        min_items: Optional[int] = None,
-        max_items: Optional[int] = None,
-        min_length: Optional[int] = None,
-        max_length: Optional[int] = None,
-        regex: Annotated[Optional[str], _regex_deprecated] = None,
-        # pydantic v2 param
-        pattern: Optional[str] = None,
-        validation_alias: Optional[str] = None,
-        serialization_alias: Optional[str] = None,
-        json_schema_extra: Union[Dict[str, Any], Callable[[Dict[str, Any]], None], None] = None,
-        **extra: Any,
-    ):
-        """
-        :param links: OpenAPI Link model
-        :param media_type: default media type of request body
-        :param openapi_serialization: Additional description of OpenAPI Schema
-        :param raw_return: If True, the return value will be returned as is (the request key will be invalidated).
-        :param example: example data
-        :param not_value_exception:
-            The exception thrown when the corresponding value cannot be obtained from the request,
-            default value `pait.exceptions.NotFoundValueException`
-        :param openapi_include: Whether it is used by the OpenAPI
-        :param extra_param_list: Extended parameters for plug-ins to use
-        """
+    def __init__(self, default: Any = PydanticUndefined, **kwargs: Unpack[FieldBaseParamTypedDict]):
+        default_factory: Optional[Callable[[], Any]] = kwargs.pop("default_factory", None)
+        not_value_exception_func: Optional[Callable[[inspect.Parameter], Exception]] = kwargs.pop(
+            "not_value_exception_func", None
+        )
         # Same checks as pydantic, checked in advance here
         if default is not PydanticUndefined and default_factory is not None:
             raise ValueError("cannot specify both default and default_factory")  # pragma: no cover
@@ -94,6 +98,8 @@ class BaseRequestResourceField(BaseField, FieldInfo):
             raise ValueError(
                 "cannot set not_value_exception_func when the parameter default or `default_factory` is not empty."
             )
+
+        alias: Optional[str] = kwargs.pop("alias", None)
         if alias and not isinstance(alias, str):
             raise ValueError(f"alias type must str. not {alias}")
 
@@ -104,61 +110,74 @@ class BaseRequestResourceField(BaseField, FieldInfo):
             self.request_value_handle = self.request_value_handle_by_default_factory  # type: ignore
 
         pait_extra_param = {}
-        if getattr(example, "__class__", None) is not MISSING.__class__:
-            pait_extra_param["example"] = example
-        if links:
-            pait_extra_param["links"] = links
+        if "example" in kwargs:
+            pait_extra_param["example"] = kwargs.pop("example", None)
+        if "links" in kwargs:
+            pait_extra_param["links"] = kwargs.pop("links", None)
 
         #######################################################
         # These parameters will not be used in pydantic.Field #
         #######################################################
-        self.openapi_include: bool = openapi_include
-        self.raw_return = raw_return
+        self.openapi_include: bool = kwargs.pop("openapi_include", True)
+        self.raw_return: bool = kwargs.pop("raw_return", False)
         self.not_value_exception_func: Callable[[inspect.Parameter], Exception] = (
             not_value_exception_func or _default_not_value_exception_func
         )
-        self.media_type = media_type or self.__class__.media_type
+        self.media_type = kwargs.pop("media_type", self.__class__.media_type)
         # _state obj can fix pydantic v2 bug
         # e.g:
         #   request_value_handle_by_default and request_value_handle_by_default_factory method is dynamically set,
         #   so can't get the value through self:
-        #       self.request_key == ''
+        #       class DemoField(BaseRequestResourceField):
+        #           def demo(self):
+        #               assert self.request_key   x
         #   but:
         #       Demo = Body()
         #       Demo.set_alias('demo')
-        #       assert Demo.request_key == 'demo'
+        #       assert Demo.request_key == 'demo'  ✔
 
         # Note: if not alias, pait will set the key name to request_key in the preload phase
         self._state: dict = {"request_key": alias or ""}
-        self.openapi_serialization = openapi_serialization or self.__class__.openapi_serialization
-        self.extra_param_list: List[ExtraParam] = extra_param_list or []
+        self.openapi_serialization = kwargs.pop("openapi_serialization", self.openapi_serialization)
+        self.extra_param_list: List[ExtraParam] = kwargs.pop("extra_param_list", None) or []
 
         ##########################
         # pydantic V1 V2 adapter #
         ##########################
-        kwargs = dict(
+        min_items = kwargs.pop("min_items", None)
+        max_items = kwargs.pop("max_items", None)
+        min_length = kwargs.pop("min_length", None)
+        max_length = kwargs.pop("max_length", None)
+        regex = kwargs.pop("regex", None)
+        pattern = kwargs.pop("pattern", None)
+        json_schema_extra = kwargs.pop("json_schema_extra", None)
+        validation_alias = kwargs.pop("validation_alias", None)
+        serialization_alias = kwargs.pop("serialization_alias", None)
+        const = kwargs.pop("const", None)
+        real_kwargs = dict(
             default=default,
             default_factory=default_factory,
             alias=alias,
-            title=title,
-            description=description,
-            gt=gt,
-            ge=ge,
-            lt=lt,
-            le=le,
-            multiple_of=multiple_of,
+            title=kwargs.pop("title", None),
+            description=kwargs.pop("description", None),
+            gt=kwargs.pop("gt", None),
+            ge=kwargs.pop("ge", None),
+            lt=kwargs.pop("lt", None),
+            le=kwargs.pop("le", None),
+            multiple_of=kwargs.pop("multiple_of", None),
             min_items=min_items,
             max_items=max_items,
             min_length=min_length,
             max_length=max_length,
         )
+        extra: dict = kwargs  # type: ignore[assignment]
         if regex and pattern:
             _check_param_value("regex", "pattern")
         if _pydanitc_adapter.is_v1:
             if json_schema_extra:
                 raise ValueError("Pydantic v1 not support `json_schema_extra`")
-            kwargs["const"] = const
-            kwargs["regex"] = pattern if pattern else regex
+            real_kwargs["const"] = const
+            real_kwargs["regex"] = pattern if pattern else regex
 
             if validation_alias:
                 warnings.warn("Pydantic V1 not support param `validation_alias`")  # pragma: no cover
@@ -167,20 +186,20 @@ class BaseRequestResourceField(BaseField, FieldInfo):
             extra.update(pait_extra_param)
         else:
             if regex:
-                kwargs["pattern"] = regex
+                real_kwargs["pattern"] = regex
             if max_items:
                 if max_length:
                     _check_param_value("max_items", "max_length")
                 else:
-                    kwargs["max_length"] = kwargs.pop("max_items")
+                    real_kwargs["max_length"] = real_kwargs.pop("max_items")
             if min_items:
                 if min_length:
                     _check_param_value("min_items", "min_length")
                 else:
-                    kwargs["min_length"] = kwargs.pop("min_items")
+                    real_kwargs["min_length"] = real_kwargs.pop("min_items")
 
-            kwargs["validation_alias"] = validation_alias or alias
-            kwargs["serialization_alias"] = serialization_alias or alias
+            real_kwargs["validation_alias"] = validation_alias or alias
+            real_kwargs["serialization_alias"] = serialization_alias or alias
 
             # I don't want to write such complex code(T_T)
             # support pydantic version (2.0.x, 2.1.x, 2.2.x+)
@@ -194,19 +213,19 @@ class BaseRequestResourceField(BaseField, FieldInfo):
                             f"If the value of `json_schema_extra` is callable,"
                             f" then {pait_extra_param_name}  must be empty"
                         )
-                    kwargs["json_schema_extra"] = json_schema_extra
+                    real_kwargs["json_schema_extra"] = json_schema_extra
                 else:
-                    kwargs["json_schema_extra"] = {}
+                    real_kwargs["json_schema_extra"] = {}
                     if pait_extra_param:
-                        kwargs["json_schema_extra"].update(pait_extra_param)
-                    kwargs["json_schema_extra"].update(json_schema_extra)
+                        real_kwargs["json_schema_extra"].update(pait_extra_param)
+                    real_kwargs["json_schema_extra"].update(json_schema_extra)
             else:
                 extra.update(pait_extra_param)
-                kwargs["json_schema_extra"] = copy.deepcopy(extra)
+                real_kwargs["json_schema_extra"] = copy.deepcopy(extra)
         if extra:
-            kwargs.update(extra)
-        self._check_init_param(**kwargs)
-        super().__init__(**kwargs)
+            real_kwargs.update(extra)
+        self._check_init_param(**real_kwargs)
+        super().__init__(**real_kwargs)
 
     def _check_init_param(self, **kwargs: Any) -> None:
         pass
@@ -248,133 +267,23 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         return cls.field_name or cls.__name__.lower()
 
     @classmethod
-    def i(
-        cls,
-        default: Any = PydanticUndefined,
-        *,
-        links: "Optional[LinksModel]" = None,
-        raw_return: bool = False,
-        media_type: str = "",
-        example: Any = MISSING,
-        openapi_serialization: Any = None,
-        not_value_exception_func: Optional[Callable[[inspect.Parameter], Exception]] = None,
-        openapi_include: bool = True,
-        default_factory: Optional[Callable[[], Any]] = None,
-        alias: Optional[str] = None,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        const: Annotated[
-            Optional[bool],
-            _const_deprecated,
-        ] = None,
-        gt: Optional[float] = None,
-        ge: Optional[float] = None,
-        lt: Optional[float] = None,
-        le: Optional[float] = None,
-        multiple_of: Optional[float] = None,
-        min_items: Optional[int] = None,
-        max_items: Optional[int] = None,
-        min_length: Optional[int] = None,
-        max_length: Optional[int] = None,
-        regex: Annotated[Optional[str], _regex_deprecated] = None,
-        pattern: Optional[str] = None,
-        extra_param_list: Optional[List[ExtraParam]] = None,
-        json_schema_extra: Union[Dict[str, Any], Callable[[Dict[str, Any]], None], None] = None,
-        **extra: Any,
-    ) -> Any:
+    def i(cls, default: Any = PydanticUndefined, **kwargs: Unpack[FieldBaseParamTypedDict]) -> Any:
         """ignore mypy tip"""
-        return cls(
-            default,
-            raw_return=raw_return,
-            links=links,
-            example=example,
-            media_type=media_type,
-            openapi_serialization=openapi_serialization,
-            not_value_exception_func=not_value_exception_func,
-            openapi_include=openapi_include,
-            default_factory=default_factory,
-            alias=alias,
-            title=title,
-            description=description,
-            const=const,
-            gt=gt,
-            ge=ge,
-            lt=lt,
-            le=le,
-            multiple_of=multiple_of,
-            min_items=min_items,
-            max_items=max_items,
-            min_length=min_length,
-            max_length=max_length,
-            regex=regex,
-            pattern=pattern,
-            extra_param_list=extra_param_list,
-            json_schema_extra=json_schema_extra,
-            **extra,
-        )
+        return cls(default=default, **kwargs)
 
     @classmethod
-    def t(
+    def t(  # type: ignore
         cls,
         default: _T = PydanticUndefined,
-        *,
-        links: "Optional[LinksModel]" = None,
-        raw_return: bool = False,
-        media_type: str = "",
         example: _T = MISSING,  # type: ignore
-        openapi_serialization: Any = None,
-        not_value_exception_func: Optional[Callable[[inspect.Parameter], Exception]] = None,
-        openapi_include: bool = True,
         default_factory: Optional[Callable[[], _T]] = None,
-        alias: Optional[str] = None,
-        title: Optional[str] = None,
-        description: Optional[str] = None,
-        const: Annotated[Optional[bool], _const_deprecated] = None,
-        gt: Optional[float] = None,
-        ge: Optional[float] = None,
-        lt: Optional[float] = None,
-        le: Optional[float] = None,
-        multiple_of: Optional[float] = None,
-        min_items: Optional[int] = None,
-        max_items: Optional[int] = None,
-        min_length: Optional[int] = None,
-        max_length: Optional[int] = None,
-        regex: Annotated[Optional[str], _regex_deprecated] = None,
-        pattern: Optional[str] = None,
-        extra_param_list: Optional[List[ExtraParam]] = None,
-        json_schema_extra: Union[Dict[str, Any], Callable[[Dict[str, Any]], None], None] = None,
-        **extra: Any,
+        **kwargs: Unpack[FieldBaseParamTypedDict],
     ) -> _T:
         """Limited type hint support"""
-        return cls(
-            default,
-            raw_return=raw_return,
-            links=links,
-            example=example,
-            media_type=media_type,
-            openapi_serialization=openapi_serialization,
-            not_value_exception_func=not_value_exception_func,
-            openapi_include=openapi_include,
-            default_factory=default_factory,
-            alias=alias,
-            title=title,
-            description=description,
-            const=const,
-            gt=gt,
-            ge=ge,
-            lt=lt,
-            le=le,
-            multiple_of=multiple_of,
-            min_items=min_items,
-            max_items=max_items,
-            min_length=min_length,
-            max_length=max_length,
-            regex=regex,
-            pattern=pattern,
-            extra_param_list=extra_param_list,
-            json_schema_extra=json_schema_extra,
-            **extra,
-        )
+        if getattr(example, "__class__", None) is not MISSING.__class__:
+            kwargs["example"] = example
+        kwargs["default_factory"] = default_factory
+        return cls(default=default, **kwargs)
 
     @classmethod
     def from_pydantic_field(cls, field: FieldInfo) -> "BaseRequestResourceField":
@@ -421,7 +330,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
                     extra_dict[key] = getattr(metadata, key)
 
         return cls(
-            field.default,
+            default=field.default,
             default_factory=field.default_factory,
             alias=field.alias,
             title=field.title,

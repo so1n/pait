@@ -73,11 +73,7 @@ class BaseTest(object):
         ).json()
 
     def pre_depend_route(self, route: Callable) -> None:
-        assert self.test_helper(
-            self.client,
-            route,
-            header_dict={"token": "demo"}
-        ).json()["code"] == 0
+        assert self.test_helper(self.client, route, header_dict={"token": "demo"}).json()["code"] == 0
         assert self.test_helper(self.client, route).json()["code"] != 0
 
     def same_alias_name(self, route: Callable) -> None:

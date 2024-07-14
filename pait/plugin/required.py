@@ -41,7 +41,9 @@ class RequiredPlugin(PostPluginProtocol):
                             f"{pre_param} requires param {' and '.join(param_list)}, which if not none"
                         )
         except Exception as e:
-            raise e from gen_tip_exc(context.pait_core_model.func, e, tip_exception_class=self.pait_core_model.tip_exception_class)
+            raise e from gen_tip_exc(
+                context.pait_core_model.func, e, tip_exception_class=self.pait_core_model.tip_exception_class
+            )
 
     @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:

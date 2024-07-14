@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Any
 
-from pait.model.status import PaitStatus
 from pait.model.core import DefaultValue
+from pait.model.status import PaitStatus
 
 if TYPE_CHECKING:
     from pait.model.config import Config
@@ -24,7 +24,7 @@ def sync_config_data_to_pait_core_model(config: "Config", pait_core_model: "Pait
         pait_core_model.tip_exception_class is DefaultValue.tip_exception_class
         and config.tip_exception_class is not DefaultValue.tip_exception_class
     ):
-        pait_core_model.default_field_class = config.tip_exception_class
+        pait_core_model.tip_exception_class = config.tip_exception_class
 
     if config.apply_func_list:
         for apply_func in config.apply_func_list:

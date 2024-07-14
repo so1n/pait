@@ -17,7 +17,10 @@ class ParamHandleContext(ContextModel):
 
 class ParamHandler(BaseParamHandler[ParamHandleContext]):
     def prd_handle(
-        self, context: "ParamHandleContext", _object: Any, prd: rule.ParamRuleDict,
+        self,
+        context: "ParamHandleContext",
+        _object: Any,
+        prd: rule.ParamRuleDict,
     ) -> Tuple[List[Any], Dict[str, Any]]:
         args_param_list: List[Any] = []
         kwargs_param_dict: Dict[str, Any] = {}
@@ -38,7 +41,11 @@ class ParamHandler(BaseParamHandler[ParamHandleContext]):
 
         return args_param_list, kwargs_param_dict
 
-    def depend_handle(self, context: "ParamHandleContext", pld: "rule.PreLoadDc",) -> Any:
+    def depend_handle(
+        self,
+        context: "ParamHandleContext",
+        pld: "rule.PreLoadDc",
+    ) -> Any:
         pait_handler = pld.pait_handler
         if inspect.isclass(pait_handler):
             # support depend type is class

@@ -29,7 +29,9 @@ class AtMostOneOfPlugin(PostPluginProtocol):
                 if len([i for i in at_most_one_of if context.kwargs.get(i, None) is not None]) > 1:
                     raise CheckValueError(f"requires at most one of param {' or '.join(at_most_one_of)}")
         except Exception as e:
-            raise e from gen_tip_exc(context.pait_core_model.func, e, tip_exception_class=self.pait_core_model.tip_exception_class)
+            raise e from gen_tip_exc(
+                context.pait_core_model.func, e, tip_exception_class=self.pait_core_model.tip_exception_class
+            )
 
     @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:

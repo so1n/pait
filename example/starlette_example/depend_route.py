@@ -40,6 +40,7 @@ async def depend_route(
 async def pre_depend_route() -> JSONResponse:
     return JSONResponse({"code": 0, "msg": "", "data": {}})
 
+
 @depend_pait(status=PaitStatus.test)
 async def depend_contextmanager_route(
     uid: int = Depends.i(depend.context_depend), is_raise: bool = Query.i(default=False)

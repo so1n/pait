@@ -23,9 +23,9 @@ from example.tornado_example.depend_route import (
     DependAsyncContextmanagerHanler,
     DependContextmanagerHanler,
     DependHandler,
-    PreDependHandler,
     PreDependAsyncContextmanagerHanler,
     PreDependContextmanagerHanler,
+    PreDependHandler,
 )
 from example.tornado_example.field_route import (
     AnyTypeHandler,
@@ -120,13 +120,14 @@ class RaiseNotTipHandler(MyHandler):
         """Test Method: error tip"""
         self.write({"code": 0, "msg": "", "data": {"content_type": content__type}})
 
+
 class NewRaiseNotTipHandler(MyHandler):
     @other_pait(
         desc="test pait raise tip",
         status=PaitStatus.abandoned,
         tag=(tag.raise_tag,),
         response_model_list=[SimpleRespModel, FailRespModel],
-        tip_exception_class=None
+        tip_exception_class=None,
     )
     async def post(
         self,

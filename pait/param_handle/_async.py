@@ -63,7 +63,11 @@ class AsyncParamHandler(BaseParamHandler[AsyncParamHandleContext]):
 
         return args_param_list, kwargs_param_dict
 
-    async def depend_handle(self, context: "AsyncParamHandleContext", pld: "rule.PreLoadDc",) -> Any:
+    async def depend_handle(
+        self,
+        context: "AsyncParamHandleContext",
+        pld: "rule.PreLoadDc",
+    ) -> Any:
         pait_handler = pld.pait_handler
         if inspect.isclass(pait_handler):
             # support depend type is class

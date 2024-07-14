@@ -2,7 +2,7 @@ import asyncio
 import inspect
 from dataclasses import MISSING, dataclass
 from dataclasses import field as dc_field
-from typing import TYPE_CHECKING, Any, Callable, Coroutine, Dict, List, Mapping, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, Dict, Mapping, Optional, Type, Union
 
 from pydantic import BaseModel
 

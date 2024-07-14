@@ -26,9 +26,9 @@ from example.sanic_example.depend_route import (
     depend_async_contextmanager_route,
     depend_contextmanager_route,
     depend_route,
-    pre_depend_route,
     pre_depend_async_contextmanager_route,
     pre_depend_contextmanager_route,
+    pre_depend_route,
 )
 from example.sanic_example.field_route import (
     any_type_route,
@@ -124,14 +124,13 @@ async def raise_not_tip_route(
     status=PaitStatus.abandoned,
     tag=(tag.raise_tag,),
     response_model_list=[SimpleRespModel, FailRespModel],
-    tip_exception_class=None
+    tip_exception_class=None,
 )
 async def new_raise_not_tip_route(
     content__type: str = Header.i(description="Content-Type"),  # in flask, Content-Type's key is content_type
 ) -> dict:
     """Prompted error from pait when test does not find value"""
     return {"code": 0, "msg": "", "data": {"content_type": content__type}}
-
 
 
 class CbvRoute(HTTPMethodView):

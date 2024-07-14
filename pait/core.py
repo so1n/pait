@@ -6,9 +6,9 @@ from any_api.openapi.model.util import HttpMethodLiteral
 from typing_extensions import Required, Self, TypedDict, Unpack, get_args
 
 from pait.app.base import BaseAppHelper
-from pait.extra.util import sync_config_data_to_pait_core_model
 from pait.exceptions import TipException
-from pait.g import config, set_ctx, pait_data
+from pait.extra.util import sync_config_data_to_pait_core_model
+from pait.g import config, pait_data, set_ctx
 from pait.model.context import ContextModel
 from pait.model.core import (
     AuthorOptionalType,
