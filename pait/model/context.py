@@ -38,5 +38,9 @@ class ContextModel(object):
             raise KeyError(key)
         return value
 
+    def __str__(self) -> str:
+        self._init_state()
+        return super().__str__()
+
 
 PluginContext = ContextModel

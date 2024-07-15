@@ -3,7 +3,7 @@ from typing import Any
 import aiofiles  # type: ignore
 from tornado.web import RequestHandler
 
-from pait.app.tornado.adapter.response import gen_response, set_info_to_response
+from pait.app.tornado.adapter.response import gen_unifiled_response, set_info_to_response
 from pait.model.context import ContextModel as PluginContext
 from pait.plugin.mock_response import MockPluginProtocol
 
@@ -12,10 +12,11 @@ class MockPlugin(MockPluginProtocol[None]):
     tornado_handle: RequestHandler
 
     def get_response(self) -> None:
-        return gen_response(
-            self.pait_response_model.get_example_value(example_column_name=self.example_column_name),
-            self.pait_response_model,
+        return gen_unifiled_response(
             self.tornado_handle,
+            self.pait_response_model.get_example_value(example_column_name=self.example_column_name),
+            self.tornado_handle,
+            response_model_class=self.pait_response_model,
         )
 
     def set_info_to_response(self, resp: None) -> None:

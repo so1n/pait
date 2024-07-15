@@ -4,15 +4,15 @@ import aiofiles  # type: ignore
 from starlette.background import BackgroundTask
 from starlette.responses import FileResponse, Response
 
-from pait.app.starlette.adapter.response import gen_response, set_info_to_response
+from pait.app.starlette.adapter.response import gen_unifiled_response, set_info_to_response
 from pait.plugin.mock_response import RESP_T, MockPluginProtocol
 
 
 class MockPlugin(MockPluginProtocol[Response]):
     def get_response(self) -> Response:
-        return gen_response(
+        return gen_unifiled_response(
             self.pait_response_model.get_example_value(example_column_name=self.example_column_name),
-            self.pait_response_model,
+            response_model_class=self.pait_response_model,
         )
 
     def get_file_response(self, temporary_file: IO[bytes], f: Any) -> RESP_T:  # type: ignore

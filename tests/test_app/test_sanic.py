@@ -336,28 +336,29 @@ class TestSanic:
     def test_gen_response(self) -> None:
         from sanic.response import json
 
-        from pait.app.sanic.adapter.response import gen_response
+        from pait.app.sanic.adapter.response import gen_response, gen_unifiled_response
         from pait.model import response
 
-        result = gen_response(json({"demo": 1}), response.BaseResponseModel)
-        assert result.body.decode() == '{"demo":1}'
+        for gen_method in (gen_response, gen_unifiled_response):
+            result = gen_method(json({"demo": 1}), response_model_class=response.BaseResponseModel)
+            assert result.body.decode() == '{"demo":1}'
 
-        result = gen_response({"demo": 1}, response.JsonResponseModel)
-        assert result.body.decode() == '{"demo":1}'
+            result = gen_method({"demo": 1}, response_model_class=response.JsonResponseModel)
+            assert result.body.decode() == '{"demo":1}'
 
-        class HeaderModel(BaseModel):
-            demo: str = Field(alias="x-demo", example="123")
+            class HeaderModel(BaseModel):
+                demo: str = Field(alias="x-demo", example="123")
 
-        class MyHtmlResponseModel(response.HtmlResponseModel):
-            media_type = "application/demo"
-            header = HeaderModel
-            status_code = (400,)
+            class MyHtmlResponseModel(response.HtmlResponseModel):
+                media_type = "application/demo"
+                header = HeaderModel
+                status_code = (400,)
 
-        result = gen_response("demo", MyHtmlResponseModel)
-        assert result.body.decode() == "demo"
-        assert result.content_type == "application/demo"
-        assert result.headers == {"x-demo": "123"}
-        assert result.status == 400
+            result = gen_method("demo", response_model_class=MyHtmlResponseModel)
+            assert result.body.decode() == "demo"
+            assert result.content_type == "application/demo"
+            assert result.headers == {"x-demo": "123"}
+            assert result.status == 400
 
     def test_simple_route(self, client: SanicTestClient) -> None:
         def simple_route_factory(num: int) -> Callable:

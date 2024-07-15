@@ -170,7 +170,10 @@ class BaseRequestResourceField(BaseField, FieldInfo):
             min_length=min_length,
             max_length=max_length,
         )
+        raw_extra = kwargs.pop("extra", None)
         extra: dict = kwargs  # type: ignore[assignment]
+        if raw_extra:
+            extra.update(raw_extra)
         if regex and pattern:
             _check_param_value("regex", "pattern")
         if _pydanitc_adapter.is_v1:

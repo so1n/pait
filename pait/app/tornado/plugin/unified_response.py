@@ -1,6 +1,6 @@
 from typing import Any
 
-from pait.app.tornado.adapter.response import gen_response
+from pait.app.tornado.adapter.response import gen_unifiled_response
 from pait.model.context import ContextModel as PluginContext
 from pait.plugin.unified_response import UnifiedResponsePlugin as BaseUnifiedResponsePlugin
 from pait.plugin.unified_response import UnifiedResponsePluginProtocol as BaseUnifiedResponsePluginProtocol
@@ -8,7 +8,7 @@ from pait.util import to_thread
 
 
 def _gen_response(self: BaseUnifiedResponsePluginProtocol, return_value: Any, context: PluginContext) -> Any:
-    return gen_response(return_value, self.response_model_class, context.cbv_instance, *context.args, **context.kwargs)
+    return gen_unifiled_response(context.cbv_instance, return_value, *context.args, response_model_class=self.response_model_class, **context.kwargs)
 
 
 class UnifiedResponsePlugin(BaseUnifiedResponsePlugin):

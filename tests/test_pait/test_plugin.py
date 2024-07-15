@@ -13,7 +13,7 @@ from pait.exceptions import CheckValueError, TipException
 from pait.model import response
 from pait.model.context import PluginContext
 from pait.model.core import PaitCoreModel
-from pait.model.response import FileResponseModel
+from pait.model.response import FileResponseModel, JsonResponseModel
 from pait.param_handle import BaseParamHandler, ParamHandler
 from pait.plugin.at_most_one_of import AtMostOneOfExtraParam, AtMostOneOfPlugin
 from pait.plugin.auto_complete_json_resp import AutoCompleteJsonRespPlugin
@@ -453,25 +453,40 @@ class TestUnifiedResponsePlugin:
         def demo() -> None:
             pass
 
-        with pytest.raises(RuntimeError):
+        default_kwargs = {}
+        UnifiedResponsePluginProtocol.pre_load_hook(
+            PaitCoreModel(
+                func=demo,
+                app_helper_class=BaseAppHelper,
+                param_handler_plugin=ParamHandler,
+            ),
+            kwargs=default_kwargs,
+        )
+        assert default_kwargs["response_model_class"] == JsonResponseModel
+        
+        with pytest.raises(RuntimeError) as e:
             UnifiedResponsePluginProtocol.pre_load_hook(
                 PaitCoreModel(
                     func=demo,
                     app_helper_class=BaseAppHelper,
                     param_handler_plugin=ParamHandler,
+                    response_model_list=[JsonResponseModel]
                 ),
                 kwargs={},
             )
-        with pytest.raises(ValueError) as e:
-            UnifiedResponsePluginProtocol.pre_load_hook(
-                PaitCoreModel(
-                    func=demo,
-                    app_helper_class=BaseAppHelper,
-                    param_handler_plugin=ParamHandler,
-                ),
-                kwargs={"get_pait_response_model": get_pait_response_model},
-            )
-        assert "The response model list cannot be empty, please add a response model to" in e.value.args[0]
+        assert "Can not found get_pait_response_model func" in e.value.args[0]
+
+        # with pytest.raises(ValueError) as e:
+        #     UnifiedResponsePluginProtocol.pre_load_hook(
+        #         PaitCoreModel(
+        #             func=demo,
+        #             app_helper_class=BaseAppHelper,
+        #             param_handler_plugin=ParamHandler,
+        #             response_model_list=[JsonResponseModel]
+        #         ),
+        #         kwargs={"get_pait_response_model": get_pait_response_model},
+        #     )
+        # assert "The response model list cannot be empty, please add a response model to" in e.value.args[0]
 
         with pytest.raises(ValueError) as e:
             UnifiedResponsePluginProtocol.pre_load_hook(

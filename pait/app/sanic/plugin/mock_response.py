@@ -1,18 +1,16 @@
 from typing import Any
 
-import aiofiles  # type: ignore
 from sanic import response as sanic_response
-from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
 
-from pait.app.sanic.adapter.response import gen_response, set_info_to_response
+from pait.app.sanic.adapter.response import gen_unifiled_response, set_info_to_response
 from pait.plugin.mock_response import MockPluginProtocol
 
 
 class MockPlugin(MockPluginProtocol[sanic_response.BaseHTTPResponse]):
     def get_response(self) -> sanic_response.BaseHTTPResponse:
-        return gen_response(
+        return gen_unifiled_response(
             self.pait_response_model.get_example_value(example_column_name=self.example_column_name),
-            self.pait_response_model,
+            response_model_class=self.pait_response_model,
         )
 
     async def async_get_file_response(self, temporary_file: Any, f: Any) -> sanic_response.BaseHTTPResponse:
