@@ -1,6 +1,5 @@
 from typing import IO, Any
 
-import aiofiles  # type: ignore
 from starlette.background import BackgroundTask
 from starlette.responses import FileResponse, Response
 
