@@ -6,6 +6,32 @@ Rewrite some old methods to increase the extensibility of the corresponding modu
 - 3 SSE support
 - 4 WebSocket support
 
+### 1.1.0
+Feat Change List:
+- Tag support label
+- Tag support openapi include
+- Pait g module add func `get_ctx`
+- Response model support generic pydantic model
+- Optimise code related to field and param handler
+- Support use pydantic model in pait response
+- APIRoute
+- [Field] Field/request_resource support PEP612
+- [Pait] @pait support extra_openapi_model_list param 
+- [Pait] Add `sync-to-thread` param to solve sync route or func
+- [Pait] No longer restricting key parameters of routing (#40)
+- [Plugin] unified plugin support pydantic.BaseModel return value
+
+Fix:
+- Body must not be None for method POST
+- Fix pre-depend not support class depend
+- fix starlette include aiofile pkg
+
+Refactor:
+- refactor app and move attr & exception module to adapter
+- Pait param sign use Unpack TypedDict
+- Change tip_exception_class param
+
+
 ### 1.0.0
 Improve Open API related functions and refactor some APIs that affect performance
 > Note: This version will have syntax changes that are not backward compatible, and the library api status will change from alpha to beta
