@@ -5,7 +5,7 @@ import random
 import sys
 from contextlib import contextmanager
 from functools import partial
-from typing import Callable, Generator, Type
+from typing import Callable, Generator, Optional, Type
 from unittest import mock
 
 import pytest
@@ -43,7 +43,7 @@ _TestHelper: Type[_TestHelper] = partial(  # type: ignore
 
 
 @contextmanager
-def client_ctx(app: Sanic = None) -> Generator[SanicTestClient, None, None]:
+def client_ctx(app: Optional[Sanic] = None) -> Generator[SanicTestClient, None, None]:
     logging.disable()  # don't know where to configure the log, the test environment will be canceled log
     if not app:
         app = main_example.create_app(configure_logging=False)
@@ -258,6 +258,10 @@ class TestSanic:
         )
         assert logger.call_args is None
 
+    def test_file_route(self, base_test: BaseTest) -> None:
+        base_test.file_route(main_example.stream_for_data_route, ignore_path=True)
+        base_test.file_route(main_example.multipart_route, ignore_path=True)
+
     def test_api_key_route(self, base_test: BaseTest) -> None:
         base_test.api_key_route(main_example.api_key_cookie_route, {"cookie_dict": {"token": "my-token"}})
         base_test.api_key_route(main_example.api_key_header_route, {"header_dict": {"token": "my-token"}})
@@ -317,7 +321,7 @@ class TestSanic:
 
         assert CheckJsonRespPlugin.get_json(json_resp({"demo": 1}), pait_context) == {"demo": 1}
         demo_resp = json_resp({"demo": 1})
-        demo_resp.body = json.dumps({"demo": 1})
+        # demo_resp.body = json.dumps({"demo": 1})
         assert CheckJsonRespPlugin.get_json(demo_resp, pait_context) == {"demo": 1}
 
         with pytest.raises(TypeError):
@@ -347,7 +351,7 @@ class TestSanic:
             assert result.body.decode() == '{"demo":1}'
 
             class HeaderModel(BaseModel):
-                demo: str = Field(alias="x-demo", example="123")
+                demo: str = Field(alias="x-demo", example="123")  # type:ignore[call-arg]
 
             class MyHtmlResponseModel(response.HtmlResponseModel):
                 media_type = "application/demo"

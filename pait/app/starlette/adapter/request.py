@@ -1,4 +1,4 @@
-from typing import Any, Coroutine, Dict, List, Mapping, Optional
+from typing import Any, AsyncGenerator, Coroutine, Dict, Generator, List, Mapping, Optional, Union
 
 from starlette.datastructures import FormData, Headers, UploadFile
 from starlette.requests import Request as _Request
@@ -20,7 +20,7 @@ class RequestExtend(BaseRequestExtend[_Request]):
     def hostname(self) -> str:
         if self.request.url.port:
             return f"{self.request.url.hostname}:{self.request.url.port}"
-        return self.request.url.hostname
+        return self.request.url.hostname or ""
 
 
 class Request(BaseRequest[_Request, RequestExtend]):
@@ -71,6 +71,9 @@ class Request(BaseRequest[_Request, RequestExtend]):
 
     def query(self) -> dict:
         return dict(self.request.query_params)
+
+    def stream(self, size: int = -1) -> Union[Generator[bytes, None, None], AsyncGenerator[bytes, None]]:
+        return self.request.stream()
 
     def multiform(self) -> Coroutine[Any, Any, Dict[str, List[Any]]]:
         @LazyProperty(self)

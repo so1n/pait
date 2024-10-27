@@ -17,7 +17,7 @@ from pydantic.fields import FieldInfo
 from pait import _pydanitc_adapter
 from pait.app.any.util import import_func_from_app
 from pait.data import PaitCoreProxyModel
-from pait.field import BaseRequestResourceField, Depends
+from pait.field import BaseRequestResourceField, Depends, File
 from pait.g import config
 from pait.model.core import PaitCoreModel
 from pait.param_handle.util import get_parameter_list_from_class
@@ -187,11 +187,12 @@ class ParsePaitModel(object):
         self.parameter_list_handle(func_type_sig.param_list, single_field_list)
 
         if single_field_list:
-            annotation_dict: Dict[str, Tuple[Type, Any]] = {}
+            annotation_dict: Dict[str, Tuple[Any, Any]] = {}
             _column_name_set: Set[str] = set()
             for field_name, parameter in single_field_list:
                 field: BaseRequestResourceField = parameter.default
                 key: str = field.alias or parameter.name
+                annotation = parameter.annotation if not isinstance(field, File) else Any
                 if key in _column_name_set:
                     # Since the same name cannot exist together in a Dict,
                     #  it will be parsed directly when a Key exists
@@ -200,7 +201,7 @@ class ParsePaitModel(object):
                     #      header_token: str = Header(alias="token")
                     #      query_token: str = Query(alias="token")
                     _pydantic_model: Type[BaseModel] = create_pydantic_model(
-                        {parameter.name: (parameter.annotation, field)},
+                        {parameter.name: (annotation, field)},
                         class_name=(
                             f"{self.pait_model.func_name.title()}"
                             f"{self.pait_model.pait_id.title()}{key.title()}SameNameModel"
@@ -209,7 +210,7 @@ class ParsePaitModel(object):
                     self._parse_base_model(_pydantic_model)
                 else:
                     _column_name_set.add(key)
-                    annotation_dict[parameter.name] = (parameter.annotation, field)
+                    annotation_dict[parameter.name] = (annotation, field)
 
             _pydantic_model = create_pydantic_model(
                 annotation_dict,

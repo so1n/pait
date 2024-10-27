@@ -5,7 +5,7 @@ import random
 import sys
 from contextlib import contextmanager
 from functools import partial
-from typing import Any, Callable, Generator, Type
+from typing import Any, Callable, Generator, Optional, Type
 from unittest import mock
 
 import pytest
@@ -46,7 +46,9 @@ _TestHelper: Type[_TestHelper] = partial(  # type: ignore
 
 
 @contextmanager
-def client_ctx(app: Starlette = None, raise_server_exceptions: bool = True) -> Generator[TestClient, None, None]:
+def client_ctx(
+    app: Optional[Starlette] = None, raise_server_exceptions: bool = True
+) -> Generator[TestClient, None, None]:
     # starlette run after sanic
     # fix starlette.testclient get_event_loop status is close
     # def get_event_loop() -> asyncio.AbstractEventLoop:
@@ -178,7 +180,7 @@ class TestStarlette:
         response_test_helper(client, main_example.async_file_response_route, response.FileResponseModel, MockPlugin)
 
     def test_doc_route(self, client: TestClient) -> None:
-        main_example.add_api_doc_route(client.app)
+        main_example.add_api_doc_route(client.app)  # type:ignore[arg-type]
         for doc_route_path in default_doc_fn_dict.keys():
             assert client.get(f"/{doc_route_path}").status_code == 404
             assert client.get(f"/api-doc/{doc_route_path}").status_code == 200
@@ -288,6 +290,10 @@ class TestStarlette:
         )
         assert logger.call_args is None
 
+    def test_file_route(self, base_test: BaseTest) -> None:
+        base_test.file_route(main_example.stream_for_data_route, ignore_path=True)
+        base_test.file_route(main_example.multipart_route, ignore_path=True)
+
     def test_api_key_route(self, base_test: BaseTest) -> None:
         base_test.api_key_route(main_example.api_key_cookie_route, {"cookie_dict": {"token": "my-token"}})
         base_test.api_key_route(main_example.api_key_header_route, {"header_dict": {"token": "my-token"}})
@@ -353,7 +359,9 @@ class TestStarlette:
         key = "tests.test_app.test_starlette_TestStarlette.test_load_app_by_mount_route.<locals>.demo"
 
         assert key not in load_app(app)
-        app.router.routes.append(Mount("/api/demo/mount/", routes=[Route("/demo", demo, methods=["GET"])]))
+        app.router.routes.append(  # type:ignore[has-type]
+            Mount("/api/demo/mount/", routes=[Route("/demo", demo, methods=["GET"])])
+        )
         reload_result = load_app(app)
         assert key in reload_result
         demo_core_model = load_app(app)[key]._core_model  # type: ignore[attr-defined]
@@ -374,7 +382,7 @@ class TestStarlette:
         demo_router = Router(routes=[Route("/", demo, methods=["GET"])])
 
         warn_logger = mocker.patch("pait.app.starlette._load_app.logging.warning")
-        app.router.routes.append(Host("www.example.com", demo_router))
+        app.router.routes.append(Host("www.example.com", demo_router))  # type:ignore[has-type]
         assert "test_load_app_by_mount.<locals>.demo" not in load_app(app)
 
         warn_logger.assert_called_once_with(f"load_app func not support route:{Host}")
@@ -413,7 +421,7 @@ class TestStarlette:
             assert result.body == b'{"demo":1}'
 
             class HeaderModel(BaseModel):
-                demo: str = Field(alias="x-demo", example="123")
+                demo: str = Field(alias="x-demo", example="123")  # type:ignore[call-arg]
 
             class MyHtmlResponseModel(response.HtmlResponseModel):
                 media_type = "application/demo"
@@ -436,10 +444,11 @@ class TestStarlette:
             return simple_route
 
         add_simple_route(
-            client.app, SimpleRoute(methods=["GET"], url="/api/demo/simple-route-1", route=simple_route_factory(1))
+            client.app,  # type:ignore[arg-type]
+            SimpleRoute(methods=["GET"], url="/api/demo/simple-route-1", route=simple_route_factory(1)),
         )
         add_multi_simple_route(
-            client.app,
+            client.app,  # type:ignore[arg-type]
             SimpleRoute(methods=["GET"], url="/demo/simple-route-2", route=simple_route_factory(2)),
             SimpleRoute(methods=["GET"], url="/demo/simple-route-3", route=simple_route_factory(3)),
             prefix="/api",

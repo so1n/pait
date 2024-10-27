@@ -7,14 +7,13 @@ from typing import TYPE_CHECKING, Any, Callable, Coroutine, Dict, Mapping, Optio
 from pydantic import BaseModel
 
 from pait import _pydanitc_adapter
-from pait._pydanitc_adapter import PydanticUndefined, is_v1
-from pait.field import BaseRequestResourceField
-from pait.types import CallType, Protocol
+from pait.types import Protocol
 
 if TYPE_CHECKING:
+    from pait.field import BaseRequestResourceField
     from pait.model.context import ContextModel
-
-    from .base import BaseParamHandler
+    from pait.param_handle.base import BaseParamHandler
+    from pait.types import CallType
 
 
 class ParamRuleFuncProtocol(Protocol):
@@ -29,7 +28,7 @@ class ParamRuleFuncProtocol(Protocol):
 
 
 @dataclass
-class _FieldTypePrFuncDc(object):
+class FieldTypePrFuncDc(object):
     func: ParamRuleFuncProtocol
     async_func: ParamRuleFuncProtocol
 
@@ -45,7 +44,7 @@ class ParamRule(object):
 
 @dataclass
 class PreLoadDc(object):
-    pait_handler: CallType
+    pait_handler: "CallType"
     param: "ParamRuleDict" = dc_field(default_factory=dict)
     func_class_prd: Optional["ParamRuleDict"] = dc_field(default=None)
 
@@ -58,11 +57,11 @@ ParamRuleDict = Dict[str, "ParamRule"]
 #############################
 def get_real_request_value(parameter: inspect.Parameter, request_value: Mapping) -> Any:
     """get request value by func param's request field"""
-    pait_field: BaseRequestResourceField = parameter.default
+    pait_field: "BaseRequestResourceField" = parameter.default
 
     if not pait_field.raw_return:
         request_value = pait_field.request_value_handle(request_value)
-        if request_value is PydanticUndefined:
+        if request_value is _pydanitc_adapter.PydanticUndefined:
             raise pait_field.not_value_exception_func(parameter)
     return request_value
 
@@ -80,7 +79,7 @@ def flask_validate_request_value(
         return annotation(**request_value)
     else:
         # parse annotation is python type and pydantic.field
-        if not is_v1 and isinstance(request_value, dict):
+        if not _pydanitc_adapter.is_v1 and isinstance(request_value, dict):
             # Fix _model_field.validate method not support like flask ImmutableMultiDict:
             #    e.g:
             #       intput: ImmutableMultiDict([('pin-code', '6666'), ('template-token', 'xxx')])
@@ -140,8 +139,7 @@ def request_field_get_value_pr_func(
     pr: "ParamRule", context: "ContextModel", param_plugin: "BaseParamHandler"
 ) -> Mapping:
     """get request value by func param's request field"""
-    field_name = pr.parameter.default.get_field_name()
-    request_value: Mapping = getattr(context.app_helper.request, field_name, lambda: {})()
+    request_value: Mapping = getattr(context.app_helper.request, pr.parameter.default.from_request(), lambda: {})()
     if request_value is None:
         request_value = {}
     return get_real_request_value(pr.parameter, request_value)
@@ -152,7 +150,7 @@ async def async_request_field_get_value_pr_func(
 ) -> Any:
     """get request value by func param's request field"""
     request_value: Union[Mapping, Coroutine[Any, Any, Mapping]] = getattr(
-        context.app_helper.request, pr.parameter.default.get_field_name(), lambda: {}
+        context.app_helper.request, pr.parameter.default.from_request(), lambda: {}
     )()
     if asyncio.iscoroutine(request_value) or asyncio.isfuture(request_value):
         _request_value: Mapping = await request_value
@@ -197,9 +195,9 @@ def request_depend_pr_func(
     return param_plugin.depend_handle(context, pr.sub)
 
 
-empty_ft = _FieldTypePrFuncDc(empty_pr_func, empty_pr_func)  # type: ignore[arg-type]
-cbv_class_ft = _FieldTypePrFuncDc(cbv_pr_func, cbv_pr_func)  # type: ignore[arg-type]
-request_ft = _FieldTypePrFuncDc(request_pr_func, request_pr_func)  # type: ignore[arg-type]
-pait_model_ft = _FieldTypePrFuncDc(pait_model_pr_func, async_pait_model_pr_func)  # type: ignore[arg-type]
-request_field_ft = _FieldTypePrFuncDc(request_field_pr_func, async_request_field_pr_func)  # type: ignore[arg-type]
-request_depend_ft = _FieldTypePrFuncDc(request_depend_pr_func, request_depend_pr_func)  # type: ignore[arg-type]
+empty_ft = FieldTypePrFuncDc(empty_pr_func, empty_pr_func)  # type: ignore[arg-type]
+cbv_class_ft = FieldTypePrFuncDc(cbv_pr_func, cbv_pr_func)  # type: ignore[arg-type]
+request_ft = FieldTypePrFuncDc(request_pr_func, request_pr_func)  # type: ignore[arg-type]
+pait_model_ft = FieldTypePrFuncDc(pait_model_pr_func, async_pait_model_pr_func)  # type: ignore[arg-type]
+request_field_ft = FieldTypePrFuncDc(request_field_pr_func, async_request_field_pr_func)  # type: ignore[arg-type]
+request_depend_ft = FieldTypePrFuncDc(request_depend_pr_func, request_depend_pr_func)  # type: ignore[arg-type]

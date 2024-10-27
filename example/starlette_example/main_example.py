@@ -37,6 +37,7 @@ from example.starlette_example.field_route import (
     post_route,
     same_alias_route,
 )
+from example.starlette_example.file_route import multipart_route, stream_for_data_route
 from example.starlette_example.plugin_route import (
     async_auto_complete_json_route,
     async_check_json_plugin_route,
@@ -344,6 +345,8 @@ def create_app() -> Starlette:
             Route("/api/sync-to-thread/sync-depend", sync_depend_route, methods=["POST"]),
             Route("/api/sync-to-thread/sync-body", sync_body_route, methods=["POST"]),
             Route("/api/sync-to-thread/sync-ctx-depend", sync_with_ctx_depend_route, methods=["POST"]),
+            Route("/api/file/stream-for-data", stream_for_data_route, methods=["POST"]),
+            Route("/api/file/multipart", multipart_route, methods=["POST"]),
         ]
     )
     CacheResponsePlugin.set_redis_to_app(app, redis=Redis(decode_responses=True))

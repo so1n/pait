@@ -33,6 +33,7 @@ from example.flask_example.field_route import (
     post_route,
     same_alias_route,
 )
+from example.flask_example.file_route import multipart_route, stream_for_data_route
 from example.flask_example.plugin_route import (
     auto_complete_json_route,
     cache_response,
@@ -312,6 +313,8 @@ def create_app() -> Flask:
     )
     app.add_url_rule("/api/security/user-name-by-http-bearer", view_func=get_user_name_by_http_bearer, methods=["GET"])
     app.add_url_rule("/api/security/user-name-by-http-digest", view_func=get_user_name_by_http_digest, methods=["GET"])
+    app.add_url_rule("/api/file/stream-for-data", view_func=stream_for_data_route, methods=["POST"])
+    app.add_url_rule("/api/file/multipart", view_func=multipart_route, methods=["POST"])
 
     app.errorhandler(PaitBaseException)(api_exception)
     app.errorhandler(ValidationError)(api_exception)

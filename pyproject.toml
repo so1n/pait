@@ -12,6 +12,8 @@ homepage = "https://github.com/so1n/pait"
 python = "^3.8.1"
 any-api = "0.1.0.11"
 redis = { version = "^4.2.2", optional = true }
+multipart = {version = "^1.1.0", optional = true}
+streaming_form_data = {version = "^1.16.0", optional = true}
 
 [tool.poetry.urls]
 "Source" = "https://github.com/so1n/pait"
@@ -19,9 +21,10 @@ redis = { version = "^4.2.2", optional = true }
 "Changelog" = "https://github.com/so1n/pait/blob/master/CHANGELOG.md"
 "Documentation" = "https://so1n.me/pait/"
 
-
 [tool.poetry.extras]
 redis = ["redis"]
+multipart = ["multipart"]
+streaming_form_data = ["streaming_form_data"]
 all = ["redis"]
 
 [tool.poetry.group.framework.dependencies]
@@ -90,6 +93,10 @@ line_length = 120
 ignore_missing_imports = true
 disallow_untyped_defs = true
 python_executable = ".venv/bin/python"
+exclude = [
+    "^pait/extra/field/stream/_multipart.py"
+]
+
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

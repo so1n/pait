@@ -2,18 +2,22 @@ import copy
 import inspect
 import warnings
 from dataclasses import MISSING
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Mapping, Optional, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Mapping, Optional, Tuple, Type, TypeVar, Union
 
 from pydantic.fields import FieldInfo
 from typing_extensions import deprecated  # type: ignore[attr-defined]
 from typing_extensions import Annotated, TypedDict, Unpack
 
-from pait import _pydanitc_adapter
+from pait import _pydanitc_adapter, rule
 from pait.exceptions import NotFoundValueException
 from pait.field.base import BaseField, ExtraParam
+from pait.util import partial_wrapper
 
 if TYPE_CHECKING:
+    from pait.model.core import PaitCoreModel
     from pait.openapi.openapi import LinksModel
+    from pait.param_handle.base import BaseParamHandler
+    from pait.rule import FieldTypePrFuncDc, PreLoadDc
 
 _regex_deprecated = deprecated("Deprecated in Pydantic v2, use `pattern` instead.")
 _const_deprecated = deprecated("Deprecated in Pydantic v2")
@@ -85,8 +89,9 @@ class BaseRequestResourceField(BaseField, FieldInfo):
     field_name: str = ""
     media_type: str = "*/*"
     openapi_serialization: Optional[dict] = None
+    _from_request: str = ""
 
-    def __init__(self, default: Any = PydanticUndefined, **kwargs: Unpack[FieldBaseParamTypedDict]):
+    def __init__(self, default: Any = PydanticUndefined, **kwargs: Unpack[FieldBaseParamTypedDict]):  # noqa:C901
         default_factory: Optional[Callable[[], Any]] = kwargs.pop("default_factory", None)
         not_value_exception_func: Optional[Callable[[inspect.Parameter], Exception]] = kwargs.pop(
             "not_value_exception_func", None
@@ -112,7 +117,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         pait_extra_param = {}
         for copy_key in ("example", "links"):
             if copy_key in kwargs:
-                pait_extra_param[copy_key] = kwargs.pop(copy_key, None)
+                pait_extra_param[copy_key] = kwargs.pop(copy_key, None)  # type: ignore[misc]
 
         #############################################
         # These parameters will not be used in self #
@@ -232,7 +237,32 @@ class BaseRequestResourceField(BaseField, FieldInfo):
     def _check_init_param(self, **kwargs: Any) -> None:
         """Different field class have different validation rules,
         and if you have your own validation requirements, need to implement them here"""
-        pass
+
+    def rule(
+        self, param_handler: "Type[BaseParamHandler]", pait_core_model: "PaitCoreModel", parameter: "inspect.Parameter"
+    ) -> "Tuple[FieldTypePrFuncDc, PreLoadDc]":
+        rule_field_type = rule.request_field_ft
+        parameter.default.set_request_key(parameter.name)
+        validate_request_value_cb = rule.validate_request_value
+        if pait_core_model.app_helper_class.app_name == "flask":
+            validate_request_value_cb = rule.flask_validate_request_value
+        rule_field_type_func_param_dict = dict(
+            # Creating a model field is very performance-intensive (especially for Pydantic V2),
+            # so it needs to be cached
+            pait_model_field=_pydanitc_adapter.PaitModelField(
+                value_name=parameter.name,
+                annotation=parameter.annotation,
+                field_info=parameter.default,
+                request_param=parameter.default.get_field_name(),
+            ),
+            validate_request_value_cb=validate_request_value_cb,
+        )
+        rule_field_type.func = partial_wrapper(rule_field_type.func, **rule_field_type_func_param_dict)
+        rule_field_type.async_func = partial_wrapper(rule_field_type.async_func, **rule_field_type_func_param_dict)
+        return (
+            rule_field_type,
+            rule.PreLoadDc(pait_handler=rule.empty_pr_func),
+        )
 
     @property
     def request_key(self) -> str:
@@ -260,7 +290,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         return request_value.get(self.request_key, self.default)
 
     def request_value_handle_by_default_factory(self, request_value: Mapping) -> Any:
-        return request_value.get(self.request_key, self.default_factory())
+        return request_value.get(self.request_key, self.default_factory())  # type:ignore[misc]
 
     @property
     def links(self) -> "Optional[LinksModel]":
@@ -269,6 +299,10 @@ class BaseRequestResourceField(BaseField, FieldInfo):
     @classmethod
     def get_field_name(cls) -> str:
         return cls.field_name or cls.__name__.lower()
+
+    @classmethod
+    def from_request(cls) -> str:
+        return cls._from_request or cls.get_field_name()
 
     @classmethod
     def i(cls, default: Any = PydanticUndefined, **kwargs: Unpack[FieldBaseParamTypedDict]) -> Any:
@@ -287,7 +321,7 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         if getattr(example, "__class__", None) is not MISSING.__class__:
             kwargs["example"] = example
         kwargs["default_factory"] = default_factory
-        return cls(default=default, **kwargs)
+        return cls(default=default, **kwargs)  # type:ignore
 
     @classmethod
     def from_pydantic_field(cls, field: FieldInfo) -> "BaseRequestResourceField":

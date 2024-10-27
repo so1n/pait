@@ -580,6 +580,21 @@ class BaseTest(object):
             assert test_helper2.json() == test_helper2.json()
             assert test_helper1.json() != test_helper2.json()
 
+    def file_route(self, route: Callable, ignore_path: bool = False) -> None:
+        file_content: str = "Hello Word!"
+        with NamedTemporaryFile(delete=True) as f:
+            f.write(file_content.encode())
+            f.seek(0)
+            assert {
+                "filename": f.name.split("/")[-1] if ignore_path else f.name,
+                "length": len(file_content),
+                # "filename":  f.name, "length": len(file_content)
+            } == self.test_helper(
+                self.client,
+                route,
+                file_dict={"stream": f},
+            ).json()
+
     def api_route_health(self, route: Callable) -> None:
         assert self.test_helper(self.client, route).json() == {"code": 0, "msg": "ok", "data": {}}
 

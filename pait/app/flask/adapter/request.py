@@ -1,8 +1,8 @@
-from typing import Any, Dict, List, Mapping
+from typing import Any, AsyncGenerator, Dict, Generator, List, Mapping, Union
 
 from flask import Request as FlaskRequest
 from flask import request as _request
-from werkzeug.datastructures import EnvironHeaders, ImmutableMultiDict
+from werkzeug.datastructures import EnvironHeaders, Headers, ImmutableMultiDict
 
 from pait.app.base.adapter.request import BaseRequest, BaseRequestExtend
 from pait.util import LazyProperty
@@ -32,7 +32,7 @@ class Request(BaseRequest[FlaskRequest, RequestExtend]):
         return RequestExtend(self.request)
 
     def body(self) -> dict:
-        return _request.json
+        return _request.json or {}
 
     def cookie(self) -> dict:
         return _request.cookies
@@ -43,7 +43,7 @@ class Request(BaseRequest[FlaskRequest, RequestExtend]):
     def form(self) -> FlaskRequest.form:  # type: ignore
         return _request.form
 
-    def header(self) -> EnvironHeaders:
+    def header(self) -> Headers:
         return _request.headers
 
     def path(self) -> Mapping[str, Any]:
@@ -51,6 +51,14 @@ class Request(BaseRequest[FlaskRequest, RequestExtend]):
 
     def query(self) -> Dict[str, Any]:
         return _request.args
+
+    def stream(self, size: int = -1) -> Union[Generator[bytes, None, None], AsyncGenerator[bytes, None]]:
+        while True:
+            chunk = _request.stream.read(size)
+            if chunk is None:
+                break
+            yield chunk
+        return None
 
     @LazyProperty()
     def multiform(self) -> Dict[str, List[Any]]:

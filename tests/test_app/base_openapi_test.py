@@ -9,13 +9,13 @@ from any_api.openapi.model.openapi import (
     OAuthFlowsModel,
     ResponseModel,
 )
+from pydantic import BaseModel
 
 from example.common import response_model
 from pait import _pydanitc_adapter
 from pait.app.base.security.oauth2 import OAuth2PasswordRequestFrom
 from pait.model.response import create_json_response_model
 from pait.openapi.openapi import OpenAPI
-from pydantic import BaseModel
 
 if TYPE_CHECKING:
     from any_api.openapi.model.util import HttpMethodLiteral  # isort:skip
@@ -283,8 +283,8 @@ class _TestFieldOpenAPI(BasicTestOpenAPI):
                     "example": 25,
                     "type": "integer",
                 },
-                'sex': {'$ref': '#/components/schemas/SexEnum', 'description': 'sex'},
-            }
+                "sex": {"$ref": "#/components/schemas/SexEnum", "description": "sex"},
+            },
         )
         self._test_success_response_and_fail_response(
             route_dict["post"].responses, create_json_response_model(response_model.UserSuccessRespModel)
@@ -426,7 +426,9 @@ class _TestFieldOpenAPI(BasicTestOpenAPI):
         assert route_dict["post"].parameters[6].name == "sex"
         assert route_dict["post"].parameters[6].required
         if isinstance(route_dict["post"].parameters[6].schema_, BaseModel):
-            assert _pydanitc_adapter.model_dump(route_dict["post"].parameters[6].schema_) == {"ref": "#/components/schemas/SexEnum"}
+            assert _pydanitc_adapter.model_dump(route_dict["post"].parameters[6].schema_) == {
+                "ref": "#/components/schemas/SexEnum"
+            }
         else:
             assert route_dict["post"].parameters[6].schema_ == {"allOf": [{"$ref": "#/components/schemas/SexEnum"}]}
 
@@ -875,7 +877,9 @@ class _TestOtherOpenAPI(BasicTestOpenAPI):
         assert route_dict["get"].parameters[4].name == "sex"
         assert route_dict["get"].parameters[4].required
         if isinstance(route_dict["get"].parameters[4].schema_, BaseModel):
-            assert _pydanitc_adapter.model_dump(route_dict["get"].parameters[4].schema_) == {"ref": "#/components/schemas/SexEnum"}
+            assert _pydanitc_adapter.model_dump(route_dict["get"].parameters[4].schema_) == {
+                "ref": "#/components/schemas/SexEnum"
+            }
         else:
             assert route_dict["get"].parameters[4].schema_ == {"allOf": [{"$ref": "#/components/schemas/SexEnum"}]}
 
@@ -951,8 +955,8 @@ class _TestOtherOpenAPI(BasicTestOpenAPI):
                     "minLength": 2,
                     "type": "string",
                 },
-                'sex': {'$ref': '#/components/schemas/SexEnum', 'description': 'sex'},
-            }
+                "sex": {"$ref": "#/components/schemas/SexEnum", "description": "sex"},
+            },
         )
         self._test_success_response_and_fail_response(
             route_dict["post"].responses, create_json_response_model(response_model.UserSuccessRespModel)
@@ -1080,6 +1084,16 @@ class _TestOtherOpenAPI(BasicTestOpenAPI):
 
         health_dict = self.pait_openapi.model.paths.pop("/api/health")
         health_dict["get"].tags = ["root api"]
+
+    def test_file_route(self) -> None:
+        stream_for_data_dict = self.pait_openapi.model.paths.pop("/api/file/stream-for-data")
+        multipart_dict = self.pait_openapi.model.paths.pop("/api/file/multipart")
+
+        for file_route_dict in [stream_for_data_dict, multipart_dict]:
+            assert file_route_dict["post"].tags == ["field"]
+            assert file_route_dict["post"].pait_info["group"] == "file"
+            assert file_route_dict["post"].pait_info["status"] == "release"
+            assert ["stream"] == file_route_dict["post"].request_body.content["multipart/form-data"].schema_["required"]
 
 
 class BaseTestOpenAPI(

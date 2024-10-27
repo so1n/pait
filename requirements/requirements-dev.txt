@@ -1,6 +1,6 @@
 aiofiles==0.8.0 ; python_full_version >= "3.8.1" and python_version < "4.0"
 annotated-types==0.7.0 ; python_full_version >= "3.8.1" and python_version < "4.0"
-any-api==0.1.0.10 ; python_full_version >= "3.8.1" and python_version < "4.0"
+any-api==0.1.0.11 ; python_full_version >= "3.8.1" and python_version < "4.0"
 appdirs==1.4.4 ; python_full_version >= "3.8.1" and python_full_version < "4.0.0"
 async-timeout==4.0.3 ; python_full_version >= "3.8.1" and python_full_version <= "3.11.2"
 atomicwrites==1.4.1 ; python_full_version >= "3.8.1" and python_full_version < "4.0.0" and sys_platform == "win32"

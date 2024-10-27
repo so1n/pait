@@ -5,7 +5,6 @@ from typing import Any, Optional, Type
 from pydantic import BaseModel
 
 from pait.exceptions import TipException
-from pait.field import BaseRequestResourceField
 
 _indent: str = 4 * " "
 
@@ -21,6 +20,8 @@ def gen_tip_exc(
     """Help users understand which parameter is wrong"""
     if tip_exception_class is None or isinstance(exception, TipException) or _object is None:
         return exception
+
+    from pait.field import BaseRequestResourceField
 
     if parameter:
         param_value: BaseRequestResourceField = parameter.default

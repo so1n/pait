@@ -1,6 +1,5 @@
 from typing import Type
 
-
 from pait.app.base import BaseAppHelper
 from pait.core import Pait as _Pait
 

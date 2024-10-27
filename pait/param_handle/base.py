@@ -1,17 +1,15 @@
 import inspect
-from functools import partial
 from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, Tuple, Type, TypeVar, Union
 
 from pydantic import BaseModel, Field
 from typing_extensions import Self  # type: ignore
 
-from pait import _pydanitc_adapter, field
+from pait import _pydanitc_adapter, field, rule
 from pait.exceptions import FieldValueTypeException, NotFoundFieldException, PaitBaseException, ParseTypeError
 from pait.plugin.base import PluginProtocol
 from pait.types import CallType
 from pait.util import FuncSig, gen_tip_exc, get_func_sig, is_bounded_func, is_type
 
-from . import rule
 from .util import get_parameter_list_from_class, get_parameter_list_from_pydantic_basemodel
 
 if TYPE_CHECKING:
@@ -240,33 +238,41 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
         param_rule_dict: rule.ParamRuleDict = {}
         for parameter in param_list:
             rule_field_type = rule.empty_ft
-            rule_field_type_func_param_dict: dict = {}
+            # rule_field_type_func_param_dict: dict = {}
             sub_pld = rule.PreLoadDc(pait_handler=rule.empty_pr_func)
 
             try:
-                if parameter.default != parameter.empty:
-                    # kwargs param
-                    # support model: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseRequestResourceField())
-                    if isinstance(parameter.default, field.Depends):
-                        sub_pld = cls._depend_pre_handle(pait_core_model, parameter.default.func)
-                        rule_field_type = rule.request_depend_ft
-                    elif isinstance(parameter.default, field.BaseRequestResourceField):
-                        rule_field_type = rule.request_field_ft
-                        parameter.default.set_request_key(parameter.name)
-                        validate_request_value_cb = rule.validate_request_value
-                        if pait_core_model.app_helper_class.app_name == "flask":
-                            validate_request_value_cb = rule.flask_validate_request_value
-                        rule_field_type_func_param_dict.update(
-                            # Creating a model field is very performance-intensive (especially for Pydantic V2),
-                            # so it needs to be cached
-                            pait_model_field=_pydanitc_adapter.PaitModelField(
-                                value_name=parameter.name,
-                                annotation=parameter.annotation,
-                                field_info=parameter.default,
-                                request_param=parameter.default.get_field_name(),
-                            ),
-                            validate_request_value_cb=validate_request_value_cb,
-                        )
+                if isinstance(parameter.default, field.BaseField):
+                    # param_handler: "BaseParamHandler",
+                    # pait_core_model: "PaitCoreModel",
+                    # parameter: "Parameter"
+                    rule_field_type, sub_pld = parameter.default.rule(
+                        param_handler=cls, pait_core_model=pait_core_model, parameter=parameter
+                    )
+                #
+                # if parameter.default != parameter.empty:
+                #     # kwargs param
+                #     # support model: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseRequestResourceField())
+                #     if isinstance(parameter.default, field.Depends):
+                #         sub_pld = cls._depend_pre_handle(pait_core_model, parameter.default.func)
+                #         rule_field_type = rule.request_depend_ft
+                #     elif isinstance(parameter.default, field.BaseRequestResourceField):
+                #         rule_field_type = rule.request_field_ft
+                #         parameter.default.set_request_key(parameter.name)
+                #         validate_request_value_cb = rule.validate_request_value
+                #         if pait_core_model.app_helper_class.app_name == "flask":
+                #             validate_request_value_cb = rule.flask_validate_request_value
+                #         rule_field_type_func_param_dict.update(
+                #             # Creating a model field is very performance-intensive (especially for Pydantic V2),
+                #             # so it needs to be cached
+                #             pait_model_field=_pydanitc_adapter.PaitModelField(
+                #                 value_name=parameter.name,
+                #                 annotation=parameter.annotation,
+                #                 field_info=parameter.default,
+                #                 request_param=parameter.default.get_field_name(),
+                #             ),
+                #             validate_request_value_cb=validate_request_value_cb,
+                #         )
                 elif cls.is_self_param(parameter) and _object is pait_core_model.func:
                     # self param
                     rule_field_type = rule.cbv_class_ft
@@ -303,8 +309,8 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
             except PaitBaseException as e:
                 raise gen_tip_exc(_object, e, parameter, tip_exception_class=pait_core_model.tip_exception_class) from e
             param_func = rule_field_type.async_func if cls.is_async_mode else rule_field_type.func
-            if rule_field_type_func_param_dict:
-                param_func = partial(param_func, **rule_field_type_func_param_dict)
+            # if rule_field_type_func_param_dict:
+            #     param_func = partial(param_func, **rule_field_type_func_param_dict)
             param_rule_dict[parameter.name] = rule.ParamRule(
                 name=parameter.name,
                 type_=parameter.annotation,

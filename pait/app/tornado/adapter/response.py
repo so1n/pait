@@ -1,14 +1,20 @@
 import warnings
-from typing import Any, Type, Optional
+from typing import Any, Optional, Type
 
+from pydantic import BaseModel
 from tornado.web import RequestHandler
 
-from pait.model.response import BaseResponseModel, JsonResponseModel, FileResponseModel
-from pydantic import BaseModel
 from pait._pydanitc_adapter import model_dump
+from pait.model.response import BaseResponseModel, FileResponseModel, JsonResponseModel
 
 
-def _gen_response(tornado_handle: RequestHandler, response_value: Any, response_model_class: Type[BaseResponseModel], *args: Any, **kwargs: Any) -> Any:
+def _gen_response(
+    tornado_handle: RequestHandler,
+    response_value: Any,
+    response_model_class: Type[BaseResponseModel],
+    *args: Any,
+    **kwargs: Any,
+) -> Any:
     if issubclass(response_model_class, FileResponseModel):
         raise RuntimeError("FileResponseModel is not supported")
     set_info_to_response(tornado_handle, response_model_class)
@@ -19,17 +25,24 @@ def _gen_response(tornado_handle: RequestHandler, response_value: Any, response_
 
 
 def gen_response(
-        tornado_handle: RequestHandler, response_value: Any, response_model_class: Type[BaseResponseModel], *args: Any, **kwargs: Any
+    tornado_handle: RequestHandler,
+    response_value: Any,
+    response_model_class: Type[BaseResponseModel],
+    *args: Any,
+    **kwargs: Any,
 ) -> Any:
     warnings.warn("This method will be removed after version 2.0", DeprecationWarning)
     return _gen_response(tornado_handle, response_value, response_model_class, *args, **kwargs)
 
 
 def gen_unifiled_response(
-        tornado_handle: RequestHandler, response_value: Any, *args: Any, response_model_class: Optional[Type[BaseResponseModel]] = None,
-        **kwargs: Any
+    tornado_handle: RequestHandler,
+    response_value: Any,
+    *args: Any,
+    response_model_class: Optional[Type[BaseResponseModel]] = None,
+    **kwargs: Any,
 ) -> Any:
-    """Compatible with different response values and generate responses that conform to response_model_class """
+    """Compatible with different response values and generate responses that conform to response_model_class"""
     return _gen_response(tornado_handle, response_value, response_model_class or JsonResponseModel, *args, **kwargs)
 
 

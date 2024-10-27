@@ -1,7 +1,7 @@
-from typing import Any, Dict, List, Mapping
+from typing import Any, AsyncGenerator, Dict, Generator, List, Mapping, Union
 
 from sanic import __version__
-from sanic.headers import HeaderIterable
+from sanic.compat import Header
 from sanic.request import File
 from sanic.request import Request as _Request
 from sanic.request import RequestParameters
@@ -28,7 +28,7 @@ class SanicBaseRequest(BaseRequest[_Request, RequestExtend]):
     RequestType = _Request
     FormType = RequestParameters
     FileType = File
-    HeaderType = HeaderIterable
+    HeaderType = Header
 
     def request_extend(self) -> RequestExtend:
         return RequestExtend(self.request)
@@ -39,7 +39,7 @@ class SanicBaseRequest(BaseRequest[_Request, RequestExtend]):
     def cookie(self) -> dict:
         return self.request.cookies
 
-    def header(self) -> HeaderIterable:
+    def header(self) -> Header:
         return self.request.headers
 
     def path(self) -> Mapping[str, Any]:
@@ -60,6 +60,17 @@ class SanicBaseRequest(BaseRequest[_Request, RequestExtend]):
     @LazyProperty()
     def query(self) -> dict:
         return {key: value[0] for key, value in self.request.args.items()}
+
+    def stream(self, size: int = -1) -> Union[Generator[bytes, None, None], AsyncGenerator[bytes, None]]:
+        async def _stream() -> AsyncGenerator[bytes, None]:
+            while True:
+                assert self.request.stream, "Should set `stream=Ture`"
+                chunk = await self.request.stream.read()
+                if chunk is None:
+                    break
+                yield chunk
+
+        return _stream()
 
     @LazyProperty()
     def multiform(self) -> Dict[str, List[Any]]:

@@ -392,7 +392,7 @@ class TestTornado(BaseTestTornado):
         self.base_test.api_route_cbv(APIRouteCBVHandler)
 
     def test_openapi_content(self) -> None:
-        BaseTestOpenAPI(self._app).test_all()
+        BaseTestOpenAPI(self._app).test_all(exclude_test_name_list=["test_file_route"])
 
 
 class BaseTestTornadoDocExample(BaseTestTornado):

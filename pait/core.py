@@ -16,6 +16,7 @@ from pait.model.core import (
     DefaultValue,
     DependListOptionalType,
     DescOptionalType,
+    ExtraOpenAPIModelListOptionalType,
     FuncNameOptionalType,
     GroupOptionalType,
     OperationIdOptionalType,
@@ -23,14 +24,12 @@ from pait.model.core import (
     PaitCoreModel,
     PluginListOptionalType,
     PostPluginListOptionalType,
-ExtraOpenAPIModelListOptionalType,
     ResponseModelListOptionalType,
     StatusOptionalType,
     SummaryOptionalType,
     TagOptionalType,
     get_core_model,
 )
-from pait.model.response import BaseResponseModel
 from pait.param_handle import AsyncParamHandler, BaseParamHandler, ParamHandler
 from pait.util import get_func_sig
 
@@ -51,7 +50,8 @@ class PaitBaseParamTypedDict(TypedDict, total=False):
     :param tag:  A collection of labels for routing functions
     :param extra_openapi_model_list: Supplement the OpenAPI data of routing functions,
         for example, when using a stream to upload file. If cannot use File(xxx) in a route and can only use the
-        stream of the request object to obtain data, can supplement the OpenAPI information with extra_openapi_model_list
+        stream of the request object to obtain data, can supplement the OpenAPI information
+        with extra_openapi_model_list
     :param response_model_list: The response object of the route function
     :param plugin_list: pre plugin for routing functions
     :param post_plugin_list: post plugin list for routing functions

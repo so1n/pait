@@ -20,6 +20,7 @@ _NotFoundFrameworkException = RuntimeError(
 
 class Empty(object):
     """Any call is guaranteed to throw an error"""
+
     def __int__(self) -> NoReturn:
         raise _NotFoundFrameworkException  # pragma: no cover
 

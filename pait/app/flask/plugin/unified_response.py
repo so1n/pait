@@ -7,7 +7,9 @@ from pait.plugin.unified_response import UnifiedResponsePluginProtocol as BaseUn
 
 
 def _gen_response(self: BaseUnifiedResponsePluginProtocol, return_value: Any, context: PluginContext) -> Any:
-    return gen_unifiled_response(return_value, *context.args, response_model_class=self.response_model_class, **context.kwargs)
+    return gen_unifiled_response(
+        return_value, *context.args, response_model_class=self.response_model_class, **context.kwargs
+    )
 
 
 class UnifiedResponsePlugin(BaseUnifiedResponsePlugin):

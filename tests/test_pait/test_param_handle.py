@@ -6,12 +6,12 @@ from typing import Any, List
 import pytest
 from pydantic import BaseModel, Field
 
-from pait import _pydanitc_adapter, field
+from pait import _pydanitc_adapter, field, rule
 from pait.app.base import BaseAppHelper
 from pait.exceptions import NotFoundValueException
 from pait.model import response
 from pait.model.core import PaitCoreModel
-from pait.param_handle import ParamHandler, rule
+from pait.param_handle import ParamHandler
 from pait.param_handle import util as param_handle_util
 
 

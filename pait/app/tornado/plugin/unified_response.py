@@ -8,7 +8,13 @@ from pait.util import to_thread
 
 
 def _gen_response(self: BaseUnifiedResponsePluginProtocol, return_value: Any, context: PluginContext) -> Any:
-    return gen_unifiled_response(context.cbv_instance, return_value, *context.args, response_model_class=self.response_model_class, **context.kwargs)
+    return gen_unifiled_response(
+        context.cbv_instance,  # type:ignore[arg-type]
+        return_value,
+        *context.args,
+        response_model_class=self.response_model_class,
+        **context.kwargs,
+    )
 
 
 class UnifiedResponsePlugin(BaseUnifiedResponsePlugin):

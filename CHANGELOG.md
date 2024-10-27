@@ -16,7 +16,7 @@ Feat Change List:
 - Support use pydantic model in pait response
 - APIRoute
 - [Field] Field/request_resource support PEP612
-- [Pait] @pait support extra_openapi_model_list param 
+- [Pait] @pait support extra_openapi_model_list param
 - [Pait] Add `sync-to-thread` param to solve sync route or func
 - [Pait] No longer restricting key parameters of routing (#40)
 - [Plugin] unified plugin support pydantic.BaseModel return value

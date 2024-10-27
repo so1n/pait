@@ -1,8 +1,11 @@
 repos:
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
+    rev: v1.13.0
     hooks:
       - id: mypy
+        exclude: "pait/extra/field/stream/_multipart.py"
+        additional_dependencies:
+          ["types-toml"]
   - repo: https://github.com/PyCQA/isort
     rev: 5.13.2
     hooks:
@@ -15,6 +18,7 @@ repos:
     rev: 7.0.0
     hooks:
       - id: flake8
+        exclude: "pait/extra/field/stream/_multipart.py"
   - repo: https://github.com/myint/autoflake
     rev: v2.2.1
     hooks:

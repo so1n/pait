@@ -38,6 +38,7 @@ from example.sanic_example.field_route import (
     post_route,
     same_alias_route,
 )
+from example.sanic_example.file_route import multipart_route, stream_for_data_route
 from example.sanic_example.plugin_route import (
     auto_complete_json_route,
     cache_response,
@@ -333,6 +334,9 @@ def create_app(configure_logging: bool = True) -> Sanic:
     app.add_route(sync_depend_route, "/api/sync-to-thread/sync-depend", methods={"POST"})
     app.add_route(sync_body_route, "/api/sync-to-thread/sync-body", methods={"POST"})
     app.add_route(sync_with_ctx_depend_route, "/api/sync-to-thread/sync-ctx-depend", methods={"POST"})
+    app.add_route(stream_for_data_route, "/api/file/stream-for-data", methods=["POST"], stream=True)
+    app.add_route(multipart_route, "/api/file/multipart", methods=["POST"], stream=True)
+
     app.exception(PaitBaseException, ValidationError, RuntimeError, SanicException)(api_exception)
     # app.exception(ValidationError)(api_exception)
     # app.exception(RuntimeError)(api_exception)

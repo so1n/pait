@@ -1,4 +1,4 @@
-from typing import Any, Generic, List, Mapping, TypeVar
+from typing import Any, AsyncGenerator, Generator, Generic, List, Mapping, Type, TypeVar, Union
 
 RequestT = TypeVar("RequestT")
 
@@ -25,7 +25,7 @@ RequestExtendT = TypeVar("RequestExtendT", bound=BaseRequestExtend)
 
 class BaseRequest(Generic[RequestT, RequestExtendT]):
     # The class that defines the request object corresponding to the framework (consistent with Request T)
-    RequestType: RequestT = type(None)  # type: ignore
+    RequestType: Type[RequestT] = type  # type: ignore
     FormType = type(None)  # The class that defines the form object corresponding to the framework
     FileType = type(None)  # The class that defines the file object corresponding to the framework
     HeaderType = type(None)  # The class that defines the header object corresponding to the framework
@@ -69,6 +69,9 @@ class BaseRequest(Generic[RequestT, RequestExtendT]):
     def multiquery(self) -> Any:
         raise NotImplementedError
 
+    def stream(self, size: int = -1) -> Union[Generator[bytes, None, None], AsyncGenerator[bytes, None]]:
+        raise NotImplementedError
+
     def check_request_type(self, value: Any) -> bool:
         return value is self.RequestType
 
@@ -80,3 +83,6 @@ class BaseRequest(Generic[RequestT, RequestExtendT]):
 
     def check_header_type(self, value: Any) -> bool:
         return value is self.HeaderType
+
+    def self(self) -> Mapping:
+        return self.__dict__

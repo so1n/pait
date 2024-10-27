@@ -6,9 +6,9 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 from typing_extensions import Self  # type: ignore
 
+from pait import rule
 from pait.exceptions import PaitBaseException
 from pait.model.context import ContextModel
-from pait.param_handle import rule
 from pait.param_handle.base import BaseParamHandler, raise_multiple_exc
 from pait.util import gen_tip_exc, get_pait_handler, to_thread
 

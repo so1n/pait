@@ -4,7 +4,7 @@ import random
 import sys
 from contextlib import contextmanager
 from functools import partial
-from typing import Callable, Generator, Type
+from typing import Callable, Generator, Optional, Type
 from unittest import mock
 
 import pytest
@@ -41,7 +41,7 @@ _TestHelper: Type[_TestHelper] = partial(  # type: ignore
 
 
 @contextmanager
-def client_ctx(app: Flask = None) -> Generator[FlaskClient, None, None]:
+def client_ctx(app: Optional[Flask] = None) -> Generator[FlaskClient, None, None]:
     # Flask provides a way to test your application by exposing the Werkzeug test Client
     # and handling the context locals for you.
     if not app:
@@ -109,6 +109,7 @@ class TestFlask:
                 json={"uid": 123, "user_name": "appl", "age": 2, "sex": "man"},
             ).get_json(),
         ]:
+            assert isinstance(resp, dict)
             assert resp["code"] == 0
             assert resp["data"] == {
                 "uid": 123,
@@ -126,7 +127,7 @@ class TestFlask:
             ),
             ("/api/plugin/check-json-plugin?uid=123&user_name=appl&sex=man&age=10&display_age=1", 0),
         ]:
-            resp: dict = client.get(url).get_json()
+            resp: dict = client.get(url).get_json() or {}
             assert resp["code"] == api_code
             if api_code == -1:
                 assert resp["msg"] == "miss param: ['data', 'age']"
@@ -337,7 +338,7 @@ class TestFlask:
             assert result.json == {"demo": 1}
 
             class HeaderModel(BaseModel):
-                demo: str = Field(alias="x-demo", example="123")
+                demo: str = Field(alias="x-demo", example="123")  # type:ignore[call-arg]
 
             class MyHtmlResponseModel(response.HtmlResponseModel):
                 media_type = "application/demo"
@@ -379,6 +380,10 @@ class TestFlask:
 
     def test_tag_route(self, base_test: BaseTest) -> None:
         base_test.tag(main_example.tag_route)
+
+    def test_file_route(self, base_test: BaseTest) -> None:
+        base_test.file_route(main_example.stream_for_data_route)
+        base_test.file_route(main_example.multipart_route)
 
     def test_api_route(self, base_test: BaseTest) -> None:
         from example.flask_example.api_route import APIRouteCBV, get_user_info, health, login
