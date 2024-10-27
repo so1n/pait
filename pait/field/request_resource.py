@@ -257,8 +257,10 @@ class BaseRequestResourceField(BaseField, FieldInfo):
             ),
             validate_request_value_cb=validate_request_value_cb,
         )
-        rule_field_type.func = partial_wrapper(rule_field_type.func, **rule_field_type_func_param_dict)
-        rule_field_type.async_func = partial_wrapper(rule_field_type.async_func, **rule_field_type_func_param_dict)
+        rule_field_type = rule.FieldTypePrFuncDc(
+            func=partial_wrapper(rule_field_type.func, **rule_field_type_func_param_dict),
+            async_func=partial_wrapper(rule_field_type.async_func, **rule_field_type_func_param_dict),
+        )
         return (
             rule_field_type,
             rule.PreLoadDc(pait_handler=rule.empty_pr_func),
