@@ -108,7 +108,10 @@ filterwarnings = [
 [tool.coverage.run]
 branch = true
 source = ["pait"]
-omit = []
+omit = [
+    # ignore multipart
+    "pait/extra/field/stream/_multipart.py"
+]
 
 [tool.coverage.report]
 exclude_lines = [

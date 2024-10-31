@@ -35,7 +35,7 @@ async def demo1(demo_model: DemoModel) -> response.HTTPResponse:
     return json(demo_model.dict())
 
 
-app = Sanic(name="demo")
+app: Sanic = Sanic(name="demo", configure_logging=False)
 app.add_route(demo, "/api/demo", methods=["GET"])
 app.add_route(demo1, "/api/demo1", methods=["POST"])
 

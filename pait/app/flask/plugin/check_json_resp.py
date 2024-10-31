@@ -12,6 +12,6 @@ class CheckJsonRespPlugin(_CheckJsonRespPlugin):
     @staticmethod
     def get_json(response_data: Any, context: PluginContext) -> dict:
         if isinstance(response_data, Response):
-            return response_data.get_json()
+            return response_data.get_json() or {}  # type: ignore[return-value]
         else:
             raise TypeError(f"Expected type must {Response} but got type {type(response_data)}")  # pragma: no cover

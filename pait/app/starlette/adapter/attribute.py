@@ -5,7 +5,7 @@ from starlette.applications import Starlette
 
 
 def set_app_attribute(app: Starlette, key: str, value: Any) -> None:
-    setattr(app.state, key, value)
+    setattr(app.state, key, value)  # type: ignore[has-type]
 
 
 def get_app_attribute(app: Any, key: str, default_value: Any = MISSING) -> Any:

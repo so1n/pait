@@ -22,11 +22,11 @@ __all__ = [
 
 
 class BaseOAuth2PasswordRequestFrom(BaseModel):
-    username: str = Form()
-    password: str = Form()
-    scope: List[str] = Form(default_factory=list)
-    client_id: Optional[str] = Form(None)
-    client_secret: Optional[str] = Form(None)
+    username: str = Form.i()
+    password: str = Form.i()
+    scope: List[str] = Form.i(default_factory=list)
+    client_id: Optional[str] = Form.i(default=None)
+    client_secret: Optional[str] = Form().i(default=None)
 
     @_pydanitc_adapter.model_validator(mode="before")
     def _post_init(cls, value: dict) -> dict:
@@ -37,11 +37,11 @@ class BaseOAuth2PasswordRequestFrom(BaseModel):
 
 
 class OAuth2PasswordRequestFrom(BaseOAuth2PasswordRequestFrom):
-    grant_type: Optional[str] = Form(None, regex="password")
+    grant_type: Optional[str] = Form().i(None, regex="password")
 
 
 class OAuth2PasswordRequestFromStrict(BaseOAuth2PasswordRequestFrom):
-    grant_type: str = Form(regex="password")
+    grant_type: str = Form(regex="password").i()
 
 
 class OAuth2PasswordBearerJsonRespModel(JsonResponseModel):
@@ -58,7 +58,7 @@ class BaseOAuth2PasswordBearerProxy(BaseSecurity):
         self.use_scopes = use_scopes
         self.security_name = security.security_name
 
-        def pait_handler(authorization: str = security.header_field) -> str:
+        def pait_handler(authorization: str = security.header_field) -> str:  # type: ignore[assignment]
             return self.authorization_handler(authorization)
 
         self.set_pait_handler(pait_handler)

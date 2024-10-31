@@ -1,7 +1,9 @@
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Iterable, Optional, cast
 
 from werkzeug.exceptions import HTTPException
-from werkzeug.wrappers.response import Response
+
+if TYPE_CHECKING:
+    from .wrappers.response import Response as WSGIResponse  # noqa: F401
 
 
 class HTTPExceptionWithHeaders(HTTPException):
@@ -10,8 +12,8 @@ class HTTPExceptionWithHeaders(HTTPException):
     def set_headers(self, headers: Optional[dict] = None) -> None:
         self.headers = headers
 
-    def __call__(self, environ: Any, start_response: Any) -> Response:
-        response: Response = self.get_response(environ)
+    def __call__(self, environ: Any, start_response: Any) -> Iterable[bytes]:
+        response = cast("WSGIResponse", self.get_response(environ))
         if self.headers:
             response.headers.update(self.headers)
         return response(environ, start_response)

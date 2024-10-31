@@ -24,6 +24,7 @@ from typing import (  # type: ignore
     Union,
     _eval_type,
     _GenericAlias,
+    get_type_hints,
 )
 
 from packaging import version
@@ -39,6 +40,7 @@ if TYPE_CHECKING:
     from pait.model.response import BaseResponseModel
 
 __all__ = [
+    "get_parameter_list_from_class",
     "gen_example_dict_from_pydantic_base_model",
     "gen_example_dict_from_schema",
     "gen_example_json_from_schema",
@@ -194,7 +196,7 @@ def get_pydantic_annotation(key: str, pydantic_base_model: Type[BaseModel]) -> T
         annotation = _pydanitc_adapter.model_fields(pydantic_base_model)[key].annotation
         if _pydanitc_adapter.is_v1:
             # support type is generic pydantic model
-            from pydantic.fields import DeferredType
+            from pydantic.fields import DeferredType  # type:ignore[attr-defined]
 
             if isinstance(annotation, DeferredType):
                 annotation = _pydanitc_adapter.model_fields(pydantic_base_model)[key].type_
@@ -371,3 +373,33 @@ async def to_thread(func: Callable, *args: Any, **kwargs: Any) -> Any:
         ctx = contextvars.copy_context()
         func_call = partial(ctx.run, func, *args, **kwargs)
         return await loop.run_in_executor(None, func_call)
+
+
+_class_parameter_list_dict: Dict[type, List["inspect.Parameter"]] = {}
+
+
+def get_parameter_list_from_class(cbv_class: Type) -> List["inspect.Parameter"]:
+    """get class parameter list by attributes, if attributes not default value, it will be set `Undefined`"""
+    from pait.field import is_pait_field
+
+    parameter_list: Optional[List["inspect.Parameter"]] = _class_parameter_list_dict.get(cbv_class)
+    if parameter_list is not None:
+        return parameter_list
+    parameter_list = []
+    if hasattr(cbv_class, "__annotations__"):
+        for param_name, param_annotation in get_type_hints(cbv_class).items():
+            default: Any = getattr(cbv_class, param_name, _pydanitc_adapter.PydanticUndefined)
+            if not is_pait_field(default):
+                continue
+
+            # Optimize parsing speed
+            default.set_request_key(param_name)
+            parameter: "inspect.Parameter" = inspect.Parameter(
+                param_name,
+                inspect.Parameter.POSITIONAL_ONLY,
+                default=default,
+                annotation=param_annotation,
+            )
+            parameter_list.append(parameter)
+    _class_parameter_list_dict[cbv_class] = parameter_list
+    return parameter_list

@@ -40,7 +40,7 @@ async def api_key_query_route(token: str = Depends.i(token_query_api_key)) -> HT
     return json({"code": 0, "msg": "", "data": token})
 
 
-app = Sanic(name="demo")
+app = Sanic(name="demo", configure_logging=False)
 app.add_route(api_key_cookie_route, "/api/api-cookie-key", methods=["GET"])
 app.add_route(api_key_header_route, "/api/api-header-key", methods=["GET"])
 app.add_route(api_key_query_route, "/api/api-query-key", methods=["GET"])

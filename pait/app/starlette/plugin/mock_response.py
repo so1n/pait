@@ -4,7 +4,7 @@ from starlette.background import BackgroundTask
 from starlette.responses import FileResponse, Response
 
 from pait.app.starlette.adapter.response import gen_unifiled_response, set_info_to_response
-from pait.plugin.mock_response import RESP_T, MockPluginProtocol
+from pait.plugin.mock_response import MockPluginProtocol
 
 
 class MockPlugin(MockPluginProtocol[Response]):
@@ -14,7 +14,7 @@ class MockPlugin(MockPluginProtocol[Response]):
             response_model_class=self.pait_response_model,
         )
 
-    def get_file_response(self, temporary_file: IO[bytes], f: Any) -> RESP_T:  # type: ignore
+    def get_file_response(self, temporary_file: IO[bytes], f: Any) -> Response:
         f.write(self.pait_response_model.get_example_value(example_column_name=self.example_column_name))
         f.seek(0)
 
@@ -25,7 +25,7 @@ class MockPlugin(MockPluginProtocol[Response]):
             f.name, media_type=self.pait_response_model.media_type, background=BackgroundTask(close_file)
         )
 
-    async def async_get_file_response(self, temporary_file: Any, f: Any) -> RESP_T:
+    async def async_get_file_response(self, temporary_file: Any, f: Any) -> Response:
         await f.write(self.pait_response_model.get_example_value(example_column_name=self.example_column_name))
         await f.seek(0)
 

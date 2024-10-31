@@ -24,7 +24,7 @@ async def demo1(demo_value: str = field.Query.t(default_factory=lambda: uuid.uui
     return HTTPResponse(demo_value)
 
 
-app = Sanic("demo")
+app: Sanic = Sanic(name="demo", configure_logging=False)
 app.add_route(demo, "/api/demo", methods={"GET"})
 app.add_route(demo1, "/api/demo1", methods={"GET"})
 app.exception(Exception)(api_exception)

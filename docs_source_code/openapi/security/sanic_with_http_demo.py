@@ -46,7 +46,7 @@ async def get_user_name_by_http_digest(credentials: Optional[str] = Depends.t(ht
     return response.json({"code": 0, "msg": "", "data": credentials})
 
 
-app = Sanic(name="demo")
+app = Sanic(name="demo", configure_logging=False)
 app.add_route(get_user_name_by_http_basic_credentials, "/api/user-name-by-http-basic-credentials", methods={"GET"})
 app.add_route(get_user_name_by_http_bearer, "/api/user-name-by-http-bearer", methods={"GET"})
 app.add_route(get_user_name_by_http_digest, "/api/user-name-by-http-digest", methods={"GET"})

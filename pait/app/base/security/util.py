@@ -1,7 +1,7 @@
 from typing import Optional, Tuple
 
 from pait.field import BaseRequestResourceField
-from pait.field.request_resource import _default_not_value_exception_func
+from pait.field.http import _default_not_value_exception_func
 
 
 def set_and_check_field(

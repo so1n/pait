@@ -32,7 +32,7 @@ class BaseAPIKey(BaseSecurity, metaclass=ABCMeta):
         )
         self.security_name = security_name or self.__class__.__name__
 
-        def pait_handler(authorization: str = field) -> str:
+        def pait_handler(authorization: str = field) -> str:  # type: ignore[assignment]
             return self.authorization_handler(authorization)
 
         self.set_pait_handler(pait_handler)

@@ -107,8 +107,7 @@ def cache_response(raise_exc: Optional[int] = Query.i(default=None)) -> Response
             raise Exception(timestamp_str)
         elif raise_exc == 2:
             raise RuntimeError(timestamp_str)
-    else:
-        return make_response(timestamp_str, 200)
+    return make_response(timestamp_str, 200)
 
 
 @plugin_pait(

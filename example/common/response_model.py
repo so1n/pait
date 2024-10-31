@@ -56,8 +56,16 @@ UserSuccessRespModel = ResponseWithDataModel[UserSuccessDataModel]
 
 
 class UserSuccessDataModel2(BaseUserSuccessDataModel):
-    multi_user_name: List[str] = Field(example=["mock_name"], description="user name", min_length=1, max_length=10)
-    email: str = Field(example="example@so1n.me", description="user email")
+    multi_user_name: List[str] = Field(
+        example=["mock_name"],  # type:ignore[call-arg]
+        description="user name",
+        min_length=1,
+        max_length=10,
+    )
+    email: str = Field(
+        example="example@so1n.me",  # type:ignore[call-arg]
+        description="user email",
+    )
 
 
 UserSuccessRespModel2 = ResponseWithDataModel[UserSuccessDataModel2]
@@ -109,7 +117,7 @@ class TextRespModel(TextResponseModel):
     class HeaderModel(BaseModel):
         x_example_type: str = Field(default="text", alias="X-Example-Type")
 
-    header: BaseModel = HeaderModel
+    header = HeaderModel
     description: str = "text response"
 
 
@@ -117,7 +125,7 @@ class HtmlRespModel(HtmlResponseModel):
     class HeaderModel(BaseModel):
         x_example_type: str = Field(default="html", alias="X-Example-Type")
 
-    header: BaseModel = HeaderModel
+    header = HeaderModel
     description: str = "html response"
 
 
@@ -125,7 +133,7 @@ class FileRespModel(FileResponseModel):
     class HeaderModel(BaseModel):
         x_example_type: str = Field(default="file", alias="X-Example-Type")
 
-    header: BaseModel = HeaderModel
+    header = HeaderModel
     description: str = "file response"
 
 

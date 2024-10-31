@@ -15,9 +15,9 @@ try:
 
     StreamResponse = StreamingHTTPResponse
 except ImportError:
-    from sanic.response import ResponseStream
+    from sanic.response import ResponseStream  # type:ignore[attr-defined]
 
-    StreamResponse = ResponseStream
+    StreamResponse = ResponseStream  # type:ignore[misc]
 
 check_resp_pait: Pait = global_pait.create_sub_pait(
     group="check_resp", tag=(tag.check_resp_tag,), status=PaitStatus.release

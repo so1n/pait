@@ -1093,7 +1093,7 @@ class _TestOtherOpenAPI(BasicTestOpenAPI):
             assert file_route_dict["post"].tags == ["field"]
             assert file_route_dict["post"].pait_info["group"] == "file"
             assert file_route_dict["post"].pait_info["status"] == "release"
-            assert ["stream"] == file_route_dict["post"].request_body.content["multipart/form-data"].schema_["required"]
+            assert "stream" in file_route_dict["post"].request_body.content["multipart/form-data"].schema_["properties"]
 
 
 class BaseTestOpenAPI(

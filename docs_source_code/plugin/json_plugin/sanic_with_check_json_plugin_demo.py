@@ -54,7 +54,7 @@ async def demo(
     return response.json(return_dict)
 
 
-app = Sanic("demo")
+app = Sanic("demo", configure_logging=False)
 app.add_route(demo, "/api/demo", methods=["GET"])
 app.exception(Exception)(api_exception)
 

@@ -22,7 +22,7 @@ async def demo(
     return json({"data": demo_value, "a": a})
 
 
-app = Sanic("demo")
+app: Sanic = Sanic(name="demo", configure_logging=False)
 app.add_route(demo, "/api/demo", methods={"POST"})
 app.exception(Exception)(api_exception)
 

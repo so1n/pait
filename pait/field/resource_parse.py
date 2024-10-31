@@ -16,40 +16,32 @@ if TYPE_CHECKING:
     from pait.types import CallType
 
 
-class ParamRuleFuncProtocol(Protocol):
+class ParseResourceFuncProtocol(Protocol):
     """
     param rule func only run in ParamHandler, (Usually it will only be called in 'prd_handle')
     """
 
-    def __call__(
-        self, pr: "ParamRule", context: "ContextModel", param_plugin: "BaseParamHandler", **kwargs: Any
-    ) -> Any:
+    def __call__(self, pr: "ParseResourceParamDc", context: "ContextModel", param_plugin: "BaseParamHandler") -> Any:
         pass
 
 
 @dataclass
-class FieldTypePrFuncDc(object):
-    func: ParamRuleFuncProtocol
-    async_func: ParamRuleFuncProtocol
-
-
-@dataclass
-class ParamRule(object):
-    name: str
-    type_: type
-    parameter: inspect.Parameter
-    param_func: ParamRuleFuncProtocol
-    sub: "PreLoadDc"
-
-
-@dataclass
 class PreLoadDc(object):
-    pait_handler: "CallType"
-    param: "ParamRuleDict" = dc_field(default_factory=dict)
-    func_class_prd: Optional["ParamRuleDict"] = dc_field(default=None)
+    call_handler: "CallType"
+    param: "ParseResourceParamDcDict" = dc_field(default_factory=dict)
+    cbv_param: Optional["ParseResourceParamDcDict"] = dc_field(default=None)
 
 
-ParamRuleDict = Dict[str, "ParamRule"]
+@dataclass
+class ParseResourceParamDc(object):
+    name: str
+    annotation: type
+    parameter: inspect.Parameter
+    parse_resource_func: ParseResourceFuncProtocol
+    sub: "PreLoadDc" = dc_field(default_factory=lambda: PreLoadDc(call_handler=empty_pr_func))
+
+
+ParseResourceParamDcDict = Dict[str, "ParseResourceParamDc"]
 
 
 #############################
@@ -58,8 +50,13 @@ ParamRuleDict = Dict[str, "ParamRule"]
 def get_real_request_value(parameter: inspect.Parameter, request_value: Mapping) -> Any:
     """get request value by func param's request field"""
     pait_field: "BaseRequestResourceField" = parameter.default
-
-    if not pait_field.raw_return:
+    if pait_field.raw_return:
+        if not request_value:
+            if pait_field.default is not _pydanitc_adapter.PydanticUndefined:
+                return pait_field.default
+            elif pait_field.default_factory:
+                return pait_field.default_factory()
+    else:
         request_value = pait_field.request_value_handle(request_value)
         if request_value is _pydanitc_adapter.PydanticUndefined:
             raise pait_field.not_value_exception_func(parameter)
@@ -104,39 +101,13 @@ def validate_request_value(
 ####################
 # ParamRule Handle #
 ####################
-def cbv_pr_func(pr: "ParamRule", context: "ContextModel", param_plugin: "BaseParamHandler") -> Any:
-    """get cbv from context"""
-    return context.app_helper.cbv_instance
-
-
-def request_pr_func(pr: "ParamRule", context: "ContextModel", param_plugin: "BaseParamHandler") -> Any:
-    """get web framework request object from context"""
-    return context.app_helper.request.request
-
-
-def pait_model_pr_func(pr: "ParamRule", context: "ContextModel", param_plugin: "BaseParamHandler") -> Any:
-    """get pait model from ParamRule"""
-    pait_model: Type[BaseModel] = pr.parameter.annotation
-    # pait_model is ParamRule sub obj, so we need to call prd_handle to get the real value
-    _, kwargs = param_plugin.prd_handle(context, pait_model, pr.sub.param)
-    return pait_model(**kwargs)
-
-
-async def async_pait_model_pr_func(pr: "ParamRule", context: "ContextModel", param_plugin: "BaseParamHandler") -> Any:
-    """get pait model from ParamRule"""
-    pait_model: Type[BaseModel] = pr.parameter.annotation
-    # pait_model is ParamRule sub obj, so we need to call prd_handle to get the real value
-    _, kwargs = await param_plugin.prd_handle(context, pait_model, pr.sub.param)  # type: ignore[misc]
-    return pait_model(**kwargs)
-
-
-def empty_pr_func(pr: "ParamRule", context: "ContextModel", param_plugin: "BaseParamHandler") -> Any:
+def empty_pr_func(pr: "ParseResourceParamDc", context: "ContextModel", param_plugin: "BaseParamHandler") -> Any:
     """return MISSING, The representative could not get the requested value"""
     return MISSING
 
 
 def request_field_get_value_pr_func(
-    pr: "ParamRule", context: "ContextModel", param_plugin: "BaseParamHandler"
+    pr: "ParseResourceParamDc", context: "ContextModel", param_plugin: "BaseParamHandler"
 ) -> Mapping:
     """get request value by func param's request field"""
     request_value: Mapping = getattr(context.app_helper.request, pr.parameter.default.from_request(), lambda: {})()
@@ -146,7 +117,7 @@ def request_field_get_value_pr_func(
 
 
 async def async_request_field_get_value_pr_func(
-    pr: "ParamRule", context: "ContextModel", param_plugin: "BaseParamHandler"
+    pr: "ParseResourceParamDc", context: "ContextModel", param_plugin: "BaseParamHandler"
 ) -> Any:
     """get request value by func param's request field"""
     request_value: Union[Mapping, Coroutine[Any, Any, Mapping]] = getattr(
@@ -160,7 +131,7 @@ async def async_request_field_get_value_pr_func(
 
 
 def request_field_pr_func(
-    pr: "ParamRule",
+    pr: "ParseResourceParamDc",
     context: "ContextModel",
     param_plugin: "BaseParamHandler",
     *,
@@ -174,7 +145,7 @@ def request_field_pr_func(
 
 
 async def async_request_field_pr_func(
-    pr: "ParamRule",
+    pr: "ParseResourceParamDc",
     context: "ContextModel",
     param_plugin: "BaseParamHandler",
     *,
@@ -185,19 +156,3 @@ async def async_request_field_pr_func(
 ) -> Any:
     request_value = await async_request_field_get_value_pr_func(pr, context, param_plugin)
     return validate_request_value_cb(pr.parameter, request_value, pait_model_field)
-
-
-def request_depend_pr_func(
-    pr: "ParamRule",
-    context: "ContextModel",
-    param_plugin: "BaseParamHandler",
-) -> Any:
-    return param_plugin.depend_handle(context, pr.sub)
-
-
-empty_ft = FieldTypePrFuncDc(empty_pr_func, empty_pr_func)  # type: ignore[arg-type]
-cbv_class_ft = FieldTypePrFuncDc(cbv_pr_func, cbv_pr_func)  # type: ignore[arg-type]
-request_ft = FieldTypePrFuncDc(request_pr_func, request_pr_func)  # type: ignore[arg-type]
-pait_model_ft = FieldTypePrFuncDc(pait_model_pr_func, async_pait_model_pr_func)  # type: ignore[arg-type]
-request_field_ft = FieldTypePrFuncDc(request_field_pr_func, async_request_field_pr_func)  # type: ignore[arg-type]
-request_depend_ft = FieldTypePrFuncDc(request_depend_pr_func, request_depend_pr_func)  # type: ignore[arg-type]

@@ -13,7 +13,7 @@ async def demo_post(
     return json({"uid": uid, "user_name": username})
 
 
-app = Sanic(name="demo")
+app = Sanic(name="demo", configure_logging=False)
 app.add_route(demo_post, "/api", methods=["POST"])
 
 

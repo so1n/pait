@@ -1,7 +1,12 @@
+import traceback
+
 import pytest
 
 from pait import _pydanitc_adapter, field
-from pait.field.request_resource import PydanticUndefined
+from pait.field.http import PydanticUndefined
+from pait.model.context import ContextModel
+from pait.param_handle import ParamHandler
+from pait.util import get_func_sig
 
 
 class TestField:
@@ -11,6 +16,8 @@ class TestField:
     def test_is_pait_field_class(self) -> None:
         assert field.is_pait_field_class(field.Query)
 
+
+class TestRequestField:
     def test_multi_default_param(self) -> None:
         with pytest.raises(ValueError):
             field.BaseRequestResourceField(default=1, default_factory=lambda: 1)
@@ -82,3 +89,22 @@ class TestField:
             field.BaseRequestResourceField(links=link_login_token_model).links.openapi_runtime_expr  # type: ignore
             is link_login_token_model.openapi_runtime_expr
         )
+
+
+class TestAppField:
+
+    def test_depend_check_func(self, pait_context: ContextModel) -> None:
+        class Demo:
+            def demo(self) -> None:
+                pass
+
+        def demo() -> None:
+            pass
+
+        from pait.field.app import check_pre_depend
+
+        check_pre_depend(pait_context.pait_core_model, get_func_sig(demo), ParamHandler)
+        try:
+            check_pre_depend(pait_context.pait_core_model, get_func_sig(Demo().demo), ParamHandler)
+        except Exception:
+            assert " is not a function" in traceback.format_exc()

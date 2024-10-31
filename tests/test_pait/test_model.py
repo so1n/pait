@@ -241,8 +241,8 @@ class TestResponseModel:
 
                 default_value: str = Field(default="default")
                 default_factory_value: str = Field(default_factory=factory_value)
-                example_value: str = Field(example="example_value")
-                example_factory_value: str = Field(example=factory_value)
+                example_value: str = Field(example="example_value")  # type:ignore[call-arg]
+                example_factory_value: str = Field(example=factory_value)  # type:ignore[call-arg]
                 sub_data: SubModel
 
             response_data: Type[BaseModel] = DataModel

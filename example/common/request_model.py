@@ -16,12 +16,14 @@ class TestPaitModel(BaseModel):
 
 
 class UserModel(BaseModel):
-    uid: int = Field(description="user id", gt=10, lt=1000, example="123")
-    user_name: str = Field(description="user name", min_length=2, max_length=4, example="so1n")
+    uid: int = Field(description="user id", gt=10, lt=1000, example="123")  # type: ignore[call-arg]
+    user_name: str = Field(
+        description="user name", min_length=2, max_length=4, example="so1n"  # type: ignore[call-arg]
+    )
 
 
 class UserOtherModel(BaseModel):
-    age: int = Field(description="age", gt=1, lt=100, example=25)
+    age: int = Field(description="age", gt=1, lt=100, example=25)  # type: ignore[call-arg]
 
 
 class SexEnum(str, Enum):

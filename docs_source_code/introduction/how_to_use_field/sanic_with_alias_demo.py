@@ -9,7 +9,7 @@ async def demo(content_type: str = field.Header.t(alias="Content-Type")) -> HTTP
     return HTTPResponse(content_type)
 
 
-app = Sanic("demo")
+app: Sanic = Sanic(name="demo", configure_logging=False)
 app.add_route(demo, "/api/demo", methods={"GET"})
 
 

@@ -73,7 +73,7 @@ async def oauth2_user_info(
     return json({"code": 0, "msg": "", "data": user_model.dict()})
 
 
-app = Sanic(name="demo")
+app = Sanic(name="demo", configure_logging=False)
 app.add_route(oauth2_login, "/api/oauth2-login", methods={"POST"})
 app.add_route(oauth2_user_name, "/api/oauth2-user-name", methods={"GET"})
 app.add_route(oauth2_user_info, "/api/oauth2-user-info", methods={"GET"})

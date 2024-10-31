@@ -52,7 +52,9 @@ class BaseHTTPBasic(BaseSecurity):
         )
         set_and_check_field(self.header_field, "Authorization", self.not_authorization_exc if is_raise else None)
 
-        def pait_handler(authorization: str = self.header_field) -> Optional[HTTPBasicCredentials]:
+        def pait_handler(
+            authorization: str = self.header_field,  # type: ignore[assignment]
+        ) -> Optional[HTTPBasicCredentials]:
             return self.authorization_handler(authorization)
 
         self.set_pait_handler(pait_handler)
@@ -104,7 +106,7 @@ class BaseHTTP(BaseSecurity):
         self.not_authenticated_exc: Exception = self.get_exception(status_code=403, message="Not authenticated")
         set_and_check_field(self.header_field, "Authorization", self.not_authenticated_exc if is_raise else None)
 
-        def pait_handler(authorization: str = self.header_field) -> Optional[str]:
+        def pait_handler(authorization: str = self.header_field) -> Optional[str]:  # type: ignore[assignment]
             return self.authorization_handler(authorization)
 
         self.set_pait_handler(pait_handler)

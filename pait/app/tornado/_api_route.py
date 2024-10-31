@@ -53,5 +53,5 @@ class APIRoute(BaseAPIRoute):
             else:
                 raise ValueError(f"route_dc type error: {route_dc}")
 
-        app.wildcard_router.add_rules(rule_list)
+        app.wildcard_router.add_rules(rule_list)  # type: ignore
         app.default_router = _ApplicationRouter(app, [Rule(AnyMatches(), app.wildcard_router)])

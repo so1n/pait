@@ -8,7 +8,7 @@ async def demo(req: Request) -> response.HTTPResponse:
     return json({"url": req.path, "method": req.method})
 
 
-app = Sanic(name="demo")
+app = Sanic(name="demo", configure_logging=False)
 app.add_route(demo, "/api/demo", methods=["GET"])
 
 

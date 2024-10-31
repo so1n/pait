@@ -4,20 +4,22 @@ import warnings
 from dataclasses import MISSING
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Mapping, Optional, Tuple, Type, TypeVar, Union
 
+from pydantic import Field
 from pydantic.fields import FieldInfo
 from typing_extensions import deprecated  # type: ignore[attr-defined]
 from typing_extensions import Annotated, TypedDict, Unpack
 
-from pait import _pydanitc_adapter, rule
-from pait.exceptions import NotFoundValueException
+from pait import _pydanitc_adapter
+from pait.exceptions import FieldValueTypeException, NotFoundFieldException, NotFoundValueException, ParseTypeError
+from pait.field import resource_parse
 from pait.field.base import BaseField, ExtraParam
+from pait.field.resource_parse import ParseResourceParamDc
 from pait.util import partial_wrapper
 
 if TYPE_CHECKING:
     from pait.model.core import PaitCoreModel
     from pait.openapi.openapi import LinksModel
     from pait.param_handle.base import BaseParamHandler
-    from pait.rule import FieldTypePrFuncDc, PreLoadDc
 
 _regex_deprecated = deprecated("Deprecated in Pydantic v2, use `pattern` instead.")
 _const_deprecated = deprecated("Deprecated in Pydantic v2")
@@ -238,14 +240,59 @@ class BaseRequestResourceField(BaseField, FieldInfo):
         """Different field class have different validation rules,
         and if you have your own validation requirements, need to implement them here"""
 
-    def rule(
-        self, param_handler: "Type[BaseParamHandler]", pait_core_model: "PaitCoreModel", parameter: "inspect.Parameter"
-    ) -> "Tuple[FieldTypePrFuncDc, PreLoadDc]":
-        rule_field_type = rule.request_field_ft
+    @classmethod
+    def pre_check(
+        cls, core_model: "PaitCoreModel", parameter: inspect.Parameter, param_plugin: "Type[BaseParamHandler]"
+    ) -> None:
+        request_class = core_model.app_helper_class.request_class
+        if not getattr(request_class, parameter.default.get_field_name()):
+            raise NotFoundFieldException(
+                parameter.name,
+                f"field name: {parameter.default.get_field_name()} not found in {request_class}",
+            )  # pragma: no cover
+        try:
+            check_list: List[Tuple[str, Any]] = [
+                ("default", parameter.default.default),
+                (
+                    "example",
+                    _pydanitc_adapter.get_field_extra_dict(parameter.default).get(
+                        "example", _pydanitc_adapter.PydanticUndefined
+                    ),
+                ),
+            ]
+            if parameter.default.default_factory:
+                check_list.append(("default_factory", parameter.default.default_factory()))
+            for title, value in check_list:
+                if getattr(value, "__call__", None):
+                    value = value()
+                if value is ...:
+                    continue
+                if isinstance(value, _pydanitc_adapter.PydanticUndefinedType):
+                    continue
+                if inspect.isclass(parameter.annotation) and isinstance(value, parameter.annotation):
+                    continue
+                try:
+                    _pydanitc_adapter.PaitModelField(
+                        value_name=parameter.name,
+                        annotation=parameter.annotation,
+                        field_info=Field(...),
+                        request_param=parameter.default.get_field_name(),
+                    ).validate(value)
+                except Exception:
+                    raise ParseTypeError(
+                        f"{parameter.name}'s Field.{title} type must {parameter.annotation}. value:{value}"
+                    )
+        except ParseTypeError as e:
+            raise FieldValueTypeException(parameter.name, str(e))
+
+    @classmethod
+    def pre_load(
+        cls, core_model: "PaitCoreModel", parameter: "inspect.Parameter", param_plugin: "Type[BaseParamHandler]"
+    ) -> ParseResourceParamDc:
         parameter.default.set_request_key(parameter.name)
-        validate_request_value_cb = rule.validate_request_value
-        if pait_core_model.app_helper_class.app_name == "flask":
-            validate_request_value_cb = rule.flask_validate_request_value
+        validate_request_value_cb = resource_parse.validate_request_value
+        if core_model.app_helper_class.app_name == "flask":
+            validate_request_value_cb = resource_parse.flask_validate_request_value
         rule_field_type_func_param_dict = dict(
             # Creating a model field is very performance-intensive (especially for Pydantic V2),
             # so it needs to be cached
@@ -257,13 +304,17 @@ class BaseRequestResourceField(BaseField, FieldInfo):
             ),
             validate_request_value_cb=validate_request_value_cb,
         )
-        rule_field_type = rule.FieldTypePrFuncDc(
-            func=partial_wrapper(rule_field_type.func, **rule_field_type_func_param_dict),
-            async_func=partial_wrapper(rule_field_type.async_func, **rule_field_type_func_param_dict),
+
+        param_func = (
+            resource_parse.async_request_field_pr_func
+            if param_plugin.is_async_mode
+            else resource_parse.request_field_pr_func
         )
-        return (
-            rule_field_type,
-            rule.PreLoadDc(pait_handler=rule.empty_pr_func),
+        return ParseResourceParamDc(
+            name=parameter.name,
+            annotation=parameter.annotation,
+            parameter=parameter,
+            parse_resource_func=partial_wrapper(param_func, **rule_field_type_func_param_dict),  # type:ignore[arg-type]
         )
 
     @property

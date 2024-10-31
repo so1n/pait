@@ -20,9 +20,9 @@ from pait.data import PaitCoreProxyModel
 from pait.field import BaseRequestResourceField, Depends, File
 from pait.g import config
 from pait.model.core import PaitCoreModel
-from pait.param_handle.util import get_parameter_list_from_class
 from pait.types import CallType
 from pait.util import FuncSig, get_func_sig
+from pait.util._util import get_parameter_list_from_class
 
 HttpParamTypeDictType = Dict[HttpParamTypeLiteral, List[RequestModel]]
 

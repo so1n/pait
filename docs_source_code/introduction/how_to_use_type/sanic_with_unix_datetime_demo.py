@@ -37,7 +37,7 @@ async def demo(timestamp: UnixDatetime = field.Query.i()) -> response.HTTPRespon
     return json({"time": timestamp.isoformat()})
 
 
-app = Sanic(name="demo")
+app = Sanic(name="demo", configure_logging=False)
 app.add_route(demo, "/api/demo", methods=["GET"])
 
 

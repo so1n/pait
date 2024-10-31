@@ -20,7 +20,7 @@ async def demo(
     return response.html(str(time.time()), 200)
 
 
-app = Sanic("demo")
+app = Sanic("demo", configure_logging=False)
 app.add_route(demo, "/api/demo", methods=["GET"])
 
 

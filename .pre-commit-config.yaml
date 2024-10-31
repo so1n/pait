@@ -3,7 +3,7 @@ repos:
     rev: v1.13.0
     hooks:
       - id: mypy
-        exclude: "pait/extra/field/stream/_multipart.py"
+        exclude: "pait/extra/field/stream/_multipart.py|pait/_pydanitc_adapter.py|^docs_source_code/|^benchmarks/"
         additional_dependencies:
           ["types-toml"]
   - repo: https://github.com/PyCQA/isort
@@ -66,6 +66,11 @@ repos:
           language_version: python3
           pass_filenames: false
           args: [ "-o", "requirements/requirements-framework-test.txt", "--without-hashes", "--with-credentials", "--only=framework"]
+        - id: local-poetry-export-extras
+          name: my-poetry-export-extras
+          entry: bash -c 'poetry export --without-hashes --with-credentials --all-extras  | grep -v "^pydantic"  > requirements/requirements-extras.txt'
+          language: system
+          pass_filenames: false
         - id: local-poetry-export-dev
           name: my-poetry-export
           entry: poetry export

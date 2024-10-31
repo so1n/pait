@@ -49,7 +49,7 @@ class TestHelper(BaseTestHelper[Response]):
 
     @staticmethod
     def _get_json(resp: Response) -> dict:
-        return resp.get_json()
+        return resp.get_json() or {}  # type:ignore
 
     @staticmethod
     def _get_text(resp: Response) -> str:

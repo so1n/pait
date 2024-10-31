@@ -1,16 +1,14 @@
 import inspect
 from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, Tuple, Type, TypeVar, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing_extensions import Self  # type: ignore
 
-from pait import _pydanitc_adapter, field, rule
-from pait.exceptions import FieldValueTypeException, NotFoundFieldException, PaitBaseException, ParseTypeError
+from pait.exceptions import PaitBaseException
+from pait.field import BaseField, app, other, resource_parse
 from pait.plugin.base import PluginProtocol
 from pait.types import CallType
-from pait.util import FuncSig, gen_tip_exc, get_func_sig, is_bounded_func, is_type
-
-from .util import get_parameter_list_from_class, get_parameter_list_from_pydantic_basemodel
+from pait.util import FuncSig, gen_tip_exc, get_func_sig, get_parameter_list_from_class
 
 if TYPE_CHECKING:
     from pait.model.context import ContextModel
@@ -34,35 +32,84 @@ _CtxT = TypeVar("_CtxT", bound="ContextModel")
 
 class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
     is_async_mode: bool = False
-    _pait_pre_load_dc: rule.PreLoadDc
-    _pait_pre_depend_dc: List[rule.PreLoadDc]
+    _pait_pre_load_dc: resource_parse.PreLoadDc
+    _pait_pre_depend_dc: List[resource_parse.PreLoadDc]
 
     @staticmethod
     def is_self_param(parameter: inspect.Parameter) -> bool:
-        if parameter.annotation == Self or parameter.name == "self":
+        if parameter.name == "self" or parameter.annotation == Self:
             return True
         return False
+
+    @classmethod
+    def get_field_from_parameter(
+        cls, pait_core_model: "PaitCoreModel", _object: Any, parameter: inspect.Parameter
+    ) -> Optional[Type[BaseField]]:
+        maybe_filed = parameter.default
+        if maybe_filed is not parameter.empty and isinstance(maybe_filed, BaseField):
+            # kwargs param
+            # support model: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseRequestResourceField())
+            return maybe_filed.__class__
+        if cls.is_self_param(parameter) and _object is pait_core_model.func:
+            # self param
+            return other.CbvField
+        elif inspect.isclass(parameter.annotation):
+            # args param
+            if issubclass(
+                parameter.annotation, pait_core_model.app_helper_class.request_class.RequestType  # type: ignore
+            ):
+                # request param
+                return other.RequestField
+            elif issubclass(parameter.annotation, pait_core_model.app_helper_class.CbvType):
+                # self param
+                return other.CbvField
+            elif issubclass(parameter.annotation, BaseModel):
+                # support model: model: ModelType
+                return other.PaitModelField
+        return None
+
+    @classmethod
+    def get_param_rule_from_parameter_list(
+        cls,
+        pait_core_model: "PaitCoreModel",
+        _object: Any,
+        param_list: List["inspect.Parameter"],
+    ) -> resource_parse.ParseResourceParamDcDict:
+        """gen param rule dict"""
+        param_rule_dict: resource_parse.ParseResourceParamDcDict = {}
+        for parameter in param_list:
+            try:
+                base_field_class = cls.get_field_from_parameter(pait_core_model, _object, parameter)
+                if not base_field_class:
+                    continue
+                param_rule_dict[parameter.name] = base_field_class.pre_load(
+                    core_model=pait_core_model, parameter=parameter, param_plugin=cls
+                )
+            except PaitBaseException as e:
+                raise gen_tip_exc(_object, e, parameter, tip_exception_class=pait_core_model.tip_exception_class) from e
+        return param_rule_dict
 
     ###############
     # CBV Handler #
     ###############
     @classmethod
     def check_cbv_handler(cls, pait_core_model: "PaitCoreModel", cbv_class: Type) -> None:
-        param_list = get_parameter_list_from_class(cbv_class.__class__)
-        cls._check_param_field_handler(pait_core_model, cbv_class, param_list)
+        cls.param_field_check_handler(pait_core_model, cbv_class, get_parameter_list_from_class(cbv_class.__class__))
 
     @classmethod
-    def get_cbv_prd_from_class(cls, pait_core_model: "PaitCoreModel", cbv_class: Type) -> rule.ParamRuleDict:
-        param_list = get_parameter_list_from_class(cbv_class)
-        prd = cls._param_field_pre_handle(pait_core_model, cbv_class, param_list)
-        return prd
+    def get_cbv_prd_from_class(
+        cls, pait_core_model: "PaitCoreModel", cbv_class: Type
+    ) -> resource_parse.ParseResourceParamDcDict:
+        return cls.get_param_rule_from_parameter_list(
+            pait_core_model, cbv_class, get_parameter_list_from_class(cbv_class)
+        )
 
     @classmethod
     def add_cbv_prd(cls, pait_core_model: "PaitCoreModel", cbv_class: Type, kwargs: Dict) -> None:
         cbv_prd = cls.get_cbv_prd_from_class(pait_core_model, cbv_class)
         kwargs["_pait_cbv_pre_load_prd"] = cbv_prd
 
-    def get_cbv_prd_from_context(self, context: _CtxT) -> rule.ParamRuleDict:
+    def get_cbv_prd_from_context(self, context: _CtxT) -> resource_parse.ParseResourceParamDcDict:
         # if use pre_load_cbv, then return it
         prd = getattr(self, "_pait_cbv_pre_load_prd", None)
         if prd:
@@ -70,7 +117,9 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
         # Due to a problem with the Python decorator mechanism,
         # the cbv prd cannot be obtained when the decorator is initialized,
         # so the prd data is obtained and cached on the first request.
-        cbv_prd: Optional[rule.ParamRuleDict] = getattr(context.cbv_instance, "_param_plugin_cbv_prd", None)
+        cbv_prd: Optional[resource_parse.ParseResourceParamDcDict] = getattr(
+            context.cbv_instance, "_param_plugin_cbv_prd", None
+        )
         if cbv_prd:
             return cbv_prd
         prd = self.get_cbv_prd_from_class(context.pait_core_model, context.cbv_instance.__class__)
@@ -84,89 +133,18 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
         self,
         context: _CtxT,
         _object: Union[FuncSig, Type, None],
-        prd: rule.ParamRuleDict,
+        prd: resource_parse.ParseResourceParamDcDict,
     ) -> Tuple[List[Any], Dict[str, Any]]:
         raise NotImplementedError()
 
-    def depend_handle(self, context: _CtxT, pld: rule.PreLoadDc) -> Any:
+    def depend_handle(self, context: _CtxT, pld: resource_parse.PreLoadDc) -> Any:
         pass
 
     #######################
     # check param handler #
     #######################
     @classmethod
-    def check_param_field_by_parameter(
-        cls,
-        pait_core_model: "PaitCoreModel",
-        parameter: inspect.Parameter,
-    ) -> None:
-        if isinstance(parameter.default, field.Depends):
-            func_sig: FuncSig = get_func_sig(parameter.default.func)  # get and cache func sig
-            if not is_type(parameter.annotation, func_sig.return_param):
-                raise FieldValueTypeException(
-                    parameter.name,
-                    f"{parameter.name}'s Depends.callable return annotation"
-                    f" must:{parameter.annotation}, not {func_sig.return_param}",
-                )
-        elif isinstance(parameter.default, field.BaseRequestResourceField):
-            request_class = pait_core_model.app_helper_class.request_class
-            if not getattr(request_class, parameter.default.get_field_name()):
-                raise NotFoundFieldException(
-                    parameter.name,
-                    f"field name: {parameter.default.get_field_name()} not found in {request_class}",
-                )  # pragma: no cover
-            try:
-                check_list: List[Tuple[str, Any]] = [
-                    ("default", parameter.default.default),
-                    (
-                        "example",
-                        _pydanitc_adapter.get_field_extra_dict(parameter.default).get(
-                            "example", _pydanitc_adapter.PydanticUndefined
-                        ),
-                    ),
-                ]
-                if parameter.default.default_factory:
-                    check_list.append(("default_factory", parameter.default.default_factory()))
-                for title, value in check_list:
-                    if getattr(value, "__call__", None):
-                        value = value()
-                    if value is ...:
-                        continue
-                    if isinstance(value, _pydanitc_adapter.PydanticUndefinedType):
-                        continue
-                    if inspect.isclass(parameter.annotation) and isinstance(value, parameter.annotation):
-                        continue
-                    try:
-                        _pydanitc_adapter.PaitModelField(
-                            value_name=parameter.name,
-                            annotation=parameter.annotation,
-                            field_info=Field(...),
-                            request_param=parameter.default.get_field_name(),
-                        ).validate(value)
-                    except Exception:
-                        raise ParseTypeError(
-                            f"{parameter.name}'s Field.{title} type must {parameter.annotation}. value:{value}"
-                        )
-            except ParseTypeError as e:
-                raise FieldValueTypeException(parameter.name, str(e))
-        else:
-            if not isinstance(parameter.default, parameter.annotation):
-                raise TypeError(parameter.name, f"{parameter.name}'s type error")  # pragma: no cover
-
-    @classmethod
-    def _check_func(cls, func: CallType) -> None:
-        if inspect.ismethod(func) and not is_bounded_func(func):
-            raise ValueError(f"Func: {func} is not a function")
-
-    @classmethod
-    def _check_depend_handler(cls, pait_core_model: "PaitCoreModel", func: CallType) -> None:
-        """gen depend's pre-load dataclass"""
-        cls._check_func(func)
-        func_sig: FuncSig = get_func_sig(func, cache_sig=False)
-        cls._check_param_field_handler(pait_core_model, func_sig.func, func_sig.param_list)
-
-    @classmethod
-    def _check_param_field_handler(
+    def param_field_check_handler(
         cls,
         pait_core_model: "PaitCoreModel",
         _object: Any,
@@ -174,27 +152,9 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
     ) -> None:
         for parameter in param_list:
             try:
-                if parameter.default != parameter.empty:
-                    # kwargs param
-                    # support model: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseRequestResourceField())
-                    cls.check_param_field_by_parameter(pait_core_model, parameter)
-                    if isinstance(parameter.default, field.Depends):
-                        depend_func = parameter.default.func
-                        if inspect.isclass(depend_func):
-                            cls._check_param_field_handler(
-                                pait_core_model,
-                                depend_func,
-                                get_parameter_list_from_class(depend_func),
-                            )
-                elif inspect.isclass(parameter.annotation) and issubclass(parameter.annotation, BaseModel):
-                    # support model: model: ModelType
-                    cls._check_param_field_handler(
-                        pait_core_model,
-                        parameter.annotation,
-                        get_parameter_list_from_pydantic_basemodel(
-                            parameter.annotation, default_field_class=pait_core_model.default_field_class
-                        ),
-                    )
+                base_field_class = cls.get_field_from_parameter(pait_core_model, _object, parameter)
+                if base_field_class:
+                    base_field_class.pre_check(core_model=pait_core_model, parameter=parameter, param_plugin=cls)
             except PaitBaseException as e:
                 raise gen_tip_exc(_object, e, parameter, tip_exception_class=pait_core_model.tip_exception_class) from e
 
@@ -203,134 +163,40 @@ class BaseParamHandler(PluginProtocol, Generic[_CtxT]):
         super().pre_check_hook(pait_core_model, kwargs)
         func_sig: FuncSig = get_func_sig(pait_core_model.func, cache_sig=False)
         for pre_depend in pait_core_model.pre_depend_list:
-            cls._check_depend_handler(pait_core_model, pre_depend)
-        cls._check_param_field_handler(pait_core_model, func_sig.func, func_sig.param_list)
+            depend_func_sig: FuncSig = get_func_sig(pre_depend, cache_sig=False)
+            app.check_pre_depend(pait_core_model, depend_func_sig, cls)
+        cls.param_field_check_handler(pait_core_model, func_sig.func, func_sig.param_list)
 
     ####################
     # pre load handler #
     ####################
     @classmethod
-    def _depend_pre_handle(cls, pait_core_model: "PaitCoreModel", func: CallType) -> rule.PreLoadDc:
+    def depend_handler(cls, pait_core_model: "PaitCoreModel", func: CallType) -> resource_parse.PreLoadDc:
         """gen depend's pre-load dataclass"""
-        cls._check_func(func)
         func_sig: FuncSig = get_func_sig(func, cache_sig=False)
         func_class_prd = None
         if inspect.isclass(func):
-            func_class_prd = cls._param_field_pre_handle(
+            func_class_prd = cls.get_param_rule_from_parameter_list(
                 pait_core_model,
                 func,
                 get_parameter_list_from_class(func),
             )
-        return rule.PreLoadDc(
-            pait_handler=func,  # depend func gen pait handler in pre-load
-            param=cls._param_field_pre_handle(pait_core_model, func_sig.func, func_sig.param_list),
-            func_class_prd=func_class_prd,
+        return resource_parse.PreLoadDc(
+            call_handler=func,  # depend func gen pait handler in pre-load
+            param=cls.get_param_rule_from_parameter_list(pait_core_model, func_sig.func, func_sig.param_list),
+            cbv_param=func_class_prd,
         )
-
-    @classmethod
-    def _param_field_pre_handle(
-        cls,
-        pait_core_model: "PaitCoreModel",
-        _object: Any,
-        param_list: List["inspect.Parameter"],
-    ) -> rule.ParamRuleDict:
-        """gen param rule dict"""
-        param_rule_dict: rule.ParamRuleDict = {}
-        for parameter in param_list:
-            rule_field_type = rule.empty_ft
-            # rule_field_type_func_param_dict: dict = {}
-            sub_pld = rule.PreLoadDc(pait_handler=rule.empty_pr_func)
-
-            try:
-                if isinstance(parameter.default, field.BaseField):
-                    # param_handler: "BaseParamHandler",
-                    # pait_core_model: "PaitCoreModel",
-                    # parameter: "Parameter"
-                    rule_field_type, sub_pld = parameter.default.rule(
-                        param_handler=cls, pait_core_model=pait_core_model, parameter=parameter
-                    )
-                #
-                # if parameter.default != parameter.empty:
-                #     # kwargs param
-                #     # support model: def demo(pydantic.BaseModel: BaseModel = pait.field.BaseRequestResourceField())
-                #     if isinstance(parameter.default, field.Depends):
-                #         sub_pld = cls._depend_pre_handle(pait_core_model, parameter.default.func)
-                #         rule_field_type = rule.request_depend_ft
-                #     elif isinstance(parameter.default, field.BaseRequestResourceField):
-                #         rule_field_type = rule.request_field_ft
-                #         parameter.default.set_request_key(parameter.name)
-                #         validate_request_value_cb = rule.validate_request_value
-                #         if pait_core_model.app_helper_class.app_name == "flask":
-                #             validate_request_value_cb = rule.flask_validate_request_value
-                #         rule_field_type_func_param_dict.update(
-                #             # Creating a model field is very performance-intensive (especially for Pydantic V2),
-                #             # so it needs to be cached
-                #             pait_model_field=_pydanitc_adapter.PaitModelField(
-                #                 value_name=parameter.name,
-                #                 annotation=parameter.annotation,
-                #                 field_info=parameter.default,
-                #                 request_param=parameter.default.get_field_name(),
-                #             ),
-                #             validate_request_value_cb=validate_request_value_cb,
-                #         )
-                elif cls.is_self_param(parameter) and _object is pait_core_model.func:
-                    # self param
-                    rule_field_type = rule.cbv_class_ft
-                elif inspect.isclass(parameter.annotation):
-                    # args param
-                    if issubclass(
-                        parameter.annotation, pait_core_model.app_helper_class.request_class.RequestType  # type: ignore
-                    ):
-                        # request param
-                        rule_field_type = rule.request_ft
-                    elif issubclass(parameter.annotation, pait_core_model.app_helper_class.CbvType):
-                        # self param
-                        rule_field_type = rule.cbv_class_ft
-                    elif issubclass(parameter.annotation, BaseModel):
-                        # support model: model: ModelType
-                        rule_field_type = rule.pait_model_ft
-                        param_list = get_parameter_list_from_pydantic_basemodel(
-                            parameter.annotation, default_field_class=pait_core_model.default_field_class
-                        )
-                        sub_pld.param = cls._param_field_pre_handle(pait_core_model, parameter.annotation, param_list)
-                        for _parameter in param_list:
-                            raw_name = _parameter.name
-                            # Each value in PaitModel does not need to valida by `pr func`
-                            sub_pld.param[raw_name].param_func = (
-                                rule.async_request_field_get_value_pr_func  # type: ignore[assignment]
-                                if cls.is_async_mode
-                                else rule.request_field_get_value_pr_func
-                            )
-
-                            # If the value in Pait Model has alias, then the key of param should be alias
-                            real_name = _parameter.default.request_key
-                            if raw_name != real_name:
-                                sub_pld.param[real_name] = sub_pld.param.pop(raw_name)
-            except PaitBaseException as e:
-                raise gen_tip_exc(_object, e, parameter, tip_exception_class=pait_core_model.tip_exception_class) from e
-            param_func = rule_field_type.async_func if cls.is_async_mode else rule_field_type.func
-            # if rule_field_type_func_param_dict:
-            #     param_func = partial(param_func, **rule_field_type_func_param_dict)
-            param_rule_dict[parameter.name] = rule.ParamRule(
-                name=parameter.name,
-                type_=parameter.annotation,
-                parameter=parameter,
-                param_func=param_func,
-                sub=sub_pld,
-            )
-        return param_rule_dict
 
     @classmethod
     def pre_load_hook(cls, pait_core_model: "PaitCoreModel", kwargs: Dict) -> Dict:
         super().pre_load_hook(pait_core_model, kwargs)
         func_sig: FuncSig = get_func_sig(pait_core_model.func, cache_sig=False)
-        pre_depend_dc_list = []
-        for pre_depend in pait_core_model.pre_depend_list:
-            pre_depend_dc_list.append(cls._depend_pre_handle(pait_core_model, pre_depend))
 
-        kwargs["_pait_pre_depend_dc"] = pre_depend_dc_list
-        kwargs["_pait_pre_load_dc"] = rule.PreLoadDc(
-            pait_handler=func_sig.func,
-            param=cls._param_field_pre_handle(pait_core_model, func_sig.func, func_sig.param_list),
+        kwargs["_pait_pre_depend_dc"] = [
+            cls.depend_handler(pait_core_model, pre_depend) for pre_depend in pait_core_model.pre_depend_list
+        ]
+        kwargs["_pait_pre_load_dc"] = resource_parse.PreLoadDc(
+            call_handler=func_sig.func,
+            param=cls.get_param_rule_from_parameter_list(pait_core_model, func_sig.func, func_sig.param_list),
         )
         return kwargs

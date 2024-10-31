@@ -1,19 +1,26 @@
 from inspect import Parameter
-from typing import TYPE_CHECKING, Tuple, Type
+from typing import TYPE_CHECKING, Type
 
 from pydantic import BaseModel
 
 if TYPE_CHECKING:
+    from pait.field.resource_parse import ParseResourceParamDc
     from pait.model.core import PaitCoreModel
-    from pait.param_handle.base import BaseParamHandler
-    from pait.rule import FieldTypePrFuncDc, PreLoadDc
+    from pait.param_handle import BaseParamHandler
 
 
 class BaseField(object):
 
-    def rule(
-        self, param_handler: "Type[BaseParamHandler]", pait_core_model: "PaitCoreModel", parameter: "Parameter"
-    ) -> "Tuple[FieldTypePrFuncDc, PreLoadDc]":
+    @classmethod
+    def pre_check(
+        cls, core_model: "PaitCoreModel", parameter: Parameter, param_plugin: Type["BaseParamHandler"]
+    ) -> None:
+        raise NotImplementedError
+
+    @classmethod
+    def pre_load(
+        cls, core_model: "PaitCoreModel", parameter: "Parameter", param_plugin: Type["BaseParamHandler"]
+    ) -> "ParseResourceParamDc":
         raise NotImplementedError
 
 

@@ -25,7 +25,7 @@ async def demo(token: str = field.Depends.i(get_user_by_token)) -> HTTPResponse:
     return json({"user": token})
 
 
-app = Sanic("demo")
+app = Sanic("demo", configure_logging=False)
 app.add_route(demo, "/api/demo", methods={"GET"})
 app.exception(Exception)(api_exception)
 

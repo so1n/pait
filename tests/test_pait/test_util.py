@@ -409,7 +409,7 @@ class TestUtil:
 
         class Demo(BaseModel):
             a: int = Field()
-            b: str = Field(example="mock")
+            b: str = Field(example="mock")  # type:ignore[call-arg]
             c: bool = Field(alias="alias_c")
             d: float = Field(default=2.1)
             e: int = Field(default_factory=lambda: 10)
@@ -431,8 +431,8 @@ class TestUtil:
         }
 
         class Demo1(BaseModel):
-            a: int = Field(example=1)
-            b: int = Field(new_example_column=2)
+            a: int = Field(example=1)  # type:ignore[call-arg]
+            b: int = Field(new_example_column=2)  # type:ignore[call-arg]
 
         assert util.gen_example_dict_from_pydantic_base_model(Demo1, example_column_name="new_example_column") == {
             "a": 0,
@@ -451,13 +451,13 @@ class TestUtil:
 
         class Demo(BaseModel):
             a: int = Field()
-            b: str = Field(example="mock")
+            b: str = Field(example="mock")  # type:ignore[call-arg]
             c: bool = Field(alias="alias_c")
             d: float = Field(default=2.1)
             e: int = Field(default_factory=lambda: 10)
             f: datetime.date = Field()
             g: SexEnum = Field()
-            h: List[str] = Field(example=["1"])
+            h: List[str] = Field(example=["1"])  # type:ignore[call-arg]
             i: Dict[str, List[int]] = Field()
             j: List = Field()
 

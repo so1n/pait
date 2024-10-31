@@ -38,7 +38,7 @@ def _load_route(
     if prefix_path:
         path = prefix_path + path
     openapi_path: str = get_openapi_path(path)
-    method_set: set = route.methods or set()
+    method_set: set = route.methods or set()  # type: ignore[has-type]
     route_name: str = route.name
     endpoint: Union[Callable, Type] = route.endpoint
     pait_id: str = getattr(route.endpoint, "_pait_id", "")

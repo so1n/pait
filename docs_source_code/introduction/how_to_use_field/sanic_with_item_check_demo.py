@@ -21,7 +21,7 @@ async def demo(demo_value: List[int] = field.MultiQuery.i(min_items=1, max_items
     return json({"data": demo_value})
 
 
-app = Sanic("demo")
+app: Sanic = Sanic(name="demo", configure_logging=False)
 app.add_route(demo, "/api/demo", methods={"GET"})
 app.exception(Exception)(api_exception)
 

@@ -6,8 +6,8 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 from typing_extensions import Self  # type: ignore
 
-from pait import rule
 from pait.exceptions import PaitBaseException
+from pait.field import resource_parse
 from pait.model.context import ContextModel
 from pait.param_handle.base import BaseParamHandler, raise_multiple_exc
 from pait.util import gen_tip_exc, get_pait_handler, to_thread
@@ -37,16 +37,14 @@ class AsyncParamHandler(BaseParamHandler[AsyncParamHandleContext]):
         self,
         context: "AsyncParamHandleContext",
         _object: Any,
-        prd: rule.ParamRuleDict,
+        prd: resource_parse.ParseResourceParamDcDict,
     ) -> Tuple[List[Any], Dict[str, Any]]:
         args_param_list: List[Any] = []
         kwargs_param_dict: Dict[str, Any] = {}
 
         for param_name, pr in prd.items():
             try:
-                value = pr.param_func(pr, context, self)
-                if value is rule.MISSING:
-                    continue
+                value = pr.parse_resource_func(pr, context, self)
                 if asyncio.iscoroutine(value) or asyncio.isfuture(value) or asyncio.iscoroutinefunction(value):
                     value = await value
                 elif context.pait_core_model.sync_to_thread and inspect.isfunction(value):
@@ -66,15 +64,15 @@ class AsyncParamHandler(BaseParamHandler[AsyncParamHandleContext]):
     async def depend_handle(
         self,
         context: "AsyncParamHandleContext",
-        pld: "rule.PreLoadDc",
+        pld: "resource_parse.PreLoadDc",
     ) -> Any:
-        pait_handler = pld.pait_handler
+        pait_handler = pld.call_handler
         if inspect.isclass(pait_handler):
             # support depend type is class
             assert (
-                pld.func_class_prd
+                pld.cbv_param
             ), f"`func_class_prd` param must not none, please check {self.__class__}.pre_load_hook method"
-            _, kwargs = await self.prd_handle(context, pait_handler, pld.func_class_prd)
+            _, kwargs = await self.prd_handle(context, pait_handler, pld.cbv_param)
             pait_handler = pait_handler()
             pait_handler.__dict__.update(kwargs)
 
@@ -97,7 +95,7 @@ class AsyncParamHandler(BaseParamHandler[AsyncParamHandleContext]):
             await self.depend_handle(context, pre_depend_dc)
 
         context.args, context.kwargs = await self.prd_handle(
-            context, self._pait_pre_load_dc.pait_handler, self._pait_pre_load_dc.param
+            context, self._pait_pre_load_dc.call_handler, self._pait_pre_load_dc.param
         )
 
         if context.cbv_instance:

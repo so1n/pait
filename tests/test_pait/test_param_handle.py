@@ -6,9 +6,11 @@ from typing import Any, List
 import pytest
 from pydantic import BaseModel, Field
 
-from pait import _pydanitc_adapter, field, rule
+import pait.util._util
+from pait import _pydanitc_adapter, field
 from pait.app.base import BaseAppHelper
 from pait.exceptions import NotFoundValueException
+from pait.field import resource_parse
 from pait.model import response
 from pait.model.core import PaitCoreModel
 from pait.param_handle import ParamHandler
@@ -113,24 +115,10 @@ class TestParamPlugin:
         else:
             raise RuntimeError("Test Fail")
 
-    def test_check_func(self) -> None:
-        class Demo:
-            def demo(self) -> None:
-                pass
-
-        def demo() -> None:
-            pass
-
-        ParamHandler._check_func(demo)
-        try:
-            ParamHandler._check_func(Demo.demo)
-        except Exception:
-            assert " is not a function" in traceback.format_exc()
-
 
 class TestRule:
     def test_get_real_request_value_by_raw_return_is_true(self) -> None:
-        assert rule.get_real_request_value(
+        assert resource_parse.get_real_request_value(
             inspect.Parameter(
                 "demo",
                 inspect.Parameter.POSITIONAL_ONLY,
@@ -144,7 +132,7 @@ class TestRule:
         demo_field: field.Query = field.Query.i()
         demo_field.set_request_key("demo")
         assert (
-            rule.get_real_request_value(
+            resource_parse.get_real_request_value(
                 inspect.Parameter(
                     "demo",
                     inspect.Parameter.POSITIONAL_ONLY,
@@ -161,7 +149,7 @@ class TestRule:
         demo_field.set_request_key("demo")
 
         with pytest.raises(NotFoundValueException):
-            assert rule.get_real_request_value(
+            assert resource_parse.get_real_request_value(
                 inspect.Parameter(
                     "demo",
                     inspect.Parameter.POSITIONAL_ONLY,
@@ -176,7 +164,7 @@ class TestRule:
         demo_field.set_request_key("demo")
 
         with pytest.raises(RuntimeError):
-            assert rule.get_real_request_value(
+            assert resource_parse.get_real_request_value(
                 inspect.Parameter(
                     "demo",
                     inspect.Parameter.POSITIONAL_ONLY,
@@ -194,7 +182,7 @@ class TestRule:
         )
 
         assert (
-            rule.validate_request_value(
+            resource_parse.validate_request_value(
                 inspect.Parameter(
                     "demo",
                     inspect.Parameter.POSITIONAL_ONLY,
@@ -211,7 +199,7 @@ class TestRule:
             a: int = Field()
             b: str = Field()
 
-        assert rule.validate_request_value(
+        assert resource_parse.validate_request_value(
             inspect.Parameter(
                 "demo",
                 inspect.Parameter.POSITIONAL_ONLY,
@@ -247,8 +235,8 @@ class TestUtil:
             b: str = ""
             c: str = value
 
-        assert [] == param_handle_util.get_parameter_list_from_class(Demo1)
-        result: List["inspect.Parameter"] = param_handle_util.get_parameter_list_from_class(Demo2)
+        assert [] == pait.util._util.get_parameter_list_from_class(Demo1)
+        result: List["inspect.Parameter"] = pait.util._util.get_parameter_list_from_class(Demo2)
         assert len(result) == 1
         assert result[0].name == "c"
         assert result[0].annotation == str

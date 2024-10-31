@@ -86,7 +86,7 @@ class TestPaitTestHelper:
             class HeaderModel(BaseModel):
                 faker_header: str = Field(default="", alias="faker-header")
 
-            header: BaseModel = HeaderModel
+            header = HeaderModel
 
         @pait(response_model_list=[DemoResponse])
         def demo() -> Response:

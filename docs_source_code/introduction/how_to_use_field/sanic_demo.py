@@ -45,7 +45,7 @@ async def demo_route(
     )
 
 
-app: Sanic = Sanic(name="demo")
+app: Sanic = Sanic(name="demo", configure_logging=False)
 app.add_route(demo_route, "/api/demo/<age>", methods={"POST"})
 
 

@@ -135,8 +135,7 @@ async def cache_response(raise_exc: Optional[int] = Query.i(default=None)) -> Pl
             raise Exception(timestamp_str)
         elif raise_exc == 2:
             raise RuntimeError(timestamp_str)
-    else:
-        return PlainTextResponse(timestamp_str, 200)
+    return PlainTextResponse(timestamp_str, 200)
 
 
 @plugin_pait(

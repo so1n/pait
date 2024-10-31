@@ -287,10 +287,10 @@ class TestBaseTestHelper:
             response_data = None
 
         class SubDemoModel(BaseModel):
-            a: List[str] = Field(example=["1"])
+            a: List[str] = Field(example=["1"])  # type:ignore[call-arg]
 
         class BaseDemoModel(BaseModel):
-            a: int = Field(example=1)
+            a: int = Field(example=1)  # type:ignore[call-arg]
             c: SubDemoModel
 
         class DemoModel(BaseDemoModel):
@@ -299,13 +299,13 @@ class TestBaseTestHelper:
         class OtherDemoModel(BaseDemoModel):
             e: int = Field(default=1)
             # Use example column to force the value of the check to be set`"1"`
-            f: Union[int, str] = Field(example="1")
+            f: Union[int, str] = Field(example="1")  # type:ignore[call-arg]
 
         class JsonRespModel(JsonResponseModel):
-            response_data = DemoModel
+            response_data: Type[BaseModel] = DemoModel
 
         class OtherJsonRespModel(JsonRespModel):
-            response_data = OtherDemoModel
+            response_data: Type[BaseModel] = OtherDemoModel
 
         assert self._get_test_helper(response_model_list=[NotDataJsonRespModel])._assert_response(DemoResp()) is None
 

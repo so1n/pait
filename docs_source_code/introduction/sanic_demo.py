@@ -1,7 +1,7 @@
 from typing import Type
 
 from pydantic import BaseModel, Field
-from sanic.app import Sanic
+from sanic import Sanic
 from sanic.response import HTTPResponse, json
 
 from pait.app.sanic import pait
@@ -27,7 +27,7 @@ async def demo_post(
     return json({"uid": uid, "user_name": username})
 
 
-app = Sanic(name="demo")
+app = Sanic(name="demo", configure_logging=False)
 app.add_route(demo_post, "/api", methods=["POST"])
 AddDocRoute(app)
 

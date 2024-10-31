@@ -28,7 +28,7 @@ async def demo_post(  # type: ignore[empty-body]
     pass
 
 
-app = Sanic(name="demo")
+app = Sanic(name="demo", configure_logging=False)
 app.add_route(demo_post, "/api", methods=["POST"])
 AddDocRoute(app)
 

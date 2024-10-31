@@ -1,8 +1,8 @@
 from inspect import Parameter
-from typing import TYPE_CHECKING, Tuple, Type, TypeVar
+from typing import TYPE_CHECKING, Type, TypeVar
 
-from pait import rule
-from pait.field.request_resource import File
+from pait.field import resource_parse
+from pait.field.http import File
 
 from .util import BaseStream
 
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 def request_field_pr_func(
-    pr: "rule.ParamRule",
+    pr: "resource_parse.ParseResourceParamDc",
     context: "ContextModel",
     param_plugin: "BaseParamHandler",
 ) -> BaseStream:
@@ -30,13 +30,16 @@ def request_field_pr_func(
 class StreamFile(File):
     field_name: str = "file"
 
-    def rule(
-        self, param_handler: "Type[BaseParamHandler]", pait_core_model: "PaitCoreModel", parameter: "Parameter"
-    ) -> "Tuple[rule.FieldTypePrFuncDc, rule.PreLoadDc]":
+    @classmethod
+    def pre_load(
+        cls, core_model: "PaitCoreModel", parameter: "Parameter", param_plugin: "Type[BaseParamHandler]"
+    ) -> resource_parse.ParseResourceParamDc:
         parameter.default.set_request_key(parameter.name)
         # before check
         assert issubclass(parameter.annotation, BaseStream)
-        return (
-            rule.FieldTypePrFuncDc(request_field_pr_func, request_field_pr_func),  # type: ignore[arg-type]
-            rule.PreLoadDc(pait_handler=rule.empty_pr_func),
+        return resource_parse.ParseResourceParamDc(
+            name=parameter.name,
+            annotation=parameter.annotation,
+            parameter=parameter,
+            parse_resource_func=request_field_pr_func,
         )
