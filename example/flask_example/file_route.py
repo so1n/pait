@@ -12,8 +12,6 @@ file_pait: Pait = global_pait.create_sub_pait(
     tag=(tag.field_tag,),
 )
 
-aaa = StreamFile.t(SFAStream)
-
 
 @file_pait()
 def stream_for_data_route(stream: SFAStream = StreamFile.i()) -> dict:
