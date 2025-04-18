@@ -1,6 +1,4 @@
-from typing import Dict, Mapping, Optional
-
-from sanic_testing.testing import SanicTestClient, TestingResponse  # type: ignore
+from typing import TYPE_CHECKING, Dict, Mapping, Optional
 
 from pait.app.base import BaseTestHelper
 from pait.model.core import PaitCoreModel
@@ -8,10 +6,12 @@ from pait.model.core import PaitCoreModel
 from ._load_app import load_app
 
 __all__ = ["SanicTestHelper", "TestHelper"]
+if TYPE_CHECKING:
+    from sanic_testing.testing import SanicTestClient, TestingResponse
 
 
-class TestHelper(BaseTestHelper[TestingResponse]):
-    client: SanicTestClient
+class TestHelper(BaseTestHelper["TestingResponse"]):
+    client: "SanicTestClient"
 
     def _app_init_field(self) -> None:
         if self.cookie_dict:
@@ -21,27 +21,27 @@ class TestHelper(BaseTestHelper[TestingResponse]):
         return (self._load_app or load_app)(self.client.app)
 
     @staticmethod
-    def _get_status_code(resp: TestingResponse) -> int:
+    def _get_status_code(resp: "TestingResponse") -> int:
         return resp.status
 
     @staticmethod
-    def _get_content_type(resp: TestingResponse) -> str:
+    def _get_content_type(resp: "TestingResponse") -> str:
         return resp.content_type
 
     @staticmethod
-    def _get_text(resp: TestingResponse) -> str:
+    def _get_text(resp: "TestingResponse") -> str:
         return resp.text
 
     @staticmethod
-    def _get_bytes(resp: TestingResponse) -> bytes:
+    def _get_bytes(resp: "TestingResponse") -> bytes:
         return resp.content
 
     @staticmethod
-    def _get_headers(resp: TestingResponse) -> Mapping:
+    def _get_headers(resp: "TestingResponse") -> Mapping:
         return resp.headers
 
     @staticmethod
-    def _get_json(resp: TestingResponse) -> dict:
+    def _get_json(resp: "TestingResponse") -> dict:
         return resp.json
 
     def _replace_path(self, path_str: str) -> Optional[str]:
@@ -52,7 +52,7 @@ class TestHelper(BaseTestHelper[TestingResponse]):
             return self.path_dict[key]
         return None
 
-    def _real_request(self, method: str) -> TestingResponse:
+    def _real_request(self, method: str) -> "TestingResponse":
         method = method.lower()
         if method == "get":
             request, resp = self.client._sanic_endpoint_test(method, uri=self.path, headers=self.header_dict)
