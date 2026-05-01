@@ -127,11 +127,11 @@ the route function, as well as the route function of some of the request paramet
 after the initialization is complete, you can get the request response through the `TestHelper`.
 
 While executing the test, `TestHelper` automatically discovers the `URL` and HTTP method of the route function.
-So when calling the `json` method, `TestHelper` will automatically initiate a `post` request and gets the response result.
-Then it serializes the response Body into a `Python` `dict` object and returns it.
+So when calling the `json` method, `TestHelper` automatically sends a `POST` request and returns the response result.
+Then it serializes the response body into a `Python` `dict` object and returns it.
 However, when the route function is bound to more than one request method,
 `TestHelper` will not be able to do this automatically,
-and need to specify the corresponding HTTP method when calling the `json` method, using the following method:
+and you need to specify the corresponding HTTP method when calling the `json` method, using the following method:
 
 === "Flask"
 

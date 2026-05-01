@@ -10,7 +10,7 @@ The `Depend` is a special `Field` object that injects functions that conform to 
 !!! note
 
     `Depend` only does dependency injection related to the request object,
-    and cannot complete dependency injection feture other than the request object.
+    and cannot complete dependency injection features outside the request object.
     If you have this need,
     it is recommended to implement the dependency injection function through DI tools.
     For specific DI tools, see [Awesome Dependency Injection in Python](https://github.com/sfermigier/awesome-dependency-injection-in-python).
@@ -209,7 +209,7 @@ INFO:     127.0.0.1:44164 - "GET /api/demo?uid=999&is_raise=True HTTP/1.1" 200 O
 It can be seen from the data output by the terminal that in the first request,
 the terminal only printed `init` and `exit`,
 but in the second request, the terminal printed more between `init` and `exit` One line of `error`.
-## 3.基于类的Depend
+## 3.Class-based Depend
 Class-based `Depend` is similar to function-based `Depend`,
 the difference between them is that `Pait` not only resolves the function signature of the class's `__call__` method,
 but also resolves the class's attributes, as shown in the following example:

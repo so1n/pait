@@ -90,11 +90,11 @@ For example, the parameters of the route function in the second highlighted code
 | default | `Field` object of `Pait` | Different `Field` types represent obtaining values from different request types; the properties of the `Field` object tell `Pait` how to get the value from the request and verify it. |
 
 Taking the `uid` parameter above as an example,
-first, `Pait` will get json data from the request obj.
-Second , use `uid` as the key to get the corresponding value from the json data and convert and verify whether it is` int` type.
-Last, determine whether the value is between 10-1000, if not, an error will be reported directly, if so, it will be assigned to the `uid` variable.
+first, `Pait` gets JSON data from the request object.
+Second, it uses `uid` as the key to get the corresponding value from the JSON data, then converts and validates whether it is an `int`.
+Finally, it checks whether the value is between 10 and 1000. If not, an error is reported directly; otherwise, the value is assigned to the `uid` variable.
 
-By comparing the first sample code with the code after using `Pait`,can see that the code after using `Pait` is simpler, clearer
+By comparing the first sample code with the code after using `Pait`, you can see that the code after using `Pait` is simpler, clearer
 and also improves the robustness of the code.
 
 

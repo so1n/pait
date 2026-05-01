@@ -1,6 +1,5 @@
-`Pait` in addition to supporting the generation of OpenAPI content,
-but also supports OpenAPI route generation.
-by default, will provide `openapi.json` and some doc-ui route, such as the [document home](/index) sample code.
+In addition to generating OpenAPI content, `Pait` can also register OpenAPI documentation routes.
+By default, it provides `openapi.json` and several documentation UI routes, such as the [document home](/index) sample code.
 === "Flask"
 
     ```py linenums="1" title="docs_source_code/introduction/flask_demo.py"
@@ -25,17 +24,17 @@ by default, will provide `openapi.json` and some doc-ui route, such as the [docu
     ```py linenums="1" title="docs_source_code/introduction/tornado_demo.py"
     --8<-- "docs_source_code/introduction/tornado_demo.py"
     ```
-Through the sample code can be seen, just simply call `AddDocRoute` can be `app` bound OpenAPI route,
-the specific route url and the corresponding function is shown in the table below:
+The sample code shows that calling `AddDocRoute` binds OpenAPI routes to the `app`.
+The route URLs and their corresponding functions are shown in the table below:
 
-| route url     | description                                                                                     | features                                                    |
+| route URL     | description                                                                                     | features                                                    |
 |---------------|-------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
-| /openapi.json | Get OpenAPI's json response                                                                     |                                                             |
-| /elements     | Use [elements](https://github.com/stoplightio/elements) to display document data                | UI is nice and simple, support request in page              |
-| /redoc        | Use [Redoc](https://github.com/Redocly/redoc) to display  document data                         | UI is nice and simple, but does not support request in page |
+| /openapi.json | Get the OpenAPI JSON response                                                                   |                                                             |
+| /elements     | Use [elements](https://github.com/stoplightio/elements) to display document data                | UI is clean and simple, supports requests in the page       |
+| /redoc        | Use [Redoc](https://github.com/Redocly/redoc) to display document data                          | UI is clean and simple, but does not support requests in the page |
 | /swagger      | Use [Swagger](https://github.com/swagger-api/swagger-ui) to display document data               | Generic OpenAPI display UI, full-featured                   |
 | /rapidoc      | Use [RapiDoc](https://github.com/rapi-doc/RapiDoc) to display document data                     | Fully featured; modernized UI; supports customized UI       |
-| /rapipdf      | Provides a page where can download [RapiDoc](https://github.com/rapi-doc/RapiDoc) pdf documents | Poor support for non-English                                |
+| /rapipdf      | Provides a page for downloading [RapiDoc](https://github.com/rapi-doc/RapiDoc) PDF documents    | Poor support for non-English                                |
 
 ## 1.Use of OpenAPI routing
 `AddDocRoute` can easily bind OpenAPI routes to `app` instances,
@@ -44,26 +43,25 @@ Currently `AddDocRoute` provides the following parameters:
 
 | Parameters                 | Description                                                                                                                                                 |
 |----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| scheme                     | HTTP Schema, such as http or https                                                                                                                          |
-| openapi_json_url_only_path | Generated openapi.json url that owns the path portion (scheme fails when this parameter is in effect)                                                       |
+| scheme                     | HTTP scheme, such as `http` or `https`                                                                                                                       |
+| openapi_json_url_only_path | Generate an `openapi.json` URL that only contains the path portion. The `scheme` parameter is ignored when this parameter is enabled                         |
 | prefix                     | A prefix for routing URLs                                                                                                                                   |
 | pin_code                   | A simple security checksum                                                                                                                                  |
-| title                      | Defines the title of the OpenAPI route. Note that when calling `AddDocRoute` multiple times to bind different OpenAPI routes, their titles should different |
+| title                      | Defines the title of the OpenAPI route. When calling `AddDocRoute` multiple times to bind different OpenAPI routes, their titles should be different        |
 | doc_fn_dict                | Implementation of UI pages in OpenAPI routes                                                                                                                |
 | openapi                    | `Pait`'s OpenAPI class                                                                                                                                      |
-| pait                       | `Pait` instances, OpenAPI will create child `pait` based on the this `pait` and use them. See [how to use Pait](/2_how_to_use_pait)                         |
+| pait                       | `Pait` instance. OpenAPI routes create and use child `pait` instances based on this object. See [how to use Pait](/2_how_to_use_pait)                        |
 | add_multi_simple_route     | Methods for binding routes to app instances, see [SimpleRoute](/9_other/#24simpleroute) section for details                                                                        |
 | not_found_exc              | pin_code error exception                                                                                                                                    |
 
 ### 1.1.scheme
-The HTTP Schema of OpenAPI routing can be explicitly specified through the scheme parameter, such as HTTP and HTTPS.
+The HTTP scheme of OpenAPI routing can be explicitly specified through the `scheme` parameter, such as HTTP and HTTPS.
 
-It is important to note that the HTTP Schema does not refer to the HTTP Schema used by the current service,
-but rather the HTTP Schema used by the visitor.
-For example, the current service specifies HTTP Schema, but in order to enhance the security of the service,
-Add a layer of proxy in front of the service to support HTTPS, such as using Nginx.
+It is important to note that the HTTP scheme does not refer to the HTTP scheme used by the current service,
+but rather the HTTP scheme used by the visitor.
+For example, the current service uses HTTP, but a proxy such as Nginx is added in front of the service to provide HTTPS.
 In this case, the user can only access the service via `https://127.0.0.1/openapi.json`.
-In order for the OpenAPI route to respond properly, should use `scheme="https"` when binding the OpenAPI route.
+In order for the OpenAPI route to respond properly, use `scheme="https"` when binding the OpenAPI route.
 
 The example code is as follows:
 === "Flask"
@@ -101,8 +99,8 @@ The example code is as follows:
     ```
 
 ### 1.2.openapi_json_url_only_path
-When openapi_json_url_only_path is `False` by default, the generated OpenAPI Json url is complete (`http://example.com/openapi.json`).
-When openapi_json_url_only_path is `True`, the generated OpenAPI Json url is `/openapi.json`.
+When `openapi_json_url_only_path` is `False`, the generated OpenAPI JSON URL is complete (`http://example.com/openapi.json`).
+When `openapi_json_url_only_path` is `True`, the generated OpenAPI JSON URL is `/openapi.json`.
 
 !!! note
     - 1.The current OpenAPI UIs all support `/openapi.json`, but there is no guarantee that subsequent OpenAPI UIs will support them.
@@ -311,7 +309,7 @@ Among them, the Key specified in `doc_fn_dict` is a string and the Value is the 
 def demo(url: str, title: str = "") -> str:
     pass
 ```
-The first parameter of the function is the OpenAPI Json URL, while the second parameter is the Title,
+The first parameter of the function is the OpenAPI JSON URL, while the second parameter is the title,
 and `AddDocRoute` will be registered to the app instance via `doc_fn_dict` with Key as url and Value as route function when generating the route.
 
 

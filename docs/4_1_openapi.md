@@ -64,10 +64,10 @@ The OpenAPI information for the route function is specified through the `Pait` a
 
 !!! note
     - 1.In most cases, the `name` attribute is just part of the `operation_id` attribute and `Pait` does not guarantee that `name` is exactly equal to `operation_id`.
-    - 2.Tag should be guaranteed to be globally unique
+    - 2.Tag names should be globally unique.
     - 3.For `Tag`, `name`, `desc` and `external_docs` are used for OpenAPI tag data. `openapi_include=False` excludes the tag from the global OpenAPI tag list, while `label` is runtime metadata and is not part of OpenAPI.
 
-However, the `name` and `desc` attributes can also be obtained from the route function name and the `__doc__` of the route function
+However, the `name` and `desc` attributes can also be obtained from the route function name and the `__doc__` of the route function.
 For example, the `name` and `desc` attributes of the route function in the following code are consistent with the code above:
 ```python
 from pait.app.any import pait
@@ -101,7 +101,7 @@ def demo() -> None:
     pass
 ```
 This code indicates that the route function is under test and `deprecated` is `False`,
-for more statuses and whether it is `deprecated` or not see the following table.
+see the following table for all statuses and their `deprecated` values.
 
 | status value        | stage                | deprecated | description                       |
 |---------------------|----------------------|------------|-----------------------------------|
@@ -136,7 +136,7 @@ which contains one or more response objects.
 | XmlResponseModel     | Object whose response is Xml    |
 | TextResponseModel    | Objects whose response is text  |
 | HtmlResponseModel    | Objects whose response is Html  |
-| FileResponseModel    | Objects whose response is  File |
+| FileResponseModel    | Object whose response is a file |
 
 Since 1.1, JSON response models can also be declared with a Pydantic `BaseModel` directly:
 
@@ -160,9 +160,9 @@ In this form, `Pait` will convert the Pydantic model to a JSON response model in
 APIs. If the response needs a custom status code, header, media type, or non-JSON body, use an explicit
 `BaseResponseModel` subclass instead.
 
-`Pait` only provides response objects for common response types, if there is no applicable response object,
-can define a response object that meets the requirements through `pait.model.response.BaseResponseModel`.
-which is a container for the different properties of the OpenAPI response object, as follows.
+`Pait` only provides response objects for common response types. If there is no applicable response object,
+you can define a response object that meets the requirements through `pait.model.response.BaseResponseModel`,
+which is a container for the different properties of the OpenAPI response object.
 
 | Attribute Name | Description                                                                                                                         |
 |----------------|-------------------------------------------------------------------------------------------------------------------------------------|
@@ -171,7 +171,7 @@ which is a container for the different properties of the OpenAPI response object
 | name           | The name of the response object.                                                                                                    |
 | description    | The description of the response object                                                                                              |
 | header         | The header of the response object, the value should be `pydantic.BaseModel` not `Dict`                                              |
-| status_code    | The Http status code of the response object, defaults to `(200, )`                                                                  |
+| status_code    | The HTTP status code of the response object, defaults to `(200, )`                                                                  |
 | openapi_schema | The [openapi.schema](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md#schema-object) of the response object |
 
 Most response objects can be defined through these properties. The sample code is as follows:
@@ -200,7 +200,7 @@ Most response objects can be defined through these properties. The sample code i
     --8<-- "docs_source_code/openapi/how_to_use_openapi/tornado_demo.py"
     ```
 
-The first highlighted code is a response object which indicates that the Http status codes may be 200, 201 and 404.
+The first highlighted code is a response object which indicates that the HTTP status codes may be 200, 201 and 404.
 The `Media Type` is `application/json`.
 The Header has properties `X-Token` and `Content-Type`.
 And most importantly, the data structure of the response body is defined as follows:
@@ -223,8 +223,8 @@ you can see that the current page displays the OpenAPI data of the route functio
 ![](https://fastly.jsdelivr.net/gh/so1n/so1n_blog_photo@master/blog_photo/16867985131801686798512631.png)
 
 !!! note
-    Since `Redoc` presents data in a much more parsimonious way than `Swagger`, this case uses `Redoc` to present data.
-    In fact `Pait` supports a variety of OpenAPI UI pages, see [OpenAPI routes](/4_2_openapi_route/) for details:.
+    Since `Redoc` presents data more compactly than `Swagger`, this case uses `Redoc` to present data.
+    `Pait` also supports other OpenAPI UI pages. See [OpenAPI routes](/4_2_openapi_route/) for details.
 
 ## 4.Field
 The page in the previous section contains not only the data of the response object,
@@ -238,10 +238,10 @@ In addition to this, the `Field` object has some properties that are specialized
 | Attributes            | description                                                                                                                                                                         |
 |-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | links                 | OpenAPI link function, used to specify parameters associated with a response object                                                                                                 |
-| media_type            | Defines the `Media Type` of a parameter, currently only `Body`, `Json`, `File`, `Form`, `MultiForm` are used, it is recommended to use only one `Media Type` for an route function. |
+| media_type            | Defines the `Media Type` of a parameter. Currently only `Body`, `Json`, `File`, `Form`, and `MultiForm` are used. It is recommended to use only one `Media Type` for a route function. |
 | openapi_serialization | Define the `serialization` of the parameters, please refer to [serialization](https://swagger.io/docs/specification/serialization/)                                                 |
 | example               | Define an example value for the parameter; `Pait` supports factory functions, but converting to OpenAPI will result in a fixed value generated in the moment                        |
-| openapi_include       | If the value is `False`, `Pait` will not consider this parameter when generating the Open API                                                                                       |
+| openapi_include       | If the value is `False`, `Pait` will not consider this parameter when generating OpenAPI data                                                                                       |
 
 ### 4.1.Links
 Links is a feature of OpenAPI that is used to specify that a request parameter from interface A is associated with a piece of data in the response object from interface B. For example:

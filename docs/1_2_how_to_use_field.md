@@ -7,11 +7,11 @@ However, this chapter only focuses on parameter verification.
 
 In addition to the Json mentioned above([Introduction](/1_1_introduction/)), `Field` also has other class, their names and functions are as follows:
 
-- Body: Get the json data of the current request
+- Body: Get the JSON data of the current request
 - Cookie: Get the cookie data of the current request (note that the current cookie data will be converted into a Python dictionary, which means that the key of the cookie cannot be repeated. At the same time, when the Field is a cookie, the type is preferably str)
 - File：Get the file object of the current request, which is consistent with the file object of the web framework
 - Form：Get the form data of the current request. If there are multiple duplicate Keys, only the first value will be returned
-- Json: Get the json data of the current request
+- Json: Get the JSON data of the current request
 - Header: Get the header data of the current request
 - Path: Get the path data of the current request, such as `/api/{version}/test`, will get the version data
 - Query: Get the data corresponding to the Url parameter of the current request. If there are multiple duplicate keys, only the first value will be returned
@@ -30,19 +30,19 @@ In addition to the Json mentioned above([Introduction](/1_1_introduction/)), `Fi
 
 === "Starlette"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/starlette_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/starlette_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/starlette_demo.py"
     ```
 
 === "Sanic"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/sanic_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/sanic_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/sanic_demo.py"
     ```
 
 === "Tornado"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/tornado_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/tornado_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/tornado_demo.py"
     ```
 
@@ -114,19 +114,19 @@ The `demo` has a default value of the string -- `123`, while the `demo1` has no 
 
 === "Starlette"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/starlette_with_default_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/starlette_with_default_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/starlette_with_default_demo.py"
     ```
 
 === "Sanic"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/sanic_with_default_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/sanic_with_default_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/sanic_with_default_demo.py"
     ```
 
 === "Tornado"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/tornado_with_default_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/tornado_with_default_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/tornado_with_default_demo.py"
     ```
 
@@ -167,19 +167,19 @@ Sample code is as follows, the default value of the first route function is the 
 
 === "Starlette"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/starlette_with_default_factory_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/starlette_with_default_factory_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/starlette_with_default_factory_demo.py"
     ```
 
 === "Sanic"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/sanic_with_default_factory_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/sanic_with_default_factory_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/sanic_with_default_factory_demo.py"
     ```
 
 === "Tornado"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/tornado_with_default_factory_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/tornado_with_default_factory_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/tornado_with_default_factory_demo.py"
     ```
 
@@ -209,19 +209,19 @@ In this case, can use `alias` to set an alias for the variable, as shown in the 
 
 === "Starlette"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/starlette_with_alias_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/starlette_with_alias_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/starlette_with_alias_demo.py"
     ```
 
 === "Sanic"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/sanic_with_alias_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/sanic_with_alias_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/sanic_with_alias_demo.py"
     ```
 
 === "Tornado"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/tornado_with_alias_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/tornado_with_alias_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/tornado_with_alias_demo.py"
     ```
 
@@ -253,19 +253,19 @@ Usage:
 
 === "Starlette"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/starlette_with_num_check_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/starlette_with_num_check_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/starlette_with_num_check_demo.py"
     ```
 
 === "Sanic"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/sanic_with_num_check_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/sanic_with_num_check_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/sanic_with_num_check_demo.py"
     ```
 
 === "Tornado"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/tornado_with_num_check_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/tornado_with_num_check_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/tornado_with_num_check_demo.py"
     ```
 
@@ -334,19 +334,19 @@ where the length of the array is limited to between 1 and 2:
 
 === "Starlette"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/starlette_with_item_check_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/starlette_with_item_check_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/starlette_with_item_check_demo.py"
     ```
 
 === "Sanic"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/sanic_with_item_check_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/sanic_with_item_check_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/sanic_with_item_check_demo.py"
     ```
 
 === "Tornado"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/tornado_with_item_check_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/tornado_with_item_check_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/tornado_with_item_check_demo.py"
     ```
 
@@ -395,19 +395,19 @@ The sample code is as follows, the route function needs to obtain a value with a
 
 === "Starlette"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/starlette_with_string_check_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/starlette_with_string_check_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/starlette_with_string_check_demo.py"
     ```
 
 === "Sanic"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/sanic_with_string_check_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/sanic_with_string_check_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/sanic_with_string_check_demo.py"
     ```
 
 === "Tornado"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/tornado_with_string_check_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/tornado_with_string_check_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/tornado_with_string_check_demo.py"
     ```
 Run the code and use `curl` to make three requests.
@@ -434,19 +434,19 @@ and the second value for the client passed the Json parameters in the Key for a 
 
 === "Starlette"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/starlette_with_raw_return_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/starlette_with_raw_return_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/starlette_with_raw_return_demo.py"
     ```
 
 === "Sanic"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/sanic_with_raw_return_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/sanic_with_raw_return_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/sanic_with_raw_return_demo.py"
     ```
 
 === "Tornado"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/tornado_with_raw_return_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/tornado_with_raw_return_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/tornado_with_raw_return_demo.py"
     ```
 
@@ -478,19 +478,19 @@ The second variable `demo_value2` sets the `not_value_exception_func` attribute 
 
 === "Starlette"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/starlette_with_not_found_exc_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/starlette_with_not_found_exc_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/starlette_with_not_found_exc_demo.py"
     ```
 
 === "Sanic"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/sanic_with_not_found_exc_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/sanic_with_not_found_exc_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/sanic_with_not_found_exc_demo.py"
     ```
 
 === "Tornado"
 
-    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/tornado_with_not_found_exc_demo.py""
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/tornado_with_not_found_exc_demo.py"
     --8<-- "docs_source_code/introduction/how_to_use_field/tornado_with_not_found_exc_demo.py"
     ```
 
@@ -505,17 +505,17 @@ Then run the code and execute the following `curl` command in the terminal:
 {"data":"not found demo_value2 data"}
 ```
 
-Through the output results, can see that the responses to the missing value of `demo_value1` and the missing value of `demo_value2` are different.
+The output shows that missing `demo_value1` and missing `demo_value2` produce different responses.
 The missing value exception message of `demo_value2` is thrown by `lambda param: RuntimeError(f"not found {param.name} data")`.
-### 2.8.Other Feature
-In addition to the above feature, `Pait` also has other feature, which can be found in the corresponding module documentation:
+### 2.8.Other features
+In addition to the features above, `Pait` also has other field attributes, which are described in the corresponding module documentation:
 
-| Attribute             | document                     | description                                                                                                                                                                                                                     |
+| Attribute             | document                     | description                                                                                                                                                                                   |
 |-----------------------|------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| links                 | [OpenAPI](/4_1_openapi/)     | support OpenAPI's Link                                                                                                                                                                                                          |
-| media_type            | [OpenAPI](/4_1_openapi/)     | OpenAPI Schememedia type。                                                                                                                                                                                                       |
-| openapi_serialization | [OpenAPI](/4_1_openapi/)     | Specify the serialization method of OpenAPI Schema.                                                                                                                                                                             |
-| example               | [OpenAPI](/4_1_openapi/)     | Example values for documentation, mock requests and responses. values support variables and callable functions such as `datetime.datetim.now`, it is recommended to use [faker](https://github.com/joke2k/faker) used together. |
-| description           | [OpenAPI](/4_1_openapi/)     | OpenAPI parameter description                                                                                                                                                                                                   |
-| openapi_include       | [OpenAPI](/4_1_openapi/)     | Defines whether this field needs to be processed by OpenAPI. The default is True.                                                                                                                                               |                                                                                          |                                                                                                 |
-| extra_param_list      | [Plugin](/6_1_introduction/) | The extra parameter list of the plugin. The default is None.                                                                                                                                                                    |
+| links                 | [OpenAPI](/4_1_openapi/)     | Supports OpenAPI Links                                                                                                                                                                   |
+| media_type            | [OpenAPI](/4_1_openapi/)     | OpenAPI schema media type                                                                                                                                                                  |
+| openapi_serialization | [OpenAPI](/4_1_openapi/)     | Specifies the OpenAPI schema serialization method                                                                                                                                          |
+| example               | [OpenAPI](/4_1_openapi/)     | Example values for documentation, mock requests, and responses. Values can be static values or callables such as `datetime.datetime.now`; using [faker](https://github.com/joke2k/faker) is recommended. |
+| description           | [OpenAPI](/4_1_openapi/)     | OpenAPI parameter description                                                                                                                                                              |
+| openapi_include       | [OpenAPI](/4_1_openapi/)     | Defines whether this field should be included when generating OpenAPI data. The default is `True`.                                                                                         |
+| extra_param_list      | [Plugin](/6_1_introduction/) | The extra parameter list of the plugin. The default is `None`.                                                                                                                            |

@@ -11,9 +11,9 @@ a declarative way. Compared with traditional route registration, `APIRoute` prov
 
 - **Declarative route definition**: Declare route information directly with decorators on route functions
 - **Hierarchical route organization**: Support route groups and nested routes for large projects
-- **Class-based view support**: Support CBV (Class-Based Views)
+- **Class-based view support**: Support CBV (class-based views)
 - **Shared route configuration**: Configure common parameters for a group of routes
-- **Route reuse**: Include and compose sub routes
+- **Route reuse**: Include and compose subroutes
 
 This design is similar to FastAPI-style route management and gives `Pait` users a more modern development experience.
 
@@ -100,9 +100,9 @@ In addition to decorators, `APIRoute` also supports dynamic route registration w
 
 This is useful when routes need to be generated dynamically or registered conditionally.
 
-## 5.Sub routes and route composition
+## 5.Subroutes and route composition
 
-For large projects, grouping routes by feature module is a good practice. `APIRoute` supports composing sub routes, so
+For large projects, grouping routes by feature module is a good practice. `APIRoute` supports composing subroutes, so
 routes maintained by different modules can be merged into a single entry point.
 
 A common structure is to define one `APIRoute` per business module, such as users, orders, or payments. The application
@@ -145,19 +145,19 @@ Create different `APIRoute` instances to manage different feature modules:
 - `user_api_route` manages user-related APIs
 - `order_api_route` manages order-related APIs
 
-Each sub route can have its own `path`, `tag`, `group`, `desc`, and other `Pait` configuration. Routes inside a module
-only need to declare relative paths, such as `user_api_route.get("/profile")`; the parent prefix is added when the sub
-route is included by the main route.
+Each subroute can have its own `path`, `tag`, `group`, `desc`, and other `Pait` configuration. Routes inside a module
+only need to declare relative paths, such as `user_api_route.get("/profile")`; the parent prefix is added when the
+subroute is included by the main route.
 
-### 5.2.Include sub routes
+### 5.2.Include subroutes
 
-Use `include_sub_route` to include sub routes in the main route:
+Use `include_sub_route` to include subroutes in the main route:
 
 ```python
 main_api_route = APIRoute(path="/api/v1").include_sub_route(user_api_route, order_api_route)
 ```
 
-`include_sub_route` can receive multiple sub routes at once and can also be chained. A sub route must contain at least one
+`include_sub_route` can receive multiple subroutes at once and can also be chained. A subroute must contain at least one
 route before it is included; otherwise `Pait` raises an exception to avoid silently registering an empty module.
 
 ### 5.3.Path merging
@@ -174,16 +174,16 @@ the framework adapter during injection. For example, different frameworks use di
 
 ### 5.4.Configuration merging
 
-When sub routes are included, `APIRoute` also merges route configuration. Normal configuration keeps the value closest to
+When subroutes are included, `APIRoute` also merges route configuration. Normal configuration keeps the value closest to
 the concrete route. Configuration keys prefixed with `append_` are appended, such as `append_tag`, `append_author`, and
 `append_response_model_list`. This is useful when the parent route should add common tags or response models while each
 child route keeps its own business tags.
 
 This hierarchical route organization keeps the API structure clearer and easier to maintain in large projects.
 
-## 6.Class-Based View support
+## 6.Class-based view support
 
-`APIRoute` supports Class-Based Views (CBV). This is useful when multiple HTTP methods for the same resource need to
+`APIRoute` supports class-based views (CBV). This is useful when multiple HTTP methods for the same resource need to
 share state, reuse methods, or stay grouped in one class. For example, `GET /users` and `POST /users` can be implemented
 in the same `UserAPIView`, and class attributes or instance methods can act as shared context for those HTTP methods.
 
@@ -249,7 +249,7 @@ settings.
 
 ## 7.Route configuration inheritance
 
-`APIRoute` supports configuration inheritance. Sub routes can inherit configuration from their parent route:
+`APIRoute` supports configuration inheritance. Subroutes can inherit configuration from their parent route:
 
 === "Flask"
 
@@ -312,5 +312,5 @@ and Tornado can receive `request_handler`.
     ```
 
 When the parent route, child route, and concrete route all set `framework_extra_param`, the values are merged by level.
-Configuration closer to the concrete route has higher priority. `Pait` parameters follow a similar merge rule: sub routes
+Configuration closer to the concrete route has higher priority. `Pait` parameters follow a similar merge rule: subroutes
 inherit parent route configuration, and parameters prefixed with `append_` are appended to existing configuration.

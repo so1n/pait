@@ -1,9 +1,6 @@
-In the development process,
-the back-end developer will often define the API document and discuss the implementation of the API with the front-end developer through the API document and make modifications,
-there is no specific implementation of the API in this stage.
-In this stage, the front-end and back-end developers will be developed at the same time,
-then there may be a front-end developers need to debug the API in the development process,
-but due to the back-end developers have not yet completed the development of the front-end developers can not be debugging the situation.
+During API development, backend developers often define the API document first and use it to discuss the API design with
+frontend developers before the actual implementation is complete. Frontend and backend development may then proceed in
+parallel, which means frontend developers may need to debug against an API before the backend logic is ready.
 
 To do this, the `Mock` plugin can be used to return the specified response data for route functions that do not implement the logic, as follows:
 === "Flask"
