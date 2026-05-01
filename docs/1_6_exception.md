@@ -145,7 +145,30 @@ After running the code and calling the `curl` command can know:
 ### 2.2.Custom TipException
 The TipExceptions are enabled by default.
 If you think that error prompts will consume performance or want to turn off it,
-can define the `tip_exception_class` attribute of `ParamHandler` as `None` to turn off exception prompts. code show as below:
+set `tip_exception_class` to `None`.
+
+For a single route, configure it in the `Pait` decorator:
+
+```python
+from pait.app.any import pait
+
+
+@pait(tip_exception_class=None)
+def demo() -> None:
+    pass
+```
+
+For all routes, configure it globally:
+
+```python
+from pait.g import config
+
+
+config.init_config(tip_exception_class=None)
+```
+
+Older code can still define the `tip_exception_class` attribute of `ParamHandler` as `None` to turn off exception prompts,
+but this usage is deprecated and may be removed after 2.0.0. The old style code is shown below:
 === "Flask"
 
     ```py linenums="1" title="docs_source_code/introduction/exception/flask_with_not_tip_exception_demo.py"  hl_lines="11 12 15 29"
@@ -172,10 +195,11 @@ can define the `tip_exception_class` attribute of `ParamHandler` as `None` to tu
     ```
 
 The sample code has a total of three modifications:
-    - The `NotTipParamHandler` in the first highlighted code is inherited from `ParamHandler` (or `AsyncParamHandler`),
+
+- The `NotTipParamHandler` in the first highlighted code is inherited from `ParamHandler` (or `AsyncParamHandler`),
         which turns off exception tip by setting the `tip_exception_class` attribute to empty.
-    - The second piece of highlighting code removes the `TipException` extraction logic from the `api_exception` function, as it is not needed now.
-    - The third piece of highlighted code defines the `ParamHandler` used by the current route function to be a `NotTipParamHandler` via the `param_handler_plugin` property of `Pait`.
+- The second piece of highlighting code removes the `TipException` extraction logic from the `api_exception` function, as it is not needed now.
+- The third piece of highlighted code defines the `ParamHandler` used by the current route function to be a `NotTipParamHandler` via the `param_handler_plugin` property of `Pait`.
 
 
 After running the code and calling the `curl` command can know:

@@ -125,7 +125,7 @@ such as the following scenario, which gets its Token from the login route functi
     --8<-- "docs_source_code/openapi/security/tornado_with_apikey_and_link_demo.py"
     ```
 
-The first highlighted code is from [Field-Links](/3_1_openapi/#41links), while the `Query` in the second highlighted code sets the `links` attribute to `link_login_token_model`.
+The first highlighted code is from [Field-Links](/4_1_openapi/#41links), while the `Query` in the second highlighted code sets the `links` attribute to `link_login_token_model`.
 This way `Pait` will bind `login_route` to `api_key_query_route` via Link when generating OpenAPI.
 
 !!! note

@@ -41,24 +41,26 @@ nav:
     - Introduction: '1_1_introduction.md'
     - How to use Field: '1_2_how_to_use_field.md'
     - How to use Type: '1_3_how_to_use_type.md'
-    - Depend: '1_4_depend.md'
-    - Exception: '1_5_exception.md'
+    - Streaming files: '1_4_streaming_files.md'
+    - Depend: '1_5_depend.md'
+    - Exception: '1_6_exception.md'
   - How to use Pait decorator: '2_how_to_use_pait.md'
+  - APIRoute: '3_api_route.md'
   - OpenAPI:
-      - OpenAPI: '3_1_openapi.md'
-      - OpenAPI Route: '3_2_openapi_route.md'
-      - Security: '3_3_security.md'
-  - Unit test helper: '4_unit_test_helper.md'
+      - OpenAPI: '4_1_openapi.md'
+      - OpenAPI Route: '4_2_openapi_route.md'
+      - Security: '4_3_security.md'
+  - Unit test helper: '5_unit_test_helper.md'
   - Plugin:
-      - Introduction: '5_1_introduction.md'
-      - Parameter checking plugin: '5_2_param_check_plugin.md'
-      - Json response plugin: '5_3_json_response_plugin.md'
-      - Mock response plugin: '5_4_mock_json_response_check_plugin.md'
-      - Response caching plugin: '5_5_cache_response.md'
-      - How to customize plugins: '5_x_how_tp_customize_the_plugin.md'
-  - config: "6_config.md"
-  # - ecosystem: "7_ecosystem.md"
-  - Other: "8_other.md"
+      - Introduction: '6_1_introduction.md'
+      - Parameter checking plugin: '6_2_param_check_plugin.md'
+      - Json response plugin: '6_3_json_response_plugin.md'
+      - Mock response plugin: '6_4_mock_json_response_check_plugin.md'
+      - Response caching plugin: '6_5_cache_response.md'
+      - How to customize plugins: '6_x_how_to_customize_the_plugin.md'
+  - config: "7_config.md"
+  # - ecosystem: "8_ecosystem.md"
+  - Other: "9_other.md"
 
 extra:
   version:

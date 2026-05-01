@@ -15,6 +15,7 @@ In addition to the Json mentioned above([Introduction](/1_1_introduction/)), `Fi
 - Header: Get the header data of the current request
 - Path: Get the path data of the current request, such as `/api/{version}/test`, will get the version data
 - Query: Get the data corresponding to the Url parameter of the current request. If there are multiple duplicate keys, only the first value will be returned
+- StreamFile: Stream the uploaded file data instead of loading the whole file into memory. See [Streaming File Upload](/1_4_streaming_files/) for details
 - MultiForm：Get the form data of the current request, and return the data list corresponding to the Key
 - MultiQuery：Get the data corresponding to the Url parameter of the current request, and return the data list corresponding to the Key
 
@@ -150,7 +151,7 @@ When the `demo value` parameter passed is 456, both the `/api/demo` and `/api/de
 ```
 
 !!! note
-    Error handling uses `Tip Exception`. You can learn about the function of `TipException` through [Exception Tip](/1_5_exception/).
+    Error handling uses `Tip Exception`. You can learn about the function of `TipException` through [Exception Tip](/1_6_exception/).
 
 ### 2.2.default_factory
 The feature of `default_factory` is similar to `default`, except that the value received by `default_factory` is a function,
@@ -511,10 +512,10 @@ In addition to the above feature, `Pait` also has other feature, which can be fo
 
 | Attribute             | document                     | description                                                                                                                                                                                                                     |
 |-----------------------|------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| links                 | [OpenAPI](/3_1_openapi/)     | support OpenAPI's Link                                                                                                                                                                                                          |
-| media_type            | [OpenAPI](/3_1_openapi/)     | OpenAPI Schememedia type。                                                                                                                                                                                                       |
-| openapi_serialization | [OpenAPI](/3_1_openapi/)     | Specify the serialization method of OpenAPI Schema.                                                                                                                                                                             |
-| example               | [OpenAPI](/3_1_openapi/)     | Example values for documentation, mock requests and responses. values support variables and callable functions such as `datetime.datetim.now`, it is recommended to use [faker](https://github.com/joke2k/faker) used together. |
-| description           | [OpenAPI](/3_1_openapi/)     | OpenAPI parameter description                                                                                                                                                                                                   |
-| openapi_include       | [OpenAPI](/3_1_openapi/)     | Defines whether this field needs to be processed by OpenAPI. The default is True.                                                                                                                                               |                                                                                          |                                                                                                 |
-| extra_param_list      | [Plugin](/5_1_introduction/) | The extra parameter list of the plugin. The default is None.                                                                                                                                                                    |
+| links                 | [OpenAPI](/4_1_openapi/)     | support OpenAPI's Link                                                                                                                                                                                                          |
+| media_type            | [OpenAPI](/4_1_openapi/)     | OpenAPI Schememedia type。                                                                                                                                                                                                       |
+| openapi_serialization | [OpenAPI](/4_1_openapi/)     | Specify the serialization method of OpenAPI Schema.                                                                                                                                                                             |
+| example               | [OpenAPI](/4_1_openapi/)     | Example values for documentation, mock requests and responses. values support variables and callable functions such as `datetime.datetim.now`, it is recommended to use [faker](https://github.com/joke2k/faker) used together. |
+| description           | [OpenAPI](/4_1_openapi/)     | OpenAPI parameter description                                                                                                                                                                                                   |
+| openapi_include       | [OpenAPI](/4_1_openapi/)     | Defines whether this field needs to be processed by OpenAPI. The default is True.                                                                                                                                               |                                                                                          |                                                                                                 |
+| extra_param_list      | [Plugin](/6_1_introduction/) | The extra parameter list of the plugin. The default is None.                                                                                                                                                                    |

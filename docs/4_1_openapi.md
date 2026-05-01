@@ -65,6 +65,7 @@ The OpenAPI information for the route function is specified through the `Pait` a
 !!! note
     - 1.In most cases, the `name` attribute is just part of the `operation_id` attribute and `Pait` does not guarantee that `name` is exactly equal to `operation_id`.
     - 2.Tag should be guaranteed to be globally unique
+    - 3.For `Tag`, `name`, `desc` and `external_docs` are used for OpenAPI tag data. `openapi_include=False` excludes the tag from the global OpenAPI tag list, while `label` is runtime metadata and is not part of OpenAPI.
 
 However, the `name` and `desc` attributes can also be obtained from the route function name and the `__doc__` of the route function
 For example, the `name` and `desc` attributes of the route function in the following code are consistent with the code above:
@@ -137,6 +138,28 @@ which contains one or more response objects.
 | HtmlResponseModel    | Objects whose response is Html  |
 | FileResponseModel    | Objects whose response is  File |
 
+Since 1.1, JSON response models can also be declared with a Pydantic `BaseModel` directly:
+
+```python
+from pydantic import BaseModel
+
+from pait.app.any import pait
+
+
+class UserRespModel(BaseModel):
+    uid: int
+    name: str
+
+
+@pait(response_model_list=[UserRespModel])
+def get_user() -> dict:
+    return {"uid": 1, "name": "so1n"}
+```
+
+In this form, `Pait` will convert the Pydantic model to a JSON response model internally. It is convenient for normal JSON
+APIs. If the response needs a custom status code, header, media type, or non-JSON body, use an explicit
+`BaseResponseModel` subclass instead.
+
 `Pait` only provides response objects for common response types, if there is no applicable response object,
 can define a response object that meets the requirements through `pait.model.response.BaseResponseModel`.
 which is a container for the different properties of the OpenAPI response object, as follows.
@@ -201,7 +224,7 @@ you can see that the current page displays the OpenAPI data of the route functio
 
 !!! note
     Since `Redoc` presents data in a much more parsimonious way than `Swagger`, this case uses `Redoc` to present data.
-    In fact `Pait` supports a variety of OpenAPI UI pages, see [OpenAPI routes](/3_2_openapi_route/) for details:.
+    In fact `Pait` supports a variety of OpenAPI UI pages, see [OpenAPI routes](/4_2_openapi_route/) for details:.
 
 ## 4.Field
 The page in the previous section contains not only the data of the response object,
@@ -263,7 +286,33 @@ can see through the page that the `Response` column of the login interface shows
 !!! note
     Currently, many OpenAPI tools only provide simple Links support. For more information on the use and description of Links, see [Swagger Links](https://swagger.io/docs/specification/links/).
 
-## 5.OpenAPI generation
+## 5.Extra OpenAPI models
+
+Some request data cannot be inferred from route parameters. A common case is streaming upload: the route function receives
+a stream object, but OpenAPI still needs a request body schema that describes the uploaded form fields.
+
+Use `extra_openapi_model_list` to add these additional request models:
+
+```python
+from pydantic import BaseModel
+
+from pait.app.any import pait
+from pait.field import File
+
+
+class UploadBodyModel(BaseModel):
+    file: bytes = File.i(description="Upload file")
+
+
+@pait(extra_openapi_model_list=[UploadBodyModel])
+def upload_route() -> dict:
+    return {"ok": True}
+```
+
+`extra_openapi_model_list` only supplements OpenAPI data. Runtime parameter parsing still depends on the route function
+parameters and the `Field` objects used by that route.
+
+## 6.OpenAPI generation
 
 In the OpenAPI ecosystem, at its core is a piece of OpenAPI-conforming json or yaml text,
 which can be used in OpenAPI pages such as Swagger, or imported for use in tools such as Postman.

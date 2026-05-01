@@ -529,6 +529,98 @@ class TestDocExample:
                 flask_with_unix_datetime_demo.demo
             )
 
+    def test_streaming_file_secure_upload_demo(self) -> None:
+        from docs_source_code.streaming_files import flask_secure_upload_demo
+        from tests.test_app.streaming_file_test_util import assert_secure_upload_response, build_multipart_body
+
+        content_type, body = build_multipart_body()
+        with client_ctx(app=flask_secure_upload_demo.app) as client:
+            resp = client.post("/api/secure-upload", data=body, content_type=content_type)
+            assert resp.status_code == 200
+            assert_secure_upload_response(resp.get_json() or {})
+
+    def test_streaming_file_upload_progress_demo(self) -> None:
+        from docs_source_code.streaming_files import flask_upload_progress_demo
+        from tests.test_app.streaming_file_test_util import (
+            CONTENT,
+            assert_upload_progress_response,
+            build_multipart_body,
+        )
+
+        content_type, body = build_multipart_body()
+        with client_ctx(app=flask_upload_progress_demo.app) as client:
+            resp = client.post(
+                "/api/upload-progress",
+                data=body,
+                content_type=content_type,
+                headers={"X-File-Size": str(len(CONTENT))},
+            )
+            assert resp.status_code == 200
+            assert_upload_progress_response(resp.get_json() or {})
+
+    def test_api_route_basic_demo(self) -> None:
+        from docs_source_code.api_route import flask_basic_demo
+
+        with client_ctx(app=flask_basic_demo.app) as client:
+            users_resp = client.get("/api/users").get_json()
+            assert isinstance(users_resp, dict)
+            assert users_resp["data"][0]["id"] == 1
+            create_resp = client.post("/api/users", json={"name": "so1n", "age": 18}).get_json()
+            assert isinstance(create_resp, dict)
+            assert create_resp["data"] == {
+                "id": 3,
+                "name": "so1n",
+                "age": 18,
+            }
+            detail_resp = client.get("/api/users/7").get_json()
+            assert isinstance(detail_resp, dict)
+            assert detail_resp["data"]["id"] == 7
+
+    def test_api_route_dynamic_route_demo(self) -> None:
+        from docs_source_code.api_route import flask_dynamic_route_demo
+
+        with client_ctx(app=flask_dynamic_route_demo.app) as client:
+            assert client.post("/api/greet", json={"name": "so1n"}).get_json() == {"message": "Hello so1n"}
+
+    def test_api_route_advanced_demo(self) -> None:
+        from docs_source_code.api_route import flask_advanced_demo
+
+        with client_ctx(app=flask_advanced_demo.app) as client:
+            profile_resp = client.get("/api/v1/user/profile", headers={"X-User-ID": "100"}).get_json()
+            assert isinstance(profile_resp, dict)
+            assert profile_resp["data"]["user_id"] == 100
+            login_resp = client.post("/api/v1/user/login", json={"username": "so1n", "password": "pwd"}).get_json()
+            assert isinstance(login_resp, dict)
+            assert login_resp["data"]["token"] == "token_for_so1n"
+            order_resp = client.get("/api/v1/order/manage", headers={"X-Order-ID": "200"}).get_json()
+            assert isinstance(order_resp, dict)
+            assert order_resp["data"] == {
+                "order_id": 200,
+                "status": "completed",
+            }
+
+    def test_api_route_cbv_demo(self) -> None:
+        from docs_source_code.api_route import flask_cbv_demo
+
+        with client_ctx(app=flask_cbv_demo.app) as client:
+            assert client.get("/api/users", headers={"X-User-ID": "100"}).get_json() == {"user_id": 100}
+            assert client.post("/api/users", json={"name": "so1n"}).get_json() == {"created": {"name": "so1n"}}
+
+    def test_api_route_config_inherit_demo(self) -> None:
+        from docs_source_code.api_route import flask_config_inherit_demo
+
+        with client_ctx(app=flask_config_inherit_demo.app) as client:
+            assert client.get("/api/users/profile").get_json() == {
+                "group": "main",
+                "tags": ["api-route-users", "api-route-api"],
+            }
+
+    def test_api_route_framework_extra_demo(self) -> None:
+        from docs_source_code.api_route import flask_framework_extra_demo
+
+        with client_ctx(app=flask_framework_extra_demo.app) as client:
+            assert client.get("/api/health").get_json() == {"ok": True}
+
     def test_depend_with_depend_demo(self) -> None:
         from docs_source_code.introduction.depend import flask_with_depend_demo
 

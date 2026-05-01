@@ -185,3 +185,114 @@ The highlighted portion of the code uses the `append_xxx` family of `Pait` param
     The appended value will only be added to the end of the sequence,
     while some functions such as `Pre-Depend` need to consider the order in which the values are placed,
     so please pay attention to whether the appending order is appropriate or not when use it.
+
+## 4.Common Pait parameters
+
+`Pait` has many optional parameters. Some of them only affect OpenAPI data, while others affect runtime behavior.
+The commonly used parameters are listed below:
+
+| Parameter | Description |
+|-----------|-------------|
+| default_field_class | Default `Field` class used when a route parameter does not explicitly set a `Field` |
+| pre_depend_list | Dependency functions executed before the route function |
+| operation_id | Explicit OpenAPI operation id |
+| author | Route author metadata |
+| desc | Route description, used by OpenAPI |
+| summary | Route summary, used by OpenAPI |
+| name | Route name, used as part of OpenAPI operation id generation |
+| status | Route status, also used to infer OpenAPI deprecated state |
+| group | Route group metadata |
+| tag | Route tag list, each item should be a `pait.model.tag.Tag` object |
+| extra_openapi_model_list | Extra request models that cannot be inferred from route parameters |
+| response_model_list | Response model list; Pydantic `BaseModel` can be used directly for JSON responses |
+| plugin_list | Plugins executed before the route function |
+| post_plugin_list | Plugins executed after the route function |
+| sync_to_thread | Run sync route/dependency code in the thread pool when used by async frameworks |
+| feature_code | Extra code used to generate a unique `pait_id` for dynamically generated routes |
+| auto_build | Whether to build the plugin stack immediately when the route core model is generated |
+| tip_exception_class | Custom tip exception class; set to `None` to disable tip wrapping |
+| extra | Extra data reserved for plugins |
+
+### 4.1.Extra OpenAPI models
+
+Normally `Pait` can infer request OpenAPI data from route parameters. Some request styles cannot be described by a normal
+parameter, for example streaming upload data that is read from the request body. In these cases, use
+`extra_openapi_model_list` to supplement the OpenAPI request model.
+
+When creating a child `Pait`, use `append_extra_openapi_model_list` if the child should keep the parent's extra OpenAPI
+models and append new ones.
+
+### 4.2.Sync to thread
+
+For async frameworks, `sync_to_thread=True` lets `Pait` run sync route functions and sync dependency functions in a thread
+pool. This is useful when an async application needs to call blocking code such as sync database clients or file processing
+logic.
+
+```python
+from pait.app.starlette import pait
+from pait.field import Json
+from starlette.responses import JSONResponse
+
+
+def sync_heavy_task(data: str) -> str:
+    return f"Processed: {data}"
+
+
+@pait(sync_to_thread=True)
+def sync_route(data: str = Json.i()) -> JSONResponse:
+    result = sync_heavy_task(data)
+    return JSONResponse({"result": result})
+```
+
+`sync_to_thread` only changes how the route/dependency call is scheduled. It does not make blocking code faster; it avoids
+blocking the event loop while the blocking code is running.
+
+### 4.3.Tip exception class
+
+`TipException` wrapping is enabled by default. It can be configured per route:
+
+```python
+from pait.app.starlette import pait
+
+
+@pait(tip_exception_class=None)
+async def demo() -> None:
+    pass
+```
+
+It can also be configured globally:
+
+```python
+from pait.g import config
+
+
+config.init_config(tip_exception_class=None)
+```
+
+Setting `tip_exception_class` on a custom `ParamHandler` is still compatible, but it is deprecated and should be replaced
+by `@pait(tip_exception_class=...)` or `config.init_config(tip_exception_class=...)`.
+
+## 5.CBV preload
+
+`Pait.pre_load_cbv` can preload a class-based view and apply shared `Pait` parameters to its HTTP methods before the route
+is registered. It is mainly used by framework adapters and `APIRoute.add_cbv_route`.
+
+```python
+from pait.app.flask import Pait
+from pait.model.tag import Tag
+
+
+class UserView:
+    def get(self) -> dict:
+        return {"method": "get"}
+
+
+api_pait = Pait(tag=(Tag("user"),), group="user")
+api_pait.pre_load_cbv(UserView, desc="User API")
+```
+
+When `load_app(app, auto_cbv_handle=True)` is used, `Pait` will also try to handle class-based routes automatically while
+loading application route metadata. This is enabled by default for supported frameworks.
+
+Some route-only parameters cannot be used by `pre_load_cbv`, including `sync_to_thread`, `feature_code`, `plugin_list`,
+`post_plugin_list`, `param_handler_plugin`, `name` and `operation_id`.

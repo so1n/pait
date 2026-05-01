@@ -72,6 +72,11 @@ first need to import `TestHelper` and the test client for the corresponding web 
 
 === "Sanic"
 
+    !!! note
+
+        Since 1.1.1, importing `SanicTestHelper` no longer requires `sanic_testing` to be installed at package import time.
+        Running Sanic helper tests still requires `sanic-testing` and a Sanic test client.
+
     ```py linenums="39" title="docs_source_code/unit_test_helper/sanic_test_helper_demo.py"
     --8<-- "docs_source_code/unit_test_helper/sanic_test_helper_demo.py:37:50"
     ```

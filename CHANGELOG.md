@@ -6,20 +6,36 @@ Rewrite some old methods to increase the extensibility of the corresponding modu
 - 3 SSE support
 - 4 WebSocket support
 
+### 1.1.1
+Fix:
+- [Sanic] Remove mandatory runtime dependency on `sanic_testing` from `SanicTestHelper`;
+  `sanic_testing` is now only imported for type checking.
+
 ### 1.1.0
 Feat Change List:
-- Tag support label
-- Tag support openapi include
 - Pait g module add func `get_ctx`
 - Response model support generic pydantic model
 - Optimise code related to field and param handler
 - Support use pydantic model in pait response
-- APIRoute
+- `load_app` support automatic CBV preload handling by `auto_cbv_handle`
+- [APIRoute] support CBV route
+- [APIRoute] support framework extra route params and nested route param merge
+- [Config] `apply_multi_plugin` rebuilds plugin stack after applying plugins
+- [Dependencies] Add optional dependency groups `multipart` and `streaming_form_data`
 - [Field] Field/request_resource support PEP612
+- [Field] Add stream upload field `StreamFile`
+- [Field] Add stream upload support based on `multipart`
+- [Field] Add stream upload support based on `streaming_form_data`
 - [Pait] @pait support extra_openapi_model_list param
+- [Pait] @pait support `append_extra_openapi_model_list` param
 - [Pait] Add `sync-to-thread` param to solve sync route or func
 - [Pait] No longer restricting key parameters of routing (#40)
+- [Pait] Pait core model support lazy build
+- [Pait] Support setting `tip_exception_class` by `@pait` or global config
+- [Pait] Support `Pait.pre_load_cbv` for preloading CBV route metadata
 - [Plugin] unified plugin support pydantic.BaseModel return value
+- [Tag] support label
+- [Tag] support openapi include
 
 Fix:
 - Body must not be None for method POST

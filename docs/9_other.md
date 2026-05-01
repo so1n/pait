@@ -15,18 +15,44 @@ from pait.app.tornado import pait, load_app, add_simple_route
 ## 2.Internal Methods
 `Pait` encapsulates a number of common methods.
 Through these methods developers can quickly develop extension packages without considering compatibility with different web frameworks.
-[OpenAPI routing](/3_2_openapi_route/) and [grpc-gateway](https://github.com/python-pai/grpc-gateway) are developed based on these methods.
+[OpenAPI routing](/4_2_openapi_route/) and [grpc-gateway](https://github.com/python-pai/grpc-gateway) are developed based on these methods.
 
 ### 2.1.data
 `data` is the carrier for each `CoreModel`.
 `Pait` decorates the route function to generate a `CoreModel` and store it in `pait.g.data` to support for configuration, documentation, etc feature.
 
-### 2.2.load_app
+### 2.2.get_ctx
+
+`get_ctx()` returns the current request context model. It is useful when a route, dependency, or plugin needs to read
+`Pait` metadata for the current request.
+
+```python
+from pait.app.any import pait
+from pait.g import get_ctx
+
+
+@pait()
+def demo() -> dict:
+    ctx = get_ctx()
+    return {
+        "pait_id": ctx.pait_core_model.pait_id,
+        "args": ctx.args,
+        "kwargs": ctx.kwargs,
+    }
+```
+
+The context contains the current framework helper, route core model, route call arguments, route call keyword arguments,
+and a lazy `state` object for request-scoped data.
+
+!!! note
+    `get_ctx()` should only be called while a `Pait` route, dependency, or plugin is handling a request.
+
+### 2.3.load_app
 The `CoreModel` stores a lot of information about the route functions, but the route functions are missing key OpenAPI information such as `url`, `method`, etc. So you need to use `load_app` to get more data before using OpenAPI.
 So before using OpenAPI you need to use `load_app` to fill in the data, it's very simple to use, but you need to call it after registering all the routes, as follows.
 
 !!! note
-    [OpenAPI routing](/3_2_openapi_route/) automatically calls `load_app` before initialization
+    [OpenAPI routing](/4_2_openapi_route/) automatically calls `load_app` before initialization
 
 === "Flask"
 
@@ -100,7 +126,7 @@ So before using OpenAPI you need to use `load_app` to fill in the data, it's ver
     IOLoop.instance().start()
     ```
 
-### 2.3.HTTP exceptions
+### 2.4.HTTP exceptions
 `Pait` provides an HTTP exception generator function for each web framework,
 which generates HTTP standard exceptions for web frameworks by parameters such as HTTP status code, error content, Headers, etc.
 They are used as follows.
@@ -163,7 +189,7 @@ response.HttpStatusCodeBaseModel.clone(resp_model=response.HtmlResponseModel, st
 response.HttpStatusCodeBaseModel.clone(resp_model=response.TextResponseModel, status_code=500)
 ```
 
-### 2.4.SimpleRoute
+### 2.5.SimpleRoute
 `Pait` unifies the route registration and response generation of different web frameworks through SimpleRoute.
 Developers can easily create and register routes through SimpleRoute without considering compatibility.
 
@@ -202,6 +228,8 @@ The first highlighted code creates three route functions according to the `Simpl
 - 1.The route functions need to be decorated by `pait`, and the `response_model_list` attribute cannot be empty (the response models of the route functions in the code are `JsonResponseModel`, `TextResponseModel`, `HtmlResponseModel`, these are all required by SimpleRoute, if there is no response model, then SimpleRoute can't register the route function to the web framework.)
 - 2.The return value of the route function changes from a response object to a `Python` base type, and the returned `Python` base type needs to be consistent with the `response_data` of the response model.
 
+For JSON responses, the unified response plugin can also serialize a returned Pydantic `BaseModel` value.
+
 The second highlight code is the registration of routes via the `add_simple_route` and `add_multi_simple_route` methods,
 where `add_simple_route` can only register a single route and `add_multi_simple_route` can register multiple routes.
 Both `add_simple_route` and `add_multi_simple_route` receive app and SimpleRoute instances,
@@ -234,7 +262,7 @@ demo
 <h1>demo</h1>
 ```
 
-### 2.5.Set and get web framework properties
+### 2.6.Set and get web framework properties
 `Pait` provides a unified method for setting and getting attribute values for Web frameworks, which are `set_app_attribute` and `get_app_attribute`.
 The `set_app_attribute` and `get_app_attribute` can be used to set and get Web framework attributes at any time, as follows:
 
