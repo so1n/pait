@@ -1,4 +1,3 @@
-import re
 from typing import Callable, Type
 
 from tornado.routing import AnyMatches, Rule, _RuleList
@@ -7,15 +6,14 @@ from tornado.web import Application, RequestHandler, _ApplicationRouter
 from pait.app.base.simple_route import SimpleRoute, add_route_plugin
 from pait.app.tornado.plugin.unified_response import UnifiedResponsePlugin
 
+from ._path import path_converter
+
 __all__ = ["SimpleRoute", "add_simple_route", "add_multi_simple_route", "default_replace_openapi_url_to_url"]
 
 
 def default_replace_openapi_url_to_url(url: str) -> str:
     """Convert the OpenAPI URL format to a format supported by the web framework"""
-    matches = re.findall(r"{([a-zA-Z_]+)}", url)
-    for match in matches:
-        url = url.replace(f"{{{match}}}", "(?P<" + match + r">\w+)")
-    return r"{}".format(url)
+    return path_converter.replace_openapi_url_to_url(url)
 
 
 def _add_route(

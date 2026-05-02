@@ -1,4 +1,3 @@
-import re
 import string
 from typing import Callable, Optional
 
@@ -8,18 +7,12 @@ from pait.app.base.simple_route import SimpleRoute, add_route_plugin
 from pait.app.sanic.plugin.unified_response import UnifiedResponsePlugin
 from pait.util import get_func_param_kwargs
 
+from ._path import path_converter
+
 
 def default_replace_openapi_url_to_url(url: str) -> str:
-    """Convert the OpenAPI URL format to a format supported by the web framework
-
-    >>> assert "http://google.com/user/<user_id>/abc/<another_id>/def" == default_replace_openapi_url_to_url(
-    >>>    "http://google.com/user/{user_id:int}/abc/{another_id:int}/def"
-    >>> )
-    """
-    matches = re.findall(r"{([a-zA-Z_]+)}", url)
-    for match in matches:
-        url = url.replace("{" + match + "}", f"<{match}>")
-    return url
+    """Convert the OpenAPI URL format to a format supported by the web framework"""
+    return path_converter.replace_openapi_url_to_url(url)
 
 
 def add_simple_route(

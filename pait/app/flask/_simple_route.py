@@ -1,4 +1,3 @@
-import re
 from typing import Callable, Optional
 
 from flask.app import Flask
@@ -8,20 +7,14 @@ from pait.app.base.simple_route import SimpleRoute, add_route_plugin
 from pait.app.flask.plugin.unified_response import UnifiedResponsePlugin
 from pait.util import get_func_param_kwargs
 
+from ._path import path_converter
+
 __all__ = ["SimpleRoute", "add_simple_route", "add_multi_simple_route", "default_replace_openapi_url_to_url"]
 
 
 def default_replace_openapi_url_to_url(url: str) -> str:
-    """Convert the OpenAPI URL format to a format supported by the web framework
-
-    >>> assert "http://google.com/user/{user_id}/post" == default_replace_openapi_url_to_url(
-    >>>    "http://google.com/user/<path:user_id>/post"
-    >>> )
-    """
-    matches = re.findall(r"{([a-zA-Z_]+)}", url)
-    for match in matches:
-        url = url.replace(f"{{{match}}}", f"<path:{match}>")
-    return url
+    """Convert the OpenAPI URL format to a format supported by the web framework"""
+    return path_converter.replace_openapi_url_to_url(url)
 
 
 def add_simple_route(
