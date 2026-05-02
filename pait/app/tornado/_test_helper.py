@@ -61,7 +61,10 @@ class TestHelper(BaseTestHelper[HTTPResponse]):
                 if i == ">":
                     tail_index = index
             if head_index != -1 or tail_index != -1:
-                return self.path_dict[path_str[head_index + 1 : tail_index]]
+                key = path_str[head_index + 1 : tail_index]
+                if ":" in key:
+                    key = key.split(":")[-1]
+                return self.path_dict[key]
         return None
 
     def _real_request(self, method: str) -> HTTPResponse:
@@ -112,12 +115,15 @@ class TestHelper(BaseTestHelper[HTTPResponse]):
 
         if files:
             for key, value in files.items():
+                filename = getattr(value, "name", key)
+                file_body = value.read() if hasattr(value, "read") else value
                 body.write(("--%s\r\n" % boundary).encode(encoding="utf-8"))
+                print(key, filename)
                 body.write(
                     ('Content-Disposition:form-data;name="file";filename="%s"\r\n' % key).encode(encoding="utf-8")
                 )
                 body.write("\r\n".encode(encoding="utf-8"))
-                body.write(value)
+                body.write(file_body)
                 body.write("\r\n".encode(encoding="utf-8"))
 
         body.write(("--%s--\r\n" % boundary).encode(encoding="utf-8"))

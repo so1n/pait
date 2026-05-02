@@ -97,18 +97,18 @@ class TestApiRoute:
 
         for route_dc in api_route.route:
             assert route_dc.pait_param.get("default_field_class") == Query
-            assert route_dc.pait_param.get("pre_depend_list") == [demo_depend2]
-            assert route_dc.pait_param.get("append_pre_depend_list") == [demo_depend1]
-            assert route_dc.pait_param.get("author") == ("two",)
-            assert route_dc.pait_param.get("append_author") == ("one",)
+            assert route_dc.pait_param.get("pre_depend_list") == [demo_depend2, demo_depend1]
+            assert "append_pre_depend_list" not in route_dc.pait_param
+            assert route_dc.pait_param.get("author") == ("two", "one")
+            assert "append_author" not in route_dc.pait_param
             assert route_dc.pait_param.get("desc") == "user desc"
             assert route_dc.pait_param.get("summary") == "user summary"
             assert route_dc.pait_param.get("status") == PaitStatus.release
             assert route_dc.pait_param.get("group") == "user group"
-            assert route_dc.pait_param.get("tag") == (user_tag,)
-            assert route_dc.pait_param.get("append_tag") == (api_tag,)
-            assert route_dc.pait_param.get("response_model_list") == [JsonResponseModel]
-            assert route_dc.pait_param.get("append_response_model_list") == [HtmlResponseModel]
+            assert route_dc.pait_param.get("tag") == (user_tag, api_tag)
+            assert "append_tag" not in route_dc.pait_param
+            assert route_dc.pait_param.get("response_model_list") == [JsonResponseModel, HtmlResponseModel]
+            assert "append_response_model_list" not in route_dc.pait_param
             assert route_dc.pait_param.get("sync_to_thread") is False
             assert route_dc.pait_param.get("feature_code") == "user"
             assert route_dc.pait_param.get("extra") == {"a": 1, "b": 3, "c": 5, "g": 10}

@@ -7,8 +7,8 @@ api_route = APIRoute(path="/api")
 
 
 @api_route.get("/health", framework_extra_param={"route_title": "ExtraHealthHandler"})
-def health() -> dict:
-    return {"ok": True}
+def health(request: tornado.web.RequestHandler) -> None:
+    request.write({"ok": True})
 
 
 def make_app():

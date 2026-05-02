@@ -1,7 +1,7 @@
 from flask import Flask
 
 from pait.app.flask import APIRoute
-from pait.field import Json
+from pait.field import Json, Path
 from pait.model.tag import Tag
 
 # Create an API route group.
@@ -21,7 +21,7 @@ def create_user(name: str = Json.i(description="User name"), age: int = Json.i(d
 
 
 @api_route.get("/users/{user_id}")
-def get_user(user_id: int) -> dict:
+def get_user(user_id: int = Path.t()) -> dict:
     """Get one user"""
     return {"code": 0, "msg": "ok", "data": {"id": user_id, "name": "User " + str(user_id)}}
 

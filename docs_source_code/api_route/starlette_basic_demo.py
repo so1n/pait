@@ -3,7 +3,7 @@ from starlette.applications import Starlette
 from starlette.responses import JSONResponse
 
 from pait.app.starlette import APIRoute
-from pait.field import Json
+from pait.field import Json, Path
 from pait.model.tag import Tag
 
 # Create an API route group.
@@ -25,7 +25,7 @@ async def create_user(
 
 
 @api_route.get("/users/{user_id}")
-async def get_user(user_id: int) -> JSONResponse:
+async def get_user(user_id: int = Path.t()) -> JSONResponse:
     """Get one user"""
     return JSONResponse({"code": 0, "msg": "ok", "data": {"id": user_id, "name": "User " + str(user_id)}})
 

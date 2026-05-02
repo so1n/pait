@@ -1,4 +1,4 @@
-from sanic import Sanic
+from sanic import Request, Sanic
 from sanic.response import json
 
 from pait.app.sanic import APIRoute
@@ -13,7 +13,7 @@ child_route = APIRoute(path="/users", tag=(users_tag,))
 
 
 @child_route.get("/profile")
-async def get_profile():
+async def get_profile(request: Request):
     core_model = get_ctx().pait_core_model
     return json({"group": core_model.group, "tags": [tag.name for tag in core_model.tag]})
 

@@ -1,10 +1,10 @@
-from typing import Any, Callable, Optional
+from typing import Any, Dict
 
 from starlette.applications import Starlette
 from starlette.endpoints import HTTPEndpoint
 
 from pait.app.base.api_route import BaseAPIRoute, CbvRouteDc, RouteDc, Type
-from pait.model.core import get_core_model
+from pait.types import CallType
 
 from ._load_app import get_openapi_path
 from ._pait import Pait
@@ -15,6 +15,8 @@ def default_replace_openapi_url_to_url(url: str) -> str:
 
 
 class APIRoute(BaseAPIRoute):
+    replace_openapi_url_to_url = staticmethod(default_replace_openapi_url_to_url)  # type: ignore[arg-type]
+
     @property
     def _pait_type(self) -> Type[Pait]:
         return Pait
@@ -23,27 +25,21 @@ class APIRoute(BaseAPIRoute):
     def get_openapi_path(path_str: str) -> str:
         return get_openapi_path(path_str)
 
-    def inject(
-        self, app: Starlette, replace_openapi_url_to_url: Optional[Callable[[str], str]] = None, **kwargs: Any
-    ) -> None:
-        if not replace_openapi_url_to_url:
-            replace_openapi_url_to_url = default_replace_openapi_url_to_url
+    def _is_cbv_route(self, route: Type) -> bool:
+        return issubclass(route, HTTPEndpoint)
 
-        _pait = self._pait_type()
-        for route_dc in self.route:
-            _framework_extra_param = self.framework_extra_param.copy()
-            _framework_extra_param.update(route_dc.framework_extra_param)
-            if isinstance(route_dc, RouteDc):
-                route = _pait(**route_dc.pait_param)(route_dc.route)
-                get_core_model(route).openapi_path = self.get_openapi_path(route_dc.path)
-                app.add_route(
-                    replace_openapi_url_to_url(route_dc.path),
-                    route,
-                    methods=route_dc.method_list,
-                    **_framework_extra_param,
-                )
-            elif isinstance(route_dc, CbvRouteDc) and issubclass(route_dc.route, HTTPEndpoint):
-                self._cbv_handler(_pait, route_dc.route, route_dc.pait_param)
-                app.add_route(replace_openapi_url_to_url(route_dc.path), route_dc.route, **_framework_extra_param)
-            else:
-                raise ValueError(f"route_dc type error: {route_dc}")
+    def _add_api_route(
+        self,
+        app: Starlette,
+        route: CallType,
+        route_dc: RouteDc,
+        url: str,
+        framework_extra_param: Dict[str, Any],
+        **kwargs: Any,
+    ) -> None:
+        app.add_route(url, route, methods=route_dc.method_list, **framework_extra_param)  # type: ignore[arg-type]
+
+    def _add_cbv_route(
+        self, app: Starlette, route_dc: CbvRouteDc, url: str, framework_extra_param: Dict[str, Any], **kwargs: Any
+    ) -> None:
+        app.add_route(url, route_dc.route, **framework_extra_param)

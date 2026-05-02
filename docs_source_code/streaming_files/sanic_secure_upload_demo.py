@@ -9,7 +9,6 @@ from pait.app.sanic import pait
 from pait.extra.field.stream.by_streaming_form_data import AsyncStream as SFDStream
 from pait.extra.field.stream.request_resource import StreamFile
 
-app = Sanic("streaming_secure_upload_demo")
 UPLOAD_DIR = Path(tempfile.gettempdir()) / "pait-streaming-upload"
 
 
@@ -17,7 +16,6 @@ def is_safe_filename(filename: str) -> bool:
     return bool(filename) and "/" not in filename and "\\" not in filename and ".." not in Path(filename).parts
 
 
-@app.route("/api/secure-upload", methods=["POST"], stream=True)
 @pait()
 async def secure_upload(stream: SFDStream = StreamFile.i()):
     filename = await stream.filename()
@@ -50,5 +48,11 @@ async def secure_upload(stream: SFDStream = StreamFile.i()):
     )
 
 
+app = Sanic(name="streaming_secure_upload_demo", configure_logging=False)
+app.add_route(secure_upload, "/api/secure-upload", methods=["POST"], stream=True)
+
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
+    import uvicorn
+
+    uvicorn.run(app)

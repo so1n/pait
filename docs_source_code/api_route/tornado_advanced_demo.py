@@ -10,14 +10,20 @@ user_api_route = APIRoute(path="/user", tag=(Tag("api-route-user"),), group="use
 
 
 @user_api_route.get("/profile")
-def get_profile(user_id: int = Header.i(alias="X-User-ID", description="User ID")) -> dict:
+def get_profile(
+    request: tornado.web.RequestHandler, user_id: int = Header.i(alias="X-User-ID", description="User ID")
+) -> None:
     """Get user profile"""
-    return {"code": 0, "msg": "ok", "data": {"user_id": user_id, "name": "User Profile"}}
+    request.write({"code": 0, "msg": "ok", "data": {"user_id": user_id, "name": "User Profile"}})
 
 
-def login(username: str = Json.i(description="Username"), password: str = Json.i(description="Password")) -> dict:
+def login(
+    request: tornado.web.RequestHandler,
+    username: str = Json.i(description="Username"),
+    password: str = Json.i(description="Password"),
+) -> None:
     """User login"""
-    return {"code": 0, "msg": "ok", "data": {"token": f"token_for_{username}"}}
+    request.write({"code": 0, "msg": "ok", "data": {"token": f"token_for_{username}"}})
 
 
 user_api_route.add_api_route(login, method=["POST"], path="/login")

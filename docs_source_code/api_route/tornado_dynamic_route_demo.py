@@ -7,8 +7,8 @@ from pait.field import Json
 api_route = APIRoute(path="/api")
 
 
-def greet(name: str = Json.i()) -> dict:
-    return {"message": f"Hello {name}"}
+def greet(request: tornado.web.RequestHandler, name: str = Json.i()) -> None:
+    request.write({"message": f"Hello {name}"})
 
 
 api_route.add_api_route(greet, method=["POST"], path="/greet", desc="Greeting API")

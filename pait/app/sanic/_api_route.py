@@ -1,9 +1,9 @@
-from typing import Any, Callable, Optional
+from typing import Any, Dict
 
 from sanic import Sanic
 
 from pait.app.base.api_route import BaseAPIRoute, CbvRouteDc, RouteDc, Type
-from pait.model.core import get_core_model
+from pait.types import CallType
 
 from ._app_helper import cbv_type_tuple
 from ._load_app import get_openapi_path
@@ -12,6 +12,8 @@ from ._simple_route import default_replace_openapi_url_to_url
 
 
 class APIRoute(BaseAPIRoute):
+    replace_openapi_url_to_url = staticmethod(default_replace_openapi_url_to_url)  # type: ignore[arg-type]
+
     @property
     def _pait_type(self) -> Type[Pait]:
         return Pait
@@ -20,27 +22,21 @@ class APIRoute(BaseAPIRoute):
     def get_openapi_path(path_str: str) -> str:
         return get_openapi_path(path_str)
 
-    def inject(
-        self, app: Sanic, replace_openapi_url_to_url: Optional[Callable[[str], str]] = None, **kwargs: Any
+    def _is_cbv_route(self, route: Type) -> bool:
+        return issubclass(route, cbv_type_tuple)
+
+    def _add_api_route(
+        self,
+        app: Sanic,
+        route: CallType,
+        route_dc: RouteDc,
+        url: str,
+        framework_extra_param: Dict[str, Any],
+        **kwargs: Any,
     ) -> None:
-        _pait = self._pait_type()
-        replace_openapi_url_to_url = replace_openapi_url_to_url or default_replace_openapi_url_to_url
-        for route_dc in self.route:
-            _framework_extra_param = self.framework_extra_param.copy()
-            _framework_extra_param.update(route_dc.framework_extra_param)
-            if isinstance(route_dc, RouteDc):
-                route = _pait(**route_dc.pait_param)(route_dc.route)
-                get_core_model(route).openapi_path = self.get_openapi_path(route_dc.path)
-                app.add_route(
-                    route,
-                    replace_openapi_url_to_url(route_dc.path),
-                    methods=set(route_dc.method_list),
-                    **_framework_extra_param,
-                )
-            elif isinstance(route_dc, CbvRouteDc) and issubclass(route_dc.route, cbv_type_tuple):
-                self._cbv_handler(_pait, route_dc.route, route_dc.pait_param)
-                app.add_route(
-                    route_dc.route.as_view(), replace_openapi_url_to_url(route_dc.path), **_framework_extra_param
-                )
-            else:
-                raise ValueError(f"route_dc type error: {route_dc}")
+        app.add_route(route, url, methods=set(route_dc.method_list), **framework_extra_param)
+
+    def _add_cbv_route(
+        self, app: Sanic, route_dc: CbvRouteDc, url: str, framework_extra_param: Dict[str, Any], **kwargs: Any
+    ) -> None:
+        app.add_route(route_dc.route.as_view(), url, **framework_extra_param)

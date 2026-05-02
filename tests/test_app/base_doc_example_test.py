@@ -1,4 +1,5 @@
 import datetime
+from io import BytesIO
 from typing import TYPE_CHECKING, Any, Callable, Type
 
 from redis import Redis  # type: ignore
@@ -231,6 +232,114 @@ class BaseTestDocExample(object):
         assert self.test_helper(self.client, route, query_dict={"timestamp": "1600000000"}).json(method="GET") == {
             "time": datetime.datetime.fromtimestamp(1600000000).isoformat()
         }
+
+    def streaming_file_secure_upload_demo(self, route: Callable) -> None:
+        from tests.test_app.streaming_file_test_util import CONTENT, FILENAME, assert_secure_upload_response
+
+        stream = BytesIO(CONTENT)
+        stream.name = FILENAME
+        resp_dict = self.test_helper(
+            self.client,
+            route,
+            file_dict={"stream": stream},
+        ).json(method="POST")
+        assert_secure_upload_response(resp_dict)
+
+    def streaming_file_upload_progress_demo(self, route: Callable) -> None:
+        from tests.test_app.streaming_file_test_util import CONTENT, FILENAME, assert_upload_progress_response
+
+        stream = BytesIO(CONTENT)
+        stream.name = FILENAME
+        resp_dict = self.test_helper(
+            self.client,
+            route,
+            file_dict={"stream": stream},
+            header_dict={"X-File-Size": str(len(CONTENT))},
+        ).json(method="POST")
+        assert_upload_progress_response(resp_dict)
+
+    def api_route_basic_demo(
+        self, get_users_route: Callable, create_user_route: Callable, get_user_route: Callable
+    ) -> None:
+        users_resp = self.test_helper(self.client, get_users_route).json(method="GET")
+        assert isinstance(users_resp, dict)
+        assert users_resp["data"][0]["id"] == 1
+        create_resp = self.test_helper(
+            self.client,
+            create_user_route,
+            body_dict={"name": "so1n", "age": 18},
+        ).json(method="POST")
+        assert isinstance(create_resp, dict)
+        assert create_resp["data"] == {
+            "id": 3,
+            "name": "so1n",
+            "age": 18,
+        }
+        detail_resp = self.test_helper(
+            self.client,
+            get_user_route,
+            path_dict={"user_id": 7},
+        ).json(method="GET")
+        assert isinstance(detail_resp, dict)
+        assert detail_resp["data"]["id"] == 7
+
+    def api_route_dynamic_route_demo(self, route: Callable) -> None:
+        assert self.test_helper(self.client, route, body_dict={"name": "so1n"}).json(method="POST") == {
+            "message": "Hello so1n"
+        }
+
+    def api_route_advanced_demo(
+        self, get_profile_route: Callable, login_route: Callable, order_route: Callable
+    ) -> None:
+        profile_resp = self.test_helper(
+            self.client,
+            get_profile_route,
+            header_dict={"X-User-ID": "100"},
+        ).json(method="GET")
+        assert isinstance(profile_resp, dict)
+        assert profile_resp["data"]["user_id"] == 100
+        login_resp = self.test_helper(
+            self.client,
+            login_route,
+            body_dict={"username": "so1n", "password": "pwd"},
+        ).json(method="POST")
+        assert isinstance(login_resp, dict)
+        assert login_resp["data"]["token"] == "token_for_so1n"
+        order_resp = self.test_helper(
+            self.client,
+            order_route,
+            header_dict={"X-Order-ID": "200"},
+        ).json(method="GET")
+        assert isinstance(order_resp, dict)
+        assert order_resp["data"] == {
+            "order_id": 200,
+            "status": "completed",
+        }
+
+    def api_route_cbv_demo(self, cbv_route: Type) -> None:
+        assert self.test_helper(
+            self.client,
+            getattr(cbv_route, "get"),
+            header_dict={"X-User-ID": "100"},
+        ).json(
+            method="GET"
+        ) == {"user_id": 100}
+        assert self.test_helper(
+            self.client,
+            getattr(cbv_route, "post"),
+            body_dict={"name": "so1n"},
+        ).json(
+            method="POST"
+        ) == {"created": {"name": "so1n"}}
+
+    def api_route_config_inherit_demo(self, route: Callable) -> None:
+        assert self.test_helper(self.client, route).json(method="GET") == {
+            "group": "main",
+            "tags": ["api-route-users", "api-route-api"],
+        }
+
+    def api_route_framework_extra_demo(self, route: Callable) -> None:
+        assert self.test_helper(self.client, route).json(method="GET") == {"ok": True}
 
     def with_depend(self, route: Callable) -> None:
         assert self.test_helper(self.client, route, header_dict={"token": "u12345"}).json(method="GET") == {

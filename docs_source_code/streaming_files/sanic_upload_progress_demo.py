@@ -6,10 +6,7 @@ from pait.extra.field.stream.by_streaming_form_data import AsyncStream as SFDStr
 from pait.extra.field.stream.request_resource import StreamFile
 from pait.field import Header
 
-app = Sanic("streaming_upload_progress_demo")
 
-
-@app.route("/api/upload-progress", methods=["POST"], stream=True)
 @pait()
 async def upload_with_progress(
     expected_size: int = Header.i(default=0, alias="X-File-Size"),
@@ -36,5 +33,11 @@ async def upload_with_progress(
     )
 
 
+app = Sanic(name="streaming_upload_progress_demo", configure_logging=False)
+app.add_route(upload_with_progress, "/api/upload-progress", methods=["POST"], stream=True)
+
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
+    import uvicorn
+
+    uvicorn.run(app)

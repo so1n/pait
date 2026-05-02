@@ -538,59 +538,17 @@ class TestDocHowToUseTypeWithUnixDatetimeExample(BaseTestTornadoDocExample):
         BaseTestDocExample(self, _TestHelper).how_to_use_type_with_type_is_customer(self.demo.DemoHandler.get)
 
 
-class TestDocStreamingFileSecureUploadExample(BaseTestTornadoDocExample):
-    from docs_source_code.streaming_files import tornado_secure_upload_demo
-
-    demo = tornado_secure_upload_demo
-
-    def test_streaming_file_secure_upload_demo(self) -> None:
-        from tests.test_app.streaming_file_test_util import assert_secure_upload_response, build_multipart_body
-
-        content_type, body = build_multipart_body()
-        resp = self.fetch("/api/secure-upload", method="POST", headers={"Content-Type": content_type}, body=body)
-        assert resp.code == 200
-        assert_secure_upload_response(json.loads(resp.body.decode()))
-
-
-class TestDocStreamingFileUploadProgressExample(BaseTestTornadoDocExample):
-    from docs_source_code.streaming_files import tornado_upload_progress_demo
-
-    demo = tornado_upload_progress_demo
-
-    def test_streaming_file_upload_progress_demo(self) -> None:
-        from tests.test_app.streaming_file_test_util import (
-            CONTENT,
-            assert_upload_progress_response,
-            build_multipart_body,
-        )
-
-        content_type, body = build_multipart_body()
-        resp = self.fetch(
-            "/api/upload-progress",
-            method="POST",
-            headers={"Content-Type": content_type, "X-File-Size": str(len(CONTENT))},
-            body=body,
-        )
-        assert resp.code == 200
-        assert_upload_progress_response(json.loads(resp.body.decode()))
-
-
 class TestDocAPIRouteBasicExample(BaseTestTornadoDocExample):
     from docs_source_code.api_route import tornado_basic_demo
 
     demo = tornado_basic_demo
 
     def test_api_route_basic_demo(self) -> None:
-        assert json.loads(self.fetch("/api/users").body.decode())["data"][0]["id"] == 1
-        assert json.loads(
-            self.fetch(
-                "/api/users",
-                method="POST",
-                headers={"Content-Type": "application/json"},
-                body='{"name": "so1n", "age": 18}',
-            ).body.decode()
-        )["data"] == {"id": 3, "name": "so1n", "age": 18}
-        assert json.loads(self.fetch("/api/users/7").body.decode())["data"]["id"] == 7
+        BaseTestDocExample(self, _TestHelper).api_route_basic_demo(
+            self.demo.get_users,
+            self.demo.create_user,
+            self.demo.get_user,
+        )
 
 
 class TestDocAPIRouteDynamicRouteExample(BaseTestTornadoDocExample):
@@ -599,13 +557,7 @@ class TestDocAPIRouteDynamicRouteExample(BaseTestTornadoDocExample):
     demo = tornado_dynamic_route_demo
 
     def test_api_route_dynamic_route_demo(self) -> None:
-        resp = self.fetch(
-            "/api/greet",
-            method="POST",
-            headers={"Content-Type": "application/json"},
-            body='{"name": "so1n"}',
-        )
-        assert json.loads(resp.body.decode()) == {"message": "Hello so1n"}
+        BaseTestDocExample(self, _TestHelper).api_route_dynamic_route_demo(self.demo.greet)
 
 
 class TestDocAPIRouteAdvancedExample(BaseTestTornadoDocExample):
@@ -614,27 +566,11 @@ class TestDocAPIRouteAdvancedExample(BaseTestTornadoDocExample):
     demo = tornado_advanced_demo
 
     def test_api_route_advanced_demo(self) -> None:
-        assert (
-            json.loads(self.fetch("/api/v1/user/profile", headers={"X-User-ID": "100"}).body.decode())["data"][
-                "user_id"
-            ]
-            == 100
+        BaseTestDocExample(self, _TestHelper).api_route_advanced_demo(
+            self.demo.get_profile,
+            self.demo.login,
+            self.demo.OrderAPIView.get,
         )
-        assert (
-            json.loads(
-                self.fetch(
-                    "/api/v1/user/login",
-                    method="POST",
-                    headers={"Content-Type": "application/json"},
-                    body='{"username": "so1n", "password": "pwd"}',
-                ).body.decode()
-            )["data"]["token"]
-            == "token_for_so1n"
-        )
-        assert json.loads(self.fetch("/api/v1/order/manage", headers={"X-Order-ID": "200"}).body.decode())["data"] == {
-            "order_id": 200,
-            "status": "completed",
-        }
 
 
 class TestDocAPIRouteCBVExample(BaseTestTornadoDocExample):
@@ -643,15 +579,7 @@ class TestDocAPIRouteCBVExample(BaseTestTornadoDocExample):
     demo = tornado_cbv_demo
 
     def test_api_route_cbv_demo(self) -> None:
-        assert json.loads(self.fetch("/api/users", headers={"X-User-ID": "100"}).body.decode()) == {"user_id": 100}
-        assert json.loads(
-            self.fetch(
-                "/api/users",
-                method="POST",
-                headers={"Content-Type": "application/json"},
-                body='{"name": "so1n"}',
-            ).body.decode()
-        ) == {"created": {"name": "so1n"}}
+        BaseTestDocExample(self, _TestHelper).api_route_cbv_demo(self.demo.UserAPIView)
 
 
 class TestDocAPIRouteConfigInheritExample(BaseTestTornadoDocExample):
@@ -660,10 +588,7 @@ class TestDocAPIRouteConfigInheritExample(BaseTestTornadoDocExample):
     demo = tornado_config_inherit_demo
 
     def test_api_route_config_inherit_demo(self) -> None:
-        assert json.loads(self.fetch("/api/users/profile").body.decode()) == {
-            "group": "main",
-            "tags": ["api-route-users", "api-route-api"],
-        }
+        BaseTestDocExample(self, _TestHelper).api_route_config_inherit_demo(self.demo.get_profile)
 
 
 class TestDocAPIRouteFrameworkExtraExample(BaseTestTornadoDocExample):
@@ -672,7 +597,7 @@ class TestDocAPIRouteFrameworkExtraExample(BaseTestTornadoDocExample):
     demo = tornado_framework_extra_demo
 
     def test_api_route_framework_extra_demo(self) -> None:
-        assert json.loads(self.fetch("/api/health").body.decode()) == {"ok": True}
+        BaseTestDocExample(self, _TestHelper).api_route_framework_extra_demo(self.demo.health)
 
 
 class TestDocWithDependExample(BaseTestTornadoDocExample):

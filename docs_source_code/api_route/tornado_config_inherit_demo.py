@@ -13,9 +13,9 @@ child_route = APIRoute(path="/users", tag=(users_tag,))
 
 
 @child_route.get("/profile")
-def get_profile() -> dict:
+def get_profile(request: tornado.web.RequestHandler) -> None:
     core_model = get_ctx().pait_core_model
-    return {"group": core_model.group, "tags": [tag.name for tag in core_model.tag]}
+    request.write({"group": core_model.group, "tags": [tag.name for tag in core_model.tag]})
 
 
 parent_route.include_sub_route(child_route)

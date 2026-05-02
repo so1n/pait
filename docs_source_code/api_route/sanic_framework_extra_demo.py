@@ -1,4 +1,4 @@
-from sanic import Sanic
+from sanic import Request, Sanic
 from sanic.response import json
 
 from pait.app.sanic import APIRoute
@@ -7,7 +7,7 @@ api_route = APIRoute(path="/api")
 
 
 @api_route.get("/health", framework_extra_param={"name": "extra_health"})
-async def health():
+async def health(request: Request):
     return json({"ok": True})
 
 
