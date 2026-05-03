@@ -6,6 +6,25 @@ Rewrite some old methods to increase the extensibility of the corresponding modu
 - 3 SSE support
 - 4 WebSocket support
 
+### 1.1.2
+All changes after tag `v1.1.1` are included in this release.
+
+Docs:
+- Add APIRoute documentation and runnable examples for Flask, Sanic, Starlette, and Tornado.
+- Add streaming file upload documentation and examples for `multipart`, `streaming_form_data`, secure upload, and upload progress.
+- Update documentation navigation and pages for introduction, fields, types, Pait usage, OpenAPI, unit test helpers, exceptions, and sync-to-thread examples.
+- Add repository agent notes and project memory documents.
+
+Refactor:
+- Centralize framework path conversion in shared base helpers for Flask, Sanic, and Tornado.
+- Centralize APIRoute documentation example tests and shared route helper behavior.
+
+Test:
+- Add path converter tests and expand framework adapter coverage for APIRoute and streaming file examples.
+
+CI:
+- Optimize GitHub Actions by splitting lint and test jobs, adding pip cache and concurrency, using Redis services, updating actions, and uploading coverage once.
+
 ### 1.1.1
 Fix:
 - [Sanic] Remove mandatory runtime dependency on `sanic_testing` from `SanicTestHelper`;
