@@ -39,6 +39,7 @@ from example.sanic_example.field_route import (
     same_alias_route,
 )
 from example.sanic_example.file_route import multipart_route, stream_for_data_route
+from example.sanic_example.mcp_route import add_mcp_demo_route, mcp_user_route
 from example.sanic_example.plugin_route import (
     auto_complete_json_route,
     cache_response,
@@ -283,6 +284,7 @@ def create_app(configure_logging: bool = True) -> Sanic:
     app.add_route(NotPaitCbvRoute.as_view(), "/api/not-pait-cbv")
     app.add_route(not_pait_route, "/api/not-pait", methods={"GET"})
     app.add_route(tag_route, "/api/tag", methods=["GET"])
+    app.add_route(mcp_user_route, "/api/mcp/user/<uid:int>", methods=["GET"])
 
     app.add_route(post_route, "/api/field/post", methods={"POST"})
     app.add_route(pait_base_field_route, "/api/field/pait-base-field/<age>", methods={"POST"})
@@ -342,6 +344,7 @@ def create_app(configure_logging: bool = True) -> Sanic:
     # app.exception(RuntimeError)(api_exception)
     # app.exception(SanicException)(api_exception)
     main_api_route.inject(app)
+    add_mcp_demo_route(app)
     load_app(app, auto_load_route=True)
     return app
 

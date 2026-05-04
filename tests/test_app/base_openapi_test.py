@@ -1117,6 +1117,8 @@ class BaseTestOpenAPI(
             "/api/user/cbv",
             "/api/depend/pre-depend",
             "/api/new-raise-not-tip",
+            "/api/mcp/user/{uid}",
+            "/mcp",
         }
         for path in list(self.pait_openapi.model.paths.keys()):
             if path.startswith("/api/plugin") or path.startswith("/api/sync-to-thread"):
