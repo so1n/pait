@@ -3,7 +3,7 @@ from flask import Flask
 from example.flask_example.utils import global_pait
 from pait.app.flask.mcp import add_mcp_route
 from pait.field import Path
-from pait.mcp import MCP
+from pait.mcp import MCP, MCPConfig
 
 mcp_pait = global_pait.create_sub_pait(group="mcp")
 
@@ -11,12 +11,12 @@ mcp_pait = global_pait.create_sub_pait(group="mcp")
 @mcp_pait(
     desc="Get MCP demo user by uid",
     extra={
-        "mcp": {
-            "include": True,
-            "name": "get_mcp_demo_user",
-            "description": "Get MCP demo user by uid",
-            "read_only": True,
-        }
+        "mcp": MCPConfig(
+            include=True,
+            name="get_mcp_demo_user",
+            description="Get MCP demo user by uid",
+            read_only=True,
+        )
     },
 )
 def mcp_user_route(uid: int = Path.i(description="user id")) -> dict:

@@ -32,6 +32,7 @@ from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin
 from tests.test_app.base_api_test import BaseTest
 from tests.test_app.base_doc_example_test import BaseTestDocExample
+from tests.test_app.base_mcp_test import StarletteMCPHTTPClient, assert_mcp_route
 from tests.test_app.base_openapi_test import BaseTestOpenAPI
 
 # Since the routing function has already been loaded,
@@ -63,7 +64,11 @@ def client_ctx(
     #
     # mocker.patch("asyncio.get_event_loop").return_value = get_event_loop()
     # asyncio.set_event_loop(asyncio.new_event_loop())
-    loop = asyncio.get_event_loop()
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
     if loop.is_closed():
         asyncio.set_event_loop(asyncio.new_event_loop())
     if not app:
@@ -210,6 +215,9 @@ class TestStarlette:
             ).quick_ratio()
             > 0.95
         )
+
+    def test_mcp_route(self, client: TestClient) -> None:
+        assert_mcp_route(StarletteMCPHTTPClient(client), "starlette-example")
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:

@@ -1,4 +1,3 @@
-import asyncio
 import inspect
 import json
 from dataclasses import dataclass
@@ -111,9 +110,17 @@ async def dispatch_tool(
     return MCPDirectResponse(result, cbv_instance=cbv_instance)
 
 
-def run_async(coro: Any) -> Any:
-    try:
-        asyncio.get_running_loop()
-    except RuntimeError:
-        return asyncio.run(coro)
-    raise RuntimeError("Can not run async MCP handler inside a running event loop")
+def dispatch_sync_tool(
+    core_model: "PaitCoreModel", arguments: Optional[Mapping[str, Any]] = None, cbv_instance: Any = None
+) -> MCPDirectResponse:
+    arguments = arguments or {}
+    context = ContextModel(
+        cbv_instance=cbv_instance,
+        app_helper=MCPAppHelper(arguments, cbv_instance=cbv_instance),  # type: ignore[arg-type]
+        pait_core_model=core_model,
+        args=[],
+        kwargs={},
+    )
+    set_ctx(context)
+    result = core_model.main_plugin(context)
+    return MCPDirectResponse(result, cbv_instance=cbv_instance)

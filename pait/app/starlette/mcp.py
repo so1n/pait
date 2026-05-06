@@ -5,7 +5,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 from pait.app.starlette import pait
-from pait.mcp import MCP
+from pait.mcp import AsyncMCP
 from pait.mcp.dispatcher import MCPDirectResponse, dispatch_tool
 from pait.mcp.dispatcher import encode_content as default_encode_content
 from pait.mcp.http import dispatch_asgi_tool
@@ -27,8 +27,7 @@ def encode_content(value: Any) -> str:
     return default_encode_content(value)
 
 
-def add_mcp_route(app: Starlette, mcp: MCP, path: str = "/mcp", **kwargs: Any) -> None:
-
+def add_mcp_route(app: Starlette, mcp: AsyncMCP, path: str = "/mcp", **kwargs: Any) -> None:
     @pait()
     async def mcp_route(request: Request) -> JSONResponse:
         return JSONResponse(await mcp.handle_message(await request.json()))

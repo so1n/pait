@@ -24,6 +24,7 @@ from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin
 from tests.test_app.base_api_test import BaseTest
 from tests.test_app.base_doc_example_test import BaseTestDocExample
+from tests.test_app.base_mcp_test import TornadoMCPHTTPClient, assert_mcp_route
 from tests.test_app.base_openapi_test import BaseTestOpenAPI
 
 # Since the routing function has already been loaded,
@@ -107,6 +108,9 @@ class TestTornado(BaseTestTornado):
 
     def test_file_response(self) -> None:
         self.response_test_helper(main_example.FileResponseHanler.get, response.FileResponseModel)
+
+    def test_mcp_route(self) -> None:
+        assert_mcp_route(TornadoMCPHTTPClient(self), "tornado-example")
 
     def test_doc_route(self) -> None:
         main_example.add_api_doc_route(self._app)

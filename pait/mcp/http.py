@@ -139,7 +139,7 @@ async def dispatch_asgi_tool(
     return MCPHTTPResponse(response_status_code, response_headers, b"".join(response_body_list))
 
 
-async def dispatch_wsgi_tool(
+def dispatch_wsgi_tool(
     app: Any, core_model: "PaitCoreModel", arguments: Optional[Mapping[str, Any]] = None
 ) -> MCPHTTPResponse:
     from werkzeug.test import EnvironBuilder

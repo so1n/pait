@@ -6,7 +6,7 @@ from tornado.httputil import HTTPHeaders
 from tornado.web import Application, RequestHandler
 
 from pait.app.tornado import pait
-from pait.mcp import MCP
+from pait.mcp import AsyncMCP
 from pait.mcp.dispatcher import MCPDirectResponse, dispatch_tool
 from pait.mcp.dispatcher import encode_content as default_encode_content
 
@@ -52,10 +52,8 @@ async def dispatch_http_tool(app: Application, *args: Any, **kwargs: Any) -> Any
     raise NotImplementedError("Tornado does not provide an ASGI/WSGI in-process HTTP interface; use direct call mode")
 
 
-def add_mcp_route(app: Application, mcp: MCP, path: str = "/mcp", **kwargs: Any) -> None:
-
+def add_mcp_route(app: Application, mcp: AsyncMCP, path: str = "/mcp", **kwargs: Any) -> None:
     class MCPRequestHandler(RequestHandler):
-
         @pait()
         async def post(self) -> None:
             payload = json.loads(self.request.body.decode() or "{}")

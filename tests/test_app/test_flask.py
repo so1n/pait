@@ -27,6 +27,7 @@ from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin
 from tests.test_app.base_api_test import BaseTest
 from tests.test_app.base_doc_example_test import BaseTestDocExample
+from tests.test_app.base_mcp_test import FlaskMCPHTTPClient, assert_mcp_route
 from tests.test_app.base_openapi_test import BaseTestOpenAPI
 
 # Since the routing function has already been loaded,
@@ -175,41 +176,7 @@ class TestFlask:
             )
 
     def test_mcp_route(self, client: FlaskClient) -> None:
-        tools_resp = client.post("/mcp", json={"method": "tools/list"}).get_json()
-        assert tools_resp
-        tool_list = tools_resp["tools"]
-        assert len(tool_list) == 1
-        assert tool_list[0]["name"] == "get_mcp_demo_user"
-        assert tool_list[0]["description"] == "Get MCP demo user by uid"
-        assert "path" in tool_list[0]["inputSchema"]["properties"]
-
-        call_resp = client.post(
-            "/mcp",
-            json={
-                "method": "tools/call",
-                "params": {
-                    "name": "get_mcp_demo_user",
-                    "arguments": {"path": {"uid": 1}},
-                },
-            },
-        ).get_json()
-        assert call_resp is not None
-        assert call_resp["isError"] is False
-        assert json.loads(call_resp["content"][0]["text"]) == {"uid": 1, "name": "so1n"}
-
-        resource_resp = client.post(
-            "/mcp",
-            json={"method": "resources/read", "params": {"uri": "config://app"}},
-        ).get_json()
-        assert resource_resp == {
-            "contents": [
-                {
-                    "uri": "config://app",
-                    "mimeType": "text/plain",
-                    "text": json.dumps({"name": "flask-example", "version": "1.0.0"}),
-                }
-            ]
-        }
+        assert_mcp_route(FlaskMCPHTTPClient(client), "flask-example")
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:

@@ -5,7 +5,7 @@ from sanic.request import Request
 from sanic.response import HTTPResponse
 
 from pait.app.sanic import pait
-from pait.mcp import MCP
+from pait.mcp import AsyncMCP
 from pait.mcp.dispatcher import MCPDirectResponse, dispatch_tool
 from pait.mcp.dispatcher import encode_content as default_encode_content
 from pait.mcp.http import dispatch_asgi_tool
@@ -32,8 +32,7 @@ async def dispatch_http_tool(app: Sanic, *args: Any, **kwargs: Any) -> Any:
     return await dispatch_asgi_tool(app, *args, **kwargs)
 
 
-def add_mcp_route(app: Sanic, mcp: MCP, path: str = "/mcp", **kwargs: Any) -> None:
-
+def add_mcp_route(app: Sanic, mcp: AsyncMCP, path: str = "/mcp", **kwargs: Any) -> None:
     @pait()
     async def mcp_route(request: Request) -> Any:
         return json(await mcp.handle_message(request.json or {}))

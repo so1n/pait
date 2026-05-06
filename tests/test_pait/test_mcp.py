@@ -1,73 +1,187 @@
-import asyncio
 import json
-from contextlib import contextmanager
-from typing import Any, Callable, Generator, List, Mapping, Tuple
+from typing import Any, Dict, Mapping, Optional
 
 import pytest
-from flask import Flask
-from flask.testing import FlaskClient
-from sanic import Sanic
-from starlette.applications import Starlette
-from starlette.routing import Route
-from tornado.web import Application
 
-from example.flask_example.mcp_route import add_mcp_demo_route as add_flask_mcp_demo_route
-from example.flask_example.mcp_route import mcp_user_route as flask_mcp_user_route
-from example.sanic_example.mcp_route import add_mcp_demo_route as add_sanic_mcp_demo_route
-from example.sanic_example.mcp_route import mcp_user_route as sanic_mcp_user_route
-from example.starlette_example.mcp_route import add_mcp_demo_route as add_starlette_mcp_demo_route
-from example.starlette_example.mcp_route import mcp_user_route as starlette_mcp_user_route
-from example.tornado_example.mcp_route import MCPUserHandler
-from example.tornado_example.mcp_route import add_mcp_demo_route as add_tornado_mcp_demo_route
 from pait import field
-from pait.app.flask import load_app as flask_load_app
-from pait.app.flask import pait
-from pait.app.flask.mcp import add_mcp_route
-from pait.app.flask.plugin.unified_response import UnifiedResponsePlugin
-from pait.mcp import MCP
-from pait.mcp.dispatcher import MCPDirectResponse
+from pait.app.base import BaseAppHelper
+from pait.extra.config import MatchRule, apply_mcp_config
+from pait.mcp import MCP, AsyncMCP, MCPConfig
+from pait.mcp.dispatcher import MCPDirectResponse, dispatch_sync_tool, dispatch_tool, encode_content
+from pait.mcp.http import MCPHTTPResponse
+from pait.mcp.tool import get_mcp_config
+from pait.model.core import PaitCoreModel
+from pait.model.tag import Tag
+from pait.param_handle import ParamHandler
+from tests.conftest import fixture_loop
 
 
-@contextmanager
-def flask_client_ctx(app: Flask) -> Generator[FlaskClient, None, None]:
-    client = app.test_client()
-    ctx = app.app_context()
-    ctx.push()
-    try:
-        yield client
-    finally:
-        ctx.pop()
+class FakeApp(object):
+    pass
+
+
+class AsyncMCPClient(object):
+    def __init__(self, mcp: AsyncMCP) -> None:
+        self.mcp = mcp
+
+    async def request(
+        self, method: str, params: Optional[Mapping[str, Any]] = None, request_id: Optional[int] = None
+    ) -> Dict[str, Any]:
+        message: Dict[str, Any] = {"method": method}
+        if params is not None:
+            message["params"] = params
+        if request_id is not None:
+            message["jsonrpc"] = "2.0"
+            message["id"] = request_id
+        return await self.mcp.handle_message(message)
+
+    async def list_tools(self) -> Dict[str, Any]:
+        return await self.request("tools/list")
+
+    async def call_tool(
+        self, name: str, arguments: Optional[Mapping[str, Any]] = None, call_mode: Optional[str] = None
+    ) -> Dict[str, Any]:
+        params: Dict[str, Any] = {"name": name, "arguments": arguments or {}}
+        if call_mode:
+            params["callMode"] = call_mode
+        return await self.request("tools/call", params)
+
+    async def list_resources(self) -> Dict[str, Any]:
+        return await self.request("resources/list")
+
+    async def read_resource(self, uri: str) -> Dict[str, Any]:
+        return await self.request("resources/read", {"uri": uri})
+
+
+class MCPClient(object):
+    def __init__(self, mcp: MCP) -> None:
+        self.mcp = mcp
+
+    def request(
+        self, method: str, params: Optional[Mapping[str, Any]] = None, request_id: Optional[int] = None
+    ) -> Dict[str, Any]:
+        message: Dict[str, Any] = {"method": method}
+        if params is not None:
+            message["params"] = params
+        if request_id is not None:
+            message["jsonrpc"] = "2.0"
+            message["id"] = request_id
+        return self.mcp.handle_message(message)
+
+    def list_tools(self) -> Dict[str, Any]:
+        return self.request("tools/list")
+
+    def call_tool(
+        self, name: str, arguments: Optional[Mapping[str, Any]] = None, call_mode: Optional[str] = None
+    ) -> Dict[str, Any]:
+        params: Dict[str, Any] = {"name": name, "arguments": arguments or {}}
+        if call_mode:
+            params["callMode"] = call_mode
+        return self.request("tools/call", params)
+
+    def list_resources(self) -> Dict[str, Any]:
+        return self.request("resources/list")
+
+    def read_resource(self, uri: str) -> Dict[str, Any]:
+        return self.request("resources/read", {"uri": uri})
+
+
+def build_core_model(
+    func: Any,
+    *,
+    name: str = "get_user",
+    description: str = "Get user detail by uid",
+    include: Optional[bool] = True,
+    path: str = "/user/{uid}",
+    operation_id: str = "get_user",
+    tag: Optional[tuple] = None,
+    mcp_config: Optional[MCPConfig] = None,
+) -> PaitCoreModel:
+    extra: Dict[str, Any] = {}
+    if mcp_config is not None:
+        extra["mcp"] = mcp_config
+    elif include is True:
+        extra["mcp"] = MCPConfig(include=True, name=name, description=description)
+    elif include is False:
+        extra["mcp"] = MCPConfig(include=False, name=name, description=description)
+
+    core_model_kwargs: Dict[str, Any] = {}
+    if extra:
+        core_model_kwargs["extra"] = extra
+
+    core_model = PaitCoreModel(
+        func,
+        BaseAppHelper,
+        ParamHandler,
+        path=path,
+        openapi_path=path,
+        method_set={"GET"},
+        operation_id=operation_id,
+        desc=description,
+        tag=tag,
+        **core_model_kwargs,
+    )
+    core_model.build()
+    return core_model
+
+
+def build_mcp(
+    core_model_dict: Dict[str, PaitCoreModel],
+    *,
+    mcp_class: Any = AsyncMCP,
+    call_mode: str = "direct",
+    direct_dispatcher: Optional[Any] = None,
+    http_dispatcher: Optional[Any] = None,
+    content_encoder: Any = encode_content,
+    load_app_kwargs_dict: Optional[Dict[str, Any]] = None,
+) -> Any:
+    if direct_dispatcher is None:
+        direct_dispatcher = dispatch_sync_tool if mcp_class is MCP else dispatch_tool
+
+    def fake_load_app(app: FakeApp, **kwargs: Any) -> Dict[str, PaitCoreModel]:
+        if load_app_kwargs_dict is not None:
+            load_app_kwargs_dict.update(kwargs)
+        return core_model_dict
+
+    return mcp_class(
+        FakeApp(),
+        load_app=fake_load_app,
+        call_mode=call_mode,
+        direct_dispatcher=direct_dispatcher,
+        http_dispatcher=http_dispatcher,
+        content_encoder=content_encoder,
+        overwrite_already_exists_data=True,
+    )
+
+
+def user_route(uid: int = field.Path.i(description="user id")) -> dict:
+    return {"uid": uid, "name": "so1n"}
+
+
+def private_route() -> dict:
+    return {"ok": True}
+
+
+def tagged_route(uid: int = field.Path.i(description="user id")) -> dict:
+    return {"uid": uid, "source": "tagged"}
+
+
+def unnamed_mcp_route() -> dict:
+    return {"ok": True}
 
 
 def test_mcp_tools_list_and_call() -> None:
-    app = Flask(__name__)
-
-    @app.get("/user/<int:uid>")
-    @pait(
-        desc="Get user detail by uid",
-        plugin_list=[UnifiedResponsePlugin.build()],
-        extra={
-            "mcp": {
-                "include": True,
-                "name": "get_user",
-                "description": "Get user detail by uid",
-            }
-        },
+    mcp = build_mcp(
+        {
+            "user": build_core_model(user_route),
+            "private": build_core_model(private_route, include=False),
+        }
     )
-    def get_user(uid: int = field.Path.i()) -> dict:
-        return {"uid": uid, "name": "so1n"}
+    client = AsyncMCPClient(mcp)
 
-    @app.get("/private")
-    @pait()
-    def private_route() -> dict:
-        return {"ok": True}
-
-    mcp = MCP(app, overwrite_already_exists_data=True)
-    add_mcp_route(app, mcp)
-
-    with flask_client_ctx(app) as client:
-        tools_resp = client.post("/mcp", json={"method": "tools/list"}).get_json()
-        assert tools_resp == {
+    with fixture_loop(mock_close_loop=True) as loop:
+        tool_list = loop.run_until_complete(client.list_tools())
+        assert tool_list == {
             "tools": [
                 {
                     "name": "get_user",
@@ -78,7 +192,7 @@ def test_mcp_tools_list_and_call() -> None:
                             "path": {
                                 "type": "object",
                                 "properties": {
-                                    "uid": {"title": "Uid", "type": "integer"},
+                                    "uid": {"title": "Uid", "description": "user id", "type": "integer"},
                                 },
                                 "additionalProperties": False,
                                 "required": ["uid"],
@@ -91,70 +205,46 @@ def test_mcp_tools_list_and_call() -> None:
             ]
         }
 
-        call_resp = client.post(
-            "/mcp",
-            json={
-                "method": "tools/call",
-                "params": {
-                    "name": "get_user",
-                    "arguments": {"path": {"uid": 1}},
-                },
-            },
-        ).get_json()
-        assert call_resp is not None
+        call_resp = loop.run_until_complete(client.call_tool("get_user", {"path": {"uid": 1}}))
         assert call_resp["isError"] is False
         assert json.loads(call_resp["content"][0]["text"]) == {"uid": 1, "name": "so1n"}
 
 
-def test_mcp_constructor_reject_invalid_call_mode() -> None:
+@pytest.mark.parametrize("mcp_class", [AsyncMCP, MCP])
+def test_mcp_constructor_reject_invalid_call_mode(mcp_class: Any) -> None:
     with pytest.raises(ValueError) as exc_info:
-        MCP(call_mode="invalid")
+        mcp_class(call_mode="invalid")
     assert "call_mode" in str(exc_info.value)
 
 
 def test_mcp_without_app_can_use_resources() -> None:
-    mcp = MCP()
+    mcp = AsyncMCP()
+    client = AsyncMCPClient(mcp)
 
     @mcp.resource("config://standalone", name="standalone-config", description="Standalone config")
     def standalone_config() -> dict:
         return {"name": "standalone"}
 
-    assert mcp.list_tools() == {"tools": []}
-    assert mcp.list_resources() == {
-        "resources": [
-            {
-                "uri": "config://standalone",
-                "name": "standalone-config",
-                "description": "Standalone config",
-                "mimeType": "text/plain",
-            }
-        ]
-    }
-    read_resp = asyncio.run(mcp.read_resource("config://standalone"))
-    assert read_resp["contents"][0]["text"] == json.dumps({"name": "standalone"})
+    with fixture_loop(mock_close_loop=True) as loop:
+        assert loop.run_until_complete(client.list_tools()) == {"tools": []}
+        assert loop.run_until_complete(client.list_resources()) == {
+            "resources": [
+                {
+                    "uri": "config://standalone",
+                    "name": "standalone-config",
+                    "description": "Standalone config",
+                    "mimeType": "text/plain",
+                }
+            ]
+        }
+        read_resp = loop.run_until_complete(client.read_resource("config://standalone"))
+        assert read_resp["contents"][0]["text"] == json.dumps({"name": "standalone"})
 
 
 def test_mcp_constructor_accept_load_app_dispatcher_and_encoder() -> None:
-    app = Flask(__name__)
-    load_app_kwargs_dict = {}
+    load_app_kwargs_dict: Dict[str, Any] = {}
 
-    @app.get("/user/<int:uid>")
-    @pait(
-        extra={
-            "mcp": {
-                "include": True,
-                "name": "get_user_with_custom_dispatcher",
-            }
-        },
-    )
-    def get_user(uid: int = field.Path.i()) -> dict:
-        return {"uid": uid, "name": "so1n"}
-
-    def custom_load_app(_app: Flask, **kwargs: Any) -> Mapping:
-        load_app_kwargs_dict.update(kwargs)
-        return flask_load_app(_app, **kwargs)
-
-    async def custom_direct_dispatcher(core_model: Any, arguments: Mapping) -> MCPDirectResponse:
+    async def custom_direct_dispatcher(core_model: PaitCoreModel, arguments: Mapping) -> MCPDirectResponse:
         return MCPDirectResponse({"operation_id": core_model.operation_id, "arguments": arguments})
 
     def custom_content_encoder(value: Any) -> str:
@@ -162,56 +252,33 @@ def test_mcp_constructor_accept_load_app_dispatcher_and_encoder() -> None:
             return "custom:" + json.dumps(value.value)
         return str(value)
 
-    mcp = MCP(
-        app,
-        load_app=custom_load_app,
+    mcp = build_mcp(
+        {"user": build_core_model(user_route, name="get_user_with_custom_dispatcher")},
         direct_dispatcher=custom_direct_dispatcher,
         content_encoder=custom_content_encoder,
-        overwrite_already_exists_data=True,
+        load_app_kwargs_dict=load_app_kwargs_dict,
     )
+    client = AsyncMCPClient(mcp)
 
     assert load_app_kwargs_dict == {"overwrite_already_exists_data": True}
-    call_resp = asyncio.run(mcp.call_tool("get_user_with_custom_dispatcher", {"path": {"uid": 1}}))
+    with fixture_loop(mock_close_loop=True) as loop:
+        call_resp = loop.run_until_complete(client.call_tool("get_user_with_custom_dispatcher", {"path": {"uid": 1}}))
     assert call_resp["isError"] is False
     assert call_resp["content"][0]["text"].startswith("custom:")
     payload = json.loads(call_resp["content"][0]["text"][len("custom:") :])
     assert payload["arguments"] == {"path": {"uid": 1}}
 
 
-def test_mcp_direct_call_mode_without_unified_response_plugin() -> None:
-    app = Flask(__name__)
-
-    @app.get("/user/<int:uid>")
-    @pait(
-        desc="Get user detail by uid",
-        extra={
-            "mcp": {
-                "include": True,
-                "name": "get_user_without_unified_response",
-            }
-        },
-    )
-    def get_user(uid: int = field.Path.i()) -> dict:
-        return {"uid": uid, "name": "so1n"}
-
-    mcp = MCP(app, overwrite_already_exists_data=True)
-    call_resp = asyncio.run(mcp.call_tool("get_user_without_unified_response", {"path": {"uid": 1}}))
-    assert call_resp["isError"] is False
-    assert json.loads(call_resp["content"][0]["text"]) == {"uid": 1, "name": "so1n"}
-
-
 def test_mcp_resource() -> None:
-    app = Flask(__name__)
-    mcp = MCP(app, overwrite_already_exists_data=True)
+    mcp = build_mcp({})
+    client = AsyncMCPClient(mcp)
 
     @mcp.resource("config://app", name="app-config", description="App config")
     def app_config() -> dict:
         return {"name": "demo", "version": "1.0.0"}
 
-    add_mcp_route(app, mcp)
-    with flask_client_ctx(app) as client:
-        list_resp = client.post("/mcp", json={"method": "resources/list"}).get_json()
-        assert list_resp == {
+    with fixture_loop(mock_close_loop=True) as loop:
+        assert loop.run_until_complete(client.list_resources()) == {
             "resources": [
                 {
                     "uri": "config://app",
@@ -222,108 +289,170 @@ def test_mcp_resource() -> None:
             ]
         }
 
-        read_resp = client.post(
-            "/mcp",
-            json={
-                "method": "resources/read",
-                "params": {"uri": "config://app"},
-            },
-        ).get_json()
-        assert read_resp == {
-            "contents": [
-                {
-                    "uri": "config://app",
-                    "mimeType": "text/plain",
-                    "text": json.dumps({"name": "demo", "version": "1.0.0"}),
-                }
-            ]
-        }
+        read_resp = loop.run_until_complete(client.read_resource("config://app"))
+    assert read_resp == {
+        "contents": [
+            {
+                "uri": "config://app",
+                "mimeType": "text/plain",
+                "text": json.dumps({"name": "demo", "version": "1.0.0"}),
+            }
+        ]
+    }
 
 
-def test_mcp_http_call_mode_via_mcp_route() -> None:
-    app = Flask(__name__)
-    app.add_url_rule("/api/mcp/user/<int:uid>", view_func=flask_mcp_user_route, methods=["GET"])
-    mcp = MCP(app, call_mode="http", overwrite_already_exists_data=True)
-    add_mcp_route(app, mcp)
+def test_mcp_handle_message_tool_call() -> None:
+    mcp = build_mcp({"user": build_core_model(user_route)})
+    client = AsyncMCPClient(mcp)
+    with fixture_loop(mock_close_loop=True) as loop:
+        call_resp = loop.run_until_complete(client.call_tool("get_user", {"path": {"uid": 1}}))
+    assert call_resp["isError"] is False
+    assert json.loads(call_resp["content"][0]["text"]) == {"uid": 1, "name": "so1n"}
 
-    with flask_client_ctx(app) as client:
-        call_resp = client.post(
-            "/mcp",
-            json={
-                "method": "tools/call",
-                "params": {
-                    "name": "get_mcp_demo_user",
-                    "arguments": {"path": {"uid": 1}},
-                },
-            },
-        ).get_json()
-        assert call_resp is not None
-        assert call_resp["isError"] is False
-        assert json.loads(call_resp["content"][0]["text"]) == {"uid": 1, "name": "so1n"}
+
+def test_mcp_handle_message_json_rpc_envelope() -> None:
+    mcp = build_mcp({"user": build_core_model(user_route)})
+    client = AsyncMCPClient(mcp)
+    with fixture_loop(mock_close_loop=True) as loop:
+        resp = loop.run_until_complete(client.request("tools/list", request_id=1))
+    assert resp["jsonrpc"] == "2.0"
+    assert resp["id"] == 1
+    assert [tool["name"] for tool in resp["result"]["tools"]] == ["get_user"]
+
+
+def test_mcp_unknown_tool_and_method_errors() -> None:
+    mcp = build_mcp({})
+    client = AsyncMCPClient(mcp)
+    with fixture_loop(mock_close_loop=True) as loop:
+        call_resp = loop.run_until_complete(client.call_tool("missing_tool", {}))
+    assert call_resp == {
+        "content": [{"type": "text", "text": "MCP tool not found: missing_tool"}],
+        "isError": True,
+    }
+
+    with fixture_loop(mock_close_loop=True) as loop:
+        method_resp = loop.run_until_complete(client.request("missing/method", request_id=1))
+    assert method_resp["id"] == 1
+    assert method_resp["error"]["code"] == -32000
+    assert "Unsupported MCP method" in method_resp["error"]["message"]
 
 
 def test_mcp_http_error_response_is_mcp_error() -> None:
-    app = Flask(__name__)
+    async def fake_http_dispatcher(app: FakeApp, core_model: PaitCoreModel, arguments: Mapping) -> MCPHTTPResponse:
+        return MCPHTTPResponse(400, {}, json.dumps({"message": "failed"}).encode())
 
-    @app.get("/failed")
-    @pait(
-        extra={
-            "mcp": {
-                "include": True,
-                "name": "failed_tool",
-            }
-        },
+    mcp = build_mcp(
+        {"failed": build_core_model(private_route, name="failed_tool", path="/failed", operation_id="failed_tool")},
+        call_mode="http",
+        http_dispatcher=fake_http_dispatcher,
     )
-    def failed_route() -> tuple:
-        return {"message": "failed"}, 400
-
-    mcp = MCP(app, call_mode="http", overwrite_already_exists_data=True)
-    call_resp = asyncio.run(mcp.call_tool("failed_tool", {}))
+    client = AsyncMCPClient(mcp)
+    with fixture_loop(mock_close_loop=True) as loop:
+        call_resp = loop.run_until_complete(client.call_tool("failed_tool", {}))
     assert call_resp["isError"] is True
     assert json.loads(call_resp["content"][0]["text"]) == {"message": "failed"}
 
 
-def test_mcp_direct_example_for_all_frameworks() -> None:
-    flask_app = Flask("mcp-flask-example")
-    flask_app.add_url_rule("/api/mcp/user/<int:uid>", view_func=flask_mcp_user_route, methods=["GET"])
-
-    starlette_app = Starlette(routes=[Route("/api/mcp/user/{uid}", starlette_mcp_user_route, methods=["GET"])])
-
-    sanic_app = Sanic(name="mcp-sanic-example")
-    sanic_app.add_route(sanic_mcp_user_route, "/api/mcp/user/<uid:int>", methods=["GET"])
-
-    tornado_app = Application([(r"/api/mcp/user/(?P<uid>\w+)", MCPUserHandler)])
-
-    app_list: List[Tuple[object, Callable]] = [
-        (flask_app, add_flask_mcp_demo_route),
-        (starlette_app, add_starlette_mcp_demo_route),
-        (sanic_app, add_sanic_mcp_demo_route),
-        (tornado_app, add_tornado_mcp_demo_route),
-    ]
-
-    for app, add_mcp_demo_route in app_list:
-        mcp = add_mcp_demo_route(app)  # type: ignore[arg-type]
-        assert [tool["name"] for tool in mcp.list_tools()["tools"]] == ["get_mcp_demo_user"]
-        call_resp = asyncio.run(mcp.call_tool("get_mcp_demo_user", {"path": {"uid": 1}}))
-        assert call_resp["isError"] is False
-        assert json.loads(call_resp["content"][0]["text"]) == {"uid": 1, "name": "so1n"}
+def test_mcp_duplicate_tool_names_are_renamed() -> None:
+    first_model = build_core_model(private_route, name="duplicate_tool", operation_id="first_tool")
+    second_model = build_core_model(user_route, name="duplicate_tool", operation_id="second_tool")
+    mcp = build_mcp({"first": first_model, "second": second_model})
+    client = AsyncMCPClient(mcp)
+    with fixture_loop(mock_close_loop=True) as loop:
+        assert [tool["name"] for tool in loop.run_until_complete(client.list_tools())["tools"]] == [
+            "duplicate_tool",
+            "duplicate_tool_2",
+        ]
 
 
-def test_mcp_http_call_mode_for_wsgi_asgi_frameworks() -> None:
-    flask_app = Flask("mcp-flask-http-example")
-    flask_app.add_url_rule("/api/mcp/user/<int:uid>", view_func=flask_mcp_user_route, methods=["GET"])
+def test_mcp_config_model_and_apply_by_tag() -> None:
+    mcp_tag = Tag("mcp-auto-config")
+    core_model = build_core_model(
+        tagged_route,
+        include=None,
+        tag=(mcp_tag,),
+        path="/tagged/{uid}",
+        operation_id="tagged_route",
+    )
+    assert core_model.extra == {}
+    assert get_mcp_config(core_model) == MCPConfig()
 
-    starlette_app = Starlette(routes=[Route("/api/mcp/user/{uid}", starlette_mcp_user_route, methods=["GET"])])
+    apply_mcp_config(
+        MCPConfig(include=True, name="tagged_tool", description="Tool configured by tag"),
+        MatchRule(key="tag", target=mcp_tag),
+    )(core_model)
 
-    sanic_app = Sanic(name="mcp-sanic-http-example")
-    sanic_app.add_route(sanic_mcp_user_route, "/api/mcp/user/<uid:int>", methods=["GET"])
+    mcp_config = get_mcp_config(core_model)
+    assert mcp_config == MCPConfig(include=True, name="tagged_tool", description="Tool configured by tag")
 
-    app_list: List[object] = [flask_app, starlette_app, sanic_app]
+    mcp = build_mcp({"tagged": core_model})
+    client = AsyncMCPClient(mcp)
+    with fixture_loop(mock_close_loop=True) as loop:
+        tools_resp = loop.run_until_complete(client.list_tools())
+        call_resp = loop.run_until_complete(client.call_tool("tagged_tool", {"path": {"uid": 1}}))
 
-    for app in app_list:
-        mcp = MCP(app, call_mode="http", overwrite_already_exists_data=True)
-        assert [tool["name"] for tool in mcp.list_tools()["tools"]] == ["get_mcp_demo_user"]
+    assert [tool["name"] for tool in tools_resp["tools"]] == ["tagged_tool"]
+    assert call_resp["isError"] is False
+    assert json.loads(call_resp["content"][0]["text"]) == {"uid": 1, "source": "tagged"}
 
-        call_resp = asyncio.run(mcp.call_tool("get_mcp_demo_user", {"path": {"uid": 1}}))
-        assert call_resp["isError"] is False
-        assert json.loads(call_resp["content"][0]["text"]) == {"uid": 1, "name": "so1n"}
+
+def test_mcp_config_uses_route_name_and_desc_when_empty() -> None:
+    core_model = build_core_model(
+        unnamed_mcp_route,
+        description="Route description",
+        operation_id="custom_operation_id",
+        mcp_config=MCPConfig(include=True),
+    )
+    mcp = build_mcp({"unnamed": core_model})
+    client = AsyncMCPClient(mcp)
+
+    with fixture_loop(mock_close_loop=True) as loop:
+        tools_resp = loop.run_until_complete(client.list_tools())
+
+    assert tools_resp["tools"][0]["name"] == "unnamed_mcp_route"
+    assert tools_resp["tools"][0]["description"] == "Route description"
+
+
+def test_sync_mcp_methods() -> None:
+    mcp = build_mcp({"user": build_core_model(user_route)}, mcp_class=MCP)
+    client = MCPClient(mcp)
+
+    call_resp = client.call_tool("get_user", {"path": {"uid": 1}})
+    assert call_resp["isError"] is False
+    assert json.loads(call_resp["content"][0]["text"]) == {"uid": 1, "name": "so1n"}
+
+    @mcp.resource("config://sync", name="sync-config", description="Sync config")
+    def sync_config() -> dict:
+        return {"name": "sync"}
+
+    read_resp = client.read_resource("config://sync")
+    assert read_resp["contents"][0]["text"] == json.dumps({"name": "sync"})
+
+    message_resp = client.request("tools/list", request_id=1)
+    assert message_resp["id"] == 1
+    assert [tool["name"] for tool in message_resp["result"]["tools"]] == ["get_user"]
+    assert client.list_resources() == mcp.list_resources()
+
+
+def test_sync_mcp_can_use_sync_dispatcher_and_http_dispatcher() -> None:
+    def custom_direct_dispatcher(core_model: PaitCoreModel, arguments: Mapping) -> MCPDirectResponse:
+        return dispatch_sync_tool(core_model, arguments)
+
+    def fake_http_dispatcher(app: FakeApp, core_model: PaitCoreModel, arguments: Mapping) -> MCPHTTPResponse:
+        return MCPHTTPResponse(200, {}, json.dumps({"mode": "http", "arguments": arguments}).encode())
+
+    mcp = build_mcp(
+        {"user": build_core_model(user_route)},
+        mcp_class=MCP,
+        direct_dispatcher=custom_direct_dispatcher,
+        http_dispatcher=fake_http_dispatcher,
+    )
+    client = MCPClient(mcp)
+
+    direct_resp = client.call_tool("get_user", {"path": {"uid": 1}})
+    assert direct_resp["isError"] is False
+    assert json.loads(direct_resp["content"][0]["text"]) == {"uid": 1, "name": "so1n"}
+
+    http_resp = client.call_tool("get_user", {"path": {"uid": 1}}, call_mode="http")
+    assert http_resp["isError"] is False
+    assert json.loads(http_resp["content"][0]["text"]) == {"mode": "http", "arguments": {"path": {"uid": 1}}}

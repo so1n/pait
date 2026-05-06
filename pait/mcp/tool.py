@@ -2,6 +2,8 @@ import re
 from dataclasses import dataclass
 from typing import Any, Dict, List, Mapping, Optional, Union
 
+from pydantic import BaseModel
+
 from pait import _pydanitc_adapter
 from pait.data import PaitCoreProxyModel
 from pait.model.core import PaitCoreModel
@@ -12,25 +14,42 @@ PaitModelType = Union[PaitCoreModel, PaitCoreProxyModel]
 _invalid_name_pattern = re.compile(r"[^a-zA-Z0-9_-]+")
 
 
+class MCPConfig(BaseModel):
+    include: bool = False
+    name: str = ""
+    description: str = ""
+    read_only: bool = False
+
+
 def sanitize_tool_name(name: str) -> str:
     name = _invalid_name_pattern.sub("_", name).strip("_")
     return name or "pait_tool"
 
 
-def get_mcp_config(pait_model: PaitModelType) -> Mapping[str, Any]:
+def _build_mcp_config(value: Any) -> MCPConfig:
+    if isinstance(value, MCPConfig):
+        return value
+    if isinstance(value, BaseModel):
+        return MCPConfig(**_pydanitc_adapter.model_dump(value))
+    if isinstance(value, Mapping):
+        return MCPConfig(**value)
+    return MCPConfig()
+
+
+def get_mcp_config(pait_model: PaitModelType) -> MCPConfig:
     extra = getattr(pait_model, "extra", {}) or {}
     if not isinstance(extra, Mapping):
-        return {}
+        return MCPConfig()
     nested_extra = extra.get("extra", {})
     if isinstance(nested_extra, Mapping) and "mcp" in nested_extra:
-        mcp_config = nested_extra.get("mcp", {})
+        mcp_config = nested_extra.get("mcp")
     else:
-        mcp_config = extra.get("mcp", {})
-    return mcp_config if isinstance(mcp_config, Mapping) else {}
+        mcp_config = extra.get("mcp")
+    return _build_mcp_config(mcp_config)
 
 
 def is_mcp_enabled(pait_model: PaitModelType) -> bool:
-    return bool(get_mcp_config(pait_model).get("include"))
+    return get_mcp_config(pait_model).include
 
 
 def _merge_schema(target: Dict[str, Any], source: Dict[str, Any]) -> None:
@@ -97,7 +116,7 @@ class MCPTool(object):
 
 def build_tool(pait_model: PaitModelType, used_name_set: Optional[set] = None) -> MCPTool:
     mcp_config = get_mcp_config(pait_model)
-    name = sanitize_tool_name(str(mcp_config.get("name") or pait_model.operation_id))
+    name = sanitize_tool_name(str(mcp_config.name or pait_model.func_name or pait_model.operation_id))
     if used_name_set is not None:
         raw_name = name
         index = 2
@@ -106,7 +125,7 @@ def build_tool(pait_model: PaitModelType, used_name_set: Optional[set] = None) -
             index += 1
         used_name_set.add(name)
 
-    description = str(mcp_config.get("description") or pait_model.desc or pait_model.summary or "")
+    description = str(mcp_config.description or pait_model.desc or pait_model.summary or "")
     return MCPTool(
         name=name,
         description=description,

@@ -38,6 +38,18 @@ class MCPResource(object):
             ]
         }
 
+    def read_sync(self) -> Dict[str, Any]:
+        value = self.handler()
+        return {
+            "contents": [
+                {
+                    "uri": self.uri,
+                    "mimeType": self.mime_type,
+                    "text": encode_content(value),
+                }
+            ]
+        }
+
 
 class ResourceRegistry(object):
     def __init__(self) -> None:
@@ -71,3 +83,9 @@ class ResourceRegistry(object):
         if not resource:
             raise KeyError(f"MCP resource not found: {uri}")
         return await resource.read()
+
+    def read_resource_sync(self, uri: str) -> Dict[str, Any]:
+        resource: Optional[MCPResource] = self._resource_dict.get(uri)
+        if not resource:
+            raise KeyError(f"MCP resource not found: {uri}")
+        return resource.read_sync()
