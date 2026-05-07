@@ -34,7 +34,14 @@ from example.flask_example.field_route import (
     same_alias_route,
 )
 from example.flask_example.file_route import multipart_route, stream_for_data_route
-from example.flask_example.mcp_route import add_mcp_demo_route, mcp_user_route
+from example.flask_example.mcp_route import (
+    add_mcp_demo_route,
+    mcp_private_route,
+    mcp_redis_status_route,
+    mcp_response_route,
+    mcp_upsert_user_route,
+    mcp_user_route,
+)
 from example.flask_example.plugin_route import (
     auto_complete_json_route,
     cache_response,
@@ -263,6 +270,10 @@ def create_app() -> Flask:
     app.add_url_rule("/api/cbv", view_func=CbvRoute.as_view("test_cbv"))
     app.add_url_rule("/api/tag", view_func=tag_route, methods=["GET"])
     app.add_url_rule("/api/mcp/user/<int:uid>", view_func=mcp_user_route, methods=["GET"])
+    app.add_url_rule("/api/mcp/user", view_func=mcp_upsert_user_route, methods=["POST"])
+    app.add_url_rule("/api/mcp/response", view_func=mcp_response_route, methods=["GET"])
+    app.add_url_rule("/api/mcp/redis", view_func=mcp_redis_status_route, methods=["GET"])
+    app.add_url_rule("/api/mcp/private", view_func=mcp_private_route, methods=["GET"])
 
     app.add_url_rule("/api/field/post", view_func=post_route, methods=["POST"])
     app.add_url_rule("/api/field/pait-base-field/<age>", view_func=pait_base_field_route, methods=["POST"])

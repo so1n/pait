@@ -110,7 +110,7 @@ class TestTornado(BaseTestTornado):
         self.response_test_helper(main_example.FileResponseHanler.get, response.FileResponseModel)
 
     def test_mcp_route(self) -> None:
-        assert_mcp_route(TornadoMCPHTTPClient(self), "tornado-example")
+        assert_mcp_route(TornadoMCPHTTPClient(self), "tornado-example", support_http_tool=False)
 
     def test_doc_route(self) -> None:
         main_example.add_api_doc_route(self._app)

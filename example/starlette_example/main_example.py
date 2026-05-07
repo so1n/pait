@@ -38,7 +38,14 @@ from example.starlette_example.field_route import (
     same_alias_route,
 )
 from example.starlette_example.file_route import multipart_route, stream_for_data_route
-from example.starlette_example.mcp_route import add_mcp_demo_route, mcp_user_route
+from example.starlette_example.mcp_route import (
+    add_mcp_demo_route,
+    mcp_private_route,
+    mcp_redis_status_route,
+    mcp_response_route,
+    mcp_upsert_user_route,
+    mcp_user_route,
+)
 from example.starlette_example.plugin_route import (
     async_auto_complete_json_route,
     async_check_json_plugin_route,
@@ -291,6 +298,10 @@ def create_app() -> Starlette:
             Route("/api/not-pait-cbv", NotPaitCbvRoute),
             Route("/api/tag", tag_route, methods=["GET"]),
             Route("/api/mcp/user/{uid}", mcp_user_route, methods=["GET"]),
+            Route("/api/mcp/user", mcp_upsert_user_route, methods=["POST"]),
+            Route("/api/mcp/response", mcp_response_route, methods=["GET"]),
+            Route("/api/mcp/redis", mcp_redis_status_route, methods=["GET"]),
+            Route("/api/mcp/private", mcp_private_route, methods=["GET"]),
             Route("/api/field/post", post_route, methods=["POST"]),
             Route("/api/field/pait-base-field/{age}", pait_base_field_route, methods=["POST"]),
             Route("/api/field/field-default-factory", field_default_factory_route, methods=["POST"]),

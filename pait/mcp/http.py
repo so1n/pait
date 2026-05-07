@@ -12,6 +12,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class MCPHTTPRequest(object):
+    """Framework-neutral HTTP request built from MCP tool arguments."""
+
     method: str
     path: str
     query_string: str
@@ -21,24 +23,30 @@ class MCPHTTPRequest(object):
 
 @dataclass
 class MCPHTTPResponse(object):
+    """Framework-neutral HTTP response returned by in-process dispatchers."""
+
     status_code: int
     headers: Dict[str, str]
     body: bytes
 
     @property
     def is_error(self) -> bool:
+        """Return whether the HTTP status code represents an error."""
         return self.status_code >= 400
 
     def text(self) -> str:
+        """Decode response body as text."""
         return self.body.decode()
 
 
 def _get_mapping(arguments: Mapping[str, Any], key: str) -> Mapping[str, Any]:
+    """Return a namespaced MCP argument mapping."""
     value = arguments.get(key, {})
     return value if isinstance(value, Mapping) else {}
 
 
 def _get_method(core_model: "PaitCoreModel") -> str:
+    """Choose the HTTP method used for an in-process tool request."""
     for method in core_model.method_list:
         upper_method = method.upper()
         if upper_method not in {"HEAD", "OPTIONS"}:
@@ -49,6 +57,7 @@ def _get_method(core_model: "PaitCoreModel") -> str:
 
 
 def _render_path(path: str, path_dict: Mapping[str, Any]) -> str:
+    """Render OpenAPI-style path parameters with MCP path arguments."""
     rendered_path = path
     for name, value in path_dict.items():
         rendered_path = rendered_path.replace("{" + name + "}", quote(str(value), safe=""))
@@ -58,6 +67,12 @@ def _render_path(path: str, path_dict: Mapping[str, Any]) -> str:
 
 
 def _build_body(arguments: Mapping[str, Any], headers: Dict[str, str]) -> bytes:
+    """Build an HTTP request body from MCP arguments.
+
+    Form arguments take precedence because they imply
+    ``application/x-www-form-urlencoded``. Otherwise body values are passed
+    through as bytes/str or JSON-encoded for structured values.
+    """
     form_dict = _get_mapping(arguments, "form")
     if form_dict:
         headers.setdefault("content-type", "application/x-www-form-urlencoded")
@@ -77,6 +92,7 @@ def _build_body(arguments: Mapping[str, Any], headers: Dict[str, str]) -> bytes:
 
 
 def _build_headers(arguments: Mapping[str, Any]) -> Dict[str, str]:
+    """Build HTTP headers and a Cookie header from MCP arguments."""
     headers = {str(key).lower(): str(value) for key, value in _get_mapping(arguments, "header").items()}
     cookie_dict = _get_mapping(arguments, "cookie")
     if cookie_dict:
@@ -85,6 +101,7 @@ def _build_headers(arguments: Mapping[str, Any]) -> Dict[str, str]:
 
 
 def build_http_request(core_model: "PaitCoreModel", arguments: Optional[Mapping[str, Any]] = None) -> MCPHTTPRequest:
+    """Convert an MCP tool call into a framework-neutral HTTP request."""
     arguments = arguments or {}
     headers = _build_headers(arguments)
     body = _build_body(arguments, headers)
@@ -100,6 +117,11 @@ def build_http_request(core_model: "PaitCoreModel", arguments: Optional[Mapping[
 async def dispatch_asgi_tool(
     app: Any, core_model: "PaitCoreModel", arguments: Optional[Mapping[str, Any]] = None
 ) -> MCPHTTPResponse:
+    """Dispatch an MCP tool call through an ASGI app in-process.
+
+    This creates an ASGI HTTP scope and minimal ``receive``/``send`` callables,
+    then collects the response start/body events into ``MCPHTTPResponse``.
+    """
     request = build_http_request(core_model, arguments)
     response_status_code = 500
     response_headers: Dict[str, str] = {}
@@ -107,6 +129,7 @@ async def dispatch_asgi_tool(
     receive_count = 0
 
     async def receive() -> Dict[str, Any]:
+        """Send the request body once, then report disconnect."""
         nonlocal receive_count
         receive_count += 1
         if receive_count == 1:
@@ -114,6 +137,7 @@ async def dispatch_asgi_tool(
         return {"type": "http.disconnect"}
 
     async def send(message: Mapping[str, Any]) -> None:
+        """Collect ASGI response events."""
         nonlocal response_status_code
         if message["type"] == "http.response.start":
             response_status_code = int(message["status"])
@@ -134,6 +158,7 @@ async def dispatch_asgi_tool(
         "headers": [(key.encode(), value.encode()) for key, value in request.headers.items()],
         "client": ("127.0.0.1", 0),
         "server": ("testserver", 80),
+        "app": app,
     }
     await app(scope, receive, send)
     return MCPHTTPResponse(response_status_code, response_headers, b"".join(response_body_list))
@@ -142,6 +167,7 @@ async def dispatch_asgi_tool(
 def dispatch_wsgi_tool(
     app: Any, core_model: "PaitCoreModel", arguments: Optional[Mapping[str, Any]] = None
 ) -> MCPHTTPResponse:
+    """Dispatch an MCP tool call through a WSGI app in-process."""
     from werkzeug.test import EnvironBuilder
 
     request = build_http_request(core_model, arguments)
@@ -150,9 +176,11 @@ def dispatch_wsgi_tool(
     write_body_list: List[bytes] = []
 
     def write(data: bytes) -> None:
+        """Collect bytes written through the optional WSGI write callable."""
         write_body_list.append(data)
 
     def start_response(status: str, headers: List[Tuple[str, str]], exc_info: Any = None) -> Any:
+        """Capture WSGI status and headers."""
         nonlocal response_status_code
         response_status_code = int(status.split(" ", 1)[0])
         response_headers.update({key.lower(): value for key, value in headers})

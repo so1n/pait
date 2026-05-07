@@ -1,14 +1,14 @@
 import json
-from typing import Any, Dict, Mapping, Optional
+from typing import Any, Dict, Mapping, Optional, cast
 
 import pytest
 
 from pait import field
 from pait.app.base import BaseAppHelper
 from pait.extra.config import MatchRule, apply_mcp_config
-from pait.mcp import MCP, AsyncMCP, MCPConfig
+from pait.mcp import MCP, AsyncMCP, MCPCallMode, MCPConfig
 from pait.mcp.dispatcher import MCPDirectResponse, dispatch_sync_tool, dispatch_tool, encode_content
-from pait.mcp.http import MCPHTTPResponse
+from pait.mcp.http import MCPHTTPResponse, build_http_request
 from pait.mcp.tool import get_mcp_config
 from pait.model.core import PaitCoreModel
 from pait.model.tag import Tag
@@ -38,12 +38,8 @@ class AsyncMCPClient(object):
     async def list_tools(self) -> Dict[str, Any]:
         return await self.request("tools/list")
 
-    async def call_tool(
-        self, name: str, arguments: Optional[Mapping[str, Any]] = None, call_mode: Optional[str] = None
-    ) -> Dict[str, Any]:
+    async def call_tool(self, name: str, arguments: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
         params: Dict[str, Any] = {"name": name, "arguments": arguments or {}}
-        if call_mode:
-            params["callMode"] = call_mode
         return await self.request("tools/call", params)
 
     async def list_resources(self) -> Dict[str, Any]:
@@ -71,12 +67,8 @@ class MCPClient(object):
     def list_tools(self) -> Dict[str, Any]:
         return self.request("tools/list")
 
-    def call_tool(
-        self, name: str, arguments: Optional[Mapping[str, Any]] = None, call_mode: Optional[str] = None
-    ) -> Dict[str, Any]:
+    def call_tool(self, name: str, arguments: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
         params: Dict[str, Any] = {"name": name, "arguments": arguments or {}}
-        if call_mode:
-            params["callMode"] = call_mode
         return self.request("tools/call", params)
 
     def list_resources(self) -> Dict[str, Any]:
@@ -129,7 +121,7 @@ def build_mcp(
     core_model_dict: Dict[str, PaitCoreModel],
     *,
     mcp_class: Any = AsyncMCP,
-    call_mode: str = "direct",
+    call_mode: MCPCallMode = "direct",
     direct_dispatcher: Optional[Any] = None,
     http_dispatcher: Optional[Any] = None,
     content_encoder: Any = encode_content,
@@ -150,6 +142,7 @@ def build_mcp(
         direct_dispatcher=direct_dispatcher,
         http_dispatcher=http_dispatcher,
         content_encoder=content_encoder,
+        mcp_path=None,
         overwrite_already_exists_data=True,
     )
 
@@ -208,6 +201,31 @@ def test_mcp_tools_list_and_call() -> None:
         call_resp = loop.run_until_complete(client.call_tool("get_user", {"path": {"uid": 1}}))
         assert call_resp["isError"] is False
         assert json.loads(call_resp["content"][0]["text"]) == {"uid": 1, "name": "so1n"}
+
+
+def test_mcp_tool_read_only_annotation() -> None:
+    mcp = build_mcp(
+        {
+            "read": build_core_model(
+                user_route,
+                mcp_config=MCPConfig(include=True, name="read_user", read_only=True),
+            ),
+            "write": build_core_model(
+                private_route,
+                mcp_config=MCPConfig(include=True, name="write_user"),
+                path="/user",
+                operation_id="write_user",
+            ),
+        }
+    )
+    client = AsyncMCPClient(mcp)
+
+    with fixture_loop(mock_close_loop=True) as loop:
+        tool_list = loop.run_until_complete(client.list_tools())
+
+    tool_dict = {tool["name"]: tool for tool in tool_list["tools"]}
+    assert tool_dict["read_user"]["annotations"] == {"readOnlyHint": True}
+    assert "annotations" not in tool_dict["write_user"]
 
 
 @pytest.mark.parametrize("mcp_class", [AsyncMCP, MCP])
@@ -301,6 +319,20 @@ def test_mcp_resource() -> None:
     }
 
 
+def test_async_mcp_can_read_async_resource() -> None:
+    mcp = build_mcp({})
+    client = AsyncMCPClient(mcp)
+
+    @mcp.resource("config://async", name="async-config")
+    async def async_config() -> dict:
+        return {"name": "async"}
+
+    with fixture_loop(mock_close_loop=True) as loop:
+        read_resp = loop.run_until_complete(client.read_resource("config://async"))
+
+    assert read_resp["contents"][0]["text"] == json.dumps({"name": "async"})
+
+
 def test_mcp_handle_message_tool_call() -> None:
     mcp = build_mcp({"user": build_core_model(user_route)})
     client = AsyncMCPClient(mcp)
@@ -337,6 +369,32 @@ def test_mcp_unknown_tool_and_method_errors() -> None:
     assert "Unsupported MCP method" in method_resp["error"]["message"]
 
 
+def test_mcp_message_params_must_be_mapping() -> None:
+    mcp = build_mcp({})
+    client = AsyncMCPClient(mcp)
+
+    with fixture_loop(mock_close_loop=True) as loop:
+        resp = loop.run_until_complete(
+            client.request("tools/list", params=["invalid"], request_id=1)  # type: ignore[arg-type]
+        )
+
+    assert resp["id"] == 1
+    assert resp["error"]["code"] == -32000
+    assert resp["error"]["message"] == "MCP params must be a mapping"
+
+
+def test_mcp_missing_resource_returns_error() -> None:
+    mcp = build_mcp({})
+    client = AsyncMCPClient(mcp)
+
+    with fixture_loop(mock_close_loop=True) as loop:
+        resp = loop.run_until_complete(client.request("resources/read", {"uri": "config://missing"}, request_id=1))
+
+    assert resp["id"] == 1
+    assert resp["error"]["code"] == -32000
+    assert "MCP resource not found: config://missing" in resp["error"]["message"]
+
+
 def test_mcp_http_error_response_is_mcp_error() -> None:
     async def fake_http_dispatcher(app: FakeApp, core_model: PaitCoreModel, arguments: Mapping) -> MCPHTTPResponse:
         return MCPHTTPResponse(400, {}, json.dumps({"message": "failed"}).encode())
@@ -351,6 +409,55 @@ def test_mcp_http_error_response_is_mcp_error() -> None:
         call_resp = loop.run_until_complete(client.call_tool("failed_tool", {}))
     assert call_resp["isError"] is True
     assert json.loads(call_resp["content"][0]["text"]) == {"message": "failed"}
+
+
+def test_mcp_tool_call_mode_param_does_not_override_server_config() -> None:
+    async def fake_http_dispatcher(app: FakeApp, core_model: PaitCoreModel, arguments: Mapping) -> MCPHTTPResponse:
+        return MCPHTTPResponse(200, {}, json.dumps({"mode": "http"}).encode())
+
+    mcp = build_mcp(
+        {"user": build_core_model(user_route)},
+        http_dispatcher=fake_http_dispatcher,
+    )
+    client = AsyncMCPClient(mcp)
+    with fixture_loop(mock_close_loop=True) as loop:
+        call_resp = loop.run_until_complete(
+            client.request(
+                "tools/call",
+                {"name": "get_user", "arguments": {"path": {"uid": 1}}, "callMode": "http"},
+            )
+        )
+
+    assert call_resp["isError"] is False
+    assert json.loads(call_resp["content"][0]["text"]) == {"uid": 1, "name": "so1n"}
+
+
+def test_async_mcp_route_call_mode_overrides_default() -> None:
+    async def fake_http_dispatcher(app: FakeApp, core_model: PaitCoreModel, arguments: Mapping) -> MCPHTTPResponse:
+        return MCPHTTPResponse(200, {}, json.dumps({"mode": "http", "arguments": arguments}).encode())
+
+    mcp = build_mcp(
+        {
+            "user": build_core_model(user_route),
+            "http": build_core_model(
+                private_route,
+                mcp_config=MCPConfig(include=True, name="http_tool", call_mode="http"),
+                path="/http",
+                operation_id="http_tool",
+            ),
+        },
+        http_dispatcher=fake_http_dispatcher,
+    )
+    client = AsyncMCPClient(mcp)
+
+    with fixture_loop(mock_close_loop=True) as loop:
+        direct_resp = loop.run_until_complete(client.call_tool("get_user", {"path": {"uid": 1}}))
+        http_resp = loop.run_until_complete(client.call_tool("http_tool", {"query": {"uid": 1}}))
+
+    assert direct_resp["isError"] is False
+    assert json.loads(direct_resp["content"][0]["text"]) == {"uid": 1, "name": "so1n"}
+    assert http_resp["isError"] is False
+    assert json.loads(http_resp["content"][0]["text"]) == {"mode": "http", "arguments": {"query": {"uid": 1}}}
 
 
 def test_mcp_duplicate_tool_names_are_renamed() -> None:
@@ -413,6 +520,70 @@ def test_mcp_config_uses_route_name_and_desc_when_empty() -> None:
     assert tools_resp["tools"][0]["description"] == "Route description"
 
 
+def test_mcp_config_reject_invalid_call_mode() -> None:
+    with pytest.raises(ValueError) as exc_info:
+        build_mcp(
+            {
+                "invalid": build_core_model(
+                    private_route,
+                    mcp_config=MCPConfig(include=True, name="invalid_tool", call_mode=cast(Any, "invalid")),
+                )
+            }
+        )
+    assert "call_mode" in str(exc_info.value)
+
+
+def test_build_http_request_from_mcp_arguments() -> None:
+    request = build_http_request(
+        build_core_model(
+            private_route,
+            name="upsert_user",
+            path="/user/{uid}",
+            operation_id="upsert_user",
+        ),
+        {
+            "path": {"uid": "a b"},
+            "query": {"notify": True, "tag": ["a", "b"]},
+            "header": {"X-Request-Id": "req-1"},
+            "cookie": {"session": "token"},
+            "body": {"name": "appl"},
+        },
+    )
+
+    assert request.method == "GET"
+    assert request.path == "/user/a%20b"
+    assert request.query_string == "notify=True&tag=a&tag=b"
+    assert request.headers == {
+        "x-request-id": "req-1",
+        "cookie": "session=token",
+        "content-type": "application/json",
+    }
+    assert json.loads(request.body.decode()) == {"name": "appl"}
+
+
+def test_build_http_request_form_takes_precedence_over_body() -> None:
+    request = build_http_request(
+        build_core_model(private_route, name="submit_form", path="/form", operation_id="submit_form"),
+        {
+            "form": {"name": "appl"},
+            "body": {"ignored": True},
+        },
+    )
+
+    assert request.headers["content-type"] == "application/x-www-form-urlencoded"
+    assert request.body == b"name=appl"
+
+
+def test_build_http_request_requires_all_path_arguments() -> None:
+    with pytest.raises(KeyError) as exc_info:
+        build_http_request(
+            build_core_model(private_route, name="get_user", path="/user/{uid}", operation_id="get_user"),
+            {},
+        )
+
+    assert "Missing MCP path arguments" in str(exc_info.value)
+
+
 def test_sync_mcp_methods() -> None:
     mcp = build_mcp({"user": build_core_model(user_route)}, mcp_class=MCP)
     client = MCPClient(mcp)
@@ -442,7 +613,15 @@ def test_sync_mcp_can_use_sync_dispatcher_and_http_dispatcher() -> None:
         return MCPHTTPResponse(200, {}, json.dumps({"mode": "http", "arguments": arguments}).encode())
 
     mcp = build_mcp(
-        {"user": build_core_model(user_route)},
+        {
+            "user": build_core_model(user_route),
+            "http": build_core_model(
+                private_route,
+                mcp_config=MCPConfig(include=True, name="http_tool", call_mode="http"),
+                path="/http",
+                operation_id="http_tool",
+            ),
+        },
         mcp_class=MCP,
         direct_dispatcher=custom_direct_dispatcher,
         http_dispatcher=fake_http_dispatcher,
@@ -453,6 +632,6 @@ def test_sync_mcp_can_use_sync_dispatcher_and_http_dispatcher() -> None:
     assert direct_resp["isError"] is False
     assert json.loads(direct_resp["content"][0]["text"]) == {"uid": 1, "name": "so1n"}
 
-    http_resp = client.call_tool("get_user", {"path": {"uid": 1}}, call_mode="http")
+    http_resp = client.call_tool("http_tool", {"path": {"uid": 1}})
     assert http_resp["isError"] is False
     assert json.loads(http_resp["content"][0]["text"]) == {"mode": "http", "arguments": {"path": {"uid": 1}}}

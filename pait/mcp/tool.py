@@ -2,7 +2,8 @@ import re
 from dataclasses import dataclass
 from typing import Any, Dict, List, Mapping, Optional, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing_extensions import Literal
 
 from pait import _pydanitc_adapter
 from pait.data import PaitCoreProxyModel
@@ -10,23 +11,40 @@ from pait.model.core import PaitCoreModel
 from pait.openapi.openapi import ParsePaitModel
 
 PaitModelType = Union[PaitCoreModel, PaitCoreProxyModel]
+MCPCallMode = Literal["direct", "http"]
+MCPConfigCallMode = Literal["", "direct", "http"]
 
 _invalid_name_pattern = re.compile(r"[^a-zA-Z0-9_-]+")
 
 
 class MCPConfig(BaseModel):
+    """Configuration stored in Pait route extra data for MCP export.
+
+    ``call_mode`` is server-side behavior and is not accepted from individual
+    ``tools/call`` requests. Leave it empty to use the MCP instance default.
+    """
+
     include: bool = False
     name: str = ""
     description: str = ""
-    read_only: bool = False
+    call_mode: MCPConfigCallMode = Field(
+        default="",
+        description="Route-level MCP call mode. Empty uses the MCP server default; otherwise use direct or http.",
+    )
+    read_only: bool = Field(
+        default=False,
+        description="Expose the tool with MCP annotations.readOnlyHint when the route does not mutate state.",
+    )
 
 
 def sanitize_tool_name(name: str) -> str:
+    """Convert an arbitrary route name into an MCP-compatible tool name."""
     name = _invalid_name_pattern.sub("_", name).strip("_")
     return name or "pait_tool"
 
 
 def _build_mcp_config(value: Any) -> MCPConfig:
+    """Normalize dynamic extra data into ``MCPConfig``."""
     if isinstance(value, MCPConfig):
         return value
     if isinstance(value, BaseModel):
@@ -37,6 +55,12 @@ def _build_mcp_config(value: Any) -> MCPConfig:
 
 
 def get_mcp_config(pait_model: PaitModelType) -> MCPConfig:
+    """Read MCP configuration from a Pait model.
+
+    Pait decorators can store values either directly under ``extra["mcp"]`` or
+    in the nested ``extra["extra"]["mcp"]`` shape produced by some config
+    helpers. Both forms are supported here.
+    """
     extra = getattr(pait_model, "extra", {}) or {}
     if not isinstance(extra, Mapping):
         return MCPConfig()
@@ -49,10 +73,12 @@ def get_mcp_config(pait_model: PaitModelType) -> MCPConfig:
 
 
 def is_mcp_enabled(pait_model: PaitModelType) -> bool:
+    """Return whether a Pait route should be exported as an MCP tool."""
     return get_mcp_config(pait_model).include
 
 
 def _merge_schema(target: Dict[str, Any], source: Dict[str, Any]) -> None:
+    """Merge one request model JSON schema into a namespace schema."""
     target.setdefault("type", "object")
     target.setdefault("properties", {})
 
@@ -70,6 +96,13 @@ def _merge_schema(target: Dict[str, Any], source: Dict[str, Any]) -> None:
 
 
 def build_input_schema(pait_model: PaitModelType) -> Dict[str, Any]:
+    """Build the MCP tool input schema from Pait request models.
+
+    Pait groups route parameters by request source. MCP arguments use the same
+    namespaces, for example ``path``, ``query``, ``header`` and ``body``. Each
+    namespace gets its own object schema so callers can provide only the sources
+    required by the original HTTP route.
+    """
     real_model = PaitCoreProxyModel.get_core_model(pait_model)
     parse_model = ParsePaitModel(real_model)
     schema: Dict[str, Any] = {
@@ -101,20 +134,34 @@ def build_input_schema(pait_model: PaitModelType) -> Dict[str, Any]:
 
 @dataclass
 class MCPTool(object):
+    """MCP tool metadata derived from one Pait route."""
+
     name: str
     description: str
     input_schema: Dict[str, Any]
     pait_model: PaitModelType
+    call_mode: MCPConfigCallMode = ""
+    read_only: bool = False
 
     def to_dict(self) -> Dict[str, Any]:
-        return {
+        """Return the MCP ``Tool`` representation."""
+        result: Dict[str, Any] = {
             "name": self.name,
             "description": self.description,
             "inputSchema": self.input_schema,
         }
+        if self.read_only:
+            result["annotations"] = {"readOnlyHint": True}
+        return result
 
 
 def build_tool(pait_model: PaitModelType, used_name_set: Optional[set] = None) -> MCPTool:
+    """Build one MCP tool from a Pait model.
+
+    Tool names are taken from MCP config first, then route metadata. When
+    ``used_name_set`` is provided, duplicate names receive a numeric suffix so a
+    single MCP server never exposes ambiguous tool names.
+    """
     mcp_config = get_mcp_config(pait_model)
     name = sanitize_tool_name(str(mcp_config.name or pait_model.func_name or pait_model.operation_id))
     if used_name_set is not None:
@@ -126,9 +173,13 @@ def build_tool(pait_model: PaitModelType, used_name_set: Optional[set] = None) -
         used_name_set.add(name)
 
     description = str(mcp_config.description or pait_model.desc or pait_model.summary or "")
+    if mcp_config.call_mode and mcp_config.call_mode not in {"direct", "http"}:
+        raise ValueError("MCPConfig call_mode must be 'direct', 'http', or empty")
     return MCPTool(
         name=name,
         description=description,
         input_schema=build_input_schema(pait_model),
         pait_model=pait_model,
+        call_mode=mcp_config.call_mode,
+        read_only=mcp_config.read_only,
     )

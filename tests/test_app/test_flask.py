@@ -8,18 +8,27 @@ from typing import Callable, Generator, Optional, Type
 from unittest import mock
 
 import pytest
-from flask import Flask, Response
+from flask import Flask, Response, current_app
 from flask.ctx import AppContext
 from flask.testing import FlaskClient
 from pydantic import BaseModel, Field
 from pytest_mock import MockFixture
 
 from example.flask_example import main_example
+from example.flask_example.mcp_route import (
+    add_mcp_demo_route,
+    mcp_private_route,
+    mcp_redis_status_route,
+    mcp_response_route,
+    mcp_upsert_user_route,
+    mcp_user_route,
+)
 from pait.app import auto_load_app
 from pait.app.any import get_app_attribute, set_app_attribute
 from pait.app.base.simple_route import SimpleRoute
 from pait.app.flask import TestHelper as _TestHelper
 from pait.app.flask import add_multi_simple_route, add_simple_route, load_app, pait
+from pait.mcp import MCP, MCPConfig
 from pait.model import response
 from pait.model.context import ContextModel
 from pait.openapi.doc_route import default_doc_fn_dict
@@ -177,6 +186,34 @@ class TestFlask:
 
     def test_mcp_route(self, client: FlaskClient) -> None:
         assert_mcp_route(FlaskMCPHTTPClient(client), "flask-example")
+
+    def test_mcp_route_with_custom_path(self) -> None:
+        app = Flask("mcp-custom-path-example")
+        app.add_url_rule("/api/mcp/user/<int:uid>", view_func=mcp_user_route, methods=["GET"])
+        app.add_url_rule("/api/mcp/user", view_func=mcp_upsert_user_route, methods=["POST"])
+        app.add_url_rule("/api/mcp/response", view_func=mcp_response_route, methods=["GET"])
+        app.add_url_rule("/api/mcp/redis", view_func=mcp_redis_status_route, methods=["GET"])
+        app.add_url_rule("/api/mcp/private", view_func=mcp_private_route, methods=["GET"])
+        main_example.CacheResponsePlugin.set_redis_to_app(app, main_example.Redis(decode_responses=True))
+        add_mcp_demo_route(app, mcp_path="/custom-mcp")
+
+        with client_ctx(app=app) as client:
+            assert client.post("/mcp", json={"method": "tools/list"}).status_code == 404
+            assert_mcp_route(FlaskMCPHTTPClient(client, path="/custom-mcp"), "flask-example")
+
+    def test_mcp_direct_call_with_app_context(self) -> None:
+        app = Flask("mcp-direct-context-example")
+
+        @pait(extra={"mcp": MCPConfig(include=True, name="get_current_app_name")})
+        def current_app_name_route() -> dict:
+            return {"name": current_app.name}
+
+        app.add_url_rule("/api/mcp/current-app-name", view_func=current_app_name_route, methods=["GET"])
+        mcp = MCP(app, mcp_path=None, overwrite_already_exists_data=True)
+        result = mcp.call_tool("get_current_app_name")
+
+        assert not result["isError"]
+        assert json.loads(result["content"][0]["text"]) == {"name": "mcp-direct-context-example"}
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:

@@ -1,21 +1,19 @@
 from typing import Any
 
-from sanic import Sanic, json
-from sanic.request import Request
+from sanic import Sanic
 from sanic.response import HTTPResponse
 
-from pait.app.sanic import pait
-from pait.mcp import AsyncMCP
 from pait.mcp.dispatcher import MCPDirectResponse, dispatch_tool
 from pait.mcp.dispatcher import encode_content as default_encode_content
 from pait.mcp.http import dispatch_asgi_tool
 
-__all__ = ["add_mcp_route", "dispatch_direct_tool", "dispatch_http_tool", "encode_content"]
+__all__ = ["dispatch_direct_tool", "dispatch_http_tool", "encode_content"]
 
 dispatch_direct_tool = dispatch_tool
 
 
 def encode_content(value: Any) -> str:
+    """Encode Sanic-specific direct call values for MCP text content."""
     if isinstance(value, MCPDirectResponse):
         value = value.value
     if isinstance(value, HTTPResponse):
@@ -27,14 +25,7 @@ def encode_content(value: Any) -> str:
 
 
 async def dispatch_http_tool(app: Sanic, *args: Any, **kwargs: Any) -> Any:
+    """Dispatch a Sanic MCP tool call through the app's ASGI interface."""
     if not app.router.finalized:
         app.router.finalize()
     return await dispatch_asgi_tool(app, *args, **kwargs)
-
-
-def add_mcp_route(app: Sanic, mcp: AsyncMCP, path: str = "/mcp", **kwargs: Any) -> None:
-    @pait()
-    async def mcp_route(request: Request) -> Any:
-        return json(await mcp.handle_message(request.json or {}))
-
-    app.add_route(mcp_route, path, methods=["POST"], **kwargs)

@@ -15,68 +15,96 @@ if TYPE_CHECKING:
 
 
 class MCPRequest(object):
+    """Request adapter used by direct MCP tool calls.
+
+    Direct mode does not enter a real web framework request. This object exposes
+    the same resource access methods that Pait field parsers expect, backed by
+    the MCP tool argument mapping.
+    """
+
     def __init__(self, arguments: Mapping[str, Any]) -> None:
+        """Store the MCP tool arguments used as request data."""
         self.request = arguments
-        self.args: list = []
-        self.kwargs: Dict[str, Any] = {}
-        self.request_kwargs: Dict[str, Any] = {}
         self._arguments = arguments
 
     def _get_mapping(self, key: str) -> Mapping[str, Any]:
+        """Return a named argument namespace only when it is mapping-like."""
         value = self._arguments.get(key, {})
         return value if isinstance(value, Mapping) else {}
 
     def path(self) -> Mapping[str, Any]:
+        """Return path arguments."""
         return self._get_mapping("path")
 
     def query(self) -> Mapping[str, Any]:
+        """Return query arguments."""
         return self._get_mapping("query")
 
     def multiquery(self) -> Mapping[str, Any]:
+        """Return repeated query arguments."""
         return self.query()
 
     def header(self) -> Mapping[str, Any]:
+        """Return header arguments."""
         return self._get_mapping("header")
 
     def cookie(self) -> Mapping[str, Any]:
+        """Return cookie arguments."""
         return self._get_mapping("cookie")
 
     def body(self) -> Any:
+        """Return request body arguments."""
         return self._arguments.get("body", {})
 
     def json(self) -> Any:
+        """Return JSON arguments. Direct mode treats JSON as the body."""
         return self.body()
 
     def form(self) -> Mapping[str, Any]:
+        """Return form arguments."""
         return self._get_mapping("form")
 
     def multiform(self) -> Mapping[str, Any]:
+        """Return repeated form arguments."""
         return self.form()
 
     def file(self) -> Mapping[str, Any]:
+        """Return file arguments."""
         return self._get_mapping("file")
 
     def self(self) -> Dict[str, Any]:
+        """Return this adapter state for Pait self-field access."""
         return self.__dict__
 
 
 class MCPAppHelper(object):
+    """Minimal AppHelper implementation for direct MCP execution."""
+
     def __init__(self, arguments: Mapping[str, Any], cbv_instance: Any = None) -> None:
+        """Create a direct-mode app helper from MCP arguments."""
         self.cbv_instance = cbv_instance
         self.raw_request = arguments
         self.request = MCPRequest(arguments)
 
     def get_attributes(self, key: str, default: Any = None) -> Any:
+        """Return framework app attributes.
+
+        Direct mode has no real framework app helper, so unsupported attributes
+        fall back to the caller-provided default.
+        """
         return default
 
 
 @dataclass
 class MCPDirectResponse(object):
+    """Raw result returned by a direct MCP dispatcher."""
+
     value: Any
     cbv_instance: Any = None
 
 
 def encode_content(value: Any) -> str:
+    """Encode a dispatcher/resource value as MCP text content."""
     if isinstance(value, MCPDirectResponse):
         value = value.value
 
@@ -95,6 +123,12 @@ def encode_content(value: Any) -> str:
 async def dispatch_tool(
     core_model: "PaitCoreModel", arguments: Optional[Mapping[str, Any]] = None, cbv_instance: Any = None
 ) -> MCPDirectResponse:
+    """Run an async-capable Pait core model without a framework request.
+
+    The dispatcher builds the Pait ``ContextModel`` from MCP arguments, installs
+    it as the current context, and then executes the route plugin stack. Awaitable
+    results are awaited so both sync and async routes can be used by AsyncMCP.
+    """
     arguments = arguments or {}
     context = ContextModel(
         cbv_instance=cbv_instance,
@@ -113,6 +147,12 @@ async def dispatch_tool(
 def dispatch_sync_tool(
     core_model: "PaitCoreModel", arguments: Optional[Mapping[str, Any]] = None, cbv_instance: Any = None
 ) -> MCPDirectResponse:
+    """Run a synchronous Pait core model without a framework request.
+
+    Unlike ``dispatch_tool``, this function never awaits the route result. It is
+    used by the sync ``MCP`` class so async routes fail clearly instead of
+    silently crossing event-loop boundaries.
+    """
     arguments = arguments or {}
     context = ContextModel(
         cbv_instance=cbv_instance,
