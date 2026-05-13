@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, Mapping, Optional, cast
+from typing import Any, Dict, List, Mapping, Optional, cast
 
 import pytest
 
@@ -7,8 +7,8 @@ from pait import field
 from pait.app.base import BaseAppHelper
 from pait.extra.config import MatchRule, apply_mcp_config
 from pait.mcp import MCP, AsyncMCP, MCPCallMode, MCPConfig
-from pait.mcp.dispatcher import MCPDirectResponse, dispatch_sync_tool, dispatch_tool, encode_content
-from pait.mcp.http import MCPHTTPResponse, build_http_request
+from pait.mcp.dispatcher import MCPDirectResponse, MCPRequest, dispatch_sync_tool, dispatch_tool, encode_content
+from pait.mcp.http import MCPHTTPResponse, build_http_request, dispatch_wsgi_tool
 from pait.mcp.tool import get_mcp_config
 from pait.model.core import PaitCoreModel
 from pait.model.tag import Tag
@@ -319,6 +319,23 @@ def test_mcp_resource() -> None:
     }
 
 
+def test_mcp_resource_uses_instance_content_encoder() -> None:
+    def custom_content_encoder(value: Any) -> str:
+        return "resource:" + json.dumps(value)
+
+    mcp = build_mcp({}, content_encoder=custom_content_encoder)
+    client = AsyncMCPClient(mcp)
+
+    @mcp.resource("config://custom", name="custom-config")
+    def custom_config() -> dict:
+        return {"name": "custom"}
+
+    with fixture_loop(mock_close_loop=True) as loop:
+        read_resp = loop.run_until_complete(client.read_resource("config://custom"))
+
+    assert read_resp["contents"][0]["text"] == 'resource:{"name": "custom"}'
+
+
 def test_async_mcp_can_read_async_resource() -> None:
     mcp = build_mcp({})
     client = AsyncMCPClient(mcp)
@@ -352,6 +369,54 @@ def test_mcp_handle_message_json_rpc_envelope() -> None:
     assert [tool["name"] for tool in resp["result"]["tools"]] == ["get_user"]
 
 
+@pytest.mark.parametrize("mcp_class,client_class", [(AsyncMCP, AsyncMCPClient), (MCP, MCPClient)])
+def test_mcp_initialize_ping_and_initialized_notification(mcp_class: Any, client_class: Any) -> None:
+    mcp = build_mcp({"user": build_core_model(user_route)}, mcp_class=mcp_class)
+    client = client_class(mcp)
+
+    if mcp_class is MCP:
+        initialize_resp = client.request("initialize", {"protocolVersion": "2025-06-18"}, request_id=1)
+        initialized_resp = client.request("notifications/initialized")
+        ping_resp = client.request("ping", request_id=2)
+    else:
+        with fixture_loop(mock_close_loop=True) as loop:
+            initialize_resp = loop.run_until_complete(
+                client.request("initialize", {"protocolVersion": "2025-06-18"}, request_id=1)
+            )
+            initialized_resp = loop.run_until_complete(client.request("notifications/initialized"))
+            ping_resp = loop.run_until_complete(client.request("ping", request_id=2))
+
+    assert initialize_resp == {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+            "protocolVersion": "2025-06-18",
+            "capabilities": {
+                "resources": {"listChanged": False},
+                "tools": {"listChanged": False},
+            },
+            "serverInfo": {
+                "name": "pait",
+                "version": "0.0.0",
+            },
+        },
+    }
+    assert initialized_resp == {}
+    assert ping_resp == {"jsonrpc": "2.0", "id": 2, "result": {}}
+
+
+def test_mcp_initialize_uses_latest_version_when_client_version_is_unsupported() -> None:
+    mcp = build_mcp({})
+    client = AsyncMCPClient(mcp)
+
+    with fixture_loop(mock_close_loop=True) as loop:
+        initialize_resp = loop.run_until_complete(
+            client.request("initialize", {"protocolVersion": "2099-01-01"}, request_id=1)
+        )
+
+    assert initialize_resp["result"]["protocolVersion"] == "2025-11-25"
+
+
 def test_mcp_unknown_tool_and_method_errors() -> None:
     mcp = build_mcp({})
     client = AsyncMCPClient(mcp)
@@ -377,6 +442,18 @@ def test_mcp_message_params_must_be_mapping() -> None:
         resp = loop.run_until_complete(
             client.request("tools/list", params=["invalid"], request_id=1)  # type: ignore[arg-type]
         )
+
+    assert resp["id"] == 1
+    assert resp["error"]["code"] == -32000
+    assert resp["error"]["message"] == "MCP params must be a mapping"
+
+
+def test_mcp_empty_list_params_must_be_mapping() -> None:
+    mcp = build_mcp({})
+    client = AsyncMCPClient(mcp)
+
+    with fixture_loop(mock_close_loop=True) as loop:
+        resp = loop.run_until_complete(client.request("tools/list", params=[], request_id=1))  # type: ignore[arg-type]
 
     assert resp["id"] == 1
     assert resp["error"]["code"] == -32000
@@ -582,6 +659,55 @@ def test_build_http_request_requires_all_path_arguments() -> None:
         )
 
     assert "Missing MCP path arguments" in str(exc_info.value)
+
+
+def test_mcp_request_does_not_expose_framework_request() -> None:
+    request = MCPRequest({"header": {"token": "demo-token"}})
+
+    assert request.header() == {"token": "demo-token"}
+    with pytest.raises(RuntimeError) as exc_info:
+        request.request
+
+    assert "cannot provide a framework request object" in str(exc_info.value)
+
+
+def test_dispatch_wsgi_tool_without_framework_dependency() -> None:
+    def simple_wsgi_app(environ: Mapping[str, Any], start_response: Any) -> List[bytes]:
+        body = environ["wsgi.input"].read(int(environ["CONTENT_LENGTH"]))
+        response_body = json.dumps(
+            {
+                "method": environ["REQUEST_METHOD"],
+                "path": environ["PATH_INFO"],
+                "query": environ["QUERY_STRING"],
+                "request_id": environ["HTTP_X_REQUEST_ID"],
+                "content_type": environ["CONTENT_TYPE"],
+                "body": json.loads(body.decode()),
+            }
+        ).encode()
+        start_response("201 Created", [("Content-Type", "application/json"), ("X-Mode", "wsgi")])
+        return [response_body]
+
+    response = dispatch_wsgi_tool(
+        simple_wsgi_app,
+        build_core_model(private_route, name="wsgi_tool", path="/wsgi/{name}", operation_id="wsgi_tool"),
+        {
+            "path": {"name": "a b"},
+            "query": {"debug": True},
+            "header": {"X-Request-Id": "req-1"},
+            "body": {"name": "appl"},
+        },
+    )
+
+    assert response.status_code == 201
+    assert response.headers == {"content-type": "application/json", "x-mode": "wsgi"}
+    assert json.loads(response.text()) == {
+        "method": "GET",
+        "path": "/wsgi/a b",
+        "query": "debug=True",
+        "request_id": "req-1",
+        "content_type": "application/json",
+        "body": {"name": "appl"},
+    }
 
 
 def test_sync_mcp_methods() -> None:

@@ -58,12 +58,28 @@ class TornadoMCPHTTPClient(BaseMCPHTTPClient):
         return json.loads(response.body.decode())
 
 
-def assert_mcp_route(mcp_client: BaseMCPHTTPClient, app_name: str, support_http_tool: bool = True) -> None:
+def assert_mcp_route(mcp_client: BaseMCPHTTPClient, app_name: str, support_http_dispatcher: bool = True) -> None:
+    initialize_resp = mcp_client.request("initialize", {"protocolVersion": "2025-06-18"}, request_id=1)
+    assert initialize_resp["jsonrpc"] == "2.0"
+    assert initialize_resp["id"] == 1
+    assert initialize_resp["result"]["protocolVersion"] == "2025-06-18"
+    assert initialize_resp["result"]["capabilities"] == {
+        "resources": {"listChanged": False},
+        "tools": {"listChanged": False},
+    }
+    assert initialize_resp["result"]["serverInfo"] == {"name": "pait", "version": "0.0.0"}
+    assert mcp_client.request("notifications/initialized") == {}
+
     tool_list = mcp_client.list_tools()["tools"]
     tool_dict = {tool["name"]: tool for tool in tool_list}
-    expected_tool_name_set = {"get_mcp_demo_user", "upsert_mcp_demo_user", "get_mcp_demo_response"}
-    if support_http_tool:
-        expected_tool_name_set.add("get_mcp_redis_status")
+    expected_tool_name_set = {
+        "get_mcp_demo_user",
+        "upsert_mcp_demo_user",
+        "get_mcp_demo_response",
+        "get_mcp_depend_status",
+    }
+    if support_http_dispatcher:
+        expected_tool_name_set.add("get_mcp_http_dispatcher_status")
     assert set(tool_dict) == expected_tool_name_set
 
     get_user_tool = tool_dict["get_mcp_demo_user"]
@@ -80,12 +96,18 @@ def assert_mcp_route(mcp_client: BaseMCPHTTPClient, app_name: str, support_http_
     assert response_tool["description"] == "Get MCP demo framework response"
     assert response_tool["annotations"] == {"readOnlyHint": True}
 
-    if support_http_tool:
-        redis_tool = tool_dict["get_mcp_redis_status"]
+    if support_http_dispatcher:
+        http_dispatcher_tool = tool_dict["get_mcp_http_dispatcher_status"]
         assert (
-            redis_tool["description"] == f"Get MCP demo Redis status from the {app_name.split('-', 1)[0].title()} app"
+            http_dispatcher_tool["description"]
+            == f"Get MCP demo HTTP dispatcher status from the {app_name.split('-', 1)[0].title()} app"
         )
-        assert redis_tool["annotations"] == {"readOnlyHint": True}
+        assert http_dispatcher_tool["annotations"] == {"readOnlyHint": True}
+
+    depend_tool = tool_dict["get_mcp_depend_status"]
+    assert depend_tool["description"] == f"Get MCP demo depend status from the {app_name.split('-', 1)[0].title()} app"
+    assert depend_tool["annotations"] == {"readOnlyHint": True}
+    assert "header" in depend_tool["inputSchema"]["properties"]
 
     call_resp = mcp_client.call_tool("get_mcp_demo_user", {"path": {"uid": 1}})
     assert call_resp["isError"] is False
@@ -129,10 +151,14 @@ def assert_mcp_route(mcp_client: BaseMCPHTTPClient, app_name: str, support_http_
         "ok": True,
     }
 
-    if support_http_tool:
-        redis_resp = mcp_client.call_tool("get_mcp_redis_status")
-        assert redis_resp["isError"] is False
-        assert json.loads(redis_resp["content"][0]["text"]) == {"redis": True, "client": "Redis"}
+    if support_http_dispatcher:
+        http_dispatcher_resp = mcp_client.call_tool("get_mcp_http_dispatcher_status")
+        assert http_dispatcher_resp["isError"] is False
+        assert json.loads(http_dispatcher_resp["content"][0]["text"]) == {"mcp": True, "http_dispatcher": True}
+
+    depend_resp = mcp_client.call_tool("get_mcp_depend_status", {"header": {"token": "demo-token"}})
+    assert depend_resp["isError"] is False
+    assert json.loads(depend_resp["content"][0]["text"]) == {"mcp": True, "depend": True}
 
     private_resp = mcp_client.call_tool("get_mcp_private_user")
     assert private_resp["isError"] is True

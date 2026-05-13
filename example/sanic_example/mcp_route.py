@@ -1,11 +1,12 @@
+from typing import Any
+
 from pydantic import BaseModel
 from sanic import Request, Sanic, response
 
+from example.common import depend
 from example.sanic_example.utils import global_pait
 from pait._pydanitc_adapter import model_dump
-from pait.app.sanic.plugin.cache_response import CacheResponsePlugin
-from pait.field import Header, Json, Path, Query
-from pait.g import get_ctx
+from pait.field import Depends, Header, Json, Path, Query
 from pait.mcp import AsyncMCP, MCPConfig
 
 mcp_pait = global_pait.create_sub_pait(group="mcp")
@@ -60,25 +61,41 @@ async def mcp_upsert_user_route(
         )
     },
 )
-async def mcp_response_route(request: Request) -> response.HTTPResponse:
+async def mcp_response_route(request: Any = None) -> response.HTTPResponse:
     return response.json({"framework": "sanic", "ok": True})
 
 
 @mcp_pait(
-    desc="Get MCP demo Redis status from the Sanic app",
+    desc="Get MCP demo HTTP dispatcher status from the Sanic app",
     extra={
         "mcp": MCPConfig(
             include=True,
-            name="get_mcp_redis_status",
-            description="Get MCP demo Redis status from the Sanic app",
+            name="get_mcp_http_dispatcher_status",
+            description="Get MCP demo HTTP dispatcher status from the Sanic app",
             call_mode="http",
             read_only=True,
         )
     },
 )
-async def mcp_redis_status_route(request: Request) -> response.HTTPResponse:
-    redis = get_ctx().app_helper.get_attributes(CacheResponsePlugin._cache_plugin_redis_key, None)
-    return response.json({"redis": redis is not None, "client": redis.__class__.__name__ if redis else ""})
+async def mcp_http_dispatcher_route(request: Request) -> response.HTTPResponse:
+    return response.json({"mcp": True, "http_dispatcher": True})
+
+
+@mcp_pait(
+    desc="Get MCP demo depend status from the Sanic app",
+    extra={
+        "mcp": MCPConfig(
+            include=True,
+            name="get_mcp_depend_status",
+            description="Get MCP demo depend status from the Sanic app",
+            read_only=True,
+        )
+    },
+)
+async def mcp_depend_route(
+    request: Any = None, check_token: None = Depends.i(depend.CheckTokenDepend)
+) -> response.HTTPResponse:
+    return response.json({"mcp": True, "depend": True})
 
 
 @mcp_pait(

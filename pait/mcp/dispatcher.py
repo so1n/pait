@@ -24,8 +24,15 @@ class MCPRequest(object):
 
     def __init__(self, arguments: Mapping[str, Any]) -> None:
         """Store the MCP tool arguments used as request data."""
-        self.request = arguments
         self._arguments = arguments
+
+    @property
+    def request(self) -> Any:
+        """Reject framework request access in direct MCP mode."""
+        raise RuntimeError(
+            "MCP direct call mode cannot provide a framework request object; "
+            "use MCPConfig(call_mode='http') or remove the request parameter"
+        )
 
     def _get_mapping(self, key: str) -> Mapping[str, Any]:
         """Return a named argument namespace only when it is mapping-like."""
@@ -120,9 +127,9 @@ def encode_content(value: Any) -> str:
     return str(value)
 
 
-async def dispatch_tool(
+def _dispatch_tool(
     core_model: "PaitCoreModel", arguments: Optional[Mapping[str, Any]] = None, cbv_instance: Any = None
-) -> MCPDirectResponse:
+) -> Any:
     """Run an async-capable Pait core model without a framework request.
 
     The dispatcher builds the Pait ``ContextModel`` from MCP arguments, installs
@@ -138,7 +145,19 @@ async def dispatch_tool(
         kwargs={},
     )
     set_ctx(context)
-    result = core_model.main_plugin(context)
+    return core_model.main_plugin(context)
+
+
+async def dispatch_tool(
+    core_model: "PaitCoreModel", arguments: Optional[Mapping[str, Any]] = None, cbv_instance: Any = None
+) -> MCPDirectResponse:
+    """Run an async-capable Pait core model without a framework request.
+
+    The dispatcher builds the Pait ``ContextModel`` from MCP arguments, installs
+    it as the current context, and then executes the route plugin stack. Awaitable
+    results are awaited so both sync and async routes can be used by AsyncMCP.
+    """
+    result = _dispatch_tool(core_model, arguments, cbv_instance)
     if inspect.isawaitable(result):
         result = await result
     return MCPDirectResponse(result, cbv_instance=cbv_instance)
@@ -153,14 +172,5 @@ def dispatch_sync_tool(
     used by the sync ``MCP`` class so async routes fail clearly instead of
     silently crossing event-loop boundaries.
     """
-    arguments = arguments or {}
-    context = ContextModel(
-        cbv_instance=cbv_instance,
-        app_helper=MCPAppHelper(arguments, cbv_instance=cbv_instance),  # type: ignore[arg-type]
-        pait_core_model=core_model,
-        args=[],
-        kwargs={},
-    )
-    set_ctx(context)
-    result = core_model.main_plugin(context)
+    result = _dispatch_tool(core_model, arguments, cbv_instance)
     return MCPDirectResponse(result, cbv_instance=cbv_instance)

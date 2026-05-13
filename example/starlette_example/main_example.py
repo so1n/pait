@@ -40,8 +40,9 @@ from example.starlette_example.field_route import (
 from example.starlette_example.file_route import multipart_route, stream_for_data_route
 from example.starlette_example.mcp_route import (
     add_mcp_demo_route,
+    mcp_depend_route,
+    mcp_http_dispatcher_route,
     mcp_private_route,
-    mcp_redis_status_route,
     mcp_response_route,
     mcp_upsert_user_route,
     mcp_user_route,
@@ -300,7 +301,8 @@ def create_app() -> Starlette:
             Route("/api/mcp/user/{uid}", mcp_user_route, methods=["GET"]),
             Route("/api/mcp/user", mcp_upsert_user_route, methods=["POST"]),
             Route("/api/mcp/response", mcp_response_route, methods=["GET"]),
-            Route("/api/mcp/redis", mcp_redis_status_route, methods=["GET"]),
+            Route("/api/mcp/http-dispatcher", mcp_http_dispatcher_route, methods=["GET"]),
+            Route("/api/mcp/depend", mcp_depend_route, methods=["GET"]),
             Route("/api/mcp/private", mcp_private_route, methods=["GET"]),
             Route("/api/field/post", post_route, methods=["POST"]),
             Route("/api/field/pait-base-field/{age}", pait_base_field_route, methods=["POST"]),

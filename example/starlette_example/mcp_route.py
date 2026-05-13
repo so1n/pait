@@ -2,11 +2,10 @@ from pydantic import BaseModel
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse
 
+from example.common import depend
 from example.starlette_example.utils import global_pait
 from pait._pydanitc_adapter import model_dump
-from pait.app.starlette.plugin.cache_response import CacheResponsePlugin
-from pait.field import Header, Json, Path, Query
-from pait.g import get_ctx
+from pait.field import Depends, Header, Json, Path, Query
 from pait.mcp import AsyncMCP, MCPConfig
 
 mcp_pait = global_pait.create_sub_pait(group="mcp")
@@ -66,20 +65,34 @@ async def mcp_response_route() -> JSONResponse:
 
 
 @mcp_pait(
-    desc="Get MCP demo Redis status from the Starlette app",
+    desc="Get MCP demo HTTP dispatcher status from the Starlette app",
     extra={
         "mcp": MCPConfig(
             include=True,
-            name="get_mcp_redis_status",
-            description="Get MCP demo Redis status from the Starlette app",
+            name="get_mcp_http_dispatcher_status",
+            description="Get MCP demo HTTP dispatcher status from the Starlette app",
             call_mode="http",
             read_only=True,
         )
     },
 )
-async def mcp_redis_status_route() -> JSONResponse:
-    redis = get_ctx().app_helper.get_attributes(CacheResponsePlugin._cache_plugin_redis_key, None)
-    return JSONResponse({"redis": redis is not None, "client": redis.__class__.__name__ if redis else ""})
+async def mcp_http_dispatcher_route() -> JSONResponse:
+    return JSONResponse({"mcp": True, "http_dispatcher": True})
+
+
+@mcp_pait(
+    desc="Get MCP demo depend status from the Starlette app",
+    extra={
+        "mcp": MCPConfig(
+            include=True,
+            name="get_mcp_depend_status",
+            description="Get MCP demo depend status from the Starlette app",
+            read_only=True,
+        )
+    },
+)
+async def mcp_depend_route(check_token: None = Depends.i(depend.CheckTokenDepend)) -> JSONResponse:
+    return JSONResponse({"mcp": True, "depend": True})
 
 
 @mcp_pait(

@@ -36,6 +36,7 @@ from example.tornado_example.field_route import (
     SameAliasHandler,
 )
 from example.tornado_example.mcp_route import (
+    MCPDependHandler,
     MCPPrivateHandler,
     MCPResponseHandler,
     MCPUpsertUserHandler,
@@ -293,6 +294,7 @@ def create_app() -> Application:
             (r"/api/mcp/user/(?P<uid>\w+)", MCPUserHandler),
             (r"/api/mcp/user", MCPUpsertUserHandler),
             (r"/api/mcp/response", MCPResponseHandler),
+            (r"/api/mcp/depend", MCPDependHandler),
             (r"/api/mcp/private", MCPPrivateHandler),
             (r"/api/field/post", PostHandler),
             (r"/api/field/pait-base-field/(?P<age>\w+)", PaitBaseFieldHandler),

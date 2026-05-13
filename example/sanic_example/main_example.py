@@ -41,8 +41,9 @@ from example.sanic_example.field_route import (
 from example.sanic_example.file_route import multipart_route, stream_for_data_route
 from example.sanic_example.mcp_route import (
     add_mcp_demo_route,
+    mcp_depend_route,
+    mcp_http_dispatcher_route,
     mcp_private_route,
-    mcp_redis_status_route,
     mcp_response_route,
     mcp_upsert_user_route,
     mcp_user_route,
@@ -294,7 +295,8 @@ def create_app(configure_logging: bool = True) -> Sanic:
     app.add_route(mcp_user_route, "/api/mcp/user/<uid:int>", methods=["GET"])
     app.add_route(mcp_upsert_user_route, "/api/mcp/user", methods=["POST"])
     app.add_route(mcp_response_route, "/api/mcp/response", methods=["GET"])
-    app.add_route(mcp_redis_status_route, "/api/mcp/redis", methods=["GET"])
+    app.add_route(mcp_http_dispatcher_route, "/api/mcp/http-dispatcher", methods=["GET"])
+    app.add_route(mcp_depend_route, "/api/mcp/depend", methods=["GET"])
     app.add_route(mcp_private_route, "/api/mcp/private", methods=["GET"])
 
     app.add_route(post_route, "/api/field/post", methods={"POST"})

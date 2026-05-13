@@ -1,8 +1,9 @@
 import json
+import sys
 from dataclasses import dataclass
 from io import BytesIO
 from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Tuple
-from urllib.parse import quote, urlencode
+from urllib.parse import quote, unquote_to_bytes, urlencode
 
 from pait.g import config
 
@@ -114,6 +115,37 @@ def build_http_request(core_model: "PaitCoreModel", arguments: Optional[Mapping[
     )
 
 
+def _build_wsgi_environ(request: MCPHTTPRequest) -> Dict[str, Any]:
+    """Build a minimal WSGI environ for an in-process HTTP request."""
+    environ: Dict[str, Any] = {
+        "REQUEST_METHOD": request.method,
+        "SCRIPT_NAME": "",
+        "PATH_INFO": unquote_to_bytes(request.path).decode("latin-1"),
+        "QUERY_STRING": request.query_string,
+        "SERVER_NAME": "testserver",
+        "SERVER_PORT": "80",
+        "SERVER_PROTOCOL": "HTTP/1.1",
+        "REMOTE_ADDR": "127.0.0.1",
+        "wsgi.version": (1, 0),
+        "wsgi.url_scheme": "http",
+        "wsgi.input": BytesIO(request.body),
+        "wsgi.errors": sys.stderr,
+        "wsgi.multithread": False,
+        "wsgi.multiprocess": False,
+        "wsgi.run_once": False,
+        "CONTENT_LENGTH": str(len(request.body)),
+    }
+    for key, value in request.headers.items():
+        header_key = key.replace("-", "_").upper()
+        if header_key == "CONTENT_TYPE":
+            environ["CONTENT_TYPE"] = value
+        elif header_key == "CONTENT_LENGTH":
+            environ["CONTENT_LENGTH"] = value
+        else:
+            environ["HTTP_" + header_key] = value
+    return environ
+
+
 async def dispatch_asgi_tool(
     app: Any, core_model: "PaitCoreModel", arguments: Optional[Mapping[str, Any]] = None
 ) -> MCPHTTPResponse:
@@ -168,8 +200,6 @@ def dispatch_wsgi_tool(
     app: Any, core_model: "PaitCoreModel", arguments: Optional[Mapping[str, Any]] = None
 ) -> MCPHTTPResponse:
     """Dispatch an MCP tool call through a WSGI app in-process."""
-    from werkzeug.test import EnvironBuilder
-
     request = build_http_request(core_model, arguments)
     response_status_code = 500
     response_headers: Dict[str, str] = {}
@@ -186,16 +216,8 @@ def dispatch_wsgi_tool(
         response_headers.update({key.lower(): value for key, value in headers})
         return write
 
-    builder = EnvironBuilder(
-        path=request.path,
-        method=request.method,
-        query_string=request.query_string,
-        headers=list(request.headers.items()),
-        input_stream=BytesIO(request.body),
-        content_length=len(request.body),
-        content_type=request.headers.get("content-type"),
-    )
-    response_iter = app.wsgi_app(builder.get_environ(), start_response)
+    wsgi_app = getattr(app, "wsgi_app", app)
+    response_iter = wsgi_app(_build_wsgi_environ(request), start_response)
     try:
         body = b"".join(write_body_list + list(response_iter))
     finally:

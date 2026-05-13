@@ -17,8 +17,9 @@ from pytest_mock import MockFixture
 from example.flask_example import main_example
 from example.flask_example.mcp_route import (
     add_mcp_demo_route,
+    mcp_depend_route,
+    mcp_http_dispatcher_route,
     mcp_private_route,
-    mcp_redis_status_route,
     mcp_response_route,
     mcp_upsert_user_route,
     mcp_user_route,
@@ -192,9 +193,9 @@ class TestFlask:
         app.add_url_rule("/api/mcp/user/<int:uid>", view_func=mcp_user_route, methods=["GET"])
         app.add_url_rule("/api/mcp/user", view_func=mcp_upsert_user_route, methods=["POST"])
         app.add_url_rule("/api/mcp/response", view_func=mcp_response_route, methods=["GET"])
-        app.add_url_rule("/api/mcp/redis", view_func=mcp_redis_status_route, methods=["GET"])
+        app.add_url_rule("/api/mcp/http-dispatcher", view_func=mcp_http_dispatcher_route, methods=["GET"])
+        app.add_url_rule("/api/mcp/depend", view_func=mcp_depend_route, methods=["GET"])
         app.add_url_rule("/api/mcp/private", view_func=mcp_private_route, methods=["GET"])
-        main_example.CacheResponsePlugin.set_redis_to_app(app, main_example.Redis(decode_responses=True))
         add_mcp_demo_route(app, mcp_path="/custom-mcp")
 
         with client_ctx(app=app) as client:

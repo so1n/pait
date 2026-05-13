@@ -1,9 +1,10 @@
 from pydantic import BaseModel
 from tornado.web import Application
 
+from example.common import depend
 from example.tornado_example.utils import MyHandler, global_pait
 from pait._pydanitc_adapter import model_dump
-from pait.field import Header, Json, Path, Query
+from pait.field import Depends, Header, Json, Path, Query
 from pait.mcp import AsyncMCP, MCPConfig
 
 mcp_pait = global_pait.create_sub_pait(group="mcp")
@@ -64,6 +65,22 @@ class MCPResponseHandler(MyHandler):
     )
     async def get(self) -> None:
         self.write({"framework": "tornado", "ok": True})
+
+
+class MCPDependHandler(MyHandler):
+    @mcp_pait(
+        desc="Get MCP demo depend status from the Tornado app",
+        extra={
+            "mcp": MCPConfig(
+                include=True,
+                name="get_mcp_depend_status",
+                description="Get MCP demo depend status from the Tornado app",
+                read_only=True,
+            )
+        },
+    )
+    async def get(self, check_token: None = Depends.i(depend.CheckTokenDepend)) -> None:
+        self.write({"mcp": True, "depend": True})
 
 
 class MCPPrivateHandler(MyHandler):
