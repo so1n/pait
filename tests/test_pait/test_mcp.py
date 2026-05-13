@@ -2,14 +2,15 @@ import json
 from typing import Any, Dict, List, Mapping, Optional, cast
 
 import pytest
+from pydantic import BaseModel
 
 from pait import field
 from pait.app.base import BaseAppHelper
 from pait.extra.config import MatchRule, apply_mcp_config
 from pait.mcp import MCP, AsyncMCP, MCPCallMode, MCPConfig
 from pait.mcp.dispatcher import MCPDirectResponse, MCPRequest, dispatch_sync_tool, dispatch_tool, encode_content
-from pait.mcp.http import MCPHTTPResponse, build_http_request, dispatch_wsgi_tool
-from pait.mcp.tool import get_mcp_config
+from pait.mcp.http import MCPHTTPResponse, build_http_request, dispatch_asgi_tool, dispatch_wsgi_tool
+from pait.mcp.tool import build_input_schema, get_mcp_config
 from pait.model.core import PaitCoreModel
 from pait.model.tag import Tag
 from pait.param_handle import ParamHandler
@@ -161,6 +162,18 @@ def tagged_route(uid: int = field.Path.i(description="user id")) -> dict:
 
 def unnamed_mcp_route() -> dict:
     return {"ok": True}
+
+
+class NestedMCPChildPayload(BaseModel):
+    name: str
+
+
+class NestedMCPPayload(BaseModel):
+    child: NestedMCPChildPayload
+
+
+def nested_body_route(body: NestedMCPPayload = field.Json.i(raw_return=True)) -> dict:
+    return {"name": body.child.name}
 
 
 def test_mcp_tools_list_and_call() -> None:
@@ -610,6 +623,17 @@ def test_mcp_config_reject_invalid_call_mode() -> None:
     assert "call_mode" in str(exc_info.value)
 
 
+def test_build_input_schema_keeps_nested_definitions_at_root() -> None:
+    schema = build_input_schema(
+        build_core_model(nested_body_route, name="nested_body", path="/nested-body", operation_id="nested_body")
+    )
+    definition_key = "$defs" if "$defs" in schema else "definitions"
+
+    assert definition_key in schema
+    assert definition_key not in schema["properties"]["body"]
+    assert schema["properties"]["body"]["properties"]["child"]["$ref"].startswith(f"#/{definition_key}/")
+
+
 def test_build_http_request_from_mcp_arguments() -> None:
     request = build_http_request(
         build_core_model(
@@ -708,6 +732,26 @@ def test_dispatch_wsgi_tool_without_framework_dependency() -> None:
         "content_type": "application/json",
         "body": {"name": "appl"},
     }
+
+
+def test_dispatch_asgi_tool_uses_decoded_path_and_encoded_raw_path() -> None:
+    async def simple_asgi_app(scope: Mapping[str, Any], receive: Any, send: Any) -> None:
+        assert scope["path"] == "/asgi/a b"
+        assert scope["raw_path"] == b"/asgi/a%20b"
+        await send({"type": "http.response.start", "status": 200, "headers": []})
+        await send({"type": "http.response.body", "body": json.dumps({"path": scope["path"]}).encode()})
+
+    with fixture_loop(mock_close_loop=True) as loop:
+        response = loop.run_until_complete(
+            dispatch_asgi_tool(
+                simple_asgi_app,
+                build_core_model(private_route, name="asgi_tool", path="/asgi/{name}", operation_id="asgi_tool"),
+                {"path": {"name": "a b"}},
+            )
+        )
+
+    assert response.status_code == 200
+    assert json.loads(response.text()) == {"path": "/asgi/a b"}
 
 
 def test_sync_mcp_methods() -> None:

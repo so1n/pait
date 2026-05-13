@@ -3,7 +3,7 @@ import sys
 from dataclasses import dataclass
 from io import BytesIO
 from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Tuple
-from urllib.parse import quote, unquote_to_bytes, urlencode
+from urllib.parse import quote, unquote, unquote_to_bytes, urlencode
 
 from pait.g import config
 
@@ -184,7 +184,7 @@ async def dispatch_asgi_tool(
         "http_version": "1.1",
         "method": request.method,
         "scheme": "http",
-        "path": request.path,
+        "path": unquote(request.path),
         "raw_path": request.path.encode(),
         "query_string": request.query_string.encode(),
         "headers": [(key.encode(), value.encode()) for key, value in request.headers.items()],

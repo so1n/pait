@@ -77,7 +77,7 @@ def is_mcp_enabled(pait_model: PaitModelType) -> bool:
     return get_mcp_config(pait_model).include
 
 
-def _merge_schema(target: Dict[str, Any], source: Dict[str, Any]) -> None:
+def _merge_schema(target: Dict[str, Any], source: Dict[str, Any], root: Dict[str, Any]) -> None:
     """Merge one request model JSON schema into a namespace schema."""
     target.setdefault("type", "object")
     target.setdefault("properties", {})
@@ -92,7 +92,7 @@ def _merge_schema(target: Dict[str, Any], source: Dict[str, Any]) -> None:
 
     for definition_key in ("$defs", "definitions"):
         if source.get(definition_key):
-            target.setdefault(definition_key, {}).update(source[definition_key])
+            root.setdefault(definition_key, {}).update(source[definition_key])
 
 
 def build_input_schema(pait_model: PaitModelType) -> Dict[str, Any]:
@@ -123,7 +123,7 @@ def build_input_schema(pait_model: PaitModelType) -> Dict[str, Any]:
             },
         )
         for request_model in request_model_list:
-            _merge_schema(namespace_schema, _pydanitc_adapter.model_json_schema(request_model.model))
+            _merge_schema(namespace_schema, _pydanitc_adapter.model_json_schema(request_model.model), schema)
         if namespace_schema.get("required") and namespace not in required_namespace_list:
             required_namespace_list.append(namespace)
 
