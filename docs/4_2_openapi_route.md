@@ -51,7 +51,7 @@ Currently `AddDocRoute` provides the following parameters:
 | doc_fn_dict                | Implementation of UI pages in OpenAPI routes                                                                                                                |
 | openapi                    | `Pait`'s OpenAPI class                                                                                                                                      |
 | pait                       | `Pait` instance. OpenAPI routes create and use child `pait` instances based on this object. See [how to use Pait](/2_how_to_use_pait)                        |
-| add_multi_simple_route     | Methods for binding routes to app instances, see [SimpleRoute](/9_other/#24simpleroute) section for details                                                                        |
+| add_multi_simple_route     | Methods for binding routes to app instances, see [SimpleRoute](/10_other/#24simpleroute) section for details                                                                       |
 | not_found_exc              | pin_code error exception                                                                                                                                    |
 
 ### 1.1.scheme

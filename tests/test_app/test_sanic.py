@@ -31,6 +31,7 @@ from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin, fixture_loop
 from tests.test_app.base_api_test import BaseTest
 from tests.test_app.base_doc_example_test import BaseTestDocExample
+from tests.test_app.base_mcp_test import SanicMCPHTTPClient, assert_mcp_route
 from tests.test_app.base_openapi_test import BaseTestOpenAPI
 
 # Since the routing function has already been loaded,
@@ -178,6 +179,9 @@ class TestSanic:
 
     def test_file_response(self, client: SanicTestClient) -> None:
         response_test_helper(client, main_example.file_response_route, response.FileResponseModel)
+
+    def test_mcp_route(self, client: SanicTestClient) -> None:
+        assert_mcp_route(SanicMCPHTTPClient(client), "sanic-example")
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:

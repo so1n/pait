@@ -1,5 +1,5 @@
 import re
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type
+from typing import TYPE_CHECKING, Any, Callable, List, Mapping, Optional, Set, Tuple, Type, Union
 
 from pydantic import BaseModel
 
@@ -20,6 +20,7 @@ __all__ = [
     "apply_response_model",
     "apply_block_http_method_set",
     "apply_pre_depend",
+    "apply_mcp_config",
     "MatchRule",
 ]
 
@@ -173,6 +174,33 @@ def apply_pre_depend(pre_depend: Callable, match_rule: Optional["MatchRule"] = N
     def _apply(pait_core_model: "PaitCoreModel") -> None:
         if _is_match(pait_core_model, match_rule):
             pait_core_model.pre_depend_list.append(pre_depend)
+
+    return _apply
+
+
+def apply_mcp_config(
+    mcp_config: Union["BaseModel", Mapping[str, Any]], match_rule: Optional["MatchRule"] = None
+) -> "APPLY_FN":
+    from pait import _pydanitc_adapter
+    from pait.mcp.tool import MCPConfig
+
+    if isinstance(mcp_config, MCPConfig):
+        real_mcp_config = mcp_config
+    elif isinstance(mcp_config, BaseModel):
+        real_mcp_config = MCPConfig(**_pydanitc_adapter.model_dump(mcp_config))
+    else:
+        real_mcp_config = MCPConfig(**dict(mcp_config))
+
+    def _apply(pait_core_model: "PaitCoreModel") -> None:
+        if not _is_match(pait_core_model, match_rule):
+            return
+
+        extra = pait_core_model.extra
+        nested_extra = extra.get("extra")
+        if isinstance(nested_extra, dict):
+            nested_extra["mcp"] = real_mcp_config
+        else:
+            extra["mcp"] = real_mcp_config
 
     return _apply
 

@@ -35,6 +35,14 @@ from example.tornado_example.field_route import (
     PostHandler,
     SameAliasHandler,
 )
+from example.tornado_example.mcp_route import (
+    MCPDependHandler,
+    MCPPrivateHandler,
+    MCPResponseHandler,
+    MCPUpsertUserHandler,
+    MCPUserHandler,
+    add_mcp_demo_route,
+)
 from example.tornado_example.plugin_route import (
     AutoCompleteJsonHandler,
     CacheResponse1Handler,
@@ -283,6 +291,11 @@ def create_app() -> Application:
             (r"/api/cbv", CbvHandler),
             (r"/api/not-pait-cbv", NotPaitCbvHandler),
             (r"/api/tag", TagHandler),
+            (r"/api/mcp/user/(?P<uid>\w+)", MCPUserHandler),
+            (r"/api/mcp/user", MCPUpsertUserHandler),
+            (r"/api/mcp/response", MCPResponseHandler),
+            (r"/api/mcp/depend", MCPDependHandler),
+            (r"/api/mcp/private", MCPPrivateHandler),
             (r"/api/field/post", PostHandler),
             (r"/api/field/pait-base-field/(?P<age>\w+)", PaitBaseFieldHandler),
             (r"/api/field/field-default-factory", FieldDefaultFactoryHandler),
@@ -327,6 +340,7 @@ def create_app() -> Application:
     )
     CacheResponsePlugin.set_redis_to_app(app, redis=Redis(decode_responses=True))
     main_api_route.inject(app)
+    add_mcp_demo_route(app)
     load_app(app, auto_load_route=True)
     return app
 
