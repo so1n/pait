@@ -145,7 +145,7 @@ and the `username` is the default empty string in the response result because it
 
 !!! note
     In addition to the `MockPlugin`, `Pait` also has other plugins and feature.
-    For details, please see the description of [Plugin](/6_1_introduction/).
+    For details, please see the description of [Plugin](/7_1_introduction/).
 
 ## Performance
 The main operating principle of `Pait` is to convert the function signature of the route function into `Pydantic Model` through the reflection mechanism when the program is started,
