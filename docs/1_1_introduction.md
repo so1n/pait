@@ -27,6 +27,12 @@ Therefore, before introducing the use of `Pait`, let's first take a look at the 
     --8<-- "docs_source_code/introduction/tornado_hello_world_demo.py"
     ```
 
+=== "Django"
+
+    ```py linenums="1" title="docs_source_code/introduction/django_hello_world_demo.py"
+    --8<-- "docs_source_code/introduction/django_hello_world_demo.py"
+    ```
+
 The logic of this sample code is consistent with the sample code on the homepage.
 The main feature of the sample code is to register a route into an instance of the Web framework at startup,
 and after receiving a request with the URL `/api` and method `POST` at runtime, the request will be handed over to the route function for processing.
@@ -76,6 +82,12 @@ Next, we will use `Pait` in the example code. Their functions are the same, as f
 
     ```py linenums="1" title="docs_source_code/introduction/tornado_demo.py" hl_lines="23 26-27 33"
     --8<-- "docs_source_code/introduction/tornado_demo.py"
+    ```
+
+=== "Django"
+
+    ```py linenums="1" title="docs_source_code/introduction/django_demo.py" hl_lines="12 28-31 37"
+    --8<-- "docs_source_code/introduction/django_demo.py"
     ```
 
 The `@pait` decorator of the first highlighted code in the sample is the core of all functions of `Pait`.

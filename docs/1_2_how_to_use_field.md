@@ -46,6 +46,12 @@ In addition to the Json mentioned above([Introduction](/1_1_introduction/)), `Fi
     --8<-- "docs_source_code/introduction/how_to_use_field/tornado_demo.py"
     ```
 
+=== "Django"
+
+    ```py linenums="1" title="docs_source_code/introduction/how_to_use_field/django_demo.py"
+    --8<-- "docs_source_code/introduction/how_to_use_field/django_demo.py"
+    ```
+
 !!! note
     In order to ensure that the sample code can run smoothly anywhere, the usage of the `File` field is not demonstrated here.
     For specific usage, please refer to the route function corresponding to `/api/pait-base-field` in the `field_route.py` file in the sample code of different web frameworks.

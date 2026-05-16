@@ -6,7 +6,7 @@ import sys
 import types
 from contextlib import contextmanager
 from functools import partial
-from typing import Callable, Dict, Generator, Optional, Type
+from typing import Any, Callable, Generator, List, Optional, Type
 from unittest import mock
 
 import pytest
@@ -36,7 +36,7 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.test import Client, RequestFactory
 from django.urls import clear_url_caches, include, path
 from django.views.decorators.http import require_http_methods
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 from example.django_example import main_example
 from pait.app import auto_load_app
@@ -44,15 +44,16 @@ from pait.app.any import get_app_attribute, set_app_attribute
 from pait.app.base.simple_route import SimpleRoute
 from pait.app.django import TestHelper as _TestHelper
 from pait.app.django import add_multi_simple_route, add_simple_route, load_app, pait
-from pait.app.django.adapter.exception import http_exception
+from pait.app.django.adapter.exception import DjangoHTTPException, http_exception
+from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
 from pait.field import Header, Json, Path, Query
-from pait.mcp import MCP, MCPConfig
 from pait.model import response
 from pait.model.context import ContextModel
 from pait.openapi.doc_route import default_doc_fn_dict
 from pait.openapi.openapi import OpenAPI
 from tests.conftest import enable_plugin
 from tests.test_app.base_api_test import BaseTest
+from tests.test_app.base_doc_example_test import BaseTestDocExample
 from tests.test_app.base_mcp_test import DjangoMCPHTTPClient, assert_mcp_route
 
 _TestHelper: Type[_TestHelper] = partial(  # type: ignore
@@ -84,21 +85,6 @@ def upsert_user_route(
 
 
 @pait()
-def simple_route(uid: int = Query.i()) -> Dict[str, int]:
-    return {"uid": uid}
-
-
-@pait(extra={"mcp": MCPConfig(include=True, name="get_django_mcp_user", read_only=True)})
-def mcp_user_route(uid: int = Path.i()) -> Dict[str, int]:
-    return {"uid": uid}
-
-
-@pait(extra={"mcp": MCPConfig(include=True, name="get_django_http_status", call_mode="http", read_only=True)})
-def mcp_http_status_route() -> JsonResponse:
-    return JsonResponse({"mcp": True, "http_dispatcher": True})
-
-
-@pait()
 def raise_http_exception_route() -> JsonResponse:
     raise http_exception(status_code=401, message="Not authenticated", headers={"WWW-Authenticate": "Bearer"})
 
@@ -113,12 +99,9 @@ setattr(upsert_user_route, "_pait_method_set", {"POST"})
 urlpatterns = [
     path("api/user/<int:uid>", get_user_route, name="get_user"),
     path("api/user", upsert_user_route, name="upsert_user"),
-    path("api/mcp/user/<int:uid>", mcp_user_route, name="mcp_user"),
-    path("api/mcp/http-status", mcp_http_status_route, name="mcp_http_status"),
     path("api/raise-http-exception", raise_http_exception_route, name="raise_http_exception"),
     path("api/require-http-methods", require_http_methods_route, name="require_http_methods"),
 ]
-add_simple_route(urlpatterns, SimpleRoute(url="/api/simple", route=simple_route, methods=["GET"]))
 
 urlconf_module = types.ModuleType("tests.test_app.test_django_urlconf")
 setattr(urlconf_module, "urlpatterns", urlpatterns)
@@ -135,6 +118,111 @@ def client_ctx(client: Optional[Client] = None) -> Generator[Client, None, None]
     use_urlconf("example.django_example.main_example")
     main_example.load_example_app()
     yield client or Client()
+
+
+def _http_exception_response(exc: DjangoHTTPException) -> HttpResponse:
+    resp = HttpResponse(str(exc), status=exc.status_code)
+    for key, value in exc.headers.items():
+        resp.headers[key] = value
+    return resp
+
+
+class DocsTextExceptionMiddleware:
+    def __init__(self, get_response: Callable) -> None:
+        self.get_response = get_response
+
+    def __call__(self, request: HttpRequest) -> HttpResponse:
+        return self.get_response(request)
+
+    def process_exception(self, request: HttpRequest, exc: Exception) -> HttpResponse:
+        if isinstance(exc, TipException):
+            exc = exc.exc
+        if isinstance(exc, DjangoHTTPException):
+            return _http_exception_response(exc)
+        return HttpResponse(str(exc))
+
+
+class DocsDataExceptionMiddleware:
+    def __init__(self, get_response: Callable) -> None:
+        self.get_response = get_response
+
+    def __call__(self, request: HttpRequest) -> HttpResponse:
+        return self.get_response(request)
+
+    def process_exception(self, request: HttpRequest, exc: Exception) -> HttpResponse:
+        if isinstance(exc, TipException):
+            exc = exc.exc
+        if isinstance(exc, DjangoHTTPException):
+            return _http_exception_response(exc)
+        if isinstance(exc, ValidationError):
+            return JsonResponse({"data": exc.errors()})
+        return JsonResponse({"data": str(exc)})
+
+
+class DocsDataStrExceptionMiddleware:
+    def __init__(self, get_response: Callable) -> None:
+        self.get_response = get_response
+
+    def __call__(self, request: HttpRequest) -> HttpResponse:
+        return self.get_response(request)
+
+    def process_exception(self, request: HttpRequest, exc: Exception) -> HttpResponse:
+        if isinstance(exc, TipException):
+            exc = exc.exc
+        if isinstance(exc, DjangoHTTPException):
+            return _http_exception_response(exc)
+        return JsonResponse({"data": str(exc)})
+
+
+class DocsTipExceptionMiddleware:
+    def __init__(self, get_response: Callable) -> None:
+        self.get_response = get_response
+
+    def __call__(self, request: HttpRequest) -> HttpResponse:
+        return self.get_response(request)
+
+    def process_exception(self, request: HttpRequest, exc: Exception) -> HttpResponse:
+        if isinstance(exc, TipException):
+            exc = exc.exc
+        if isinstance(exc, PaitBaseParamException):
+            return JsonResponse({"code": -1, "msg": f"error param:{exc.param}, {exc.msg}"})
+        if isinstance(exc, ValidationError):
+            error_param_list: list = []
+            for item in exc.errors():
+                error_param_list.extend(item["loc"])
+            return JsonResponse({"code": -1, "msg": f"check error param: {error_param_list}"})
+        if isinstance(exc, PaitBaseException):
+            return JsonResponse({"code": -1, "msg": str(exc)})
+        if isinstance(exc, DjangoHTTPException):
+            return _http_exception_response(exc)
+        return JsonResponse({"code": -1, "msg": str(exc)})
+
+
+@contextmanager
+def docs_client_ctx(urlpatterns: List[Any], exception_mode: str = "data") -> Generator[Client, None, None]:
+    old_urlconf = settings.ROOT_URLCONF
+    old_middleware = settings.MIDDLEWARE
+    middleware_dict = {
+        "data": "tests.test_app.test_django.DocsDataExceptionMiddleware",
+        "data_str": "tests.test_app.test_django.DocsDataStrExceptionMiddleware",
+        "text": "tests.test_app.test_django.DocsTextExceptionMiddleware",
+        "tip": "tests.test_app.test_django.DocsTipExceptionMiddleware",
+    }
+    module_name = f"tests.test_app.test_django_docs_urlconf_{id(urlpatterns)}"
+    urlconf_module = types.ModuleType(module_name)
+    setattr(urlconf_module, "urlpatterns", urlpatterns)
+    sys.modules[module_name] = urlconf_module
+    settings.ROOT_URLCONF = module_name
+    settings.MIDDLEWARE = [middleware_dict[exception_mode]]
+    clear_url_caches()
+    load_app(urlpatterns, overwrite_already_exists_data=True)
+    try:
+        yield Client()
+    finally:
+        settings.ROOT_URLCONF = old_urlconf
+        settings.MIDDLEWARE = old_middleware
+        clear_url_caches()
+        sys.modules.pop(module_name, None)
 
 
 @pytest.fixture
@@ -181,9 +269,8 @@ class TestDjango:
         assert {pait_model.openapi_path for pait_model in pait_dict.values()} >= {
             "/api/user/{uid}",
             "/api/user",
-            "/api/simple",
-            "/api/mcp/user/{uid}",
-            "/api/mcp/http-status",
+            "/api/raise-http-exception",
+            "/api/require-http-methods",
         }
         require_http_methods_core_model = next(
             pait_model for pait_model in pait_dict.values() if pait_model.path == "api/require-http-methods"
@@ -202,20 +289,10 @@ class TestDjango:
             content_type="application/json",
             HTTP_X_REQUEST_ID="req-1",
         ).json() == {"user": {"name": "appl", "age": 2}, "request_id": "req-1"}
-        assert client.get("/api/simple?uid=3").json() == {"uid": 3}
         resp = client.get("/api/raise-http-exception")
         assert resp.status_code == 401
         assert resp.headers["WWW-Authenticate"] == "Bearer"
         assert resp.content.decode() == "Not authenticated"
-
-    def test_mcp_direct_tool(self) -> None:
-        mcp = MCP(urlpatterns, mcp_path=None, overwrite_already_exists_data=True)
-        resp = mcp.call_tool("get_django_mcp_user", {"path": {"uid": 4}})
-        assert resp["isError"] is False
-        assert json.loads(resp["content"][0]["text"]) == {"uid": 4}
-        http_resp = mcp.call_tool("get_django_http_status")
-        assert http_resp["isError"] is False
-        assert json.loads(http_resp["content"][0]["text"]) == {"mcp": True, "http_dispatcher": True}
 
     def test_post(self, client: Client) -> None:
         test_helper: _TestHelper = _TestHelper(
@@ -591,3 +668,365 @@ class TestDjango:
             module_urlpatterns = getattr(module, "urlpatterns")
             assert module_urlpatterns
             assert load_app(module_urlpatterns, overwrite_already_exists_data=True)
+
+
+class TestDjangoDocExample:
+    def test_raw_hello_world_demo(self) -> None:
+        from docs_source_code.introduction import django_hello_world_demo
+
+        with docs_client_ctx(django_hello_world_demo.urlpatterns) as client:
+            resp = client.post(
+                "/api",
+                data=json.dumps({"uid": 123, "username": "appl"}),
+                content_type="application/json",
+            )
+            assert resp.json() == {"uid": 123, "user_name": "appl"}
+
+    def test_hello_world_demo(self) -> None:
+        from docs_source_code.introduction import django_demo
+
+        with docs_client_ctx(django_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).hello_world_demo(django_demo.demo_post)
+
+    def test_pait_hello_world_demo(self) -> None:
+        from docs_source_code.introduction import django_pait_hello_world_demo
+
+        with docs_client_ctx(django_pait_hello_world_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).hello_world_demo(django_pait_hello_world_demo.demo_post)
+
+    def test_how_to_use_field_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import django_demo
+
+        with docs_client_ctx(django_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_demo(django_demo.demo_route)
+
+    def test_how_to_use_field_with_default_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import django_with_default_demo
+
+        with docs_client_ctx(django_with_default_demo.urlpatterns, exception_mode="text") as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_default_demo(
+                django_with_default_demo.demo,
+                django_with_default_demo.demo1,
+            )
+
+    def test_how_to_use_field_with_default_factory_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import django_with_default_factory_demo
+
+        with docs_client_ctx(django_with_default_factory_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_default_factory_demo(
+                django_with_default_factory_demo.demo,
+                django_with_default_factory_demo.demo1,
+            )
+
+    def test_how_to_use_field_with_alias_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import django_with_alias_demo
+
+        with docs_client_ctx(django_with_alias_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_alias_demo(django_with_alias_demo.demo)
+
+    def test_how_to_use_field_with_number_verify_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import django_with_num_check_demo
+
+        with docs_client_ctx(django_with_num_check_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_number_verify_demo(
+                django_with_num_check_demo.demo
+            )
+
+    def test_how_to_use_field_with_sequence_verify_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import django_with_item_check_demo
+
+        with docs_client_ctx(django_with_item_check_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_sequence_verify_demo(
+                django_with_item_check_demo.demo
+            )
+
+    def test_how_to_use_field_with_str_verify_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import django_with_string_check_demo
+
+        with docs_client_ctx(django_with_string_check_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_str_verify_demo(
+                django_with_string_check_demo.demo
+            )
+
+    def test_how_to_use_field_with_raw_return_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import django_with_raw_return_demo
+
+        with docs_client_ctx(django_with_raw_return_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_raw_return_demo(
+                django_with_raw_return_demo.demo
+            )
+
+    def test_how_to_use_field_with_custom_not_found_exc_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_field import django_with_not_found_exc_demo
+
+        with docs_client_ctx(django_with_not_found_exc_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_field_with_custom_not_found_exc_demo(
+                django_with_not_found_exc_demo.demo
+            )
+
+    def test_how_to_use_type_with_model_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_type import django_with_model_demo
+
+        with docs_client_ctx(django_with_model_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_type_with_type_is_pydantic_basemodel(
+                django_with_model_demo.demo,
+                django_with_model_demo.demo1,
+            )
+
+    def test_how_to_use_type_with_pait_model_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_type import django_with_pait_model_demo
+
+        with docs_client_ctx(django_with_pait_model_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_type_with_type_is_pait_basemodel(
+                django_with_pait_model_demo.demo,
+                django_with_pait_model_demo.demo1,
+            )
+
+    def test_how_to_use_type_with_request_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_type import django_with_request_demo
+
+        with docs_client_ctx(django_with_request_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_type_with_type_is_request(django_with_request_demo.demo)
+
+    def test_how_to_use_type_with_unix_datetime_demo(self) -> None:
+        from docs_source_code.introduction.how_to_use_type import django_with_unix_datetime_demo
+
+        with docs_client_ctx(django_with_unix_datetime_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).how_to_use_type_with_type_is_customer(
+                django_with_unix_datetime_demo.demo
+            )
+
+    def test_streaming_file_multipart_demo(self) -> None:
+        from docs_source_code.streaming_files import django_multipart_demo
+
+        with docs_client_ctx(django_multipart_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).django_streaming_file_multipart_demo()
+
+    def test_streaming_file_sfd_demo(self) -> None:
+        from docs_source_code.streaming_files import django_sfd_demo
+
+        with docs_client_ctx(django_sfd_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).django_streaming_file_sfd_demo()
+
+    def test_streaming_file_secure_upload_demo(self) -> None:
+        from docs_source_code.streaming_files import django_secure_upload_demo
+
+        with docs_client_ctx(django_secure_upload_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).django_streaming_file_secure_upload_demo()
+
+    def test_streaming_file_upload_progress_demo(self) -> None:
+        from docs_source_code.streaming_files import django_upload_progress_demo
+
+        with docs_client_ctx(django_upload_progress_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).django_streaming_file_upload_progress_demo()
+
+    def test_depend_with_depend_demo(self) -> None:
+        from docs_source_code.introduction.depend import django_with_depend_demo
+
+        with docs_client_ctx(django_with_depend_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).with_depend(django_with_depend_demo.demo)
+
+    def test_depend_with_nested_depend_demo(self) -> None:
+        from docs_source_code.introduction.depend import django_with_nested_depend_demo
+
+        with docs_client_ctx(django_with_nested_depend_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).with_nested_depend(django_with_nested_depend_demo.demo)
+
+    def test_depend_with_context_manager_depend_demo(self) -> None:
+        from docs_source_code.introduction.depend import django_with_context_manager_depend_demo
+
+        with docs_client_ctx(django_with_context_manager_depend_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).with_context_manager_depend(
+                django_with_context_manager_depend_demo.demo
+            )
+
+    def test_depend_with_class_depend_demo(self) -> None:
+        from docs_source_code.introduction.depend import django_with_class_depend_demo
+
+        with docs_client_ctx(django_with_class_depend_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).with_class_depend(django_with_class_depend_demo.demo)
+
+    def test_depend_with_pre_depend_demo(self) -> None:
+        from docs_source_code.introduction.depend import django_with_pre_depend_demo
+
+        with docs_client_ctx(django_with_pre_depend_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).with_pre_depend(django_with_pre_depend_demo.demo)
+
+    def test_exception_with_exception_tip(self) -> None:
+        from docs_source_code.introduction.exception import django_with_exception_demo
+
+        with docs_client_ctx(django_with_exception_demo.urlpatterns, exception_mode="tip") as client:
+            BaseTestDocExample(client, _TestHelper).with_exception_tip(django_with_exception_demo.demo)
+
+    def test_exception_with_not_use_exception_tip(self) -> None:
+        from docs_source_code.introduction.exception import django_with_not_tip_exception_demo
+
+        with docs_client_ctx(django_with_not_tip_exception_demo.urlpatterns, exception_mode="tip") as client:
+            BaseTestDocExample(client, _TestHelper).with_exception_tip(django_with_not_tip_exception_demo.demo)
+
+    def test_api_route_basic_demo(self) -> None:
+        from docs_source_code.api_route import django_basic_demo
+
+        with docs_client_ctx(django_basic_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).api_route_basic_demo(
+                django_basic_demo.get_users,
+                django_basic_demo.create_user,
+                django_basic_demo.get_user,
+            )
+
+    def test_api_route_dynamic_route_demo(self) -> None:
+        from docs_source_code.api_route import django_dynamic_route_demo
+
+        with docs_client_ctx(django_dynamic_route_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).api_route_dynamic_route_demo(django_dynamic_route_demo.greet)
+
+    def test_api_route_advanced_demo(self) -> None:
+        from docs_source_code.api_route import django_advanced_demo
+
+        with docs_client_ctx(django_advanced_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).api_route_advanced_demo(
+                django_advanced_demo.get_profile,
+                django_advanced_demo.login,
+                django_advanced_demo.OrderAPIView.get,
+            )
+
+    def test_api_route_cbv_demo(self) -> None:
+        from docs_source_code.api_route import django_cbv_demo
+
+        with docs_client_ctx(django_cbv_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).api_route_cbv_demo(django_cbv_demo.UserAPIView)
+
+    def test_api_route_config_inherit_demo(self) -> None:
+        from docs_source_code.api_route import django_config_inherit_demo
+
+        with docs_client_ctx(django_config_inherit_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).api_route_config_inherit_demo(
+                django_config_inherit_demo.get_profile
+            )
+
+    def test_api_route_framework_extra_demo(self) -> None:
+        from docs_source_code.api_route import django_framework_extra_demo
+
+        with docs_client_ctx(django_framework_extra_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).api_route_framework_extra_demo(django_framework_extra_demo.health)
+
+    def test_openapi_security_with_api_key(self) -> None:
+        from docs_source_code.openapi.security import django_with_apikey_demo
+
+        with docs_client_ctx(django_with_apikey_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).openapi_security_with_api_key(
+                django_with_apikey_demo.api_key_cookie_route,
+                django_with_apikey_demo.api_key_header_route,
+                django_with_apikey_demo.api_key_query_route,
+            )
+
+    def test_openapi_security_with_http(self) -> None:
+        from docs_source_code.openapi.security import django_with_http_demo
+
+        with docs_client_ctx(django_with_http_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).openapi_security_with_http(
+                django_with_http_demo.get_user_name_by_http_basic_credentials,
+                django_with_http_demo.get_user_name_by_http_bearer,
+                django_with_http_demo.get_user_name_by_http_digest,
+            )
+
+    def test_openapi_security_with_oauth2(self) -> None:
+        from docs_source_code.openapi.security import django_with_oauth2_demo
+
+        with docs_client_ctx(django_with_oauth2_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).openapi_security_with_oauth2(
+                django_with_oauth2_demo.oauth2_login,
+                django_with_oauth2_demo.oauth2_user_info,
+                django_with_oauth2_demo.oauth2_user_name,
+            )
+
+    def test_mcp_demo(self) -> None:
+        from docs_source_code.mcp import django_mcp_demo
+
+        with docs_client_ctx(django_mcp_demo.urlpatterns) as client:
+            mcp_client = DjangoMCPHTTPClient(client)
+            tool_dict = {tool["name"]: tool for tool in mcp_client.list_tools()["tools"]}
+            assert set(tool_dict) == {"get_user", "create_user"}
+            assert tool_dict["get_user"]["annotations"] == {"readOnlyHint": True}
+            resp = mcp_client.call_tool("get_user", {"path": {"uid": 1}})
+            assert resp["isError"] is False
+            assert json.loads(resp["content"][0]["text"]) == {"uid": 1, "name": "so1n"}
+
+    def test_simple_route_demo(self) -> None:
+        from docs_source_code.other import django_with_simple_route_demo
+
+        with docs_client_ctx(django_with_simple_route_demo.urlpatterns) as client:
+            assert client.get("/api/json").json() == {"name": "json"}
+            assert client.get("/api/text").content.decode() == "text"
+            assert client.get("/api/html").content.decode() == "<h1>html</h1>"
+
+    def test_plugin_with_required_plugin(self) -> None:
+        from docs_source_code.plugin.param_plugin import (
+            django_with_required_plugin_and_extra_param_demo,
+            django_with_required_plugin_and_group_extra_param_demo,
+            django_with_required_plugin_demo,
+        )
+
+        with docs_client_ctx(django_with_required_plugin_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_required_plugin(django_with_required_plugin_demo.demo)
+        with docs_client_ctx(django_with_required_plugin_and_group_extra_param_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_required_plugin(
+                django_with_required_plugin_and_group_extra_param_demo.demo
+            )
+        with docs_client_ctx(django_with_required_plugin_and_extra_param_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_required_plugin(
+                django_with_required_plugin_and_extra_param_demo.demo
+            )
+
+    def test_plugin_with_at_most_of_plugin(self) -> None:
+        from docs_source_code.plugin.param_plugin import (
+            django_with_at_most_one_of_plugin_and_extra_param_demo,
+            django_with_at_most_one_of_plugin_demo,
+        )
+
+        with docs_client_ctx(django_with_at_most_one_of_plugin_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_at_most_one_of_plugin(
+                django_with_at_most_one_of_plugin_demo.demo
+            )
+        with docs_client_ctx(django_with_at_most_one_of_plugin_and_extra_param_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_at_most_one_of_plugin(
+                django_with_at_most_one_of_plugin_and_extra_param_demo.demo
+            )
+
+    def test_plugin_with_check_json_response_plugin(self) -> None:
+        from docs_source_code.plugin.json_plugin import django_with_check_json_plugin_demo
+
+        with docs_client_ctx(django_with_check_json_plugin_demo.urlpatterns, exception_mode="data_str") as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_check_json_response_plugin(
+                django_with_check_json_plugin_demo.demo
+            )
+
+    def test_plugin_with_auto_complete_response_plugin(self) -> None:
+        from docs_source_code.plugin.json_plugin import django_with_auto_complete_json_plugin_demo
+
+        with docs_client_ctx(django_with_auto_complete_json_plugin_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_auto_complete_json_response_plugin(
+                django_with_auto_complete_json_plugin_demo.demo
+            )
+
+    def test_plugin_with_mock_plugin(self) -> None:
+        from docs_source_code.plugin.mock_plugin import django_with_mock_plugin_demo
+
+        with docs_client_ctx(django_with_mock_plugin_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_mock_plugin(django_with_mock_plugin_demo.demo)
+
+    def test_plugin_with_cache_plugin(self) -> None:
+        from docs_source_code.plugin.cache_plugin import django_with_cache_plugin_demo
+
+        with docs_client_ctx(django_with_cache_plugin_demo.urlpatterns) as client:
+            BaseTestDocExample(client, _TestHelper).plugin_with_cache_plugin(django_with_cache_plugin_demo.demo)
+
+    def test_test_helper_demo(self) -> None:
+        from docs_source_code.unit_test_helper import django_test_helper_demo
+
+        old_urlconf = settings.ROOT_URLCONF
+        try:
+            django_test_helper_demo.test_demo_route()
+        finally:
+            settings.ROOT_URLCONF = old_urlconf
+            clear_url_caches()

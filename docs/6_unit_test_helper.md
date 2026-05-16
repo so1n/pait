@@ -45,6 +45,12 @@ the code is as follows:
     IOLoop.instance().start()
     ```
 
+=== "Django"
+
+    ```py linenums="1" title="docs_source_code/unit_test_helper/django_test_helper_demo.py" hl_lines="20 25"
+    --8<-- "docs_source_code/unit_test_helper/django_test_helper_demo.py::27"
+    ```
+
 Then can write test cases with `TestHelper`,
 first need to import `TestHelper` and the test client for the corresponding web framework and also initialize the test framework:.
 === "Flask"
@@ -90,6 +96,18 @@ first need to import `TestHelper` and the test client for the corresponding web 
     ```py linenums="38" title="docs_source_code/unit_test_helper/tornado_test_helper_demo.py"
     --8<-- "docs_source_code/unit_test_helper/tornado_test_helper_demo.py:37:51"
     ```
+
+=== "Django"
+
+    !!! note
+
+        `configure_urlpatterns` creates a temporary URLConf module and configures Django settings for this standalone example.
+
+    ```py linenums="8" title="docs_source_code/unit_test_helper/django_test_helper_demo.py"
+    --8<-- "docs_source_code/unit_test_helper/django_test_helper_demo.py:8:13"
+
+    --8<-- "docs_source_code/unit_test_helper/django_test_helper_demo.py:27:28"
+    ```
 After writing the initialization code for the test case, it is time to write the test case code,
 first it will be demonstrated how to write a test case through `TestHelper` with the following code:
 === "Flask"
@@ -118,6 +136,12 @@ first it will be demonstrated how to write a test case through `TestHelper` with
         ...
 
     --8<-- "docs_source_code/unit_test_helper/tornado_test_helper_demo.py:53:59"
+    ```
+
+=== "Django"
+
+    ```py linenums="28" title="docs_source_code/unit_test_helper/django_test_helper_demo.py"
+    --8<-- "docs_source_code/unit_test_helper/django_test_helper_demo.py:28:39"
     ```
 
 

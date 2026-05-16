@@ -258,6 +258,45 @@ class BaseTestDocExample(object):
         ).json(method="POST")
         assert_upload_progress_response(resp_dict)
 
+    def django_streaming_file_multipart_demo(self) -> None:
+        from tests.test_app.streaming_file_test_util import CONTENT, FILENAME, build_multipart_body
+
+        content_type, body = build_multipart_body()
+        resp_dict = self.client.post("/api/upload", data=body, content_type=content_type).json()
+        assert resp_dict == {"filename": FILENAME, "length": len(CONTENT), "content_type": "text/plain"}
+
+    def django_streaming_file_sfd_demo(self) -> None:
+        from tests.test_app.streaming_file_test_util import CONTENT, FILENAME, build_multipart_body
+
+        content_type, body = build_multipart_body()
+        resp_dict = self.client.post("/api/upload", data=body, content_type=content_type).json()
+        assert resp_dict == {"filename": FILENAME, "length": len(CONTENT)}
+
+    def django_streaming_file_secure_upload_demo(self) -> None:
+        from tests.test_app.streaming_file_test_util import assert_secure_upload_response, build_multipart_body
+
+        content_type, body = build_multipart_body()
+        assert_secure_upload_response(
+            self.client.post("/api/secure-upload", data=body, content_type=content_type).json()
+        )
+
+    def django_streaming_file_upload_progress_demo(self) -> None:
+        from tests.test_app.streaming_file_test_util import (
+            CONTENT,
+            assert_upload_progress_response,
+            build_multipart_body,
+        )
+
+        content_type, body = build_multipart_body()
+        assert_upload_progress_response(
+            self.client.post(
+                "/api/upload-progress",
+                data=body,
+                content_type=content_type,
+                HTTP_X_FILE_SIZE=str(len(CONTENT)),
+            ).json()
+        )
+
     def api_route_basic_demo(
         self, get_users_route: Callable, create_user_route: Callable, get_user_route: Callable
     ) -> None:

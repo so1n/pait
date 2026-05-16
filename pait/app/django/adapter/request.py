@@ -59,6 +59,8 @@ class Request(BaseRequest[HttpRequest, RequestExtend]):
         return self.request.GET.dict()
 
     def stream(self, size: int = -1) -> Union[Generator[bytes, None, None], AsyncGenerator[bytes, None]]:
+        if size <= 0:
+            size = 64
         while True:
             chunk = self.request.read(size)
             if not chunk:
