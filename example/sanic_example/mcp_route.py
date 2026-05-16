@@ -17,6 +17,11 @@ class MCPUserPayload(BaseModel):
     age: int
 
 
+class MCPUserSummaryOutput(BaseModel):
+    uid: int
+    name: str
+
+
 @mcp_pait(
     desc="Get MCP demo user by uid",
     extra={
@@ -30,6 +35,22 @@ class MCPUserPayload(BaseModel):
 )
 async def mcp_user_route(uid: int = Path.i(description="user id")) -> response.HTTPResponse:
     return response.json({"uid": uid, "name": "so1n"})
+
+
+@mcp_pait(
+    desc="Get MCP demo user summary",
+    extra={
+        "mcp": MCPConfig(
+            include=True,
+            name="get_mcp_user_summary",
+            description="Get MCP demo user summary",
+            output_model=MCPUserSummaryOutput,
+            read_only=True,
+        )
+    },
+)
+async def mcp_user_summary_route(uid: int = Path.i(description="user id")) -> response.HTTPResponse:
+    return response.json({"uid": uid, "name": "so1n", "age": 18, "email": "so1n@example.com", "private_token": "token"})
 
 
 @mcp_pait(

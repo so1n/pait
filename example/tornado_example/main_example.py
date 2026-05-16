@@ -41,6 +41,7 @@ from example.tornado_example.mcp_route import (
     MCPResponseHandler,
     MCPUpsertUserHandler,
     MCPUserHandler,
+    MCPUserSummaryHandler,
     add_mcp_demo_route,
 )
 from example.tornado_example.plugin_route import (
@@ -292,6 +293,7 @@ def create_app() -> Application:
             (r"/api/not-pait-cbv", NotPaitCbvHandler),
             (r"/api/tag", TagHandler),
             (r"/api/mcp/user/(?P<uid>\w+)", MCPUserHandler),
+            (r"/api/mcp/user-summary/(?P<uid>\w+)", MCPUserSummaryHandler),
             (r"/api/mcp/user", MCPUpsertUserHandler),
             (r"/api/mcp/response", MCPResponseHandler),
             (r"/api/mcp/depend", MCPDependHandler),

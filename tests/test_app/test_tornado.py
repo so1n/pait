@@ -24,7 +24,7 @@ from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin
 from tests.test_app.base_api_test import BaseTest
 from tests.test_app.base_doc_example_test import BaseTestDocExample
-from tests.test_app.base_mcp_test import TornadoMCPHTTPClient, assert_mcp_route
+from tests.test_app.base_mcp_test import TornadoMCPHTTPClient, assert_mcp_route, assert_mcp_route_with_custom_path
 from tests.test_app.base_openapi_test import BaseTestOpenAPI
 
 # Since the routing function has already been loaded,
@@ -47,6 +47,39 @@ class BaseTestTornado(AsyncHTTPTestCase):
     def get_url(self, path: str) -> str:
         """Returns an absolute url for the given path on the test server."""
         return "%s://localhost:%s%s" % (self.get_protocol(), self.get_http_port(), path)
+
+
+class TestTornadoCustomMCPRoute(AsyncHTTPTestCase):
+    def get_app(self) -> Application:
+        from example.tornado_example.mcp_route import (
+            MCPDependHandler,
+            MCPPrivateHandler,
+            MCPResponseHandler,
+            MCPUpsertUserHandler,
+            MCPUserHandler,
+            MCPUserSummaryHandler,
+            add_mcp_demo_route,
+        )
+
+        app = Application(
+            [
+                (r"/api/mcp/user/(?P<uid>\w+)", MCPUserHandler),
+                (r"/api/mcp/user-summary/(?P<uid>\w+)", MCPUserSummaryHandler),
+                (r"/api/mcp/user", MCPUpsertUserHandler),
+                (r"/api/mcp/response", MCPResponseHandler),
+                (r"/api/mcp/depend", MCPDependHandler),
+                (r"/api/mcp/private", MCPPrivateHandler),
+            ]
+        )
+        add_mcp_demo_route(app, mcp_path="/custom-mcp")
+        return app
+
+    def test_mcp_route_with_custom_path(self) -> None:
+        assert_mcp_route_with_custom_path(
+            TornadoMCPHTTPClient(self, path="/custom-mcp"),
+            "tornado-example",
+            support_http_dispatcher=False,
+        )
 
 
 class TestTornado(BaseTestTornado):

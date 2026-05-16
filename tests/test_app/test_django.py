@@ -54,7 +54,7 @@ from pait.openapi.openapi import OpenAPI
 from tests.conftest import enable_plugin
 from tests.test_app.base_api_test import BaseTest
 from tests.test_app.base_doc_example_test import BaseTestDocExample
-from tests.test_app.base_mcp_test import DjangoMCPHTTPClient, assert_mcp_route
+from tests.test_app.base_mcp_test import DjangoMCPHTTPClient, assert_mcp_route, assert_mcp_route_with_custom_path
 
 _TestHelper: Type[_TestHelper] = partial(  # type: ignore
     _TestHelper,
@@ -394,12 +394,19 @@ class TestDjango:
             mcp_response_route,
             mcp_upsert_user_route,
             mcp_user_route,
+            mcp_user_summary_route,
         )
         from example.django_example.utils import configure_urlpatterns, route_path
 
         old_urlconf = settings.ROOT_URLCONF
         app = [
             route_path("api/mcp/user/<int:uid>", mcp_user_route, ["GET"], name="custom_mcp_user"),
+            route_path(
+                "api/mcp/user-summary/<int:uid>",
+                mcp_user_summary_route,
+                ["GET"],
+                name="custom_mcp_user_summary",
+            ),
             route_path("api/mcp/user", mcp_upsert_user_route, ["POST"], name="custom_mcp_upsert_user"),
             route_path("api/mcp/response", mcp_response_route, ["GET"], name="custom_mcp_response"),
             route_path(
@@ -416,13 +423,7 @@ class TestDjango:
 
         try:
             custom_client = Client()
-            assert (
-                custom_client.post(
-                    "/mcp", data=json.dumps({"method": "tools/list"}), content_type="application/json"
-                ).status_code
-                == 404
-            )
-            assert_mcp_route(DjangoMCPHTTPClient(custom_client, path="/custom-mcp"), "django-example")
+            assert_mcp_route_with_custom_path(DjangoMCPHTTPClient(custom_client, path="/custom-mcp"), "django-example")
         finally:
             use_urlconf(old_urlconf)
 

@@ -15,6 +15,11 @@ class MCPUserPayload(BaseModel):
     age: int
 
 
+class MCPUserSummaryOutput(BaseModel):
+    uid: int
+    name: str
+
+
 class MCPUserHandler(MyHandler):
     @mcp_pait(
         desc="Get MCP demo user by uid",
@@ -29,6 +34,23 @@ class MCPUserHandler(MyHandler):
     )
     async def get(self, uid: int = Path.i(description="user id")) -> None:
         self.write({"uid": uid, "name": "so1n"})
+
+
+class MCPUserSummaryHandler(MyHandler):
+    @mcp_pait(
+        desc="Get MCP demo user summary",
+        extra={
+            "mcp": MCPConfig(
+                include=True,
+                name="get_mcp_user_summary",
+                description="Get MCP demo user summary",
+                output_model=MCPUserSummaryOutput,
+                read_only=True,
+            )
+        },
+    )
+    async def get(self, uid: int = Path.i(description="user id")) -> None:
+        self.write({"uid": uid, "name": "so1n", "age": 18, "email": "so1n@example.com", "private_token": "token"})
 
 
 class MCPUpsertUserHandler(MyHandler):

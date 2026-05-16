@@ -31,7 +31,7 @@ from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin, fixture_loop
 from tests.test_app.base_api_test import BaseTest
 from tests.test_app.base_doc_example_test import BaseTestDocExample
-from tests.test_app.base_mcp_test import SanicMCPHTTPClient, assert_mcp_route
+from tests.test_app.base_mcp_test import SanicMCPHTTPClient, assert_mcp_route, assert_mcp_route_with_custom_path
 from tests.test_app.base_openapi_test import BaseTestOpenAPI
 
 # Since the routing function has already been loaded,
@@ -182,6 +182,31 @@ class TestSanic:
 
     def test_mcp_route(self, client: SanicTestClient) -> None:
         assert_mcp_route(SanicMCPHTTPClient(client), "sanic-example")
+
+    def test_mcp_route_with_custom_path(self) -> None:
+        from example.sanic_example.mcp_route import (
+            add_mcp_demo_route,
+            mcp_depend_route,
+            mcp_http_dispatcher_route,
+            mcp_private_route,
+            mcp_response_route,
+            mcp_upsert_user_route,
+            mcp_user_route,
+            mcp_user_summary_route,
+        )
+
+        app = Sanic("mcp_custom_path_example", configure_logging=False)
+        app.add_route(mcp_user_route, "/api/mcp/user/<uid:int>", methods=["GET"])
+        app.add_route(mcp_user_summary_route, "/api/mcp/user-summary/<uid:int>", methods=["GET"])
+        app.add_route(mcp_upsert_user_route, "/api/mcp/user", methods=["POST"])
+        app.add_route(mcp_response_route, "/api/mcp/response", methods=["GET"])
+        app.add_route(mcp_http_dispatcher_route, "/api/mcp/http-dispatcher", methods=["GET"])
+        app.add_route(mcp_depend_route, "/api/mcp/depend", methods=["GET"])
+        app.add_route(mcp_private_route, "/api/mcp/private", methods=["GET"])
+        add_mcp_demo_route(app, mcp_path="/custom-mcp")
+
+        with client_ctx(app=app) as client:
+            assert_mcp_route_with_custom_path(SanicMCPHTTPClient(client, path="/custom-mcp"), "sanic-example")
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:

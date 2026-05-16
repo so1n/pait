@@ -36,6 +36,7 @@ from example.django_example.mcp_route import (
     mcp_response_route,
     mcp_upsert_user_route,
     mcp_user_route,
+    mcp_user_summary_route,
 )
 from example.django_example.plugin_route import (
     auto_complete_json_route,
@@ -309,6 +310,7 @@ urlpatterns = [
     route_path("api/file/stream-for-data", stream_for_data_route, ["POST"], name="file_stream_for_data"),
     route_path("api/file/multipart", multipart_route, ["POST"], name="file_multipart"),
     route_path("api/mcp/user/<int:uid>", mcp_user_route, ["GET"], name="mcp_user"),
+    route_path("api/mcp/user-summary/<int:uid>", mcp_user_summary_route, ["GET"], name="mcp_user_summary"),
     route_path("api/mcp/user", mcp_upsert_user_route, ["POST"], name="mcp_upsert_user"),
     route_path("api/mcp/response", mcp_response_route, ["GET"], name="mcp_response"),
     route_path(
