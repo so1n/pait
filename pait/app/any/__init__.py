@@ -90,7 +90,13 @@ def set_app_attribute(app: Any, key: str, value: Any) -> None:
 
 
 def get_app_attribute(app: Any, key: str, default_value: Any = MISSING) -> Any:
-    return base_call_func("get_app_attribute", app, key, default_value, app=app)
+    try:
+        return base_call_func("get_app_attribute", app, key, app=app)
+    except KeyError:
+        if default_value is MISSING:
+            raise
+        set_app_attribute(app, key, default_value)
+        return default_value
 
 
 def add_simple_route(app: Any, simple_route: "SimpleRoute") -> None:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import uuid
 
 import aiofiles  # type: ignore
 from pydantic import ValidationError
@@ -282,7 +283,7 @@ def add_api_doc_route(app: Sanic) -> None:
 
 
 def create_app(configure_logging: bool = True) -> Sanic:
-    app: Sanic = Sanic(name="example", configure_logging=configure_logging)
+    app: Sanic = Sanic(name=f"example-{uuid.uuid4().hex}", configure_logging=configure_logging)
     CacheResponsePlugin.set_redis_to_app(app, Redis(decode_responses=True))
     app.add_route(login_route, "/api/login", methods={"POST"})
     app.add_route(get_user_route, "/api/user", methods={"GET"})

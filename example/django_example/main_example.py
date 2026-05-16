@@ -1,5 +1,6 @@
 import os
 import sys
+from typing import Any, List
 
 if not __package__:
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
@@ -329,6 +330,11 @@ add_mcp_demo_route(urlpatterns)
 
 def load_example_app() -> dict:
     return load_app(urlpatterns, overwrite_already_exists_data=True)
+
+
+def create_app() -> List[Any]:
+    app = list(urlpatterns)
+    return app
 
 
 def add_api_doc_route() -> None:

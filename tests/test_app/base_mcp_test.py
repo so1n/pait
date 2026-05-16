@@ -108,6 +108,8 @@ class DjangoMCPHTTPClient(BaseMCPHTTPClient):
 
 
 def assert_mcp_route(mcp_client: BaseMCPHTTPClient, app_name: str, support_http_dispatcher: bool = True) -> None:
+    from pait import __version__
+
     initialize_resp = mcp_client.request("initialize", {"protocolVersion": "2025-06-18"}, request_id=1)
     assert initialize_resp["jsonrpc"] == "2.0"
     assert initialize_resp["id"] == 1
@@ -116,7 +118,7 @@ def assert_mcp_route(mcp_client: BaseMCPHTTPClient, app_name: str, support_http_
         "resources": {"listChanged": False},
         "tools": {"listChanged": False},
     }
-    assert initialize_resp["result"]["serverInfo"] == {"name": "pait", "version": "0.0.0"}
+    assert initialize_resp["result"]["serverInfo"] == {"name": "pait", "version": __version__}
     assert mcp_client.request("notifications/initialized") == {}
 
     tool_list = mcp_client.list_tools()["tools"]
