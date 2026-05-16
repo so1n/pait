@@ -172,7 +172,7 @@ class TestAttribute(BaseTestApp):
                 importlib.import_module(f"example.{i}_example.main_example").create_app(), "a", "aaa"  # type: ignore
             )
 
-            patch = mocker.patch(f"pait.app.{i}.set_app_attribute")
+            patch = mocker.patch(f"pait.app.{i}.get_app_attribute")
             any.get_app_attribute(
                 importlib.import_module(f"example.{i}_example.main_example").create_app(), "a", "demo"  # type: ignore
             )

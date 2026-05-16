@@ -172,8 +172,17 @@ class NestedMCPPayload(BaseModel):
     child: NestedMCPChildPayload
 
 
+class UserSummaryOutput(BaseModel):
+    uid: int
+    name: str
+
+
 def nested_body_route(body: NestedMCPPayload = field.Json.i(raw_return=True)) -> dict:
     return {"name": body.child.name}
+
+
+def large_user_route(uid: int = field.Path.i(description="user id")) -> dict:
+    return {"uid": uid, "name": "so1n", "age": 18, "email": "so1n@example.com", "private_token": "token"}
 
 
 def test_mcp_tools_list_and_call() -> None:
@@ -239,6 +248,62 @@ def test_mcp_tool_read_only_annotation() -> None:
     tool_dict = {tool["name"]: tool for tool in tool_list["tools"]}
     assert tool_dict["read_user"]["annotations"] == {"readOnlyHint": True}
     assert "annotations" not in tool_dict["write_user"]
+
+
+def test_mcp_output_model_projects_direct_tool_result() -> None:
+    mcp = build_mcp(
+        {
+            "user": build_core_model(
+                large_user_route,
+                mcp_config=MCPConfig(include=True, name="get_user_summary", output_model=UserSummaryOutput),
+            )
+        }
+    )
+    client = AsyncMCPClient(mcp)
+
+    with fixture_loop(mock_close_loop=True) as loop:
+        tool_list = loop.run_until_complete(client.list_tools())
+        call_resp = loop.run_until_complete(client.call_tool("get_user_summary", {"path": {"uid": 1}}))
+
+    tool = tool_list["tools"][0]
+    assert set(tool["outputSchema"]["properties"]) == {"uid", "name"}
+    assert call_resp["isError"] is False
+    assert json.loads(call_resp["content"][0]["text"]) == {"uid": 1, "name": "so1n"}
+
+
+def test_mcp_output_model_projects_http_tool_result() -> None:
+    async def fake_http_dispatcher(app: FakeApp, core_model: PaitCoreModel, arguments: Mapping) -> MCPHTTPResponse:
+        return MCPHTTPResponse(
+            200,
+            {},
+            json.dumps(
+                {"uid": 1, "name": "so1n", "age": 18, "email": "so1n@example.com", "private_token": "token"}
+            ).encode(),
+        )
+
+    mcp = build_mcp(
+        {
+            "user": build_core_model(
+                private_route,
+                mcp_config=MCPConfig(
+                    include=True,
+                    name="get_user_summary",
+                    call_mode="http",
+                    output_model=UserSummaryOutput,
+                ),
+                path="/user-summary",
+                operation_id="get_user_summary",
+            )
+        },
+        http_dispatcher=fake_http_dispatcher,
+    )
+    client = AsyncMCPClient(mcp)
+
+    with fixture_loop(mock_close_loop=True) as loop:
+        call_resp = loop.run_until_complete(client.call_tool("get_user_summary", {}))
+
+    assert call_resp["isError"] is False
+    assert json.loads(call_resp["content"][0]["text"]) == {"uid": 1, "name": "so1n"}
 
 
 @pytest.mark.parametrize("mcp_class", [AsyncMCP, MCP])
@@ -384,6 +449,8 @@ def test_mcp_handle_message_json_rpc_envelope() -> None:
 
 @pytest.mark.parametrize("mcp_class,client_class", [(AsyncMCP, AsyncMCPClient), (MCP, MCPClient)])
 def test_mcp_initialize_ping_and_initialized_notification(mcp_class: Any, client_class: Any) -> None:
+    from pait import __version__
+
     mcp = build_mcp({"user": build_core_model(user_route)}, mcp_class=mcp_class)
     client = client_class(mcp)
 
@@ -410,7 +477,7 @@ def test_mcp_initialize_ping_and_initialized_notification(mcp_class: Any, client
             },
             "serverInfo": {
                 "name": "pait",
-                "version": "0.0.0",
+                "version": __version__,
             },
         },
     }
@@ -623,15 +690,39 @@ def test_mcp_config_reject_invalid_call_mode() -> None:
     assert "call_mode" in str(exc_info.value)
 
 
+def _get_schema_ref(schema: Mapping[str, Any]) -> str:
+    if "$ref" in schema:
+        return str(schema["$ref"])
+    for key in ("allOf", "anyOf", "oneOf"):
+        for item in schema.get(key, []):
+            if isinstance(item, Mapping) and "$ref" in item:
+                return str(item["$ref"])
+    raise AssertionError(f"Can not found $ref in schema: {schema}")
+
+
+def _get_ref_definition_key(ref: str) -> str:
+    ref_prefix = "#/"
+    if not ref.startswith(ref_prefix):
+        raise AssertionError(f"Unsupported schema ref: {ref}")
+    definition_key = ref[len(ref_prefix) :].split("/", 1)[0]
+    if definition_key not in ("$defs", "definitions"):
+        raise AssertionError(f"Unsupported schema definition key: {definition_key}")
+    return definition_key
+
+
 def test_build_input_schema_keeps_nested_definitions_at_root() -> None:
     schema = build_input_schema(
         build_core_model(nested_body_route, name="nested_body", path="/nested-body", operation_id="nested_body")
     )
-    definition_key = "$defs" if "$defs" in schema else "definitions"
+    body_schema = schema["properties"]["body"]
+    child_schema = body_schema["properties"]["child"]
+    child_ref = _get_schema_ref(child_schema)
+    definition_key = _get_ref_definition_key(child_ref)
 
     assert definition_key in schema
-    assert definition_key not in schema["properties"]["body"]
-    assert schema["properties"]["body"]["properties"]["child"]["$ref"].startswith(f"#/{definition_key}/")
+    assert "$defs" not in body_schema
+    assert "definitions" not in body_schema
+    assert child_ref.startswith(f"#/{definition_key}/")
 
 
 def test_build_http_request_from_mcp_arguments() -> None:

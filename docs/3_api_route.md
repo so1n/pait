@@ -46,6 +46,12 @@ decorators.
     --8<-- "docs_source_code/api_route/tornado_basic_demo.py"
     ```
 
+=== "Django"
+
+    ```py linenums="1" title="docs_source_code/api_route/django_basic_demo.py"
+    --8<-- "docs_source_code/api_route/django_basic_demo.py"
+    ```
+
 The examples above show the three main steps:
 
 1. **Create an APIRoute instance**: Use `APIRoute(path="/api")` to create a route group with a base path

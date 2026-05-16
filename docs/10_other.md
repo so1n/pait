@@ -11,6 +11,7 @@ from pait.app.flask import pait, load_app, add_simple_route
 from pait.app.sanic import pait, load_app, add_simple_route
 from pait.app.starlette import pait, load_app, add_simple_route
 from pait.app.tornado import pait, load_app, add_simple_route
+from pait.app.django import pait, load_app, add_simple_route
 ```
 ## 2.Internal Methods
 `Pait` encapsulates a number of common methods.
@@ -126,6 +127,21 @@ So before using OpenAPI you need to use `load_app` to fill in the data, it's ver
     IOLoop.instance().start()
     ```
 
+=== "Django"
+
+    ```Python3
+    from django.urls import path
+
+    from pait.app.django import load_app
+
+    urlpatterns = []
+    load_app(urlpatterns) # Wrong!!!
+    # --------
+    # urlpatterns.append(path(...))
+    # --------
+    load_app(urlpatterns) #  That's right
+    ```
+
 ### 2.4.HTTP exceptions
 `Pait` provides an HTTP exception generator function for each web framework,
 which generates HTTP standard exceptions for web frameworks by parameters such as HTTP status code, error content, Headers, etc.
@@ -156,6 +172,13 @@ They are used as follows.
 === "Tornado"
     ```python
     from pait.app.tornado import http_exception
+
+    http_exception(status_code=401, message="Unauthorized", headers={"WWW-Authenticate": "Basic"})
+    ```
+
+=== "Django"
+    ```python
+    from pait.app.django import http_exception
 
     http_exception(status_code=401, message="Unauthorized", headers={"WWW-Authenticate": "Basic"})
     ```
@@ -222,6 +245,12 @@ SimpleRoute is used as follows:
 
     ```py linenums="1" title="docs_source_code/other/tornado_with_simple_route_demo.py" hl_lines="9-21 25-33"
     --8<-- "docs_source_code/other/tornado_with_simple_route_demo.py"
+    ```
+
+=== "Django"
+
+    ```py linenums="1" title="docs_source_code/other/django_with_simple_route_demo.py" hl_lines="9-21 25-33"
+    --8<-- "docs_source_code/other/django_with_simple_route_demo.py"
     ```
 The first highlighted code creates three route functions according to the `SimpleRoute` standard, which is as follows:
 

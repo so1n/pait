@@ -64,6 +64,12 @@ Using `Pait`'s `Depend` can solve this problem. The sample code for `Pait`'s `De
     ```py linenums="1" title="docs_source_code/introduction/depend/tornado_with_depend_demo.py" hl_lines="19 22-25 30"
     --8<-- "docs_source_code/introduction/depend/tornado_with_depend_demo.py"
     ```
+
+=== "Django"
+
+    ```py linenums="1" title="docs_source_code/introduction/depend/django_with_depend_demo.py" hl_lines="13 16-19 23"
+    --8<-- "docs_source_code/introduction/depend/django_with_depend_demo.py"
+    ```
 The sample code in the first highlighting code is to mimic the database call method,
 the current assumption that the database only user `so1n` has a token and the token value is "u12345".
 The second highlighted code is a function called `get_user_by_token`,

@@ -1,7 +1,7 @@
 import sys
 from typing import Any, List
 
-app_list: List = ["flask", "starlette", "sanic", "tornado"]
+app_list: List = ["flask", "starlette", "sanic", "tornado", "django"]
 
 
 def auto_load_app_class() -> Any:

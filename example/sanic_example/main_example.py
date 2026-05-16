@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import uuid
 
 import aiofiles  # type: ignore
 from pydantic import ValidationError
@@ -47,6 +48,7 @@ from example.sanic_example.mcp_route import (
     mcp_response_route,
     mcp_upsert_user_route,
     mcp_user_route,
+    mcp_user_summary_route,
 )
 from example.sanic_example.plugin_route import (
     auto_complete_json_route,
@@ -281,7 +283,7 @@ def add_api_doc_route(app: Sanic) -> None:
 
 
 def create_app(configure_logging: bool = True) -> Sanic:
-    app: Sanic = Sanic(name="example", configure_logging=configure_logging)
+    app: Sanic = Sanic(name=f"example-{uuid.uuid4().hex}", configure_logging=configure_logging)
     CacheResponsePlugin.set_redis_to_app(app, Redis(decode_responses=True))
     app.add_route(login_route, "/api/login", methods={"POST"})
     app.add_route(get_user_route, "/api/user", methods={"GET"})
@@ -293,6 +295,7 @@ def create_app(configure_logging: bool = True) -> Sanic:
     app.add_route(not_pait_route, "/api/not-pait", methods={"GET"})
     app.add_route(tag_route, "/api/tag", methods=["GET"])
     app.add_route(mcp_user_route, "/api/mcp/user/<uid:int>", methods=["GET"])
+    app.add_route(mcp_user_summary_route, "/api/mcp/user-summary/<uid:int>", methods=["GET"])
     app.add_route(mcp_upsert_user_route, "/api/mcp/user", methods=["POST"])
     app.add_route(mcp_response_route, "/api/mcp/response", methods=["GET"])
     app.add_route(mcp_http_dispatcher_route, "/api/mcp/http-dispatcher", methods=["GET"])

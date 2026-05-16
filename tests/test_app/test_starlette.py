@@ -32,7 +32,7 @@ from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin
 from tests.test_app.base_api_test import BaseTest
 from tests.test_app.base_doc_example_test import BaseTestDocExample
-from tests.test_app.base_mcp_test import StarletteMCPHTTPClient, assert_mcp_route
+from tests.test_app.base_mcp_test import StarletteMCPHTTPClient, assert_mcp_route, assert_mcp_route_with_custom_path
 from tests.test_app.base_openapi_test import BaseTestOpenAPI
 
 # Since the routing function has already been loaded,
@@ -218,6 +218,36 @@ class TestStarlette:
 
     def test_mcp_route(self, client: TestClient) -> None:
         assert_mcp_route(StarletteMCPHTTPClient(client), "starlette-example")
+
+    def test_mcp_route_with_custom_path(self) -> None:
+        from starlette.routing import Route
+
+        from example.starlette_example.mcp_route import (
+            add_mcp_demo_route,
+            mcp_depend_route,
+            mcp_http_dispatcher_route,
+            mcp_private_route,
+            mcp_response_route,
+            mcp_upsert_user_route,
+            mcp_user_route,
+            mcp_user_summary_route,
+        )
+
+        app = Starlette(
+            routes=[
+                Route("/api/mcp/user/{uid}", mcp_user_route, methods=["GET"]),
+                Route("/api/mcp/user-summary/{uid}", mcp_user_summary_route, methods=["GET"]),
+                Route("/api/mcp/user", mcp_upsert_user_route, methods=["POST"]),
+                Route("/api/mcp/response", mcp_response_route, methods=["GET"]),
+                Route("/api/mcp/http-dispatcher", mcp_http_dispatcher_route, methods=["GET"]),
+                Route("/api/mcp/depend", mcp_depend_route, methods=["GET"]),
+                Route("/api/mcp/private", mcp_private_route, methods=["GET"]),
+            ]
+        )
+        add_mcp_demo_route(app, mcp_path="/custom-mcp")
+
+        with client_ctx(app=app) as client:
+            assert_mcp_route_with_custom_path(StarletteMCPHTTPClient(client, path="/custom-mcp"), "starlette-example")
 
     def test_auto_load_app_class(self) -> None:
         for i in auto_load_app.app_list:

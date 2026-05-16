@@ -7,7 +7,7 @@ and for scenarios that need upload progress tracking.
 
 !!! warning
     Tornado does not currently support `StreamFile` streaming upload in Pait. The examples on this page apply to
-    Flask, Starlette, and Sanic only.
+    Flask, Starlette, Sanic, and Django only.
 
 ## 1.Advantages of streaming upload
 
@@ -66,9 +66,15 @@ examples show how to use it in supported web frameworks:
     --8<-- "docs_source_code/streaming_files/sanic_multipart_demo.py"
     ```
 
+=== "Django"
+
+    ```py linenums="1" title="docs_source_code/streaming_files/django_multipart_demo.py"
+    --8<-- "docs_source_code/streaming_files/django_multipart_demo.py"
+    ```
+
 The usage is mostly the same across frameworks. The main differences are:
 
-- **Sync frameworks** such as Flask use the `Stream` class and a normal `for` loop
+- **Sync frameworks** such as Flask and Django use the `Stream` class and a normal `for` loop
 - **Async frameworks** such as Starlette and Sanic use the `AsyncStream` class and an `async for` loop
 - **Sanic** requires `stream=True` in the route definition
 
@@ -95,6 +101,12 @@ Streaming Form Data uses the `streaming-form-data` library and performs better w
 
     ```py linenums="1" title="docs_source_code/streaming_files/sanic_sfd_demo.py"
     --8<-- "docs_source_code/streaming_files/sanic_sfd_demo.py"
+    ```
+
+=== "Django"
+
+    ```py linenums="1" title="docs_source_code/streaming_files/django_sfd_demo.py"
+    --8<-- "docs_source_code/streaming_files/django_sfd_demo.py"
     ```
 
 Compared with Multipart Streaming, Streaming Form Data is simpler and faster, so it is the recommended implementation
@@ -151,6 +163,12 @@ filename, calculates the SHA256 hash while streaming, and saves the file safely:
     --8<-- "docs_source_code/streaming_files/sanic_secure_upload_demo.py"
     ```
 
+=== "Django"
+
+    ```py linenums="1" title="docs_source_code/streaming_files/django_secure_upload_demo.py"
+    --8<-- "docs_source_code/streaming_files/django_secure_upload_demo.py"
+    ```
+
 This example demonstrates how to:
 
 - Validate filenames and prevent path traversal
@@ -187,6 +205,12 @@ Streaming makes it straightforward to track upload progress while processing the
 
     ```py linenums="1" title="docs_source_code/streaming_files/sanic_upload_progress_demo.py"
     --8<-- "docs_source_code/streaming_files/sanic_upload_progress_demo.py"
+    ```
+
+=== "Django"
+
+    ```py linenums="1" title="docs_source_code/streaming_files/django_upload_progress_demo.py"
+    --8<-- "docs_source_code/streaming_files/django_upload_progress_demo.py"
     ```
 
 The example uses the `X-File-Size` header as the expected file size and calculates progress from the number of processed

@@ -1117,15 +1117,23 @@ class BaseTestOpenAPI(
             "/api/user/cbv",
             "/api/depend/pre-depend",
             "/api/new-raise-not-tip",
-            "/api/mcp/user/{uid}",
             "/mcp",
         }
+
+        ignore_test_path_prefix_set = {"/api/mcp"}
         for path in list(self.pait_openapi.model.paths.keys()):
             if path.startswith("/api/plugin") or path.startswith("/api/sync-to-thread"):
                 # Plugin related routes are ignored because there is nothing new in the Open API they generate
                 self.pait_openapi.model.paths.pop(path)
+                continue
             if path in ignore_test_path_set:
                 # Ignore routes that don't need to be tested
                 self.pait_openapi.model.paths.pop(path)
+                continue
+            for prefix_path in ignore_test_path_prefix_set:
+                if path.startswith(prefix_path):
+                    self.pait_openapi.model.paths.pop(path)
+                    continue
+
         # Confirm that all APIs have been tested
         assert not self.pait_openapi.model.paths

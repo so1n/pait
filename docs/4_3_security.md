@@ -34,6 +34,12 @@ So `Pait` provides simple support for OpenAPI's security through `Depends` (`api
     --8<-- "docs_source_code/openapi/security/tornado_with_apikey_demo.py"
     ```
 
+=== "Django"
+
+    ```py linenums="1" title="docs_source_code/openapi/security/django_with_apikey_demo.py" hl_lines="11-28 31-42"
+    --8<-- "docs_source_code/openapi/security/django_with_apikey_demo.py"
+    ```
+
 The first highlighting code is initialized for the different `APIKey` fields,
 which use slightly different parameters, see the table below for parameter meanings:
 

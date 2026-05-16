@@ -23,6 +23,7 @@ from example.flask_example.mcp_route import (
     mcp_response_route,
     mcp_upsert_user_route,
     mcp_user_route,
+    mcp_user_summary_route,
 )
 from pait.app import auto_load_app
 from pait.app.any import get_app_attribute, set_app_attribute
@@ -37,7 +38,7 @@ from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin
 from tests.test_app.base_api_test import BaseTest
 from tests.test_app.base_doc_example_test import BaseTestDocExample
-from tests.test_app.base_mcp_test import FlaskMCPHTTPClient, assert_mcp_route
+from tests.test_app.base_mcp_test import FlaskMCPHTTPClient, assert_mcp_route, assert_mcp_route_with_custom_path
 from tests.test_app.base_openapi_test import BaseTestOpenAPI
 
 # Since the routing function has already been loaded,
@@ -191,6 +192,7 @@ class TestFlask:
     def test_mcp_route_with_custom_path(self) -> None:
         app = Flask("mcp-custom-path-example")
         app.add_url_rule("/api/mcp/user/<int:uid>", view_func=mcp_user_route, methods=["GET"])
+        app.add_url_rule("/api/mcp/user-summary/<int:uid>", view_func=mcp_user_summary_route, methods=["GET"])
         app.add_url_rule("/api/mcp/user", view_func=mcp_upsert_user_route, methods=["POST"])
         app.add_url_rule("/api/mcp/response", view_func=mcp_response_route, methods=["GET"])
         app.add_url_rule("/api/mcp/http-dispatcher", view_func=mcp_http_dispatcher_route, methods=["GET"])
@@ -199,8 +201,7 @@ class TestFlask:
         add_mcp_demo_route(app, mcp_path="/custom-mcp")
 
         with client_ctx(app=app) as client:
-            assert client.post("/mcp", json={"method": "tools/list"}).status_code == 404
-            assert_mcp_route(FlaskMCPHTTPClient(client, path="/custom-mcp"), "flask-example")
+            assert_mcp_route_with_custom_path(FlaskMCPHTTPClient(client, path="/custom-mcp"), "flask-example")
 
     def test_mcp_direct_call_with_app_context(self) -> None:
         app = Flask("mcp-direct-context-example")

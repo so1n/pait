@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass
-from typing import Any, Dict, List, Mapping, Optional, Union
+from typing import Any, Dict, List, Mapping, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 from typing_extensions import Literal
@@ -34,6 +34,10 @@ class MCPConfig(BaseModel):
     read_only: bool = Field(
         default=False,
         description="Expose the tool with MCP annotations.readOnlyHint when the route does not mutate state.",
+    )
+    output_model: Optional[Type[BaseModel]] = Field(
+        default=None,
+        description="Optional MCP-only response projection model used to reduce tool result fields.",
     )
 
 
@@ -142,6 +146,7 @@ class MCPTool(object):
     pait_model: PaitModelType
     call_mode: MCPConfigCallMode = ""
     read_only: bool = False
+    output_model: Optional[Type[BaseModel]] = None
 
     def to_dict(self) -> Dict[str, Any]:
         """Return the MCP ``Tool`` representation."""
@@ -152,6 +157,8 @@ class MCPTool(object):
         }
         if self.read_only:
             result["annotations"] = {"readOnlyHint": True}
+        if self.output_model is not None:
+            result["outputSchema"] = _pydanitc_adapter.model_json_schema(self.output_model)
         return result
 
 
@@ -182,4 +189,5 @@ def build_tool(pait_model: PaitModelType, used_name_set: Optional[set] = None) -
         pait_model=pait_model,
         call_mode=mcp_config.call_mode,
         read_only=mcp_config.read_only,
+        output_model=mcp_config.output_model,
     )

@@ -48,8 +48,14 @@ The following examples are the minimal runnable code for exposing Pait routes as
     --8<-- "docs_source_code/mcp/tornado_mcp_demo.py"
     ```
 
+=== "Django"
+
+    ```py linenums="1" title="docs_source_code/mcp/django_mcp_demo.py" hl_lines="11 15-25 31-37"
+    --8<-- "docs_source_code/mcp/django_mcp_demo.py"
+    ```
+
 After all application routes are registered, create an MCP instance. Flask uses `MCP`; asynchronous frameworks use
-`AsyncMCP`. The MCP endpoint path defaults to `/mcp`; these examples keep the default explicitly.
+`AsyncMCP`. Django also uses `MCP` with a URL pattern list. The MCP endpoint path defaults to `/mcp`; these examples keep the default explicitly.
 
 `mcp_path` defaults to `/mcp`. Set it to `None` if you want to load tools without registering the HTTP endpoint, then
 call `mcp.add_mcp_route(app, "/custom-mcp")` manually.
@@ -181,7 +187,7 @@ flowchart TD
 !!! note
 
     `http` mode is available only when the framework integration exposes an in-process HTTP dispatcher. Flask, Starlette,
-    and Sanic provide one. Tornado's MCP integration uses `direct` mode because it does not provide an ASGI/WSGI
+    Sanic, and Django provide one. Tornado's MCP integration uses `direct` mode because it does not provide an ASGI/WSGI
     in-process HTTP interface.
 
 ## 6.Resources

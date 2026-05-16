@@ -1,10 +1,14 @@
-from typing import Any, Dict, Mapping, Optional, Set, Tuple, Union, cast
+import json
+from typing import Any, Dict, Mapping, Optional, Set, Tuple, Type, Union, cast
 
-from pait import __version__
+from pydantic import BaseModel
+
+from pait import __version__, _pydanitc_adapter
 from pait.app.any.util import import_func_from_app
 from pait.app.base.simple_route import SimpleRoute
 from pait.data import PaitCoreProxyModel
 from pait.field import Json
+from pait.g import config
 from pait.mcp.dispatcher import dispatch_sync_tool, dispatch_tool
 from pait.mcp.dispatcher import encode_content as default_encode_content
 from pait.mcp.http import MCPHTTPResponse
@@ -241,10 +245,32 @@ class BaseMCP(object):
             "isError": True,
         }
 
-    def _build_call_response(self, value: Any) -> MCPResultType:
+    @staticmethod
+    def _load_output_data(text: str) -> Any:
+        """Decode tool text content before applying an MCP output model."""
+        return json.loads(text)
+
+    @staticmethod
+    def _validate_output_model(output_model: Type[BaseModel], data: Any) -> BaseModel:
+        """Validate output data with both Pydantic v1 and v2."""
+        if hasattr(output_model, "model_validate"):
+            return output_model.model_validate(data)  # type: ignore[attr-defined]
+        return output_model.parse_obj(data)
+
+    def _encode_call_content(self, tool: MCPTool, value: Any) -> str:
+        """Encode and optionally project tool content through an MCP output model."""
+        text = self.content_encoder(value)
+        if tool.output_model is None or (isinstance(value, MCPHTTPResponse) and value.is_error):
+            return text
+
+        output_data = self._load_output_data(text)
+        output_value = self._validate_output_model(tool.output_model, output_data)
+        return json.dumps(_pydanitc_adapter.model_dump(output_value), cls=config.json_encoder)
+
+    def _build_call_response(self, tool: MCPTool, value: Any) -> MCPResultType:
         """Convert a dispatcher return value into an MCP tool result."""
         return {
-            "content": [{"type": "text", "text": self.content_encoder(value)}],
+            "content": [{"type": "text", "text": self._encode_call_content(tool, value)}],
             "isError": value.is_error if isinstance(value, MCPHTTPResponse) else False,
         }
 
@@ -316,7 +342,7 @@ class AsyncMCP(BaseMCP):
             return self._build_call_error(name)
         try:
             value = await self._call_tool_value(tool, arguments)
-            return self._build_call_response(value)
+            return self._build_call_response(tool, value)
         except Exception as exc:
             return self._build_exception_response(exc)
 
@@ -387,7 +413,7 @@ class MCP(BaseMCP):
             return self._build_call_error(name)
         try:
             value = self._call_tool_value(tool, arguments)
-            return self._build_call_response(value)
+            return self._build_call_response(tool, value)
         except Exception as exc:
             return self._build_exception_response(exc)
 

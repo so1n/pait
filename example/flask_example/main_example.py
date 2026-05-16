@@ -42,6 +42,7 @@ from example.flask_example.mcp_route import (
     mcp_response_route,
     mcp_upsert_user_route,
     mcp_user_route,
+    mcp_user_summary_route,
 )
 from example.flask_example.plugin_route import (
     auto_complete_json_route,
@@ -271,6 +272,7 @@ def create_app() -> Flask:
     app.add_url_rule("/api/cbv", view_func=CbvRoute.as_view("test_cbv"))
     app.add_url_rule("/api/tag", view_func=tag_route, methods=["GET"])
     app.add_url_rule("/api/mcp/user/<int:uid>", view_func=mcp_user_route, methods=["GET"])
+    app.add_url_rule("/api/mcp/user-summary/<int:uid>", view_func=mcp_user_summary_route, methods=["GET"])
     app.add_url_rule("/api/mcp/user", view_func=mcp_upsert_user_route, methods=["POST"])
     app.add_url_rule("/api/mcp/response", view_func=mcp_response_route, methods=["GET"])
     app.add_url_rule("/api/mcp/http-dispatcher", view_func=mcp_http_dispatcher_route, methods=["GET"])
