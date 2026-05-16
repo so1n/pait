@@ -58,6 +58,11 @@ class TornadoMCPHTTPClient(BaseMCPHTTPClient):
         return json.loads(response.body.decode())
 
 
+class DjangoMCPHTTPClient(BaseMCPHTTPClient):
+    def _post(self, payload: Mapping[str, Any]) -> Dict[str, Any]:
+        return self.client.post(self.path, data=json.dumps(payload), content_type="application/json").json()
+
+
 def assert_mcp_route(mcp_client: BaseMCPHTTPClient, app_name: str, support_http_dispatcher: bool = True) -> None:
     initialize_resp = mcp_client.request("initialize", {"protocolVersion": "2025-06-18"}, request_id=1)
     assert initialize_resp["jsonrpc"] == "2.0"

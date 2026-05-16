@@ -503,7 +503,7 @@ class BaseTest(object):
         elif app == "starlette":
             with pytest.raises(Exception):
                 self.test_helper(self.client, cache_response, query_dict={"raise_exc": 1}).text()
-        elif app == "tornado":
+        elif app in ("django", "tornado"):
             assert self.test_helper(self.client, cache_response, query_dict={"raise_exc": 1}).json()["code"] == -1
 
         # test include exc

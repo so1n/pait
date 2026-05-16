@@ -37,6 +37,7 @@ sanic-testing = "0.3.0"
 tornado = "6.1"
 uvicorn = "0.13.4"
 starlette = "0.14.1"
+django = "3.2.25"
 # markupsafe = "2.0.1"
 # itsdangerous = "1.1.0"
 

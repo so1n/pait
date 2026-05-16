@@ -3,8 +3,8 @@ from typing import Any, Callable, Dict, List, Type
 
 from typing_extensions import Literal
 
-SupportAppLiteral = Literal["flask", "starlette", "sanic", "tornado"]
-support_app_list: List[SupportAppLiteral] = ["flask", "starlette", "sanic", "tornado"]
+SupportAppLiteral = Literal["flask", "starlette", "sanic", "tornado", "django"]
+support_app_list: List[SupportAppLiteral] = ["flask", "starlette", "sanic", "tornado", "django"]
 
 sniffing_dict: Dict[Type, Callable[[Any], str]] = {}
 framework_location_dict: Dict[str, str] = {}
@@ -12,10 +12,20 @@ framework_location_dict: Dict[str, str] = {}
 
 def sniffing(app: Any) -> SupportAppLiteral:
     try:
+        if isinstance(app, (list, tuple)):
+            try:
+                from django.urls.resolvers import URLPattern, URLResolver
+
+                if all(isinstance(route, (URLPattern, URLResolver)) for route in app):
+                    return "django"
+            except Exception:
+                pass
         for base_class in [app.__class__, app.__class__.__base__]:
             app_name: str = base_class.__name__.lower()
             if app_name in support_app_list:
                 return app_name  # type: ignore
+            elif app_name == "wsgihandler" and base_class.__module__ == "django.core.handlers.wsgi":
+                return "django"
             elif app_name == "application" and base_class.__module__ == "tornado.web":
                 return "tornado"
     except Exception:  # pragma: no cover
