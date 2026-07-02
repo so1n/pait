@@ -121,6 +121,23 @@ class TestParsePaitModel:
         with pytest.raises(ValueError):
             ParsePaitModel(core_model)
 
+    def test_api_key_header_security_model(self) -> None:
+        def search_tweets(
+            api_key: str = field.Depends.t(
+                BaseAPIKey(name="x-api-key", field=field.Header.i(), security_name="XquikApiKey")
+            ),
+            query: str = field.Query.i(),
+        ) -> None:
+            pass
+
+        core_model = PaitCoreModel(search_tweets, BaseAppHelper, ParamHandler)
+        parse_pait_model = ParsePaitModel(core_model)
+
+        security_model = parse_pait_model.security_dict["XquikApiKey"]
+        assert security_model.name == "x-api-key"
+        assert security_model.in_stub == "header"
+        self.check_result_by_http_param_type_dict(parse_pait_model, {"query": "query"})
+
 
 class TestApiDoc:
     """Now, ignore test api doc"""
