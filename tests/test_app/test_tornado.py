@@ -3,6 +3,7 @@ import json
 import random
 import sys
 from functools import partial
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import Any, Callable, Type
 from unittest import mock
@@ -47,6 +48,39 @@ class BaseTestTornado(AsyncHTTPTestCase):
     def get_url(self, path: str) -> str:
         """Returns an absolute url for the given path on the test server."""
         return "%s://localhost:%s%s" % (self.get_protocol(), self.get_http_port(), path)
+
+
+class TestTornadoGitTagRoute(AsyncHTTPTestCase):
+    def get_app(self) -> Application:
+        from pait.extra.tag import GitTag
+
+        commit = "c" * 40
+        repo_root = Path.cwd()
+        self.git_run_patch = mock.patch.object(
+            GitTag,
+            "_run_git",
+            side_effect=[str(repo_root), "{} 1 1 1".format(commit), "service-v3.0.0", "300"],
+        )
+        self.git_run_mock = self.git_run_patch.start()
+
+        from example.tornado_example import git_tag_route
+
+        self.git_tag_route = git_tag_route
+        return git_tag_route.create_app()
+
+    def tearDown(self) -> None:
+        self.git_run_patch.stop()
+        super().tearDown()
+
+    def test_git_tag_route_example(self) -> None:
+        from pait.model.core import get_core_model
+
+        core_model = get_core_model(self.git_tag_route.RouteVersionHandler.get)
+        assert core_model.tag[0].name == "service-v3.0.0"
+
+        response = self.fetch("/api/route-version")
+        assert json.loads(response.body.decode()) == {"route": "route_version", "tag": "service-v3.0.0"}
+        assert self.git_run_mock.call_count == 4
 
 
 class TestTornadoCustomMCPRoute(AsyncHTTPTestCase):

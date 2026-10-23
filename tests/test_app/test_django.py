@@ -6,6 +6,7 @@ import sys
 import types
 from contextlib import contextmanager
 from functools import partial
+from pathlib import Path as FilePath
 from typing import Any, Callable, Generator, List, Optional, Type
 from unittest import mock
 
@@ -49,6 +50,7 @@ from pait.exceptions import PaitBaseException, PaitBaseParamException, TipExcept
 from pait.field import Header, Json, Path, Query
 from pait.model import response
 from pait.model.context import ContextModel
+from pait.model.core import get_core_model
 from pait.openapi.doc_route import default_doc_fn_dict
 from pait.openapi.openapi import OpenAPI
 from tests.conftest import enable_plugin
@@ -262,6 +264,32 @@ def response_test_helper(
 
 
 class TestDjango:
+    def test_git_tag_route_example(self, mocker: MockFixture) -> None:
+        from pait.extra.tag import GitTag
+
+        commit = "c" * 40
+        repo_root = FilePath.cwd()
+        run_git_mock = mocker.patch.object(
+            GitTag,
+            "_run_git",
+            side_effect=[str(repo_root), "{} 1 1 1".format(commit), "service-v3.0.0", "300"],
+        )
+
+        from example.django_example import git_tag_route
+
+        core_model = get_core_model(git_tag_route.route_version)
+        assert core_model.tag[0].name == "service-v3.0.0"
+
+        use_urlconf("example.django_example.git_tag_route")
+        try:
+            assert Client().get("/api/route-version").json() == {
+                "route": "route_version",
+                "tag": "service-v3.0.0",
+            }
+        finally:
+            use_urlconf("tests.test_app.test_django_urlconf")
+        assert run_git_mock.call_count == 4
+
     def test_request_response_and_load_app(self) -> None:
         use_urlconf("tests.test_app.test_django_urlconf")
         pait_dict = load_app(urlpatterns, overwrite_already_exists_data=True)

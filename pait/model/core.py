@@ -1,7 +1,7 @@
 import logging
 import traceback
 import warnings
-from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, List, Optional, Set, Tuple, Type, Union, cast
 from urllib.parse import quote_plus
 
 from pydantic import BaseModel
@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from pait.exceptions import TipException
 from pait.model.response import BaseResponseModel, PaitResponseModel, create_json_response_model
 from pait.model.status import PaitStatus
-from pait.model.tag import Tag
+from pait.model.tag import Tag, TagFactory
 from pait.param_handle import BaseParamHandler
 from pait.plugin import PluginManager, PluginProtocol, PostPluginProtocol, PrePluginProtocol
 from pait.util import ImmutableDict, gen_tip_exc, ignore_pre_check
@@ -36,6 +36,7 @@ __all__ = [
     "PostPluginListOptionalType",
     "StatusOptionalType",
     "SummaryOptionalType",
+    "TagType",
     "TagOptionalType",
     "ExtraOpenAPIModelListOptionalType",
     "ResponseModelListOptionalType",
@@ -55,7 +56,8 @@ PluginListOptionalType = Optional[List[PluginManager[PrePluginProtocol]]]
 PostPluginListOptionalType = Optional[List[PluginManager[PostPluginProtocol]]]
 StatusOptionalType = Optional[PaitStatus]
 SummaryOptionalType = OptionalStrType
-TagOptionalType = Optional[Tuple[Tag, ...]]
+TagType = Union[Tag, TagFactory]
+TagOptionalType = Optional[Tuple[TagType, ...]]
 ResponseModelListOptionalType = Optional[List[Type[Union[BaseResponseModel, BaseModel]]]]
 ExtraOpenAPIModelListOptionalType = Optional[List[Type[BaseModel]]]
 
@@ -134,7 +136,9 @@ class PaitCoreModel(object):
         self.desc: str = desc or func.__doc__ or ""  # desc of this func
         self.status: PaitStatus = status or DefaultValue.status
         self.group: str = group or DefaultValue.group  # Which group this interface belongs to
-        self.tag: Tuple[Tag, ...] = tag or DefaultValue.tag  # Interface tag
+        self._tag: Tuple[Tag, ...] = tuple()
+        self.tag_label = ImmutableDict()
+        self.tag = cast(Tuple[Tag, ...], tag or DefaultValue.tag)  # Interface tag
         self._extra_openapi_model_list: List[Type[BaseModel]] = extra_openapi_model_list or []
         self._response_model_list: List[Type[BaseResponseModel]] = []
         if response_model_list:
@@ -150,8 +154,6 @@ class PaitCoreModel(object):
         # change notify
         self._change_notify_list: List[ChangeNotifyType] = []
 
-        self.tag_label = ImmutableDict({i.name: i.label for i in tag if i.label}) if tag else ImmutableDict()
-
     ##################
     # Generic method #
     ##################
@@ -160,6 +162,27 @@ class PaitCoreModel(object):
         and they also need to build, so the build method is kept here"""
         if self._need_build_plugin:
             self.build_plugin_stack()
+
+    #######
+    # tag #
+    #######
+    @property
+    def tag(self) -> Tuple[Tag, ...]:
+        return self._tag
+
+    @tag.setter
+    def tag(self, tag_tuple: Tuple[TagType, ...]) -> None:
+        resolved_tag_list: List[Tag] = []
+        has_tag_factory = False
+        for tag in tag_tuple:
+            if isinstance(tag, TagFactory):
+                has_tag_factory = True
+                tag = tag.resolve(self.func)
+            if not isinstance(tag, Tag):
+                raise TypeError("tag must be an instance of Tag or TagFactory")
+            resolved_tag_list.append(tag)
+        self._tag = tuple(resolved_tag_list) if has_tag_factory else cast(Tuple[Tag, ...], tag_tuple)
+        self.tag_label = ImmutableDict({tag.name: tag.label for tag in self._tag if tag.label})
 
     #################
     # operation id  #

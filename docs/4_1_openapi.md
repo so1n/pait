@@ -67,6 +67,131 @@ The OpenAPI information for the route function is specified through the `Pait` a
     - 2.Tag names should be globally unique.
     - 3.For `Tag`, `name`, `desc` and `external_docs` are used for OpenAPI tag data. `openapi_include=False` excludes the tag from the global OpenAPI tag list, while `label` is runtime metadata and is not part of OpenAPI.
 
+### 2.1.Derive route tags from Git history
+
+`GitTag` can assign a different OpenAPI tag to every route according to the Git history of that route's source code.
+Create one `GitTag` instance and pass it anywhere that accepts a normal `Tag`:
+
+```python
+from pait.app.any import pait
+from pait.extra.tag import GitTag
+
+route_commit_tag = GitTag(fallback="unreleased")
+
+
+@pait(tag=(route_commit_tag,))
+def demo() -> None:
+    pass
+```
+
+The repository is discovered from the route's source file, so `repo_path` is normally unnecessary. It can be supplied
+when the source path and Git working tree need to be associated explicitly:
+
+```python
+route_commit_tag = GitTag(
+    repo_path="/path/to/service/repository",
+    fallback="unreleased",
+)
+```
+
+The same instance can be reused as a default for many routes. It resolves and caches a separate `Tag` for each route:
+
+```python
+from pait.app.flask import pait
+from pait.extra.tag import GitTag
+
+versioned_pait = pait.create_sub_pait(tag=(GitTag(fallback="unreleased"),))
+
+
+@versioned_pait()
+def user_detail() -> dict:
+    return {"name": "example"}
+
+
+@versioned_pait()
+def user_list() -> list:
+    return []
+```
+
+#### Resolution rules
+
+When a `PaitCoreModel` is created, `GitTag` performs the following work once:
+
+1. Locate the complete route source range, including decorators and the function body.
+2. Run `git blame` for that range and collect the commits responsible for its lines.
+3. Find the exact Git tags pointing at those commits with `git tag --points-at`.
+4. If several commits have tags, use the tag from the commit with the newest commit timestamp.
+5. Cache the resolved `Tag`; Git commands are not executed while handling requests.
+
+This means that changing and tagging any line inside a route can update its tag; the modified line does not need to be
+the decorator or function declaration.
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `repo_path` | Auto-detected | Optional path to the service repository. |
+| `desc` | `""` | Description copied to the resolved OpenAPI tag. |
+| `external_docs` | `None` | External OpenAPI documentation copied to the resolved tag. |
+| `openapi_include` | `True` | Whether the resolved tag is included in OpenAPI. |
+| `label` | `None` | Runtime metadata copied to the resolved tag. |
+| `fallback` | `None` | Tag name used when no tagged commit can be resolved. |
+
+If `fallback` is not configured, a missing repository, unavailable Git executable, missing source history, or absence of
+tagged commits raises `GitTagError` during route registration. A commit with multiple exact tags is always rejected as
+ambiguous, even when `fallback` is configured.
+
+!!! warning
+    The deployed service must contain its source files, the required Git history, and fetched tag references. For a
+    shallow clone, fetch enough history and tags before startup. Container images that omit `.git` should configure a
+    `fallback`, or preserve the required repository metadata in the image.
+
+#### Framework examples
+
+All examples expose `GET /api/route-version` and return the tag selected for that route.
+
+=== "Flask"
+
+    ```py linenums="1" title="example/flask_example/git_tag_route.py"
+    --8<-- "example/flask_example/git_tag_route.py"
+    ```
+
+=== "Sanic"
+
+    ```py linenums="1" title="example/sanic_example/git_tag_route.py"
+    --8<-- "example/sanic_example/git_tag_route.py"
+    ```
+
+=== "Starlette"
+
+    ```py linenums="1" title="example/starlette_example/git_tag_route.py"
+    --8<-- "example/starlette_example/git_tag_route.py"
+    ```
+
+=== "Tornado"
+
+    ```py linenums="1" title="example/tornado_example/git_tag_route.py"
+    --8<-- "example/tornado_example/git_tag_route.py"
+    ```
+
+=== "Django"
+
+    ```py linenums="1" title="example/django_example/git_tag_route.py"
+    --8<-- "example/django_example/git_tag_route.py"
+    ```
+
+Run an example as a module, then request the endpoint:
+
+```bash
+python -m example.flask_example.git_tag_route
+curl http://127.0.0.1:8000/api/route-version
+```
+
+```json
+{"route": "route_version", "tag": "unreleased"}
+```
+
+The response contains `unreleased` when the fallback is selected; when a source commit has an exact tag, that tag name
+is returned instead.
+
 However, the `name` and `desc` attributes can also be obtained from the route function name and the `__doc__` of the route function.
 For example, the `name` and `desc` attributes of the route function in the following code are consistent with the code above:
 ```python

@@ -5,6 +5,7 @@ import random
 import sys
 from contextlib import contextmanager
 from functools import partial
+from pathlib import Path
 from typing import Any, Callable, Generator, Optional, Type
 from unittest import mock
 
@@ -27,6 +28,7 @@ from pait.app.starlette import add_multi_simple_route, add_simple_route, load_ap
 from pait.app.starlette.plugin.mock_response import MockPlugin
 from pait.model import response
 from pait.model.context import ContextModel
+from pait.model.core import get_core_model
 from pait.openapi.doc_route import default_doc_fn_dict
 from pait.openapi.openapi import InfoModel, OpenAPI, ServerModel
 from tests.conftest import enable_plugin
@@ -117,6 +119,29 @@ def response_test_helper(
 
 
 class TestStarlette:
+    def test_git_tag_route_example(self, mocker: MockFixture) -> None:
+        from pait.extra.tag import GitTag
+
+        commit = "c" * 40
+        repo_root = Path.cwd()
+        run_git_mock = mocker.patch.object(
+            GitTag,
+            "_run_git",
+            side_effect=[str(repo_root), "{} 1 1 1".format(commit), "service-v3.0.0", "300"],
+        )
+
+        from example.starlette_example import git_tag_route
+
+        core_model = get_core_model(git_tag_route.route_version)
+        assert core_model.tag[0].name == "service-v3.0.0"
+
+        with client_ctx(git_tag_route.create_app()) as client:
+            assert client.get("/api/route-version").json() == {
+                "route": "route_version",
+                "tag": "service-v3.0.0",
+            }
+        assert run_git_mock.call_count == 4
+
     def test_test_helper_not_support_mutil_method(self, client: TestClient) -> None:
         app: Starlette = client.app  # type: ignore
         app.add_route("/api/new-text-resp", main_example.text_response_route, methods=["GET", "POST"])

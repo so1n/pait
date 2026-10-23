@@ -1,9 +1,16 @@
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 
 from any_api.openapi.model.openapi import ExternalDocumentationModel, TagModel
 
-__all__ = ["Tag", "ExternalDocumentationModel", "TagModel"]
+__all__ = ["Tag", "TagFactory", "ExternalDocumentationModel", "TagModel"]
 _tag_dict: Dict[str, dict] = {}
+
+
+class TagFactory(object):
+    """Resolve a route-specific :class:`Tag` after the route function is known."""
+
+    def resolve(self, route: Callable) -> "Tag":
+        raise NotImplementedError
 
 
 class Tag(object):
