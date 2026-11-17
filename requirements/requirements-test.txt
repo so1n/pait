@@ -1,7 +1,7 @@
 aiofiles==0.8.0 ; python_full_version >= "3.8.1" and python_version < "4.0"
 atomicwrites==1.4.1 ; python_full_version >= "3.8.1" and python_full_version < "4.0.0" and sys_platform == "win32"
 attrs==23.2.0 ; python_full_version >= "3.8.1" and python_full_version < "4.0.0"
-certifi==2024.6.2 ; python_full_version >= "3.8.1" and python_full_version < "4.0.0"
+certifi==2026.10.18 ; python_full_version >= "3.8.1" and python_full_version < "4.0.0"
 charset-normalizer==2.0.12 ; python_full_version >= "3.8.1" and python_full_version < "4.0.0"
 colorama==0.4.6 ; python_full_version >= "3.8.1" and python_full_version < "4.0.0" and sys_platform == "win32"
 coverage[toml]==7.2.0 ; python_full_version >= "3.8.1" and python_full_version < "4.0.0"
